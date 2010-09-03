@@ -1,15 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<groupId>com.cirnoworks.FiScE</groupId>
+<modelVersion>4.0.0</modelVersion>
+<groupId>com.cirnoworks.FiScE</groupId>
 	<artifactId>FiScENVTK</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.4.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>FiScE minimal toolkit</name>
-	<url>http://fisce.cirnoworks.com</url>
-
+	<url>http://fisce.googlecode.com</url>
+	<parent>
+      	        <groupId>com.cirnoworks.FiScE</groupId>
+   	        <artifactId>FiScEVMBuild</artifactId>
+     	        <version>0.4.0-SNAPSHOT</version>
+	</parent>
 	<build>
 		<plugins>
 			<plugin>
