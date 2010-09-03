@@ -14,16 +14,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13;
+package com.cirnoworks.fisce.vm;
 
 import java.util.BitSet;
 
 import org.dom4j.Element;
 
-import com.cirnoworks.fisce.jvm13.data.AbstractClass;
-import com.cirnoworks.fisce.jvm13.data.ClassArray;
-import com.cirnoworks.fisce.jvm13.data.ClassBase;
-import com.cirnoworks.fisce.jvm13.data.ClassField;
+import com.cirnoworks.fisce.vm.data.AbstractClass;
+import com.cirnoworks.fisce.vm.data.ClassArray;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+import com.cirnoworks.fisce.vm.data.ClassField;
 
 /**
  * 

@@ -14,13 +14,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13;
+package com.cirnoworks.fisce.vm;
 
 import java.util.List;
 import java.util.Set;
 
-import com.cirnoworks.fisce.jvm13.data.ClassMethod;
-import com.cirnoworks.fisce.jvm13.data.StackTraceElement;
+import com.cirnoworks.fisce.vm.data.ClassMethod;
+import com.cirnoworks.fisce.vm.data.StackTraceElement;
 
 /**
  * 

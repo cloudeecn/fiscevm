@@ -19,15 +19,15 @@ package com.cirnoworks.fisce.env.minimal;
 import java.util.HashMap;
 import java.util.List;
 
-import com.cirnoworks.fisce.jvm13.IThread;
-import com.cirnoworks.fisce.jvm13.IThrower;
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.VMCriticalException;
-import com.cirnoworks.fisce.jvm13.VMException;
-import com.cirnoworks.fisce.jvm13.data.ClassArray;
-import com.cirnoworks.fisce.jvm13.data.ClassBase;
-import com.cirnoworks.fisce.jvm13.data.ClassField;
-import com.cirnoworks.fisce.jvm13.data.StackTraceElement;
+import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.IThrower;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMCriticalException;
+import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.data.ClassArray;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+import com.cirnoworks.fisce.vm.data.ClassField;
+import com.cirnoworks.fisce.vm.data.StackTraceElement;
 
 public class BaseThrower implements IThrower {
 	private VMContext context;

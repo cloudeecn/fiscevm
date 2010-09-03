@@ -18,13 +18,13 @@ package com.cirnoworks.fisce.env.minimal.nh;
 
 import java.io.UnsupportedEncodingException;
 
-import com.cirnoworks.fisce.jvm13.IHeap;
-import com.cirnoworks.fisce.jvm13.INativeHandler;
-import com.cirnoworks.fisce.jvm13.IThread;
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.VMCriticalException;
-import com.cirnoworks.fisce.jvm13.VMException;
-import com.cirnoworks.fisce.jvm13.data.ClassArray;
+import com.cirnoworks.fisce.vm.IHeap;
+import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMCriticalException;
+import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.data.ClassArray;
 
 public class FiScEVMDecode implements INativeHandler {
 

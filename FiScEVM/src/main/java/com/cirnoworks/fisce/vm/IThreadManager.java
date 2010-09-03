@@ -15,14 +15,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cirnoworks.fisce.jvm13;
+package com.cirnoworks.fisce.vm;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.dom4j.Element;
 
-import com.cirnoworks.fisce.jvm13.data.ClassBase;
+import com.cirnoworks.fisce.vm.data.ClassBase;
 
 public interface IThreadManager {
 	static final int MAX_THREADS = 256;

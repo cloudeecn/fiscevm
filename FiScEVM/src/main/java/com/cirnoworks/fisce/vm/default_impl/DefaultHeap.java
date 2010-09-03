@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13.default_impl;
+package com.cirnoworks.fisce.vm.default_impl;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -29,16 +29,16 @@ import java.util.Map.Entry;
 
 import org.dom4j.Element;
 
-import com.cirnoworks.fisce.jvm13.Base64;
-import com.cirnoworks.fisce.jvm13.IHeap;
-import com.cirnoworks.fisce.jvm13.IThread;
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.VMCriticalException;
-import com.cirnoworks.fisce.jvm13.VMException;
-import com.cirnoworks.fisce.jvm13.data.AbstractClass;
-import com.cirnoworks.fisce.jvm13.data.ClassArray;
-import com.cirnoworks.fisce.jvm13.data.ClassBase;
-import com.cirnoworks.fisce.jvm13.data.ClassField;
+import com.cirnoworks.fisce.vm.Base64;
+import com.cirnoworks.fisce.vm.IHeap;
+import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMCriticalException;
+import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.data.AbstractClass;
+import com.cirnoworks.fisce.vm.data.ClassArray;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+import com.cirnoworks.fisce.vm.data.ClassField;
 
 public final class DefaultHeap implements IHeap {
 
@@ -84,7 +84,7 @@ public final class DefaultHeap implements IHeap {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.IHeap#setContext(com.cirnoworks.fisce.jvm13
+	 * com.cirnoworks.fisce.vm.IHeap#setContext(com.cirnoworks.fisce.vm
 	 * .VMContext)
 	 */
 	public void setContext(VMContext context) {
@@ -193,7 +193,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getInternString(java.lang.String)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getInternString(java.lang.String)
 	 */
 	public int getInternString(String content) throws VMException,
 			VMCriticalException {
@@ -203,7 +203,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getClass(int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getClass(int)
 	 */
 	public int getClass(int handle) throws VMException {
 		if (handle == 0) {
@@ -215,7 +215,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayLength(int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayLength(int)
 	 */
 	public int getArrayLength(int handle) throws VMException {
 		if (handle == 0) {
@@ -229,7 +229,7 @@ public final class DefaultHeap implements IHeap {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.IHeap#allocate(com.cirnoworks.fisce.jvm13.
+	 * com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
 	 * data.ClassBase)
 	 */
 	public int allocate(ClassBase clazz) throws VMException,
@@ -243,7 +243,7 @@ public final class DefaultHeap implements IHeap {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.IHeap#allocate(com.cirnoworks.fisce.jvm13.
+	 * com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
 	 * data.ClassArray, int)
 	 */
 	public int allocate(ClassArray clazz, int length) throws VMException,
@@ -258,7 +258,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#clone(int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#clone(int)
 	 */
 	public int clone(int handle) throws VMException, VMCriticalException {
 		if (handle == 0) {
@@ -276,8 +276,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldBoolean(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldBoolean(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public boolean getFieldBoolean(int handle, ClassField field)
 			throws VMException {
@@ -287,8 +287,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldByte(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldByte(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public byte getFieldByte(int handle, ClassField field) throws VMException {
 		return (byte) getObj(handle, field).getInt(field.getAbsPos() << 2);
@@ -297,8 +297,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldShort(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldShort(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public short getFieldShort(int handle, ClassField field) throws VMException {
 		return (short) getObj(handle, field).getInt(field.getAbsPos() << 2);
@@ -307,8 +307,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldChar(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldChar(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public char getFieldChar(int handle, ClassField field) throws VMException {
 		return (char) getObj(handle, field).getInt(field.getAbsPos() << 2);
@@ -317,8 +317,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldInt(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldInt(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public int getFieldInt(int handle, ClassField field) throws VMException {
 		return getObj(handle, field).getInt(field.getAbsPos() << 2);
@@ -327,8 +327,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldLong(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldLong(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public long getFieldLong(int handle, ClassField field) throws VMException {
 		return getObj(handle, field).getLong(field.getAbsPos() << 2);
@@ -337,8 +337,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldFloat(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldFloat(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public float getFieldFloat(int handle, ClassField field) throws VMException {
 		return getObj(handle, field).getFloat(field.getAbsPos() << 2);
@@ -347,8 +347,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldDouble(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldDouble(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public double getFieldDouble(int handle, ClassField field)
 			throws VMException {
@@ -358,8 +358,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getFieldHandle(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldHandle(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public int getFieldHandle(int handle, ClassField field) throws VMException {
 		return getObj(handle, field).getInt(field.getAbsPos() << 2);
@@ -368,8 +368,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldBoolean(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, boolean)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldBoolean(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, boolean)
 	 */
 	public void putFieldBoolean(int handle, ClassField field, boolean value)
 			throws VMException {
@@ -379,8 +379,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldByte(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, byte)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldByte(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, byte)
 	 */
 	public void putFieldByte(int handle, ClassField field, byte value)
 			throws VMException {
@@ -390,8 +390,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldShort(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, char)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldShort(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, char)
 	 */
 	public void putFieldShort(int handle, ClassField field, short value)
 			throws VMException {
@@ -401,8 +401,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldChar(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, char)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldChar(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, char)
 	 */
 	public void putFieldChar(int handle, ClassField field, char value)
 			throws VMException {
@@ -412,8 +412,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldInt(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldInt(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, int)
 	 */
 	public void putFieldInt(int handle, ClassField field, int value)
 			throws VMException {
@@ -425,8 +425,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldLong(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, long)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldLong(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, long)
 	 */
 	public void putFieldLong(int handle, ClassField field, long value)
 			throws VMException {
@@ -436,8 +436,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldFloat(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, float)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldFloat(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, float)
 	 */
 	public void putFieldFloat(int handle, ClassField field, float value)
 			throws VMException {
@@ -448,8 +448,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldDouble(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, double)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldDouble(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, double)
 	 */
 	public void putFieldDouble(int handle, ClassField field, double value)
 			throws VMException {
@@ -459,8 +459,8 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#setFieldHandle(int,
-	 * com.cirnoworks.fisce.jvm13.data.ClassField, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldHandle(int,
+	 * com.cirnoworks.fisce.vm.data.ClassField, int)
 	 */
 	public void putFieldHandle(int handle, ClassField field, int value)
 			throws VMException {
@@ -470,7 +470,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayBoolean(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayBoolean(int, int)
 	 */
 	public boolean getArrayBoolean(int handle, int index) throws VMException {
 		return getArrayObj(handle, index).get(index + 4) > 0;
@@ -479,7 +479,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayByte(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayByte(int, int)
 	 */
 	public byte getArrayByte(int handle, int index) throws VMException {
 		return (byte) getArrayObj(handle, index).get(index + 4);
@@ -488,7 +488,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayShort(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayShort(int, int)
 	 */
 	public short getArrayShort(int handle, int index) throws VMException {
 		return (short) getArrayObj(handle, index).getInt((index << 2) + 4);
@@ -497,7 +497,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayChar(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayChar(int, int)
 	 */
 	public char getArrayChar(int handle, int index) throws VMException {
 		return (char) getArrayObj(handle, index).getInt((index << 2) + 4);
@@ -506,7 +506,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayInt(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayInt(int, int)
 	 */
 	public int getArrayInt(int handle, int index) throws VMException {
 		return getArrayObj(handle, index).getInt((index << 2) + 4);
@@ -515,7 +515,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayLong(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayLong(int, int)
 	 */
 	public long getArrayLong(int handle, int index) throws VMException {
 		return getArrayObj(handle, index).getLong((index << 3) + 4);
@@ -524,7 +524,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayFloat(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayFloat(int, int)
 	 */
 	public float getArrayFloat(int handle, int index) throws VMException {
 		return getArrayObj(handle, index).getFloat((index << 2) + 4);
@@ -533,7 +533,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayDouble(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayDouble(int, int)
 	 */
 	public double getArrayDouble(int handle, int index) throws VMException {
 		return getArrayObj(handle, index).getDouble((index << 3) + 4);
@@ -542,7 +542,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#getArrayHandle(int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayHandle(int, int)
 	 */
 	public int getArrayHandle(int handle, int index) throws VMException {
 		return getArrayObj(handle, index).getInt((index << 2) + 4);
@@ -551,7 +551,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayBoolean(int, int, boolean)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayBoolean(int, int, boolean)
 	 */
 	public void putArrayBoolean(int handle, int index, boolean value)
 			throws VMException {
@@ -562,7 +562,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayByte(int, int, byte)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayByte(int, int, byte)
 	 */
 	public void putArrayByte(int handle, int index, byte value)
 			throws VMException {
@@ -572,7 +572,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayShort(int, int, char)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayShort(int, int, char)
 	 */
 	public void putArrayShort(int handle, int index, short value)
 			throws VMException {
@@ -582,7 +582,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayChar(int, int, char)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayChar(int, int, char)
 	 */
 	public void putArrayChar(int handle, int index, char value)
 			throws VMException {
@@ -592,7 +592,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayInt(int, int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayInt(int, int, int)
 	 */
 	public void putArrayInt(int handle, int index, int value)
 			throws VMException {
@@ -602,7 +602,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayLong(int, int, long)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayLong(int, int, long)
 	 */
 	public void putArrayLong(int handle, int index, long value)
 			throws VMException {
@@ -612,7 +612,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayFloat(int, int, float)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayFloat(int, int, float)
 	 */
 	public void putArrayFloat(int handle, int index, float value)
 			throws VMException {
@@ -622,7 +622,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayDouble(int, int, double)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayDouble(int, int, double)
 	 */
 	public void putArrayDouble(int handle, int index, double value)
 			throws VMException {
@@ -632,7 +632,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IHeap#putArrayHandle(int, int, int)
+	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayHandle(int, int, int)
 	 */
 	public void putArrayHandle(int handle, int index, int value)
 			throws VMException {

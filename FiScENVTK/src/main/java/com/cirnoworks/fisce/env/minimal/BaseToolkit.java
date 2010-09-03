@@ -73,9 +73,9 @@ import com.cirnoworks.fisce.env.minimal.nh.ThreadSleep;
 import com.cirnoworks.fisce.env.minimal.nh.ThreadStart0;
 import com.cirnoworks.fisce.env.minimal.nh.ThreadYield;
 import com.cirnoworks.fisce.env.minimal.nh.ThrowableFillInStackTrace0;
-import com.cirnoworks.fisce.jvm13.IToolkit;
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.VMCriticalException;
+import com.cirnoworks.fisce.vm.IToolkit;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMCriticalException;
 
 public class BaseToolkit implements IToolkit {
 

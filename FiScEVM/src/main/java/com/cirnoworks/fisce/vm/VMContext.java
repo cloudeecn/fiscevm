@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13;
+package com.cirnoworks.fisce.vm;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,10 +33,10 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
-import com.cirnoworks.fisce.jvm13.data.AbstractClass;
-import com.cirnoworks.fisce.jvm13.data.ClassBase;
-import com.cirnoworks.fisce.jvm13.data.ClassField;
-import com.cirnoworks.fisce.jvm13.data.ClassMethod;
+import com.cirnoworks.fisce.vm.data.AbstractClass;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+import com.cirnoworks.fisce.vm.data.ClassField;
+import com.cirnoworks.fisce.vm.data.ClassMethod;
 
 /**
  * 
@@ -54,7 +54,7 @@ public class VMContext implements FiScEVM {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.FiScEVM#bootFromData(java.io.InputStream)
+	 * @see com.cirnoworks.fisce.vm.FiScEVM#bootFromData(java.io.InputStream)
 	 */
 	public void bootFromData(InputStream is) throws VMCriticalException {
 		try {
@@ -145,7 +145,7 @@ public class VMContext implements FiScEVM {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.FiScEVM#saveData(java.io.InputStream)
+	 * @see com.cirnoworks.fisce.vm.FiScEVM#saveData(java.io.InputStream)
 	 */
 	public void saveData(OutputStream os) throws VMCriticalException,
 			IOException {
@@ -200,7 +200,7 @@ public class VMContext implements FiScEVM {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.FiScEVM#bootFromClass(java.lang.String)
+	 * @see com.cirnoworks.fisce.vm.FiScEVM#bootFromClass(java.lang.String)
 	 */
 	public void bootFromClass(String name) throws VMException,
 			VMCriticalException {
@@ -216,7 +216,7 @@ public class VMContext implements FiScEVM {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.FiScEVM#requestStop()
+	 * @see com.cirnoworks.fisce.vm.FiScEVM#requestStop()
 	 */
 	public void requestStop() {
 		threadManager.requestStop();
@@ -225,7 +225,7 @@ public class VMContext implements FiScEVM {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.FiScEVM#waitTillStopped(long)
+	 * @see com.cirnoworks.fisce.vm.FiScEVM#waitTillStopped(long)
 	 */
 	public int waitTillStopped(long waitTime) throws InterruptedException {
 		return threadManager.waitTillStopped(waitTime);
@@ -235,8 +235,8 @@ public class VMContext implements FiScEVM {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.FiScEVM#setClassLoader(com.cirnoworks.fisce
-	 * .jvm13.IClassLoader)
+	 * com.cirnoworks.fisce.vm.FiScEVM#setClassLoader(com.cirnoworks.fisce
+	 * .vm.IClassLoader)
 	 */
 	public synchronized void setClassLoader(IClassLoader classLoader) {
 		if (this.classLoader != null) {
@@ -249,8 +249,8 @@ public class VMContext implements FiScEVM {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.FiScEVM#registerNativeHandler(com.cirnoworks
-	 * .fisce.jvm13.INativeHandler)
+	 * com.cirnoworks.fisce.vm.FiScEVM#registerNativeHandler(com.cirnoworks
+	 * .fisce.vm.INativeHandler)
 	 */
 	public void registerNativeHandler(INativeHandler inh) {
 		nativeHandlers.put(inh.getUniqueName(), inh);
@@ -260,8 +260,8 @@ public class VMContext implements FiScEVM {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.FiScEVM#addStateListener(com.cirnoworks.fisce
-	 * .jvm13.IStateListener)
+	 * com.cirnoworks.fisce.vm.FiScEVM#addStateListener(com.cirnoworks.fisce
+	 * .vm.IStateListener)
 	 */
 	public void addStateListener(IStateListener isl) {
 		statusListeners.add(isl);
@@ -271,8 +271,8 @@ public class VMContext implements FiScEVM {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.FiScEVM#setThreadManager(com.cirnoworks.fisce
-	 * .jvm13.IThreadManager)
+	 * com.cirnoworks.fisce.vm.FiScEVM#setThreadManager(com.cirnoworks.fisce
+	 * .vm.IThreadManager)
 	 */
 	public void setThreadManager(IThreadManager threadManager) {
 		this.threadManager = threadManager;
@@ -282,7 +282,7 @@ public class VMContext implements FiScEVM {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.FiScEVM#setHeap(com.cirnoworks.fisce.jvm13
+	 * com.cirnoworks.fisce.vm.FiScEVM#setHeap(com.cirnoworks.fisce.vm
 	 * .IHeap)
 	 */
 	public void setHeap(IHeap heap) {
@@ -293,7 +293,7 @@ public class VMContext implements FiScEVM {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.FiScEVM#setConsole(com.cirnoworks.fisce.jvm13
+	 * com.cirnoworks.fisce.vm.FiScEVM#setConsole(com.cirnoworks.fisce.vm
 	 * .IDebugConsole)
 	 */
 	public void setConsole(IDebugConsole console) {
@@ -304,7 +304,7 @@ public class VMContext implements FiScEVM {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.FiScEVM#setThrower(com.cirnoworks.fisce.jvm13
+	 * com.cirnoworks.fisce.vm.FiScEVM#setThrower(com.cirnoworks.fisce.vm
 	 * .IThrower)
 	 */
 	public void setThrower(IThrower thrower) {
@@ -314,7 +314,7 @@ public class VMContext implements FiScEVM {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.FiScEVM#exit(int)
+	 * @see com.cirnoworks.fisce.vm.FiScEVM#exit(int)
 	 */
 	public void exit(int code) {
 		threadManager.exit(code);

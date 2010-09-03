@@ -14,10 +14,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13;
+package com.cirnoworks.fisce.vm;
 
 
-import com.cirnoworks.fisce.jvm13.data.AbstractClass;
+import com.cirnoworks.fisce.vm.data.AbstractClass;
 
 /**
  * 

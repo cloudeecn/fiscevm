@@ -14,12 +14,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13.data;
+package com.cirnoworks.fisce.vm.data;
 
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.VMException;
-import com.cirnoworks.fisce.jvm13.data.attributes.Attribute;
-import com.cirnoworks.fisce.jvm13.data.constants.Constant;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.data.attributes.Attribute;
+import com.cirnoworks.fisce.vm.data.constants.Constant;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 

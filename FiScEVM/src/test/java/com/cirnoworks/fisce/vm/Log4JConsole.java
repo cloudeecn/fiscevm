@@ -1,4 +1,4 @@
-package com.cirnoworks.fisce.jvm13;
+package com.cirnoworks.fisce.vm;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;

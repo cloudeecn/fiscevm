@@ -1,14 +1,17 @@
-package com.cirnoworks.fisce.jvm13.data;
+package com.cirnoworks.fisce.vm.data;
 
 import junit.framework.TestCase;
 
-import com.cirnoworks.fisce.jvm13.FiScEVM;
-import com.cirnoworks.fisce.jvm13.NullConsole;
-import com.cirnoworks.fisce.jvm13.TestStatics;
+import com.cirnoworks.fisce.vm.FiScEVM;
+import com.cirnoworks.fisce.vm.NullConsole;
+import com.cirnoworks.fisce.vm.TestStatics;
 
 public class BenchmarkTest extends TestCase {
 
 	public void testBenchmark() throws Exception {
+		if (true) {
+			return;
+		}
 		FiScEVM context = TestStatics.prepareContext(getClass().getName());
 		context.bootFromClass("ox/cirnoworks/test/Benchmark");
 		context.setConsole(new NullConsole());

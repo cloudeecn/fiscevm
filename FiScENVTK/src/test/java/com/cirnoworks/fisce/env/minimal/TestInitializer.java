@@ -17,10 +17,10 @@
 package com.cirnoworks.fisce.env.minimal;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.default_impl.DefaultClassLoader;
-import com.cirnoworks.fisce.jvm13.default_impl.DefaultHeap;
-import com.cirnoworks.fisce.jvm13.default_impl.DefaultThreadManager;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.default_impl.DefaultClassLoader;
+import com.cirnoworks.fisce.vm.default_impl.DefaultHeap;
+import com.cirnoworks.fisce.vm.default_impl.DefaultThreadManager;
 
 public class TestInitializer {
 

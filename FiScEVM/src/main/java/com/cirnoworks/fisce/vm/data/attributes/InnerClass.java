@@ -14,10 +14,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13.data.attributes;
+package com.cirnoworks.fisce.vm.data.attributes;
 
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantClass;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantUTF8;
+import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
+import com.cirnoworks.fisce.vm.data.constants.ConstantUTF8;
 
 public class InnerClass {
 

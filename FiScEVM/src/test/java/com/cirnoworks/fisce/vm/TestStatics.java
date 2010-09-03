@@ -1,8 +1,8 @@
-package com.cirnoworks.fisce.jvm13;
+package com.cirnoworks.fisce.vm;
 
-import com.cirnoworks.fisce.jvm13.default_impl.DefaultClassLoader;
-import com.cirnoworks.fisce.jvm13.default_impl.DefaultHeap;
-import com.cirnoworks.fisce.jvm13.default_impl.DefaultThreadManager;
+import com.cirnoworks.fisce.vm.default_impl.DefaultClassLoader;
+import com.cirnoworks.fisce.vm.default_impl.DefaultHeap;
+import com.cirnoworks.fisce.vm.default_impl.DefaultThreadManager;
 
 public final class TestStatics {
 	private TestStatics() {
@@ -13,7 +13,7 @@ public final class TestStatics {
 		
 		VMContext context = new VMContext();
 		//context.addToolkit(new Toolkit());
-		context.setConsole(com.cirnoworks.fisce.jvm13.Log4JConsole.getConsole());
+		context.setConsole(com.cirnoworks.fisce.vm.Log4JConsole.getConsole());
 		context.setHeap(new DefaultHeap());
 		context.setThreadManager(new DefaultThreadManager());
 		DefaultClassLoader loader = new DefaultClassLoader();

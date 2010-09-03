@@ -14,39 +14,39 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13.default_impl;
+package com.cirnoworks.fisce.vm.default_impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.cirnoworks.fisce.jvm13.IHeap;
-import com.cirnoworks.fisce.jvm13.INativeHandler;
-import com.cirnoworks.fisce.jvm13.IThread;
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.VMCriticalException;
-import com.cirnoworks.fisce.jvm13.VMException;
-import com.cirnoworks.fisce.jvm13.data.AbstractClass;
-import com.cirnoworks.fisce.jvm13.data.ClassArray;
-import com.cirnoworks.fisce.jvm13.data.ClassBase;
-import com.cirnoworks.fisce.jvm13.data.ClassField;
-import com.cirnoworks.fisce.jvm13.data.ClassMethod;
-import com.cirnoworks.fisce.jvm13.data.StackTraceElement;
-import com.cirnoworks.fisce.jvm13.data.attributes.Attribute;
-import com.cirnoworks.fisce.jvm13.data.attributes.AttributeSourceFile;
-import com.cirnoworks.fisce.jvm13.data.attributes.ExceptionHandler;
-import com.cirnoworks.fisce.jvm13.data.attributes.LineNumber;
-import com.cirnoworks.fisce.jvm13.data.constants.Constant;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantClass;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantDouble;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantFieldRef;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantFloat;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantInteger;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantInterfaceMethodRef;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantLong;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantMethodRef;
-import com.cirnoworks.fisce.jvm13.data.constants.ConstantString;
+import com.cirnoworks.fisce.vm.IHeap;
+import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMCriticalException;
+import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.data.AbstractClass;
+import com.cirnoworks.fisce.vm.data.ClassArray;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+import com.cirnoworks.fisce.vm.data.ClassField;
+import com.cirnoworks.fisce.vm.data.ClassMethod;
+import com.cirnoworks.fisce.vm.data.StackTraceElement;
+import com.cirnoworks.fisce.vm.data.attributes.Attribute;
+import com.cirnoworks.fisce.vm.data.attributes.AttributeSourceFile;
+import com.cirnoworks.fisce.vm.data.attributes.ExceptionHandler;
+import com.cirnoworks.fisce.vm.data.attributes.LineNumber;
+import com.cirnoworks.fisce.vm.data.constants.Constant;
+import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
+import com.cirnoworks.fisce.vm.data.constants.ConstantDouble;
+import com.cirnoworks.fisce.vm.data.constants.ConstantFieldRef;
+import com.cirnoworks.fisce.vm.data.constants.ConstantFloat;
+import com.cirnoworks.fisce.vm.data.constants.ConstantInteger;
+import com.cirnoworks.fisce.vm.data.constants.ConstantInterfaceMethodRef;
+import com.cirnoworks.fisce.vm.data.constants.ConstantLong;
+import com.cirnoworks.fisce.vm.data.constants.ConstantMethodRef;
+import com.cirnoworks.fisce.vm.data.constants.ConstantString;
 
 /**
  * 

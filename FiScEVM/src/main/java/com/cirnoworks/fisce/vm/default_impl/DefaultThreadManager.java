@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cirnoworks.fisce.jvm13.default_impl;
+package com.cirnoworks.fisce.vm.default_impl;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -23,17 +23,17 @@ import java.util.List;
 
 import org.dom4j.Element;
 
-import com.cirnoworks.fisce.jvm13.Base64;
-import com.cirnoworks.fisce.jvm13.IHeap;
-import com.cirnoworks.fisce.jvm13.IThread;
-import com.cirnoworks.fisce.jvm13.IThreadManager;
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.VMCriticalException;
-import com.cirnoworks.fisce.jvm13.VMException;
-import com.cirnoworks.fisce.jvm13.data.ClassArray;
-import com.cirnoworks.fisce.jvm13.data.ClassBase;
-import com.cirnoworks.fisce.jvm13.data.ClassField;
-import com.cirnoworks.fisce.jvm13.data.ClassMethod;
+import com.cirnoworks.fisce.vm.Base64;
+import com.cirnoworks.fisce.vm.IHeap;
+import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.IThreadManager;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMCriticalException;
+import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.data.ClassArray;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+import com.cirnoworks.fisce.vm.data.ClassField;
+import com.cirnoworks.fisce.vm.data.ClassMethod;
 
 public class DefaultThreadManager implements Runnable, IThreadManager {
 	// constant
@@ -307,8 +307,8 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.cirnoworks.fisce.jvm13.IThreadManager#bootFromMain(com.cirnoworks
-	 * .fisce.jvm13.data.ClassBase)
+	 * com.cirnoworks.fisce.vm.IThreadManager#bootFromMain(com.cirnoworks
+	 * .fisce.vm.data.ClassBase)
 	 */
 	public void bootFromMain(ClassBase clazz) throws VMException,
 			VMCriticalException {
@@ -361,7 +361,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IThreadManager#pushThread(int)
+	 * @see com.cirnoworks.fisce.vm.IThreadManager#pushThread(int)
 	 */
 	public void pushThread(int threadHandle) throws VMException,
 			VMCriticalException {
@@ -523,7 +523,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IThreadManager#start()
+	 * @see com.cirnoworks.fisce.vm.IThreadManager#start()
 	 */
 	public void start() throws VMException {
 		synchronized (stateLock) {
@@ -542,7 +542,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IThreadManager#requestStop()
+	 * @see com.cirnoworks.fisce.vm.IThreadManager#requestStop()
 	 */
 	public void requestStop() {
 		synchronized (stateLock) {
@@ -564,7 +564,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.cirnoworks.fisce.jvm13.IThreadManager#waitTillStopped(long)
+	 * @see com.cirnoworks.fisce.vm.IThreadManager#waitTillStopped(long)
 	 */
 	public int waitTillStopped(long waitTime) throws InterruptedException {
 		synchronized (stateLock) {

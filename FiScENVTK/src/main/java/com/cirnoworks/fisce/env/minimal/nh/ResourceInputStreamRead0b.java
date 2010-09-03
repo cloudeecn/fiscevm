@@ -20,12 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
-import com.cirnoworks.fisce.jvm13.IHeap;
-import com.cirnoworks.fisce.jvm13.INativeHandler;
-import com.cirnoworks.fisce.jvm13.IThread;
-import com.cirnoworks.fisce.jvm13.VMContext;
-import com.cirnoworks.fisce.jvm13.VMCriticalException;
-import com.cirnoworks.fisce.jvm13.VMException;
+import com.cirnoworks.fisce.vm.IHeap;
+import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMCriticalException;
+import com.cirnoworks.fisce.vm.VMException;
 
 public class ResourceInputStreamRead0b implements INativeHandler {
 	private static final int POS_BUF_SIZE = 4096;
