@@ -31,9 +31,6 @@ import com.cirnoworks.fisce.vm.default_impl.DefaultThreadManager;
 
 public class BaseToolkitTest extends TestCase {
 	public void testHelloWorld() throws Exception {
-		if (true) {
-			return;
-		}
 		FiScEVM vm = TestInitializer.getContext();
 
 		vm.bootFromClass("com/cirnoworks/fisce/test/MinimalTest");
@@ -42,9 +39,6 @@ public class BaseToolkitTest extends TestCase {
 	}
 
 	public void testNative() throws Exception {
-		if (true) {
-			return;
-		}
 		VMContext context = TestInitializer.getContext();
 		context.bootFromClass("com/cirnoworks/fisce/test/MinimalTest");
 		String[] classes = { "com/cirnoworks/fisce/privat/FiScEVM",

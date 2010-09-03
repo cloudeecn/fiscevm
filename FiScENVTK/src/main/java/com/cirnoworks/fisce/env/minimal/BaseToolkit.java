@@ -89,7 +89,7 @@ public class BaseToolkit implements IToolkit {
 	private HashMap<String, InputStream> resources = new HashMap<String, InputStream>();
 
 	public InputStream getResourceByClassName(String arg0) {
-		String path = "/classes_minimal/" + arg0 + ".class";
+		String path = "/fisce_scripts/" + arg0 + ".class";
 		return getClass().getResourceAsStream(path);
 	}
 
