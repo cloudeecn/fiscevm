@@ -83,8 +83,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.IHeap#setContext(com.cirnoworks.fisce.vm
+	 * @see com.cirnoworks.fisce.vm.IHeap#setContext(com.cirnoworks.fisce.vm
 	 * .VMContext)
 	 */
 	public void setContext(VMContext context) {
@@ -228,8 +227,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
+	 * @see com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
 	 * data.ClassBase)
 	 */
 	public int allocate(ClassBase clazz) throws VMException,
@@ -242,8 +240,7 @@ public final class DefaultHeap implements IHeap {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
+	 * @see com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
 	 * data.ClassArray, int)
 	 */
 	public int allocate(ClassArray clazz, int length) throws VMException,
@@ -473,6 +470,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayBoolean(int, int)
 	 */
 	public boolean getArrayBoolean(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return getArrayObj(handle, index).get(index + 4) > 0;
 	}
 
@@ -482,6 +483,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayByte(int, int)
 	 */
 	public byte getArrayByte(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return (byte) getArrayObj(handle, index).get(index + 4);
 	}
 
@@ -491,6 +496,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayShort(int, int)
 	 */
 	public short getArrayShort(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return (short) getArrayObj(handle, index).getInt((index << 2) + 4);
 	}
 
@@ -500,6 +509,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayChar(int, int)
 	 */
 	public char getArrayChar(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return (char) getArrayObj(handle, index).getInt((index << 2) + 4);
 	}
 
@@ -509,6 +522,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayInt(int, int)
 	 */
 	public int getArrayInt(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return getArrayObj(handle, index).getInt((index << 2) + 4);
 	}
 
@@ -518,6 +535,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayLong(int, int)
 	 */
 	public long getArrayLong(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return getArrayObj(handle, index).getLong((index << 3) + 4);
 	}
 
@@ -527,6 +548,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayFloat(int, int)
 	 */
 	public float getArrayFloat(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return getArrayObj(handle, index).getFloat((index << 2) + 4);
 	}
 
@@ -536,6 +561,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayDouble(int, int)
 	 */
 	public double getArrayDouble(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return getArrayObj(handle, index).getDouble((index << 3) + 4);
 	}
 
@@ -545,6 +574,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayHandle(int, int)
 	 */
 	public int getArrayHandle(int handle, int index) throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		return getArrayObj(handle, index).getInt((index << 2) + 4);
 	}
 
@@ -555,6 +588,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayBoolean(int handle, int index, boolean value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).put(index + 4, (byte) (value ? 1 : 0));
 
 	}
@@ -566,6 +603,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayByte(int handle, int index, byte value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).put(index + 4, value);
 	}
 
@@ -576,6 +617,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayShort(int handle, int index, short value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).putInt((index << 2) + 4, value);
 	}
 
@@ -586,6 +631,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayChar(int handle, int index, char value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).putInt((index << 2) + 4, value);
 	}
 
@@ -596,6 +645,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayInt(int handle, int index, int value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).putInt((index << 2) + 4, value);
 	}
 
@@ -606,6 +659,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayLong(int handle, int index, long value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).putLong((index << 3) + 8, value);
 	}
 
@@ -616,6 +673,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayFloat(int handle, int index, float value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).putFloat((index << 2) + 4, value);
 	}
 
@@ -626,6 +687,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayDouble(int handle, int index, double value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).putDouble((index << 3) + 8, value);
 	}
 
@@ -636,6 +701,10 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putArrayHandle(int handle, int index, int value)
 			throws VMException {
+		if (index < 0 || index > getArrayLength(handle)) {
+			throw new VMException("java/lang/IndexOutOfBoundsException", index
+					+ ":" + getArrayLength(handle));
+		}
 		getArrayObj(handle, index).putInt((index << 2) + 4, value);
 	}
 

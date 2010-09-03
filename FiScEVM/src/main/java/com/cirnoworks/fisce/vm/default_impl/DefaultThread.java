@@ -2025,14 +2025,14 @@ public final class DefaultThread implements IThread {
 				break;
 			}
 			case LSHL: {
-				long value2 = popLong();
-				long value1 = popLong() & 0x3f;
+				long value2 = popInt() & 0x3f;
+				long value1 = popLong();
 				pushLong(value1 << value2);
 				break;
 			}
 			case LSHR: {
-				long value2 = popLong();
-				long value1 = popLong() & 0x3f;
+				long value2 = popInt() & 0x3f;
+				long value1 = popLong();
 				pushLong(value1 >> value2);
 				break;
 			}
@@ -2064,8 +2064,8 @@ public final class DefaultThread implements IThread {
 				break;
 			}
 			case LUSHR: {
-				long value2 = popLong();
-				long value1 = popLong() & 0x3f;
+				long value2 = popInt() & 0x3f;
+				long value1 = popLong();
 				pushLong(value1 >>> value2);
 				break;
 			}
