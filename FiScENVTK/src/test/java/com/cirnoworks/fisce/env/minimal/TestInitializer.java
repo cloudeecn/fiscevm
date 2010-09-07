@@ -17,6 +17,7 @@
 package com.cirnoworks.fisce.env.minimal;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
+import com.cirnoworks.fisce.vm.NullConsole;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.default_impl.DefaultClassLoader;
 import com.cirnoworks.fisce.vm.default_impl.DefaultHeap;
@@ -29,7 +30,8 @@ public class TestInitializer {
 		vm.setClassLoader(new DefaultClassLoader());
 		vm.setHeap(new DefaultHeap());
 		vm.setThreadManager(new DefaultThreadManager());
-		vm.setConsole(Log4JConsole.getConsole());
+		// vm.setConsole(Log4JConsole.getConsole());
+		vm.setConsole(new NullConsole());
 		vm.addToolkit(new BaseToolkit());
 		return vm;
 	}

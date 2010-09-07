@@ -24,7 +24,7 @@ import com.cirnoworks.fisce.vm.FiScEVM;
  * 
  */
 public class ArrayTest {
-	public void testGC() throws Exception {
+	public void testArray() throws Exception {
 		FiScEVM context = TestInitializer.getContext();
 		context.bootFromClass("com/cirnoworks/fisce/test/ArrayTest");
 		// context.requestStop();
