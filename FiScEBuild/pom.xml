@@ -4,7 +4,7 @@
 	<groupId>com.cirnoworks.FiScE</groupId>
 	<artifactId>FiScEVMBuild</artifactId>
 	<packaging>pom</packaging>
-	<version>0.5.5820-SNAPSHOT</version>
+	<version>0.6.0-SNAPSHOT</version>
 	<name>FiScE VM Build</name>
 	<url>http://fiscevm.googlecode.com</url>
 	<modules>
@@ -15,7 +15,7 @@
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<fiscevm.version>0.5.5820-SNAPSHOT</fiscevm.version>
+		<fiscevm.version>0.6.0-SNAPSHOT</fiscevm.version>
 	</properties>
 
 	<build>

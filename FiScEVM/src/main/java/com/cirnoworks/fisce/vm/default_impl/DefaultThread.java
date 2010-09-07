@@ -333,9 +333,10 @@ public final class DefaultThread implements IThread {
 
 	public void create(int handle) throws VMException, VMCriticalException {
 		AbstractClass clazz = context.getClass(handle);
-		if (!context.getClass("java/lang/Thread").isSuperClassOf(clazz)) {
-			throw new VMException("java/lang/IllegalArgumentException",
-					"The create(int) is used to start a java/lang/Thread!");
+		if (!clazz.canCastTo(context.getClass("java/lang/Thread"))) {
+			throw new VMCriticalException(
+					"The create(int) is used to start a java/lang/Thread!\n"
+							+ clazz);
 		}
 		ClassBase runnerClass = (ClassBase) clazz;
 		ClassMethod runner = context
