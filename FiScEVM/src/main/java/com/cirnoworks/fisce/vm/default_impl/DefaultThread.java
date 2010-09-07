@@ -420,6 +420,10 @@ public final class DefaultThread implements IThread {
 		setSTB(getLTB() - stsize);
 		setSR(0);
 		setPC(0);
+		int ltb = getLTB();
+		for (int i = 0, max = getLC(); i < max; i++) {
+			frames.put(ltb + i, (byte) 0);
+		}
 		updateLocalBuf();
 		assert context.getConsole().debug(">>>Push frame to " + getFrameInfo());
 
@@ -600,9 +604,12 @@ public final class DefaultThread implements IThread {
 				int index = popInt();
 				int aref = popHandle();
 
+				assert context.getConsole().debug(
+						"AASTORE " + aref + "[" + index + "]=" + value);
+
 				ClassArray ca = (ClassArray) context.getClass(aref);
 				AbstractClass content = ca.getContentClass();
-				if (!context.getClass(value).canCastTo(content)) {
+				if (value != 0 && !context.getClass(value).canCastTo(content)) {
 					throw new VMException("java/lang/ArrayStoreException",
 							"Data type not compatable!");
 				}
@@ -742,7 +749,7 @@ public final class DefaultThread implements IThread {
 					break;
 				default:
 					throw new VMException("java/lang/VirtualMachineError",
-							"type check error!");
+							"type check error!" + (char)tc.type);
 				}
 				break;
 			}
@@ -879,7 +886,7 @@ public final class DefaultThread implements IThread {
 				int m = merge(ib1, ib2);
 				int handle = popHandle();
 				if (handle == 0) {
-					pushInt(handle);
+					pushHandle(handle);
 					break;
 				}
 				AbstractClass clazzS = context.getClass(handle);
@@ -2580,8 +2587,8 @@ public final class DefaultThread implements IThread {
 
 	public void pushType(int value, byte type) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		assert type == TYPE_HANDLE
-				&& (value < 0 || value > context.getHeap().MAX_OBJECTS) : "Put a invalid handle!"
+		assert type != TYPE_HANDLE
+				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		frames.put(getSTB() + getSR(), type);
 		frames.putInt(getSB() + (getSR() << 2), value);
@@ -2598,7 +2605,7 @@ public final class DefaultThread implements IThread {
 
 	public void pushHandle(int handle) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		assert handle < 0 || handle > context.getHeap().MAX_OBJECTS : "Put a invalid handle!"
+		assert !(handle < 0 || handle > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ handle;
 		frames.put(getSTB() + getSR(), TYPE_HANDLE);
 		frames.putInt(getSB() + (getSR() << 2), handle);
@@ -2705,8 +2712,8 @@ public final class DefaultThread implements IThread {
 
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert value < 0 || value > context.getHeap().MAX_OBJECTS : "Put a invalid handle!"
-				+ value;
+		assert !(value < 0 || value > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
+				+ value + " " + IHeap.MAX_OBJECTS;
 		frames.put(getLTB() + index, TYPE_HANDLE);
 		frames.putInt(pos, value);
 	}
@@ -2723,8 +2730,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert type == TYPE_HANDLE
-				&& (value < 0 || value > context.getHeap().MAX_OBJECTS) : "Put a invalid handle!"
+		assert type != TYPE_HANDLE
+				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		frames.put(getLTB() + index, type);
 		frames.putInt(pos, value);
@@ -2883,11 +2890,11 @@ public final class DefaultThread implements IThread {
 				out.append(method.getUniqueName());
 				out.append(" ");
 				for (int i = 0, max = getLC(); i < max; i++) {
-					out.append(frames.get(ltb + i));
+					out.append((char) frames.get(ltb + i));
 				}
 				out.append(" ");
-				for (int i = 0, max = getSC(); i < max; i++) {
-					out.append(frames.get(stb + i));
+				for (int i = 0, max = getSR(); i < max; i++) {
+					out.append((char) frames.get(stb + i));
 				}
 				context.getConsole().debug(out.toString());
 				out.setLength(0);
@@ -2903,7 +2910,7 @@ public final class DefaultThread implements IThread {
 				}
 			}
 
-			for (int i = 0, max = getSC(); i < max; i++) {
+			for (int i = 0, max = getSR(); i < max; i++) {
 				if (frames.get(stb + i) == TYPE_HANDLE) {
 					int handle = frames.getInt(sb + (i << 2));
 					if (handle > 0) {
