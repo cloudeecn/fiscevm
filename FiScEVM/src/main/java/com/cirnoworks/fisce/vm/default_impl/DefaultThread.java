@@ -2093,7 +2093,7 @@ public final class DefaultThread implements IThread {
 				int m = merge(ib1, ib2);
 				ClassArray clazz = (ClassArray) getClassFromConstant(m);
 				int[] count = new int[dims];
-				for (int i = dims; i > 0; i--) {
+				for (int i = dims - 1; i >= 0; i--) {
 					count[i] = popInt();
 				}
 				pushHandle(mulitANewArray(clazz.getName(), dims, count));
@@ -2580,6 +2580,9 @@ public final class DefaultThread implements IThread {
 
 	public void pushType(int value, byte type) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
+		assert type == TYPE_HANDLE
+				&& (value < 0 || value > context.getHeap().MAX_OBJECTS) : "Put a invalid handle!"
+				+ value;
 		frames.put(getSTB() + getSR(), type);
 		frames.putInt(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 1);
@@ -2595,6 +2598,8 @@ public final class DefaultThread implements IThread {
 
 	public void pushHandle(int handle) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
+		assert handle < 0 || handle > context.getHeap().MAX_OBJECTS : "Put a invalid handle!"
+				+ handle;
 		frames.put(getSTB() + getSR(), TYPE_HANDLE);
 		frames.putInt(getSB() + (getSR() << 2), handle);
 		setSR(getSR() + 1);
@@ -2700,6 +2705,8 @@ public final class DefaultThread implements IThread {
 
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
+		assert value < 0 || value > context.getHeap().MAX_OBJECTS : "Put a invalid handle!"
+				+ value;
 		frames.put(getLTB() + index, TYPE_HANDLE);
 		frames.putInt(pos, value);
 	}
@@ -2716,6 +2723,9 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
+		assert type == TYPE_HANDLE
+				&& (value < 0 || value > context.getHeap().MAX_OBJECTS) : "Put a invalid handle!"
+				+ value;
 		frames.put(getLTB() + index, type);
 		frames.putInt(pos, value);
 	}
@@ -2828,6 +2838,8 @@ public final class DefaultThread implements IThread {
 						LineNumber ln = lnt[i];
 						if (lpc >= ln.startPc) {
 							lineNumber = ln.lineNumber;
+							// break;
+						} else {
 							break;
 						}
 					}
@@ -2856,11 +2868,30 @@ public final class DefaultThread implements IThread {
 			// getCurrentThrowable());
 			tofill.add(getCurrentThrowable());
 		}
+		StringBuilder out = new StringBuilder(64);
 		while (getFP() > pFP) {
 			int lb = getLB();
 			int sb = getSB();
 			int ltb = getLTB();
 			int stb = getSTB();
+			boolean assertion = false;
+			assert assertion = true;
+			if (assertion) {
+				ClassMethod method = context.getMethodById(getMID());
+
+				out.append("GC Method=");
+				out.append(method.getUniqueName());
+				out.append(" ");
+				for (int i = 0, max = getLC(); i < max; i++) {
+					out.append(frames.get(ltb + i));
+				}
+				out.append(" ");
+				for (int i = 0, max = getSC(); i < max; i++) {
+					out.append(frames.get(stb + i));
+				}
+				context.getConsole().debug(out.toString());
+				out.setLength(0);
+			}
 			for (int i = 0, max = getLC(); i < max; i++) {
 				if (frames.get(ltb + i) == TYPE_HANDLE) {
 					int handle = frames.getInt(lb + (i << 2));

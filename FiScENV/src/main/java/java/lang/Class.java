@@ -47,8 +47,16 @@ public final class Class {
 		return newInstance0();
 	}
 
+	public Object[] newArray(int size) throws InstantiationException,
+			IllegalAccessException {
+		return newInstance0(size);
+	}
+
 	private native Object newInstance0() throws InstantiationException,
 			IllegalAccessException;
+
+	private native Object[] newInstance0(int size)
+			throws InstantiationException, IllegalAccessException;
 
 	public native boolean isInstance(Object obj);
 

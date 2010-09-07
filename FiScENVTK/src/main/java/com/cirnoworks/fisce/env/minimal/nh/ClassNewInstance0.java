@@ -24,7 +24,7 @@ import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 
-public class ClassNewInstance implements INativeHandler {
+public class ClassNewInstance0 implements INativeHandler {
 
 	public void dealNative(int[] args, VMContext context, IThread thread)
 			throws VMException, VMCriticalException {
