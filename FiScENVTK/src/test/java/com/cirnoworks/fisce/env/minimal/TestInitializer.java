@@ -30,8 +30,8 @@ public class TestInitializer {
 		vm.setClassLoader(new DefaultClassLoader());
 		vm.setHeap(new DefaultHeap());
 		vm.setThreadManager(new DefaultThreadManager());
-		// vm.setConsole(Log4JConsole.getConsole());
 		vm.setConsole(new NullConsole());
+		//vm.setConsole(Log4JConsole.getConsole());
 		vm.addToolkit(new BaseToolkit());
 		return vm;
 	}
