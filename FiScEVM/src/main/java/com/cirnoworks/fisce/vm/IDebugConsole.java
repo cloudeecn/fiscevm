@@ -18,20 +18,84 @@ package com.cirnoworks.fisce.vm;
 
 public interface IDebugConsole {
 
+	/**
+	 * 输出debug级别的信息，永远返回true
+	 * 
+	 * @param msg
+	 *            要输出的信息
+	 * @return true
+	 */
 	boolean debug(String msg);
 
+	/**
+	 * 输出debug级别的信息，永远返回true
+	 * 
+	 * @param msg
+	 *            要输出的信息
+	 * @param t
+	 *            和信息一起输出的异常
+	 * @return true
+	 */
 	boolean debug(String msg, Throwable t);
 
+	/**
+	 * 输出info级别的信息，永远返回true
+	 * 
+	 * @param msg
+	 *            要输出的信息
+	 * @return true
+	 */
 	boolean info(String msg);
 
+	/**
+	 * 输出info级别的信息，永远返回true
+	 * 
+	 * @param msg
+	 *            要输出的信息
+	 * @param t
+	 *            和信息一起输出的异常
+	 * @return true
+	 */
 	boolean info(String msg, Throwable t);
 
+	/**
+	 * 输出warn级别的信息，永远返回true
+	 * 
+	 * @param msg
+	 *            要输出的信息
+	 * @return true
+	 */
 	boolean warn(String msg);
 
+	/**
+	 * 输出warn级别的信息，永远返回true
+	 * 
+	 * @param msg
+	 *            要输出的信息
+	 * @param t
+	 *            和信息一起输出的异常
+	 * @return true
+	 */
 	boolean warn(String msg, Throwable t);
 
+	/**
+	 * 输出error级别的信息，永远返回true
+	 * 
+	 * @param msg
+	 *            要输出的信息
+	 * @return true
+	 */
 	boolean error(String msg);
 
+	/**
+	 * 输出error级别的信息，永远返回true
+	 * 
+	 * @param msg
+	 *            要输出的信息
+	 * @param t
+	 *            和信息一起输出的异常
+	 * @return true
+	 */
 	boolean error(String msg, Throwable t);
 
 }

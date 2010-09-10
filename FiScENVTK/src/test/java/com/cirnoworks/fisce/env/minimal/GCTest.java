@@ -10,9 +10,7 @@ import com.cirnoworks.fisce.vm.VMContext;
 
 public class GCTest extends TestCase {
 	public void testGC() throws Exception {
-		if (true) {
-			return;
-		}
+		
 		FiScEVM context = TestInitializer.getContext();
 		context.bootFromClass("com/cirnoworks/fisce/test/TestGC");
 		// context.requestStop();

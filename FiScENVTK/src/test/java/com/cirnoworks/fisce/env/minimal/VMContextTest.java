@@ -8,15 +8,13 @@ import com.cirnoworks.fisce.vm.data.ClassMethod;
 
 public class VMContextTest extends TestCase {
 	public void testLookupMethodInterface() throws Exception {
-		if (true) {
-			return;
-		}
 		VMContext context = TestInitializer.getContext();
-		context.initialize();
+		context.bootFromClass("com/cirnoworks/fisce/test/Dummy");
 
 		ClassBase it = (ClassBase) context
 				.getClass("com/cirnoworks/fisce/test/ITester");
-		ClassBase t = (ClassBase) context.getClass("com/cirnoworks/fisce/test/Tester");
+		ClassBase t = (ClassBase) context
+				.getClass("com/cirnoworks/fisce/test/Tester");
 		ClassBase tc = (ClassBase) context
 				.getClass("com/cirnoworks/fisce/test/TesterChild");
 		ClassMethod[] methods = it.getMethods();
@@ -29,11 +27,11 @@ public class VMContextTest extends TestCase {
 			}
 		}
 		assert target != null;
-		ClassMethod lookup = context.lookupMethodVirtual(t, target
-				.getMethodName());
+		ClassMethod lookup = context.lookupMethodVirtual(t,
+				target.getMethodName());
 		assert lookup.getOwner() == t;
-		ClassMethod lookup1 = context.lookupMethodVirtual(tc, target
-				.getMethodName());
+		ClassMethod lookup1 = context.lookupMethodVirtual(tc,
+				target.getMethodName());
 		assert lookup1.getOwner() == t;
 	}
 }

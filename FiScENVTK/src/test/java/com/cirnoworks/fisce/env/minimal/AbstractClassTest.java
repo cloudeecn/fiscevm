@@ -8,12 +8,9 @@ import com.cirnoworks.fisce.vm.data.AbstractClass;
 public class AbstractClassTest extends TestCase {
 	public void testCanCastTo() throws Exception {
 
-		if (true) {
-			return;
-		}
 
 		VMContext context = TestInitializer.getContext();
-		context.initialize();
+		context.bootFromClass("com/cirnoworks/fisce/test/Dummy");
 
 		AbstractClass class0 = context.getClass("java/lang/Object");
 		AbstractClass class1 = context.getClass("[[B");

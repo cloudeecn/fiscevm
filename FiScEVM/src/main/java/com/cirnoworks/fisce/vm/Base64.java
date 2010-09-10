@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * Base64编码的实现类。原作者是leizhimin。
  * 
  * @author leizhimin 2010-6-3 14:10:11
  */

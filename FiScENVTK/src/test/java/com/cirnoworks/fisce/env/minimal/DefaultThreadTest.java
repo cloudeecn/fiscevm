@@ -14,9 +14,6 @@ public class DefaultThreadTest extends TestCase {
 	}
 
 	public void testStop() throws Exception {
-		if (true) {
-			return;
-		}
 		FiScEVM context = TestInitializer.getContext();
 		// context.setConsole(new NullConsole());
 		context.bootFromClass("com/cirnoworks/fisce/test/RunnerTester");

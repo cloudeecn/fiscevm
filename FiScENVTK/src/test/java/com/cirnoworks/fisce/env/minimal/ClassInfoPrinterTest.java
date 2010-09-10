@@ -7,11 +7,8 @@ import com.cirnoworks.fisce.vm.VMContext;
 public class ClassInfoPrinterTest extends TestCase {
 
 	public void testClassInfo() throws Exception {
-		if (true) {
-			return;
-		}
 		VMContext context = TestInitializer.getContext();
-		context.initialize();
+		context.bootFromClass("com/cirnoworks/fisce/test/Dummy");
 		// AbstractClass clazz = context.getClass("java/io/OutputStreamWriter");
 		// context.println(clazz.toString());
 	}

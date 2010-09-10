@@ -17,8 +17,7 @@
 package com.cirnoworks.fisce.vm;
 
 /**
- * 
- * @author cloudee
+ * 发生了可以抛给虚拟机内部处理的异常
  */
 public class VMException extends Exception {
 
@@ -29,6 +28,14 @@ public class VMException extends Exception {
 	private String innerThrowableName;
 	private String innerMessage;
 
+	/**
+	 * 构筑这个异常
+	 * 
+	 * @param innerThrowableName
+	 *            虚拟机内部的异常类的名字，分隔符是"/"，比如“java/lang/Exception”
+	 * @param message
+	 *            传给虚拟机内部的异常的message
+	 */
 	public VMException(String innerThrowableName, String message) {
 		super(innerThrowableName + ":" + message);
 		this.innerThrowableName = innerThrowableName;

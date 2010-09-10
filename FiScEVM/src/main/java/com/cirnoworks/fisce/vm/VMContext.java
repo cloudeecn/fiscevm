@@ -51,11 +51,6 @@ public class VMContext implements FiScEVM {
 	public static final int CLINIT_NONE = -1;
 	public static final int CLINIT_FINISHED = -2;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.cirnoworks.fisce.vm.FiScEVM#bootFromData(java.io.InputStream)
-	 */
 	public void bootFromData(InputStream is) throws VMCriticalException {
 		try {
 			SAXReader reader = new SAXReader();
@@ -142,11 +137,6 @@ public class VMContext implements FiScEVM {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.cirnoworks.fisce.vm.FiScEVM#saveData(java.io.InputStream)
-	 */
 	public void saveData(OutputStream os) throws VMCriticalException,
 			IOException {
 		Document document = DocumentHelper.createDocument();
@@ -197,11 +187,6 @@ public class VMContext implements FiScEVM {
 		writer.write(document);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.cirnoworks.fisce.vm.FiScEVM#bootFromClass(java.lang.String)
-	 */
 	public void bootFromClass(String name) throws VMException,
 			VMCriticalException {
 		initialize();
@@ -213,31 +198,14 @@ public class VMContext implements FiScEVM {
 		threadManager.start();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.cirnoworks.fisce.vm.FiScEVM#requestStop()
-	 */
 	public void requestStop() {
 		threadManager.requestStop();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.cirnoworks.fisce.vm.FiScEVM#waitTillStopped(long)
-	 */
 	public int waitTillStopped(long waitTime) throws InterruptedException {
 		return threadManager.waitTillStopped(waitTime);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.FiScEVM#setClassLoader(com.cirnoworks.fisce
-	 * .vm.IClassLoader)
-	 */
 	public synchronized void setClassLoader(IClassLoader classLoader) {
 		if (this.classLoader != null) {
 			throw new IllegalStateException("class loader already set!");
@@ -245,77 +213,30 @@ public class VMContext implements FiScEVM {
 		this.classLoader = classLoader;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.FiScEVM#registerNativeHandler(com.cirnoworks
-	 * .fisce.vm.INativeHandler)
-	 */
 	public void registerNativeHandler(INativeHandler inh) {
 		nativeHandlers.put(inh.getUniqueName(), inh);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.FiScEVM#addStateListener(com.cirnoworks.fisce
-	 * .vm.IStateListener)
-	 */
 	public void addStateListener(IStateListener isl) {
 		statusListeners.add(isl);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.FiScEVM#setThreadManager(com.cirnoworks.fisce
-	 * .vm.IThreadManager)
-	 */
 	public void setThreadManager(IThreadManager threadManager) {
 		this.threadManager = threadManager;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.FiScEVM#setHeap(com.cirnoworks.fisce.vm
-	 * .IHeap)
-	 */
 	public void setHeap(IHeap heap) {
 		this.heap = heap;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.FiScEVM#setConsole(com.cirnoworks.fisce.vm
-	 * .IDebugConsole)
-	 */
 	public void setConsole(IDebugConsole console) {
 		this.console = console;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.FiScEVM#setThrower(com.cirnoworks.fisce.vm
-	 * .IThrower)
-	 */
 	public void setThrower(IThrower thrower) {
 		this.thrower = thrower;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.cirnoworks.fisce.vm.FiScEVM#exit(int)
-	 */
 	public void exit(int code) {
 		threadManager.exit(code);
 	}
@@ -380,7 +301,7 @@ public class VMContext implements FiScEVM {
 	}
 
 	//
-	public void initialize() {
+	private void initialize() {
 
 		for (IToolkit toolkit : toolkits) {
 			toolkit.setContext(this);

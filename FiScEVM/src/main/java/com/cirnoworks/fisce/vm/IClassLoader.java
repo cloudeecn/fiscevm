@@ -30,6 +30,8 @@ public interface IClassLoader {
 	 * 
 	 * 2. Do the verify(4.9.1) pass 1.
 	 * 
+	 * After this pass all the info not related to Heap memory is ready.
+	 * 
 	 * @param name
 	 *            the name of the class eg. java/lang/String
 	 *            com/cirnoworks/Example$Inner
@@ -48,6 +50,10 @@ public interface IClassLoader {
 	 * 2. Fill in string fields is each attribute and constants.
 	 * 
 	 * 3. move the attributes to the proper fields in the class/method/field
+	 * 
+	 * 4. Allocate static areas for this class
+	 * 
+	 * After this pass, the info related to Heap memory is ready too.
 	 * 
 	 * @param base
 	 * @throws VMCriticalException

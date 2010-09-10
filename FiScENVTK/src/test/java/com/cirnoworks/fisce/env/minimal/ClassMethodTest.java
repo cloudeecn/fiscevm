@@ -9,7 +9,7 @@ import com.cirnoworks.fisce.vm.data.ClassMethod;
 public class ClassMethodTest extends TestCase {
 	public void testGetParamCount() throws Exception {
 		VMContext context = TestInitializer.getContext();
-		context.initialize();
+		context.bootFromClass("com/cirnoworks/fisce/test/Dummy");
 		
 		ClassBase it = (ClassBase) context
 				.getClass("com/cirnoworks/fisce/test/ITester");

@@ -23,13 +23,35 @@ import org.dom4j.Element;
 
 public interface IToolkit {
 
+	/**
+	 * 将这个工具包和虚拟机绑定
+	 * @param context 要绑定的虚拟机
+	 */
 	void setContext(VMContext context);
 
+	/**
+	 * 工具包对虚拟机进行配置的自定义代码
+	 */
 	void setupContext();
 
+	/**
+	 * 根据类名获得该类的class文件的输入流
+	 * @param className 类名，包名用/隔开（比如java/lang/String）
+	 * @return 该类的class文件的输入流
+	 */
 	InputStream getResourceByClassName(String className);
 
+	/**
+	 * 保存当前状态
+	 * @param data 用于保存的xml节点
+	 * @throws VMCriticalException 保存出错了
+	 */
 	void saveData(Element data) throws VMCriticalException;
 
+	/**
+	 * 载入状态
+	 * @param data 保存了状态的xml节点
+	 * @throws VMCriticalException 载入出错
+	 */
 	void loadData(Element data) throws VMCriticalException;
 }

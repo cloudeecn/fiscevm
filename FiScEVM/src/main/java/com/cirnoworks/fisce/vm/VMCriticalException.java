@@ -16,6 +16,9 @@
  */
 package com.cirnoworks.fisce.vm;
 
+/**
+ * 发生了会导致虚拟机坏掉的异常
+ */
 public class VMCriticalException extends Exception {
 
 	public VMCriticalException(String arg0, Throwable arg1) {
