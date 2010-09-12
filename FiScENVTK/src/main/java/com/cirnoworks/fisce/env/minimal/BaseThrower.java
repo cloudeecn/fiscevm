@@ -70,13 +70,13 @@ public class BaseThrower implements IThrower {
 		assert declaringClass != null : clazz;
 		ClassField methodName = context
 				.getField("java/lang/StackTraceElement.methodName.Ljava/lang/String;");
-		assert declaringClass != null : clazz;
+		assert methodName != null : clazz;
 		ClassField fileName = context
 				.getField("java/lang/StackTraceElement.fileName.Ljava/lang/String;");
-		assert declaringClass != null : clazz;
+		assert fileName != null : clazz;
 		ClassField lineNumber = context
 				.getField("java/lang/StackTraceElement.lineNumber.I");
-		assert declaringClass != null : clazz;
+		assert lineNumber != null : clazz;
 		int arrayHandle = context.getHeap().allocate(array, stes.size());
 		StackTraceElement ste;
 		for (int i = 0, max = stes.size(); i < max; i++) {

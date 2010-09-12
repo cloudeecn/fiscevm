@@ -22,7 +22,11 @@ public class FiScEVM {
 
 	private static String defaultEncoding = "utf-8";
 
-	public static native void throwOut(Throwable t);
+	public static void throwOut(Throwable t) {
+		throwOut(t, "");
+	}
+
+	public static native void throwOut(Throwable t, String message);
 
 	public static native void exit(int code);
 
