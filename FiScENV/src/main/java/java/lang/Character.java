@@ -85,7 +85,7 @@ public final class Character extends Object implements Comparable {
 	}
 
 	public static int digit(char ch, int radix) {
-		int ret = isDigit(ch) ? ch : toLowerCase(ch) - 'a' + 10;
+		int ret = isDigit(ch) ? ch - '0' : toLowerCase(ch) - 'a' + 10;
 		return ret < radix ? ret : -1;
 
 	}
