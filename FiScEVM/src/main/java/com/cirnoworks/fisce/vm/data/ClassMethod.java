@@ -32,7 +32,7 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
  * 
  * @author yuxuanhuang
  */
-public class ClassMethod implements IAttributesHolder {
+public final class ClassMethod implements IAttributesHolder {
 	public static final String TYPE_INT = "I";
 	public static final String TYPE_WIDE = "W";
 	public static final String TYPE_WIDE2 = "_";

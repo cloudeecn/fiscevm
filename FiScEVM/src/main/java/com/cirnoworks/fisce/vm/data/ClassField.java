@@ -27,7 +27,7 @@ import java.io.StringWriter;
  * 
  * @author cloudee
  */
-public class ClassField implements IAttributesHolder {
+public final class ClassField implements IAttributesHolder {
 
 	/**
 	 * Position in heap memory of this class. filled in the load phase 1. After

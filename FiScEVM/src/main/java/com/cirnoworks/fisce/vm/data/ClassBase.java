@@ -30,20 +30,22 @@ import java.io.StringWriter;
  * 
  * @author yuxuanhuang
  */
-public class ClassBase extends AbstractClass implements IConstantHolder,
+public final class ClassBase extends AbstractClass implements IConstantHolder,
 		IAttributesHolder {
 
 	public ClassBase(VMContext context, IClassLoader loader) {
 		super(context, loader);
 	}
 
-	//private boolean clinited = false;
+	// private boolean clinited = false;
 
 	// Filled in directly from file
 	private int magic;
 	private char minorVersion;
 	private char majorVersion;
 	private Constant[] constantPool;
+	private int[] absPos;
+	private char[] isWide;
 	private int thisClassInfoIndex;
 	private int superClassInfoIndex;
 	private int[] interfaceInfoIndexs;
@@ -92,6 +94,11 @@ public class ClassBase extends AbstractClass implements IConstantHolder,
 
 	public void createConstantPool(int size) {
 		constantPool = new Constant[size];
+		absPos = new int[size];
+		for (int i = 0; i < size; i++) {
+			absPos[i] = -1;
+		}
+		isWide = new char[size];
 	}
 
 	public String getStringFromUTF8Constant(int idx) {
@@ -150,6 +157,14 @@ public class ClassBase extends AbstractClass implements IConstantHolder,
 		return constantPool;
 	}
 
+	public int[] getAbsPos() {
+		return absPos;
+	}
+
+	public char[] getIsWide() {
+		return isWide;
+	}
+
 	public ClassField[] getFields() {
 		return fields;
 	}
@@ -163,9 +178,7 @@ public class ClassBase extends AbstractClass implements IConstantHolder,
 		java.io.PrintWriter out = new PrintWriter(sw, true);
 		out.println("####ClassBase####");
 		out.println("#mageic=" + Integer.toHexString(magic));
-		out
-				.println("#version=" + (int) majorVersion + "."
-						+ (int) minorVersion);
+		out.println("#version=" + (int) majorVersion + "." + (int) minorVersion);
 
 		out.println("#access flag=" + Integer.toBinaryString(accessFlags));
 

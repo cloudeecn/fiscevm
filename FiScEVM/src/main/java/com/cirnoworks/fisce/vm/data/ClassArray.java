@@ -23,7 +23,7 @@ import com.cirnoworks.fisce.vm.VMContext;
  * 
  * @author cloudee
  */
-public class ClassArray extends AbstractClass {
+public final class ClassArray extends AbstractClass {
 
 	private AbstractClass contentClass;
 	private char pType;

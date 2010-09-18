@@ -362,6 +362,20 @@ public final class DefaultHeap implements IHeap {
 		return getObj(handle, field).getInt(field.getAbsPos() << 2);
 	}
 
+	public int getFieldAbs(int handle, int pos) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		return objects[handle].getInt(pos << 2);
+	}
+
+	public long getFieldAbsWide(int handle, int pos) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		return objects[handle].getLong(pos << 2);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -462,6 +476,21 @@ public final class DefaultHeap implements IHeap {
 	public void putFieldHandle(int handle, ClassField field, int value)
 			throws VMException {
 		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
+	}
+
+	public void putFieldAbs(int handle, int pos, int value) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		objects[handle].putInt(pos << 2, value);
+	}
+
+	public void putFieldAbsWide(int handle, int pos, long value)
+			throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		objects[handle].putLong(pos << 2, value);
 	}
 
 	/*
@@ -776,6 +805,14 @@ public final class DefaultHeap implements IHeap {
 		return staticArea.getDouble(field.getAbsPos() << 2);
 	}
 
+	public int getStaticAbs(int pos) throws VMException {
+		return staticArea.getInt(pos << 2);
+	}
+
+	public long getStaticAbsWide(int pos) throws VMException {
+		return staticArea.getLong(pos << 2);
+	}
+
 	public void setStaticBoolean(ClassField field, boolean value)
 			throws VMException {
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
@@ -841,6 +878,14 @@ public final class DefaultHeap implements IHeap {
 					"get/set static field is not static!");
 		}
 		staticArea.putDouble(field.getAbsPos() << 2, value);
+	}
+
+	public void setStaticAbs(int pos, int value) {
+		staticArea.putInt(pos << 2, value);
+	}
+
+	public void setStaticAbsWide(int pos, long value) {
+		staticArea.putLong(pos << 2, value);
 	}
 
 	public int getLiteral(String str) throws VMException, VMCriticalException {
