@@ -16,12 +16,12 @@
  */
 package com.cirnoworks.fisce.env.minimal;
 
-import com.cirnoworks.fisce.env.minimal.BaseToolkit;
 import com.cirnoworks.fisce.vm.NullConsole;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.default_impl.DefaultClassLoader;
 import com.cirnoworks.fisce.vm.default_impl.DefaultHeap;
 import com.cirnoworks.fisce.vm.default_impl.DefaultThreadManager;
+import com.cirnoworks.fisce.vm.default_impl.FastThreadManager;
 
 public class TestInitializer {
 
@@ -30,6 +30,17 @@ public class TestInitializer {
 		vm.setClassLoader(new DefaultClassLoader());
 		vm.setHeap(new DefaultHeap());
 		vm.setThreadManager(new DefaultThreadManager());
+		vm.setConsole(new NullConsole());
+		//vm.setConsole(Log4JConsole.getConsole());
+		vm.addToolkit(new BaseToolkit());
+		return vm;
+	}
+	
+	public static VMContext getFastContext() {
+		VMContext vm = new VMContext();
+		vm.setClassLoader(new DefaultClassLoader());
+		vm.setHeap(new DefaultHeap());
+		vm.setThreadManager(new FastThreadManager());
 		vm.setConsole(new NullConsole());
 		//vm.setConsole(Log4JConsole.getConsole());
 		vm.addToolkit(new BaseToolkit());

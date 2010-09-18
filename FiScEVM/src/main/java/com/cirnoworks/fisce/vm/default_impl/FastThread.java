@@ -78,7 +78,7 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantString;
  * @author cloudee
  * 
  */
-public final class DefaultThread implements IThread {
+public final class FastThread implements IThread {
 
 	public static final byte TYPE_INT = 'I';
 	public static final byte TYPE_WIDE = 'W';
@@ -110,7 +110,7 @@ public final class DefaultThread implements IThread {
 	private static final int dLPC = -36;
 	private static final int dPC = -40;
 	private final VMContext context;
-	private final DefaultThreadManager manager;
+	private final FastThreadManager manager;
 	private final IHeap heap;
 	private byte[] code;
 	private ClassMethod method;
@@ -353,7 +353,7 @@ public final class DefaultThread implements IThread {
 		this.yield = yield;
 	}
 
-	public DefaultThread(VMContext context, DefaultThreadManager manager) {
+	public FastThread(VMContext context, FastThreadManager manager) {
 		this.context = context;
 		this.manager = manager;
 		heap = context.getHeap();

@@ -3,14 +3,21 @@ package com.cirnoworks.fisce.env.minimal;
 import junit.framework.TestCase;
 
 import com.cirnoworks.fisce.vm.FiScEVM;
+import com.cirnoworks.fisce.vm.VMContext;
 
 public class ExceptionTest extends TestCase {
 
 	public void testException() throws Exception {
-		FiScEVM context = TestInitializer.getContext();
+		doTest(TestInitializer.getContext());
+	}
+
+	public void testExceptionFast() throws Exception {
+		doTest(TestInitializer.getFastContext());
+	}
+
+	private void doTest(VMContext context) throws Exception {
 		context.bootFromClass("com/cirnoworks/fisce/test/ExceptionTester");
 		context.start();
-		// context.requestStop();
 		context.waitTillStopped(0);
 	}
 

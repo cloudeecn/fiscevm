@@ -24,7 +24,14 @@ import com.cirnoworks.fisce.vm.VMContext;
  */
 public class HashMapTest {
 	public void testHashMap() throws Exception {
-		VMContext context = TestInitializer.getContext();
+		doTest(TestInitializer.getContext());
+	}
+
+	public void testHashMapFast() throws Exception {
+		doTest(TestInitializer.getFastContext());
+	}
+
+	private void doTest(VMContext context) throws Exception {
 		context.bootFromClass("com/cirnoworks/fisce/test/HashMapTest");
 		context.start();
 		context.waitTillStopped(0);

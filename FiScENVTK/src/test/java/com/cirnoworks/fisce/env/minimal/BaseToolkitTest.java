@@ -37,6 +37,16 @@ public class BaseToolkitTest extends TestCase {
 		vm.start();
 		vm.waitTillStopped(0);
 	}
+	
+	public void testHelloWorldFast() throws Exception {
+		FiScEVM vm = TestInitializer.getFastContext();
+
+		vm.bootFromClass("com/cirnoworks/fisce/test/MinimalTest");
+		vm.start();
+		vm.waitTillStopped(0);
+	}
+	
+	
 
 	public void testNative() throws Exception {
 		VMContext context = TestInitializer.getContext();
@@ -67,16 +77,5 @@ public class BaseToolkitTest extends TestCase {
 					"Can't link native handler for following classes:\n"
 							+ sb.toString());
 		}
-	}
-
-	public void testMore() throws Exception {
-		if (true) {
-			return;
-		}
-		VMContext context = TestInitializer.getContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/MoreTest");
-		context.start();
-		int ret = context.waitTillStopped(0);
-		System.out.println("More test return=" + ret);
 	}
 }

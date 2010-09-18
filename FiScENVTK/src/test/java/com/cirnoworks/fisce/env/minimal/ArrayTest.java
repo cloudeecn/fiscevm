@@ -31,4 +31,12 @@ public class ArrayTest {
 		context.start();
 		context.waitTillStopped(0);
 	}
+
+	public void testArrayFast() throws Exception {
+		FiScEVM context = TestInitializer.getFastContext();
+		context.bootFromClass("com/cirnoworks/fisce/test/ArrayTest");
+		// context.requestStop();
+		context.start();
+		context.waitTillStopped(0);
+	}
 }
