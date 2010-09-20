@@ -20,31 +20,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.11</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>com.cirnoworks.FiScE</groupId>
 			<artifactId>FiScEVM</artifactId>
 			<version>${fiscevm.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.cirnoworks.FiScE</groupId>
-			<artifactId>FiScENV</artifactId>
-			<version>${fiscevm.version}</version>
-			<classifier>main</classifier>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.cirnoworks.FiScE</groupId>
-			<artifactId>FiScENV</artifactId>
-			<version>${fiscevm.version}</version>
-			<classifier>test</classifier>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
