@@ -3,11 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>FiScENV</artifactId>
 	<name>FiScE Minimal Environment</name>
+	<version>${fiscevm.version}</version>
 	<packaging>jar</packaging>
+
 	<parent>
 		<groupId>com.cirnoworks.FiScE</groupId>
 		<artifactId>FiScEVMBuild</artifactId>
-		<version>0.7.1</version>
+		<version>1</version>
 	</parent>
 	<build>
 		<plugins>
