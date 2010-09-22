@@ -17,6 +17,7 @@
 				<configuration>
 					<descriptors>
 						<descriptor>descriptor.xml</descriptor>
+						<descriptor>assemble.xml</descriptor>
 					</descriptors>
 					<finalName>fiscevm</finalName>
 					<outputDirectory>target</outputDirectory>
