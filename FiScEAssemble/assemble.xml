@@ -17,5 +17,9 @@
 				<include>fiscevm-dist.jar</include>
 			</includes>
 		</fileSet>
-	</fileSets>
+       	        <fileSet>
+                        <directory>deploy-res/</directory>
+                        <outputDirectory>.</outputDirectory>
+                </fileSet>
+        </fileSets>
 </assembly>
