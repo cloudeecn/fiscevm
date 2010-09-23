@@ -17,11 +17,13 @@
 				<include>fiscevm-dist.jar</include>
 			</includes>
 		</fileSet>
-       	        <fileSet>
-                        <directory>deploy-res/</directory>
-                        <outputDirectory>.</outputDirectory>
-                </fileSet>
-        	<fileSet>
+		
+		<fileSet>
+			<directory>deploy-res/</directory>
+			<outputDirectory>.</outputDirectory>
+		</fileSet>
+		
+		<fileSet>
 			<directory>../FiScENV/target/</directory>
 			<outputDirectory>lib</outputDirectory>
 			<includes>
@@ -29,4 +31,13 @@
 			</includes>
 		</fileSet>
 	</fileSets>
+	
+	<dependencySets>
+		<dependencySet>
+			<excludes>
+				<exclude>com.cirnoworks.FiScE:*</exclude>
+			</excludes>
+			<outputDirectory>.</outputDirectory>
+		</dependencySet>
+	</dependencySets>
 </assembly>
