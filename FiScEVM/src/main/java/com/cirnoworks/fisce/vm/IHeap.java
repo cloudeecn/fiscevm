@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  *  Copyright 2010 Yuxuan Huang. All rights reserved.
  *  
  *  This program is free software: you can redistribute it and/or modify
@@ -32,217 +32,217 @@ import com.cirnoworks.fisce.vm.data.ClassField;
 public interface IHeap {
 
 	/**
-	 * ×î´ó´´½¨µÄ¶ÔÏóµÄÊıÁ¿£¨¸öÊı£©
+	 * æœ€å¤§åˆ›å»ºçš„å¯¹è±¡çš„æ•°é‡ï¼ˆä¸ªæ•°ï¼‰
 	 */
 	public static final int MAX_OBJECTS = 1048576;
 	/**
-	 * ×î´óµÄ¾²Ì¬ÇøµÄ´óĞ¡£¨×Ö½Ú£©
+	 * æœ€å¤§çš„é™æ€åŒºçš„å¤§å°ï¼ˆå­—èŠ‚ï¼‰
 	 */
 	public static final int MAX_STATIC = 1048576;
 
 	/**
-	 * ÓÉVMContextµ÷ÓÃ£¬½«¶Ñ¹ÜÀíÆ÷°ó¶¨µ½ĞéÄâ»úÉÏ
+	 * ç”±VMContextè°ƒç”¨ï¼Œå°†å †ç®¡ç†å™¨ç»‘å®šåˆ°è™šæ‹Ÿæœºä¸Š
 	 * 
 	 * @param context
-	 *            Òª°ó¶¨µÄĞéÄâ»ú
+	 *            è¦ç»‘å®šçš„è™šæ‹Ÿæœº
 	 */
 	void setContext(VMContext context);
 
 	/**
-	 * ±£´æÊı¾İ
+	 * ä¿å­˜æ•°æ®
 	 * 
 	 * @param data
-	 *            ±£´æµÄÄ¿±ê½Úµã
+	 *            ä¿å­˜çš„ç›®æ ‡èŠ‚ç‚¹
 	 * @throws VMCriticalException
-	 *             ±£´æµÄÊ±ºòĞéÄâ»ú³öÏÖÒì³£
+	 *             ä¿å­˜çš„æ—¶å€™è™šæ‹Ÿæœºå‡ºç°å¼‚å¸¸
 	 */
 	void saveData(Element data) throws VMCriticalException;
 
 	/**
-	 * ¶ÁÈ¡Êı¾İ
+	 * è¯»å–æ•°æ®
 	 * 
 	 * @param data
-	 *            ´æ·Å´ı¶ÁÈ¡Êı¾İµÄ½Úµã
+	 *            å­˜æ”¾å¾…è¯»å–æ•°æ®çš„èŠ‚ç‚¹
 	 * @throws VMCriticalException
-	 *             ¶ÁÈ¡µÄÊ±ºòĞéÄâ»ú³öÏÖÒì³£
+	 *             è¯»å–çš„æ—¶å€™è™šæ‹Ÿæœºå‡ºç°å¼‚å¸¸
 	 */
 	void loadData(Element data) throws VMCriticalException;
 
 	/**
-	 * ·ÖÅäÒ»¸ö¶ÔÏó
+	 * åˆ†é…ä¸€ä¸ªå¯¹è±¡
 	 * 
 	 * @param clazz
-	 *            ¶ÔÏóµÄÀà
-	 * @return ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„ç±»
+	 * @return å¯¹è±¡çš„å¥æŸ„
 	 * @throws VMException
-	 *             ·¢ÉúÁË¿ÉÒÔÓÉĞéÄâ»úÄÚ²¿´¦ÀíµÄÒì³£
+	 *             å‘ç”Ÿäº†å¯ä»¥ç”±è™šæ‹Ÿæœºå†…éƒ¨å¤„ç†çš„å¼‚å¸¸
 	 * @throws VMCriticalException
-	 *             ·¢ÉúÁËĞéÄâ»úÄÚ²¿ÎŞ·¨´¦ÀíµÄÒì³£
+	 *             å‘ç”Ÿäº†è™šæ‹Ÿæœºå†…éƒ¨æ— æ³•å¤„ç†çš„å¼‚å¸¸
 	 */
 	int allocate(ClassBase clazz) throws VMException, VMCriticalException;
 
 	/**
-	 * ·ÖÅäÒ»¸öÊı×é
+	 * åˆ†é…ä¸€ä¸ªæ•°ç»„
 	 * 
 	 * @param clazz
-	 *            Êı×éµÄÀà
+	 *            æ•°ç»„çš„ç±»
 	 * @param length
-	 *            Êı×éµÄ´óĞ¡
-	 * @return Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¤§å°
+	 * @return æ•°ç»„çš„å¥æŸ„
 	 * @throws VMException
-	 *             ·¢ÉúÁË¿ÉÒÔÓÉĞéÄâ»úÄÚ²¿´¦ÀíµÄÒì³£
+	 *             å‘ç”Ÿäº†å¯ä»¥ç”±è™šæ‹Ÿæœºå†…éƒ¨å¤„ç†çš„å¼‚å¸¸
 	 * @throws VMCriticalException
-	 *             ·¢ÉúÁËĞéÄâ»úÄÚ²¿ÎŞ·¨´¦ÀíµÄÒì³£
+	 *             å‘ç”Ÿäº†è™šæ‹Ÿæœºå†…éƒ¨æ— æ³•å¤„ç†çš„å¼‚å¸¸
 	 */
 	int allocate(ClassArray clazz, int length) throws VMException,
 			VMCriticalException;
 
 	/**
-	 * ¿ËÂ¡Ò»¸ö¶ÔÏó
+	 * å…‹éš†ä¸€ä¸ªå¯¹è±¡
 	 * 
 	 * @param handle
-	 *            ±»¿ËÂ¡µÄ¶ÔÏóµÄ¾ä±ú
-	 * @return ĞÂ¶ÔÏóµÄ¾ä±ú
+	 *            è¢«å…‹éš†çš„å¯¹è±¡çš„å¥æŸ„
+	 * @return æ–°å¯¹è±¡çš„å¥æŸ„
 	 * @throws VMException
 	 * @throws VMCriticalException
 	 */
 	int clone(int handle) throws VMException, VMCriticalException;
 
 	/**
-	 * ·µ»Ø×Ö·û´®Ëù¶ÔÓ¦µÄ×Ö·û´®³£Á¿µÄ¾ä±ú¡£<br />
-	 * Èç¹û³£Á¿³ØÖĞÃ»ÓĞ¶ÔÓ¦µÄ×Ö·û´®³£Á¿¾ÍÔÚ³£Á¿³ØÖĞ´´½¨Ò»¸ö¡£
+	 * è¿”å›å­—ç¬¦ä¸²æ‰€å¯¹åº”çš„å­—ç¬¦ä¸²å¸¸é‡çš„å¥æŸ„ã€‚<br />
+	 * å¦‚æœå¸¸é‡æ± ä¸­æ²¡æœ‰å¯¹åº”çš„å­—ç¬¦ä¸²å¸¸é‡å°±åœ¨å¸¸é‡æ± ä¸­åˆ›å»ºä¸€ä¸ªã€‚
 	 * 
 	 * @param content
-	 *            ×Ö·û´®µÄÄÚÈİ
-	 * @return ³£Á¿³ØÖĞµÄ×Ö·û´®¾ä±ú
+	 *            å­—ç¬¦ä¸²çš„å†…å®¹
+	 * @return å¸¸é‡æ± ä¸­çš„å­—ç¬¦ä¸²å¥æŸ„
 	 * @throws VMException
 	 * @throws VMCriticalException
 	 */
 	int getInternString(String content) throws VMException, VMCriticalException;
 
 	/**
-	 * »ñµÃÒ»¸ö¶ÔÏóËùÔÚµÄÀàµÄclass id¡£(class id½«ÔÚcom.cirnoworks.fisce.vm.VMContextÖĞ±»Ó³Éäµ½Àà)
+	 * è·å¾—ä¸€ä¸ªå¯¹è±¡æ‰€åœ¨çš„ç±»çš„class idã€‚(class idå°†åœ¨com.cirnoworks.fisce.vm.VMContextä¸­è¢«æ˜ å°„åˆ°ç±»)
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
-	 * @return ÀàµÄclass id¡£
+	 *            å¯¹è±¡çš„å¥æŸ„
+	 * @return ç±»çš„class idã€‚
 	 */
 	int getClass(int handle) throws VMException;
 
 	/**
-	 * »ñÈ¡Êı×éµÄ³¤¶È
+	 * è·å–æ•°ç»„çš„é•¿åº¦
 	 * 
 	 * @param handle
-	 *            Êı×éËùÔÚµÄ¾ä±ú
-	 * @return Êı×éµÄ³¤¶È
+	 *            æ•°ç»„æ‰€åœ¨çš„å¥æŸ„
+	 * @return æ•°ç»„çš„é•¿åº¦
 	 * @throws VMException
 	 */
 	int getArrayLength(int handle) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄ²¼¶ûÖµ
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„å¸ƒå°”å€¼
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄ²¼¶ûÖµ
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„å¸ƒå°”å€¼
 	 * @throws VMException
 	 */
 	boolean getFieldBoolean(int handle, ClassField field) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄbyteÖµ
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„byteå€¼
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄbyteÖµ
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„byteå€¼
 	 * @throws VMException
 	 */
 	byte getFieldByte(int handle, ClassField field) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄshortÖµ
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„shortå€¼
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄshortÖµ
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„shortå€¼
 	 * @throws VMException
 	 */
 	short getFieldShort(int handle, ClassField field) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄcharÖµ
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„charå€¼
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄcharÖµ
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„charå€¼
 	 * @throws VMException
 	 */
 	char getFieldChar(int handle, ClassField field) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄintÖµ
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„intå€¼
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄintÖµ
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„intå€¼
 	 * @throws VMException
 	 */
 	int getFieldInt(int handle, ClassField field) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄlongÖµ
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„longå€¼
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄlongÖµ
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„longå€¼
 	 * @throws VMException
 	 */
 	long getFieldLong(int handle, ClassField field) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄfloatÖµ
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„floatå€¼
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄfloatÖµ
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„floatå€¼
 	 * @throws VMException
 	 */
 	float getFieldFloat(int handle, ClassField field) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄdoubleÖµ
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„doubleå€¼
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄdoubleÖµ
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„doubleå€¼
 	 * @throws VMException
 	 */
 	double getFieldDouble(int handle, ClassField field) throws VMException;
 
 	/**
-	 * »ñµÃ¶ÔÏóµÄ³ÉÔ±±äÁ¿µÄ¾ä±ú
+	 * è·å¾—å¯¹è±¡çš„æˆå‘˜å˜é‡çš„å¥æŸ„
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
-	 * @return ³ÉÔ±±äÁ¿µÄ¾ä±ú
+	 *            æˆå‘˜å˜é‡
+	 * @return æˆå‘˜å˜é‡çš„å¥æŸ„
 	 * @throws VMException
 	 */
 	int getFieldHandle(int handle, ClassField field) throws VMException;
@@ -252,126 +252,126 @@ public interface IHeap {
 	long getFieldAbsWide(int handle, int pos) throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨boolean£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆbooleanï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldBoolean(int handle, ClassField field, boolean value)
 			throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨byte£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆbyteï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldByte(int handle, ClassField field, byte value)
 			throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨short£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆshortï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldShort(int handle, ClassField field, short value)
 			throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨char£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆcharï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldChar(int handle, ClassField field, char value)
 			throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨int£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆintï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldInt(int handle, ClassField field, int value)
 			throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨long£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆlongï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldLong(int handle, ClassField field, long value)
 			throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨float£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆfloatï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldFloat(int handle, ClassField field, float value)
 			throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨double£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆdoubleï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldDouble(int handle, ClassField field, double value)
 			throws VMException;
 
 	/**
-	 * Éè¶¨¶ÔÏó³ÉÔ±±äÁ¿µÄÖµ£¨handle£©
+	 * è®¾å®šå¯¹è±¡æˆå‘˜å˜é‡çš„å€¼ï¼ˆhandleï¼‰
 	 * 
 	 * @param handle
-	 *            ¶ÔÏóµÄ¾ä±ú
+	 *            å¯¹è±¡çš„å¥æŸ„
 	 * @param field
-	 *            ³ÉÔ±±äÁ¿
+	 *            æˆå‘˜å˜é‡
 	 * @param value
-	 *            Öµ
+	 *            å€¼
 	 * @throws VMException
 	 */
 	void putFieldHandle(int handle, ClassField field, int value)
@@ -384,109 +384,109 @@ public interface IHeap {
 			throws VMCriticalException, VMException;
 
 	/**
-	 * È¡booleanÊı×éÖĞµÄÖµ
+	 * å–booleanæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	boolean getArrayBoolean(int handle, int index) throws VMException;
 
 	/**
-	 * È¡byteÊı×éÖĞµÄÖµ
+	 * å–byteæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	byte getArrayByte(int handle, int index) throws VMException;
 
 	/**
-	 * È¡shortÊı×éÖĞµÄÖµ
+	 * å–shortæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	short getArrayShort(int handle, int index) throws VMException;
 
 	/**
-	 * È¡charÊı×éÖĞµÄÖµ
+	 * å–charæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	char getArrayChar(int handle, int index) throws VMException;
 
 	/**
-	 * È¡intÊı×éÖĞµÄÖµ
+	 * å–intæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	int getArrayInt(int handle, int index) throws VMException;
 
 	/**
-	 * È¡longÊı×éÖĞµÄÖµ
+	 * å–longæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	long getArrayLong(int handle, int index) throws VMException;
 
 	/**
-	 * È¡floatÊı×éÖĞµÄÖµ
+	 * å–floatæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	float getArrayFloat(int handle, int index) throws VMException;
 
 	/**
-	 * È¡doubleÊı×éÖĞµÄÖµ
+	 * å–doubleæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	double getArrayDouble(int handle, int index) throws VMException;
 
 	/**
-	 * È¡ObjectÊı×éÖĞµÄÖµ
+	 * å–Objectæ•°ç»„ä¸­çš„å€¼
 	 * 
 	 * @param handle
-	 *            Êı×éµÄ¾ä±ú
+	 *            æ•°ç»„çš„å¥æŸ„
 	 * @param index
-	 *            Î»ÖÃ
-	 * @return Öµ
+	 *            ä½ç½®
+	 * @return å€¼
 	 * @throws VMException
 	 */
 	int getArrayHandle(int handle, int index) throws VMException;
@@ -511,28 +511,28 @@ public interface IHeap {
 	void putArrayHandle(int handle, int index, int value) throws VMException;
 
 	/**
-	 * ¸´ÖÆÊı×éµÄÄÚÈİ
-	 * @param srcHandle Ô´Êı×é
-	 * @param srcOfs Ô´Êı×éµÄÆğÊ¼µã
-	 * @param destHandle Ä¿±êÊı×é
-	 * @param destOfs Ä¿±êÊı×éµÄÆğÊ¼µã
-	 * @param count Òª¸´ÖÆµÄ³¤¶È
+	 * å¤åˆ¶æ•°ç»„çš„å†…å®¹
+	 * @param srcHandle æºæ•°ç»„
+	 * @param srcOfs æºæ•°ç»„çš„èµ·å§‹ç‚¹
+	 * @param destHandle ç›®æ ‡æ•°ç»„
+	 * @param destOfs ç›®æ ‡æ•°ç»„çš„èµ·å§‹ç‚¹
+	 * @param count è¦å¤åˆ¶çš„é•¿åº¦
 	 * @throws VMException
 	 */
 	void arrayCopy(int srcHandle, int srcOfs, int destHandle, int destOfs,
 			int count) throws VMException;
 
 	/**
-	 * ¸øÀà·ÖÅä¾²Ì¬¿Õ¼ä£¨ÔØÈëÀàµÄÊ±ºòÓÉVMµ÷ÓÃ£©
-	 * @param clazz Òª·ÖÅä¿Õ¼äµÄÀà
+	 * ç»™ç±»åˆ†é…é™æ€ç©ºé—´ï¼ˆè½½å…¥ç±»çš„æ—¶å€™ç”±VMè°ƒç”¨ï¼‰
+	 * @param clazz è¦åˆ†é…ç©ºé—´çš„ç±»
 	 * @throws VMException
 	 */
 	void initStaticAreaForClass(AbstractClass clazz) throws VMException;
 
 	/**
-	 * È¡Àà¾²Ì¬¿Õ¼äµÄÊ×µØÖ·
-	 * @param clazz Àà
-	 * @return Àà¾²Ì¬¿Õ¼äµÄÊ×µØÖ·
+	 * å–ç±»é™æ€ç©ºé—´çš„é¦–åœ°å€
+	 * @param clazz ç±»
+	 * @return ç±»é™æ€ç©ºé—´çš„é¦–åœ°å€
 	 * @throws VMException
 	 */
 	int getClazzStaticPos(AbstractClass clazz) throws VMException;
@@ -581,28 +581,28 @@ public interface IHeap {
 	public void setStaticAbsWide(int pos, long value) throws VMException;
 
 	/**
-	 * È¡×Ö·û´®³£Á¿¶ÔÏóµÄ¾ä±ú <br />
-	 * Èç¹û×Ö·û´®³£Á¿²»´æÔÚ¾Í´´½¨Ò»¸ö
-	 * @param str ×Ö·û´®
-	 * @return ¶ÔÓ¦µÄ×Ö·û´®³£Á¿µÄ¾ä±ú
+	 * å–å­—ç¬¦ä¸²å¸¸é‡å¯¹è±¡çš„å¥æŸ„ <br />
+	 * å¦‚æœå­—ç¬¦ä¸²å¸¸é‡ä¸å­˜åœ¨å°±åˆ›å»ºä¸€ä¸ª
+	 * @param str å­—ç¬¦ä¸²
+	 * @return å¯¹åº”çš„å­—ç¬¦ä¸²å¸¸é‡çš„å¥æŸ„
 	 * @throws VMException
 	 * @throws VMCriticalException
 	 */
 	public int getLiteral(String str) throws VMException, VMCriticalException;
 
 	/**
-	 * ´Ó×Ö·û´®¶ÔÏóÖĞÈ¡µÃ×Ö·û´®
-	 * @param handle ×Ö·û´®¶ÔÏóµÄ¾ä±ú
-	 * @return ×Ö·û´®
+	 * ä»å­—ç¬¦ä¸²å¯¹è±¡ä¸­å–å¾—å­—ç¬¦ä¸²
+	 * @param handle å­—ç¬¦ä¸²å¯¹è±¡çš„å¥æŸ„
+	 * @return å­—ç¬¦ä¸²
 	 * @throws VMException
 	 * @throws VMCriticalException
 	 */
 	public String getString(int handle) throws VMException, VMCriticalException;
 
 	/**
-	 * ¸ø×Ö·û´®ÔÚĞéÄâ»úÖĞ·ÖÅäÒ»¸ö¶ÔÏó
-	 * @param content ×Ö·û´®
-	 * @return ·ÖÅäµÄ¶ÔÏó¾ä±ú
+	 * ç»™å­—ç¬¦ä¸²åœ¨è™šæ‹Ÿæœºä¸­åˆ†é…ä¸€ä¸ªå¯¹è±¡
+	 * @param content å­—ç¬¦ä¸²
+	 * @return åˆ†é…çš„å¯¹è±¡å¥æŸ„
 	 * @throws VMException
 	 * @throws VMCriticalException
 	 */
@@ -610,21 +610,21 @@ public interface IHeap {
 			VMCriticalException;
 
 	/**
-	 * ¾ä±úÊÇ·ñºÏ·¨
-	 * @param handle ¾ä±ú
-	 * @return ¾ä±úÊÇ·ñºÏ·¨
+	 * å¥æŸ„æ˜¯å¦åˆæ³•
+	 * @param handle å¥æŸ„
+	 * @return å¥æŸ„æ˜¯å¦åˆæ³•
 	 */
 	boolean isHandleValid(int handle);
 
 	/**
-	 * É¨Ãè¶ÑÄÚÈİ£¬·µ»ØÒ»¸ö¾ä±úÊÇ·ñ±»ÓÃµ½µÄÎ»¼¯
-	 * @return Î»¼¯£¬Ã¿Ò»Î»±íÊ¾Ò»¸ö¶ÔÓ¦µÄ¾ä±úÊÇ²»ÊÇ±»ÓÃµ½
+	 * æ‰«æå †å†…å®¹ï¼Œè¿”å›ä¸€ä¸ªå¥æŸ„æ˜¯å¦è¢«ç”¨åˆ°çš„ä½é›†
+	 * @return ä½é›†ï¼Œæ¯ä¸€ä½è¡¨ç¤ºä¸€ä¸ªå¯¹åº”çš„å¥æŸ„æ˜¯ä¸æ˜¯è¢«ç”¨åˆ°
 	 * @throws VMCriticalException
 	 */
 	BitSet scanHeap() throws VMCriticalException;
 
 	/**
-	 * À¬»øÊÕ¼¯£¬ÊÍ·Åµô²»Ê¹ÓÃµÄ¾ä±úºÍ¶ÔÓ¦µÄÄÚ´æ¿Õ¼ä
+	 * åƒåœ¾æ”¶é›†ï¼Œé‡Šæ”¾æ‰ä¸ä½¿ç”¨çš„å¥æŸ„å’Œå¯¹åº”çš„å†…å­˜ç©ºé—´
 	 * @throws VMCriticalException
 	 */
 	void gc() throws VMCriticalException;
