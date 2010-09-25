@@ -28,10 +28,14 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
-import org.apache.xml.serialize.OutputFormat;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -53,15 +57,18 @@ public class VMContext implements FiScEVM {
 
 	public void bootFromData(InputStream is) throws VMCriticalException {
 		try {
-			DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
-			DocumentBuilder db=dbf.newDocumentBuilder();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document document = db.parse(is);
-			Element root = (Element) document.getElementsByTagName("vmcontext").item(0);
+			Element root = (Element) document.getElementsByTagName("vmcontext")
+					.item(0);
 
 			Element classes = (Element) root.getElementsByTagName("classes")
 					.item(0);
 			classCount = Integer.parseInt(classes.getAttribute("next"));
-			for (Element ce : (List<Element>) classes.elements("class")) {
+			NodeList classElements = classes.getElementsByTagName("class");
+			for (int i = 0, max = classElements.getLength(); i < max; i++) {
+				Element ce = (Element) classElements.item(i);
 				int cid = Integer.parseInt(ce.getAttribute("cid"));
 				int clinited = Integer.parseInt(ce.getAttribute("clinited"));
 				int handle = Integer.parseInt(ce.getAttribute("handle"));
@@ -72,37 +79,48 @@ public class VMContext implements FiScEVM {
 				this.classClinitThreadId[cid] = clinited;
 			}
 
-			Element methods = root.element("methods");
+			Element methods = (Element) root.getElementsByTagName("methods")
+					.item(0);
+			NodeList methodElemehts = methods.getElementsByTagName("method");
 			methodCount = Integer.parseInt(methods.getAttribute("next"));
-			for (Element me : (List<Element>) methods.elements("method")) {
+			for (int i = 0, max = methodElemehts.getLength(); i < max; i++) {
+				Element me = (Element) methodElemehts.item(i);
 				methodMap.put(me.getTextContent(),
 						Integer.parseInt(me.getAttribute("mid")));
 			}
 
-			Element fields = root.element("fields");
+			Element fields = (Element) root.getElementsByTagName("fields")
+					.item(0);
+			NodeList fieldElements = fields.getElementsByTagName("field");
 			fieldCount = Integer.parseInt(fields.getAttribute("next"));
-			for (Element fe : (List<Element>) fields.elements("field")) {
+			for (int i = 0, max = fieldElements.getLength(); i < max; i++) {
+				Element fe = (Element) fieldElements.item(i);
 				fieldMap.put(fe.getTextContent(),
 						Integer.parseInt(fe.getAttribute("fid")));
 			}
 
-			Element heapElement = root.element("heap");
+			Element heapElement = (Element) root.getElementsByTagName("heap")
+					.item(0);
 			if (heap == null
 					|| !heap.getClass().getCanonicalName()
-							.equals(heapElement.attributeValue("class"))) {
+							.equals(heapElement.getAttribute("class"))) {
 				throw new VMCriticalException("Heap processer is wrong!");
 			}
 
-			Element tmElement = root.element("threadManager");
+			Element tmElement = (Element) root.getElementsByTagName(
+					"threadManager").item(0);
 			if (threadManager == null
 					|| !threadManager.getClass().getCanonicalName()
-							.equals(tmElement.attributeValue("class"))) {
+							.equals(tmElement.getAttribute("class"))) {
 				throw new VMCriticalException("Thread manager is wrong!");
 			}
 
-			Element tks = root.element("toolkits");
-			for (Element tke : (List<Element>) tks.elements("toolkit")) {
-				String tkName = tke.attributeValue("class");
+			Element tks = (Element) root.getElementsByTagName("toolkits").item(
+					0);
+			NodeList toolkitElements = tks.getElementsByTagName("toolkit");
+			for (int i = 0, max = toolkitElements.getLength(); i < max; i++) {
+				Element tke = (Element) toolkitElements.item(i);
+				String tkName = tke.getAttribute("class");
 				boolean found = false;
 				for (IToolkit toolkit : toolkits) {
 					if (toolkit.getClass().getCanonicalName().equals(tkName)) {
@@ -121,8 +139,9 @@ public class VMContext implements FiScEVM {
 					|| !classLoader
 							.getClass()
 							.getCanonicalName()
-							.equals(root.element("classloader").attributeValue(
-									"class"))) {
+							.equals(((Element) root.getElementsByTagName(
+									"classloader").item(0))
+									.getAttribute("class"))) {
 				throw new VMCriticalException("Class loader is wrong!");
 			}
 
@@ -141,52 +160,99 @@ public class VMContext implements FiScEVM {
 
 	public void saveData(OutputStream os) throws VMCriticalException,
 			IOException {
-		Document document = DocumentHelper.createDocument();
-		Element context = document.addElement("vmcontext");
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document document = db.newDocument();
+			Element context = document.createElement("vmcontext");
+			document.appendChild(context);// document.addElement("vmcontext");
 
-		Element classes = context.addElement("classes").addAttribute("next",
-				String.valueOf(classCount));
-		for (Entry<String, Integer> cm : classMap.entrySet()) {
-			String name = cm.getKey();
-			int id = cm.getValue();
-			int cl = classClinitThreadId[id];
-			int handle = classObjectMap.get(name);
-			classes.addElement("class").addAttribute("cid", String.valueOf(id))
-					.addAttribute("clinited", String.valueOf(cl))
-					.addAttribute("handle", String.valueOf(handle))
-					.addText(name);
-		}
+			Element classes = document.createElement("classes");
+			classes.setAttribute("next", String.valueOf(classCount));
+			// context.addElement("classes").addAttribute("next",String.valueOf(classCount));
+			for (Entry<String, Integer> cm : classMap.entrySet()) {
+				String name = cm.getKey();
+				int id = cm.getValue();
+				int cl = classClinitThreadId[id];
+				int handle = classObjectMap.get(name);
+				Element classElement = document.createElement("class");
+				classElement.setAttribute("cid", String.valueOf(id));
+				classElement.setAttribute("clinited", String.valueOf(cl));
+				classElement.setAttribute("handle", String.valueOf(handle));
+				classElement.setTextContent(name);
+				classes.appendChild(classElement);
+			}
+			context.appendChild(classes);
 
-		Element methods = context.addElement("methods").addAttribute("next",
-				String.valueOf(methodCount));
-		for (Entry<String, Integer> mm : methodMap.entrySet()) {
-			methods.addElement("method")
-					.addAttribute("mid", mm.getValue().toString())
-					.addText(mm.getKey());
-		}
-		Element fields = context.addElement("fields").addAttribute("next",
-				String.valueOf(fieldCount));
-		for (Entry<String, Integer> fm : fieldMap.entrySet()) {
-			fields.addElement("field")
-					.addAttribute("fid", fm.getValue().toString())
-					.addText(fm.getKey());
-		}
-		heap.saveData(context.addElement("heap").addAttribute("class",
-				heap.getClass().getCanonicalName()));
-		threadManager.saveData(context.addElement("threadManager")
-				.addAttribute("class",
-						threadManager.getClass().getCanonicalName()));
-		context.addElement("classloader").addAttribute("class",
-				classLoader.getClass().getCanonicalName());
-		Element tks = context.addElement("toolkits");
-		for (IToolkit toolkit : toolkits) {
-			toolkit.saveData(tks.addElement("toolkit").addAttribute("class",
-					toolkit.getClass().getCanonicalName()));
-		}
+			// Element methods =
+			// context.addElement("methods").addAttribute("next",
+			// String.valueOf(methodCount));
+			Element methods = document.createElement("methods");
+			methods.setAttribute("next", String.valueOf(methodCount));
+			for (Entry<String, Integer> mm : methodMap.entrySet()) {
+				Element method = document.createElement("method");
+				method.setAttribute("mid", mm.getValue().toString());
+				method.setTextContent(mm.getKey());
+				methods.appendChild(method);
+			}
+			context.appendChild(methods);
 
-		OutputFormat format = OutputFormat.createPrettyPrint();
-		XMLWriter writer = new XMLWriter(os, format);
-		writer.write(document);
+			// Element fields =
+			// context.addElement("fields").addAttribute("next",
+			// String.valueOf(fieldCount));
+			Element fields = document.createElement("fields");
+			fields.setAttribute("next", String.valueOf(fieldCount));
+			for (Entry<String, Integer> fm : fieldMap.entrySet()) {
+				Element field = document.createElement("field");
+				field.setAttribute("fid", fm.getValue().toString());
+				field.setTextContent(fm.getKey());
+				fields.appendChild(field);
+			}
+			context.appendChild(fields);
+
+			Element heapElement = document.createElement("heap");
+			heapElement.setAttribute("class", heap.getClass()
+					.getCanonicalName());
+			heap.saveData(heapElement);
+			context.appendChild(heapElement);
+
+			Element threadManagerElement = document
+					.createElement("threadManager");
+			threadManagerElement.setAttribute("class", threadManager.getClass()
+					.getCanonicalName());
+			threadManager.saveData(threadManagerElement);
+			context.appendChild(threadManagerElement);
+
+			Element classloaderElement = document.createElement("classloader");
+			classloaderElement.setAttribute("class", classLoader.getClass()
+					.getCanonicalName());
+			context.appendChild(classloaderElement);
+
+			Element tks = document.createElement("toolkits");
+			for (IToolkit toolkit : toolkits) {
+				Element toolkitElement = document.createElement("toolkit");
+				toolkitElement.setAttribute("class", toolkit.getClass()
+						.getCanonicalName());
+				toolkit.saveData(toolkitElement);
+				tks.appendChild(toolkitElement);
+			}
+			context.appendChild(tks);
+
+			TransformerFactory tff = TransformerFactory.newInstance();
+			Transformer tf = tff.newTransformer();
+			tf.setOutputProperty("indent", "yes");
+
+			DOMSource source = new DOMSource();
+			source.setNode(document);
+			StreamResult result = new StreamResult();
+			result.setOutputStream(os);
+
+			tf.transform(source, result);
+		} catch (VMCriticalException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new VMCriticalException(e);
+		}
 	}
 
 	public void bootFromClass(String name) throws VMException,
