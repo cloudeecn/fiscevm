@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.xml.serialize.OutputFormat;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,17 +53,19 @@ public class VMContext implements FiScEVM {
 
 	public void bootFromData(InputStream is) throws VMCriticalException {
 		try {
-			SAXReader reader = new SAXReader();
-			Document document = reader.read(is);
-			Element root = document.getRootElement();
+			DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
+			DocumentBuilder db=dbf.newDocumentBuilder();
+			Document document = db.parse(is);
+			Element root = (Element) document.getElementsByTagName("vmcontext").item(0);
 
-			Element classes = root.element("classes");
-			classCount = Integer.parseInt(classes.attributeValue("next"));
+			Element classes = (Element) root.getElementsByTagName("classes")
+					.item(0);
+			classCount = Integer.parseInt(classes.getAttribute("next"));
 			for (Element ce : (List<Element>) classes.elements("class")) {
-				int cid = Integer.parseInt(ce.attributeValue("cid"));
-				int clinited = Integer.parseInt(ce.attributeValue("clinited"));
-				int handle = Integer.parseInt(ce.attributeValue("handle"));
-				String name = ce.getText();
+				int cid = Integer.parseInt(ce.getAttribute("cid"));
+				int clinited = Integer.parseInt(ce.getAttribute("clinited"));
+				int handle = Integer.parseInt(ce.getAttribute("handle"));
+				String name = ce.getTextContent();
 				classMap.put(name, cid);
 				classObjectMap.put(name, handle);
 				classObjectMapRev.put(handle, name);
@@ -68,17 +73,17 @@ public class VMContext implements FiScEVM {
 			}
 
 			Element methods = root.element("methods");
-			methodCount = Integer.parseInt(methods.attributeValue("next"));
+			methodCount = Integer.parseInt(methods.getAttribute("next"));
 			for (Element me : (List<Element>) methods.elements("method")) {
-				methodMap.put(me.getText(),
-						Integer.parseInt(me.attributeValue("mid")));
+				methodMap.put(me.getTextContent(),
+						Integer.parseInt(me.getAttribute("mid")));
 			}
 
 			Element fields = root.element("fields");
-			fieldCount = Integer.parseInt(fields.attributeValue("next"));
+			fieldCount = Integer.parseInt(fields.getAttribute("next"));
 			for (Element fe : (List<Element>) fields.elements("field")) {
-				fieldMap.put(fe.getText(),
-						Integer.parseInt(fe.attributeValue("fid")));
+				fieldMap.put(fe.getTextContent(),
+						Integer.parseInt(fe.getAttribute("fid")));
 			}
 
 			Element heapElement = root.element("heap");

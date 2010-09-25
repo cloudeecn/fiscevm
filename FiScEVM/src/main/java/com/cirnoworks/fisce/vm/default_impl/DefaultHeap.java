@@ -23,11 +23,12 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.cirnoworks.fisce.vm.Base64;
 import com.cirnoworks.fisce.vm.IHeap;
@@ -1122,36 +1123,45 @@ public final class DefaultHeap implements IHeap {
 	public void loadData(Element data) throws VMCriticalException {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			Element lis = data.element("literals");
-			for (Element li : (List<Element>) lis.elements("literal")) {
-				literals.put(li.getText(),
-						Integer.valueOf(li.attributeValue("handle")));
+			NodeList lis = ((Element) data.getElementsByTagName("literals")
+					.item(0)).getElementsByTagName("literal");
+			for (int i = 0, max = lis.getLength(); i < max; i++) {
+				Element li = (Element) lis.item(i);
+				literals.put(li.getTextContent(),
+						Integer.valueOf(li.getAttribute("handle")));
 			}
 
-			Element statics = data.element("statics");
+			Element statics = (Element) data.getElementsByTagName("statics")
+					.item(0);
 			{
-				Element content = statics.element("content");
+				Element content = (Element) statics.getElementsByTagName(
+						"content").item(0);
 				baos.reset();
-				Base64.decode(content.getText(), baos);
+				Base64.decode(content.getTextContent(), baos);
 				staticCount = baos.size();
 				staticArea.clear();
 				staticArea.put(baos.toByteArray());
 				staticArea.clear();
-				Element map = statics.element("map");
-				for (Element st : (List<Element>) map.elements("static")) {
-					int cid = Integer.parseInt(st.attributeValue("cid"));
-					int pos = Integer.parseInt(st.attributeValue("pos"));
+				NodeList map = ((Element) statics.getElementsByTagName("map")
+						.item(0)).getElementsByTagName("static");
+				for (int i = 0, max = map.getLength(); i < max; i++) {
+					Element st = (Element) map.item(i);
+					int cid = Integer.parseInt(st.getAttribute("cid"));
+					int pos = Integer.parseInt(st.getAttribute("pos"));
 					classStatic[cid] = pos;
 				}
 			}
 
-			Element objs = data.element("objects");
-			handleCount = Integer.parseInt(objs.attributeValue("handleCount"));
-			nextHandle = Integer.parseInt(objs.attributeValue("nextHandle"));
-			for (Element st : (List<Element>) objs.elements("object")) {
-				int handle = Integer.parseInt(st.attributeValue("handle"));
-				int cid = Integer.parseInt(st.attributeValue("cid"));
-				String text = st.getText();
+			Element objs = (Element) data.getElementsByTagName("objects").item(
+					0);
+			handleCount = Integer.parseInt(objs.getAttribute("handleCount"));
+			nextHandle = Integer.parseInt(objs.getAttribute("nextHandle"));
+			NodeList objectElements = objs.getElementsByTagName("object");
+			for (int i = 0, max = objectElements.getLength(); i < max; i++) {
+				Element st = (Element) objectElements.item(i);
+				int handle = Integer.parseInt(st.getAttribute("handle"));
+				int cid = Integer.parseInt(st.getAttribute("cid"));
+				String text = st.getTextContent();
 				baos.reset();
 				Base64.decode(text, baos);
 				ByteBuffer bb = ByteBuffer.allocateDirect(baos.size());
@@ -1169,30 +1179,38 @@ public final class DefaultHeap implements IHeap {
 
 		// private HashMap<String, Integer> literals = new HashMap<String,
 		// Integer>();
-		Element li = data.addElement("literals");
+		Document document = data.getOwnerDocument();
+		Element li = document.createElement("literals");
+		data.appendChild(li);
 		for (Entry<String, Integer> ls : literals.entrySet()) {
-			li.addElement("literal")
-					.addAttribute("handle", ls.getValue().toString())
-					.addText(ls.getKey());
+			Element lit = document.createElement("literal");
+			li.appendChild(lit);
+
+			lit.setAttribute("handle", ls.getValue().toString());
+			lit.setTextContent(ls.getKey());
 		}
 
 		// private ByteBuffer staticArea = ByteBuffer.allocate(MAX_STATIC);
 		// private int staticCount = 0;
 		// class id-> pointer in staticArea
 		// private int[] classStatic = new int[VMContext.MAX_CLASSES];
-		Element cs = data.addElement("statics");
+		Element cs = document.createElement("statics");
+		data.appendChild(cs);
 		{
-			Element content = cs.addElement("content");
-			Element map = cs.addElement("map");
+			Element content = document.createElement("content");// cs.addElement("content");
+			Element map = document.createElement("map");// cs.addElement("map");
+			cs.appendChild(content);
+			cs.appendChild(map);
 			byte[] buf = new byte[staticCount << 2];
 			staticArea.clear();
 			staticArea.get(buf, 0, staticCount << 2);
 			staticArea.clear();
-			content.addText(Base64.encode(buf));
+			content.setTextContent(Base64.encode(buf));
 			for (int cid : context.getClassIds()) {
-				map.addElement("static")
-						.addAttribute("cid", String.valueOf(cid))
-						.addAttribute("pos", String.valueOf(classStatic[cid]));
+				Element st = document.createElement("static");
+				map.appendChild(st);
+				st.setAttribute("cid", String.valueOf(cid));
+				st.setAttribute("pos", String.valueOf(classStatic[cid]));
 
 			}
 		}
@@ -1203,10 +1221,11 @@ public final class DefaultHeap implements IHeap {
 		// private int handles[] = new int[MAX_OBJECTS * 2];
 		// private int nextHandle;
 		// private int handleCount;
-		Element objs = data.addElement("objects");
+		Element objs = document.createElement("objects");
+		data.appendChild(objs);
 		{
-			objs.addAttribute("handleCount", String.valueOf(handleCount));
-			objs.addAttribute("nextHandle", String.valueOf(nextHandle));
+			objs.setAttribute("handleCount", String.valueOf(handleCount));
+			objs.setAttribute("nextHandle", String.valueOf(nextHandle));
 			for (int i = 1; i < MAX_OBJECTS; i++) {
 				int cid = classId[i];
 				if (cid == -1) {
@@ -1218,10 +1237,11 @@ public final class DefaultHeap implements IHeap {
 				byte[] buf = new byte[size];
 				obj.get(buf);
 				obj.clear();
-				objs.addElement("object")
-						.addAttribute("handle", String.valueOf(i))
-						.addAttribute("cid", String.valueOf(cid))
-						.addText(Base64.encode(buf));
+				Element ele = document.createElement("object");
+				objs.appendChild(ele);
+				ele.setAttribute("handle", String.valueOf(i));
+				ele.setAttribute("cid", String.valueOf(cid));
+				ele.setTextContent(Base64.encode(buf));
 			}
 		}
 
