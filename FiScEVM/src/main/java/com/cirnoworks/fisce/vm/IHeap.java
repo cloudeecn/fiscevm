@@ -18,7 +18,7 @@ package com.cirnoworks.fisce.vm;
 
 import java.util.BitSet;
 
-import org.dom4j.Element;
+import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;

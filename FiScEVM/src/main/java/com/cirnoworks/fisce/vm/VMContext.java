@@ -26,12 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
+import org.apache.xml.serialize.OutputFormat;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;

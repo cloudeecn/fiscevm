@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-import org.dom4j.Element;
+import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.env.minimal.nh.ClassForName;
 import com.cirnoworks.fisce.env.minimal.nh.ClassGetComponentType;
@@ -82,7 +82,7 @@ public class BaseToolkit implements IToolkit {
 
 	private VMContext context;
 
-	// persist
+	// persist 
 	private HashMap<String, String> properties = new HashMap<String, String>();
 
 	// no persist

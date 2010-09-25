@@ -17,7 +17,7 @@
 
 package com.cirnoworks.fisce.vm;
 
-import org.dom4j.Element;
+import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.vm.data.ClassBase;
 

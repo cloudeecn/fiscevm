@@ -17,9 +17,8 @@
 package com.cirnoworks.fisce.vm;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import org.dom4j.Element;
+import org.w3c.dom.Element;
 
 public interface IToolkit {
 

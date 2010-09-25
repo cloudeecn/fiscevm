@@ -24,10 +24,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.dom4j.Element;
+import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.vm.Base64;
 import com.cirnoworks.fisce.vm.IHeap;

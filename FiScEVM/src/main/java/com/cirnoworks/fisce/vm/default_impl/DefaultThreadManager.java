@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dom4j.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.cirnoworks.fisce.vm.Base64;
 import com.cirnoworks.fisce.vm.IHeap;
@@ -306,8 +308,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.cirnoworks.fisce.vm.IThreadManager#bootFromMain(com.cirnoworks
+	 * @see com.cirnoworks.fisce.vm.IThreadManager#bootFromMain(com.cirnoworks
 	 * .fisce.vm.data.ClassBase)
 	 */
 	public void bootFromMain(ClassBase clazz) throws VMException,
@@ -638,23 +639,26 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			setState(STATE_STOP);
-			Element threadsElement = data.element("threads");
-			for (Element te : (List<Element>) threadsElement.elements("thread")) {
-				int tid = Integer.parseInt(te.attributeValue("tid"));
+			NodeList threadsElement = data.getElementsByTagName("threads");
+			NodeList threadElements = ((Element) threadsElement.item(0))
+					.getElementsByTagName("thread");
+			for (int i = 0, max = threadElements.getLength(); i < max; i++) {
+				Element te = (Element) threadElements.item(i);
+				int tid = Integer.parseInt(te.getAttribute("tid"));
 				int waitForLockId1 = Integer.parseInt(te
-						.attributeValue("waitForLockId"));
+						.getAttribute("waitForLockId"));
 				int waitForNotifyId1 = Integer.parseInt(te
-						.attributeValue("waitForNotifyId"));
+						.getAttribute("waitForNotifyId"));
 				int pendingLockCount1 = Integer.parseInt(te
-						.attributeValue("pendingLockCount"));
+						.getAttribute("pendingLockCount"));
 				long nextWakeUpTime1 = Long.parseLong(te
-						.attributeValue("nextWakeUpTime"));
+						.getAttribute("nextWakeUpTime"));
 				boolean interrupted1 = Boolean.parseBoolean(te
-						.attributeValue("interrupted"));
+						.getAttribute("interrupted"));
 				boolean destroyPending1 = Boolean.parseBoolean(te
-						.attributeValue("destroyPending"));
+						.getAttribute("destroyPending"));
 				baos.reset();
-				Base64.decode(te.getText(), baos);
+				Base64.decode(te.getTextContent(), baos);
 				DefaultThread dt = new DefaultThread(context, this);
 				dt.createFromData(baos.toByteArray());
 				runningThreads.add(dt);
@@ -667,12 +671,15 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 				destroyPending[tid] = destroyPending1;
 			}
 
-			Element monitorsElement = data.element("monitors");
-			for (Element me : (List<Element>) monitorsElement
-					.elements("monitor")) {
-				int handle = Integer.parseInt(me.attributeValue("handle"));
-				int owner = Integer.parseInt(me.attributeValue("owner"));
-				int times = Integer.parseInt(me.attributeValue("times"));
+			Element monitorsElement = (Element) data.getElementsByTagName(
+					"monitors").item(0);
+			NodeList monitorElements = monitorsElement
+					.getElementsByTagName("monitor");
+			for (int i = 0, max = monitorElements.getLength(); i < max; i++) {
+				Element me = (Element) monitorElements.item(i);
+				int handle = Integer.parseInt(me.getAttribute("handle"));
+				int owner = Integer.parseInt(me.getAttribute("owner"));
+				int times = Integer.parseInt(me.getAttribute("times"));
 				monitorOwnerId[handle] = owner;
 				monitorOwnerTimes[handle] = times;
 			}
@@ -697,39 +704,45 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 		// thread id --> destroyPending
 		// private boolean[] destroyPending = new boolean[MAX_THREADS];
 		// handle --> monitor owner id
-		Element threads = data.addElement("threads");
+		Document document = data.getOwnerDocument();
+		Element threads = document.createElement("threads");
+		data.appendChild(threads);
 		for (DefaultThread dt : runningThreads) {
-			Element thread = threads.addElement("thread").addText(
-					Base64.encode(dt.getFullStack()));
+			Element thread = document.createElement("thread");
+			thread.setTextContent(Base64.encode(dt.getFullStack()));
+
 			int tid = dt.getThreadId();
-			thread.addAttribute("tid", String.valueOf(tid));
-			thread.addAttribute("waitForLockId",
+			thread.setAttribute("tid", String.valueOf(tid));
+			thread.setAttribute("waitForLockId",
 					String.valueOf(waitForLockId[tid]));
-			thread.addAttribute("waitForNotifyId",
+			thread.setAttribute("waitForNotifyId",
 					String.valueOf(waitForNotifyId[tid]));
-			thread.addAttribute("pendingLockCount",
+			thread.setAttribute("pendingLockCount",
 					String.valueOf(pendingLockCount[tid]));
-			thread.addAttribute("nextWakeUpTime",
+			thread.setAttribute("nextWakeUpTime",
 					String.valueOf(nextWakeUpTime[tid]));
-			thread.addAttribute("interrupted", String.valueOf(interrupted[tid]));
-			thread.addAttribute("destroyPending",
+			thread.setAttribute("interrupted", String.valueOf(interrupted[tid]));
+			thread.setAttribute("destroyPending",
 					String.valueOf(destroyPending[tid]));
+			threads.appendChild(thread);
 		}
 
 		// private int[] monitorOwnerId = new int[IHeap.MAX_OBJECTS];
 		// handle --> monitor owner times
 		// private int[] monitorOwnerTimes = new int[IHeap.MAX_OBJECTS];
-		Element monitors = data.addElement("monitors");
+		Element monitors = document.createElement("monitors");
 		for (int i = 0; i < IHeap.MAX_OBJECTS; i++) {
 			if (monitorOwnerId[i] >= 0) {
-				monitors.addElement("monitor")
-						.addAttribute("handle", String.valueOf(i))
-						.addAttribute("owner",
-								String.valueOf(monitorOwnerId[i]))
-						.addAttribute("times",
-								String.valueOf(monitorOwnerTimes[i]));
+				Element monitor = document.createElement("monitor");
+				monitor.setAttribute("handle", String.valueOf(i));
+				monitor.setAttribute("owner", String.valueOf(monitorOwnerId[i]));
+				monitor.setAttribute("times",
+						String.valueOf(monitorOwnerTimes[i]));
+				monitor.appendChild(monitor);
+
 			}
 		}
+		data.appendChild(monitors);
 	}
 
 	public void exit(int exitCode) {
