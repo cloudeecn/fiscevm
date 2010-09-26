@@ -31,7 +31,7 @@
 			<scope>runtime</scope>
 			<outputDirectory>lib</outputDirectory>
 			<includes>
-				<include>com.cirnoworks.FiScE:FiScENV:jar:main</include>
+				<include>com.cirnoworks.FiScE:FiScENVDist:jar:standalone</include>
 			</includes>
 		</dependencySet>
 	</dependencySets>
