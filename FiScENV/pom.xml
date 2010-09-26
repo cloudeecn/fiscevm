@@ -31,28 +31,6 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2-beta-5</version>
-				<configuration>
-					<descriptors>
-						<descriptor>descriptor.xml</descriptor>
-						<descriptor>descriptor-test.xml</descriptor>
-					</descriptors>
-					<finalName>assemble</finalName>
-					<outputDirectory>target</outputDirectory>
-					<workDirectory>target/assembly/work</workDirectory>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>package</phase> <!-- append to the packaging phase. -->
-						<goals>
-							<goal>single</goal> <!-- goals == mojos -->
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 </project>

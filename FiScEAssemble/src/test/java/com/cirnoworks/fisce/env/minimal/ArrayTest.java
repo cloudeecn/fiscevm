@@ -26,7 +26,7 @@ import com.cirnoworks.fisce.vm.FiScEVM;
 public class ArrayTest {
 	public void testArray() throws Exception {
 		FiScEVM context = TestInitializer.getContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/ArrayTest");
+		context.bootFromClass("EXCLUDE/fisce/test/ArrayTest");
 		// context.requestStop();
 		context.start();
 		context.waitTillStopped(0);
@@ -34,7 +34,7 @@ public class ArrayTest {
 
 	public void testArrayFast() throws Exception {
 		FiScEVM context = TestInitializer.getFastContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/ArrayTest");
+		context.bootFromClass("EXCLUDE/fisce/test/ArrayTest");
 		// context.requestStop();
 		context.start();
 		context.waitTillStopped(0);

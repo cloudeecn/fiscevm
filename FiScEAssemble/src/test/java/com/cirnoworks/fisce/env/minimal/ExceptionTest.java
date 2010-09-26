@@ -16,7 +16,7 @@ public class ExceptionTest extends TestCase {
 	}
 
 	private void doTest(VMContext context) throws Exception {
-		context.bootFromClass("com/cirnoworks/fisce/test/ExceptionTester");
+		context.bootFromClass("EXCLUDE/fisce/test/ExceptionTester");
 		context.start();
 		context.waitTillStopped(0);
 	}

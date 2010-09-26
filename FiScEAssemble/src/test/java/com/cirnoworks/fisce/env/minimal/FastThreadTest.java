@@ -7,7 +7,7 @@ import com.cirnoworks.fisce.vm.FiScEVM;
 public class FastThreadTest extends TestCase {
 	public void testRun() throws Exception {
 		FiScEVM context = TestInitializer.getFastContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/Tester");
+		context.bootFromClass("EXCLUDE/fisce/test/Tester");
 		context.start();
 		// context.requestStop();
 		context.waitTillStopped(0);
@@ -16,7 +16,7 @@ public class FastThreadTest extends TestCase {
 	public void testStop() throws Exception {
 		FiScEVM context = TestInitializer.getFastContext();
 		// context.setConsole(new NullConsole());
-		context.bootFromClass("com/cirnoworks/fisce/test/RunnerTester");
+		context.bootFromClass("EXCLUDE/fisce/test/RunnerTester");
 		context.start();
 		try {
 			context.waitTillStopped(1000);

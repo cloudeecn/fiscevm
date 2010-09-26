@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.cirnoworks.fisce.test;
+package EXCLUDE.fisce.test;
 
 
 /**

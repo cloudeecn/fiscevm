@@ -8,8 +8,9 @@
 	<name>FiScE VM Build</name>
 	<url>http://fiscevm.googlecode.com</url>
 	<modules>
-		<module>../FiScEVM</module>
 		<module>../FiScENV</module>
+		<module>../FiScENVDist</module>
+		<module>../FiScEVM</module>
 		<module>../FiScENVTK</module>
 		<module>../FiScEAssemble</module>
 	</modules>

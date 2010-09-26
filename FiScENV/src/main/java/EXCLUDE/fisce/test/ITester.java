@@ -1,4 +1,4 @@
-package com.cirnoworks.fisce.test;
+package EXCLUDE.fisce.test;
 
 public interface ITester {
 	void testInterface();

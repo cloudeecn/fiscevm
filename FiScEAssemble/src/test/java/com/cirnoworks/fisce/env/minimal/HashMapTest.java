@@ -32,7 +32,7 @@ public class HashMapTest {
 	}
 
 	private void doTest(VMContext context) throws Exception {
-		context.bootFromClass("com/cirnoworks/fisce/test/HashMapTest");
+		context.bootFromClass("EXCLUDE/fisce/test/HashMapTest");
 		context.start();
 		context.waitTillStopped(0);
 	}

@@ -33,7 +33,7 @@ public class BaseToolkitTest extends TestCase {
 	public void testHelloWorld() throws Exception {
 		FiScEVM vm = TestInitializer.getContext();
 
-		vm.bootFromClass("com/cirnoworks/fisce/test/MinimalTest");
+		vm.bootFromClass("EXCLUDE/fisce/test/MinimalTest");
 		vm.start();
 		vm.waitTillStopped(0);
 	}
@@ -41,7 +41,7 @@ public class BaseToolkitTest extends TestCase {
 	public void testHelloWorldFast() throws Exception {
 		FiScEVM vm = TestInitializer.getFastContext();
 
-		vm.bootFromClass("com/cirnoworks/fisce/test/MinimalTest");
+		vm.bootFromClass("EXCLUDE/fisce/test/MinimalTest");
 		vm.start();
 		vm.waitTillStopped(0);
 	}
@@ -50,7 +50,7 @@ public class BaseToolkitTest extends TestCase {
 
 	public void testNative() throws Exception {
 		VMContext context = TestInitializer.getContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/MinimalTest");
+		context.bootFromClass("EXCLUDE/fisce/test/MinimalTest");
 		String[] classes = { "com/cirnoworks/fisce/privat/FiScEVM",
 				"com/cirnoworks/fisce/privat/ResourceInputStream",
 				"com/cirnoworks/fisce/privat/SystemInputStream",

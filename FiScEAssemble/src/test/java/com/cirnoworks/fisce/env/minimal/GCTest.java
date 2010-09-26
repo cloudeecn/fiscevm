@@ -11,7 +11,7 @@ import com.cirnoworks.fisce.vm.VMContext;
 public class GCTest extends TestCase {
 	public void testGC() throws Exception {
 		VMContext context = TestInitializer.getContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/TestGC");
+		context.bootFromClass("EXCLUDE/fisce/test/TestGC");
 		// context.requestStop();
 		context.start();
 		try {
@@ -53,7 +53,7 @@ public class GCTest extends TestCase {
 
 	public void testGCFast() throws Exception {
 		VMContext context = TestInitializer.getFastContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/TestGC");
+		context.bootFromClass("EXCLUDE/fisce/test/TestGC");
 		// context.requestStop();
 		context.start();
 		try {

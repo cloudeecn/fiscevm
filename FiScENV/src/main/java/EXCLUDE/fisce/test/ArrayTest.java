@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cirnoworks.fisce.test;
+package EXCLUDE.fisce.test;
 
 import com.cirnoworks.fisce.privat.FiScEVM;
 

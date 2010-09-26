@@ -9,14 +9,14 @@ import com.cirnoworks.fisce.vm.data.ClassMethod;
 public class VMContextTest extends TestCase {
 	public void testLookupMethodInterface() throws Exception {
 		VMContext context = TestInitializer.getContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/Dummy");
+		context.bootFromClass("EXCLUDE/fisce/test/Dummy");
 
 		ClassBase it = (ClassBase) context
-				.getClass("com/cirnoworks/fisce/test/ITester");
+				.getClass("EXCLUDE/fisce/test/ITester");
 		ClassBase t = (ClassBase) context
-				.getClass("com/cirnoworks/fisce/test/Tester");
+				.getClass("EXCLUDE/fisce/test/Tester");
 		ClassBase tc = (ClassBase) context
-				.getClass("com/cirnoworks/fisce/test/TesterChild");
+				.getClass("EXCLUDE/fisce/test/TesterChild");
 		ClassMethod[] methods = it.getMethods();
 		ClassMethod target = null;
 		for (int i = 0, max = methods.length; i < max; i++) {

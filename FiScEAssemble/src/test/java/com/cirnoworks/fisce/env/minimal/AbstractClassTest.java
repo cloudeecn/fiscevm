@@ -10,7 +10,7 @@ public class AbstractClassTest extends TestCase {
 
 
 		VMContext context = TestInitializer.getContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/Dummy");
+		context.bootFromClass("EXCLUDE/fisce/test/Dummy");
 
 		AbstractClass class0 = context.getClass("java/lang/Object");
 		AbstractClass class1 = context.getClass("[[B");
@@ -18,11 +18,11 @@ public class AbstractClassTest extends TestCase {
 		AbstractClass class3 = context.getClass("[[[B");
 		AbstractClass class4 = context.getClass("[[Ljava/lang/Object;");
 		AbstractClass class5 = context
-				.getClass("[[Lcom/cirnoworks/fisce/test/ITester;");
+				.getClass("[[LEXCLUDE/fisce/test/ITester;");
 		AbstractClass class6 = context
-				.getClass("[[Lcom/cirnoworks/fisce/test/Tester;");
+				.getClass("[[LEXCLUDE/fisce/test/Tester;");
 		AbstractClass class7 = context
-				.getClass("[[Lcom/cirnoworks/fisce/test/TesterChild;");
+				.getClass("[[LEXCLUDE/fisce/test/TesterChild;");
 		assert !class1.canCastTo(class2);
 		assert !class1.canCastTo(class3);
 		assert class1.canCastTo(class0);

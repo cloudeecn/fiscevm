@@ -9,7 +9,7 @@ public class BenchmarkTest extends TestCase {
 
 	public void testBenchmark() throws Exception {
 		FiScEVM context = TestInitializer.getContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/Benchmark");
+		context.bootFromClass("EXCLUDE/fisce/test/Benchmark");
 		context.setConsole(new NullConsole()); 
 		context.start();
 		context.waitTillStopped(0);
@@ -17,7 +17,7 @@ public class BenchmarkTest extends TestCase {
 	
 	public void testBenchmarkFast() throws Exception {
 		FiScEVM context = TestInitializer.getFastContext();
-		context.bootFromClass("com/cirnoworks/fisce/test/Benchmark");
+		context.bootFromClass("EXCLUDE/fisce/test/Benchmark");
 		context.setConsole(new NullConsole()); 
 		context.start();
 		context.waitTillStopped(0);
