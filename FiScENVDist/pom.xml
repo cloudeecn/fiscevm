@@ -39,7 +39,7 @@
 						<descriptor>descriptor.xml</descriptor>
 						<descriptor>descriptor-test.xml</descriptor>
 					</descriptors>
-					<finalName>assemble</finalName>
+					<finalName>script</finalName>
 					<outputDirectory>target</outputDirectory>
 					<workDirectory>target/assembly/work</workDirectory>
 				</configuration>
