@@ -1,4 +1,4 @@
-package com.cirnoworks.fisce.vm;
+package com.cirnoworks.fisce.util;
 
 import java.io.IOException;
 import java.io.OutputStream;

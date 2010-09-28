@@ -30,7 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.cirnoworks.fisce.vm.Base64;
+import com.cirnoworks.fisce.util.Base64;
 import com.cirnoworks.fisce.vm.IHeap;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
