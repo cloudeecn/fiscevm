@@ -1,9 +1,7 @@
 package com.cirnoworks.fisce;
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.default_impl.DefaultClassLoader;
-import com.cirnoworks.fisce.vm.default_impl.DefaultHeap;
-import com.cirnoworks.fisce.vm.default_impl.DefaultThreadManager;
+import com.cirnoworks.fisce.vm.default_impl.*;
 
 public class FMS {
 
@@ -14,11 +12,17 @@ public class FMS {
 		VMContext vm = new VMContext();
 		vm.setClassLoader(new DefaultClassLoader());
 		vm.setHeap(new DefaultHeap());
-		vm.setThreadManager(new DefaultThreadManager());
+		vm.setThreadManager(new FastThreadManager());
 		vm.setConsole(new SystemOutConsole());
 		vm.addToolkit(new BaseToolkit());
+		String boot;
+		if(args.length>0){
+			boot=args[0];
+		}else{
+			boot="com/cirnoworks/fisce/privat/Profile";
+		}
 		try {
-			vm.bootFromClass(args[0]);
+			vm.bootFromClass(boot);
 			vm.start();
 			vm.waitTillStopped(0);
 		} catch (Exception e) {
