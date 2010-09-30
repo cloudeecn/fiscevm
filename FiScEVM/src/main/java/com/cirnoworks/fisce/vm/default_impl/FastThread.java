@@ -192,10 +192,6 @@ public final class FastThread implements IThread {
 		frames.putInt(pThreadHandle, handle);
 	}
 
-	public final int getCurrentThrowable() {
-		return frames.getInt(pCurrentThrowable);
-	}
-
 	public final void setCurrentThrowable(int handle)
 			throws VMCriticalException {
 		if (handle != 0) {
@@ -500,7 +496,7 @@ public final class FastThread implements IThread {
 		for (int opNow = 0; opNow < ops; opNow++) {
 			if (fp == pFP) {
 				// Time to quit!
-				int th = getCurrentThrowable();
+				int th = frames.getInt(pCurrentThrowable);
 				if (th > 0) {
 					// Still exception in this thread!
 					assert context.getConsole().debug(
@@ -517,10 +513,68 @@ public final class FastThread implements IThread {
 				}
 			}
 
-			int th = getCurrentThrowable();
+			int th = frames.getInt(pCurrentThrowable);
 			if (th > 0) {
-				processThrowable(th);
-				// process next cmd.
+				assert context.getConsole().debug(
+						"*EXCEPTION HANDLE LOOKUP: LPC=" + lpc);
+				AbstractClass throwableClass;
+				try {
+					throwableClass = (ClassBase) context.getClass(th);
+				} catch (VMException e) {
+					context.getConsole().error(
+							"Error in processing exception. Thread dead.", e);
+					throw new VMCriticalException(e);
+				}
+
+				ExceptionHandler[] handlers = method.getExceptionTable();
+				int target = -1;
+				for (int i = 0, max = handlers.length; i < max; i++) {
+					ExceptionHandler eh = handlers[i];
+					assert context.getConsole().debug("*" + eh);
+					if (lpc >= eh.startPc && lpc < eh.endPc) {
+						try {
+							if (eh.catchClass == null) {
+								target = eh.handlerPc;
+								break;
+							} else {
+								AbstractClass handlerClass = eh.catchClass.getClazz();
+								if (throwableClass.canCastTo(handlerClass)) {
+									target = eh.handlerPc;
+									break;
+								}
+							}
+						} catch (VMException ex) {
+							context.getConsole().error(
+									"Critical error in processer thread!", ex);
+							throw new VMCriticalException(ex);
+						}
+					}
+				}
+				if (target >= 0) {
+					// can handle, clear stack and push exception and jump
+					assert context.getConsole().debug("*FOUND JUMP=" + target);
+					sr = 0;
+					pushHandle(th);
+					setCurrentThrowable(0);
+					pc = target;
+				} else {
+					// throw to caller.
+					assert context.getConsole().debug("NOT FOUND!");
+					try {
+						if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
+							if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
+								monitorExit(context.getClassObjectHandleForClass(method.getOwner()));
+							} else {
+								monitorExit(getLocalHandle(0));
+							}
+						}
+					} catch (VMException ex) {
+						context.getConsole().error(
+								"Critical error in processer thread!", ex);
+						throw new VMCriticalException(ex);
+					}
+					popFrame();
+				}
 				continue;
 			}
 			{
@@ -2498,69 +2552,6 @@ public final class FastThread implements IThread {
 		return false;
 	}
 
-	private void processThrowable(int th) throws VMCriticalException {
-		assert context.getConsole().debug(
-				"*EXCEPTION HANDLE LOOKUP: LPC=" + lpc);
-		AbstractClass throwableClass;
-		try {
-			throwableClass = (ClassBase) context.getClass(th);
-		} catch (VMException e) {
-			context.getConsole().error(
-					"Error in processing exception. Thread dead.", e);
-			throw new VMCriticalException(e);
-		}
-
-		ExceptionHandler[] handlers = method.getExceptionTable();
-		int target = -1;
-		for (int i = 0, max = handlers.length; i < max; i++) {
-			ExceptionHandler eh = handlers[i];
-			assert context.getConsole().debug("*" + eh);
-			if (lpc >= eh.startPc && lpc < eh.endPc) {
-				try {
-					if (eh.catchClass == null) {
-						target = eh.handlerPc;
-						break;
-					} else {
-						AbstractClass handlerClass = eh.catchClass.getClazz();
-						if (throwableClass.canCastTo(handlerClass)) {
-							target = eh.handlerPc;
-							break;
-						}
-					}
-				} catch (VMException ex) {
-					context.getConsole().error(
-							"Critical error in processer thread!", ex);
-					throw new VMCriticalException(ex);
-				}
-			}
-		}
-		if (target >= 0) {
-			// can handle, clear stack and push exception and jump
-			assert context.getConsole().debug("*FOUND JUMP=" + target);
-			sr = 0;
-			pushHandle(th);
-			setCurrentThrowable(0);
-			pc = target;
-		} else {
-			// throw to caller.
-			assert context.getConsole().debug("NOT FOUND!");
-			try {
-				if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
-					if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
-						monitorExit(context.getClassObjectHandleForClass(method.getOwner()));
-					} else {
-						monitorExit(getLocalHandle(0));
-					}
-				}
-			} catch (VMException ex) {
-				context.getConsole().error(
-						"Critical error in processer thread!", ex);
-				throw new VMCriticalException(ex);
-			}
-			popFrame();
-		}
-	}
-
 	private void monitorEnter(int handle) {
 		// context.getConsole().info(
 		// getThreadId() + ">+++ Enter monitor " + handle);
@@ -2665,7 +2656,6 @@ public final class FastThread implements IThread {
 		return ((bb1 & 0xff) << 24) + ((bb2 & 0xff) << 16)
 				+ ((bb3 & 0xff) << 8) + (bb4 & 0xff);
 	}
-
 
 	public int popType(TypeContainer tc) {
 		sr--;
@@ -2946,11 +2936,11 @@ public final class FastThread implements IThread {
 		assert heap.isHandleValid(getThreadHandle());
 		// context.getConsole().info("SCAN INITT->" + getThreadHandle());
 		tofill.add(getThreadHandle());
-		if (getCurrentThrowable() > 0) {
-			assert heap.isHandleValid(getCurrentThrowable());
+		if (frames.getInt(pCurrentThrowable) > 0) {
+			assert heap.isHandleValid(frames.getInt(pCurrentThrowable));
 			// context.getConsole().info("SCAN INITT->" +
 			// getCurrentThrowable());
-			tofill.add(getCurrentThrowable());
+			tofill.add(frames.getInt(pCurrentThrowable));
 		}
 		StringBuilder out = new StringBuilder(64);
 		while (getFP() > pFP) {

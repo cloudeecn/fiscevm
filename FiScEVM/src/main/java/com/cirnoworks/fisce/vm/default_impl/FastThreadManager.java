@@ -115,7 +115,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 		// System.out
 		// .println("nwut[" + threadId + "]=" + nextWakeUpTime[threadId]);
 		if (nextWakeUpTime[threadId] > 0) {
-			assert target.getCurrentThrowable() == 0;
+			//assert target.getCurrentThrowable() == 0;
 			int exceptionHandle = context.getThrower().prepareThrowable(
 					new VMException("java/lang/InterruptedException", ""),
 					target);
