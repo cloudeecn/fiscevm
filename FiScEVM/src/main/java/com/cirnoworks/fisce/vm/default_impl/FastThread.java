@@ -2666,8 +2666,6 @@ public final class FastThread implements IThread {
 				+ ((bb3 & 0xff) << 8) + (bb4 & 0xff);
 	}
 
-	public void athrow(int handle) {
-	}
 
 	public int popType(TypeContainer tc) {
 		sr--;
