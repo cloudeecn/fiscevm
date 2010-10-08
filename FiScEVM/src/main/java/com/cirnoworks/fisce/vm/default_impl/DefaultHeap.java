@@ -493,6 +493,15 @@ public final class DefaultHeap implements IHeap {
 		}
 		objects[handle].putLong(pos << 2, value);
 	}
+	
+	public void fillFieldByte(int srcHandle,int srcPos,byte[] dest,int destPos,int length) throws VMException{
+		if (srcHandle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		ByteBuffer bb=objects[srcHandle];
+		//TODO unfinished
+		
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -1244,6 +1253,5 @@ public final class DefaultHeap implements IHeap {
 				ele.setTextContent(Base64.encode(buf));
 			}
 		}
-
 	}
 }
