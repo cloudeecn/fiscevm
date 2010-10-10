@@ -17,12 +17,11 @@
 package com.cirnoworks.fisce.vm.default_impl;
 
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import com.cirnoworks.fisce.vm.IClassLoader;
+import com.cirnoworks.fisce.vm.IHeap;
 import com.cirnoworks.fisce.vm.IToolkit;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
@@ -66,6 +65,19 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantUTF8;
  * @author cloudee
  */
 public class DefaultClassLoader implements IClassLoader {
+	private int getSizeShiftForArray(String arrayName) {
+		char c = arrayName.charAt(1);
+		switch (c) {
+		case 'Z':
+		case 'B':
+			return 0;
+		case 'D':
+		case 'J':
+			return 3;
+		default:
+			return 2;
+		}
+	}
 
 	private ClassBase loadClassFromStream(ClassBase cb, InputStream is,
 			VMContext context) throws IOException, VMException {
@@ -438,6 +450,7 @@ public class DefaultClassLoader implements IClassLoader {
 			ca.setSuperClass((ClassBase) context.getClass("java/lang/Object"));
 			ca.createInterfaces(0);
 			ca.setName(className);
+			ca.setSizeShift(getSizeShiftForArray(className));
 			ca.setConstantsLoaded(true);
 			ca.setConstantsFilled(true);
 			return ca;

@@ -510,13 +510,43 @@ public interface IHeap {
 
 	void putArrayHandle(int handle, int index, int value) throws VMException;
 
+	void fillArrayBoolean(int handle, int dstPos, boolean[] src, int srcPos,
+			int len) throws VMException;
+
+	void fillArrayByte(int handle, int dstPos, byte[] src, int srcPos, int len)
+			throws VMException;
+
+	void fillArrayShort(int handle, int dstPos, short[] src, int srcPos, int len)
+			throws VMException;
+
+	void fillArrayChar(int handle, int dstPos, char[] src, int srcPos, int len)
+			throws VMException;
+
+	void fillArrayInt(int handle, int dstPos, int[] src, int srcPos, int len)
+			throws VMException;
+
+	void fillArrayLong(int handle, int dstPos, long[] src, int srcPos, int len)
+			throws VMException;
+
+	void fillArrayFloat(int handle, int dstPos, float[] src, int srcPos, int len)
+			throws VMException;
+
+	void fillArrayDouble(int handle, int dstPos, double[] src, int srcPos,
+			int len) throws VMException;
+
 	/**
 	 * 复制数组的内容
-	 * @param srcHandle 源数组
-	 * @param srcOfs 源数组的起始点
-	 * @param destHandle 目标数组
-	 * @param destOfs 目标数组的起始点
-	 * @param count 要复制的长度
+	 * 
+	 * @param srcHandle
+	 *            源数组
+	 * @param srcOfs
+	 *            源数组的起始点
+	 * @param destHandle
+	 *            目标数组
+	 * @param destOfs
+	 *            目标数组的起始点
+	 * @param count
+	 *            要复制的长度
 	 * @throws VMException
 	 */
 	void arrayCopy(int srcHandle, int srcOfs, int destHandle, int destOfs,
@@ -524,14 +554,18 @@ public interface IHeap {
 
 	/**
 	 * 给类分配静态空间（载入类的时候由VM调用）
-	 * @param clazz 要分配空间的类
+	 * 
+	 * @param clazz
+	 *            要分配空间的类
 	 * @throws VMException
 	 */
 	void initStaticAreaForClass(AbstractClass clazz) throws VMException;
 
 	/**
 	 * 取类静态空间的首地址
-	 * @param clazz 类
+	 * 
+	 * @param clazz
+	 *            类
 	 * @return 类静态空间的首地址
 	 * @throws VMException
 	 */
@@ -583,7 +617,9 @@ public interface IHeap {
 	/**
 	 * 取字符串常量对象的句柄 <br />
 	 * 如果字符串常量不存在就创建一个
-	 * @param str 字符串
+	 * 
+	 * @param str
+	 *            字符串
 	 * @return 对应的字符串常量的句柄
 	 * @throws VMException
 	 * @throws VMCriticalException
@@ -592,7 +628,9 @@ public interface IHeap {
 
 	/**
 	 * 从字符串对象中取得字符串
-	 * @param handle 字符串对象的句柄
+	 * 
+	 * @param handle
+	 *            字符串对象的句柄
 	 * @return 字符串
 	 * @throws VMException
 	 * @throws VMCriticalException
@@ -601,7 +639,9 @@ public interface IHeap {
 
 	/**
 	 * 给字符串在虚拟机中分配一个对象
-	 * @param content 字符串
+	 * 
+	 * @param content
+	 *            字符串
 	 * @return 分配的对象句柄
 	 * @throws VMException
 	 * @throws VMCriticalException
@@ -611,13 +651,16 @@ public interface IHeap {
 
 	/**
 	 * 句柄是否合法
-	 * @param handle 句柄
+	 * 
+	 * @param handle
+	 *            句柄
 	 * @return 句柄是否合法
 	 */
 	boolean isHandleValid(int handle);
 
 	/**
 	 * 扫描堆内容，返回一个句柄是否被用到的位集
+	 * 
 	 * @return 位集，每一位表示一个对应的句柄是不是被用到
 	 * @throws VMCriticalException
 	 */
@@ -625,6 +668,7 @@ public interface IHeap {
 
 	/**
 	 * 垃圾收集，释放掉不使用的句柄和对应的内存空间
+	 * 
 	 * @throws VMCriticalException
 	 */
 	void gc() throws VMCriticalException;

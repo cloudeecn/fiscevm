@@ -27,6 +27,7 @@ public final class ClassArray extends AbstractClass {
 
 	private AbstractClass contentClass;
 	private char pType;
+	private int sizeShift;
 
 	public AbstractClass getContentClass() {
 		return contentClass;
@@ -42,6 +43,14 @@ public final class ClassArray extends AbstractClass {
 
 	public void setpType(char pType) {
 		this.pType = pType;
+	}
+
+	public int getSizeShift() {
+		return sizeShift;
+	}
+
+	public void setSizeShift(int sizeShift) {
+		this.sizeShift = sizeShift;
 	}
 
 	public ClassArray(VMContext context, IClassLoader loader) {
