@@ -17,6 +17,7 @@
 package com.cirnoworks.fisce.vm.default_impl;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -126,7 +127,7 @@ public final class DefaultThread implements IThread {
 	 * ******************
 	 * Persist data
 	 */
-	private final ByteBuffer frames = ByteBuffer.allocateDirect(STACK_SIZE);
+	private final ByteBuffer frames = BufferUtil.createBuffer(STACK_SIZE);
 
 	public byte[] getFullStack() {
 		int size = getFP() + 4;

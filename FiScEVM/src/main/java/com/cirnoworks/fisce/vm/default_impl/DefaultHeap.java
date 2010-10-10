@@ -18,6 +18,7 @@ package com.cirnoworks.fisce.vm.default_impl;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -53,7 +54,7 @@ public final class DefaultHeap implements IHeap {
 	// persist
 	// String -> String handle
 	private HashMap<String, Integer> literals = new HashMap<String, Integer>();
-	private ByteBuffer staticArea = ByteBuffer.allocateDirect(MAX_STATIC);
+	private ByteBuffer staticArea = BufferUtil.createBuffer(MAX_STATIC);
 	private int staticCount = 0;
 	// class id-> pointer in staticArea
 	private int[] classStatic = new int[VMContext.MAX_CLASSES];
@@ -220,8 +221,7 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public int allocate(ClassBase clazz) throws VMException,
 			VMCriticalException {
-		ByteBuffer obj = ByteBuffer
-				.allocateDirect(clazz.getTotalSizeInHeap() * 4);
+		ByteBuffer obj = BufferUtil.createBuffer(clazz.getTotalSizeInHeap() * 4);
 		return allocate(context.getClazzId(clazz), obj);
 	}
 
@@ -235,7 +235,7 @@ public final class DefaultHeap implements IHeap {
 			VMCriticalException {
 		assert clazz.getName().startsWith("[");
 		int size = length << clazz.getSizeShift();
-		ByteBuffer obj = ByteBuffer.allocateDirect(size);
+		ByteBuffer obj = BufferUtil.createBuffer(size);
 		return allocate(context.getClazzId(clazz), obj);
 	}
 
@@ -251,7 +251,7 @@ public final class DefaultHeap implements IHeap {
 		int cid = classId[handle];
 		ByteBuffer target = objects[handle].duplicate();
 		target.clear();
-		ByteBuffer clone = ByteBuffer.allocateDirect(target.capacity());
+		ByteBuffer clone = BufferUtil.createBuffer(target.capacity());
 		clone.put(target);
 		int ret = allocate(cid, clone);
 		return ret;
@@ -1243,7 +1243,7 @@ public final class DefaultHeap implements IHeap {
 				String text = st.getTextContent();
 				baos.reset();
 				Base64.decode(text, baos);
-				ByteBuffer bb = ByteBuffer.allocateDirect(baos.size());
+				ByteBuffer bb = BufferUtil.createBuffer(baos.size());
 				bb.put(baos.toByteArray());
 				bb.clear();
 				objects[handle] = bb;
@@ -1269,7 +1269,7 @@ public final class DefaultHeap implements IHeap {
 			lit.setTextContent(ls.getKey());
 		}
 
-		// private ByteBuffer staticArea = ByteBuffer.allocate(MAX_STATIC);
+		// private ByteBuffer staticArea = BufferUtil.createBuffer(MAX_STATIC);
 		// private int staticCount = 0;
 		// class id-> pointer in staticArea
 		// private int[] classStatic = new int[VMContext.MAX_CLASSES];
