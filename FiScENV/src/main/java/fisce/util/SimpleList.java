@@ -63,6 +63,16 @@ public final class SimpleList {
 		size++;
 	}
 
+	public boolean remove(Object c) {
+		for (int i = 0; i < size; i++) {
+			if (container[i] == c) {
+				remove(i);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void clear() {
 		for (int i = 0, max = size; i < max; i++) {
 			container[i] = null;
