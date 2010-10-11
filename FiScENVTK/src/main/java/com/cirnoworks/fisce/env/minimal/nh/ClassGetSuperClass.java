@@ -31,7 +31,7 @@ public class ClassGetSuperClass implements INativeHandler {
 		if (ac == null) {
 			thread.pushHandle(0);
 		} else {
-			thread.pushHandle(context.getClassObjectHandleForClass(ac));
+			thread.pushHandle(context.getClassObjectHandleForClass(ac.getSuperClass()));
 		}
 	}
 
