@@ -48,7 +48,6 @@ public class ClassInvokeMethod implements INativeHandler {
 		String methodName = heap.getString(methodNameHandle);
 		boolean isStatic = isStaticI > 0;
 		String uniqueName = clazz.getName() + "." + methodName;
-		System.out.println("XXXXX" + uniqueName);
 		ClassMethod invoke = context.getMethod(uniqueName);
 		byte[] pt = invoke.getParamType();
 		int count = paramsHandle == 0 ? 0 : heap.getArrayLength(paramsHandle);
