@@ -16,7 +16,8 @@
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<fiscevm.version>Latest-SNAPSHOT</fiscevm.version>
+		<fiscevm.version>0.8.10</fiscevm.version>
+		<!-- *Versions: *nighty:Latest-SNAPSHOT *last-release:0.8.2 -->
 	</properties>
 
 	<build>
