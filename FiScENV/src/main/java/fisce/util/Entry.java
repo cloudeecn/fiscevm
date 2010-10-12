@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package fisce.util;
@@ -20,12 +20,12 @@ package fisce.util;
  * @author cloudee
  * 
  */
-public class Entry {
+public class Entry<K,V> {
 
-	private Object key;
-	private Object value;
+	private K key;
+	private V value;
 
-	public Entry(Object key, Object value) {
+	public Entry(K key, V value) {
 		this.key = key;
 		this.value = value;
 	}
@@ -37,7 +37,7 @@ public class Entry {
 	/**
 	 * @return the key
 	 */
-	public Object getKey() {
+	public K getKey() {
 		return key;
 	}
 
@@ -45,14 +45,14 @@ public class Entry {
 	 * @param key
 	 *            the key to set
 	 */
-	public void setKey(Object key) {
+	public void setKey(K key) {
 		this.key = key;
 	}
 
 	/**
 	 * @return the value
 	 */
-	public Object getValue() {
+	public V getValue() {
 		return value;
 	}
 
@@ -60,7 +60,7 @@ public class Entry {
 	 * @param value
 	 *            the value to set
 	 */
-	public void setValue(Object value) {
+	public void setValue(V value) {
 		this.value = value;
 	}
 

@@ -9,15 +9,16 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.cirnoworks.fisce.vm.data;
 
 import com.cirnoworks.fisce.vm.IClassLoader;
 import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
 
 /**
@@ -263,13 +264,13 @@ public abstract class AbstractClass {
 		this.accessFlags = accessFlags;
 	}
 
-	public boolean isSuperClassOf(AbstractClass other) {
+	public boolean isSuperClassOf(AbstractClass other) throws VMException {
 		if (this == other)
 			return false;
 		return other.canCastTo(this);
 	}
 
-	public boolean canCastTo(AbstractClass other) {
+	public boolean canCastTo(AbstractClass other) throws VMException {
 		if (this == other) {
 			return true;
 		}
@@ -296,7 +297,7 @@ public abstract class AbstractClass {
 			} else {
 				return false;
 			}
-		} else {
+		} else if (this instanceof ClassBase) {
 
 			ClassBase cb = (ClassBase) this;
 			ClassBase[] interfaces = cb.getInterfaces();
@@ -308,6 +309,9 @@ public abstract class AbstractClass {
 			if (superClass != null && superClass.canCastTo(other)) {
 				return true;
 			}
+		} else {
+			throw new VMException("java/lang/Error",
+					"class type not implemented!");
 		}
 		return false;
 	}

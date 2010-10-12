@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.cirnoworks.fisce.vm.default_impl;
@@ -500,7 +500,7 @@ public class DefaultClassLoader implements IClassLoader {
 				clazz.setContentClass(context.getClass(contentClassName
 						.substring(1, contentClassName.length() - 1)));
 			}
-		} else {
+		} else if(ac instanceof ClassBase) {
 			ClassBase clazz = (ClassBase) ac;
 			// Load and verify all super classes:
 			assert !clazz.isLoaded();
@@ -559,6 +559,8 @@ public class DefaultClassLoader implements IClassLoader {
 				clazz.getInterfaces()[i] = (ClassBase) clazz
 						.getInterfaceInfos()[i].getClazz();
 			}
+		}else{
+			throw new VMException("java/lang/Error", "Unsupported class type");
 		}
 		ac.setLoaded(true);
 

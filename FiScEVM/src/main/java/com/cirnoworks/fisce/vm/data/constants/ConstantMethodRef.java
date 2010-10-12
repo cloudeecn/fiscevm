@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.cirnoworks.fisce.vm.data.constants;
@@ -22,6 +22,7 @@ import java.io.IOException;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassMethod;
 import com.cirnoworks.fisce.vm.data.IReference;
@@ -54,7 +55,7 @@ public class ConstantMethodRef extends Constant implements IReference {
 	public synchronized ClassMethod getTargetMethod() throws VMException, VMCriticalException {
 		assert owner.isConstantsLoaded();
 		if (targetMethod == null) {
-			ClassBase cb = (ClassBase) clazz.getClazz();
+			AbstractClass cb = clazz.getClazz();
 			targetMethod = context.getMethod(uniqueName);
 			// Already registered!!!
 			if (targetMethod == null) {

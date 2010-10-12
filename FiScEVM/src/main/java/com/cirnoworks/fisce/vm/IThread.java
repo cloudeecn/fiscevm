@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.cirnoworks.fisce.vm;
@@ -172,6 +172,7 @@ public interface IThread {
 	 *            值
 	 */
 	void putLocalLong(int index, long value);
+
 	/**
 	 * 从一个双精度浮点型局部变量取值
 	 * 
@@ -180,6 +181,7 @@ public interface IThread {
 	 * @return 值
 	 */
 	double getLocalDouble(int index);
+
 	/**
 	 * 给一个双精度浮点型局部变量赋值
 	 * 
@@ -192,25 +194,48 @@ public interface IThread {
 
 	/**
 	 * 压入线程栈，准备调用别的方法
-	 * @param mt 要调用的方法
+	 * 
+	 * @param mt
+	 *            要调用的方法
 	 */
 	void pushFrame(ClassMethod mt);
 
 	/**
+	 * 直接调用某个方法
+	 * 
+	 * @param invoke
+	 *            要调用的方法
+	 * @param isStatic
+	 *            是否为静态方法
+	 * @param argsCount
+	 *            参数的个数
+	 * @param args
+	 *            参数
+	 * @param types
+	 *            参数的类型
+	 */
+	void pushMethod(ClassMethod invoke, boolean isStatic, int argsCount,
+			int[] args, byte[] types);
+
+	/**
 	 * 取得当前正在执行的方法
+	 * 
 	 * @return 当前正在执行的方法
 	 */
 	ClassMethod getCurrentMethod();
 
 	/**
 	 * 为线程导出调用栈
-	 * @param list 用于存放调用栈的列表，如果传入null的话就产生一个新的
+	 * 
+	 * @param list
+	 *            用于存放调用栈的列表，如果传入null的话就产生一个新的
 	 * @return 到处后的调用栈列表
 	 */
 	List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list);
 
 	/**
 	 * 取当前线程的状态
+	 * 
 	 * @return
 	 */
 	int getStatus();
@@ -224,18 +249,22 @@ public interface IThread {
 
 	/**
 	 * 设置执行完当前的指令后是否把控制权交回现成管理器
+	 * 
 	 * @param yield
 	 */
 	void setYield(boolean yield);
 
 	/**
 	 * 将这个线程使用到的句柄填充到集合中
-	 * @param tofill 待填充的集合
+	 * 
+	 * @param tofill
+	 *            待填充的集合
 	 */
 	void fillUsedHandles(Set<Integer> tofill);
 
 	/**
 	 * 取当前线程的线程id
+	 * 
 	 * @return 当前线程的线程id
 	 */
 	int getThreadId();

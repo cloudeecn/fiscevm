@@ -9,18 +9,21 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package java.lang;
 
 import java.io.InputStream;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
 import com.cirnoworks.fisce.privat.ResourceInputStream;
 
-public final class Class {
+import fisce.util.HashMap;
+
+public final class Class<T> {
 
 	private Class() {
 	}
@@ -42,14 +45,16 @@ public final class Class {
 	private static native Class forName0(String name, boolean initialize)
 			throws ClassNotFoundException;
 
-	public Object newInstance() throws InstantiationException,
+	@SuppressWarnings("unchecked")
+	public T newInstance() throws InstantiationException,
 			IllegalAccessException {
-		return newInstance0();
+		return (T) newInstance0();
 	}
 
-	public Object[] newArray(int size) throws InstantiationException,
+	@SuppressWarnings("unchecked")
+	public T newArray(int size) throws InstantiationException,
 			IllegalAccessException {
-		return newInstance0(size);
+		return (T) newInstance0(size);
 	}
 
 	private native Object newInstance0() throws InstantiationException,
@@ -86,6 +91,63 @@ public final class Class {
 
 	public InputStream getResourceAsStream(String name) {
 		return new ResourceInputStream(name);
+	}
+
+	private native Object invokeMethodHandleReturn0(String methodName,
+			boolean isStatic, Object... params) throws Throwable;
+
+	private Object invokeMethodHandleReturn(String methodName,
+			boolean isStatic, Object... params)
+			throws InvocationTargetException, NoSuchMethodException {
+		try {
+			Object o = invokeMethodHandleReturn0(methodName, isStatic, params);
+			return o;
+		} catch (InvocationTargetException e) {
+			throw e;
+		} catch (NoSuchMethodException e) {
+			throw e;
+		} catch (Throwable t) {
+			t.printStackTrace();
+			throw new InvocationTargetException(t);
+		}
+	}
+
+	T[] enums;
+
+	@SuppressWarnings("unchecked")
+	private T[] getEnums() {
+		if (enums == null) {
+			try {
+				enums = (T[]) invokeMethodHandleReturn("values.()[L"
+						+ getName().replace('.', '/') + ";", true,
+						(Object[]) null);
+			} catch (InvocationTargetException e) {
+
+				e.printStackTrace();
+				FiScEVM.throwOut(e);
+			} catch (NoSuchMethodException e) {
+
+				e.printStackTrace();
+				FiScEVM.throwOut(e);
+			}
+		}
+		return enums;
+	}
+
+	HashMap<String, T> enumConstantDirectory;
+
+	HashMap<String, T> enumConstantDirectory() {
+		if (enumConstantDirectory == null) {
+			T[] universe = getEnums();
+			if (universe == null)
+				throw new IllegalArgumentException(getName()
+						+ " is not an enum type");
+			HashMap<String, T> m = new HashMap<String, T>(2 * universe.length);
+			for (T constant : universe)
+				m.put(((Enum) constant).name(), constant);
+			enumConstantDirectory = m;
+		}
+		return enumConstantDirectory;
 	}
 
 }

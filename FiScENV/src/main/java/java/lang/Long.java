@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package java.lang;
@@ -21,6 +21,27 @@ public final class Long extends Number implements Comparable {
 	public static final long MIN_VALUE = 0x8000000000000000L;
 
 	public static final long MAX_VALUE = 0x7fffffffffffffffL;
+
+	public static final int MAX_CACHE = 256;
+
+	public static final int CACHE_SHIFT = 128;
+
+	final static Long[] cache = new Long[MAX_CACHE];
+
+	static {
+		for (int i = 0, max = MAX_CACHE; i < max; i++) {
+			cache[i] = new Long((i - CACHE_SHIFT));
+		}
+	}
+
+	public static Long valueOf(long b) {
+		int pos = (int) (b + CACHE_SHIFT);
+		if (pos >= 0 && pos < MAX_CACHE) {
+			return cache[pos];
+		} else {
+			return new Long(b);
+		}
+	}
 
 	public static String toString(long i, int radix) {
 		if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX)

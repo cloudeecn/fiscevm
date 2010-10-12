@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.cirnoworks.fisce.env.minimal;
@@ -27,6 +27,7 @@ import com.cirnoworks.fisce.env.minimal.nh.ClassGetComponentType;
 import com.cirnoworks.fisce.env.minimal.nh.ClassGetInterfaces;
 import com.cirnoworks.fisce.env.minimal.nh.ClassGetName;
 import com.cirnoworks.fisce.env.minimal.nh.ClassGetSuperClass;
+import com.cirnoworks.fisce.env.minimal.nh.ClassInvokeMethod;
 import com.cirnoworks.fisce.env.minimal.nh.ClassIsArray;
 import com.cirnoworks.fisce.env.minimal.nh.ClassIsAssignableFrom;
 import com.cirnoworks.fisce.env.minimal.nh.ClassIsInstance;
@@ -82,7 +83,7 @@ public class BaseToolkit implements IToolkit {
 
 	private VMContext context;
 
-	// persist 
+	// persist
 	private HashMap<String, String> properties = new HashMap<String, String>();
 
 	// no persist
@@ -114,6 +115,7 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new SystemIdentityHashCode());
 		context.registerNativeHandler(new SystemExit());
 		context.registerNativeHandler(new SystemGc());
+
 		context.registerNativeHandler(new ClassForName());
 		context.registerNativeHandler(new ClassNewInstance0());
 		context.registerNativeHandler(new ClassNewInstance0I());
@@ -126,6 +128,8 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new ClassGetSuperClass());
 		context.registerNativeHandler(new ClassGetInterfaces());
 		context.registerNativeHandler(new ClassGetComponentType());
+		context.registerNativeHandler(new ClassInvokeMethod());
+
 		context.registerNativeHandler(new ObjectGetClass());
 		context.registerNativeHandler(new ObjectWait());
 		context.registerNativeHandler(new ObjectNotify());
@@ -141,7 +145,9 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new ThreadIsInterrupted());
 		context.registerNativeHandler(new ThreadIsAlive());
 		context.registerNativeHandler(new ThreadSetPriority0());
+
 		context.registerNativeHandler(new ThrowableFillInStackTrace0());
+
 		context.registerNativeHandler(new FiScEVMDecode());
 		context.registerNativeHandler(new FiScEVMEncode());
 		context.registerNativeHandler(new FiScEVMThrowOut());
@@ -152,9 +158,13 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new FiScEVMStringToFloat());
 		context.registerNativeHandler(new FiScEVMDoubleToString());
 		context.registerNativeHandler(new FiScEVMFloatToString());
+
 		context.registerNativeHandler(new SystemOutStreamWrite0());
+
 		context.registerNativeHandler(new SystemInputStreamRead0());
+
 		context.registerNativeHandler(new StringIntern());
+
 		context.registerNativeHandler(new ResourceInputStreamClose0(this));
 		context.registerNativeHandler(new ResourceInputStreamRead0a(this));
 		context.registerNativeHandler(new ResourceInputStreamRead0b(this));

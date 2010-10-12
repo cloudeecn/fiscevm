@@ -1,5 +1,7 @@
 package EXCLUDE.fisce.test;
 
+import static java.lang.System.out;
+
 public class TestGC extends Thread {
 
 	static String 中文测试 = "1122";
@@ -10,10 +12,10 @@ public class TestGC extends Thread {
 	public static void main(String[] args) {
 		// System.out.println("O");
 		new TestGC().start();
-		System.out.println(中文测试);
+		out.println(中文测试);
 		int i = 0;
 		while (true) {
-			System.out.println("M:" + i);
+			out.println("M:" + i);
 			i++;
 			try {
 				Thread.sleep(100);
@@ -26,7 +28,7 @@ public class TestGC extends Thread {
 	public void run() {
 		int i = 0;
 		while (true) {
-			System.out.println("T:" + i);
+			out.println("T:" + i);
 			i++;
 			try {
 				Thread.sleep(2000);

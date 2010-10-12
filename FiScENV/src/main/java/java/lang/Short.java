@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package java.lang;
@@ -21,6 +21,27 @@ public final class Short extends Number implements Comparable {
 	public static final short MIN_VALUE = -32768;
 
 	public static final short MAX_VALUE = 32767;
+
+	public static final int MAX_CACHE = 256;
+
+	public static final int CACHE_SHIFT = 128;
+
+	final static Short[] cache = new Short[MAX_CACHE];
+
+	static {
+		for (int i = 0, max = MAX_CACHE; i < max; i++) {
+			cache[i] = new Short((short) (i - CACHE_SHIFT));
+		}
+	}
+
+	public static Short valueOf(short b) {
+		int pos = b + CACHE_SHIFT;
+		if (pos >= 0 && pos < MAX_CACHE) {
+			return cache[pos];
+		} else {
+			return new Short(b);
+		}
+	}
 
 	public static String toString(short s) {
 		return Integer.toString((int) s, 10);

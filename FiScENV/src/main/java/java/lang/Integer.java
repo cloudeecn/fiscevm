@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package java.lang;
@@ -21,6 +21,18 @@ public final class Integer extends Number implements Comparable {
 	public static final int MIN_VALUE = 0x80000000;
 
 	public static final int MAX_VALUE = 0x7fffffff;
+
+	public static final int MAX_CACHE = 256;
+
+	public static final int CACHE_SHIFT = 128;
+
+	final static Integer[] cache = new Integer[MAX_CACHE];
+
+	static {
+		for (int i = 0, max = MAX_CACHE; i < max; i++) {
+			cache[i] = new Integer(i - CACHE_SHIFT);
+		}
+	}
 
 	/**
 	 * All possible chars for representing a number as a String
@@ -309,6 +321,15 @@ public final class Integer extends Number implements Comparable {
 
 	public static Integer valueOf(String s) throws NumberFormatException {
 		return new Integer(parseInt(s, 10));
+	}
+
+	public static Integer valueOf(int i) {
+		int pos = i + CACHE_SHIFT;
+		if (pos >= 0 && pos < MAX_CACHE) {
+			return cache[pos];
+		} else {
+			return new Integer(i);
+		}
 	}
 
 	private int value;

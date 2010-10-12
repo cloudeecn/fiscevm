@@ -31,7 +31,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 		context = TestInitializer.getContext();
-		context.setConsole(Log4JConsole.getConsole());
+		//context.setConsole(Log4JConsole.getConsole());
 		FileInputStream fis = new FileInputStream("data0.xml");
 		context.bootFromData(fis);
 		fis.close();
@@ -73,7 +73,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 		context = TestInitializer.getFastContext();
-		context.setConsole(Log4JConsole.getConsole());
+		//context.setConsole(Log4JConsole.getConsole());
 		FileInputStream fis = new FileInputStream("data0.xml");
 		context.bootFromData(fis);
 		fis.close();

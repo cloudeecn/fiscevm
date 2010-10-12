@@ -9,13 +9,14 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.cirnoworks.fisce.vm.data;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -33,13 +34,12 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
  * @author yuxuanhuang
  */
 public final class ClassMethod implements IAttributesHolder {
-	public static final String TYPE_INT = "I";
-	public static final String TYPE_WIDE = "W";
-	public static final String TYPE_WIDE2 = "_";
-	public static final String TYPE_UNKNOWN = "U";
-	public static final String TYPE_HANDLE = "H";
-	public static final String TYPE_VOID = "V";
-	public static final String TYPE_RETURN_ADDRESS = "R";
+	public static final byte TYPE_INT = 'I';
+	public static final byte TYPE_WIDE = 'W';
+	public static final byte TYPE_HANDLE = 'H';
+	public static final byte TYPE_RETURN = 'R';
+	public static final byte TYPE_WIDE2 = '_';
+	public static final byte TYPE_UNKNOWN = 0;
 
 	private VMContext context;
 	private ClassBase owner;
@@ -56,8 +56,8 @@ public final class ClassMethod implements IAttributesHolder {
 	private String uniqueName;
 	private String methodName;
 	private int paramCount;
-	private String[] paramType;
-	private String returnType;
+	private byte[] paramType;
+	private byte returnType;
 	private ExceptionHandler[] exceptionTable;
 	// From AttributeCode.AttributeLineNumberTabe
 	private LineNumber[] lineNumberTable;
@@ -112,7 +112,7 @@ public final class ClassMethod implements IAttributesHolder {
 		this.owner = owner;
 	}
 
-	public static String getType2(String type) {
+	public static byte getType2(String type) {
 		switch (type.charAt(0)) {
 		case 'B':
 		case 'C':
@@ -128,16 +128,16 @@ public final class ClassMethod implements IAttributesHolder {
 		case 'L':
 			return TYPE_HANDLE;
 		case 'V':
-			return TYPE_VOID;
+			return TYPE_UNKNOWN;
 		default:
-			return "*";
+			return TYPE_UNKNOWN;
 		}
 	}
 
 	public static void countParams(String descriptor, ClassMethod method)
 			throws VMException {
 		int pc = 0;
-		ArrayList<String> pt = new ArrayList<String>();
+		ByteArrayOutputStream pt=new ByteArrayOutputStream();
 		StringBuilder sb = new StringBuilder();
 		try {
 			String tmp = descriptor.substring(descriptor.indexOf('(') + 1,
@@ -156,15 +156,15 @@ public final class ClassMethod implements IAttributesHolder {
 				case 'S':
 				case 'Z':
 					if (method != null) {
-						pt.add(TYPE_INT);
+						pt.write(TYPE_INT);
 					}
 					pc += 1;
 					break;
 				case 'D':
 				case 'J':
 					if (method != null) {
-						pt.add(TYPE_WIDE);
-						pt.add(TYPE_WIDE2);
+						pt.write(TYPE_WIDE);
+						pt.write(TYPE_WIDE2);
 					}
 					pc += 2;
 					break;
@@ -181,7 +181,7 @@ public final class ClassMethod implements IAttributesHolder {
 						sb.append(ch);
 					}
 					if (method != null) {
-						pt.add(TYPE_HANDLE);
+						pt.write(TYPE_HANDLE);
 					}
 					sb.setLength(0);
 					pc += 1;
@@ -193,7 +193,7 @@ public final class ClassMethod implements IAttributesHolder {
 					}
 					sb.append(ch);
 					if (method != null) {
-						pt.add(TYPE_HANDLE);
+						pt.write(TYPE_HANDLE);
 					}
 					sb.setLength(0);
 					pc += 1;
@@ -207,7 +207,7 @@ public final class ClassMethod implements IAttributesHolder {
 			}
 			if (method != null) {
 				method.paramCount = pc;
-				method.paramType = pt.toArray(new String[pt.size()]);
+				method.paramType = pt.toByteArray();
 			}
 		} catch (IndexOutOfBoundsException e) {
 			throw new VMException("java/lang/LinkageError", e.toString());
@@ -361,11 +361,11 @@ public final class ClassMethod implements IAttributesHolder {
 		return attributes.length;
 	}
 
-	public String[] getParamType() {
+	public byte[] getParamType() {
 		return paramType;
 	}
 
-	public String getReturnType() {
+	public byte getReturnType() {
 		return returnType;
 	}
 

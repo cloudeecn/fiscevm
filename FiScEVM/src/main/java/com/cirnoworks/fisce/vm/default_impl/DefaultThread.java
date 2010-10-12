@@ -9,15 +9,14 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.cirnoworks.fisce.vm.default_impl;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -79,13 +78,6 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantString;
  * 
  */
 public final class DefaultThread implements IThread {
-
-	public static final byte TYPE_INT = 'I';
-	public static final byte TYPE_WIDE = 'W';
-	public static final byte TYPE_HANDLE = 'H';
-	public static final byte TYPE_RETURN = 'R';
-	public static final byte TYPE_WIDE2 = '_';
-	public static final byte TYPE_UNKNOWN = 0;
 
 	public static final int CMD_BREAK = 1;
 	public static final int CMD_GOON = 2;
@@ -448,6 +440,19 @@ public final class DefaultThread implements IThread {
 		}
 	}
 
+	public void pushMethod(ClassMethod invoke, boolean isStatic, int argsCount,
+			int[] args, byte[] types) {
+		pushFrame(invoke);
+		for (int i = 0; i < argsCount; i++) {
+			putLocalType(i, args[i], types[i]);
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_SYNCHRONIZED)) {
+			monitorEnter(isStatic ? context.getClassObjectHandleForClass(invoke
+					.getOwner()) : args[0]);
+		}
+	}
+
 	// no throw VMException, all exceptions must be handled into inner
 	// exception!
 	public boolean run() throws VMCriticalException {
@@ -742,15 +747,15 @@ public final class DefaultThread implements IThread {
 				int index = nextOP() & 0xff;
 				int aref = popType(tc);
 				switch (tc.type) {
-				case TYPE_HANDLE:
+				case ClassMethod.TYPE_HANDLE:
 					putLocalHandle(index, aref);
 					break;
-				case TYPE_RETURN:
+				case ClassMethod.TYPE_RETURN:
 					putLocalReturn(index, aref);
 					break;
 				default:
 					throw new VMException("java/lang/VirtualMachineError",
-							"type check error!" + (char)tc.type);
+							"type check error!" + (char) tc.type);
 				}
 				break;
 			}
@@ -763,10 +768,10 @@ public final class DefaultThread implements IThread {
 			case ASTORE_0: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case TYPE_HANDLE:
+				case ClassMethod.TYPE_HANDLE:
 					putLocalHandle(0, aref);
 					break;
-				case TYPE_RETURN:
+				case ClassMethod.TYPE_RETURN:
 					putLocalReturn(0, aref);
 					break;
 				default:
@@ -785,10 +790,10 @@ public final class DefaultThread implements IThread {
 			case ASTORE_1: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case TYPE_HANDLE:
+				case ClassMethod.TYPE_HANDLE:
 					putLocalHandle(1, aref);
 					break;
-				case TYPE_RETURN:
+				case ClassMethod.TYPE_RETURN:
 					putLocalReturn(1, aref);
 					break;
 				default:
@@ -807,10 +812,10 @@ public final class DefaultThread implements IThread {
 			case ASTORE_2: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case TYPE_HANDLE:
+				case ClassMethod.TYPE_HANDLE:
 					putLocalHandle(2, aref);
 					break;
-				case TYPE_RETURN:
+				case ClassMethod.TYPE_RETURN:
 					putLocalReturn(2, aref);
 					break;
 				default:
@@ -829,10 +834,10 @@ public final class DefaultThread implements IThread {
 			case ASTORE_3: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case TYPE_HANDLE:
+				case ClassMethod.TYPE_HANDLE:
 					putLocalHandle(3, aref);
 					break;
-				case TYPE_RETURN:
+				case ClassMethod.TYPE_RETURN:
 					putLocalReturn(3, aref);
 					break;
 				default:
@@ -1559,8 +1564,7 @@ public final class DefaultThread implements IThread {
 							"java/lang/IncompatibleClassChangeError", "");
 				}
 				ClassMethod invoke = context.lookupMethodVirtual(
-						(ClassBase) context.getClass(args[0]),
-						lookup.getMethodName());
+						context.getClass(args[0]), lookup.getMethodName());
 				if (invoke == null) {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
@@ -1583,14 +1587,7 @@ public final class DefaultThread implements IThread {
 						inh.dealNative(args, context, this);
 					}
 				} else {
-					pushFrame(invoke);
-					for (int i = 0; i < count; i++) {
-						putLocalType(i, args[i], types[i]);
-					}
-					if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-							AbstractClass.ACC_SYNCHRONIZED)) {
-						monitorEnter(args[0]);
-					}
+					pushMethod(invoke, false, count, args, types);
 				}
 				break;
 			}
@@ -1645,14 +1642,7 @@ public final class DefaultThread implements IThread {
 						inh.dealNative(args, context, this);
 					}
 				} else {
-					pushFrame(invoke);
-					for (int i = 0; i < count; i++) {
-						putLocalType(i, args[i], types[i]);
-					}
-					if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-							AbstractClass.ACC_SYNCHRONIZED)) {
-						monitorEnter(args[0]);
-					}
+					pushMethod(invoke, false, count, args, types);
 				}
 				break;
 			}
@@ -1697,15 +1687,7 @@ public final class DefaultThread implements IThread {
 						inh.dealNative(args, context, this);
 					}
 				} else {
-					pushFrame(invoke);
-					for (int i = 0; i < count; i++) {
-						putLocalType(i, args[i], types[i]);
-					}
-					if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-							AbstractClass.ACC_SYNCHRONIZED)) {
-						monitorEnter(context
-								.getClassObjectHandleForClass(invoke.getOwner()));
-					}
+					pushMethod(invoke, true, count, args, types);
 				}
 				break;
 			}
@@ -1723,8 +1705,7 @@ public final class DefaultThread implements IThread {
 					types[i] = tc.type;
 				}
 				ClassMethod invoke = context.lookupMethodVirtual(
-						(ClassBase) context.getClass(args[0]),
-						lookup.getMethodName());
+						context.getClass(args[0]), lookup.getMethodName());
 				if (invoke == null) {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
@@ -1757,14 +1738,7 @@ public final class DefaultThread implements IThread {
 						inh.dealNative(args, context, this);
 					}
 				} else {
-					pushFrame(invoke);
-					for (int i = 0; i < count; i++) {
-						putLocalType(i, args[i], types[i]);
-					}
-					if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-							AbstractClass.ACC_SYNCHRONIZED)) {
-						monitorEnter(args[0]);
-					}
+					pushMethod(invoke, false, count, args, types);
 				}
 				break;
 			}
@@ -1816,7 +1790,7 @@ public final class DefaultThread implements IThread {
 				byte bb1 = nextOP();
 				byte bb2 = nextOP();
 				int target = mergeb(bb1, bb2);
-				pushType(getPC(), TYPE_RETURN);
+				pushType(getPC(), ClassMethod.TYPE_RETURN);
 				setPC(getLPC() + target);
 				break;
 			}
@@ -1826,7 +1800,7 @@ public final class DefaultThread implements IThread {
 				byte bb3 = nextOP();
 				byte bb4 = nextOP();
 				int target = mergeb(bb1, bb2, bb3, bb4);
-				pushType(getPC(), TYPE_RETURN);
+				pushType(getPC(), ClassMethod.TYPE_RETURN);
 				setPC(getLPC() + target);
 				break;
 			}
@@ -1886,6 +1860,10 @@ public final class DefaultThread implements IThread {
 					pushFloat(((ConstantFloat) con).getData());
 				} else if (con instanceof ConstantString) {
 					pushHandle(((ConstantString) con).getHandle());
+				} else if (con instanceof ConstantClass) {
+					pushHandle(context
+							.getClassObjectHandleForClass(((ConstantClass) con)
+									.getClazz()));
 				} else {
 					throw new VMException("java/lang/VirtualMachineError",
 							"LDC type wrong!" + con);
@@ -1903,6 +1881,10 @@ public final class DefaultThread implements IThread {
 					pushFloat(((ConstantFloat) con).getData());
 				} else if (con instanceof ConstantString) {
 					pushHandle(((ConstantString) con).getHandle());
+				} else if (con instanceof ConstantClass) {
+					pushHandle(context
+							.getClassObjectHandleForClass(((ConstantClass) con)
+									.getClazz()));
 				} else {
 					throw new VMException("java/lang/VirtualMachineError",
 							"LDCW type wrong!" + con);
@@ -2408,10 +2390,10 @@ public final class DefaultThread implements IThread {
 				case ASTORE: {
 					int aref = popType(tc);
 					switch (tc.type) {
-					case TYPE_HANDLE:
+					case ClassMethod.TYPE_HANDLE:
 						putLocalHandle(index, aref);
 						break;
-					case TYPE_RETURN:
+					case ClassMethod.TYPE_RETURN:
 						putLocalReturn(index, aref);
 						break;
 					default:
@@ -2588,7 +2570,7 @@ public final class DefaultThread implements IThread {
 
 	public void pushType(int value, byte type) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		assert type != TYPE_HANDLE
+		assert type != ClassMethod.TYPE_HANDLE
 				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		frames.put(getSTB() + getSR(), type);
@@ -2599,8 +2581,8 @@ public final class DefaultThread implements IThread {
 	public int popHandle() {
 		setSR(getSR() - 1);
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == TYPE_HANDLE : "Type mismatch!"
-				+ frames.get(getSTB() + getSR()) + " should be " + TYPE_HANDLE;
+		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+				+ frames.get(getSTB() + getSR()) + " should be " + ClassMethod.TYPE_HANDLE;
 		return frames.getInt(getSB() + (getSR() << 2));
 	}
 
@@ -2608,7 +2590,7 @@ public final class DefaultThread implements IThread {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
 		assert !(handle < 0 || handle > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ handle;
-		frames.put(getSTB() + getSR(), TYPE_HANDLE);
+		frames.put(getSTB() + getSR(), ClassMethod.TYPE_HANDLE);
 		frames.putInt(getSB() + (getSR() << 2), handle);
 		setSR(getSR() + 1);
 	}
@@ -2616,14 +2598,14 @@ public final class DefaultThread implements IThread {
 	public int popInt() {
 		setSR(getSR() - 1);
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == TYPE_INT : "Type mismatch!"
-				+ frames.get(getSTB() + getSR()) + " should be " + TYPE_INT;
+		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ frames.get(getSTB() + getSR()) + " should be " + ClassMethod.TYPE_INT;
 		return frames.getInt(getSB() + (getSR() << 2));
 	}
 
 	public void pushInt(int value) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		frames.put(getSTB() + getSR(), TYPE_INT);
+		frames.put(getSTB() + getSR(), ClassMethod.TYPE_INT);
 		frames.putInt(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 1);
 
@@ -2631,15 +2613,15 @@ public final class DefaultThread implements IThread {
 
 	public float popFloat() {
 		setSR(getSR() - 1);
-		assert frames.get(getSTB() + getSR()) == TYPE_INT : "Type mismatch!"
-				+ frames.get(getSTB() + getSR()) + " should be " + TYPE_INT;
+		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ frames.get(getSTB() + getSR()) + " should be " + ClassMethod.TYPE_INT;
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
 		return frames.getFloat(getSB() + (getSR() << 2));
 	}
 
 	public void pushFloat(float value) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		frames.put(getSTB() + getSR(), TYPE_INT);
+		frames.put(getSTB() + getSR(), ClassMethod.TYPE_INT);
 		frames.putFloat(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 1);
 
@@ -2648,16 +2630,16 @@ public final class DefaultThread implements IThread {
 	public double popDouble() {
 		setSR(getSR() - 2);
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == TYPE_WIDE : "Type mismatch!"
-				+ frames.get(getSTB() + getSR()) + " should be " + TYPE_WIDE;
+		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ frames.get(getSTB() + getSR()) + " should be " + ClassMethod.TYPE_WIDE;
 		return frames.getDouble(getSB() + (getSR() << 2));
 	}
 
 	public void pushDouble(double value) {
 		assert getSR() < (getSC() - 1) : "Stack overflow!" + getSR() + ">="
 				+ (getSC() - 1);
-		frames.put(getSTB() + getSR(), TYPE_WIDE);
-		frames.put(getSTB() + getSR() + 1, TYPE_WIDE2);
+		frames.put(getSTB() + getSR(), ClassMethod.TYPE_WIDE);
+		frames.put(getSTB() + getSR() + 1, ClassMethod.TYPE_WIDE2);
 		frames.putDouble(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 2);
 
@@ -2666,16 +2648,16 @@ public final class DefaultThread implements IThread {
 	public long popLong() {
 		setSR(getSR() - 2);
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == TYPE_WIDE : "Type mismatch!"
-				+ frames.get(getSTB() + getSR()) + " should be " + TYPE_WIDE;
+		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ frames.get(getSTB() + getSR()) + " should be " + ClassMethod.TYPE_WIDE;
 		return frames.getLong(getSB() + (getSR() << 2));
 	}
 
 	public void pushLong(long value) {
 		assert getSR() < getSC() - 1 : "Stack overflow!" + getSR() + ">="
 				+ (getSC() - 1);
-		frames.put(getSTB() + getSR(), TYPE_WIDE);
-		frames.put(getSTB() + getSR() + 1, TYPE_WIDE2);
+		frames.put(getSTB() + getSR(), ClassMethod.TYPE_WIDE);
+		frames.put(getSTB() + getSR() + 1, ClassMethod.TYPE_WIDE2);
 		frames.putLong(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 2);
 
@@ -2685,8 +2667,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == TYPE_RETURN : "Type mismatch!"
-				+ frames.get(getLTB() + index) + " should be " + TYPE_RETURN;
+		assert frames.get(getLTB() + index) == ClassMethod.TYPE_RETURN : "Type mismatch!"
+				+ frames.get(getLTB() + index) + " should be " + ClassMethod.TYPE_RETURN;
 		return frames.getInt(pos);
 	}
 
@@ -2695,7 +2677,7 @@ public final class DefaultThread implements IThread {
 
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		frames.put(getLTB() + index, TYPE_RETURN);
+		frames.put(getLTB() + index, ClassMethod.TYPE_RETURN);
 		frames.putInt(pos, value);
 	}
 
@@ -2703,8 +2685,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == TYPE_HANDLE : "Type mismatch!"
-				+ frames.get(getLTB() + index) + " should be " + TYPE_HANDLE;
+		assert frames.get(getLTB() + index) == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+				+ frames.get(getLTB() + index) + " should be " + ClassMethod.TYPE_HANDLE;
 		return frames.getInt(pos);
 	}
 
@@ -2715,7 +2697,7 @@ public final class DefaultThread implements IThread {
 				+ (getLC() - 1);
 		assert !(value < 0 || value > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ value + " " + IHeap.MAX_OBJECTS;
-		frames.put(getLTB() + index, TYPE_HANDLE);
+		frames.put(getLTB() + index, ClassMethod.TYPE_HANDLE);
 		frames.putInt(pos, value);
 	}
 
@@ -2731,7 +2713,7 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert type != TYPE_HANDLE
+		assert type != ClassMethod.TYPE_HANDLE
 				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		frames.put(getLTB() + index, type);
@@ -2742,8 +2724,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == TYPE_INT : "Type mismatch!"
-				+ frames.get(getLTB() + index) + " should be " + TYPE_INT;
+		assert frames.get(getLTB() + index) == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ frames.get(getLTB() + index) + " should be " + ClassMethod.TYPE_INT;
 		return frames.getInt(pos);
 	}
 
@@ -2751,7 +2733,7 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		frames.put(getLTB() + index, TYPE_INT);
+		frames.put(getLTB() + index, ClassMethod.TYPE_INT);
 		frames.putInt(pos, value);
 	}
 
@@ -2759,8 +2741,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == TYPE_INT : "Type mismatch!"
-				+ frames.get(getLTB() + index) + " should be " + TYPE_INT;
+		assert frames.get(getLTB() + index) == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ frames.get(getLTB() + index) + " should be " + ClassMethod.TYPE_INT;
 		return frames.getFloat(pos);
 	}
 
@@ -2768,7 +2750,7 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		frames.put(getLTB() + index, TYPE_INT);
+		frames.put(getLTB() + index, ClassMethod.TYPE_INT);
 		frames.putFloat(pos, value);
 	}
 
@@ -2778,8 +2760,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
 				+ (getLC() - 2);
-		assert frames.get(getLTB() + index) == TYPE_WIDE : "Type mismatch!"
-				+ frames.get(getLTB() + index) + " should be " + TYPE_WIDE;
+		assert frames.get(getLTB() + index) == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ frames.get(getLTB() + index) + " should be " + ClassMethod.TYPE_WIDE;
 		return frames.getLong(pos);
 	}
 
@@ -2787,8 +2769,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
 				+ (getLC() - 2);
-		frames.put(getLTB() + index, TYPE_WIDE);
-		frames.put(getLTB() + index + 1, TYPE_WIDE2);
+		frames.put(getLTB() + index, ClassMethod.TYPE_WIDE);
+		frames.put(getLTB() + index + 1, ClassMethod.TYPE_WIDE2);
 		frames.putLong(pos, value);
 	}
 
@@ -2796,8 +2778,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
 				+ (getLC() - 2);
-		assert frames.get(getLTB() + index) == TYPE_WIDE : "Type mismatch!"
-				+ frames.get(getLTB() + index) + " should be " + TYPE_WIDE;
+		assert frames.get(getLTB() + index) == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ frames.get(getLTB() + index) + " should be " + ClassMethod.TYPE_WIDE;
 		return frames.getDouble(pos);
 	}
 
@@ -2805,8 +2787,8 @@ public final class DefaultThread implements IThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
 				+ (getLC() - 2);
-		frames.put(getLTB() + index, TYPE_WIDE);
-		frames.put(getLTB() + index + 1, TYPE_WIDE2);
+		frames.put(getLTB() + index, ClassMethod.TYPE_WIDE);
+		frames.put(getLTB() + index + 1, ClassMethod.TYPE_WIDE2);
 		frames.putDouble(pos, value);
 	}
 
@@ -2901,7 +2883,7 @@ public final class DefaultThread implements IThread {
 				out.setLength(0);
 			}
 			for (int i = 0, max = getLC(); i < max; i++) {
-				if (frames.get(ltb + i) == TYPE_HANDLE) {
+				if (frames.get(ltb + i) == ClassMethod.TYPE_HANDLE) {
 					int handle = frames.getInt(lb + (i << 2));
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);
@@ -2912,7 +2894,7 @@ public final class DefaultThread implements IThread {
 			}
 
 			for (int i = 0, max = getSR(); i < max; i++) {
-				if (frames.get(stb + i) == TYPE_HANDLE) {
+				if (frames.get(stb + i) == ClassMethod.TYPE_HANDLE) {
 					int handle = frames.getInt(sb + (i << 2));
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);

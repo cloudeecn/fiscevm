@@ -9,20 +9,35 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package java.lang;
-
 
 public final class Byte extends Number implements Comparable {
 
 	public static final byte MIN_VALUE = -128;
 
 	public static final byte MAX_VALUE = 127;
+
+	public static final int MAX_CACHE = 256;
+
+	public static final int CACHE_SHIFT = 128;
+
+	final static Byte[] cache = new Byte[MAX_CACHE];
+
+	static {
+		for (int i = 0, max = MAX_CACHE; i < max; i++) {
+			cache[i] = new Byte((byte) (i - CACHE_SHIFT));
+		}
+	}
+
+	public static Byte valueOf(byte b) {
+		return cache[b + CACHE_SHIFT];
+	}
 
 	public static String toString(byte b) {
 		return Integer.toString((int) b, 10);

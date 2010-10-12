@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package fisce.util;
@@ -20,31 +20,32 @@ package fisce.util;
  * @author cloudee
  * 
  */
-public class HashMap {
+public class HashMap<K, V> {
 
-	private SimpleList[] content;
-	private Entry entryNull;
+	private SimpleList<Entry<K, V>>[] content;
+	private Entry<K, V> entryNull;
 	private int size;
 	private int cap;
 	private final float loadFactor;
 	private int max;
 
+	@SuppressWarnings("unchecked")
 	private void enlarge() {
 		while (size > max) {
 			cap *= 2;
 			max = (int) (cap * loadFactor);
 		}
-		SimpleList[] oldContent = content;
+		SimpleList<Entry<K, V>>[] oldContent = content;
 		content = new SimpleList[cap];
 		for (int i = 0, max = oldContent.length; i < max; i++) {
-			SimpleList list = oldContent[i];
+			SimpleList<Entry<K, V>> list = oldContent[i];
 			if (list != null) {
 				for (int j = 0, maxj = list.size(); j < maxj; j++) {
-					Entry entry = (Entry) list.get(j);
+					Entry<K, V> entry = list.get(j);
 					int index = (entry.getKey().hashCode() & 0x7fffffff) % cap;
-					SimpleList newList = content[index];
+					SimpleList<Entry<K, V>> newList = content[index];
 					if (newList == null) {
-						newList = new SimpleList(4);
+						newList = new SimpleList<Entry<K, V>>(4);
 						content[index] = newList;
 					}
 					newList.add(entry);
@@ -53,10 +54,10 @@ public class HashMap {
 		}
 	}
 
-	public Object remove(Object key) {
+	public V remove(K key) {
 		if (key == null) {
 			if (entryNull != null) {
-				Object ret = entryNull.getValue();
+				V ret = entryNull.getValue();
 				entryNull = null;
 				size--;
 				return ret;
@@ -64,12 +65,12 @@ public class HashMap {
 			return null;
 		}
 		int index = (key.hashCode() & 0x7fffffff) % cap;
-		SimpleList list = content[index];
+		SimpleList<Entry<K, V>> list = content[index];
 		if (list == null) {
 			return null;
 		}
 		for (int i = 0, max = list.size(); i < max; i++) {
-			Entry entry = (Entry) list.get(i);
+			Entry<K, V> entry = list.get(i);
 			if (key.equals(entry.getKey())) {
 				size--;
 				list.remove(i);
@@ -79,33 +80,33 @@ public class HashMap {
 		return null;
 	}
 
-	public void put(Object key, Object value) {
+	public void put(K key, V value) {
 		if (size > max) {
 			enlarge();
 		}
 		if (key == null) {
 			if (entryNull == null) {
-				entryNull = new Entry();
+				entryNull = new Entry<K, V>();
 				size++;
 			}
 			entryNull.setValue(value);
 		} else {
 			int index = (key.hashCode() & 0x7fffffff) % cap;
-			SimpleList list = content[index];
+			SimpleList<Entry<K, V>> list = content[index];
 			if (list == null) {
-				list = new SimpleList();
-				list.add(new Entry(key, value));
+				list = new SimpleList<Entry<K, V>>();
+				list.add(new Entry<K, V>(key, value));
 				content[index] = list;
 				size++;
 			} else {
 				for (int i = 0, max = list.size(); i < max; i++) {
-					Entry e = (Entry) list.get(i);
+					Entry<K, V> e = list.get(i);
 					if (key.equals(e.getKey())) {
 						e.setValue(value);
 						return;
 					}
 				}
-				list.add(new Entry(key, value));
+				list.add(new Entry<K, V>(key, value));
 				size++;
 			}
 		}
@@ -116,13 +117,13 @@ public class HashMap {
 			return entryNull != null;
 		}
 		int index = (key.hashCode() & 0x7fffffff) % cap;
-		SimpleList list = content[index];
+		SimpleList<Entry<K, V>> list = content[index];
 		if (list == null) {
 			return false;
 		}
 
 		for (int i = 0, max = list.size(); i < max; i++) {
-			Entry entry = (Entry) list.get(i);
+			Entry<K, V> entry = list.get(i);
 			if (key.equals(entry.getKey())) {
 				return true;
 			}
@@ -130,18 +131,18 @@ public class HashMap {
 		return false;
 	}
 
-	public Object get(Object key) {
+	public V get(K key) {
 		if (key == null) {
 			return entryNull == null ? null : entryNull.getValue();
 		}
 		int index = (key.hashCode() & 0x7fffffff) % cap;
-		SimpleList list = content[index];
+		SimpleList<Entry<K, V>> list = content[index];
 		if (list == null) {
 			return null;
 		}
 
 		for (int i = 0, max = list.size(); i < max; i++) {
-			Entry entry = (Entry) list.get(i);
+			Entry<K, V> entry = list.get(i);
 			if (key.equals(entry.getKey())) {
 				return entry.getValue();
 			}
@@ -153,6 +154,7 @@ public class HashMap {
 		return size;
 	}
 
+	@SuppressWarnings("unchecked")
 	public HashMap(int cap, float loadFactor) {
 		if (loadFactor > 0.99) {
 			throw new IllegalArgumentException(

@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package EXCLUDE.fisce.test;
@@ -28,9 +28,9 @@ public class HashMapTest {
 
 	public static void main(String[] args) {
 		try {
-			HashMap map = new HashMap();
+			HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 			for (int i = 0; i < 500; i++) {
-				map.put(new Integer(i), new Integer(i * 2));
+				map.put(i, i * 2);
 			}
 			if (map.size() != 500) {
 				FiScEVM.throwOut(new RuntimeException("size is wrong! "
@@ -44,7 +44,7 @@ public class HashMapTest {
 				FiScEVM.throwOut(new RuntimeException(
 						"get(null)!=null before add null! "));
 			}
-			map.put(null, new Object());
+			map.put(null, -1);
 			if (map.size() != 501) {
 				FiScEVM.throwOut(new RuntimeException(
 						"size is wrong after add null! " + map.size()));
@@ -72,13 +72,12 @@ public class HashMapTest {
 						"get(null)!=null after add and remove null! "));
 			}
 			for (int i = 0; i < 500; i++) {
-				Integer key = new Integer(i);
-				if (!map.contains(key)) {
+				if (!map.contains(i)) {
 					FiScEVM.throwOut(new RuntimeException("key " + i
 							+ " not exist!"));
 				}
-				Integer value = (Integer) map.get(key);
-				if (value == null || value.intValue() != i * 2) {
+				int value = map.get(i);
+				if (value != i * 2) {
 					FiScEVM.throwOut(new RuntimeException("key " + i
 							+ "'s value is " + value));
 				}

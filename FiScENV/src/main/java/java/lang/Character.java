@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package java.lang;
@@ -27,6 +27,26 @@ public final class Character extends Object implements Comparable {
 	public static final char MAX_VALUE = '\uffff';
 
 	private char value;
+
+	public static final int MAX_CACHE = 256;
+
+	// public static final int CACHE_SHIFT = 0;
+
+	final static Character[] cache = new Character[MAX_CACHE];
+
+	static {
+		for (char i = 0, max = MAX_CACHE; i < max; i++) {
+			cache[i] = new Character(i);
+		}
+	}
+
+	public static Character valueOf(char b) {
+		if (b >= 0 && b < MAX_CACHE) {
+			return cache[b];
+		} else {
+			return new Character(b);
+		}
+	}
 
 	public Character(char value) {
 		this.value = value;

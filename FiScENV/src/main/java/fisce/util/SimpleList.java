@@ -9,18 +9,20 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package fisce.util;
+
+import java.util.Iterator;
 
 /**
  * 
  * @author yuxuanhuang
  */
-public final class SimpleList {
+public final class SimpleList<T> implements Iterable<T> {
 
 	private int size;
 	private Object[] container;
@@ -53,7 +55,7 @@ public final class SimpleList {
 		}
 	}
 
-	public void add(Object c) {
+	public void add(T c) {
 		if (container.length <= size) {
 			Object[] cs = new Object[container.length << 1];
 			System.arraycopy(container, 0, cs, 0, size);
@@ -63,7 +65,7 @@ public final class SimpleList {
 		size++;
 	}
 
-	public boolean remove(Object c) {
+	public boolean remove(T c) {
 		for (int i = 0; i < size; i++) {
 			if (container[i] == c) {
 				remove(i);
@@ -80,14 +82,15 @@ public final class SimpleList {
 		size = 0;
 	}
 
-	public Object get(int idx) {
+	@SuppressWarnings("unchecked")
+	public T get(int idx) {
 		if (idx >= size) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
-		return container[idx];
+		return (T) container[idx];
 	}
 
-	public void set(int idx, Object c) {
+	public void set(int idx, T c) {
 		if (idx >= size) {
 			throw new ArrayIndexOutOfBoundsException(idx + ">=" + size);
 		}
@@ -111,11 +114,12 @@ public final class SimpleList {
 		}
 	}
 
-	public Object remove(int index) {
+	public T remove(int index) {
 		if (index < 0 || index >= size) {
 			throw new IndexOutOfBoundsException();
 		}
-		Object ret = container[index];
+		@SuppressWarnings("unchecked")
+		T ret = (T) container[index];
 		for (int i = index + 1; i < size; i++) {
 			container[i - 1] = container[i];
 		}
@@ -124,13 +128,62 @@ public final class SimpleList {
 		return ret;
 	}
 
-	public Object pop() {
+	public T pop() {
 		if (size == 0) {
 			throw new IndexOutOfBoundsException("Pop from empty list");
 		}
 		size--;
-		Object ret = container[size];
+		@SuppressWarnings("unchecked")
+		T ret = (T) container[size];
 		container[size] = null;
 		return ret;
+	}
+
+	public class SimpleListIterator implements Iterator<T> {
+
+		private int pos;
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#hasNext()
+		 */
+		public boolean hasNext() {
+			return pos < size;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#next()
+		 */
+		public T next() {
+			T ret = get(pos);
+			pos++;
+			return ret;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#remove()
+		 */
+		public void remove() {
+			if (pos == 0) {
+				throw new IllegalArgumentException();
+			}
+			pos--;
+			SimpleList.this.remove(pos);
+		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Iterable#iterator()
+	 */
+	public Iterator<T> iterator() {
+		return new SimpleListIterator();
 	}
 }

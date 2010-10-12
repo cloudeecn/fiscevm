@@ -9,9 +9,9 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package java.lang;
@@ -29,6 +29,10 @@ public final class Double extends Number implements Comparable {
 	public static final double MAX_VALUE = 1.7976931348623157e+308;
 
 	public static final double MIN_VALUE = 4.9e-324;
+	
+	public Double valueOf(double d){
+		return new Double(d);
+	}
 
 	public static String toString(double d) {
 		return FiScEVM.doubleToString(d);
