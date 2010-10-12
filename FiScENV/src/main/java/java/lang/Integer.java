@@ -241,6 +241,59 @@ public final class Integer extends Number implements Comparable {
 		sb.append(buf, charPos, 12 - charPos);
 	}
 
+	static void appendTo(int i, StringBuilder sb) {
+		switch (i) {
+		case Integer.MIN_VALUE:
+			sb.append("-2147483648");
+			return;
+		case -3:
+			sb.append("-3");
+			return;
+		case -2:
+			sb.append("-2");
+			return;
+		case -1:
+			sb.append("-1");
+			return;
+		case 0:
+			sb.append("0");
+			return;
+		case 1:
+			sb.append("1");
+			return;
+		case 2:
+			sb.append("2");
+			return;
+		case 3:
+			sb.append("3");
+			return;
+		case 4:
+			sb.append("4");
+			return;
+		case 5:
+			sb.append("5");
+			return;
+		case 6:
+			sb.append("6");
+			return;
+		case 7:
+			sb.append("7");
+			return;
+		case 8:
+			sb.append("8");
+			return;
+		case 9:
+			sb.append("9");
+			return;
+		case 10:
+			sb.append("10");
+			return;
+		}
+		char[] buf = new char[12];
+		int charPos = getChars(i, buf);
+		sb.append(buf, charPos, 12 - charPos);
+	}
+
 	public static int parseInt(String s, int radix)
 			throws NumberFormatException {
 		if (s == null) {

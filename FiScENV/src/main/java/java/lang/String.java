@@ -139,6 +139,15 @@ public final class String implements Comparable, CharSequence {
 		}
 	}
 
+	public String(StringBuilder buffer) {
+		synchronized (buffer) {
+			buffer.setShared();
+			this.value = buffer.getValue();
+			this.offset = 0;
+			this.count = buffer.length();
+		}
+	}
+
 	String(int offset, int count, char value[]) {
 		this.value = value;
 		this.offset = offset;

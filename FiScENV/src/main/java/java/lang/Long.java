@@ -160,6 +160,17 @@ public final class Long extends Number implements Comparable {
 		return;
 	}
 
+	static void appendTo(long i, StringBuilder sb) {
+		if (i == Long.MIN_VALUE) {
+			sb.append("-9223372036854775808");
+			return;
+		}
+		char[] buf = new char[20];
+		int charPos = getChars(i, buf);
+		sb.append(buf, charPos, (20 - charPos));
+		return;
+	}
+
 	public static long parseLong(String s, int radix)
 			throws NumberFormatException {
 		if (s == null) {
