@@ -446,8 +446,8 @@ public final class ArrayHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public long getFieldLong(int handle, ClassField field) throws VMException {
-		return (((long) getObj(handle, field)[field.getAbsPos()]) << 32)
-				| getObj(handle, field)[field.getAbsPos() + 1];
+		return TypeUtil.intToLong(getObj(handle, field)[field.getAbsPos()],
+				getObj(handle, field)[field.getAbsPos() + 1]);
 	}
 
 	/*
@@ -468,9 +468,9 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public double getFieldDouble(int handle, ClassField field)
 			throws VMException {
-		return Double.longBitsToDouble((((long) getObj(handle, field)[field
-				.getAbsPos()]) << 32)
-				| getObj(handle, field)[field.getAbsPos() + 1]);
+		return Double.longBitsToDouble(TypeUtil.intToLong(
+				getObj(handle, field)[field.getAbsPos()],
+				getObj(handle, field)[field.getAbsPos() + 1]));
 	}
 
 	/*
@@ -494,8 +494,8 @@ public final class ArrayHeap implements IHeap {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
-		return (((long) ((int[]) objects[handle])[pos]) << 32)
-				| ((int[]) objects[handle])[pos + 1];
+		return TypeUtil.intToLong(((int[]) objects[handle])[pos],
+				((int[]) objects[handle])[pos + 1]);
 	}
 
 	/*
@@ -564,8 +564,9 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldLong(int handle, ClassField field, long value)
 			throws VMException {
-		getObj(handle, field)[field.getAbsPos()] = ((int) value >>> 32);
-		getObj(handle, field)[field.getAbsPos() + 1] = ((int) value & 0xffffffff);
+		getObj(handle, field)[field.getAbsPos()] = TypeUtil.getHighInt(value);
+		getObj(handle, field)[field.getAbsPos() + 1] = TypeUtil
+				.getLowInt(value);
 	}
 
 	/*
@@ -590,8 +591,9 @@ public final class ArrayHeap implements IHeap {
 	public void putFieldDouble(int handle, ClassField field, double value)
 			throws VMException {
 		long lvalue = Double.doubleToRawLongBits(value);
-		getObj(handle, field)[field.getAbsPos()] = ((int) lvalue >>> 32);
-		getObj(handle, field)[field.getAbsPos() + 1] = ((int) lvalue & 0xffffffff);
+		getObj(handle, field)[field.getAbsPos()] = TypeUtil.getHighInt(lvalue);
+		getObj(handle, field)[field.getAbsPos() + 1] = TypeUtil
+				.getLowInt(lvalue);
 	}
 
 	/*
@@ -617,8 +619,8 @@ public final class ArrayHeap implements IHeap {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
-		((int[]) objects[handle])[pos] = ((int) value >>> 32);
-		((int[]) objects[handle])[pos + 1] = ((int) value & 0xffffffff);
+		((int[]) objects[handle])[pos] = TypeUtil.getHighInt(value);
+		((int[]) objects[handle])[pos + 1] = TypeUtil.getLowInt(value);
 	}
 
 	/*
@@ -1004,8 +1006,8 @@ public final class ArrayHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return (((long) staticArea[field.getAbsPos()]) << 32)
-				| staticArea[field.getAbsPos() + 1];
+		return TypeUtil.intToLong(staticArea[field.getAbsPos()],
+				staticArea[field.getAbsPos() + 1]);
 	}
 
 	public float getStaticFloat(ClassField field) throws VMException {
@@ -1022,8 +1024,8 @@ public final class ArrayHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		long lvalue = (((long) staticArea[field.getAbsPos()]) << 32)
-				| staticArea[field.getAbsPos() + 1];
+		long lvalue = TypeUtil.intToLong(staticArea[field.getAbsPos()],
+				staticArea[field.getAbsPos() + 1]);
 		return Double.longBitsToDouble(lvalue);
 	}
 
@@ -1032,7 +1034,7 @@ public final class ArrayHeap implements IHeap {
 	}
 
 	public long getStaticAbsWide(int pos) throws VMException {
-		return (((long) staticArea[pos]) << 32) | staticArea[pos + 1];
+		return TypeUtil.intToLong(staticArea[pos], staticArea[pos + 1]);
 	}
 
 	public void setStaticBoolean(ClassField field, boolean value)
@@ -1082,8 +1084,8 @@ public final class ArrayHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea[field.getAbsPos()] = (int) (lvalue >>> 32);
-		staticArea[field.getAbsPos() + 1] = (int) (lvalue & 0xffffffff);
+		staticArea[field.getAbsPos()] = TypeUtil.getHighInt(lvalue);
+		staticArea[field.getAbsPos() + 1] = TypeUtil.getLowInt(lvalue);
 	}
 
 	public void setStaticFloat(ClassField field, float value)
@@ -1102,8 +1104,8 @@ public final class ArrayHeap implements IHeap {
 					"get/set static field is not static!");
 		}
 		long lvalue = Double.doubleToRawLongBits(value);
-		staticArea[field.getAbsPos()] = (int) (lvalue >>> 32);
-		staticArea[field.getAbsPos() + 1] = (int) (lvalue & 0xffffffff);
+		staticArea[field.getAbsPos()] = TypeUtil.getHighInt(lvalue);
+		staticArea[field.getAbsPos() + 1] = TypeUtil.getLowInt(lvalue);
 	}
 
 	public void setStaticAbs(int pos, int value) {
@@ -1111,8 +1113,8 @@ public final class ArrayHeap implements IHeap {
 	}
 
 	public void setStaticAbsWide(int pos, long lvalue) {
-		staticArea[pos] = (int) (lvalue >>> 32);
-		staticArea[pos + 1] = (int) (lvalue & 0xffffffff);
+		staticArea[pos] = TypeUtil.getHighInt(lvalue);
+		staticArea[pos + 1] = TypeUtil.getLowInt(lvalue);
 	}
 
 	public int getLiteral(String str) throws VMException, VMCriticalException {
@@ -1149,8 +1151,8 @@ public final class ArrayHeap implements IHeap {
 		if (content == null) {
 			return 0;
 		}
-		int charHandle = allocate((ClassArray) context.getClass("[C"),
-				content.length());
+		int charHandle = allocate((ClassArray) context.getClass("[C"), content
+				.length());
 		ClassBase stringClass = (ClassBase) context
 				.getClass("java/lang/String");
 		ClassField valueField = context.getField("java/lang/String.value.[C");
@@ -1334,8 +1336,8 @@ public final class ArrayHeap implements IHeap {
 					.item(0)).getElementsByTagName("literal");
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(li.getTextContent(),
-						Integer.valueOf(li.getAttribute("handle")));
+				literals.put(li.getTextContent(), Integer.valueOf(li
+						.getAttribute("handle")));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")

@@ -81,7 +81,6 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantString;
  */
 public final class FastThread implements IThread {
 
-
 	public static final int CMD_BREAK = 1;
 	public static final int CMD_GOON = 2;
 	public static final int CMD_BACK = 3;
@@ -364,8 +363,8 @@ public final class FastThread implements IThread {
 		setThreadHandle(threadHandle);
 		setFP(pFP);
 		pushFrame(method);
-		putLocalHandle(0, heap.allocate(
-				(ClassArray) context.getClass("[Ljava/lang/String;"), 0));
+		putLocalHandle(0, heap.allocate((ClassArray) context
+				.getClass("[Ljava/lang/String;"), 0));
 		clinit(method.getOwner());
 	}
 
@@ -380,8 +379,9 @@ public final class FastThread implements IThread {
 		ClassMethod runner = context
 				.lookupMethodVirtual(runnerClass, "run.()V");
 		if (runner == null) {
-			throw new VMException("java/lang/NoSuchMethodError",
-					runnerClass.getName() + "." + ".run.()V");
+			throw new VMException("java/lang/NoSuchMethodError", runnerClass
+					.getName()
+					+ "." + ".run.()V");
 		}
 		setThreadHandle(handle);
 		setFP(pFP);
@@ -712,7 +712,7 @@ public final class FastThread implements IThread {
 					case ANEWARRAY: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						int count = popInt();
 						if (count < 0) {
 							throw new VMException(
@@ -922,7 +922,7 @@ public final class FastThread implements IThread {
 					case CHECKCAST: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						int handle = popHandle();
 						if (handle == 0) {
 							pushHandle(handle);
@@ -1235,7 +1235,7 @@ public final class FastThread implements IThread {
 					case GETFIELD: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						int handle = popHandle();
 						int pos = owner.getAbsPos()[m];
 						if (pos < 0) {
@@ -1286,7 +1286,7 @@ public final class FastThread implements IThread {
 					case GETSTATIC: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						int pos = owner.getAbsPos()[m];
 						if (pos < 0) {
 							ConstantFieldRef cfr = (ConstantFieldRef) owner
@@ -1343,7 +1343,7 @@ public final class FastThread implements IThread {
 					case GOTO: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						pc = lpc + m;
 						break;
 					}
@@ -1353,7 +1353,7 @@ public final class FastThread implements IThread {
 						byte ib3 = code[pc++];
 						byte ib4 = code[pc++];
 						// ib1 = ((ib1 << 24) & ib2) & 0xffff;
-						pc = lpc + mergeb(ib1, ib2, ib3, ib4);
+						pc = lpc + TypeUtil.bytesToSignedInt(ib1, ib2, ib3, ib4);
 						break;
 					}
 					case I2B: {
@@ -1431,7 +1431,7 @@ public final class FastThread implements IThread {
 					case IF_ICMPEQ: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value2 = popInt();
 						int value1 = popInt();
 						if (value1 == value2) {
@@ -1442,7 +1442,7 @@ public final class FastThread implements IThread {
 					case IF_ACMPEQ: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value2 = popHandle();
 						int value1 = popHandle();
 						if (value1 == value2) {
@@ -1453,7 +1453,7 @@ public final class FastThread implements IThread {
 					case IF_ICMPNE: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value2 = popInt();
 						int value1 = popInt();
 						if (value1 != value2) {
@@ -1464,7 +1464,7 @@ public final class FastThread implements IThread {
 					case IF_ACMPNE: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value2 = popHandle();
 						int value1 = popHandle();
 						if (value1 != value2) {
@@ -1475,7 +1475,7 @@ public final class FastThread implements IThread {
 					case IF_ICMPLT: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value2 = popInt();
 						int value1 = popInt();
 						if (value1 < value2) {
@@ -1486,7 +1486,7 @@ public final class FastThread implements IThread {
 					case IF_ICMPLE: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value2 = popInt();
 						int value1 = popInt();
 						if (value1 <= value2) {
@@ -1497,7 +1497,7 @@ public final class FastThread implements IThread {
 					case IF_ICMPGT: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value2 = popInt();
 						int value1 = popInt();
 						if (value1 > value2) {
@@ -1508,7 +1508,7 @@ public final class FastThread implements IThread {
 					case IF_ICMPGE: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value2 = popInt();
 						int value1 = popInt();
 						if (value1 >= value2) {
@@ -1520,7 +1520,7 @@ public final class FastThread implements IThread {
 					case IFEQ: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value = popInt();
 						if (value == 0) {
 							pc = lpc + m;
@@ -1530,7 +1530,7 @@ public final class FastThread implements IThread {
 					case IFNULL: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value = popHandle();
 						if (value == 0) {
 							pc = lpc + m;
@@ -1541,7 +1541,7 @@ public final class FastThread implements IThread {
 					case IFNE: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value = popInt();
 						if (value != 0) {
 							pc = lpc + m;
@@ -1551,7 +1551,7 @@ public final class FastThread implements IThread {
 					case IFNONNULL: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value = popHandle();
 						if (value != 0) {
 							pc = lpc + m;
@@ -1562,7 +1562,7 @@ public final class FastThread implements IThread {
 					case IFLT: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value = popInt();
 						if (value < 0) {
 							pc = lpc + m;
@@ -1572,7 +1572,7 @@ public final class FastThread implements IThread {
 					case IFLE: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value = popInt();
 						if (value <= 0) {
 							pc = lpc + m;
@@ -1582,7 +1582,7 @@ public final class FastThread implements IThread {
 					case IFGT: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value = popInt();
 						if (value > 0) {
 							pc = lpc + m;
@@ -1592,7 +1592,7 @@ public final class FastThread implements IThread {
 					case IFGE: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = mergeb(ib1, ib2);
+						int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 						int value = popInt();
 						if (value >= 0) {
 							pc = lpc + m;
@@ -1617,7 +1617,7 @@ public final class FastThread implements IThread {
 					case INSTANCEOF: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						int handle = popHandle();
 						AbstractClass clazz = context.getClass(handle);
 						AbstractClass castto = getClassFromConstant(m);
@@ -1635,7 +1635,7 @@ public final class FastThread implements IThread {
 							args[i] = popType(tc);
 							types[i] = tc.type;
 						}
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						AbstractClass clazz = context.getClass(args[0]);
 						ClassMethod lookup = getInterfaceMethodFromConstant(m);
 						if (!clazz.canCastTo(lookup.getOwner())) {
@@ -1644,8 +1644,8 @@ public final class FastThread implements IThread {
 									"");
 						}
 						ClassMethod invoke = context.lookupMethodVirtual(
-								context.getClass(args[0]),
-								lookup.getMethodName());
+								context.getClass(args[0]), lookup
+										.getMethodName());
 						if (invoke == null) {
 							throw new VMException(
 									"java/lang/AbstractMethodError", "");
@@ -1678,7 +1678,7 @@ public final class FastThread implements IThread {
 					case INVOKESPECIAL: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						ClassMethod invoke = getMethodFromConstant(m);
 						ClassBase cb = invoke.getOwner();
 						int count = invoke.getParamCount() + 1;
@@ -1691,9 +1691,8 @@ public final class FastThread implements IThread {
 						if (((owner.getAccessFlags() & AbstractClass.ACC_SUPER) > 0)
 								&& cb.isSuperClassOf(owner)
 								&& !invoke.getName().equals("<init>")) {
-							invoke = context.lookupMethodVirtual(
-									owner.getSuperClass(),
-									invoke.getMethodName());
+							invoke = context.lookupMethodVirtual(owner
+									.getSuperClass(), invoke.getMethodName());
 						}
 						if (invoke == null) {
 							throw new VMException(
@@ -1702,8 +1701,8 @@ public final class FastThread implements IThread {
 						if ("<init>".equals(invoke.getName())
 								&& invoke.getOwner() != cb) {
 							throw new VMException(
-									"java/lang/NoSuchMethodError",
-									invoke.getUniqueName());
+									"java/lang/NoSuchMethodError", invoke
+											.getUniqueName());
 						}
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_STATIC)) {
@@ -1714,8 +1713,8 @@ public final class FastThread implements IThread {
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_ABSTRACT)) {
 							throw new VMException(
-									"java/lang/AbstractMethodError",
-									invoke.getUniqueName());
+									"java/lang/AbstractMethodError", invoke
+											.getUniqueName());
 						}
 
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
@@ -1737,7 +1736,7 @@ public final class FastThread implements IThread {
 					case INVOKESTATIC: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						ClassMethod invoke = getMethodFromConstant(m);
 						if (!AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_STATIC)) {
@@ -1783,7 +1782,7 @@ public final class FastThread implements IThread {
 					case INVOKEVIRTUAL: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						ClassMethod lookup = getMethodFromConstant(m);
 
 						int count = lookup.getParamCount() + 1;
@@ -1794,8 +1793,8 @@ public final class FastThread implements IThread {
 							types[i] = tc.type;
 						}
 						ClassMethod invoke = context.lookupMethodVirtual(
-								context.getClass(args[0]),
-								lookup.getMethodName());
+								context.getClass(args[0]), lookup
+										.getMethodName());
 						if (invoke == null) {
 							throw new VMException(
 									"java/lang/AbstractMethodError", "");
@@ -1815,8 +1814,8 @@ public final class FastThread implements IThread {
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_ABSTRACT)) {
 							throw new VMException(
-									"java/lang/AbstractMethodError",
-									invoke.getUniqueName());
+									"java/lang/AbstractMethodError", invoke
+											.getUniqueName());
 						}
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_NATIVE)) {
@@ -1882,7 +1881,7 @@ public final class FastThread implements IThread {
 					case JSR: {
 						byte bb1 = code[pc++];
 						byte bb2 = code[pc++];
-						int target = mergeb(bb1, bb2);
+						int target = TypeUtil.bytesToSignedInt(bb1, bb2);
 						pushType(pc, ClassMethod.TYPE_RETURN);
 						pc = lpc + target;
 						break;
@@ -1892,7 +1891,7 @@ public final class FastThread implements IThread {
 						byte bb2 = code[pc++];
 						byte bb3 = code[pc++];
 						byte bb4 = code[pc++];
-						int target = mergeb(bb1, bb2, bb3, bb4);
+						int target = TypeUtil.bytesToSignedInt(bb1, bb2, bb3, bb4);
 						pushType(pc, ClassMethod.TYPE_RETURN);
 						pc = lpc + target;
 						break;
@@ -1968,7 +1967,7 @@ public final class FastThread implements IThread {
 					case LDC_W: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int index = merge(ib1, ib2);
+						int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						Constant con = getConstant(index);
 						if (con instanceof ConstantInteger) {
 							pushInt(((ConstantInteger) con).getData());
@@ -1990,7 +1989,7 @@ public final class FastThread implements IThread {
 					case LDC2_W: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int index = merge(ib1, ib2);
+						int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						Constant con = getConstant(index);
 						if (con instanceof ConstantLong) {
 							pushLong(((ConstantLong) con).getData());
@@ -2050,12 +2049,12 @@ public final class FastThread implements IThread {
 						byte db2 = code[pc++];
 						byte db3 = code[pc++];
 						byte db4 = code[pc++];
-						int db = mergeb(db1, db2, db3, db4);
+						int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
 						byte np1 = code[pc++];
 						byte np2 = code[pc++];
 						byte np3 = code[pc++];
 						byte np4 = code[pc++];
-						int np = mergeb(np1, np2, np3, np4);
+						int np = TypeUtil.bytesToSignedInt(np1, np2, np3, np4);
 						int[] match = new int[np];
 						int[] offset = new int[np];
 						for (int i = 0; i < np; i++) {
@@ -2067,8 +2066,8 @@ public final class FastThread implements IThread {
 							byte of2 = code[pc++];
 							byte of3 = code[pc++];
 							byte of4 = code[pc++];
-							match[i] = mergeb(ma1, ma2, ma3, ma4);
-							offset[i] = mergeb(of1, of2, of3, of4);
+							match[i] = TypeUtil.bytesToSignedInt(ma1, ma2, ma3, ma4);
+							offset[i] = TypeUtil.bytesToSignedInt(of1, of2, of3, of4);
 						}
 						int key = popInt();
 						boolean matched = false;
@@ -2180,7 +2179,7 @@ public final class FastThread implements IThread {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
 						int dims = code[pc++] & 0xff;
-						int m = merge(ib1, ib2);
+						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						ClassArray clazz = (ClassArray) getClassFromConstant(m);
 						int[] count = new int[dims];
 						for (int i = dims - 1; i >= 0; i--) {
@@ -2192,11 +2191,11 @@ public final class FastThread implements IThread {
 					case NEW: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int idx = merge(ib1, ib2);
+						int idx = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						try {
 							ClassBase targetClass = (ClassBase) getClassFromConstant(idx);
-							if (AbstractClass.hasFlag(
-									targetClass.getAccessFlags(),
+							if (AbstractClass.hasFlag(targetClass
+									.getAccessFlags(),
 									AbstractClass.ACC_INTERFACE
 											| AbstractClass.ACC_ABSTRACT)) {
 								throw new VMException(
@@ -2260,8 +2259,8 @@ public final class FastThread implements IThread {
 									"java/lang/NegativeArraySizeException", ""
 											+ count);
 						}
-						int handle = heap.allocate(
-								(ClassArray) context.getClass(name), count);
+						int handle = heap.allocate((ClassArray) context
+								.getClass(name), count);
 						pushHandle(handle);
 						break;
 					}
@@ -2280,7 +2279,7 @@ public final class FastThread implements IThread {
 					case PUTFIELD: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int index = merge(ib1, ib2);
+						int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						int pos = owner.getAbsPos()[index];
 						if (pos < 0) {
 							ClassField field = getFieldFromConstant(index);
@@ -2350,7 +2349,7 @@ public final class FastThread implements IThread {
 					case PUTSTATIC: {
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int index = merge(ib1, ib2);
+						int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						int pos = owner.getAbsPos()[index];
 						if (pos < 0) {
 							ConstantFieldRef cfr = (ConstantFieldRef) owner
@@ -2457,7 +2456,7 @@ public final class FastThread implements IThread {
 					case SIPUSH: {
 						byte bb1 = code[pc++];
 						byte bb2 = code[pc++];
-						int value = mergeb(bb1, bb2);
+						int value = TypeUtil.bytesToSignedInt(bb1, bb2);
 						pushInt(value);
 						break;
 					}
@@ -2485,9 +2484,9 @@ public final class FastThread implements IThread {
 						byte hb2 = code[pc++];
 						byte hb3 = code[pc++];
 						byte hb4 = code[pc++];
-						int db = mergeb(db1, db2, db3, db4);
-						int lb = mergeb(lb1, lb2, lb3, lb4);
-						int hb = mergeb(hb1, hb2, hb3, hb4);
+						int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
+						int lb = TypeUtil.bytesToSignedInt(lb1, lb2, lb3, lb4);
+						int hb = TypeUtil.bytesToSignedInt(hb1, hb2, hb3, hb4);
 						int count = hb - lb + 1;
 						int[] address = new int[count];
 						for (int i = 0; i < count; i++) {
@@ -2495,7 +2494,7 @@ public final class FastThread implements IThread {
 							byte ab2 = code[pc++];
 							byte ab3 = code[pc++];
 							byte ab4 = code[pc++];
-							address[i] = mergeb(ab1, ab2, ab3, ab4);
+							address[i] = TypeUtil.bytesToSignedInt(ab1, ab2, ab3, ab4);
 						}
 						int target;
 						int index = popInt();
@@ -2511,7 +2510,7 @@ public final class FastThread implements IThread {
 						int op2 = code[pc++] & 0xff;
 						byte ib1 = code[pc++];
 						byte ib2 = code[pc++];
-						int index = merge(ib1, ib2);
+						int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						switch (op2) {
 						case FLOAD:
 
@@ -2568,7 +2567,7 @@ public final class FastThread implements IThread {
 						case IINC: {
 							byte cb1 = code[pc++];
 							byte cb2 = code[pc++];
-							int cb = mergeb(cb1, cb2);
+							int cb = TypeUtil.bytesToSignedInt(cb1, cb2);
 							putLocalInt(index, getLocalInt(index) + cb);
 							break;
 						}
@@ -2700,24 +2699,6 @@ public final class FastThread implements IThread {
 		return cc.getClazz();
 	}
 
-	private int merge(byte ib1, byte ib2) {
-		return ((ib1 << 8) + (ib2 & 0xff)) & 0xffff;
-	}
-
-	private int mergeb(byte bb1, byte bb2) {
-		return ((bb1 << 8) + (bb2 & 0xff));
-	}
-
-	private int merge(byte ib1, byte ib2, byte ib3, byte ib4) {
-		return ((ib1 & 0xff) << 24) + ((ib2 & 0xff) << 16)
-				+ ((ib3 & 0xff) << 8) + (ib4 & 0xff);
-	}
-
-	private int mergeb(byte bb1, byte bb2, byte bb3, byte bb4) {
-		return ((bb1 & 0xff) << 24) + ((bb2 & 0xff) << 16)
-				+ ((bb3 & 0xff) << 8) + (bb4 & 0xff);
-	}
-
 	public int popType(TypeContainer tc) {
 		sr--;
 		assert sr >= 0 : "Stack underflow!" + sr + "<" + 0;
@@ -2739,7 +2720,9 @@ public final class FastThread implements IThread {
 		sr--;
 		assert sr >= 0 : "Stack underflow!" + sr + "<" + 0;
 		assert frames.get(stb + sr) == ClassMethod.TYPE_HANDLE : "Type mismatch!"
-				+ frames.get(stb + sr) + " should be " + ClassMethod.TYPE_HANDLE;
+				+ frames.get(stb + sr)
+				+ " should be "
+				+ ClassMethod.TYPE_HANDLE;
 		return frames.getInt(sb + (sr << 2));
 	}
 
@@ -2822,7 +2805,9 @@ public final class FastThread implements IThread {
 		int pos = lb + (index << 2);
 		assert index < lc : "Local var overflow!" + pos + ">" + (lc - 1);
 		assert frames.get(ltb + index) == ClassMethod.TYPE_RETURN : "Type mismatch!"
-				+ frames.get(ltb + index) + " should be " + ClassMethod.TYPE_RETURN;
+				+ frames.get(ltb + index)
+				+ " should be "
+				+ ClassMethod.TYPE_RETURN;
 		return frames.getInt(pos);
 	}
 
@@ -2838,7 +2823,9 @@ public final class FastThread implements IThread {
 		int pos = lb + (index << 2);
 		assert index < lc : "Local var overflow!" + pos + ">" + (lc - 1);
 		assert frames.get(ltb + index) == ClassMethod.TYPE_HANDLE : "Type mismatch!"
-				+ frames.get(ltb + index) + " should be " + ClassMethod.TYPE_HANDLE;
+				+ frames.get(ltb + index)
+				+ " should be "
+				+ ClassMethod.TYPE_HANDLE;
 		return frames.getInt(pos);
 	}
 
@@ -2873,7 +2860,9 @@ public final class FastThread implements IThread {
 		int pos = lb + (index << 2);
 		assert index < lc : "Local var overflow!" + pos + ">" + (lc - 1);
 		assert frames.get(ltb + index) == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ frames.get(ltb + index) + " should be " + ClassMethod.TYPE_INT;
+				+ frames.get(ltb + index)
+				+ " should be "
+				+ ClassMethod.TYPE_INT;
 		return frames.getInt(pos);
 	}
 
@@ -2888,7 +2877,9 @@ public final class FastThread implements IThread {
 		int pos = lb + (index << 2);
 		assert index < lc : "Local var overflow!" + pos + ">" + (lc - 1);
 		assert frames.get(ltb + index) == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ frames.get(ltb + index) + " should be " + ClassMethod.TYPE_INT;
+				+ frames.get(ltb + index)
+				+ " should be "
+				+ ClassMethod.TYPE_INT;
 		return frames.getFloat(pos);
 	}
 
@@ -2904,7 +2895,9 @@ public final class FastThread implements IThread {
 		int pos = lb + (index << 2);
 		assert index < lc - 1 : "Local var overflow!" + pos + ">" + (lc - 2);
 		assert frames.get(ltb + index) == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ frames.get(ltb + index) + " should be " + ClassMethod.TYPE_WIDE;
+				+ frames.get(ltb + index)
+				+ " should be "
+				+ ClassMethod.TYPE_WIDE;
 		return frames.getLong(pos);
 	}
 
@@ -2920,7 +2913,9 @@ public final class FastThread implements IThread {
 		int pos = lb + (index << 2);
 		assert index < lc - 1 : "Local var overflow!" + pos + ">" + (lc - 2);
 		assert frames.get(ltb + index) == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ frames.get(ltb + index) + " should be " + ClassMethod.TYPE_WIDE;
+				+ frames.get(ltb + index)
+				+ " should be "
+				+ ClassMethod.TYPE_WIDE;
 		return frames.getDouble(pos);
 	}
 

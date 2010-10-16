@@ -688,7 +688,7 @@ public final class DefaultThread implements IThread {
 			case ANEWARRAY: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int count = popInt();
 				if (count < 0) {
 					throw new VMException("java/lang/IndexOutOfBoundException",
@@ -890,7 +890,7 @@ public final class DefaultThread implements IThread {
 			case CHECKCAST: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int handle = popHandle();
 				if (handle == 0) {
 					pushHandle(handle);
@@ -1201,7 +1201,7 @@ public final class DefaultThread implements IThread {
 			case GETFIELD: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int handle = popHandle();
 				ClassField field = ((ConstantFieldRef) method.getOwner()
 						.getConstantPool()[m]).getTargetField();
@@ -1230,7 +1230,7 @@ public final class DefaultThread implements IThread {
 			case GETSTATIC: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ConstantFieldRef cfr = (ConstantFieldRef) method.getOwner()
 						.getConstantPool()[m];
 				ClassBase targetClass = (ClassBase) cfr.getClazz().getClazz();
@@ -1266,7 +1266,7 @@ public final class DefaultThread implements IThread {
 			case GOTO: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				setPC(getLPC() + m);
 				break;
 			}
@@ -1276,7 +1276,7 @@ public final class DefaultThread implements IThread {
 				byte ib3 = nextOP();
 				byte ib4 = nextOP();
 				// ib1 = ((ib1 << 24) & ib2) & 0xffff;
-				setPC(getLPC() + mergeb(ib1, ib2, ib3, ib4));
+				setPC(getLPC() + TypeUtil.bytesToSignedInt(ib1, ib2, ib3, ib4));
 				break;
 			}
 			case I2B: {
@@ -1353,7 +1353,7 @@ public final class DefaultThread implements IThread {
 			case IF_ICMPEQ: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 == value2) {
@@ -1364,7 +1364,7 @@ public final class DefaultThread implements IThread {
 			case IF_ACMPEQ: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popHandle();
 				int value1 = popHandle();
 				if (value1 == value2) {
@@ -1375,7 +1375,7 @@ public final class DefaultThread implements IThread {
 			case IF_ICMPNE: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 != value2) {
@@ -1386,7 +1386,7 @@ public final class DefaultThread implements IThread {
 			case IF_ACMPNE: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popHandle();
 				int value1 = popHandle();
 				if (value1 != value2) {
@@ -1397,7 +1397,7 @@ public final class DefaultThread implements IThread {
 			case IF_ICMPLT: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 < value2) {
@@ -1408,7 +1408,7 @@ public final class DefaultThread implements IThread {
 			case IF_ICMPLE: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 <= value2) {
@@ -1419,7 +1419,7 @@ public final class DefaultThread implements IThread {
 			case IF_ICMPGT: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 > value2) {
@@ -1430,7 +1430,7 @@ public final class DefaultThread implements IThread {
 			case IF_ICMPGE: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 >= value2) {
@@ -1442,7 +1442,7 @@ public final class DefaultThread implements IThread {
 			case IFEQ: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value == 0) {
 					setPC(getLPC() + m);
@@ -1452,7 +1452,7 @@ public final class DefaultThread implements IThread {
 			case IFNULL: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popHandle();
 				if (value == 0) {
 					setPC(getLPC() + m);
@@ -1463,7 +1463,7 @@ public final class DefaultThread implements IThread {
 			case IFNE: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value != 0) {
 					setPC(getLPC() + m);
@@ -1473,7 +1473,7 @@ public final class DefaultThread implements IThread {
 			case IFNONNULL: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popHandle();
 				if (value != 0) {
 					setPC(getLPC() + m);
@@ -1484,7 +1484,7 @@ public final class DefaultThread implements IThread {
 			case IFLT: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value < 0) {
 					setPC(getLPC() + m);
@@ -1494,7 +1494,7 @@ public final class DefaultThread implements IThread {
 			case IFLE: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value <= 0) {
 					setPC(getLPC() + m);
@@ -1504,7 +1504,7 @@ public final class DefaultThread implements IThread {
 			case IFGT: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value > 0) {
 					setPC(getLPC() + m);
@@ -1514,7 +1514,7 @@ public final class DefaultThread implements IThread {
 			case IFGE: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = mergeb(ib1, ib2);
+				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value >= 0) {
 					setPC(getLPC() + m);
@@ -1539,7 +1539,7 @@ public final class DefaultThread implements IThread {
 			case INSTANCEOF: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int handle = popHandle();
 				AbstractClass clazz = context.getClass(handle);
 				AbstractClass castto = getClassFromConstant(m);
@@ -1557,7 +1557,7 @@ public final class DefaultThread implements IThread {
 					args[i] = popType(tc);
 					types[i] = tc.type;
 				}
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				AbstractClass clazz = context.getClass(args[0]);
 				ClassMethod lookup = getInterfaceMethodFromConstant(m);
 				if (!clazz.canCastTo(lookup.getOwner())) {
@@ -1595,7 +1595,7 @@ public final class DefaultThread implements IThread {
 			case INVOKESPECIAL: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassMethod invoke = getMethodFromConstant(m);
 				ClassBase cb = invoke.getOwner();
 				int count = invoke.getParamCount() + 1;
@@ -1650,7 +1650,7 @@ public final class DefaultThread implements IThread {
 			case INVOKESTATIC: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassMethod invoke = getMethodFromConstant(m);
 				if (!AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
@@ -1695,7 +1695,7 @@ public final class DefaultThread implements IThread {
 			case INVOKEVIRTUAL: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassMethod lookup = getMethodFromConstant(m);
 
 				int count = lookup.getParamCount() + 1;
@@ -1790,7 +1790,7 @@ public final class DefaultThread implements IThread {
 			case JSR: {
 				byte bb1 = nextOP();
 				byte bb2 = nextOP();
-				int target = mergeb(bb1, bb2);
+				int target = TypeUtil.bytesToSignedInt(bb1, bb2);
 				pushType(getPC(), ClassMethod.TYPE_RETURN);
 				setPC(getLPC() + target);
 				break;
@@ -1800,7 +1800,7 @@ public final class DefaultThread implements IThread {
 				byte bb2 = nextOP();
 				byte bb3 = nextOP();
 				byte bb4 = nextOP();
-				int target = mergeb(bb1, bb2, bb3, bb4);
+				int target = TypeUtil.bytesToSignedInt(bb1, bb2, bb3, bb4);
 				pushType(getPC(), ClassMethod.TYPE_RETURN);
 				setPC(getLPC() + target);
 				break;
@@ -1874,7 +1874,7 @@ public final class DefaultThread implements IThread {
 			case LDC_W: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int index = merge(ib1, ib2);
+				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				Constant con = getConstant(index);
 				if (con instanceof ConstantInteger) {
 					pushInt(((ConstantInteger) con).getData());
@@ -1895,7 +1895,7 @@ public final class DefaultThread implements IThread {
 			case LDC2_W: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int index = merge(ib1, ib2);
+				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				Constant con = getConstant(index);
 				if (con instanceof ConstantLong) {
 					pushLong(((ConstantLong) con).getData());
@@ -1953,12 +1953,12 @@ public final class DefaultThread implements IThread {
 				byte db2 = nextOP();
 				byte db3 = nextOP();
 				byte db4 = nextOP();
-				int db = mergeb(db1, db2, db3, db4);
+				int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
 				byte np1 = nextOP();
 				byte np2 = nextOP();
 				byte np3 = nextOP();
 				byte np4 = nextOP();
-				int np = mergeb(np1, np2, np3, np4);
+				int np = TypeUtil.bytesToSignedInt(np1, np2, np3, np4);
 				int[] match = new int[np];
 				int[] offset = new int[np];
 				for (int i = 0; i < np; i++) {
@@ -1970,8 +1970,8 @@ public final class DefaultThread implements IThread {
 					byte of2 = nextOP();
 					byte of3 = nextOP();
 					byte of4 = nextOP();
-					match[i] = mergeb(ma1, ma2, ma3, ma4);
-					offset[i] = mergeb(of1, of2, of3, of4);
+					match[i] = TypeUtil.bytesToSignedInt(ma1, ma2, ma3, ma4);
+					offset[i] = TypeUtil.bytesToSignedInt(of1, of2, of3, of4);
 				}
 				int key = popInt();
 				boolean matched = false;
@@ -2081,7 +2081,7 @@ public final class DefaultThread implements IThread {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
 				int dims = nextOP() & 0xff;
-				int m = merge(ib1, ib2);
+				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassArray clazz = (ClassArray) getClassFromConstant(m);
 				int[] count = new int[dims];
 				for (int i = dims - 1; i >= 0; i--) {
@@ -2093,7 +2093,7 @@ public final class DefaultThread implements IThread {
 			case NEW: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int idx = merge(ib1, ib2);
+				int idx = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				try {
 					ClassBase targetClass = (ClassBase) getClassFromConstant(idx);
 					if (AbstractClass.hasFlag(targetClass.getAccessFlags(),
@@ -2176,7 +2176,7 @@ public final class DefaultThread implements IThread {
 			case PUTFIELD: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int index = merge(ib1, ib2);
+				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassField field = getFieldFromConstant(index);
 				char type = field.getDescriptor().charAt(0);
 				long value;
@@ -2220,7 +2220,7 @@ public final class DefaultThread implements IThread {
 			case PUTSTATIC: {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int index = merge(ib1, ib2);
+				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ConstantFieldRef cfr = (ConstantFieldRef) method.getOwner()
 						.getConstantPool()[index];
 				char type = cfr.getNameAndType().getDescriptor().charAt(0);
@@ -2307,7 +2307,7 @@ public final class DefaultThread implements IThread {
 			case SIPUSH: {
 				byte bb1 = nextOP();
 				byte bb2 = nextOP();
-				int value = mergeb(bb1, bb2);
+				int value = TypeUtil.bytesToSignedInt(bb1, bb2);
 				pushInt(value);
 				break;
 			}
@@ -2335,9 +2335,9 @@ public final class DefaultThread implements IThread {
 				byte hb2 = nextOP();
 				byte hb3 = nextOP();
 				byte hb4 = nextOP();
-				int db = mergeb(db1, db2, db3, db4);
-				int lb = mergeb(lb1, lb2, lb3, lb4);
-				int hb = mergeb(hb1, hb2, hb3, hb4);
+				int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
+				int lb = TypeUtil.bytesToSignedInt(lb1, lb2, lb3, lb4);
+				int hb = TypeUtil.bytesToSignedInt(hb1, hb2, hb3, hb4);
 				int count = hb - lb + 1;
 				int[] address = new int[count];
 				for (int i = 0; i < count; i++) {
@@ -2345,7 +2345,7 @@ public final class DefaultThread implements IThread {
 					byte ab2 = nextOP();
 					byte ab3 = nextOP();
 					byte ab4 = nextOP();
-					address[i] = mergeb(ab1, ab2, ab3, ab4);
+					address[i] = TypeUtil.bytesToSignedInt(ab1, ab2, ab3, ab4);
 				}
 				int target;
 				int index = popInt();
@@ -2361,7 +2361,7 @@ public final class DefaultThread implements IThread {
 				int op2 = nextOP() & 0xff;
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
-				int index = merge(ib1, ib2);
+				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				switch (op2) {
 				case FLOAD:
 
@@ -2417,7 +2417,7 @@ public final class DefaultThread implements IThread {
 				case IINC: {
 					byte cb1 = nextOP();
 					byte cb2 = nextOP();
-					int cb = mergeb(cb1, cb2);
+					int cb = TypeUtil.bytesToSignedInt(cb1, cb2);
 					putLocalInt(index, getLocalInt(index) + cb);
 					break;
 				}
@@ -2538,24 +2538,6 @@ public final class DefaultThread implements IThread {
 		ClassBase cb = method.getOwner();
 		ConstantClass cc = (ConstantClass) cb.getConstantPool()[idx];
 		return cc.getClazz();
-	}
-
-	private int merge(byte ib1, byte ib2) {
-		return ((ib1 << 8) + (ib2 & 0xff)) & 0xffff;
-	}
-
-	private int mergeb(byte bb1, byte bb2) {
-		return ((bb1 << 8) + (bb2 & 0xff));
-	}
-
-	private int merge(byte ib1, byte ib2, byte ib3, byte ib4) {
-		return ((ib1 & 0xff) << 24) + ((ib2 & 0xff) << 16)
-				+ ((ib3 & 0xff) << 8) + (ib4 & 0xff);
-	}
-
-	private int mergeb(byte bb1, byte bb2, byte bb3, byte bb4) {
-		return ((bb1 & 0xff) << 24) + ((bb2 & 0xff) << 16)
-				+ ((bb3 & 0xff) << 8) + (bb4 & 0xff);
 	}
 
 	public int popType(TypeContainer tc) {
