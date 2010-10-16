@@ -6,13 +6,19 @@ public class EnumTest {
 
 	public void testEnum() throws Exception {
 		VMContext vm = TestInitializer.getContext();
-		vm.setConsole(Log4JConsole.getConsole());
+		// vm.setConsole(Log4JConsole.getConsole());
 		doTest(vm);
 	}
 
 	public void testEnumFast() throws Exception {
 		VMContext vm = TestInitializer.getFastContext();
-		vm.setConsole(Log4JConsole.getConsole());
+		// vm.setConsole(Log4JConsole.getConsole());
+		doTest(vm);
+	}
+	
+	public void testEnumArray() throws Exception {
+		VMContext vm = TestInitializer.getArrayContext();
+		// vm.setConsole(Log4JConsole.getConsole());
 		doTest(vm);
 	}
 

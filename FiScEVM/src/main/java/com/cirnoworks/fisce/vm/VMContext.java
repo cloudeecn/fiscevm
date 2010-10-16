@@ -102,16 +102,17 @@ public class VMContext implements FiScEVM {
 			Element heapElement = (Element) root.getElementsByTagName("heap")
 					.item(0);
 			if (heap == null
-					|| !heap.getClass().getCanonicalName()
-							.equals(heapElement.getAttribute("class"))) {
+					/*|| !heap.getClass().getCanonicalName()
+							.equals(heapElement.getAttribute("class"))*/) {
 				throw new VMCriticalException("Heap processer is wrong!");
 			}
 
 			Element tmElement = (Element) root.getElementsByTagName(
 					"threadManager").item(0);
+			
 			if (threadManager == null
-					|| !threadManager.getClass().getCanonicalName()
-							.equals(tmElement.getAttribute("class"))) {
+					/*|| !threadManager.getClass().getCanonicalName()
+							.equals(tmElement.getAttribute("class"))*/) {
 				throw new VMCriticalException("Thread manager is wrong!");
 			}
 
@@ -136,12 +137,12 @@ public class VMContext implements FiScEVM {
 			}
 
 			if (classLoader == null
-					|| !classLoader
+					/*|| !classLoader
 							.getClass()
 							.getCanonicalName()
 							.equals(((Element) root.getElementsByTagName(
 									"classloader").item(0))
-									.getAttribute("class"))) {
+									.getAttribute("class"))*/) {
 				throw new VMCriticalException("Class loader is wrong!");
 			}
 

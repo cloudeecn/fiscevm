@@ -30,6 +30,10 @@ public class HashMapTest {
 	public void testHashMapFast() throws Exception {
 		doTest(TestInitializer.getFastContext());
 	}
+	
+	public void testHashMapArray() throws Exception {
+		doTest(TestInitializer.getArrayContext());
+	}
 
 	private void doTest(VMContext context) throws Exception {
 		context.bootFromClass("EXCLUDE/fisce/test/HashMapTest");

@@ -16,7 +16,6 @@
  */
 package com.cirnoworks.fisce.vm;
 
-
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 
 /**
@@ -24,6 +23,17 @@ import com.cirnoworks.fisce.vm.data.AbstractClass;
  * @author cloudee
  */
 public interface IClassLoader {
+
+	public static final char TYPE_BYTE = 'B';
+	public static final char TYPE_CHAR = 'C';
+	public static final char TYPE_DOUBLE = 'D';
+	public static final char TYPE_FLOAT = 'F';
+	public static final char TYPE_INT = 'I';
+	public static final char TYPE_LONG = 'J';
+	public static final char TYPE_HANDLE = 'L';
+	public static final char TYPE_SHORT = 'S';
+	public static final char TYPE_BOOLEAN = 'Z';
+	public static final char TYPE_ARRAY = '[';
 
 	/**
 	 * 1. Load a class by the class name into the specific VMContext.

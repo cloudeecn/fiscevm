@@ -77,7 +77,7 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantString;
  * @author cloudee
  * 
  */
-public final class DefaultThread implements IThread {
+public final class ArrayThread implements IThread {
 
 	public static final int CMD_BREAK = 1;
 	public static final int CMD_GOON = 2;
@@ -102,10 +102,11 @@ public final class DefaultThread implements IThread {
 	private static final int dLPC = -36;
 	private static final int dPC = -40;
 	private final VMContext context;
-	private final DefaultThreadManager manager;
+	private final ArrayThreadManager manager;
 	private final IHeap heap;
 	private byte[] code;
 	private ClassMethod method;
+	private Frame currentFrame;
 	private boolean yield;
 	private final Object statLock = new Object();
 
@@ -119,28 +120,159 @@ public final class DefaultThread implements IThread {
 	 * ******************
 	 * Persist data
 	 */
-	private final ByteBuffer frames = BufferUtil.createBuffer(STACK_SIZE);
+	private int threadHandle;
+	private int currentThrowable;
+	private int status;
+	private int priority;
+	private int threadId;
+
+	private static class Frame {
+		int pc;
+		int lpc;
+		int[] localVars;
+		byte[] localVarTypes;
+		int[] opStacks;
+		byte[] opStackTypes;
+		int sp;
+		int methodId;
+
+		int getSize() {
+			return 44 + localVars.length * 4 + localVarTypes.length
+					+ opStacks.length * 4 + opStackTypes.length;
+		}
+	}
+
+	private final ArrayList<Frame> frames = new ArrayList<Frame>();
+
+	private static final int headerSize = 28;
 
 	public byte[] getFullStack() {
-		int size = getFP() + 4;
-		byte[] buf = new byte[size];
-		frames.clear();
-		frames.get(buf);
-		frames.clear();
-		return buf;
+		int size = 28;
+		for (Frame frame : frames) {
+			size += frame.getSize();
+		}
+		ByteBuffer stack = BufferUtil.createBuffer(size);
+		stack.limit(size);
+
+		stack.putInt(pThreadHandle, threadHandle);
+		stack.putInt(pCurrentThrowable, currentThrowable);
+		stack.putInt(pStatus, status);
+		stack.putInt(pPriority, priority);
+		stack.putInt(pThreadId, threadId);
+		stack.putInt(pFP, size - 4);
+
+		int fp = pFP;
+
+		for (Frame frame : frames) {
+			int ltsize = frame.localVarTypes.length;
+			int stsize = frame.opStackTypes.length;
+			int lsize = frame.localVars.length * 4;
+			int ssize = frame.opStacks.length * 4;
+			int fsize = -dPC + 4 + ssize + lsize + stsize + ltsize;
+
+			fp += fsize;
+			int lb = fp + dPC - lsize;
+			int sb = lb - ssize;
+			int ltb = sb - ltsize;
+			int stb = ltb - stsize;
+
+			stack.putInt(fp + dSIZE, fsize);
+			stack.putInt(fp + dMID, frame.methodId);
+			stack.putInt(fp + dLC, ltsize);
+			stack.putInt(fp + dLB, lb);
+			stack.putInt(fp + dSC, stsize);
+			stack.putInt(fp + dSB, sb);
+			stack.putInt(fp + dSTB, stb);
+			stack.putInt(fp + dLTB, ltb);
+			stack.putInt(fp + dPC, frame.pc);
+			stack.putInt(fp + dLPC, frame.lpc);
+			stack.putInt(fp + dSR, frame.sp);
+
+			stack.position(stb);
+			stack.put(frame.opStackTypes);
+
+			stack.position(ltb);
+			stack.put(frame.localVarTypes);
+
+			stack.position(0);
+
+			for (int i = 0, max = frame.opStacks.length; i < max; i++) {
+				stack.putInt(sb + i * 4, frame.opStacks[i]);
+			}
+
+			for (int i = 0, max = frame.localVars.length; i < max; i++) {
+				stack.putInt(lb + i * 4, frame.localVars[i]);
+			}
+		}
+
+		byte[] ret = new byte[size];
+		stack.get(ret);
+		return ret;
+	}
+
+	public void createFromData(byte[] data) {
+		ArrayList<Frame> frames = new ArrayList<Frame>();
+		ByteBuffer stack = BufferUtil.createBuffer(data.length);
+		stack.put(data);
+		stack.position(0);
+		threadHandle = stack.getInt(pThreadHandle);
+		currentThrowable = stack.getInt(pCurrentThrowable);
+		status = stack.getInt(pStatus);
+		priority = stack.getInt(pPriority);
+		threadId = stack.getInt(pThreadId);
+		int fp = stack.getInt(pFP);
+		while (fp > pFP) {
+			Frame frame = new Frame();
+			int size = stack.getInt(fp + dSIZE);
+			int localVarCount = stack.getInt(fp + dLC);
+			int opStackCount = stack.getInt(fp + dSC);
+			frame.pc = stack.getInt(fp + dPC);
+			frame.lpc = stack.getInt(fp + dLPC);
+			frame.sp = stack.getInt(fp + dSR);
+			frame.methodId = stack.getInt(fp + dMID);
+			int ltb = stack.getInt(fp + dLTB);
+			int stb = stack.getInt(fp + dSTB);
+			int lb = stack.getInt(fp + dLB);
+			int sb = stack.getInt(fp + dSB);
+			byte[] localVarTypes = new byte[localVarCount];
+			byte[] opStackTypes = new byte[opStackCount];
+			int[] localVars = new int[localVarCount];
+			int[] opStacks = new int[opStackCount];
+			for (int i = 0; i < localVarCount; i++) {
+				localVarTypes[i] = stack.get(ltb + i);
+				localVars[i] = stack.getInt(lb + i * 4);
+			}
+			for (int i = 0, max = frame.sp; i < max; i++) {
+				opStackTypes[i] = stack.get(stb + i);
+				opStacks[i] = stack.getInt(sb + i * 4);
+			}
+			frame.localVarTypes = localVarTypes;
+			frame.localVars = localVars;
+			frame.opStacks = opStacks;
+			frame.opStackTypes = opStackTypes;
+			frames.add(frame);
+
+			fp -= size;
+		}
+
+		for (int i = 0, max = frames.size(); i < max; i++) {
+			this.frames.add(frames.get(max - i - 1));
+		}
+
+		updateLocalBuf();
 	}
 
 	public final int getThreadHandle() {
-		return frames.getInt(pThreadHandle);
+		return threadHandle;
 	}
 
 	private final void setThreadHandle(int handle) throws VMException {
 		assert context.getClass(handle) != null;
-		frames.putInt(pThreadHandle, handle);
+		threadHandle = handle;
 	}
 
 	public final int getCurrentThrowable() {
-		return frames.getInt(pCurrentThrowable);
+		return currentThrowable;
 	}
 
 	public final void setCurrentThrowable(int handle)
@@ -159,135 +291,32 @@ public final class DefaultThread implements IThread {
 				throw new VMCriticalException(e);
 			}
 		}
-		frames.putInt(pCurrentThrowable, handle);
+		currentThrowable = handle;
 	}
 
 	public final int getStatus() {
-		return frames.getInt(pStatus);
-	}
-
-	private final void setStatus(int value) {
-		frames.putInt(pStatus, value);
+		return status;
 	}
 
 	public final int getPriority() {
-		return frames.getInt(pPriority);
+		return priority;
 	}
 
 	public final void setPriority(int value) {
-		frames.putInt(pPriority, value);
+		priority = value;
 	}
 
 	public final int getThreadId() {
-		return frames.getInt(pThreadId);
+		return threadId;
 	}
 
 	public final void setThreadId(int value) {
-		frames.putInt(pThreadId, value);
+		threadId = value;
 	}
 
-	// public final int getWaitForLock() {
-	// return frames.getInt(pWaitForLock);
-	// }
-	//
-	// public final void setWaitForLock(int value) {
-	// frames.putInt(pWaitForLock, value);
-	// }
-
-	private final int getFP() {
-		return frames.getInt(pFP);
-	}
-
-	private final void setFP(int value) {
-		frames.putInt(pFP, value);
-	}
-
-	private final int getSIZE() {
-		return frames.getInt(getFP() + dSIZE);
-	}
-
-	private final void setSIZE(int value) {
-		frames.putInt(getFP() + dSIZE, value);
-	}
-
-	private final int getMID() {
-		return frames.getInt(getFP() + dMID);
-	}
-
-	private final void setMID(int value) {
-		frames.putInt(getFP() + dMID, value);
-	}
-
-	private final int getLC() {
-		return frames.getInt(getFP() + dLC);
-	}
-
-	private final void setLC(int value) {
-		frames.putInt(getFP() + dLC, value);
-	}
-
-	private final int getLB() {
-		return frames.getInt(getFP() + dLB);
-	}
-
-	private final void setLB(int value) {
-		frames.putInt(getFP() + dLB, value);
-	}
-
-	private final int getSC() {
-		return frames.getInt(getFP() + dSC);
-	}
-
-	private final void setSC(int value) {
-		frames.putInt(getFP() + dSC, value);
-	}
-
-	private final int getSB() {
-		return frames.getInt(getFP() + dSB);
-	}
-
-	private final void setSB(int value) {
-		frames.putInt(getFP() + dSB, value);
-	}
-
-	private final int getSR() {
-		return frames.getInt(getFP() + dSR);
-	}
-
-	private final void setSR(int value) {
-		frames.putInt(getFP() + dSR, value);
-	}
-
-	private final int getLTB() {
-		return frames.getInt(getFP() + dLTB);
-	}
-
-	private final void setLTB(int value) {
-		frames.putInt(getFP() + dLTB, value);
-	}
-
-	private final int getSTB() {
-		return frames.getInt(getFP() + dSTB);
-	}
-
-	private final void setSTB(int value) {
-		frames.putInt(getFP() + dSTB, value);
-	}
-
-	private final int getLPC() {
-		return frames.getInt(getFP() + dLPC);
-	}
-
-	private final void setLPC(int value) {
-		frames.putInt(getFP() + dLPC, value);
-	}
-
-	private final int getPC() {
-		return frames.getInt(getFP() + dPC);
-	}
-
-	private final void setPC(int value) {
-		frames.putInt(getFP() + dPC, value);
+	public final Frame getCurrentFrame() {
+		int size = frames.size();
+		return size == 0 ? null : frames.get(size - 1);
 	}
 
 	public boolean isYield() {
@@ -298,7 +327,7 @@ public final class DefaultThread implements IThread {
 		this.yield = yield;
 	}
 
-	public DefaultThread(VMContext context, DefaultThreadManager manager) {
+	public ArrayThread(VMContext context, ArrayThreadManager manager) {
 		this.context = context;
 		this.manager = manager;
 		heap = context.getHeap();
@@ -317,7 +346,6 @@ public final class DefaultThread implements IThread {
 					"The first method of a thread must have no return value.");
 		}
 		setThreadHandle(threadHandle);
-		setFP(pFP);
 		pushFrame(method);
 		putLocalHandle(0, heap.allocate((ClassArray) context
 				.getClass("[Ljava/lang/String;"), 0));
@@ -340,100 +368,68 @@ public final class DefaultThread implements IThread {
 					+ "." + ".run.()V");
 		}
 		setThreadHandle(handle);
-		setFP(pFP);
 		pushFrame(runner);
 		// "this"
 		putLocalHandle(0, handle);
 	}
 
-	public void createFromData(byte[] data) {
-		frames.clear();
-		frames.put(data);
-		frames.clear();
-		yield = true;
-		updateLocalBuf();
-	}
-
 	private byte nextOP() {
-		int pc = getPC();
-		setPC(pc + 1);
-		return code[pc];
+		return code[currentFrame.pc++];
 	}
 
 	private void movePC(int ofs) {
-		setPC(getPC() + ofs);
+		currentFrame.pc += ofs;
+	}
+
+	private void go(int ofs) {
+		currentFrame.pc = currentFrame.lpc + ofs;
 	}
 
 	private void updateLocalBuf() {
-		if (getFP() != pFP) {
-			method = getCurrentMethod();
-			code = method.getCode();
-		} else {
+		int size = frames.size();
+		if (size == 0) {
 			method = null;
 			code = null;
+			currentFrame = null;
+		} else {
+			currentFrame = frames.get(size - 1);
+			method = getCurrentMethod();
+			code = method.getCode();
 		}
 	}
 
 	private String getFrameInfo() {
-		return "STACK=["
-				+ getSB()
-				+ "-"
-				+ (getSB() + 4 * getSC())
+		return "STACK["
+				+ currentFrame.sp
+				+ "/"
+				+ currentFrame.opStacks.length
 				+ "] VARS=["
-				+ getLB()
-				+ "-"
-				+ (getLB() + 4 * getLC())
-				+ ") FP="
-				+ getFP()
-				+ " SIZE="
-				+ getSIZE()
+				+ currentFrame.localVars.length
+				+ "] "
 				+ (!AbstractClass.hasFlag(method.getAccessFlags(),
 						AbstractClass.ACC_STATIC));
 	}
 
 	public void pushFrame(ClassMethod mt) {
-		int ltsize = mt.getMaxLocals();
-		int stsize = mt.getMaxStack();
-		int lsize = mt.getMaxLocals() * 4;
-		int ssize = mt.getMaxStack() * 4;
-		int size = -dPC + 4 + ssize + lsize + stsize + ltsize;
-		if (getFP() > pFP) {
-			assert context.getConsole().debug(
-					">>>Push frame from " + getFrameInfo());
-		} else {
-			assert context.getConsole().debug(">>>Pop frame prepare to enter!");
-		}
-		setFP(getFP() + size);
-		setSIZE(size);
-		setMID(context.getMethodId(mt));
-		setLC(mt.getMaxLocals());
-		setLB(getFP() + dPC - lsize);
-		setSC(mt.getMaxStack());
-		setSB(getLB() - ssize);
-		setLTB(getSB() - ltsize);
-		setSTB(getLTB() - stsize);
-		setSR(0);
-		setPC(0);
-		int ltb = getLTB();
-		for (int i = 0, max = getLC(); i < max; i++) {
-			frames.put(ltb + i, (byte) 0);
-		}
+		Frame frame = new Frame();
+		frame.localVars = new int[mt.getMaxLocals()];
+		frame.localVarTypes = new byte[mt.getMaxLocals()];
+		frame.opStacks = new int[mt.getMaxStack()];
+		frame.opStackTypes = new byte[mt.getMaxStack()];
+		frame.methodId = context.getMethodId(mt);
+		frames.add(frame);
 		updateLocalBuf();
 		assert context.getConsole().debug(">>>Push frame to " + getFrameInfo());
-
 		// switchIn();
 	}
 
 	private void popFrame() {
 		// switchOut();
-		if (getFP() > pFP) {
-			assert context.getConsole().debug(
-					">>>Pop frame from " + getFrameInfo());
-		}
-		setFP(getFP() - getSIZE());
-
+		assert context.getConsole()
+				.debug(">>>Pop frame from " + getFrameInfo());
+		frames.remove(frames.size() - 1);
 		updateLocalBuf();
-		if (getFP() > pFP) {
+		if (currentFrame != null) {
 			assert context.getConsole().debug(
 					">>>Pop frame to " + getFrameInfo());
 		} else {
@@ -464,7 +460,7 @@ public final class DefaultThread implements IThread {
 	public boolean run(int ops) throws VMCriticalException {
 
 		for (int i = 0; i < ops; i++) {
-			if (getFP() == pFP) {
+			if (currentFrame == null) {
 				// Time to quit!
 				int th = getCurrentThrowable();
 				if (th > 0) {
@@ -501,7 +497,7 @@ public final class DefaultThread implements IThread {
 
 	private void processThrowable(int th) throws VMCriticalException {
 		assert context.getConsole().debug(
-				"*EXCEPTION HANDLE LOOKUP: LPC=" + getLPC());
+				"*EXCEPTION HANDLE LOOKUP: LPC=" + currentFrame.lpc);
 		AbstractClass throwableClass;
 		try {
 			throwableClass = (ClassBase) context.getClass(th);
@@ -512,7 +508,7 @@ public final class DefaultThread implements IThread {
 		}
 
 		ExceptionHandler[] handlers = method.getExceptionTable();
-		int lpc = getLPC();
+		int lpc = currentFrame.lpc;
 		int target = -1;
 		for (int i = 0, max = handlers.length; i < max; i++) {
 			ExceptionHandler eh = handlers[i];
@@ -539,10 +535,10 @@ public final class DefaultThread implements IThread {
 		if (target >= 0) {
 			// can handle, clear stack and push exception and jump
 			assert context.getConsole().debug("*FOUND JUMP=" + target);
-			setSR(0);
+			currentFrame.sp = 0;
 			pushHandle(th);
 			setCurrentThrowable(0);
-			setPC(target);
+			currentFrame.pc = target;
 		} else {
 			// throw to caller.
 			assert context.getConsole().debug("NOT FOUND!");
@@ -570,7 +566,7 @@ public final class DefaultThread implements IThread {
 	 * @throws VMCriticalException
 	 */
 	private void runOneInst() throws VMCriticalException {
-		setLPC(getPC());
+		currentFrame.lpc = currentFrame.pc;
 		int op = nextOP() & 0xff;
 		if (method.isClinit()) {
 			ClassBase targetClass = method.getOwner().getSuperClass();
@@ -583,15 +579,15 @@ public final class DefaultThread implements IThread {
 				} else if (cmd == CMD_GOON) {
 
 				} else if (cmd == CMD_BACK) {
-					setPC(getLPC());
+					currentFrame.pc = currentFrame.lpc;
 					return;
 				}
 			}
 		}
 
 		assert context.getConsole().debug(
-				method.getUniqueName() + " " + getLPC() + " " + OP_NAME[op]
-						+ " SR=" + getSR());
+				method.getUniqueName() + " " + currentFrame.lpc + " "
+						+ OP_NAME[op] + " SR=" + currentFrame.pc);
 		try {
 			switch (op) {
 			case AALOAD: {
@@ -1241,7 +1237,7 @@ public final class DefaultThread implements IThread {
 					} else if (cmd == CMD_GOON) {
 
 					} else if (cmd == CMD_BACK) {
-						setPC(getLPC());
+						currentFrame.pc = currentFrame.lpc;
 						break;
 					}
 				}
@@ -1267,7 +1263,7 @@ public final class DefaultThread implements IThread {
 				byte ib1 = nextOP();
 				byte ib2 = nextOP();
 				int m = mergeb(ib1, ib2);
-				setPC(getLPC() + m);
+				go(m);
 				break;
 			}
 			case GOTO_W: {
@@ -1276,7 +1272,7 @@ public final class DefaultThread implements IThread {
 				byte ib3 = nextOP();
 				byte ib4 = nextOP();
 				// ib1 = ((ib1 << 24) & ib2) & 0xffff;
-				setPC(getLPC() + mergeb(ib1, ib2, ib3, ib4));
+				go(mergeb(ib1, ib2, ib3, ib4));
 				break;
 			}
 			case I2B: {
@@ -1357,7 +1353,7 @@ public final class DefaultThread implements IThread {
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 == value2) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1368,7 +1364,7 @@ public final class DefaultThread implements IThread {
 				int value2 = popHandle();
 				int value1 = popHandle();
 				if (value1 == value2) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1379,7 +1375,7 @@ public final class DefaultThread implements IThread {
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 != value2) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1390,7 +1386,7 @@ public final class DefaultThread implements IThread {
 				int value2 = popHandle();
 				int value1 = popHandle();
 				if (value1 != value2) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1401,7 +1397,7 @@ public final class DefaultThread implements IThread {
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 < value2) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1412,7 +1408,7 @@ public final class DefaultThread implements IThread {
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 <= value2) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1423,7 +1419,7 @@ public final class DefaultThread implements IThread {
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 > value2) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1434,7 +1430,7 @@ public final class DefaultThread implements IThread {
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 >= value2) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1445,7 +1441,7 @@ public final class DefaultThread implements IThread {
 				int m = mergeb(ib1, ib2);
 				int value = popInt();
 				if (value == 0) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1455,7 +1451,7 @@ public final class DefaultThread implements IThread {
 				int m = mergeb(ib1, ib2);
 				int value = popHandle();
 				if (value == 0) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1466,7 +1462,7 @@ public final class DefaultThread implements IThread {
 				int m = mergeb(ib1, ib2);
 				int value = popInt();
 				if (value != 0) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1476,7 +1472,7 @@ public final class DefaultThread implements IThread {
 				int m = mergeb(ib1, ib2);
 				int value = popHandle();
 				if (value != 0) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1487,7 +1483,7 @@ public final class DefaultThread implements IThread {
 				int m = mergeb(ib1, ib2);
 				int value = popInt();
 				if (value < 0) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1497,7 +1493,7 @@ public final class DefaultThread implements IThread {
 				int m = mergeb(ib1, ib2);
 				int value = popInt();
 				if (value <= 0) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1507,7 +1503,7 @@ public final class DefaultThread implements IThread {
 				int m = mergeb(ib1, ib2);
 				int value = popInt();
 				if (value > 0) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1517,7 +1513,7 @@ public final class DefaultThread implements IThread {
 				int m = mergeb(ib1, ib2);
 				int value = popInt();
 				if (value >= 0) {
-					setPC(getLPC() + m);
+					go(m);
 				}
 				break;
 			}
@@ -1665,7 +1661,7 @@ public final class DefaultThread implements IThread {
 					} else if (cmd == CMD_GOON) {
 
 					} else if (cmd == CMD_BACK) {
-						setPC(getLPC());
+						currentFrame.pc = currentFrame.lpc;
 						break;
 					}
 				}
@@ -1791,8 +1787,8 @@ public final class DefaultThread implements IThread {
 				byte bb1 = nextOP();
 				byte bb2 = nextOP();
 				int target = mergeb(bb1, bb2);
-				pushType(getPC(), ClassMethod.TYPE_RETURN);
-				setPC(getLPC() + target);
+				pushType(currentFrame.pc, ClassMethod.TYPE_RETURN);
+				go(target);
 				break;
 			}
 			case JSR_W: {
@@ -1801,8 +1797,8 @@ public final class DefaultThread implements IThread {
 				byte bb3 = nextOP();
 				byte bb4 = nextOP();
 				int target = mergeb(bb1, bb2, bb3, bb4);
-				pushType(getPC(), ClassMethod.TYPE_RETURN);
-				setPC(getLPC() + target);
+				pushType(currentFrame.pc, ClassMethod.TYPE_RETURN);
+				go(target);
 				break;
 			}
 			case L2D: {
@@ -1947,7 +1943,7 @@ public final class DefaultThread implements IThread {
 				break;
 			}
 			case LOOKUPSWITCH: {
-				int padSize = (65536 - getPC()) % 4;
+				int padSize = (65536 - currentFrame.pc) % 4;
 				movePC(padSize);
 				byte db1 = nextOP();
 				byte db2 = nextOP();
@@ -1977,13 +1973,13 @@ public final class DefaultThread implements IThread {
 				boolean matched = false;
 				for (int i = 0; i < np; i++) {
 					if (key == match[i]) {
-						setPC(getLPC() + offset[i]);
+						go(offset[i]);
 						matched = true;
 						break;
 					}
 				}
 				if (!matched) {
-					setPC(getLPC() + db);
+					go(db);
 				}
 				break;
 			}
@@ -2109,7 +2105,7 @@ public final class DefaultThread implements IThread {
 						} else if (cmd == CMD_GOON) {
 
 						} else if (cmd == CMD_BACK) {
-							setPC(getLPC());
+							currentFrame.pc = currentFrame.lpc;
 							break;
 						}
 					}
@@ -2233,7 +2229,7 @@ public final class DefaultThread implements IThread {
 					} else if (cmd == CMD_GOON) {
 
 					} else if (cmd == CMD_BACK) {
-						setPC(getLPC());
+						currentFrame.pc = currentFrame.lpc;
 						break;
 					}
 				}
@@ -2273,7 +2269,7 @@ public final class DefaultThread implements IThread {
 			case RET: {
 				int index = nextOP() & 0xff;
 				int addr = getLocalReturn(index);
-				setPC(addr);
+				currentFrame.pc = addr;
 				break;
 			}
 			case RETURN: {
@@ -2321,7 +2317,7 @@ public final class DefaultThread implements IThread {
 				break;
 			}
 			case TABLESWITCH: {
-				int pad = (65536 - getPC()) % 4;
+				int pad = (65536 - currentFrame.pc) % 4;
 				movePC(pad);
 				byte db1 = nextOP();
 				byte db2 = nextOP();
@@ -2354,7 +2350,7 @@ public final class DefaultThread implements IThread {
 				} else {
 					target = address[index - lb];
 				}
-				setPC(getLPC() + target);
+				go(target);
 				break;
 			}
 			case WIDE: {
@@ -2411,7 +2407,7 @@ public final class DefaultThread implements IThread {
 				}
 				case RET: {
 					int addr = getLocalReturn(index);
-					setPC(addr);
+					currentFrame.pc = addr;
 					break;
 				}
 				case IINC: {
@@ -2490,7 +2486,7 @@ public final class DefaultThread implements IThread {
 			if (tid == VMContext.CLINIT_FINISHED) {
 				return CMD_GOON;
 			} else if (tid == VMContext.CLINIT_NONE) {
-				setPC(getLPC());
+				currentFrame.pc = currentFrame.lpc;
 				pushFrame(targetClass.getClinit());
 				context.setClinited(targetClass, this);
 				return CMD_BREAK;
@@ -2541,278 +2537,234 @@ public final class DefaultThread implements IThread {
 	}
 
 	private int merge(byte ib1, byte ib2) {
-		return ((ib1 << 8) + (ib2 & 0xff)) & 0xffff;
+		return ((ib1 << 8) | (ib2 & 0xff)) & 0xffff;
 	}
 
 	private int mergeb(byte bb1, byte bb2) {
-		return ((bb1 << 8) + (bb2 & 0xff));
+		return ((bb1 << 8) | (bb2 & 0xff));
 	}
 
 	private int merge(byte ib1, byte ib2, byte ib3, byte ib4) {
-		return ((ib1 & 0xff) << 24) + ((ib2 & 0xff) << 16)
-				+ ((ib3 & 0xff) << 8) + (ib4 & 0xff);
+		return ((ib1 & 0xff) << 24) | ((ib2 & 0xff) << 16)
+				| ((ib3 & 0xff) << 8) | (ib4 & 0xff);
 	}
 
 	private int mergeb(byte bb1, byte bb2, byte bb3, byte bb4) {
-		return ((bb1 & 0xff) << 24) + ((bb2 & 0xff) << 16)
-				+ ((bb3 & 0xff) << 8) + (bb4 & 0xff);
+		return ((bb1 & 0xff) << 24) | ((bb2 & 0xff) << 16)
+				| ((bb3 & 0xff) << 8) | (bb4 & 0xff);
 	}
 
 	public int popType(TypeContainer tc) {
-		setSR(getSR() - 1);
-		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		tc.type = frames.get(getSTB() + getSR());
-		return frames.getInt(getSB() + (getSR() << 2));
+		int tmp = --currentFrame.sp;
+		tc.type = currentFrame.opStackTypes[tmp];
+		return currentFrame.opStacks[tmp];
 	}
 
 	public void pushType(int value, byte type) {
-		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
+		int tmp = currentFrame.sp++;
+		currentFrame.opStacks[tmp] = value;
+		currentFrame.opStackTypes[tmp] = type;
 		assert type != ClassMethod.TYPE_HANDLE
 				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
-		frames.put(getSTB() + getSR(), type);
-		frames.putInt(getSB() + (getSR() << 2), value);
-		setSR(getSR() + 1);
 	}
 
 	public int popHandle() {
-		setSR(getSR() - 1);
-		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_HANDLE : "Type mismatch!"
-				+ frames.get(getSTB() + getSR())
+		int tmp = --currentFrame.sp;
+		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+				+ currentFrame.opStackTypes[tmp]
 				+ " should be "
 				+ ClassMethod.TYPE_HANDLE;
-		return frames.getInt(getSB() + (getSR() << 2));
+		return currentFrame.opStacks[tmp];
 	}
 
 	public void pushHandle(int handle) {
-		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
 		assert !(handle < 0 || handle > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ handle;
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_HANDLE);
-		frames.putInt(getSB() + (getSR() << 2), handle);
-		setSR(getSR() + 1);
+		int tmp = currentFrame.sp++;
+		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_HANDLE;
+		currentFrame.opStacks[tmp] = handle;
 	}
 
 	public int popInt() {
-		setSR(getSR() - 1);
-		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ frames.get(getSTB() + getSR())
+		int tmp = --currentFrame.sp;
+		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ currentFrame.opStackTypes[tmp]
 				+ " should be "
 				+ ClassMethod.TYPE_INT;
-		return frames.getInt(getSB() + (getSR() << 2));
+		return currentFrame.opStacks[tmp];
 	}
 
 	public void pushInt(int value) {
-		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_INT);
-		frames.putInt(getSB() + (getSR() << 2), value);
-		setSR(getSR() + 1);
-
+		int tmp = currentFrame.sp++;
+		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_INT;
+		currentFrame.opStacks[tmp] = value;
 	}
 
 	public float popFloat() {
-		setSR(getSR() - 1);
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ frames.get(getSTB() + getSR())
+		int tmp = --currentFrame.sp;
+		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ currentFrame.opStackTypes[tmp]
 				+ " should be "
 				+ ClassMethod.TYPE_INT;
-		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		return frames.getFloat(getSB() + (getSR() << 2));
+		return Float.intBitsToFloat(currentFrame.opStacks[tmp]);
 	}
 
 	public void pushFloat(float value) {
-		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_INT);
-		frames.putFloat(getSB() + (getSR() << 2), value);
-		setSR(getSR() + 1);
+		int tmp = currentFrame.sp++;
+		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_INT;
+		currentFrame.opStacks[tmp] = Float.floatToRawIntBits(value);
 
 	}
 
 	public double popDouble() {
-		setSR(getSR() - 2);
-		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ frames.get(getSTB() + getSR())
+		int tmp = currentFrame.sp -= 2;
+		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ currentFrame.opStackTypes[tmp]
 				+ " should be "
 				+ ClassMethod.TYPE_WIDE;
-		return frames.getDouble(getSB() + (getSR() << 2));
+		long lvalue = (((long) (currentFrame.opStacks[tmp])) << 32)
+				| (currentFrame.opStacks[tmp + 1]);
+		return Double.longBitsToDouble(lvalue);
 	}
 
 	public void pushDouble(double value) {
-		assert getSR() < (getSC() - 1) : "Stack overflow!" + getSR() + ">="
-				+ (getSC() - 1);
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_WIDE);
-		frames.put(getSTB() + getSR() + 1, ClassMethod.TYPE_WIDE2);
-		frames.putDouble(getSB() + (getSR() << 2), value);
-		setSR(getSR() + 2);
-
+		long lvalue = Double.doubleToRawLongBits(value);
+		int tmp = currentFrame.sp;
+		currentFrame.sp += 2;
+		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_WIDE;
+		currentFrame.opStackTypes[tmp + 1] = ClassMethod.TYPE_WIDE2;
+		currentFrame.opStacks[tmp] = (int) (lvalue >>> 32);
+		currentFrame.opStacks[tmp + 1] = (int) lvalue;
 	}
 
 	public long popLong() {
-		setSR(getSR() - 2);
-		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ frames.get(getSTB() + getSR())
+		int tmp = currentFrame.sp -= 2;
+		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ currentFrame.opStackTypes[tmp]
 				+ " should be "
 				+ ClassMethod.TYPE_WIDE;
-		return frames.getLong(getSB() + (getSR() << 2));
+		long lvalue = (((long) (currentFrame.opStacks[tmp])) << 32)
+				| (currentFrame.opStacks[tmp + 1]);
+		return lvalue;
 	}
 
 	public void pushLong(long value) {
-		assert getSR() < getSC() - 1 : "Stack overflow!" + getSR() + ">="
-				+ (getSC() - 1);
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_WIDE);
-		frames.put(getSTB() + getSR() + 1, ClassMethod.TYPE_WIDE2);
-		frames.putLong(getSB() + (getSR() << 2), value);
-		setSR(getSR() + 2);
+		int tmp = currentFrame.sp;
+		currentFrame.sp += 2;
+		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_WIDE;
+		currentFrame.opStackTypes[tmp + 1] = ClassMethod.TYPE_WIDE2;
+		currentFrame.opStacks[tmp] = (int) (value >>> 32);
+		currentFrame.opStacks[tmp + 1] = (int) value;
 
 	}
 
 	public int getLocalReturn(int index) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_RETURN : "Type mismatch!"
-				+ frames.get(getLTB() + index)
+		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_RETURN : "Type mismatch!"
+				+ currentFrame.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_RETURN;
-		return frames.getInt(pos);
+		return currentFrame.localVars[index];
 	}
 
 	public void putLocalReturn(int index, int value) {
-		int pos = getLB() + (index << 2);
-
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		frames.put(getLTB() + index, ClassMethod.TYPE_RETURN);
-		frames.putInt(pos, value);
+		currentFrame.localVarTypes[index] = ClassMethod.TYPE_RETURN;
+		currentFrame.localVars[index] = value;
 	}
 
 	public int getLocalHandle(int index) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_HANDLE : "Type mismatch!"
-				+ frames.get(getLTB() + index)
+		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+				+ currentFrame.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_HANDLE;
-		return frames.getInt(pos);
+		return currentFrame.localVars[index];
 	}
 
 	public void putLocalHandle(int index, int value) {
-		int pos = getLB() + (index << 2);
-
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		assert !(value < 0 || value > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
-				+ value + " " + IHeap.MAX_OBJECTS;
-		frames.put(getLTB() + index, ClassMethod.TYPE_HANDLE);
-		frames.putInt(pos, value);
+		currentFrame.localVarTypes[index] = ClassMethod.TYPE_HANDLE;
+		currentFrame.localVars[index] = value;
 	}
 
 	public int getLocalType(int index, TypeContainer tc) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		tc.type = frames.get(getLTB() + index);
-		return frames.getInt(pos);
+		tc.type = currentFrame.localVarTypes[index];
+		return currentFrame.localVars[index];
 	}
 
 	public void putLocalType(int index, int value, byte type) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
 		assert type != ClassMethod.TYPE_HANDLE
 				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
-		frames.put(getLTB() + index, type);
-		frames.putInt(pos, value);
+		currentFrame.localVarTypes[index] = type;
+		currentFrame.localVars[index] = value;
 	}
 
 	public int getLocalInt(int index) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ frames.get(getLTB() + index)
+		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ currentFrame.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_INT;
-		return frames.getInt(pos);
+		return currentFrame.localVars[index];
 	}
 
 	public void putLocalInt(int index, int value) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		frames.put(getLTB() + index, ClassMethod.TYPE_INT);
-		frames.putInt(pos, value);
+		currentFrame.localVarTypes[index] = ClassMethod.TYPE_INT;
+		currentFrame.localVars[index] = value;
 	}
 
 	public float getLocalFloat(int index) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ frames.get(getLTB() + index)
+		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ currentFrame.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_INT;
-		return frames.getFloat(pos);
+		return Float.intBitsToFloat(currentFrame.localVars[index]);
 	}
 
 	public void putLocalFloat(int index, float value) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() : "Local var overflow!" + pos + ">"
-				+ (getLC() - 1);
-		frames.put(getLTB() + index, ClassMethod.TYPE_INT);
-		frames.putFloat(pos, value);
+		currentFrame.localVarTypes[index] = ClassMethod.TYPE_INT;
+		currentFrame.localVars[index] = Float.floatToIntBits(value);
 	}
 
 	// public synchronized native void foo();
 
 	public long getLocalLong(int index) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
-				+ (getLC() - 2);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ frames.get(getLTB() + index)
+		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ currentFrame.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_WIDE;
-		return frames.getLong(pos);
+
+		long lvalue = (((long) (currentFrame.localVars[index])) << 32)
+				| (currentFrame.localVars[index + 1]);
+		return lvalue;
 	}
 
 	public void putLocalLong(int index, long value) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
-				+ (getLC() - 2);
-		frames.put(getLTB() + index, ClassMethod.TYPE_WIDE);
-		frames.put(getLTB() + index + 1, ClassMethod.TYPE_WIDE2);
-		frames.putLong(pos, value);
+		currentFrame.localVarTypes[index] = ClassMethod.TYPE_WIDE;
+		currentFrame.localVarTypes[index + 1] = ClassMethod.TYPE_WIDE2;
+		currentFrame.localVars[index] = (int) (value >>> 32);
+		currentFrame.localVars[index + 1] = (int) value;
 	}
 
 	public double getLocalDouble(int index) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
-				+ (getLC() - 2);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ frames.get(getLTB() + index)
+		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ currentFrame.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_WIDE;
-		return frames.getDouble(pos);
+
+		long lvalue = (((long) (currentFrame.localVars[index])) << 32)
+				| (currentFrame.localVars[index + 1]);
+		return Double.longBitsToDouble(lvalue);
 	}
 
 	public void putLocalDouble(int index, double value) {
-		int pos = getLB() + (index << 2);
-		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
-				+ (getLC() - 2);
-		frames.put(getLTB() + index, ClassMethod.TYPE_WIDE);
-		frames.put(getLTB() + index + 1, ClassMethod.TYPE_WIDE2);
-		frames.putDouble(pos, value);
+		long lvalue = Double.doubleToRawLongBits(value);
+		currentFrame.localVarTypes[index] = ClassMethod.TYPE_WIDE;
+		currentFrame.localVarTypes[index + 1] = ClassMethod.TYPE_WIDE2;
+		currentFrame.localVars[index] = (int) (lvalue >>> 32);
+		currentFrame.localVars[index + 1] = (int) lvalue;
 	}
 
 	public ClassMethod getCurrentMethod() {
-		return context.getMethodById(getMID());
+		return context.getMethodById(currentFrame.methodId);
 	}
 
 	public List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list) {
@@ -2821,10 +2773,11 @@ public final class DefaultThread implements IThread {
 		}
 		assert context.getConsole().debug(
 				"######## DUMP STACK TRACE BEGIN #########");
-		final int fp = getFP();
 		StackTraceElement ste;
-		while (getFP() > pFP) {
-			ClassMethod mt = context.getMethodById(getMID());
+		for (int ii = frames.size() - 1; ii >= 0; ii--) {
+			Frame frame = frames.get(ii);
+
+			ClassMethod mt = context.getMethodById(frame.methodId);
 			ClassBase clazz = mt.getOwner();
 			LineNumber[] lnt = mt.getLineNumberTable();
 			AttributeSourceFile source = (AttributeSourceFile) Attribute
@@ -2841,7 +2794,7 @@ public final class DefaultThread implements IThread {
 					AbstractClass.ACC_NATIVE)) {
 				lineNumber = -2;
 			} else {
-				int lpc = getLPC();
+				int lpc = currentFrame.lpc;
 				if (lnt != null) {
 					for (int i = 0, max = lnt.length; i < max; i++) {
 						LineNumber ln = lnt[i];
@@ -2858,16 +2811,14 @@ public final class DefaultThread implements IThread {
 					lineNumber);
 			assert context.getConsole().debug(ste.toString());
 			list.add(ste);
-			setFP(getFP() - getSIZE());
 		}
 		assert context.getConsole().debug(
 				"######## DUMP STACK TRACE END   #########");
-		setFP(fp);
 		return list;
 	}
 
 	public void fillUsedHandles(Set<Integer> tofill) {
-		int fpbak = getFP();
+		// int fpbak = getFP();
 		assert heap.isHandleValid(getThreadHandle());
 		// context.getConsole().info("SCAN INITT->" + getThreadHandle());
 		tofill.add(getThreadHandle());
@@ -2878,32 +2829,40 @@ public final class DefaultThread implements IThread {
 			tofill.add(getCurrentThrowable());
 		}
 		StringBuilder out = new StringBuilder(64);
-		while (getFP() > pFP) {
-			int lb = getLB();
-			int sb = getSB();
-			int ltb = getLTB();
-			int stb = getSTB();
+		for (int ii = frames.size() - 1; ii >= 0; ii--) {
+			Frame frame = frames.get(ii);
 			boolean assertion = false;
 			assert assertion = true;
 			if (assertion) {
-				ClassMethod method = context.getMethodById(getMID());
+				ClassMethod method = context.getMethodById(frame.methodId);
 
 				out.append("GC Method=");
 				out.append(method.getUniqueName());
 				out.append(" ");
-				for (int i = 0, max = getLC(); i < max; i++) {
-					out.append((char) frames.get(ltb + i));
+				for (int i = 0, max = frame.localVarTypes.length; i < max; i++) {
+					out.append((char) frame.localVarTypes[i]);
 				}
 				out.append(" ");
-				for (int i = 0, max = getSR(); i < max; i++) {
-					out.append((char) frames.get(stb + i));
+				for (int i = 0, max = frame.sp; i < max; i++) {
+					out.append((char) frame.opStackTypes[i]);
 				}
 				context.getConsole().debug(out.toString());
 				out.setLength(0);
 			}
-			for (int i = 0, max = getLC(); i < max; i++) {
-				if (frames.get(ltb + i) == ClassMethod.TYPE_HANDLE) {
-					int handle = frames.getInt(lb + (i << 2));
+			for (int i = 0, max = frame.localVars.length; i < max; i++) {
+				if (frame.localVarTypes[i] == ClassMethod.TYPE_HANDLE) {
+					int handle = frame.localVars[i];
+					if (handle > 0) {
+						assert heap.isHandleValid(handle) : handle;
+						// context.getConsole().info("SCAN INITT->" + handle);
+						tofill.add(handle);
+					}
+				}
+			}
+
+			for (int i = 0, max = frame.sp; i < max; i++) {
+				if (frame.opStackTypes[i] == ClassMethod.TYPE_HANDLE) {
+					int handle = frame.opStacks[i];
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);
 						// context.getConsole().info("SCAN INITT->" + handle);
@@ -2911,20 +2870,6 @@ public final class DefaultThread implements IThread {
 					}
 				}
 			}
-
-			for (int i = 0, max = getSR(); i < max; i++) {
-				if (frames.get(stb + i) == ClassMethod.TYPE_HANDLE) {
-					int handle = frames.getInt(sb + (i << 2));
-					if (handle > 0) {
-						assert heap.isHandleValid(handle);
-						// context.getConsole().info("SCAN INITT->" + handle);
-						tofill.add(handle);
-					}
-				}
-			}
-
-			setFP(getFP() - getSIZE());
 		}
-		setFP(fpbak);
 	}
 }

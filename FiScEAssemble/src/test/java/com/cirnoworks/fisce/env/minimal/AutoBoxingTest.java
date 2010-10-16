@@ -20,18 +20,24 @@ import com.cirnoworks.fisce.vm.VMContext;
 
 /**
  * @author Cloudee
- *
+ * 
  */
 public class AutoBoxingTest {
 	public void testAutoboxing() throws Exception {
 		VMContext vm = TestInitializer.getContext();
-		vm.setConsole(Log4JConsole.getConsole());
+		// vm.setConsole(Log4JConsole.getConsole());
 		doTest(vm);
 	}
 
 	public void testAutoboxingFast() throws Exception {
 		VMContext vm = TestInitializer.getFastContext();
-		vm.setConsole(Log4JConsole.getConsole());
+		// vm.setConsole(Log4JConsole.getConsole());
+		doTest(vm);
+	}
+
+	public void testAutoboxingArray() throws Exception {
+		VMContext vm = TestInitializer.getFastContext();
+		// vm.setConsole(Log4JConsole.getConsole());
 		doTest(vm);
 	}
 

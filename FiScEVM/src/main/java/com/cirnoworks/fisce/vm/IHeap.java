@@ -136,8 +136,9 @@ public interface IHeap {
 	 *            数组所在的句柄
 	 * @return 数组的长度
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	int getArrayLength(int handle) throws VMException;
+	int getArrayLength(int handle) throws VMException, VMCriticalException;
 
 	/**
 	 * 获得对象的成员变量的布尔值
@@ -392,8 +393,10 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	boolean getArrayBoolean(int handle, int index) throws VMException;
+	boolean getArrayBoolean(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	/**
 	 * 取byte数组中的值
@@ -404,8 +407,10 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	byte getArrayByte(int handle, int index) throws VMException;
+	byte getArrayByte(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	/**
 	 * 取short数组中的值
@@ -416,8 +421,10 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	short getArrayShort(int handle, int index) throws VMException;
+	short getArrayShort(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	/**
 	 * 取char数组中的值
@@ -428,8 +435,10 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	char getArrayChar(int handle, int index) throws VMException;
+	char getArrayChar(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	/**
 	 * 取int数组中的值
@@ -440,8 +449,10 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	int getArrayInt(int handle, int index) throws VMException;
+	int getArrayInt(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	/**
 	 * 取long数组中的值
@@ -452,8 +463,10 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	long getArrayLong(int handle, int index) throws VMException;
+	long getArrayLong(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	/**
 	 * 取float数组中的值
@@ -464,8 +477,10 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	float getArrayFloat(int handle, int index) throws VMException;
+	float getArrayFloat(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	/**
 	 * 取double数组中的值
@@ -476,8 +491,10 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	double getArrayDouble(int handle, int index) throws VMException;
+	double getArrayDouble(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	/**
 	 * 取Object数组中的值
@@ -488,51 +505,61 @@ public interface IHeap {
 	 *            位置
 	 * @return 值
 	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
-	int getArrayHandle(int handle, int index) throws VMException;
+	int getArrayHandle(int handle, int index) throws VMException,
+			VMCriticalException;
 
 	void putArrayBoolean(int handle, int index, boolean value)
-			throws VMException;
+			throws VMException, VMCriticalException;
 
-	void putArrayByte(int handle, int index, byte value) throws VMException;
+	void putArrayByte(int handle, int index, byte value) throws VMException,
+			VMCriticalException;
 
-	void putArrayShort(int handle, int index, short value) throws VMException;
+	void putArrayShort(int handle, int index, short value) throws VMException,
+			VMCriticalException;
 
-	void putArrayChar(int handle, int index, char value) throws VMException;
+	void putArrayChar(int handle, int index, char value) throws VMException,
+			VMCriticalException;
 
-	void putArrayInt(int handle, int index, int value) throws VMException;
+	void putArrayInt(int handle, int index, int value) throws VMException,
+			VMCriticalException;
 
-	void putArrayLong(int handle, int index, long value) throws VMException;
+	void putArrayLong(int handle, int index, long value) throws VMException,
+			VMCriticalException;
 
-	void putArrayFloat(int handle, int index, float value) throws VMException;
+	void putArrayFloat(int handle, int index, float value) throws VMException,
+			VMCriticalException;
 
-	void putArrayDouble(int handle, int index, double value) throws VMException;
+	void putArrayDouble(int handle, int index, double value)
+			throws VMException, VMCriticalException;
 
-	void putArrayHandle(int handle, int index, int value) throws VMException;
+	void putArrayHandle(int handle, int index, int value) throws VMException,
+			VMCriticalException;
 
 	void fillArrayBoolean(int handle, int dstPos, boolean[] src, int srcPos,
-			int len) throws VMException;
+			int len) throws VMException, VMCriticalException;
 
 	void fillArrayByte(int handle, int dstPos, byte[] src, int srcPos, int len)
-			throws VMException;
+			throws VMException, VMCriticalException;
 
 	void fillArrayShort(int handle, int dstPos, short[] src, int srcPos, int len)
-			throws VMException;
+			throws VMException, VMCriticalException;
 
 	void fillArrayChar(int handle, int dstPos, char[] src, int srcPos, int len)
-			throws VMException;
+			throws VMException, VMCriticalException;
 
 	void fillArrayInt(int handle, int dstPos, int[] src, int srcPos, int len)
-			throws VMException;
+			throws VMException, VMCriticalException;
 
 	void fillArrayLong(int handle, int dstPos, long[] src, int srcPos, int len)
-			throws VMException;
+			throws VMException, VMCriticalException;
 
 	void fillArrayFloat(int handle, int dstPos, float[] src, int srcPos, int len)
-			throws VMException;
+			throws VMException, VMCriticalException;
 
 	void fillArrayDouble(int handle, int dstPos, double[] src, int srcPos,
-			int len) throws VMException;
+			int len) throws VMException, VMCriticalException;
 
 	/**
 	 * 复制数组的内容
@@ -575,7 +602,7 @@ public interface IHeap {
 
 	public byte getStaticByte(ClassField field) throws VMException;
 
-	public char getStaticShort(ClassField field) throws VMException;
+	public short getStaticShort(ClassField field) throws VMException;
 
 	public char getStaticChar(ClassField field) throws VMException;
 
@@ -596,7 +623,7 @@ public interface IHeap {
 
 	public void setStaticByte(ClassField field, byte value) throws VMException;
 
-	public void setStaticShort(ClassField field, char value) throws VMException;
+	public void setStaticShort(ClassField field, short value) throws VMException;
 
 	public void setStaticChar(ClassField field, char value) throws VMException;
 

@@ -18,7 +18,7 @@ public class TestGC extends Thread {
 			out.println("M:" + i);
 			i++;
 			try {
-				Thread.sleep(100);
+				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -31,7 +31,7 @@ public class TestGC extends Thread {
 			out.println("T:" + i);
 			i++;
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

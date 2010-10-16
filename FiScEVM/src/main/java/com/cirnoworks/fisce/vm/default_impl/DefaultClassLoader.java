@@ -68,11 +68,11 @@ public class DefaultClassLoader implements IClassLoader {
 	private int getSizeShiftForArray(String arrayName) {
 		char c = arrayName.charAt(1);
 		switch (c) {
-		case 'Z':
-		case 'B':
+		case TYPE_BOOLEAN:
+		case TYPE_BYTE:
 			return 0;
-		case 'D':
-		case 'J':
+		case TYPE_DOUBLE:
+		case TYPE_LONG:
 			return 3;
 		default:
 			return 2;

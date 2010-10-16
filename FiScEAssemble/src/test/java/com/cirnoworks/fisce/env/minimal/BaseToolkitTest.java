@@ -46,6 +46,14 @@ public class BaseToolkitTest extends TestCase {
 		vm.waitTillStopped(0);
 	}
 	
+	public void testHelloWorldArray() throws Exception {
+		FiScEVM vm = TestInitializer.getArrayContext();
+
+		vm.bootFromClass("EXCLUDE/fisce/test/MinimalTest");
+		vm.start();
+		vm.waitTillStopped(0);
+	}
+	
 	
 
 	public void testNative() throws Exception {

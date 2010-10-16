@@ -25,13 +25,19 @@ import com.cirnoworks.fisce.vm.VMContext;
 public class ForEachTest {
 	public void testForEach() throws Exception {
 		VMContext vm = TestInitializer.getContext();
-		vm.setConsole(Log4JConsole.getConsole());
+		//vm.setConsole(Log4JConsole.getConsole());
 		doTest(vm);
 	}
 
 	public void testForEachFast() throws Exception {
 		VMContext vm = TestInitializer.getFastContext();
-		vm.setConsole(Log4JConsole.getConsole());
+		//vm.setConsole(Log4JConsole.getConsole());
+		doTest(vm);
+	}
+	
+	public void testForEachArray() throws Exception {
+		VMContext vm = TestInitializer.getArrayContext();
+		//vm.setConsole(Log4JConsole.getConsole());
 		doTest(vm);
 	}
 

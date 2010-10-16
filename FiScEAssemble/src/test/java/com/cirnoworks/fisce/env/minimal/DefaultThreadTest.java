@@ -19,7 +19,7 @@ public class DefaultThreadTest extends TestCase {
 		context.bootFromClass("EXCLUDE/fisce/test/RunnerTester");
 		context.start();
 		try {
-			context.waitTillStopped(1000);
+			context.waitTillStopped(200);
 		} catch (InterruptedException e) {
 
 		}

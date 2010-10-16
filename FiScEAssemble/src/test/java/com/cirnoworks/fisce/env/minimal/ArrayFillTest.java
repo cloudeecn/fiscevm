@@ -31,6 +31,14 @@ public class ArrayFillTest {
 		context.start();
 		context.waitTillStopped(0);
 	}
+	
+	public void testArrayFillArray() throws Exception {
+		VMContext context = TestInitializer.getArrayContext();
+		context.addToolkit(new ArrayFillToolkit());
+		context.bootFromClass("EXCLUDE/fisce/test/ArrayFillTest");
+		context.start();
+		context.waitTillStopped(0);
+	}
 
 }
 

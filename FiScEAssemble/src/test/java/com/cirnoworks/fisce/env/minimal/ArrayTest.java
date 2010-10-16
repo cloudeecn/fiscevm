@@ -39,4 +39,12 @@ public class ArrayTest {
 		context.start();
 		context.waitTillStopped(0);
 	}
+	
+	public void testArrayArray() throws Exception {
+		FiScEVM context = TestInitializer.getArrayContext();
+		context.bootFromClass("EXCLUDE/fisce/test/ArrayTest");
+		// context.requestStop();
+		context.start();
+		context.waitTillStopped(0);
+	}
 }

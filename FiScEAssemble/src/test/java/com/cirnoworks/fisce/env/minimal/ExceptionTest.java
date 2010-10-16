@@ -14,6 +14,10 @@ public class ExceptionTest extends TestCase {
 	public void testExceptionFast() throws Exception {
 		doTest(TestInitializer.getFastContext());
 	}
+	
+	public void testExceptionArray() throws Exception {
+		doTest(TestInitializer.getArrayContext());
+	}
 
 	private void doTest(VMContext context) throws Exception {
 		context.bootFromClass("EXCLUDE/fisce/test/ExceptionTester");

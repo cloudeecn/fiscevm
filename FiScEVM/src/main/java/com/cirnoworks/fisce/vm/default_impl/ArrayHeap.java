@@ -18,11 +18,6 @@ package com.cirnoworks.fisce.vm.default_impl;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -47,7 +42,7 @@ import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
 
-public final class DefaultHeap implements IHeap {
+public final class ArrayHeap implements IHeap {
 
 	// not persist
 	private VMContext context;
@@ -55,12 +50,12 @@ public final class DefaultHeap implements IHeap {
 	// persist
 	// String -> String handle
 	private HashMap<String, Integer> literals = new HashMap<String, Integer>();
-	private ByteBuffer staticArea = BufferUtil.createBuffer(MAX_STATIC);
+	private int[] staticArea = new int[MAX_STATIC];
 	private int staticCount = 0;
 	// class id-> pointer in staticArea
 	private int[] classStatic = new int[VMContext.MAX_CLASSES];
 	// objects[handle] -> data
-	private ByteBuffer[] objects = new ByteBuffer[MAX_OBJECTS];
+	private Object[] objects = new Object[MAX_OBJECTS];
 	// handles[handle] --> class id
 	private int classId[] = new int[MAX_OBJECTS];
 	private int nextHandle;
@@ -90,11 +85,14 @@ public final class DefaultHeap implements IHeap {
 		handleCount--;
 	}
 
-	private int allocate(int cid, ByteBuffer obj) throws VMException,
+	private int allocate(int cid, Object obj) throws VMException,
 			VMCriticalException {
 		if (cid < 0) {
 			throw new VMCriticalException("Invalid class id");
 		}
+		assert obj.getClass().isArray();
+		assert (context.getClazzById(cid) instanceof ClassArray)
+				|| (obj instanceof int[]);
 		int h = nextHandle;
 		boolean gced = false;
 		while (classId[h] >= 0 || h == 0) {
@@ -137,25 +135,76 @@ public final class DefaultHeap implements IHeap {
 		return handleClass.getName().startsWith("[");
 	}
 
-	private ByteBuffer getArrayObj(int handle) throws VMException {
+	private byte[] getArrayObjBoolean(int handle) throws VMException {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
 		assert isArray(handle);
-		ByteBuffer obj = objects[handle];
-		// if (index >= obj.getInt(0)) {
-		// throw new VMException("java/lang/ArrayIndexOutOfBoundsException",
-		// String.valueOf(index));
-		// }
-		return obj;
+		return (byte[]) objects[handle];
 	}
 
-	private ByteBuffer getObj(int handle, ClassField field) throws VMException {
+	private byte[] getArrayObjByte(int handle) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		assert isArray(handle);
+		return (byte[]) objects[handle];
+	}
+
+	private int[] getArrayObjShort(int handle) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		assert isArray(handle);
+		return (int[]) objects[handle];
+	}
+
+	private int[] getArrayObjChar(int handle) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		assert isArray(handle);
+		return (int[]) objects[handle];
+	}
+
+	private int[] getArrayObjInt(int handle) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		assert isArray(handle);
+		return (int[]) objects[handle];
+	}
+
+	private long[] getArrayObjLong(int handle) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		assert isArray(handle);
+		return (long[]) objects[handle];
+	}
+
+	private int[] getArrayObjFloat(int handle) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		assert isArray(handle);
+		return (int[]) objects[handle];
+	}
+
+	private long[] getArrayObjDouble(int handle) throws VMException {
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
+		assert isArray(handle);
+		return (long[]) objects[handle];
+	}
+
+	private int[] getObj(int handle, ClassField field) throws VMException {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
 		assert validate(handle, field);
-		return objects[handle];
+		return (int[]) objects[handle];
 	}
 
 	public void initStaticAreaForClass(AbstractClass clazz) throws VMException {
@@ -205,13 +254,44 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayLength(int)
 	 */
-	public int getArrayLength(int handle) throws VMException {
+	public int getArrayLength(int handle) throws VMException,
+			VMCriticalException {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
 		assert isArray(handle);
-		return objects[handle].capacity() >> ((ClassArray) context
-				.getClazzById(classId[handle])).getSizeShift();
+		AbstractClass clazz = context.getClazzById(classId[handle]);
+		char type = clazz.getName().charAt(1);
+		switch (type) {
+		case IClassLoader.TYPE_ARRAY:
+		case IClassLoader.TYPE_HANDLE:
+		case IClassLoader.TYPE_INT:
+		case IClassLoader.TYPE_SHORT:
+		case IClassLoader.TYPE_CHAR:
+		case IClassLoader.TYPE_FLOAT:
+			return getArrayLengthInt(handle);
+		case IClassLoader.TYPE_BOOLEAN:
+		case IClassLoader.TYPE_BYTE:
+			return getArrayLengthByte(handle);
+		case IClassLoader.TYPE_LONG:
+		case IClassLoader.TYPE_DOUBLE:
+			return getArrayLengthLong(handle);
+		default:
+			throw new VMCriticalException("Unknown array content type [" + type
+					+ "]");
+		}
+	}
+
+	private int getArrayLengthByte(int handle) throws VMException {
+		return getArrayObjByte(handle).length;
+	}
+
+	private int getArrayLengthInt(int handle) throws VMException {
+		return getArrayObjInt(handle).length;
+	}
+
+	private int getArrayLengthLong(int handle) throws VMException {
+		return getArrayObjLong(handle).length;
 	}
 
 	/*
@@ -222,8 +302,7 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public int allocate(ClassBase clazz) throws VMException,
 			VMCriticalException {
-		ByteBuffer obj = BufferUtil
-				.createBuffer(clazz.getTotalSizeInHeap() * 4);
+		int[] obj = new int[clazz.getTotalSizeInHeap()];
 		return allocate(context.getClazzId(clazz), obj);
 	}
 
@@ -236,8 +315,29 @@ public final class DefaultHeap implements IHeap {
 	public int allocate(ClassArray clazz, int length) throws VMException,
 			VMCriticalException {
 		assert clazz.getName().startsWith("[");
-		int size = length << clazz.getSizeShift();
-		ByteBuffer obj = BufferUtil.createBuffer(size);
+		char type = clazz.getName().charAt(1);
+		Object obj;
+		switch (type) {
+		case IClassLoader.TYPE_ARRAY:
+		case IClassLoader.TYPE_HANDLE:
+		case IClassLoader.TYPE_INT:
+		case IClassLoader.TYPE_SHORT:
+		case IClassLoader.TYPE_CHAR:
+		case IClassLoader.TYPE_FLOAT:
+			obj = new int[length];
+			break;
+		case IClassLoader.TYPE_BOOLEAN:
+		case IClassLoader.TYPE_BYTE:
+			obj = new byte[length];
+			break;
+		case IClassLoader.TYPE_LONG:
+		case IClassLoader.TYPE_DOUBLE:
+			obj = new long[length];
+			break;
+		default:
+			throw new VMCriticalException("Unknown array content type [" + type
+					+ "]");
+		}
 		return allocate(context.getClazzId(clazz), obj);
 	}
 
@@ -251,12 +351,41 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
 		int cid = classId[handle];
-		ByteBuffer target = objects[handle].duplicate();
-		target.clear();
-		ByteBuffer clone = BufferUtil.createBuffer(target.capacity());
-		clone.put(target);
-		int ret = allocate(cid, clone);
-		return ret;
+		AbstractClass clazz = context.getClazzById(cid);
+		char type;
+		if (clazz instanceof ClassBase) {
+			type = IClassLoader.TYPE_INT;
+		} else if (clazz instanceof ClassArray) {
+			type = clazz.getName().charAt(1);
+		} else {
+			type = 0;
+		}
+		Object obj;
+		switch (type) {
+		case IClassLoader.TYPE_ARRAY:
+		case IClassLoader.TYPE_INT:
+		case IClassLoader.TYPE_HANDLE:
+		case IClassLoader.TYPE_SHORT:
+		case IClassLoader.TYPE_CHAR:
+		case IClassLoader.TYPE_FLOAT: {
+			obj = ((int[]) (objects[handle])).clone();
+			break;
+		}
+		case IClassLoader.TYPE_BOOLEAN:
+		case IClassLoader.TYPE_BYTE: {
+			obj = ((byte[]) (objects[handle])).clone();
+			break;
+		}
+		case IClassLoader.TYPE_LONG:
+		case IClassLoader.TYPE_DOUBLE: {
+			obj = ((long[]) (objects[handle])).clone();
+			break;
+		}
+		default:
+			throw new VMCriticalException("Unknown array content type [" + type
+					+ "]");
+		}
+		return allocate(cid, obj);
 	}
 
 	/*
@@ -267,7 +396,7 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public boolean getFieldBoolean(int handle, ClassField field)
 			throws VMException {
-		return getObj(handle, field).getInt(field.getAbsPos() << 2) > 0;
+		return getObj(handle, field)[field.getAbsPos()] > 0;
 	}
 
 	/*
@@ -277,7 +406,7 @@ public final class DefaultHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public byte getFieldByte(int handle, ClassField field) throws VMException {
-		return (byte) getObj(handle, field).getInt(field.getAbsPos() << 2);
+		return (byte) getObj(handle, field)[field.getAbsPos()];
 	}
 
 	/*
@@ -287,7 +416,7 @@ public final class DefaultHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public short getFieldShort(int handle, ClassField field) throws VMException {
-		return (short) getObj(handle, field).getInt(field.getAbsPos() << 2);
+		return (short) getObj(handle, field)[field.getAbsPos()];
 	}
 
 	/*
@@ -297,7 +426,7 @@ public final class DefaultHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public char getFieldChar(int handle, ClassField field) throws VMException {
-		return (char) getObj(handle, field).getInt(field.getAbsPos() << 2);
+		return (char) getObj(handle, field)[field.getAbsPos()];
 	}
 
 	/*
@@ -307,7 +436,7 @@ public final class DefaultHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public int getFieldInt(int handle, ClassField field) throws VMException {
-		return getObj(handle, field).getInt(field.getAbsPos() << 2);
+		return getObj(handle, field)[field.getAbsPos()];
 	}
 
 	/*
@@ -317,7 +446,8 @@ public final class DefaultHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public long getFieldLong(int handle, ClassField field) throws VMException {
-		return getObj(handle, field).getLong(field.getAbsPos() << 2);
+		return (((long) getObj(handle, field)[field.getAbsPos()]) << 32)
+				| getObj(handle, field)[field.getAbsPos() + 1];
 	}
 
 	/*
@@ -327,7 +457,7 @@ public final class DefaultHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public float getFieldFloat(int handle, ClassField field) throws VMException {
-		return getObj(handle, field).getFloat(field.getAbsPos() << 2);
+		return Float.intBitsToFloat(getObj(handle, field)[field.getAbsPos()]);
 	}
 
 	/*
@@ -338,7 +468,9 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public double getFieldDouble(int handle, ClassField field)
 			throws VMException {
-		return getObj(handle, field).getDouble(field.getAbsPos() << 2);
+		return Double.longBitsToDouble((((long) getObj(handle, field)[field
+				.getAbsPos()]) << 32)
+				| getObj(handle, field)[field.getAbsPos() + 1]);
 	}
 
 	/*
@@ -348,21 +480,22 @@ public final class DefaultHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public int getFieldHandle(int handle, ClassField field) throws VMException {
-		return getObj(handle, field).getInt(field.getAbsPos() << 2);
+		return getObj(handle, field)[field.getAbsPos()];
 	}
 
 	public int getFieldAbs(int handle, int pos) throws VMException {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
-		return objects[handle].getInt(pos << 2);
+		return ((int[]) objects[handle])[pos];
 	}
 
 	public long getFieldAbsWide(int handle, int pos) throws VMException {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
-		return objects[handle].getLong(pos << 2);
+		return (((long) ((int[]) objects[handle])[pos]) << 32)
+				| ((int[]) objects[handle])[pos + 1];
 	}
 
 	/*
@@ -373,7 +506,8 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putFieldBoolean(int handle, ClassField field, boolean value)
 			throws VMException {
-		getObj(handle, field).putInt(field.getAbsPos() << 2, value ? 1 : 0);
+		getObj(handle, field)[field.getAbsPos()] = value ? 1 : 0;
+
 	}
 
 	/*
@@ -384,7 +518,7 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putFieldByte(int handle, ClassField field, byte value)
 			throws VMException {
-		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
+		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
 	/*
@@ -395,7 +529,7 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putFieldShort(int handle, ClassField field, short value)
 			throws VMException {
-		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
+		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
 	/*
@@ -406,7 +540,7 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putFieldChar(int handle, ClassField field, char value)
 			throws VMException {
-		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
+		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
 	/*
@@ -419,7 +553,7 @@ public final class DefaultHeap implements IHeap {
 			throws VMException {
 		// context.println(handle + " " + field.getPosition() + " "
 		// + field.getAbsPos());
-		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
+		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
 	/*
@@ -430,7 +564,8 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putFieldLong(int handle, ClassField field, long value)
 			throws VMException {
-		getObj(handle, field).putLong(field.getAbsPos() << 2, value);
+		getObj(handle, field)[field.getAbsPos()] = ((int) value >>> 32);
+		getObj(handle, field)[field.getAbsPos() + 1] = ((int) value & 0xffffffff);
 	}
 
 	/*
@@ -442,7 +577,8 @@ public final class DefaultHeap implements IHeap {
 	public void putFieldFloat(int handle, ClassField field, float value)
 			throws VMException {
 		assert validate(handle, field);
-		getObj(handle, field).putFloat(field.getAbsPos() << 2, value);
+		getObj(handle, field)[field.getAbsPos()] = Float
+				.floatToRawIntBits(value);
 	}
 
 	/*
@@ -453,7 +589,9 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putFieldDouble(int handle, ClassField field, double value)
 			throws VMException {
-		getObj(handle, field).putDouble(field.getAbsPos() << 2, value);
+		long lvalue = Double.doubleToRawLongBits(value);
+		getObj(handle, field)[field.getAbsPos()] = ((int) lvalue >>> 32);
+		getObj(handle, field)[field.getAbsPos() + 1] = ((int) lvalue & 0xffffffff);
 	}
 
 	/*
@@ -464,14 +602,14 @@ public final class DefaultHeap implements IHeap {
 	 */
 	public void putFieldHandle(int handle, ClassField field, int value)
 			throws VMException {
-		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
+		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
 	public void putFieldAbs(int handle, int pos, int value) throws VMException {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
-		objects[handle].putInt(pos << 2, value);
+		((int[]) objects[handle])[pos] = value;
 	}
 
 	public void putFieldAbsWide(int handle, int pos, long value)
@@ -479,17 +617,8 @@ public final class DefaultHeap implements IHeap {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
-		objects[handle].putLong(pos << 2, value);
-	}
-
-	public void fillFieldByte(int srcHandle, int srcPos, byte[] dest,
-			int destPos, int length) throws VMException {
-		if (srcHandle == 0) {
-			throw new VMException("java/lang/NullPointerException", "");
-		}
-		ByteBuffer bb = objects[srcHandle];
-		// TODO unfinished
-
+		((int[]) objects[handle])[pos] = ((int) value >>> 32);
+		((int[]) objects[handle])[pos + 1] = ((int) value & 0xffffffff);
 	}
 
 	/*
@@ -497,12 +626,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayBoolean(int, int)
 	 */
-	public boolean getArrayBoolean(int handle, int index) throws VMException {
+	public boolean getArrayBoolean(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return getArrayObj(handle).get(index) > 0;
+		return getArrayObjBoolean(handle)[index] > 0;
 	}
 
 	/*
@@ -510,12 +640,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayByte(int, int)
 	 */
-	public byte getArrayByte(int handle, int index) throws VMException {
+	public byte getArrayByte(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return (byte) getArrayObj(handle).get(index);
+		return getArrayObjByte(handle)[index];
 	}
 
 	/*
@@ -523,12 +654,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayShort(int, int)
 	 */
-	public short getArrayShort(int handle, int index) throws VMException {
+	public short getArrayShort(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return (short) getArrayObj(handle).getInt((index << 2));
+		return (short) getArrayObjShort(handle)[index];
 	}
 
 	/*
@@ -536,12 +668,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayChar(int, int)
 	 */
-	public char getArrayChar(int handle, int index) throws VMException {
+	public char getArrayChar(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return (char) getArrayObj(handle).getInt((index << 2));
+		return (char) getArrayObjChar(handle)[index];
 	}
 
 	/*
@@ -549,12 +682,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayInt(int, int)
 	 */
-	public int getArrayInt(int handle, int index) throws VMException {
+	public int getArrayInt(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return getArrayObj(handle).getInt((index << 2));
+		return getArrayObjInt(handle)[index];
 	}
 
 	/*
@@ -562,12 +696,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayLong(int, int)
 	 */
-	public long getArrayLong(int handle, int index) throws VMException {
+	public long getArrayLong(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return getArrayObj(handle).getLong((index << 3));
+		return getArrayObjLong(handle)[index];
 	}
 
 	/*
@@ -575,12 +710,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayFloat(int, int)
 	 */
-	public float getArrayFloat(int handle, int index) throws VMException {
+	public float getArrayFloat(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return getArrayObj(handle).getFloat((index << 2));
+		return getArrayObjFloat(handle)[index];
 	}
 
 	/*
@@ -588,12 +724,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayDouble(int, int)
 	 */
-	public double getArrayDouble(int handle, int index) throws VMException {
+	public double getArrayDouble(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return getArrayObj(handle).getDouble((index << 3));
+		return getArrayObjDouble(handle)[index];
 	}
 
 	/*
@@ -601,12 +738,13 @@ public final class DefaultHeap implements IHeap {
 	 * 
 	 * @see com.cirnoworks.fisce.vm.IHeap#getArrayHandle(int, int)
 	 */
-	public int getArrayHandle(int handle, int index) throws VMException {
+	public int getArrayHandle(int handle, int index) throws VMException,
+			VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return getArrayObj(handle).getInt((index << 2));
+		return getArrayObjInt(handle)[index];
 	}
 
 	/*
@@ -615,12 +753,12 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayBoolean(int, int, boolean)
 	 */
 	public void putArrayBoolean(int handle, int index, boolean value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).put(index, (byte) (value ? 1 : 0));
+		getArrayObjBoolean(handle)[index] = (byte) (value ? 1 : 0);
 
 	}
 
@@ -630,12 +768,12 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayByte(int, int, byte)
 	 */
 	public void putArrayByte(int handle, int index, byte value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).put(index, value);
+		getArrayObjByte(handle)[index] = value;
 	}
 
 	/*
@@ -644,12 +782,12 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayShort(int, int, char)
 	 */
 	public void putArrayShort(int handle, int index, short value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).putInt((index << 2), value);
+		getArrayObjShort(handle)[index] = value;
 	}
 
 	/*
@@ -658,12 +796,12 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayChar(int, int, char)
 	 */
 	public void putArrayChar(int handle, int index, char value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).putInt((index << 2), value);
+		getArrayObjChar(handle)[index] = value;
 	}
 
 	/*
@@ -672,12 +810,12 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayInt(int, int, int)
 	 */
 	public void putArrayInt(int handle, int index, int value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).putInt((index << 2), value);
+		getArrayObjInt(handle)[index] = value;
 	}
 
 	/*
@@ -686,12 +824,12 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayLong(int, int, long)
 	 */
 	public void putArrayLong(int handle, int index, long value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).putLong((index << 3), value);
+		getArrayObjLong(handle)[index] = value;
 	}
 
 	/*
@@ -700,12 +838,12 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayFloat(int, int, float)
 	 */
 	public void putArrayFloat(int handle, int index, float value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).putFloat((index << 2), value);
+		getArrayObjFloat(handle)[index] = Float.floatToRawIntBits(value);
 	}
 
 	/*
@@ -714,12 +852,12 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayDouble(int, int, double)
 	 */
 	public void putArrayDouble(int handle, int index, double value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).putDouble((index << 3), value);
+		getArrayObjDouble(handle)[index] = Double.doubleToRawLongBits(value);
 	}
 
 	/*
@@ -728,16 +866,16 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#putArrayHandle(int, int, int)
 	 */
 	public void putArrayHandle(int handle, int index, int value)
-			throws VMException {
+			throws VMException, VMCriticalException {
 		if (index < 0 || index > getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		getArrayObj(handle).putInt((index << 2), value);
+		getArrayObjInt(handle)[index] = value;
 	}
 
 	private void validateFillArray(int handle, int dstPos, int srcSize,
-			int srcPos, int len) throws VMException {
+			int srcPos, int len) throws VMException, VMCriticalException {
 		assert isArray(handle);
 		int dstSize = getArrayLength(handle);
 		if (dstPos < 0 || dstPos + len > dstSize) {
@@ -751,72 +889,70 @@ public final class DefaultHeap implements IHeap {
 	}
 
 	public void fillArrayBoolean(int handle, int dstPos, boolean[] src,
-			int srcPos, int len) throws VMException {
+			int srcPos, int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
-		ByteBuffer obj = getArrayObj(handle);
+		byte[] dst = getArrayObjBoolean(handle);
 		for (int i = 0; i < len; i++) {
-			obj.put(dstPos + i, (byte) (src[srcPos + i] ? 1 : 0));
+			dst[dstPos + i] = (byte) (src[srcPos + i] ? 1 : 0);
 		}
 	}
 
 	public void fillArrayByte(int handle, int dstPos, byte[] src, int srcPos,
-			int len) throws VMException {
+			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
-		ByteBuffer obj = getArrayObj(handle);
-		obj = obj.duplicate();
-		obj.position(dstPos);
-		obj.put(src, srcPos, len);
+		byte[] dst = getArrayObjByte(handle);
+		System.arraycopy(src, srcPos, dst, dstPos, len);
 	}
 
 	public void fillArrayShort(int handle, int dstPos, short[] src, int srcPos,
-			int len) throws VMException {
+			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
-		ByteBuffer obj = getArrayObj(handle);
+		int[] dst = getArrayObjShort(handle);
 		for (int i = 0; i < len; i++) {
-			obj.putInt((dstPos + i) << 2, src[srcPos + i]);
+			dst[dstPos + i] = src[srcPos + i];
 		}
 	}
 
 	public void fillArrayChar(int handle, int dstPos, char[] src, int srcPos,
-			int len) throws VMException {
+			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
-		ByteBuffer obj = getArrayObj(handle);
+		int[] dst = getArrayObjChar(handle);
 		for (int i = 0; i < len; i++) {
-			obj.putInt((dstPos + i) << 2, src[srcPos + i]);
+			dst[dstPos + i] = src[srcPos + i];
 		}
 	}
 
 	public void fillArrayInt(int handle, int dstPos, int[] src, int srcPos,
-			int len) throws VMException {
+			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
-		IntBuffer obj = getArrayObj(handle).asIntBuffer();
-		obj.position(dstPos);
-		obj.put(src, srcPos, len);
+		int[] dst = getArrayObjInt(handle);
+		System.arraycopy(src, srcPos, dst, dstPos, len);
 
 	}
 
 	public void fillArrayLong(int handle, int dstPos, long[] src, int srcPos,
-			int len) throws VMException {
+			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
-		LongBuffer obj = getArrayObj(handle).asLongBuffer();
-		obj.position(dstPos);
-		obj.put(src, srcPos, len);
+		long[] dst = getArrayObjLong(handle);
+		System.arraycopy(src, srcPos, dst, dstPos, len);
 	}
 
 	public void fillArrayFloat(int handle, int dstPos, float[] src, int srcPos,
-			int len) throws VMException {
+			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
-		FloatBuffer obj = getArrayObj(handle).asFloatBuffer();
-		obj.position(dstPos);
-		obj.put(src, srcPos, len);
+		int[] dst = getArrayObjFloat(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = Float.floatToRawIntBits(src[srcPos + i]);
+		}
 	}
 
 	public void fillArrayDouble(int handle, int dstPos, double[] src,
-			int srcPos, int len) throws VMException {
+			int srcPos, int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
-		DoubleBuffer obj = getArrayObj(handle).asDoubleBuffer();
-		obj.position(dstPos);
-		obj.put(src, srcPos, len);
+		long[] dst = getArrayObjDouble(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = Double.doubleToRawLongBits(src[srcPos + i]);
+		}
 	}
 
 	/*
@@ -828,7 +964,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return staticArea.getInt(field.getAbsPos() << 2) > 0;
+		return staticArea[field.getAbsPos()] > 0;
 	}
 
 	public byte getStaticByte(ClassField field) throws VMException {
@@ -836,7 +972,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return (byte) staticArea.getInt(field.getAbsPos() << 2);
+		return (byte) staticArea[field.getAbsPos()];
 	}
 
 	public short getStaticShort(ClassField field) throws VMException {
@@ -844,7 +980,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return (short) staticArea.getInt(field.getAbsPos() << 2);
+		return (short) staticArea[field.getAbsPos()];
 	}
 
 	public char getStaticChar(ClassField field) throws VMException {
@@ -852,7 +988,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return (char) staticArea.getInt(field.getAbsPos() << 2);
+		return (char) staticArea[field.getAbsPos()];
 	}
 
 	public int getStaticInt(ClassField field) throws VMException {
@@ -860,7 +996,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return staticArea.getInt(field.getAbsPos() << 2);
+		return staticArea[field.getAbsPos()];
 	}
 
 	public long getStaticLong(ClassField field) throws VMException {
@@ -868,7 +1004,8 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return staticArea.getLong(field.getAbsPos() << 2);
+		return (((long) staticArea[field.getAbsPos()]) << 32)
+				| staticArea[field.getAbsPos() + 1];
 	}
 
 	public float getStaticFloat(ClassField field) throws VMException {
@@ -876,7 +1013,8 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return staticArea.getFloat(field.getAbsPos() << 2);
+		int ivalue = staticArea[field.getAbsPos()];
+		return Float.intBitsToFloat(ivalue);
 	}
 
 	public double getStaticDouble(ClassField field) throws VMException {
@@ -884,15 +1022,17 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		return staticArea.getDouble(field.getAbsPos() << 2);
+		long lvalue = (((long) staticArea[field.getAbsPos()]) << 32)
+				| staticArea[field.getAbsPos() + 1];
+		return Double.longBitsToDouble(lvalue);
 	}
 
 	public int getStaticAbs(int pos) throws VMException {
-		return staticArea.getInt(pos << 2);
+		return staticArea[pos];
 	}
 
 	public long getStaticAbsWide(int pos) throws VMException {
-		return staticArea.getLong(pos << 2);
+		return (((long) staticArea[pos]) << 32) | staticArea[pos + 1];
 	}
 
 	public void setStaticBoolean(ClassField field, boolean value)
@@ -901,7 +1041,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea.putInt(field.getAbsPos() << 2, value ? 1 : 0);
+		staticArea[field.getAbsPos()] = value ? 1 : 0;
 	}
 
 	public void setStaticByte(ClassField field, byte value) throws VMException {
@@ -909,7 +1049,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea.putInt(field.getAbsPos() << 2, value);
+		staticArea[field.getAbsPos()] = value;
 	}
 
 	public void setStaticShort(ClassField field, short value)
@@ -918,7 +1058,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea.putInt(field.getAbsPos() << 2, value);
+		staticArea[field.getAbsPos()] = value;
 	}
 
 	public void setStaticChar(ClassField field, char value) throws VMException {
@@ -926,7 +1066,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea.putInt(field.getAbsPos() << 2, value);
+		staticArea[field.getAbsPos()] = value;
 	}
 
 	public void setStaticInt(ClassField field, int value) throws VMException {
@@ -934,15 +1074,16 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea.putInt(field.getAbsPos() << 2, value);
+		staticArea[field.getAbsPos()] = value;
 	}
 
-	public void setStaticLong(ClassField field, long value) throws VMException {
+	public void setStaticLong(ClassField field, long lvalue) throws VMException {
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea.putLong(field.getAbsPos() << 2, value);
+		staticArea[field.getAbsPos()] = (int) (lvalue >>> 32);
+		staticArea[field.getAbsPos() + 1] = (int) (lvalue & 0xffffffff);
 	}
 
 	public void setStaticFloat(ClassField field, float value)
@@ -951,7 +1092,7 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea.putFloat(field.getAbsPos() << 2, value);
+		staticArea[field.getAbsPos()] = Float.floatToRawIntBits(value);
 	}
 
 	public void setStaticDouble(ClassField field, double value)
@@ -960,15 +1101,18 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
 		}
-		staticArea.putDouble(field.getAbsPos() << 2, value);
+		long lvalue = Double.doubleToRawLongBits(value);
+		staticArea[field.getAbsPos()] = (int) (lvalue >>> 32);
+		staticArea[field.getAbsPos() + 1] = (int) (lvalue & 0xffffffff);
 	}
 
 	public void setStaticAbs(int pos, int value) {
-		staticArea.putInt(pos << 2, value);
+		staticArea[pos] = value;
 	}
 
-	public void setStaticAbsWide(int pos, long value) {
-		staticArea.putLong(pos << 2, value);
+	public void setStaticAbsWide(int pos, long lvalue) {
+		staticArea[pos] = (int) (lvalue >>> 32);
+		staticArea[pos + 1] = (int) (lvalue & 0xffffffff);
 	}
 
 	public int getLiteral(String str) throws VMException, VMCriticalException {
@@ -1033,30 +1177,8 @@ public final class DefaultHeap implements IHeap {
 		if (!srcClass.canCastTo(dstClass)) {
 			throw new VMException("java/lang/ArrayStoreException", "");
 		}
-		int sizeShift = ((ClassArray) srcClass).getSizeShift();
-		/*
-		 * ByteBuffer srcbb = getArrayObj(srcHandle, srcOfs + count); ByteBuffer
-		 * dstbb = getArrayObj(dstHandle, dstOfs + count); ByteBuffer d =
-		 * dstbb.duplicate(); ByteBuffer s = srcbb.duplicate();
-		 * d.position(dstOfs); s.position(srcOfs); s.limit(srcOfs + count *
-		 * size); d.put(s);
-		 */
-		for (int i = 0; i < count; i++) {
-			switch (sizeShift) {
-			case 0:
-				putArrayByte(dstHandle, i + dstOfs,
-						getArrayByte(srcHandle, i + srcOfs));
-				break;
-			case 2:
-				putArrayInt(dstHandle, i + dstOfs,
-						getArrayInt(srcHandle, i + srcOfs));
-				break;
-			case 3:
-				putArrayLong(dstHandle, i + dstOfs,
-						getArrayLong(srcHandle, i + srcOfs));
-				break;
-			}
-		}
+		System.arraycopy(objects[srcHandle], srcOfs, objects[dstHandle],
+				dstOfs, count);
 	}
 
 	public boolean isHandleValid(int handle) {
@@ -1166,9 +1288,9 @@ public final class DefaultHeap implements IHeap {
 
 								if (type == 'L' || type == '[') {
 									int length = getArrayLength(handle);
-									ByteBuffer obj = getArrayObj(handle);
+									int[] obj = getArrayObjInt(handle);
 									for (int i = 0; i < length; i++) {
-										int toadd = obj.getInt(i << 2);
+										int toadd = obj[i];
 										if (toadd > 0) {
 											assert isHandleValid(toadd);
 											// context.getConsole().info(
@@ -1224,9 +1346,15 @@ public final class DefaultHeap implements IHeap {
 				baos.reset();
 				Base64.decode(content.getTextContent(), baos);
 				staticCount = baos.size() / 4;
-				staticArea.clear();
-				staticArea.put(baos.toByteArray());
-				staticArea.clear();
+				{
+					int[] obj = new int[staticCount];
+					ByteBuffer tmp = BufferUtil.createBuffer(staticCount * 4);
+					tmp.put(baos.toByteArray());
+					for (int ib = 0, maxb = staticCount; ib < maxb; ib++) {
+						obj[ib] = tmp.getInt(ib * 4);
+					}
+					System.arraycopy(obj, 0, staticArea, 0, staticCount);
+				}
 				NodeList map = ((Element) statics.getElementsByTagName("map")
 						.item(0)).getElementsByTagName("static");
 				for (int i = 0, max = map.getLength(); i < max; i++) {
@@ -1246,13 +1374,48 @@ public final class DefaultHeap implements IHeap {
 				Element st = (Element) objectElements.item(i);
 				int handle = Integer.parseInt(st.getAttribute("handle"));
 				int cid = Integer.parseInt(st.getAttribute("cid"));
+				char type = st.getAttribute("type").charAt(0);
 				String text = st.getTextContent();
 				baos.reset();
 				Base64.decode(text, baos);
-				ByteBuffer bb = BufferUtil.createBuffer(baos.size());
-				bb.put(baos.toByteArray());
-				bb.clear();
-				objects[handle] = bb;
+				byte[] buf = baos.toByteArray();
+				int count = baos.size();
+				switch (type) {
+				case IClassLoader.TYPE_ARRAY:
+				case IClassLoader.TYPE_INT:
+				case IClassLoader.TYPE_HANDLE:
+				case IClassLoader.TYPE_SHORT:
+				case IClassLoader.TYPE_CHAR:
+				case IClassLoader.TYPE_FLOAT: {
+					int[] obj = new int[count / 4];
+					ByteBuffer tmp = BufferUtil.createBuffer(count);
+					tmp.put(buf);
+					for (int ib = 0, maxb = count / 4; ib < maxb; ib++) {
+						obj[ib] = tmp.getInt(ib * 4);
+					}
+					objects[handle] = obj;
+					break;
+				}
+				case IClassLoader.TYPE_BOOLEAN:
+				case IClassLoader.TYPE_BYTE: {
+					objects[handle] = buf;
+					break;
+				}
+				case IClassLoader.TYPE_LONG:
+				case IClassLoader.TYPE_DOUBLE: {
+					long[] obj = new long[count / 8];
+					ByteBuffer tmp = BufferUtil.createBuffer(count);
+					tmp.put(buf);
+					for (int ib = 0, maxb = count / 8; ib < maxb; ib++) {
+						obj[ib] = tmp.getLong(ib * 8);
+					}
+					objects[handle] = obj;
+					break;
+				}
+				default:
+					throw new VMCriticalException(
+							"Unknown array content type [" + type + "]");
+				}
 				classId[handle] = cid;
 			}
 		} catch (Exception e) {
@@ -1260,10 +1423,8 @@ public final class DefaultHeap implements IHeap {
 		}
 	}
 
-	public void saveData(Element data) {
+	public void saveData(Element data) throws VMCriticalException {
 
-		// private HashMap<String, Integer> literals = new HashMap<String,
-		// Integer>();
 		Document document = data.getOwnerDocument();
 		Element li = document.createElement("literals");
 		data.appendChild(li);
@@ -1275,10 +1436,6 @@ public final class DefaultHeap implements IHeap {
 			lit.setTextContent(ls.getKey());
 		}
 
-		// private ByteBuffer staticArea = BufferUtil.createBuffer(MAX_STATIC);
-		// private int staticCount = 0;
-		// class id-> pointer in staticArea
-		// private int[] classStatic = new int[VMContext.MAX_CLASSES];
 		Element cs = document.createElement("statics");
 		data.appendChild(cs);
 		{
@@ -1286,11 +1443,15 @@ public final class DefaultHeap implements IHeap {
 			Element map = document.createElement("map");// cs.addElement("map");
 			cs.appendChild(content);
 			cs.appendChild(map);
-			byte[] buf = new byte[staticCount << 2];
-			staticArea.clear();
-			staticArea.get(buf, 0, staticCount << 2);
-			staticArea.clear();
-			content.setTextContent(Base64.encode(buf));
+			{
+				ByteBuffer tmp = BufferUtil.createBuffer(staticCount * 4);
+				for (int i = 0, max = staticCount; i < max; i++) {
+					tmp.putInt(i * 4, staticArea[i]);
+				}
+				byte[] buf = new byte[staticCount << 2];
+				tmp.get(buf);
+				content.setTextContent(Base64.encode(buf));
+			}
 			for (int cid : context.getClassIds()) {
 				Element st = document.createElement("static");
 				map.appendChild(st);
@@ -1300,12 +1461,6 @@ public final class DefaultHeap implements IHeap {
 			}
 		}
 
-		// private ByteBuffer[] objects = new ByteBuffer[MAX_OBJECTS];
-		// handles[handle*2] --> object id
-		// handles[handle*2+1] --> class id
-		// private int handles[] = new int[MAX_OBJECTS * 2];
-		// private int nextHandle;
-		// private int handleCount;
 		Element objs = document.createElement("objects");
 		data.appendChild(objs);
 		{
@@ -1325,18 +1480,52 @@ public final class DefaultHeap implements IHeap {
 				} else {
 					type = 0;
 				}
-				ByteBuffer obj = objects[i];
-				obj.clear();
-				int size = obj.capacity();
-				byte[] buf = new byte[size];
-				obj.get(buf);
-				obj.clear();
+
 				Element ele = document.createElement("object");
 				objs.appendChild(ele);
 				ele.setAttribute("handle", String.valueOf(i));
 				ele.setAttribute("cid", String.valueOf(cid));
 				ele.setAttribute("type", String.valueOf(type));
-				ele.setTextContent(Base64.encode(buf));
+
+				switch (type) {
+				case IClassLoader.TYPE_ARRAY:
+				case IClassLoader.TYPE_INT:
+				case IClassLoader.TYPE_HANDLE:
+				case IClassLoader.TYPE_SHORT:
+				case IClassLoader.TYPE_CHAR:
+				case IClassLoader.TYPE_FLOAT: {
+					int[] src = (int[]) objects[i];
+					ByteBuffer tmp = BufferUtil.createBuffer(src.length * 4);
+					for (int ib = 0, max = src.length; ib < max; ib++) {
+						tmp.putInt(ib * 4, src[ib]);
+					}
+					byte[] buf = new byte[tmp.capacity()];
+					tmp.get(buf);
+					ele.setTextContent(Base64.encode(buf));
+					break;
+				}
+				case IClassLoader.TYPE_BOOLEAN:
+				case IClassLoader.TYPE_BYTE: {
+					byte[] buf = (byte[]) objects[i];
+					ele.setTextContent(Base64.encode(buf));
+					break;
+				}
+				case IClassLoader.TYPE_LONG:
+				case IClassLoader.TYPE_DOUBLE: {
+					long[] src = (long[]) objects[i];
+					ByteBuffer tmp = BufferUtil.createBuffer(src.length * 8);
+					for (int ib = 0, max = src.length; ib < max; ib++) {
+						tmp.putLong(i * 8, src[ib]);
+					}
+					byte[] buf = new byte[tmp.capacity()];
+					tmp.get(buf);
+					ele.setTextContent(Base64.encode(buf));
+					break;
+				}
+				default:
+					throw new VMCriticalException(
+							"Unknown array content type [" + type + "]");
+				}
 			}
 		}
 	}
