@@ -1,2 +1,2 @@
-java -cp fiscevm-dist.jar:. com.cirnoworks.fisce.FMS $1
+java -cp fiscevm-dist.jar:. com.cirnoworks.fisce.FMS $@
 
