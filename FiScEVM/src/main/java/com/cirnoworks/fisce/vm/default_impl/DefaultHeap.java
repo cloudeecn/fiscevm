@@ -18,7 +18,6 @@ package com.cirnoworks.fisce.vm.default_impl;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -28,14 +27,16 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.cirnoworks.fisce.util.Base64;
+import com.cirnoworks.fisce.util.BufferUtil;
+import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.IClassLoader;
 import com.cirnoworks.fisce.vm.IHeap;
 import com.cirnoworks.fisce.vm.IThread;
@@ -1005,8 +1006,8 @@ public final class DefaultHeap implements IHeap {
 		if (content == null) {
 			return 0;
 		}
-		int charHandle = allocate((ClassArray) context.getClass("[C"),
-				content.length());
+		int charHandle = allocate((ClassArray) context.getClass("[C"), content
+				.length());
 		ClassBase stringClass = (ClassBase) context
 				.getClass("java/lang/String");
 		ClassField valueField = context.getField("java/lang/String.value.[C");
@@ -1044,16 +1045,16 @@ public final class DefaultHeap implements IHeap {
 		for (int i = 0; i < count; i++) {
 			switch (sizeShift) {
 			case 0:
-				putArrayByte(dstHandle, i + dstOfs,
-						getArrayByte(srcHandle, i + srcOfs));
+				putArrayByte(dstHandle, i + dstOfs, getArrayByte(srcHandle, i
+						+ srcOfs));
 				break;
 			case 2:
-				putArrayInt(dstHandle, i + dstOfs,
-						getArrayInt(srcHandle, i + srcOfs));
+				putArrayInt(dstHandle, i + dstOfs, getArrayInt(srcHandle, i
+						+ srcOfs));
 				break;
 			case 3:
-				putArrayLong(dstHandle, i + dstOfs,
-						getArrayLong(srcHandle, i + srcOfs));
+				putArrayLong(dstHandle, i + dstOfs, getArrayLong(srcHandle, i
+						+ srcOfs));
 				break;
 			}
 		}
@@ -1212,8 +1213,8 @@ public final class DefaultHeap implements IHeap {
 					.item(0)).getElementsByTagName("literal");
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(li.getTextContent(),
-						Integer.valueOf(li.getAttribute("handle")));
+				literals.put(DOMHelper.getTextContent(li), Integer.valueOf(li
+						.getAttribute("handle")));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")
@@ -1222,7 +1223,7 @@ public final class DefaultHeap implements IHeap {
 				Element content = (Element) statics.getElementsByTagName(
 						"content").item(0);
 				baos.reset();
-				Base64.decode(content.getTextContent(), baos);
+				Base64.decode(DOMHelper.getTextContent(content), baos);
 				staticCount = baos.size() / 4;
 				staticArea.clear();
 				staticArea.put(baos.toByteArray());
@@ -1246,7 +1247,7 @@ public final class DefaultHeap implements IHeap {
 				Element st = (Element) objectElements.item(i);
 				int handle = Integer.parseInt(st.getAttribute("handle"));
 				int cid = Integer.parseInt(st.getAttribute("cid"));
-				String text = st.getTextContent();
+				String text = DOMHelper.getTextContent(st);
 				baos.reset();
 				Base64.decode(text, baos);
 				ByteBuffer bb = BufferUtil.createBuffer(baos.size());
@@ -1272,7 +1273,7 @@ public final class DefaultHeap implements IHeap {
 			li.appendChild(lit);
 
 			lit.setAttribute("handle", ls.getValue().toString());
-			lit.setTextContent(ls.getKey());
+			DOMHelper.setTextContent(lit, ls.getKey());
 		}
 
 		// private ByteBuffer staticArea = BufferUtil.createBuffer(MAX_STATIC);
@@ -1290,7 +1291,7 @@ public final class DefaultHeap implements IHeap {
 			staticArea.clear();
 			staticArea.get(buf, 0, staticCount << 2);
 			staticArea.clear();
-			content.setTextContent(Base64.encode(buf));
+			DOMHelper.setTextContent(content, Base64.encode(buf));
 			for (int cid : context.getClassIds()) {
 				Element st = document.createElement("static");
 				map.appendChild(st);
@@ -1336,7 +1337,7 @@ public final class DefaultHeap implements IHeap {
 				ele.setAttribute("handle", String.valueOf(i));
 				ele.setAttribute("cid", String.valueOf(cid));
 				ele.setAttribute("type", String.valueOf(type));
-				ele.setTextContent(Base64.encode(buf));
+				DOMHelper.setTextContent(ele, Base64.encode(buf));
 			}
 		}
 	}

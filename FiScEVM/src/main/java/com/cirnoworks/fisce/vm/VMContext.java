@@ -19,6 +19,7 @@ package com.cirnoworks.fisce.vm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,15 +29,12 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
@@ -72,7 +70,7 @@ public class VMContext implements FiScEVM {
 				int cid = Integer.parseInt(ce.getAttribute("cid"));
 				int clinited = Integer.parseInt(ce.getAttribute("clinited"));
 				int handle = Integer.parseInt(ce.getAttribute("handle"));
-				String name = ce.getTextContent();
+				String name = DOMHelper.getTextContent(ce);
 				classMap.put(name, cid);
 				classObjectMap.put(name, handle);
 				classObjectMapRev.put(handle, name);
@@ -85,8 +83,8 @@ public class VMContext implements FiScEVM {
 			methodCount = Integer.parseInt(methods.getAttribute("next"));
 			for (int i = 0, max = methodElemehts.getLength(); i < max; i++) {
 				Element me = (Element) methodElemehts.item(i);
-				methodMap.put(me.getTextContent(),
-						Integer.parseInt(me.getAttribute("mid")));
+				methodMap.put(DOMHelper.getTextContent(me), Integer.parseInt(me
+						.getAttribute("mid")));
 			}
 
 			Element fields = (Element) root.getElementsByTagName("fields")
@@ -95,24 +93,28 @@ public class VMContext implements FiScEVM {
 			fieldCount = Integer.parseInt(fields.getAttribute("next"));
 			for (int i = 0, max = fieldElements.getLength(); i < max; i++) {
 				Element fe = (Element) fieldElements.item(i);
-				fieldMap.put(fe.getTextContent(),
-						Integer.parseInt(fe.getAttribute("fid")));
+				fieldMap.put(DOMHelper.getTextContent(fe), Integer.parseInt(fe
+						.getAttribute("fid")));
 			}
 
 			Element heapElement = (Element) root.getElementsByTagName("heap")
 					.item(0);
 			if (heap == null
-					/*|| !heap.getClass().getCanonicalName()
-							.equals(heapElement.getAttribute("class"))*/) {
+			/*
+			 * || !heap.getClass().getCanonicalName()
+			 * .equals(heapElement.getAttribute("class"))
+			 */) {
 				throw new VMCriticalException("Heap processer is wrong!");
 			}
 
 			Element tmElement = (Element) root.getElementsByTagName(
 					"threadManager").item(0);
-			
+
 			if (threadManager == null
-					/*|| !threadManager.getClass().getCanonicalName()
-							.equals(tmElement.getAttribute("class"))*/) {
+			/*
+			 * || !threadManager.getClass().getCanonicalName()
+			 * .equals(tmElement.getAttribute("class"))
+			 */) {
 				throw new VMCriticalException("Thread manager is wrong!");
 			}
 
@@ -137,12 +139,11 @@ public class VMContext implements FiScEVM {
 			}
 
 			if (classLoader == null
-					/*|| !classLoader
-							.getClass()
-							.getCanonicalName()
-							.equals(((Element) root.getElementsByTagName(
-									"classloader").item(0))
-									.getAttribute("class"))*/) {
+			/*
+			 * || !classLoader .getClass() .getCanonicalName()
+			 * .equals(((Element) root.getElementsByTagName(
+			 * "classloader").item(0)) .getAttribute("class"))
+			 */) {
 				throw new VMCriticalException("Class loader is wrong!");
 			}
 
@@ -180,7 +181,7 @@ public class VMContext implements FiScEVM {
 				classElement.setAttribute("cid", String.valueOf(id));
 				classElement.setAttribute("clinited", String.valueOf(cl));
 				classElement.setAttribute("handle", String.valueOf(handle));
-				classElement.setTextContent(name);
+				DOMHelper.setTextContent(classElement, name);
 				classes.appendChild(classElement);
 			}
 			context.appendChild(classes);
@@ -193,7 +194,7 @@ public class VMContext implements FiScEVM {
 			for (Entry<String, Integer> mm : methodMap.entrySet()) {
 				Element method = document.createElement("method");
 				method.setAttribute("mid", mm.getValue().toString());
-				method.setTextContent(mm.getKey());
+				DOMHelper.setTextContent(method, mm.getKey());
 				methods.appendChild(method);
 			}
 			context.appendChild(methods);
@@ -206,9 +207,10 @@ public class VMContext implements FiScEVM {
 			for (Entry<String, Integer> fm : fieldMap.entrySet()) {
 				Element field = document.createElement("field");
 				field.setAttribute("fid", fm.getValue().toString());
-				field.setTextContent(fm.getKey());
+				DOMHelper.setTextContent(field, fm.getKey());
 				fields.appendChild(field);
 			}
+
 			context.appendChild(fields);
 
 			Element heapElement = document.createElement("heap");
@@ -238,17 +240,10 @@ public class VMContext implements FiScEVM {
 				tks.appendChild(toolkitElement);
 			}
 			context.appendChild(tks);
-
-			TransformerFactory tff = TransformerFactory.newInstance();
-			Transformer tf = tff.newTransformer();
-			tf.setOutputProperty("indent", "yes");
-
-			DOMSource source = new DOMSource();
-			source.setNode(document);
-			StreamResult result = new StreamResult();
-			result.setOutputStream(os);
-
-			tf.transform(source, result);
+			String out = DOMHelper.getStringFromNode(document, 0);
+			OutputStreamWriter osw = new OutputStreamWriter(os, "utf-8");
+			osw.write(out);
+			osw.flush();
 		} catch (VMCriticalException e) {
 			throw e;
 		} catch (Exception e) {
@@ -528,7 +523,8 @@ public class VMContext implements FiScEVM {
 		return ret;
 	}
 
-	public ClassMethod lookupMethodVirtual(AbstractClass clazz, String methodName) {
+	public ClassMethod lookupMethodVirtual(AbstractClass clazz,
+			String methodName) {
 		String uniqueName = clazz.getName() + "." + methodName;
 		while (clazz != null) {
 			Integer mid = getMethodId(clazz.getName() + "." + methodName);

@@ -34,7 +34,7 @@ public interface IHeap {
 	/**
 	 * 最大创建的对象的数量（个数）
 	 */
-	public static final int MAX_OBJECTS = 1048576;
+	public static final int MAX_OBJECTS = 65536;
 	/**
 	 * 最大的静态区的大小（字节）
 	 */

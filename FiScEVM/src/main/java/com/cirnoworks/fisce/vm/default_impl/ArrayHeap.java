@@ -23,14 +23,17 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.cirnoworks.fisce.util.Base64;
+import com.cirnoworks.fisce.util.BufferUtil;
+import com.cirnoworks.fisce.util.DOMHelper;
+import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.IClassLoader;
 import com.cirnoworks.fisce.vm.IHeap;
 import com.cirnoworks.fisce.vm.IThread;
@@ -50,7 +53,7 @@ public final class ArrayHeap implements IHeap {
 	// persist
 	// String -> String handle
 	private HashMap<String, Integer> literals = new HashMap<String, Integer>();
-	private int[] staticArea = new int[MAX_STATIC];
+	private int[] staticArea = new int[MAX_STATIC / 4];
 	private int staticCount = 0;
 	// class id-> pointer in staticArea
 	private int[] classStatic = new int[VMContext.MAX_CLASSES];
@@ -1330,13 +1333,14 @@ public final class ArrayHeap implements IHeap {
 	}
 
 	public void loadData(Element data) throws VMCriticalException {
+		Document document = data.getOwnerDocument();
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			NodeList lis = ((Element) data.getElementsByTagName("literals")
 					.item(0)).getElementsByTagName("literal");
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(li.getTextContent(), Integer.valueOf(li
+				literals.put(DOMHelper.getTextContent(li), Integer.valueOf(li
 						.getAttribute("handle")));
 			}
 
@@ -1346,7 +1350,7 @@ public final class ArrayHeap implements IHeap {
 				Element content = (Element) statics.getElementsByTagName(
 						"content").item(0);
 				baos.reset();
-				Base64.decode(content.getTextContent(), baos);
+				Base64.decode(DOMHelper.getTextContent(content), baos);
 				staticCount = baos.size() / 4;
 				{
 					int[] obj = new int[staticCount];
@@ -1377,7 +1381,7 @@ public final class ArrayHeap implements IHeap {
 				int handle = Integer.parseInt(st.getAttribute("handle"));
 				int cid = Integer.parseInt(st.getAttribute("cid"));
 				char type = st.getAttribute("type").charAt(0);
-				String text = st.getTextContent();
+				String text = DOMHelper.getTextContent(st);
 				baos.reset();
 				Base64.decode(text, baos);
 				byte[] buf = baos.toByteArray();
@@ -1435,7 +1439,7 @@ public final class ArrayHeap implements IHeap {
 			li.appendChild(lit);
 
 			lit.setAttribute("handle", ls.getValue().toString());
-			lit.setTextContent(ls.getKey());
+			DOMHelper.setTextContent(lit, ls.getKey());
 		}
 
 		Element cs = document.createElement("statics");
@@ -1452,7 +1456,7 @@ public final class ArrayHeap implements IHeap {
 				}
 				byte[] buf = new byte[staticCount << 2];
 				tmp.get(buf);
-				content.setTextContent(Base64.encode(buf));
+				DOMHelper.setTextContent(content, Base64.encode(buf));
 			}
 			for (int cid : context.getClassIds()) {
 				Element st = document.createElement("static");
@@ -1503,13 +1507,13 @@ public final class ArrayHeap implements IHeap {
 					}
 					byte[] buf = new byte[tmp.capacity()];
 					tmp.get(buf);
-					ele.setTextContent(Base64.encode(buf));
+					DOMHelper.setTextContent(ele, Base64.encode(buf));
 					break;
 				}
 				case IClassLoader.TYPE_BOOLEAN:
 				case IClassLoader.TYPE_BYTE: {
 					byte[] buf = (byte[]) objects[i];
-					ele.setTextContent(Base64.encode(buf));
+					DOMHelper.setTextContent(ele, Base64.encode(buf));
 					break;
 				}
 				case IClassLoader.TYPE_LONG:
@@ -1521,7 +1525,7 @@ public final class ArrayHeap implements IHeap {
 					}
 					byte[] buf = new byte[tmp.capacity()];
 					tmp.get(buf);
-					ele.setTextContent(Base64.encode(buf));
+					DOMHelper.setTextContent(ele, Base64.encode(buf));
 					break;
 				}
 				default:

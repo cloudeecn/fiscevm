@@ -19,13 +19,13 @@ package com.cirnoworks.fisce.vm.default_impl;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.cirnoworks.fisce.util.Base64;
+import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.IHeap;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.IThreadManager;
@@ -658,7 +658,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 				boolean destroyPending1 = Boolean.parseBoolean(te
 						.getAttribute("destroyPending"));
 				baos.reset();
-				Base64.decode(te.getTextContent(), baos);
+				Base64.decode(DOMHelper.getTextContent(te), baos);
 				FastThread dt = new FastThread(context, this);
 				dt.createFromData(baos.toByteArray());
 				runningThreads.add(dt);
@@ -709,7 +709,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 		data.appendChild(threads);
 		for (FastThread dt : runningThreads) {
 			Element thread = document.createElement("thread");
-			thread.setTextContent(Base64.encode(dt.getFullStack()));
+			DOMHelper.setTextContent(thread,Base64.encode(dt.getFullStack()));
 
 			int tid = dt.getThreadId();
 			thread.setAttribute("tid", String.valueOf(tid));

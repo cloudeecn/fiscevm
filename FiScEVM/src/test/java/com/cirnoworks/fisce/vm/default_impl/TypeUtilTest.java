@@ -17,6 +17,8 @@
 
 package com.cirnoworks.fisce.vm.default_impl;
 
+import com.cirnoworks.fisce.util.TypeUtil;
+
 /**
  * @author cloudee
  * 

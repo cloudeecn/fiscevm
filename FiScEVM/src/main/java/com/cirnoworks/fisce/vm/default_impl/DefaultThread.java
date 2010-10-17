@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.cirnoworks.fisce.util.BufferUtil;
+import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.IHeap;
 import com.cirnoworks.fisce.vm.INativeHandler;
 import com.cirnoworks.fisce.vm.IThread;

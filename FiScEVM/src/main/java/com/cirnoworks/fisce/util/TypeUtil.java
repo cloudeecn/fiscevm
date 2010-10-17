@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cirnoworks.fisce.vm.default_impl;
+package com.cirnoworks.fisce.util;
 
 /**
  * @author cloudee

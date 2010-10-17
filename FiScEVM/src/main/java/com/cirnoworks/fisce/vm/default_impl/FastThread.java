@@ -17,11 +17,12 @@
 package com.cirnoworks.fisce.vm.default_impl;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.cirnoworks.fisce.util.BufferUtil;
+import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.IHeap;
 import com.cirnoworks.fisce.vm.INativeHandler;
 import com.cirnoworks.fisce.vm.IThread;
