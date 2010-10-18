@@ -94,8 +94,8 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 		monitorEnter(dt, monitorId, 1);
 	}
 
-	public void monitorExit(ArrayThread dt, int monitorId)
-			throws VMException, VMCriticalException {
+	public void monitorExit(ArrayThread dt, int monitorId) throws VMException,
+			VMCriticalException {
 		monitorExit(dt, monitorId, 1);
 	}
 
@@ -506,14 +506,16 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 			}
 		} catch (VMCriticalException e) {
 			context.getConsole().error("Critical Exception! Shutdown VM", e);
+			context.onException(e);
 			this.exitException = e;
 			synchronized (stateLock) {
 				setState(STATE_DEAD);
 				workingThread = null;
 			}
-		} catch (Throwable t) {
-			context.getConsole().error("Uncatched Exception! Shutdown VM", t);
-			this.exitException = t;
+		} catch (Throwable e) {
+			context.getConsole().error("Uncatched Exception! Shutdown VM", e);
+			context.onException(e);
+			this.exitException = e;
 			synchronized (stateLock) {
 				setState(STATE_DEAD);
 				workingThread = null;
@@ -709,7 +711,7 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 		data.appendChild(threads);
 		for (ArrayThread dt : runningThreads) {
 			Element thread = document.createElement("thread");
-			DOMHelper.setTextContent(thread,Base64.encode(dt.getFullStack()));
+			DOMHelper.setTextContent(thread, Base64.encode(dt.getFullStack()));
 			int tid = dt.getThreadId();
 			thread.setAttribute("tid", String.valueOf(tid));
 			thread.setAttribute("waitForLockId",

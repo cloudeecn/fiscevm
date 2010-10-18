@@ -83,8 +83,8 @@ public class VMContext implements FiScEVM {
 			methodCount = Integer.parseInt(methods.getAttribute("next"));
 			for (int i = 0, max = methodElemehts.getLength(); i < max; i++) {
 				Element me = (Element) methodElemehts.item(i);
-				methodMap.put(DOMHelper.getTextContent(me), Integer.parseInt(me
-						.getAttribute("mid")));
+				methodMap.put(DOMHelper.getTextContent(me),
+						Integer.parseInt(me.getAttribute("mid")));
 			}
 
 			Element fields = (Element) root.getElementsByTagName("fields")
@@ -93,8 +93,8 @@ public class VMContext implements FiScEVM {
 			fieldCount = Integer.parseInt(fields.getAttribute("next"));
 			for (int i = 0, max = fieldElements.getLength(); i < max; i++) {
 				Element fe = (Element) fieldElements.item(i);
-				fieldMap.put(DOMHelper.getTextContent(fe), Integer.parseInt(fe
-						.getAttribute("fid")));
+				fieldMap.put(DOMHelper.getTextContent(fe),
+						Integer.parseInt(fe.getAttribute("fid")));
 			}
 
 			Element heapElement = (Element) root.getElementsByTagName("heap")
@@ -605,6 +605,12 @@ public class VMContext implements FiScEVM {
 	public void onStateChange(int state) {
 		for (IStateListener listener : statusListeners) {
 			listener.onStateChange(state);
+		}
+	}
+
+	public void onException(Throwable e) {
+		for (IStateListener listener : statusListeners) {
+			listener.onException(e);
 		}
 	}
 

@@ -19,8 +19,18 @@ package com.cirnoworks.fisce.vm;
 public interface IStateListener {
 	/**
 	 * 虚拟机状态发生改变
-	 * @param status 改变后的状态
+	 * 
+	 * @param status
+	 *            改变后的状态
 	 */
 	void onStateChange(int status);
+
+	/**
+	 * 虚拟机抛出异常
+	 * 
+	 * @param e
+	 *            异常
+	 */
+	void onException(Throwable e);
 
 }

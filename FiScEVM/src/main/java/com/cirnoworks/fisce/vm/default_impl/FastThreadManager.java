@@ -115,7 +115,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 		// System.out
 		// .println("nwut[" + threadId + "]=" + nextWakeUpTime[threadId]);
 		if (nextWakeUpTime[threadId] > 0) {
-			//assert target.getCurrentThrowable() == 0;
+			// assert target.getCurrentThrowable() == 0;
 			int exceptionHandle = context.getThrower().prepareThrowable(
 					new VMException("java/lang/InterruptedException", ""),
 					target);
@@ -506,6 +506,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 			}
 		} catch (VMCriticalException e) {
 			context.getConsole().error("Critical Exception! Shutdown VM", e);
+			context.onException(e);
 			this.exitException = e;
 			synchronized (stateLock) {
 				setState(STATE_DEAD);
@@ -513,6 +514,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 			}
 		} catch (Throwable t) {
 			context.getConsole().error("Uncatched Exception! Shutdown VM", t);
+			context.onException(t);
 			this.exitException = t;
 			synchronized (stateLock) {
 				setState(STATE_DEAD);
@@ -709,7 +711,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 		data.appendChild(threads);
 		for (FastThread dt : runningThreads) {
 			Element thread = document.createElement("thread");
-			DOMHelper.setTextContent(thread,Base64.encode(dt.getFullStack()));
+			DOMHelper.setTextContent(thread, Base64.encode(dt.getFullStack()));
 
 			int tid = dt.getThreadId();
 			thread.setAttribute("tid", String.valueOf(tid));

@@ -506,6 +506,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 			}
 		} catch (VMCriticalException e) {
 			context.getConsole().error("Critical Exception! Shutdown VM", e);
+			context.onException(e);
 			this.exitException = e;
 			synchronized (stateLock) {
 				setState(STATE_DEAD);
@@ -513,6 +514,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 			}
 		} catch (Throwable t) {
 			context.getConsole().error("Uncatched Exception! Shutdown VM", t);
+			context.onException(t);
 			this.exitException = t;
 			synchronized (stateLock) {
 				setState(STATE_DEAD);
