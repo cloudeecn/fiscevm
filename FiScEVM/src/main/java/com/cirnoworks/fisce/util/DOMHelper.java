@@ -70,16 +70,16 @@ public final class DOMHelper {
 
 		if (root.getNodeType() == 3) {
 			result.append(root.getNodeValue().replaceAll("&", "&amp;")
-					.replaceAll("<", "&lt;"));
+					.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
 		} else {
 			if (root.getNodeType() != 9) {
 				StringBuffer attrs = new StringBuffer();
 				NamedNodeMap attributes = root.getAttributes();
 				for (int k = 0; k < attributes.getLength(); ++k) {
 					Node attribute = attributes.item(k);
-					attrs.append(" ").append(attribute.getNodeName()).append(
-							"=\"").append(attribute.getNodeValue()).append(
-							"\" ");
+					attrs.append(" ").append(attribute.getNodeName())
+							.append("=\"").append(attribute.getNodeValue())
+							.append("\" ");
 				}
 				result.append("\n");
 				for (int i = 0; i < level; i++) {
@@ -92,12 +92,23 @@ public final class DOMHelper {
 			}
 
 			NodeList nodes = root.getChildNodes();
+			boolean hasText = false;
 			for (int i = 0, j = nodes.getLength(); i < j; i++) {
 				Node node = nodes.item(i);
-				result.append(getStringFromNode(node, level + 1));
+				if (node.getNodeType() == 3) {
+					hasText = true;
+				}
+				result.append(getStringFromNode(node,
+						node.getNodeType() == 9 ? level : (level + 1)));
 			}
 
 			if (root.getNodeType() != 9) {
+				if (!hasText) {
+					result.append("\n");
+					for (int i = 0; i < level; i++) {
+						result.append("\t");
+					}
+				}
 				result.append("</").append(root.getNodeName()).append(">");
 			}
 		}
