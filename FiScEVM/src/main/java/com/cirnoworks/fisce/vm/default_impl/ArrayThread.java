@@ -108,9 +108,21 @@ public final class ArrayThread implements IThread {
 	private final IHeap heap;
 	private byte[] code;
 	private ClassMethod method;
-	private Frame currentFrame;
+	// private Frame currentFrame;
 	private boolean yield;
-	private final Object statLock = new Object();
+	/*
+	 * *****************
+	 * Cache for current frame
+	 */
+
+	int pc;
+	int lpc;
+	int[] localVars;
+	byte[] localVarTypes;
+	int[] opStacks;
+	byte[] opStackTypes;
+	int sp;
+	int methodId = -1;
 
 	class TypeContainer {
 		byte type;
@@ -146,9 +158,8 @@ public final class ArrayThread implements IThread {
 
 	private final ArrayList<Frame> frames = new ArrayList<Frame>();
 
-	private static final int headerSize = 28;
-
 	public byte[] getFullStack() {
+		saveFromCache();
 		int size = 28;
 		for (Frame frame : frames) {
 			size += frame.getSize();
@@ -260,7 +271,7 @@ public final class ArrayThread implements IThread {
 		for (int i = 0, max = frames.size(); i < max; i++) {
 			this.frames.add(frames.get(max - i - 1));
 		}
-
+		loadToCache();
 		updateLocalBuf();
 	}
 
@@ -349,8 +360,8 @@ public final class ArrayThread implements IThread {
 		}
 		setThreadHandle(threadHandle);
 		pushFrame(method);
-		putLocalHandle(0, heap.allocate((ClassArray) context
-				.getClass("[Ljava/lang/String;"), 0));
+		putLocalHandle(0, heap.allocate(
+				(ClassArray) context.getClass("[Ljava/lang/String;"), 0));
 		clinit(method.getOwner());
 	}
 
@@ -365,9 +376,8 @@ public final class ArrayThread implements IThread {
 		ClassMethod runner = context
 				.lookupMethodVirtual(runnerClass, "run.()V");
 		if (runner == null) {
-			throw new VMException("java/lang/NoSuchMethodError", runnerClass
-					.getName()
-					+ "." + ".run.()V");
+			throw new VMException("java/lang/NoSuchMethodError",
+					runnerClass.getName() + "." + ".run.()V");
 		}
 		setThreadHandle(handle);
 		pushFrame(runner);
@@ -375,44 +385,75 @@ public final class ArrayThread implements IThread {
 		putLocalHandle(0, handle);
 	}
 
-	private byte nextOP() {
-		return code[currentFrame.pc++];
-	}
-
-	private void movePC(int ofs) {
-		currentFrame.pc += ofs;
-	}
-
-	private void go(int ofs) {
-		currentFrame.pc = currentFrame.lpc + ofs;
-	}
+	// private void movePC(int ofs) {
+	// this.pc += ofs;
+	// }
+	//
+	// private void go(int ofs) {
+	// this.pc = this.lpc + ofs;
+	// }
 
 	private void updateLocalBuf() {
 		int size = frames.size();
 		if (size == 0) {
 			method = null;
 			code = null;
-			currentFrame = null;
+			methodId = -1;
 		} else {
-			currentFrame = frames.get(size - 1);
+
 			method = getCurrentMethod();
 			code = method.getCode();
 		}
 	}
 
+	private void loadToCache() {
+		int size = frames.size();
+		if (size == 0) {
+			methodId = -1;
+		} else {
+			Frame currentFrame = frames.get(size - 1);
+			pc = currentFrame.pc;
+			lpc = currentFrame.lpc;
+			localVars = currentFrame.localVars;
+			localVarTypes = currentFrame.localVarTypes;
+			opStacks = currentFrame.opStacks;
+			opStackTypes = currentFrame.opStackTypes;
+			sp = currentFrame.sp;
+			methodId = currentFrame.methodId;
+		}
+	}
+
+	private void saveFromCache() {
+		int size = frames.size();
+		if (size == 0) {
+			methodId = -1;
+		} else {
+			Frame currentFrame = frames.get(size - 1);
+			currentFrame.pc = pc;
+			currentFrame.lpc = lpc;
+			currentFrame.localVars = localVars;
+			currentFrame.localVarTypes = localVarTypes;
+			currentFrame.opStacks = opStacks;
+			currentFrame.opStackTypes = opStackTypes;
+			currentFrame.sp = sp;
+			currentFrame.methodId = methodId;
+		}
+	}
+
 	private String getFrameInfo() {
 		return "STACK["
-				+ currentFrame.sp
+				+ this.sp
 				+ "/"
-				+ currentFrame.opStacks.length
+				+ this.opStacks.length
 				+ "] VARS=["
-				+ currentFrame.localVars.length
+				+ this.localVars.length
 				+ "] "
 				+ (!AbstractClass.hasFlag(method.getAccessFlags(),
 						AbstractClass.ACC_STATIC));
 	}
 
 	public void pushFrame(ClassMethod mt) {
+		saveFromCache();
 		Frame frame = new Frame();
 		frame.localVars = new int[mt.getMaxLocals()];
 		frame.localVarTypes = new byte[mt.getMaxLocals()];
@@ -420,6 +461,7 @@ public final class ArrayThread implements IThread {
 		frame.opStackTypes = new byte[mt.getMaxStack()];
 		frame.methodId = context.getMethodId(mt);
 		frames.add(frame);
+		loadToCache();
 		updateLocalBuf();
 		assert context.getConsole().debug(">>>Push frame to " + getFrameInfo());
 		// switchIn();
@@ -430,8 +472,9 @@ public final class ArrayThread implements IThread {
 		assert context.getConsole()
 				.debug(">>>Pop frame from " + getFrameInfo());
 		frames.remove(frames.size() - 1);
+		loadToCache();
 		updateLocalBuf();
-		if (currentFrame != null) {
+		if (methodId != -1) {
 			assert context.getConsole().debug(
 					">>>Pop frame to " + getFrameInfo());
 		} else {
@@ -462,7 +505,7 @@ public final class ArrayThread implements IThread {
 	public boolean run(int ops) throws VMCriticalException {
 
 		for (int i = 0; i < ops; i++) {
-			if (currentFrame == null) {
+			if (methodId == -1) {
 				// Time to quit!
 				int th = getCurrentThrowable();
 				if (th > 0) {
@@ -499,7 +542,7 @@ public final class ArrayThread implements IThread {
 
 	private void processThrowable(int th) throws VMCriticalException {
 		assert context.getConsole().debug(
-				"*EXCEPTION HANDLE LOOKUP: LPC=" + currentFrame.lpc);
+				"*EXCEPTION HANDLE LOOKUP: LPC=" + this.lpc);
 		AbstractClass throwableClass;
 		try {
 			throwableClass = (ClassBase) context.getClass(th);
@@ -510,7 +553,7 @@ public final class ArrayThread implements IThread {
 		}
 
 		ExceptionHandler[] handlers = method.getExceptionTable();
-		int lpc = currentFrame.lpc;
+		int lpc = this.lpc;
 		int target = -1;
 		for (int i = 0, max = handlers.length; i < max; i++) {
 			ExceptionHandler eh = handlers[i];
@@ -537,10 +580,10 @@ public final class ArrayThread implements IThread {
 		if (target >= 0) {
 			// can handle, clear stack and push exception and jump
 			assert context.getConsole().debug("*FOUND JUMP=" + target);
-			currentFrame.sp = 0;
+			this.sp = 0;
 			pushHandle(th);
 			setCurrentThrowable(0);
-			currentFrame.pc = target;
+			this.pc = target;
 		} else {
 			// throw to caller.
 			assert context.getConsole().debug("NOT FOUND!");
@@ -568,8 +611,8 @@ public final class ArrayThread implements IThread {
 	 * @throws VMCriticalException
 	 */
 	private void runOneInst() throws VMCriticalException {
-		currentFrame.lpc = currentFrame.pc;
-		int op = nextOP() & 0xff;
+		this.lpc = this.pc;
+		int op = code[this.pc++] & 0xff;
 		if (method.isClinit()) {
 			ClassBase targetClass = method.getOwner().getSuperClass();
 
@@ -581,15 +624,15 @@ public final class ArrayThread implements IThread {
 				} else if (cmd == CMD_GOON) {
 
 				} else if (cmd == CMD_BACK) {
-					currentFrame.pc = currentFrame.lpc;
+					this.pc = this.lpc;
 					return;
 				}
 			}
 		}
 
 		assert context.getConsole().debug(
-				method.getUniqueName() + " " + currentFrame.lpc + " "
-						+ OP_NAME[op] + " SR=" + currentFrame.pc);
+				method.getUniqueName() + " " + this.lpc + " " + OP_NAME[op]
+						+ " SR=" + this.pc);
 		try {
 			switch (op) {
 			case AALOAD: {
@@ -636,13 +679,13 @@ public final class ArrayThread implements IThread {
 
 			case ILOAD:
 			case FLOAD: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 				int value = getLocalInt(index);
 				pushInt(value);
 				break;
 			}
 			case ALOAD: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 				int value = getLocalHandle(index);
 				pushHandle(value);
 				break;
@@ -684,8 +727,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case ANEWARRAY: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int count = popInt();
 				if (count < 0) {
@@ -736,14 +779,14 @@ public final class ArrayThread implements IThread {
 			}
 			case ISTORE:
 			case FSTORE: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 				int value = popInt();
 
 				putLocalInt(index, value);
 				break;
 			}
 			case ASTORE: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 				int aref = popType(tc);
 				switch (tc.type) {
 				case ClassMethod.TYPE_HANDLE:
@@ -866,7 +909,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case BIPUSH: {
-				int value = nextOP();
+				int value = code[this.pc++];
 				pushInt(value);
 				break;
 			}
@@ -886,8 +929,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case CHECKCAST: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int handle = popHandle();
 				if (handle == 0) {
@@ -969,7 +1012,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case DLOAD: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 				pushDouble(getLocalDouble(index));
 				break;
 			}
@@ -1020,7 +1063,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case DSTORE: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 
 				double value = popDouble();
 				putLocalDouble(index, value);
@@ -1197,8 +1240,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case GETFIELD: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int handle = popHandle();
 				ClassField field = ((ConstantFieldRef) method.getOwner()
@@ -1226,8 +1269,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case GETSTATIC: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ConstantFieldRef cfr = (ConstantFieldRef) method.getOwner()
 						.getConstantPool()[m];
@@ -1239,7 +1282,7 @@ public final class ArrayThread implements IThread {
 					} else if (cmd == CMD_GOON) {
 
 					} else if (cmd == CMD_BACK) {
-						currentFrame.pc = currentFrame.lpc;
+						this.pc = this.lpc;
 						break;
 					}
 				}
@@ -1262,18 +1305,18 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case GOTO: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
-				go(m);
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
+				this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
 				break;
 			}
 			case GOTO_W: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				byte ib3 = nextOP();
-				byte ib4 = nextOP();
-				go(TypeUtil.bytesToSignedInt(ib1, ib2, ib3, ib4));
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
+				byte ib3 = code[this.pc++];
+				byte ib4 = code[this.pc++];
+				this.pc = this.lpc
+						+ TypeUtil.bytesToSignedInt(ib1, ib2, ib3, ib4);
 				break;
 			}
 			case I2B: {
@@ -1301,13 +1344,11 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case IADD: {
-				int value = popInt();
-				pushInt(value + popInt());
+				pushInt(popInt() + popInt());
 				break;
 			}
 			case IAND: {
-				int value = popInt();
-				pushInt(value & popInt());
+				pushInt(popInt() & popInt());
 				break;
 			}
 			case ICONST_M1: {
@@ -1348,181 +1389,198 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case IF_ICMPEQ: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
+
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 == value2) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IF_ACMPEQ: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popHandle();
 				int value1 = popHandle();
 				if (value1 == value2) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IF_ICMPNE: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 != value2) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IF_ACMPNE: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popHandle();
 				int value1 = popHandle();
 				if (value1 != value2) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IF_ICMPLT: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 < value2) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IF_ICMPLE: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 <= value2) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IF_ICMPGT: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 > value2) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IF_ICMPGE: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value2 = popInt();
 				int value1 = popInt();
 				if (value1 >= value2) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 
 			case IFEQ: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value == 0) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IFNULL: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popHandle();
 				if (value == 0) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 
 			case IFNE: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value != 0) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IFNONNULL: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popHandle();
 				if (value != 0) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 
 			case IFLT: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value < 0) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IFLE: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value <= 0) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IFGT: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value > 0) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IFGE: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int m = TypeUtil.bytesToSignedInt(ib1, ib2);
 				int value = popInt();
 				if (value >= 0) {
-					go(m);
+					byte ib1 = code[this.pc++];
+					byte ib2 = code[this.pc++];
+					this.pc = this.lpc + TypeUtil.bytesToSignedInt(ib1, ib2);
+				} else {
+					this.pc += 2;
 				}
 				break;
 			}
 			case IINC: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 
-				int value = nextOP();
-				putLocalInt(index, getLocalInt(index) + value);
+				int value = code[this.pc++];
+				this.localVars[index] += value;
 				break;
 			}
 			case IMUL: {
@@ -1534,8 +1592,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case INSTANCEOF: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int handle = popHandle();
 				AbstractClass clazz = context.getClass(handle);
@@ -1544,10 +1602,10 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case INVOKEINTERFACE: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int count = nextOP() & 0xff;
-				nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
+				int count = code[this.pc++] & 0xff;
+				this.pc++;
 				int[] args = new int[count];
 				byte[] types = new byte[count];
 				for (int i = count - 1; i >= 0; i--) {
@@ -1561,8 +1619,8 @@ public final class ArrayThread implements IThread {
 					throw new VMException(
 							"java/lang/IncompatibleClassChangeError", "");
 				}
-				ClassMethod invoke = context.lookupMethodVirtual(context
-						.getClass(args[0]), lookup.getMethodName());
+				ClassMethod invoke = context.lookupMethodVirtual(
+						context.getClass(args[0]), lookup.getMethodName());
 				if (invoke == null) {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
@@ -1590,8 +1648,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case INVOKESPECIAL: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassMethod invoke = getMethodFromConstant(m);
 				ClassBase cb = invoke.getOwner();
@@ -1613,14 +1671,14 @@ public final class ArrayThread implements IThread {
 				}
 				if ("<init>".equals(invoke.getName())
 						&& invoke.getOwner() != cb) {
-					throw new VMException("java/lang/NoSuchMethodError", invoke
-							.getUniqueName());
+					throw new VMException("java/lang/NoSuchMethodError",
+							invoke.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", invoke
-									.getUniqueName());
+							"java/lang/IncompatibleClassChangeError",
+							invoke.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_ABSTRACT)) {
@@ -1645,8 +1703,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case INVOKESTATIC: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassMethod invoke = getMethodFromConstant(m);
 				if (!AbstractClass.hasFlag(invoke.getAccessFlags(),
@@ -1662,7 +1720,7 @@ public final class ArrayThread implements IThread {
 					} else if (cmd == CMD_GOON) {
 
 					} else if (cmd == CMD_BACK) {
-						currentFrame.pc = currentFrame.lpc;
+						this.pc = this.lpc;
 						break;
 					}
 				}
@@ -1690,8 +1748,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case INVOKEVIRTUAL: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassMethod lookup = getMethodFromConstant(m);
 
@@ -1702,22 +1760,22 @@ public final class ArrayThread implements IThread {
 					args[i] = popType(tc);
 					types[i] = tc.type;
 				}
-				ClassMethod invoke = context.lookupMethodVirtual(context
-						.getClass(args[0]), lookup.getMethodName());
+				ClassMethod invoke = context.lookupMethodVirtual(
+						context.getClass(args[0]), lookup.getMethodName());
 				if (invoke == null) {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", invoke
-									.getUniqueName());
+							"java/lang/IncompatibleClassChangeError",
+							invoke.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", invoke
-									.getUniqueName());
+							"java/lang/IncompatibleClassChangeError",
+							invoke.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_ABSTRACT)) {
@@ -1785,21 +1843,21 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case JSR: {
-				byte bb1 = nextOP();
-				byte bb2 = nextOP();
+				byte bb1 = code[this.pc++];
+				byte bb2 = code[this.pc++];
 				int target = TypeUtil.bytesToSignedInt(bb1, bb2);
-				pushType(currentFrame.pc, ClassMethod.TYPE_RETURN);
-				go(target);
+				pushType(this.pc, ClassMethod.TYPE_RETURN);
+				this.pc = this.lpc + target;
 				break;
 			}
 			case JSR_W: {
-				byte bb1 = nextOP();
-				byte bb2 = nextOP();
-				byte bb3 = nextOP();
-				byte bb4 = nextOP();
+				byte bb1 = code[this.pc++];
+				byte bb2 = code[this.pc++];
+				byte bb3 = code[this.pc++];
+				byte bb4 = code[this.pc++];
 				int target = TypeUtil.bytesToSignedInt(bb1, bb2, bb3, bb4);
-				pushType(currentFrame.pc, ClassMethod.TYPE_RETURN);
-				go(target);
+				pushType(this.pc, ClassMethod.TYPE_RETURN);
+				this.pc = this.lpc + target;
 				break;
 			}
 			case L2D: {
@@ -1850,7 +1908,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LDC: {
-				char index = (char) (nextOP() & 0xff);
+				char index = (char) (code[this.pc++] & 0xff);
 				Constant con = getConstant(index);
 				if (con instanceof ConstantInteger) {
 					pushInt(((ConstantInteger) con).getData());
@@ -1869,8 +1927,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LDC_W: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				Constant con = getConstant(index);
 				if (con instanceof ConstantInteger) {
@@ -1890,8 +1948,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LDC2_W: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				Constant con = getConstant(index);
 				if (con instanceof ConstantLong) {
@@ -1915,7 +1973,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LLOAD: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 				pushLong(getLocalLong(index));
 				break;
 			}
@@ -1944,29 +2002,29 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LOOKUPSWITCH: {
-				int padSize = (65536 - currentFrame.pc) % 4;
-				movePC(padSize);
-				byte db1 = nextOP();
-				byte db2 = nextOP();
-				byte db3 = nextOP();
-				byte db4 = nextOP();
+				int padSize = (65536 - this.pc) % 4;
+				this.pc += padSize;
+				byte db1 = code[this.pc++];
+				byte db2 = code[this.pc++];
+				byte db3 = code[this.pc++];
+				byte db4 = code[this.pc++];
 				int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
-				byte np1 = nextOP();
-				byte np2 = nextOP();
-				byte np3 = nextOP();
-				byte np4 = nextOP();
+				byte np1 = code[this.pc++];
+				byte np2 = code[this.pc++];
+				byte np3 = code[this.pc++];
+				byte np4 = code[this.pc++];
 				int np = TypeUtil.bytesToSignedInt(np1, np2, np3, np4);
 				int[] match = new int[np];
 				int[] offset = new int[np];
 				for (int i = 0; i < np; i++) {
-					byte ma1 = nextOP();
-					byte ma2 = nextOP();
-					byte ma3 = nextOP();
-					byte ma4 = nextOP();
-					byte of1 = nextOP();
-					byte of2 = nextOP();
-					byte of3 = nextOP();
-					byte of4 = nextOP();
+					byte ma1 = code[this.pc++];
+					byte ma2 = code[this.pc++];
+					byte ma3 = code[this.pc++];
+					byte ma4 = code[this.pc++];
+					byte of1 = code[this.pc++];
+					byte of2 = code[this.pc++];
+					byte of3 = code[this.pc++];
+					byte of4 = code[this.pc++];
 					match[i] = TypeUtil.bytesToSignedInt(ma1, ma2, ma3, ma4);
 					offset[i] = TypeUtil.bytesToSignedInt(of1, of2, of3, of4);
 				}
@@ -1974,13 +2032,13 @@ public final class ArrayThread implements IThread {
 				boolean matched = false;
 				for (int i = 0; i < np; i++) {
 					if (key == match[i]) {
-						go(offset[i]);
+						this.pc = this.lpc + offset[i];
 						matched = true;
 						break;
 					}
 				}
 				if (!matched) {
-					go(db);
+					this.pc = this.lpc + db;
 				}
 				break;
 			}
@@ -2026,7 +2084,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LSTORE: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 				putLocalLong(index, popLong());
 				break;
 			}
@@ -2075,9 +2133,9 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case MULTIANEWARRAY: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
-				int dims = nextOP() & 0xff;
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
+				int dims = code[this.pc++] & 0xff;
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassArray clazz = (ClassArray) getClassFromConstant(m);
 				int[] count = new int[dims];
@@ -2088,8 +2146,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case NEW: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int idx = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				try {
 					ClassBase targetClass = (ClassBase) getClassFromConstant(idx);
@@ -2106,7 +2164,7 @@ public final class ArrayThread implements IThread {
 						} else if (cmd == CMD_GOON) {
 
 						} else if (cmd == CMD_BACK) {
-							currentFrame.pc = currentFrame.lpc;
+							this.pc = this.lpc;
 							break;
 						}
 					}
@@ -2117,7 +2175,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case NEWARRAY: {
-				byte atype = nextOP();
+				byte atype = code[this.pc++];
 				String name;
 				switch (atype) {
 				case 4:
@@ -2171,8 +2229,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case PUTFIELD: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ClassField field = getFieldFromConstant(index);
 				char type = field.getDescriptor().charAt(0);
@@ -2215,8 +2273,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case PUTSTATIC: {
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				ConstantFieldRef cfr = (ConstantFieldRef) method.getOwner()
 						.getConstantPool()[index];
@@ -2230,7 +2288,7 @@ public final class ArrayThread implements IThread {
 					} else if (cmd == CMD_GOON) {
 
 					} else if (cmd == CMD_BACK) {
-						currentFrame.pc = currentFrame.lpc;
+						this.pc = this.lpc;
 						break;
 					}
 				}
@@ -2268,9 +2326,9 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case RET: {
-				int index = nextOP() & 0xff;
+				int index = code[this.pc++] & 0xff;
 				int addr = getLocalReturn(index);
-				currentFrame.pc = addr;
+				this.pc = addr;
 				break;
 			}
 			case RETURN: {
@@ -2302,8 +2360,8 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case SIPUSH: {
-				byte bb1 = nextOP();
-				byte bb2 = nextOP();
+				byte bb1 = code[this.pc++];
+				byte bb2 = code[this.pc++];
 				int value = TypeUtil.bytesToSignedInt(bb1, bb2);
 				pushInt(value);
 				break;
@@ -2318,30 +2376,30 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case TABLESWITCH: {
-				int pad = (65536 - currentFrame.pc) % 4;
-				movePC(pad);
-				byte db1 = nextOP();
-				byte db2 = nextOP();
-				byte db3 = nextOP();
-				byte db4 = nextOP();
-				byte lb1 = nextOP();
-				byte lb2 = nextOP();
-				byte lb3 = nextOP();
-				byte lb4 = nextOP();
-				byte hb1 = nextOP();
-				byte hb2 = nextOP();
-				byte hb3 = nextOP();
-				byte hb4 = nextOP();
+				int pad = (65536 - this.pc) % 4;
+				this.pc += pad;
+				byte db1 = code[this.pc++];
+				byte db2 = code[this.pc++];
+				byte db3 = code[this.pc++];
+				byte db4 = code[this.pc++];
+				byte lb1 = code[this.pc++];
+				byte lb2 = code[this.pc++];
+				byte lb3 = code[this.pc++];
+				byte lb4 = code[this.pc++];
+				byte hb1 = code[this.pc++];
+				byte hb2 = code[this.pc++];
+				byte hb3 = code[this.pc++];
+				byte hb4 = code[this.pc++];
 				int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
 				int lb = TypeUtil.bytesToSignedInt(lb1, lb2, lb3, lb4);
 				int hb = TypeUtil.bytesToSignedInt(hb1, hb2, hb3, hb4);
 				int count = hb - lb + 1;
 				int[] address = new int[count];
 				for (int i = 0; i < count; i++) {
-					byte ab1 = nextOP();
-					byte ab2 = nextOP();
-					byte ab3 = nextOP();
-					byte ab4 = nextOP();
+					byte ab1 = code[this.pc++];
+					byte ab2 = code[this.pc++];
+					byte ab3 = code[this.pc++];
+					byte ab4 = code[this.pc++];
 					address[i] = TypeUtil.bytesToSignedInt(ab1, ab2, ab3, ab4);
 				}
 				int target;
@@ -2351,13 +2409,13 @@ public final class ArrayThread implements IThread {
 				} else {
 					target = address[index - lb];
 				}
-				go(target);
+				this.pc = this.lpc + target;
 				break;
 			}
 			case WIDE: {
-				int op2 = nextOP() & 0xff;
-				byte ib1 = nextOP();
-				byte ib2 = nextOP();
+				int op2 = code[this.pc++] & 0xff;
+				byte ib1 = code[this.pc++];
+				byte ib2 = code[this.pc++];
 				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				switch (op2) {
 				case FLOAD:
@@ -2408,14 +2466,14 @@ public final class ArrayThread implements IThread {
 				}
 				case RET: {
 					int addr = getLocalReturn(index);
-					currentFrame.pc = addr;
+					this.pc = addr;
 					break;
 				}
 				case IINC: {
-					byte cb1 = nextOP();
-					byte cb2 = nextOP();
+					byte cb1 = code[this.pc++];
+					byte cb2 = code[this.pc++];
 					int cb = TypeUtil.bytesToSignedInt(cb1, cb2);
-					putLocalInt(index, getLocalInt(index) + cb);
+					this.localVars[index] += cb;
 					break;
 				}
 				default: {
@@ -2487,7 +2545,7 @@ public final class ArrayThread implements IThread {
 			if (tid == VMContext.CLINIT_FINISHED) {
 				return CMD_GOON;
 			} else if (tid == VMContext.CLINIT_NONE) {
-				currentFrame.pc = currentFrame.lpc;
+				this.pc = this.lpc;
 				pushFrame(targetClass.getClinit());
 				context.setClinited(targetClass, this);
 				return CMD_BREAK;
@@ -2538,222 +2596,219 @@ public final class ArrayThread implements IThread {
 	}
 
 	public int popType(TypeContainer tc) {
-		int tmp = --currentFrame.sp;
-		tc.type = currentFrame.opStackTypes[tmp];
-		return currentFrame.opStacks[tmp];
+		int tmp = --this.sp;
+		tc.type = this.opStackTypes[tmp];
+		return this.opStacks[tmp];
 	}
 
 	public void pushType(int value, byte type) {
-		int tmp = currentFrame.sp++;
-		currentFrame.opStacks[tmp] = value;
-		currentFrame.opStackTypes[tmp] = type;
+		int tmp = this.sp++;
+		this.opStacks[tmp] = value;
+		this.opStackTypes[tmp] = type;
 		assert type != ClassMethod.TYPE_HANDLE
 				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 	}
 
 	public int popHandle() {
-		int tmp = --currentFrame.sp;
-		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_HANDLE : "Type mismatch!"
-				+ currentFrame.opStackTypes[tmp]
+		int tmp = --this.sp;
+		assert this.opStackTypes[tmp] == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+				+ this.opStackTypes[tmp]
 				+ " should be "
 				+ ClassMethod.TYPE_HANDLE;
-		return currentFrame.opStacks[tmp];
+		return this.opStacks[tmp];
 	}
 
 	public void pushHandle(int handle) {
 		assert !(handle < 0 || handle > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ handle;
-		int tmp = currentFrame.sp++;
-		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_HANDLE;
-		currentFrame.opStacks[tmp] = handle;
+		int tmp = this.sp++;
+		this.opStackTypes[tmp] = ClassMethod.TYPE_HANDLE;
+		this.opStacks[tmp] = handle;
 	}
 
 	public int popInt() {
-		int tmp = --currentFrame.sp;
-		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ currentFrame.opStackTypes[tmp]
-				+ " should be "
-				+ ClassMethod.TYPE_INT;
-		return currentFrame.opStacks[tmp];
+		int tmp = --this.sp;
+		assert this.opStackTypes[tmp] == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ this.opStackTypes[tmp] + " should be " + ClassMethod.TYPE_INT;
+		return this.opStacks[tmp];
 	}
 
 	public void pushInt(int value) {
-		int tmp = currentFrame.sp++;
-		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_INT;
-		currentFrame.opStacks[tmp] = value;
+		int tmp = this.sp++;
+		this.opStackTypes[tmp] = ClassMethod.TYPE_INT;
+		this.opStacks[tmp] = value;
 	}
 
 	public float popFloat() {
-		int tmp = --currentFrame.sp;
-		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ currentFrame.opStackTypes[tmp]
-				+ " should be "
-				+ ClassMethod.TYPE_INT;
-		return Float.intBitsToFloat(currentFrame.opStacks[tmp]);
+		int tmp = --this.sp;
+		assert this.opStackTypes[tmp] == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ this.opStackTypes[tmp] + " should be " + ClassMethod.TYPE_INT;
+		return Float.intBitsToFloat(this.opStacks[tmp]);
 	}
 
 	public void pushFloat(float value) {
-		int tmp = currentFrame.sp++;
-		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_INT;
-		currentFrame.opStacks[tmp] = Float.floatToRawIntBits(value);
+		int tmp = this.sp++;
+		this.opStackTypes[tmp] = ClassMethod.TYPE_INT;
+		this.opStacks[tmp] = Float.floatToRawIntBits(value);
 
 	}
 
 	public double popDouble() {
-		int tmp = currentFrame.sp -= 2;
-		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ currentFrame.opStackTypes[tmp]
+		int tmp = this.sp -= 2;
+		assert this.opStackTypes[tmp] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ this.opStackTypes[tmp]
 				+ " should be "
 				+ ClassMethod.TYPE_WIDE;
-		long lvalue = TypeUtil.intToLong(currentFrame.opStacks[tmp],
-				currentFrame.opStacks[tmp + 1]);
+		long lvalue = TypeUtil.intToLong(this.opStacks[tmp],
+				this.opStacks[tmp + 1]);
 		return Double.longBitsToDouble(lvalue);
 	}
 
 	public void pushDouble(double value) {
 		long lvalue = Double.doubleToRawLongBits(value);
-		int tmp = currentFrame.sp;
-		currentFrame.sp += 2;
-		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_WIDE;
-		currentFrame.opStackTypes[tmp + 1] = ClassMethod.TYPE_WIDE2;
-		currentFrame.opStacks[tmp] = TypeUtil.getHighInt(lvalue);
-		currentFrame.opStacks[tmp + 1] = TypeUtil.getLowInt(lvalue);
+		int tmp = this.sp;
+		this.sp += 2;
+		this.opStackTypes[tmp] = ClassMethod.TYPE_WIDE;
+		this.opStackTypes[tmp + 1] = ClassMethod.TYPE_WIDE2;
+		this.opStacks[tmp] = TypeUtil.getHighInt(lvalue);
+		this.opStacks[tmp + 1] = TypeUtil.getLowInt(lvalue);
 	}
 
 	public long popLong() {
-		int tmp = currentFrame.sp -= 2;
-		assert currentFrame.opStackTypes[tmp] == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ currentFrame.opStackTypes[tmp]
+		int tmp = this.sp -= 2;
+		assert this.opStackTypes[tmp] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ this.opStackTypes[tmp]
 				+ " should be "
 				+ ClassMethod.TYPE_WIDE;
-		long lvalue = TypeUtil.intToLong(currentFrame.opStacks[tmp],
-				currentFrame.opStacks[tmp + 1]);
+		long lvalue = TypeUtil.intToLong(this.opStacks[tmp],
+				this.opStacks[tmp + 1]);
 		return lvalue;
 	}
 
 	public void pushLong(long value) {
-		int tmp = currentFrame.sp;
-		currentFrame.sp += 2;
-		currentFrame.opStackTypes[tmp] = ClassMethod.TYPE_WIDE;
-		currentFrame.opStackTypes[tmp + 1] = ClassMethod.TYPE_WIDE2;
-		currentFrame.opStacks[tmp] = (int) (value >>> 32);
-		currentFrame.opStacks[tmp + 1] = (int) value;
+		int tmp = this.sp;
+		this.sp += 2;
+		this.opStackTypes[tmp] = ClassMethod.TYPE_WIDE;
+		this.opStackTypes[tmp + 1] = ClassMethod.TYPE_WIDE2;
+		this.opStacks[tmp] = (int) (value >>> 32);
+		this.opStacks[tmp + 1] = (int) value;
 
 	}
 
 	public int getLocalReturn(int index) {
-		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_RETURN : "Type mismatch!"
-				+ currentFrame.localVarTypes[index]
+		assert this.localVarTypes[index] == ClassMethod.TYPE_RETURN : "Type mismatch!"
+				+ this.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_RETURN;
-		return currentFrame.localVars[index];
+		return this.localVars[index];
 	}
 
 	public void putLocalReturn(int index, int value) {
-		currentFrame.localVarTypes[index] = ClassMethod.TYPE_RETURN;
-		currentFrame.localVars[index] = value;
+		this.localVarTypes[index] = ClassMethod.TYPE_RETURN;
+		this.localVars[index] = value;
 	}
 
 	public int getLocalHandle(int index) {
-		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_HANDLE : "Type mismatch!"
-				+ currentFrame.localVarTypes[index]
+		assert this.localVarTypes[index] == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+				+ this.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_HANDLE;
-		return currentFrame.localVars[index];
+		return this.localVars[index];
 	}
 
 	public void putLocalHandle(int index, int value) {
-		currentFrame.localVarTypes[index] = ClassMethod.TYPE_HANDLE;
-		currentFrame.localVars[index] = value;
+		this.localVarTypes[index] = ClassMethod.TYPE_HANDLE;
+		this.localVars[index] = value;
 	}
 
 	public int getLocalType(int index, TypeContainer tc) {
-		tc.type = currentFrame.localVarTypes[index];
-		return currentFrame.localVars[index];
+		tc.type = this.localVarTypes[index];
+		return this.localVars[index];
 	}
 
 	public void putLocalType(int index, int value, byte type) {
 		assert type != ClassMethod.TYPE_HANDLE
 				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
-		currentFrame.localVarTypes[index] = type;
-		currentFrame.localVars[index] = value;
+		this.localVarTypes[index] = type;
+		this.localVars[index] = value;
 	}
 
 	public int getLocalInt(int index) {
-		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ currentFrame.localVarTypes[index]
+		assert this.localVarTypes[index] == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ this.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_INT;
-		return currentFrame.localVars[index];
+		return this.localVars[index];
 	}
 
 	public void putLocalInt(int index, int value) {
-		currentFrame.localVarTypes[index] = ClassMethod.TYPE_INT;
-		currentFrame.localVars[index] = value;
+		this.localVarTypes[index] = ClassMethod.TYPE_INT;
+		this.localVars[index] = value;
 	}
 
 	public float getLocalFloat(int index) {
-		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ currentFrame.localVarTypes[index]
+		assert this.localVarTypes[index] == ClassMethod.TYPE_INT : "Type mismatch!"
+				+ this.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_INT;
-		return Float.intBitsToFloat(currentFrame.localVars[index]);
+		return Float.intBitsToFloat(this.localVars[index]);
 	}
 
 	public void putLocalFloat(int index, float value) {
-		currentFrame.localVarTypes[index] = ClassMethod.TYPE_INT;
-		currentFrame.localVars[index] = Float.floatToIntBits(value);
+		this.localVarTypes[index] = ClassMethod.TYPE_INT;
+		this.localVars[index] = Float.floatToIntBits(value);
 	}
 
 	// public synchronized native void foo();
 
 	public long getLocalLong(int index) {
-		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ currentFrame.localVarTypes[index]
+		assert this.localVarTypes[index] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ this.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_WIDE;
 
-		long lvalue = TypeUtil.intToLong(currentFrame.localVars[index],
-				currentFrame.localVars[index + 1]);
+		long lvalue = TypeUtil.intToLong(this.localVars[index],
+				this.localVars[index + 1]);
 		return lvalue;
 	}
 
 	public void putLocalLong(int index, long value) {
-		currentFrame.localVarTypes[index] = ClassMethod.TYPE_WIDE;
-		currentFrame.localVarTypes[index + 1] = ClassMethod.TYPE_WIDE2;
-		currentFrame.localVars[index] = TypeUtil.getHighInt(value);
-		currentFrame.localVars[index + 1] = TypeUtil.getLowInt(value);
+		this.localVarTypes[index] = ClassMethod.TYPE_WIDE;
+		this.localVarTypes[index + 1] = ClassMethod.TYPE_WIDE2;
+		this.localVars[index] = TypeUtil.getHighInt(value);
+		this.localVars[index + 1] = TypeUtil.getLowInt(value);
 	}
 
 	public double getLocalDouble(int index) {
-		assert currentFrame.localVarTypes[index] == ClassMethod.TYPE_WIDE : "Type mismatch!"
-				+ currentFrame.localVarTypes[index]
+		assert this.localVarTypes[index] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+				+ this.localVarTypes[index]
 				+ " should be "
 				+ ClassMethod.TYPE_WIDE;
 
-		long lvalue = TypeUtil.intToLong(currentFrame.localVars[index],
-				currentFrame.localVars[index + 1]);
+		long lvalue = TypeUtil.intToLong(this.localVars[index],
+				this.localVars[index + 1]);
 		return Double.longBitsToDouble(lvalue);
 	}
 
 	public void putLocalDouble(int index, double value) {
 		long lvalue = Double.doubleToRawLongBits(value);
-		currentFrame.localVarTypes[index] = ClassMethod.TYPE_WIDE;
-		currentFrame.localVarTypes[index + 1] = ClassMethod.TYPE_WIDE2;
-		currentFrame.localVars[index] = TypeUtil.getHighInt(lvalue);
-		currentFrame.localVars[index + 1] = TypeUtil.getLowInt(lvalue);
+		this.localVarTypes[index] = ClassMethod.TYPE_WIDE;
+		this.localVarTypes[index + 1] = ClassMethod.TYPE_WIDE2;
+		this.localVars[index] = TypeUtil.getHighInt(lvalue);
+		this.localVars[index + 1] = TypeUtil.getLowInt(lvalue);
 	}
 
 	public ClassMethod getCurrentMethod() {
-		return context.getMethodById(currentFrame.methodId);
+		return context.getMethodById(this.methodId);
 	}
 
 	public List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list) {
 		if (list == null) {
 			list = new ArrayList<StackTraceElement>();
 		}
+		saveFromCache();
 		assert context.getConsole().debug(
 				"######## DUMP STACK TRACE BEGIN #########");
 		StackTraceElement ste;
@@ -2777,7 +2832,7 @@ public final class ArrayThread implements IThread {
 					AbstractClass.ACC_NATIVE)) {
 				lineNumber = -2;
 			} else {
-				int lpc = currentFrame.lpc;
+				int lpc = this.lpc;
 				if (lnt != null) {
 					for (int i = 0, max = lnt.length; i < max; i++) {
 						LineNumber ln = lnt[i];
@@ -2803,6 +2858,7 @@ public final class ArrayThread implements IThread {
 	public void fillUsedHandles(Set<Integer> tofill) {
 		// int fpbak = getFP();
 		assert heap.isHandleValid(getThreadHandle());
+		saveFromCache();
 		// context.getConsole().info("SCAN INITT->" + getThreadHandle());
 		tofill.add(getThreadHandle());
 		if (getCurrentThrowable() > 0) {

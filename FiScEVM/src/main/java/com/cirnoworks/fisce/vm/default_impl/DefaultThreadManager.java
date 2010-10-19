@@ -740,7 +740,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 				monitor.setAttribute("owner", String.valueOf(monitorOwnerId[i]));
 				monitor.setAttribute("times",
 						String.valueOf(monitorOwnerTimes[i]));
-				monitor.appendChild(monitor);
+				monitors.appendChild(monitor);
 
 			}
 		}
