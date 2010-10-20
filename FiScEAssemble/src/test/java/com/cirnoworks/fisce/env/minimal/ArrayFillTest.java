@@ -6,7 +6,7 @@ import java.util.Random;
 import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.IToolkit;
 import com.cirnoworks.fisce.vm.VMContext;
@@ -23,7 +23,7 @@ public class ArrayFillTest {
 		context.start();
 		context.waitTillStopped(0);
 	}
-	
+
 	public void testArrayFillFast() throws Exception {
 		VMContext context = TestInitializer.getFastContext();
 		context.addToolkit(new ArrayFillToolkit());
@@ -31,7 +31,7 @@ public class ArrayFillTest {
 		context.start();
 		context.waitTillStopped(0);
 	}
-	
+
 	public void testArrayFillArray() throws Exception {
 		VMContext context = TestInitializer.getArrayContext();
 		context.addToolkit(new ArrayFillToolkit());
@@ -68,10 +68,10 @@ class ArrayFillToolkit implements IToolkit {
 
 }
 
-class ArrayFillHandler implements INativeHandler {
+class ArrayFillHandler extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, VMContext context, IThread thread)
-			throws VMException, VMCriticalException {
+	public void dealNative(int[] args, IThread thread) throws VMException,
+			VMCriticalException {
 		// args[0] -> arrayOpt
 		// args[1] -> arrayNormal
 		IHeap heap = context.getHeap();

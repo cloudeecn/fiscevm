@@ -21,13 +21,13 @@ import java.io.InputStream;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
 
-public class ResourceInputStreamRead0b implements INativeHandler {
+public class ResourceInputStreamRead0b extends NativeHandlerTemplate{
 	private static final int POS_BUF_SIZE = 4096;
 	private BaseToolkit toolkit;
 
@@ -36,7 +36,7 @@ public class ResourceInputStreamRead0b implements INativeHandler {
 		this.toolkit = toolkit;
 	}
 
-	public void dealNative(int[] args, VMContext context, IThread thread)
+	public void dealNative(int[] args, IThread thread)
 			throws VMException, VMCriticalException {
 		try {
 			int thisHandle = args[0];

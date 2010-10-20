@@ -19,16 +19,16 @@ package com.cirnoworks.fisce.env.minimal.nh;
 import java.io.UnsupportedEncodingException;
 
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 
-public class FiScEVMEncode implements INativeHandler {
+public class FiScEVMEncode extends NativeHandlerTemplate{
 
-	public void dealNative(int[] args, VMContext context, IThread thread)
+	public void dealNative(int[] args, IThread thread)
 			throws VMException, VMCriticalException {
 		IHeap heap = context.getHeap();
 		int encodeHandle = args[0];

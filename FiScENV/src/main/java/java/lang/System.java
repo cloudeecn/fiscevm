@@ -72,4 +72,6 @@ public final class System {
 	public static native void exit(int status);
 
 	public static native void gc();
+	
+	public static native long nanoTime();
 }

@@ -365,7 +365,7 @@ public class VMContext implements FiScEVM {
 	}
 
 	//
-	private void initialize() {
+	private void initialize() throws VMCriticalException, VMException {
 
 		for (IToolkit toolkit : toolkits) {
 			toolkit.setContext(this);
@@ -374,6 +374,9 @@ public class VMContext implements FiScEVM {
 		heap.setContext(this);
 		for (IToolkit toolkit : toolkits) {
 			toolkit.setupContext();
+		}
+		for (INativeHandler inh : nativeHandlers.values()) {
+			inh.init(this);
 		}
 
 	}

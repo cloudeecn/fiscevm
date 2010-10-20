@@ -19,13 +19,13 @@ package com.cirnoworks.fisce.env.minimal.nh;
 import java.io.IOException;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
-import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
 
-public class ResourceInputStreamClose0 implements INativeHandler {
+public class ResourceInputStreamClose0 extends NativeHandlerTemplate{
 
 	private BaseToolkit toolkit;
 
@@ -34,7 +34,7 @@ public class ResourceInputStreamClose0 implements INativeHandler {
 		this.toolkit = toolkit;
 	}
 
-	public void dealNative(int[] args, VMContext context, IThread thread)
+	public void dealNative(int[] args, IThread thread)
 			throws VMException, VMCriticalException {
 		try {
 			int thisHandle = args[0];

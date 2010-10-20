@@ -1633,15 +1633,7 @@ public final class ArrayThread implements IThread {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
 				if ((invoke.getAccessFlags() & AbstractClass.ACC_NATIVE) > 0) {
-					INativeHandler inh = context.getNativeHandler(invoke
-							.getUniqueName());
-					if (inh == null) {
-						throw new VMCriticalException(
-								"java/lang/UnsatisfiedLinkError "
-										+ invoke.getUniqueName());
-					} else {
-						inh.dealNative(args, context, this);
-					}
+					invoke.getNativeHandler().dealNative(args, this);
 				} else {
 					pushMethod(invoke, false, count, args, types);
 				}
@@ -1688,15 +1680,7 @@ public final class ArrayThread implements IThread {
 
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_NATIVE)) {
-					INativeHandler inh = context.getNativeHandler(invoke
-							.getUniqueName());
-					if (inh == null) {
-						throw new VMCriticalException(
-								"java/lang/UnsatisfiedLinkError"
-										+ invoke.getUniqueName());
-					} else {
-						inh.dealNative(args, context, this);
-					}
+					invoke.getNativeHandler().dealNative(args, this);
 				} else {
 					pushMethod(invoke, false, count, args, types);
 				}
@@ -1733,15 +1717,7 @@ public final class ArrayThread implements IThread {
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_NATIVE)) {
-					INativeHandler inh = context.getNativeHandler(invoke
-							.getUniqueName());
-					if (inh == null) {
-						throw new VMCriticalException(
-								"java/lang/UnsatisfiedLinkError"
-										+ invoke.getUniqueName());
-					} else {
-						inh.dealNative(args, context, this);
-					}
+					invoke.getNativeHandler().dealNative(args, this);
 				} else {
 					pushMethod(invoke, true, count, args, types);
 				}
@@ -1784,15 +1760,7 @@ public final class ArrayThread implements IThread {
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_NATIVE)) {
-					INativeHandler inh = context.getNativeHandler(invoke
-							.getUniqueName());
-					if (inh == null) {
-						throw new VMCriticalException(
-								"java/lang/UnsatisfiedLinkError"
-										+ invoke.getUniqueName());
-					} else {
-						inh.dealNative(args, context, this);
-					}
+					invoke.getNativeHandler().dealNative(args, this);
 				} else {
 					pushMethod(invoke, false, count, args, types);
 				}

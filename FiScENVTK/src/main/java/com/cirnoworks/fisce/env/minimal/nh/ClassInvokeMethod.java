@@ -17,7 +17,7 @@
 package com.cirnoworks.fisce.env.minimal.nh;
 
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
@@ -29,7 +29,7 @@ import com.cirnoworks.fisce.vm.data.ClassMethod;
  * @author Cloudee
  * 
  */
-public class ClassInvokeMethod implements INativeHandler {
+public class ClassInvokeMethod extends NativeHandlerTemplate{
 
 	/*
 	 * (non-Javadoc)
@@ -37,7 +37,7 @@ public class ClassInvokeMethod implements INativeHandler {
 	 * @see com.cirnoworks.fisce.vm.INativeHandler#dealNative(int[],
 	 * com.cirnoworks.fisce.vm.VMContext, com.cirnoworks.fisce.vm.IThread)
 	 */
-	public void dealNative(int[] args, VMContext context, IThread thread)
+	public void dealNative(int[] args, IThread thread)
 			throws VMException, VMCriticalException {
 		int classHandle = args[0];
 		int methodNameHandle = args[1];

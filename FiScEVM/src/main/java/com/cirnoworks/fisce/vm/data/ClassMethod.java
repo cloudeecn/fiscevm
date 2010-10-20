@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 
+import com.cirnoworks.fisce.vm.INativeHandler;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.attributes.Attribute;
@@ -66,6 +67,7 @@ public final class ClassMethod implements IAttributesHolder {
 	// from AttributeExceptions
 	private ConstantClass[] exceptions;
 	private boolean clinit;
+	private INativeHandler nativeHandler;
 
 	public String toString() {
 		StringWriter sw = new StringWriter();
@@ -137,7 +139,7 @@ public final class ClassMethod implements IAttributesHolder {
 	public static void countParams(String descriptor, ClassMethod method)
 			throws VMException {
 		int pc = 0;
-		ByteArrayOutputStream pt=new ByteArrayOutputStream();
+		ByteArrayOutputStream pt = new ByteArrayOutputStream();
 		StringBuilder sb = new StringBuilder();
 		try {
 			String tmp = descriptor.substring(descriptor.indexOf('(') + 1,
@@ -367,6 +369,14 @@ public final class ClassMethod implements IAttributesHolder {
 
 	public byte getReturnType() {
 		return returnType;
+	}
+
+	public INativeHandler getNativeHandler() {
+		return nativeHandler;
+	}
+
+	public void setNativeHandler(INativeHandler nativeHandler) {
+		this.nativeHandler = nativeHandler;
 	}
 
 	@Override

@@ -61,6 +61,7 @@ import com.cirnoworks.fisce.env.minimal.nh.SystemGc;
 import com.cirnoworks.fisce.env.minimal.nh.SystemGetProperty;
 import com.cirnoworks.fisce.env.minimal.nh.SystemIdentityHashCode;
 import com.cirnoworks.fisce.env.minimal.nh.SystemInputStreamRead0;
+import com.cirnoworks.fisce.env.minimal.nh.SystemNanoTime;
 import com.cirnoworks.fisce.env.minimal.nh.SystemOutStreamWrite0;
 import com.cirnoworks.fisce.env.minimal.nh.SystemSetErr0;
 import com.cirnoworks.fisce.env.minimal.nh.SystemSetIn0;
@@ -115,6 +116,7 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new SystemIdentityHashCode());
 		context.registerNativeHandler(new SystemExit());
 		context.registerNativeHandler(new SystemGc());
+		context.registerNativeHandler(new SystemNanoTime());
 
 		context.registerNativeHandler(new ClassForName());
 		context.registerNativeHandler(new ClassNewInstance0());

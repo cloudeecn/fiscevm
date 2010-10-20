@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.cirnoworks.fisce.vm.IClassLoader;
-import com.cirnoworks.fisce.vm.IHeap;
+import com.cirnoworks.fisce.vm.INativeHandler;
 import com.cirnoworks.fisce.vm.IToolkit;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
@@ -273,9 +273,18 @@ public class DefaultClassLoader implements IClassLoader {
 			 */
 			AttributeCode code = (AttributeCode) Attribute.getAttributeByName(
 					method, "Code");
-			if (code == null) {
+			if (AbstractClass.hasFlag(method.getAccessFlags(),
+					AbstractClass.ACC_NATIVE)) {
+				INativeHandler inh = context.getNativeHandler(method
+						.getUniqueName());
+				if (inh == null) {
+					throw new VMException("java/lang/UnsatisfiedLinkError",
+							method.getUniqueName());
+				}
+				method.setNativeHandler(inh);
+			} else if (code == null) {
 				if (((cb.getAccessFlags() & ClassBase.ACC_INTERFACE) == 0)
-						&& ((method.getAccessFlags() & (ClassBase.ACC_NATIVE | ClassBase.ACC_ABSTRACT)) == 0)) {
+						&& ((method.getAccessFlags() & ClassBase.ACC_ABSTRACT) == 0)) {
 					throw new VMException("java/lang/VirtualMachineError",
 							"Not abstract and native method must have code!");
 				}
@@ -389,7 +398,9 @@ public class DefaultClassLoader implements IClassLoader {
 					a.classes[j] = ic;
 				}
 			} else if (attributeName.equals("Synthetic")) {
-				AttributeSynthetic a = (AttributeSynthetic) (add = new AttributeSynthetic());
+				// AttributeSynthetic a = (AttributeSynthetic) (
+				add = new AttributeSynthetic();
+				// );
 			} else if (attributeName.equals("SourceFile")) {
 				AttributeSourceFile a = (AttributeSourceFile) (add = new AttributeSourceFile());
 
@@ -427,7 +438,9 @@ public class DefaultClassLoader implements IClassLoader {
 				}
 
 			} else if (attributeName.equals("Deprecated")) {
-				AttributeConstanValue a = (AttributeConstanValue) (add = new AttributeConstanValue());
+				// AttributeConstanValue a = (AttributeConstanValue) (
+				add = new AttributeConstanValue();
+				// );
 
 			} else {
 				AttributeUnknown a = (AttributeUnknown) (add = new AttributeUnknown());
@@ -500,14 +513,15 @@ public class DefaultClassLoader implements IClassLoader {
 				clazz.setContentClass(context.getClass(contentClassName
 						.substring(1, contentClassName.length() - 1)));
 			}
-		} else if(ac instanceof ClassBase) {
+		} else if (ac instanceof ClassBase) {
 			ClassBase clazz = (ClassBase) ac;
 			// Load and verify all super classes:
 			assert !clazz.isLoaded();
 			String name = clazz.getName();
 
 			ConstantClass supercli = clazz.getSuperClassInfo();
-			int cid = context.getClazzId(clazz);
+			// int cid =
+			context.getClazzId(clazz);
 			if (supercli != null) {
 				if (name.equals("java/lang/Object")) {
 					throw new VMException("java/lang/VirtualMachineError",
@@ -559,7 +573,7 @@ public class DefaultClassLoader implements IClassLoader {
 				clazz.getInterfaces()[i] = (ClassBase) clazz
 						.getInterfaceInfos()[i].getClazz();
 			}
-		}else{
+		} else {
 			throw new VMException("java/lang/Error", "Unsupported class type");
 		}
 		ac.setLoaded(true);

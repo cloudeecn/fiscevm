@@ -17,7 +17,7 @@
 package com.cirnoworks.fisce.env.minimal.nh;
 
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.INativeHandler;
+import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
@@ -27,9 +27,9 @@ import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
 import com.cirnoworks.fisce.vm.data.StackTraceElement;
 
-public class FiScEVMThrowOut implements INativeHandler {
+public class FiScEVMThrowOut extends NativeHandlerTemplate{
 
-	public void dealNative(int[] args, VMContext context, IThread thread)
+	public void dealNative(int[] args, IThread thread)
 			throws VMException, VMCriticalException {
 		int throwableHandle = args[0];
 		int msgHandle = args[1];

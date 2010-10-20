@@ -109,7 +109,8 @@ public final class DefaultThread implements IThread {
 	private byte[] code;
 	private ClassMethod method;
 	private boolean yield;
-	private final Object statLock = new Object();
+
+	// private final Object statLock = new Object();
 
 	class TypeContainer {
 		byte type;
@@ -168,9 +169,9 @@ public final class DefaultThread implements IThread {
 		return frames.getInt(pStatus);
 	}
 
-	private final void setStatus(int value) {
-		frames.putInt(pStatus, value);
-	}
+	// private final void setStatus(int value) {
+	// frames.putInt(pStatus, value);
+	// }
 
 	public final int getPriority() {
 		return frames.getInt(pPriority);
@@ -321,8 +322,8 @@ public final class DefaultThread implements IThread {
 		setThreadHandle(threadHandle);
 		setFP(pFP);
 		pushFrame(method);
-		putLocalHandle(0, heap.allocate((ClassArray) context
-				.getClass("[Ljava/lang/String;"), 0));
+		putLocalHandle(0, heap.allocate(
+				(ClassArray) context.getClass("[Ljava/lang/String;"), 0));
 		clinit(method.getOwner());
 	}
 
@@ -337,9 +338,8 @@ public final class DefaultThread implements IThread {
 		ClassMethod runner = context
 				.lookupMethodVirtual(runnerClass, "run.()V");
 		if (runner == null) {
-			throw new VMException("java/lang/NoSuchMethodError", runnerClass
-					.getName()
-					+ "." + ".run.()V");
+			throw new VMException("java/lang/NoSuchMethodError",
+					runnerClass.getName() + "." + ".run.()V");
 		}
 		setThreadHandle(handle);
 		setFP(pFP);
@@ -1566,8 +1566,8 @@ public final class DefaultThread implements IThread {
 					throw new VMException(
 							"java/lang/IncompatibleClassChangeError", "");
 				}
-				ClassMethod invoke = context.lookupMethodVirtual(context
-						.getClass(args[0]), lookup.getMethodName());
+				ClassMethod invoke = context.lookupMethodVirtual(
+						context.getClass(args[0]), lookup.getMethodName());
 				if (invoke == null) {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
@@ -1580,15 +1580,7 @@ public final class DefaultThread implements IThread {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
 				if ((invoke.getAccessFlags() & AbstractClass.ACC_NATIVE) > 0) {
-					INativeHandler inh = context.getNativeHandler(invoke
-							.getUniqueName());
-					if (inh == null) {
-						throw new VMCriticalException(
-								"java/lang/UnsatisfiedLinkError "
-										+ invoke.getUniqueName());
-					} else {
-						inh.dealNative(args, context, this);
-					}
+					invoke.getNativeHandler().dealNative(args, this);
 				} else {
 					pushMethod(invoke, false, count, args, types);
 				}
@@ -1618,14 +1610,14 @@ public final class DefaultThread implements IThread {
 				}
 				if ("<init>".equals(invoke.getName())
 						&& invoke.getOwner() != cb) {
-					throw new VMException("java/lang/NoSuchMethodError", invoke
-							.getUniqueName());
+					throw new VMException("java/lang/NoSuchMethodError",
+							invoke.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", invoke
-									.getUniqueName());
+							"java/lang/IncompatibleClassChangeError",
+							invoke.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_ABSTRACT)) {
@@ -1635,15 +1627,7 @@ public final class DefaultThread implements IThread {
 
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_NATIVE)) {
-					INativeHandler inh = context.getNativeHandler(invoke
-							.getUniqueName());
-					if (inh == null) {
-						throw new VMCriticalException(
-								"java/lang/UnsatisfiedLinkError"
-										+ invoke.getUniqueName());
-					} else {
-						inh.dealNative(args, context, this);
-					}
+					invoke.getNativeHandler().dealNative(args, this);
 				} else {
 					pushMethod(invoke, false, count, args, types);
 				}
@@ -1680,15 +1664,7 @@ public final class DefaultThread implements IThread {
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_NATIVE)) {
-					INativeHandler inh = context.getNativeHandler(invoke
-							.getUniqueName());
-					if (inh == null) {
-						throw new VMCriticalException(
-								"java/lang/UnsatisfiedLinkError"
-										+ invoke.getUniqueName());
-					} else {
-						inh.dealNative(args, context, this);
-					}
+					invoke.getNativeHandler().dealNative(args, this);
 				} else {
 					pushMethod(invoke, true, count, args, types);
 				}
@@ -1707,22 +1683,22 @@ public final class DefaultThread implements IThread {
 					args[i] = popType(tc);
 					types[i] = tc.type;
 				}
-				ClassMethod invoke = context.lookupMethodVirtual(context
-						.getClass(args[0]), lookup.getMethodName());
+				ClassMethod invoke = context.lookupMethodVirtual(
+						context.getClass(args[0]), lookup.getMethodName());
 				if (invoke == null) {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", invoke
-									.getUniqueName());
+							"java/lang/IncompatibleClassChangeError",
+							invoke.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", invoke
-									.getUniqueName());
+							"java/lang/IncompatibleClassChangeError",
+							invoke.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_ABSTRACT)) {
@@ -1731,15 +1707,7 @@ public final class DefaultThread implements IThread {
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_NATIVE)) {
-					INativeHandler inh = context.getNativeHandler(invoke
-							.getUniqueName());
-					if (inh == null) {
-						throw new VMCriticalException(
-								"java/lang/UnsatisfiedLinkError"
-										+ invoke.getUniqueName());
-					} else {
-						inh.dealNative(args, context, this);
-					}
+					invoke.getNativeHandler().dealNative(args, this);
 				} else {
 					pushMethod(invoke, false, count, args, types);
 				}

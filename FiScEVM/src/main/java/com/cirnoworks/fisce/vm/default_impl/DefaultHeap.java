@@ -483,16 +483,6 @@ public final class DefaultHeap implements IHeap {
 		objects[handle].putLong(pos << 2, value);
 	}
 
-	public void fillFieldByte(int srcHandle, int srcPos, byte[] dest,
-			int destPos, int length) throws VMException {
-		if (srcHandle == 0) {
-			throw new VMException("java/lang/NullPointerException", "");
-		}
-		ByteBuffer bb = objects[srcHandle];
-		// TODO unfinished
-
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -1006,8 +996,8 @@ public final class DefaultHeap implements IHeap {
 		if (content == null) {
 			return 0;
 		}
-		int charHandle = allocate((ClassArray) context.getClass("[C"), content
-				.length());
+		int charHandle = allocate((ClassArray) context.getClass("[C"),
+				content.length());
 		ClassBase stringClass = (ClassBase) context
 				.getClass("java/lang/String");
 		ClassField valueField = context.getField("java/lang/String.value.[C");
@@ -1045,16 +1035,16 @@ public final class DefaultHeap implements IHeap {
 		for (int i = 0; i < count; i++) {
 			switch (sizeShift) {
 			case 0:
-				putArrayByte(dstHandle, i + dstOfs, getArrayByte(srcHandle, i
-						+ srcOfs));
+				putArrayByte(dstHandle, i + dstOfs,
+						getArrayByte(srcHandle, i + srcOfs));
 				break;
 			case 2:
-				putArrayInt(dstHandle, i + dstOfs, getArrayInt(srcHandle, i
-						+ srcOfs));
+				putArrayInt(dstHandle, i + dstOfs,
+						getArrayInt(srcHandle, i + srcOfs));
 				break;
 			case 3:
-				putArrayLong(dstHandle, i + dstOfs, getArrayLong(srcHandle, i
-						+ srcOfs));
+				putArrayLong(dstHandle, i + dstOfs,
+						getArrayLong(srcHandle, i + srcOfs));
 				break;
 			}
 		}
@@ -1161,7 +1151,7 @@ public final class DefaultHeap implements IHeap {
 								}
 							}
 						} else if (ac instanceof ClassArray) {
-							ClassArray clazz = (ClassArray) ac;
+							// ClassArray clazz = (ClassArray) ac;
 							if (getArrayLength(handle) > 0) {
 								char type = ac.getName().charAt(1);
 
@@ -1194,7 +1184,7 @@ public final class DefaultHeap implements IHeap {
 	}
 
 	public void gc() throws VMCriticalException {
-		long t1 = System.nanoTime();
+		// long t1 = System.nanoTime();
 		BitSet used = scanHeap();
 		int rl = 0;
 		for (int i = 1; i < MAX_OBJECTS; i++) {
@@ -1203,7 +1193,7 @@ public final class DefaultHeap implements IHeap {
 				rl++;
 			}
 		}
-		long t2 = System.nanoTime();
+		// long t2 = System.nanoTime();
 	}
 
 	public void loadData(Element data) throws VMCriticalException {
@@ -1213,8 +1203,8 @@ public final class DefaultHeap implements IHeap {
 					.item(0)).getElementsByTagName("literal");
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(DOMHelper.getTextContent(li), Integer.valueOf(li
-						.getAttribute("handle")));
+				literals.put(DOMHelper.getTextContent(li),
+						Integer.valueOf(li.getAttribute("handle")));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")

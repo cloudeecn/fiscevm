@@ -110,7 +110,7 @@ public final class FastThread implements IThread {
 	private ClassMethod method;
 	private ClassBase owner;
 	private boolean yield;
-	private final Object statLock = new Object();
+	// private final Object statLock = new Object();
 	// cache
 	private int fp;
 	private int size;
@@ -212,9 +212,9 @@ public final class FastThread implements IThread {
 		return frames.getInt(pStatus);
 	}
 
-	private final void setStatus(int value) {
-		frames.putInt(pStatus, value);
-	}
+	// private final void setStatus(int value) {
+	// frames.putInt(pStatus, value);
+	// }
 
 	public final int getPriority() {
 		return frames.getInt(pPriority);
@@ -364,8 +364,8 @@ public final class FastThread implements IThread {
 		setThreadHandle(threadHandle);
 		setFP(pFP);
 		pushFrame(method);
-		putLocalHandle(0, heap.allocate((ClassArray) context
-				.getClass("[Ljava/lang/String;"), 0));
+		putLocalHandle(0, heap.allocate(
+				(ClassArray) context.getClass("[Ljava/lang/String;"), 0));
 		clinit(method.getOwner());
 	}
 
@@ -380,9 +380,8 @@ public final class FastThread implements IThread {
 		ClassMethod runner = context
 				.lookupMethodVirtual(runnerClass, "run.()V");
 		if (runner == null) {
-			throw new VMException("java/lang/NoSuchMethodError", runnerClass
-					.getName()
-					+ "." + ".run.()V");
+			throw new VMException("java/lang/NoSuchMethodError",
+					runnerClass.getName() + "." + ".run.()V");
 		}
 		setThreadHandle(handle);
 		setFP(pFP);
@@ -1354,7 +1353,8 @@ public final class FastThread implements IThread {
 						byte ib3 = code[pc++];
 						byte ib4 = code[pc++];
 						// ib1 = ((ib1 << 24) & ib2) & 0xffff;
-						pc = lpc + TypeUtil.bytesToSignedInt(ib1, ib2, ib3, ib4);
+						pc = lpc
+								+ TypeUtil.bytesToSignedInt(ib1, ib2, ib3, ib4);
 						break;
 					}
 					case I2B: {
@@ -1645,8 +1645,8 @@ public final class FastThread implements IThread {
 									"");
 						}
 						ClassMethod invoke = context.lookupMethodVirtual(
-								context.getClass(args[0]), lookup
-										.getMethodName());
+								context.getClass(args[0]),
+								lookup.getMethodName());
 						if (invoke == null) {
 							throw new VMException(
 									"java/lang/AbstractMethodError", "");
@@ -1662,15 +1662,7 @@ public final class FastThread implements IThread {
 									"java/lang/AbstractMethodError", "");
 						}
 						if ((invoke.getAccessFlags() & AbstractClass.ACC_NATIVE) > 0) {
-							INativeHandler inh = context
-									.getNativeHandler(invoke.getUniqueName());
-							if (inh == null) {
-								throw new VMCriticalException(
-										"java/lang/UnsatisfiedLinkError "
-												+ invoke.getUniqueName());
-							} else {
-								inh.dealNative(args, context, this);
-							}
+							invoke.getNativeHandler().dealNative(args, this);
 						} else {
 							pushMethod(invoke, false, count, args, types);
 						}
@@ -1692,8 +1684,9 @@ public final class FastThread implements IThread {
 						if (((owner.getAccessFlags() & AbstractClass.ACC_SUPER) > 0)
 								&& cb.isSuperClassOf(owner)
 								&& !invoke.getName().equals("<init>")) {
-							invoke = context.lookupMethodVirtual(owner
-									.getSuperClass(), invoke.getMethodName());
+							invoke = context.lookupMethodVirtual(
+									owner.getSuperClass(),
+									invoke.getMethodName());
 						}
 						if (invoke == null) {
 							throw new VMException(
@@ -1702,8 +1695,8 @@ public final class FastThread implements IThread {
 						if ("<init>".equals(invoke.getName())
 								&& invoke.getOwner() != cb) {
 							throw new VMException(
-									"java/lang/NoSuchMethodError", invoke
-											.getUniqueName());
+									"java/lang/NoSuchMethodError",
+									invoke.getUniqueName());
 						}
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_STATIC)) {
@@ -1714,21 +1707,13 @@ public final class FastThread implements IThread {
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_ABSTRACT)) {
 							throw new VMException(
-									"java/lang/AbstractMethodError", invoke
-											.getUniqueName());
+									"java/lang/AbstractMethodError",
+									invoke.getUniqueName());
 						}
 
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_NATIVE)) {
-							INativeHandler inh = context
-									.getNativeHandler(invoke.getUniqueName());
-							if (inh == null) {
-								throw new VMCriticalException(
-										"java/lang/UnsatisfiedLinkError"
-												+ invoke.getUniqueName());
-							} else {
-								inh.dealNative(args, context, this);
-							}
+							invoke.getNativeHandler().dealNative(args, this);
 						} else {
 							pushMethod(invoke, false, count, args, types);
 						}
@@ -1766,15 +1751,7 @@ public final class FastThread implements IThread {
 						}
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_NATIVE)) {
-							INativeHandler inh = context
-									.getNativeHandler(invoke.getUniqueName());
-							if (inh == null) {
-								throw new VMCriticalException(
-										"java/lang/UnsatisfiedLinkError"
-												+ invoke.getUniqueName());
-							} else {
-								inh.dealNative(args, context, this);
-							}
+							invoke.getNativeHandler().dealNative(args, this);
 						} else {
 							pushMethod(invoke, true, count, args, types);
 						}
@@ -1794,8 +1771,8 @@ public final class FastThread implements IThread {
 							types[i] = tc.type;
 						}
 						ClassMethod invoke = context.lookupMethodVirtual(
-								context.getClass(args[0]), lookup
-										.getMethodName());
+								context.getClass(args[0]),
+								lookup.getMethodName());
 						if (invoke == null) {
 							throw new VMException(
 									"java/lang/AbstractMethodError", "");
@@ -1815,20 +1792,12 @@ public final class FastThread implements IThread {
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_ABSTRACT)) {
 							throw new VMException(
-									"java/lang/AbstractMethodError", invoke
-											.getUniqueName());
+									"java/lang/AbstractMethodError",
+									invoke.getUniqueName());
 						}
 						if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 								AbstractClass.ACC_NATIVE)) {
-							INativeHandler inh = context
-									.getNativeHandler(invoke.getUniqueName());
-							if (inh == null) {
-								throw new VMCriticalException(
-										"java/lang/UnsatisfiedLinkError"
-												+ invoke.getUniqueName());
-							} else {
-								inh.dealNative(args, context, this);
-							}
+							invoke.getNativeHandler().dealNative(args, this);
 						} else {
 							pushMethod(invoke, false, count, args, types);
 						}
@@ -1892,7 +1861,8 @@ public final class FastThread implements IThread {
 						byte bb2 = code[pc++];
 						byte bb3 = code[pc++];
 						byte bb4 = code[pc++];
-						int target = TypeUtil.bytesToSignedInt(bb1, bb2, bb3, bb4);
+						int target = TypeUtil.bytesToSignedInt(bb1, bb2, bb3,
+								bb4);
 						pushType(pc, ClassMethod.TYPE_RETURN);
 						pc = lpc + target;
 						break;
@@ -2067,8 +2037,10 @@ public final class FastThread implements IThread {
 							byte of2 = code[pc++];
 							byte of3 = code[pc++];
 							byte of4 = code[pc++];
-							match[i] = TypeUtil.bytesToSignedInt(ma1, ma2, ma3, ma4);
-							offset[i] = TypeUtil.bytesToSignedInt(of1, of2, of3, of4);
+							match[i] = TypeUtil.bytesToSignedInt(ma1, ma2, ma3,
+									ma4);
+							offset[i] = TypeUtil.bytesToSignedInt(of1, of2,
+									of3, of4);
 						}
 						int key = popInt();
 						boolean matched = false;
@@ -2195,8 +2167,8 @@ public final class FastThread implements IThread {
 						int idx = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						try {
 							ClassBase targetClass = (ClassBase) getClassFromConstant(idx);
-							if (AbstractClass.hasFlag(targetClass
-									.getAccessFlags(),
+							if (AbstractClass.hasFlag(
+									targetClass.getAccessFlags(),
 									AbstractClass.ACC_INTERFACE
 											| AbstractClass.ACC_ABSTRACT)) {
 								throw new VMException(
@@ -2260,8 +2232,8 @@ public final class FastThread implements IThread {
 									"java/lang/NegativeArraySizeException", ""
 											+ count);
 						}
-						int handle = heap.allocate((ClassArray) context
-								.getClass(name), count);
+						int handle = heap.allocate(
+								(ClassArray) context.getClass(name), count);
 						pushHandle(handle);
 						break;
 					}
@@ -2495,7 +2467,8 @@ public final class FastThread implements IThread {
 							byte ab2 = code[pc++];
 							byte ab3 = code[pc++];
 							byte ab4 = code[pc++];
-							address[i] = TypeUtil.bytesToSignedInt(ab1, ab2, ab3, ab4);
+							address[i] = TypeUtil.bytesToSignedInt(ab1, ab2,
+									ab3, ab4);
 						}
 						int target;
 						int index = popInt();

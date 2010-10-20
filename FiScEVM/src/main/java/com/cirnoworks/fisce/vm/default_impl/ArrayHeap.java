@@ -399,6 +399,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public boolean getFieldBoolean(int handle, ClassField field)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return getObj(handle, field)[field.getAbsPos()] > 0;
 	}
 
@@ -409,6 +413,10 @@ public final class ArrayHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public byte getFieldByte(int handle, ClassField field) throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return (byte) getObj(handle, field)[field.getAbsPos()];
 	}
 
@@ -419,6 +427,10 @@ public final class ArrayHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public short getFieldShort(int handle, ClassField field) throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return (short) getObj(handle, field)[field.getAbsPos()];
 	}
 
@@ -429,6 +441,10 @@ public final class ArrayHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public char getFieldChar(int handle, ClassField field) throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return (char) getObj(handle, field)[field.getAbsPos()];
 	}
 
@@ -439,6 +455,10 @@ public final class ArrayHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public int getFieldInt(int handle, ClassField field) throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return getObj(handle, field)[field.getAbsPos()];
 	}
 
@@ -449,6 +469,10 @@ public final class ArrayHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public long getFieldLong(int handle, ClassField field) throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return TypeUtil.intToLong(getObj(handle, field)[field.getAbsPos()],
 				getObj(handle, field)[field.getAbsPos() + 1]);
 	}
@@ -460,6 +484,10 @@ public final class ArrayHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public float getFieldFloat(int handle, ClassField field) throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return Float.intBitsToFloat(getObj(handle, field)[field.getAbsPos()]);
 	}
 
@@ -471,6 +499,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public double getFieldDouble(int handle, ClassField field)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return Double.longBitsToDouble(TypeUtil.intToLong(
 				getObj(handle, field)[field.getAbsPos()],
 				getObj(handle, field)[field.getAbsPos() + 1]));
@@ -483,6 +515,10 @@ public final class ArrayHeap implements IHeap {
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
 	public int getFieldHandle(int handle, ClassField field) throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		return getObj(handle, field)[field.getAbsPos()];
 	}
 
@@ -509,6 +545,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldBoolean(int handle, ClassField field, boolean value)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		getObj(handle, field)[field.getAbsPos()] = value ? 1 : 0;
 
 	}
@@ -521,6 +561,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldByte(int handle, ClassField field, byte value)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
@@ -532,6 +576,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldShort(int handle, ClassField field, short value)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
@@ -543,6 +591,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldChar(int handle, ClassField field, char value)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
@@ -554,8 +606,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldInt(int handle, ClassField field, int value)
 			throws VMException {
-		// context.println(handle + " " + field.getPosition() + " "
-		// + field.getAbsPos());
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
@@ -567,6 +621,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldLong(int handle, ClassField field, long value)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		getObj(handle, field)[field.getAbsPos()] = TypeUtil.getHighInt(value);
 		getObj(handle, field)[field.getAbsPos() + 1] = TypeUtil
 				.getLowInt(value);
@@ -581,6 +639,9 @@ public final class ArrayHeap implements IHeap {
 	public void putFieldFloat(int handle, ClassField field, float value)
 			throws VMException {
 		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		getObj(handle, field)[field.getAbsPos()] = Float
 				.floatToRawIntBits(value);
 	}
@@ -593,6 +654,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldDouble(int handle, ClassField field, double value)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		long lvalue = Double.doubleToRawLongBits(value);
 		getObj(handle, field)[field.getAbsPos()] = TypeUtil.getHighInt(lvalue);
 		getObj(handle, field)[field.getAbsPos() + 1] = TypeUtil
@@ -607,6 +672,10 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putFieldHandle(int handle, ClassField field, int value)
 			throws VMException {
+		assert validate(handle, field);
+		if (handle == 0) {
+			throw new VMException("java/lang/NullPointerException", "");
+		}
 		getObj(handle, field)[field.getAbsPos()] = value;
 	}
 
@@ -1154,8 +1223,8 @@ public final class ArrayHeap implements IHeap {
 		if (content == null) {
 			return 0;
 		}
-		int charHandle = allocate((ClassArray) context.getClass("[C"), content
-				.length());
+		int charHandle = allocate((ClassArray) context.getClass("[C"),
+				content.length());
 		ClassBase stringClass = (ClassBase) context
 				.getClass("java/lang/String");
 		ClassField valueField = context.getField("java/lang/String.value.[C");
@@ -1287,7 +1356,7 @@ public final class ArrayHeap implements IHeap {
 								}
 							}
 						} else if (ac instanceof ClassArray) {
-							ClassArray clazz = (ClassArray) ac;
+							// ClassArray clazz = (ClassArray) ac;
 							if (getArrayLength(handle) > 0) {
 								char type = ac.getName().charAt(1);
 
@@ -1320,7 +1389,7 @@ public final class ArrayHeap implements IHeap {
 	}
 
 	public void gc() throws VMCriticalException {
-		long t1 = System.nanoTime();
+		// long t1 = System.nanoTime();
 		BitSet used = scanHeap();
 		int rl = 0;
 		for (int i = 1; i < MAX_OBJECTS; i++) {
@@ -1329,19 +1398,19 @@ public final class ArrayHeap implements IHeap {
 				rl++;
 			}
 		}
-		long t2 = System.nanoTime();
+		// long t2 = System.nanoTime();
 	}
 
 	public void loadData(Element data) throws VMCriticalException {
-		Document document = data.getOwnerDocument();
+		// Document document = data.getOwnerDocument();
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			NodeList lis = ((Element) data.getElementsByTagName("literals")
 					.item(0)).getElementsByTagName("literal");
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(DOMHelper.getTextContent(li), Integer.valueOf(li
-						.getAttribute("handle")));
+				literals.put(DOMHelper.getTextContent(li),
+						Integer.valueOf(li.getAttribute("handle")));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")
