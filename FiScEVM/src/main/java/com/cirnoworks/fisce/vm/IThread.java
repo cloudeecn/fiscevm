@@ -230,8 +230,10 @@ public interface IThread {
 	 * @param list
 	 *            用于存放调用栈的列表，如果传入null的话就产生一个新的
 	 * @return 到处后的调用栈列表
+	 * @throws VMCriticalException 
+	 * @throws VMException 
 	 */
-	List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list);
+	List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list) throws VMException, VMCriticalException;
 
 	/**
 	 * 取当前线程的状态

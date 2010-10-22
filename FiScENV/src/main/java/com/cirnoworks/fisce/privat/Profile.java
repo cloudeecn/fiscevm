@@ -5,18 +5,33 @@
 package com.cirnoworks.fisce.privat;
 
 /**
- *
+ * 
  * @author yuxuanhuang
  */
-public class Profile {
+public class Profile extends Thread {
 
 	public static void main(String[] args) {
-		int i = 0;
-		long begin = System.currentTimeMillis();
-		for (i = 0; i < 500001; i++) {
-			if (i % 100000 == 0) {
-				System.out.println(i + "\t" + (System.currentTimeMillis() - begin));
+		new Profile().start();
+	}
+
+	int j;
+
+	public void run() {
+		long t0 = System.nanoTime();
+		int k = 0;
+		int i;
+		while (true) {
+			long t1 = System.nanoTime();
+			for (i = 0; i < 100000; i++) {
+				k += i;
 			}
+			long t2 = System.nanoTime();
+			for (j = 0; j < 100000; j++) {
+				k += j;
+			}
+			long t3 = System.nanoTime();
+			System.out.println((t1 - t0) + "\t" + (t2 - t1) + "\t" + (t3 - t2)
+					+ "\t\t" + k);
 		}
 	}
 }

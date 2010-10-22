@@ -2743,7 +2743,8 @@ public final class ArrayThread implements IThread {
 		return context.getMethodById(this.methodId);
 	}
 
-	public List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list) {
+	public List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list)
+			throws VMException, VMCriticalException {
 		if (list == null) {
 			list = new ArrayList<StackTraceElement>();
 		}
@@ -2760,7 +2761,7 @@ public final class ArrayThread implements IThread {
 			AttributeSourceFile source = (AttributeSourceFile) Attribute
 					.getAttributeByName(clazz, "SourceFile");
 
-			String declaringClass = clazz.getName();
+			String declaringClass = clazz.getName().replaceAll("/", ".");
 			String methodName = mt.getName();
 			String fileName = null;
 			int lineNumber = -1;
@@ -2787,6 +2788,11 @@ public final class ArrayThread implements IThread {
 			ste = new StackTraceElement(declaringClass, methodName, fileName,
 					lineNumber);
 			assert context.getConsole().debug(ste.toString());
+			if (clazz.canCastTo(context.getClass("java/lang/Throwable"))
+					&& (methodName.equals("<init>") || methodName
+							.equals("fillInStackTrace"))) {
+				continue;
+			}
 			list.add(ste);
 		}
 		assert context.getConsole().debug(
