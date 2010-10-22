@@ -275,7 +275,7 @@ public abstract class AbstractClass {
 			return true;
 		}
 		if (this instanceof ClassArray) {
-			if (other.getName().equals("java/lang/Object")) {
+			if (other.getName().equals(IClassLoader.TOP_CLASS)) {
 				return true;
 			} else if (other instanceof ClassArray) {
 				ClassArray aThis = (ClassArray) this;

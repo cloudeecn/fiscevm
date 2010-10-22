@@ -460,7 +460,7 @@ public class DefaultClassLoader implements IClassLoader {
 		assert context.getConsole().debug("Loading class " + className);
 		if (className.startsWith("[")) {
 			ClassArray ca = new ClassArray(context, this);
-			ca.setSuperClass((ClassBase) context.getClass("java/lang/Object"));
+			ca.setSuperClass((ClassBase) context.getClass(IClassLoader.TOP_CLASS));
 			ca.createInterfaces(0);
 			ca.setName(className);
 			ca.setSizeShift(getSizeShiftForArray(className));
@@ -523,7 +523,7 @@ public class DefaultClassLoader implements IClassLoader {
 			// int cid =
 			context.getClazzId(clazz);
 			if (supercli != null) {
-				if (name.equals("java/lang/Object")) {
+				if (name.equals(IClassLoader.TOP_CLASS)) {
 					throw new VMException("java/lang/VirtualMachineError",
 							"java.lang.Object cannot have super class!");
 				}
@@ -553,7 +553,7 @@ public class DefaultClassLoader implements IClassLoader {
 						+ supercl.getTotalSizeInHeap());
 				clazz.setSuperClass(supercl);
 			} else {
-				if (!name.equals("java/lang/Object")) {
+				if (!name.equals(IClassLoader.TOP_CLASS)) {
 					throw new VMException("java/lang/VirtualMachineError",
 							"Class " + clazz.getName()
 									+ " have no super class!");

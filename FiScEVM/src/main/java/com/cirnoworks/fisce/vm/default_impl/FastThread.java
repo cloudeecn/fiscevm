@@ -597,17 +597,8 @@ public final class FastThread implements IThread {
 				int op = code[pc++] & 0xff;
 				if (method.isClinit()) {
 					ClassBase targetClass = owner.getSuperClass();
-
-					if (targetClass != null
-							&& context.getClinitThreadId(targetClass) != VMContext.CLINIT_FINISHED) {
-						int cmd = clinit(targetClass);
-						if (cmd == CMD_BREAK) {
-							continue;
-						} else if (cmd == CMD_GOON) {
-						} else if (cmd == CMD_BACK) {
-							pc = lpc;
-							return false;
-						}
+					if (clinit(targetClass)) {
+						return false;
 					}
 				}
 
@@ -1293,16 +1284,8 @@ public final class FastThread implements IThread {
 									.getConstantPool()[m];
 							ClassBase targetClass = (ClassBase) cfr.getClazz()
 									.getClazz();
-							if (context.getClinitThreadId(targetClass) != VMContext.CLINIT_FINISHED) {
-								int cmd = clinit(targetClass);
-								if (cmd == CMD_BREAK) {
-									break;
-								} else if (cmd == CMD_GOON) {
-								} else if (cmd == CMD_BACK) {
-									pc = lpc;
-									yield = true;
-									break;
-								}
+							if (clinit(targetClass)) {
+								break;
 							}
 
 							ClassField field = cfr.getTargetField();
@@ -1731,16 +1714,8 @@ public final class FastThread implements IThread {
 									"");
 						}
 						ClassBase targetClass = invoke.getOwner();
-						if (context.getClinitThreadId(targetClass) != VMContext.CLINIT_FINISHED) {
-							int cmd = clinit(targetClass);
-							if (cmd == CMD_BREAK) {
-								break;
-							} else if (cmd == CMD_GOON) {
-							} else if (cmd == CMD_BACK) {
-								pc = lpc;
-								yield = true;
-								break;
-							}
+						if (clinit(targetClass)) {
+							break;
 						}
 						int count = invoke.getParamCount();
 						int[] args = new int[count];
@@ -2175,16 +2150,8 @@ public final class FastThread implements IThread {
 										"java/lang/InstantiationError",
 										targetClass.getName());
 							}
-							if (context.getClinitThreadId(targetClass) != VMContext.CLINIT_FINISHED) {
-								int cmd = clinit(targetClass);
-								if (cmd == CMD_BREAK) {
-									break;
-								} else if (cmd == CMD_GOON) {
-								} else if (cmd == CMD_BACK) {
-									pc = lpc;
-									yield = true;
-									break;
-								}
+							if (clinit(targetClass)) {
+								break;
 							}
 							pushHandle(heap.allocate(targetClass));
 						} catch (VMException e) {
@@ -2332,16 +2299,8 @@ public final class FastThread implements IThread {
 
 							ClassBase targetClass = (ClassBase) cfr.getClazz()
 									.getClazz();
-							if (context.getClinitThreadId(targetClass) != VMContext.CLINIT_FINISHED) {
-								int cmd = clinit(targetClass);
-								if (cmd == CMD_BREAK) {
-									break;
-								} else if (cmd == CMD_GOON) {
-								} else if (cmd == CMD_BACK) {
-									pc = lpc;
-									yield = true;
-									break;
-								}
+							if (clinit(targetClass)) {
+								break;
 							}
 							long value;
 							switch (type) {
@@ -2615,25 +2574,32 @@ public final class FastThread implements IThread {
 		return ret;
 	}
 
-	private int clinit(ClassBase targetClass) {
+	private boolean clinit(ClassBase targetClass) {
+		if (targetClass == null) {
+			return false;
+		}
+		int tid = context.getClinitThreadId(targetClass);
+		if (tid == VMContext.CLINIT_FINISHED || tid == getThreadId()) {
+			return false;
+		}
 		if (targetClass.getClinit() == null) {
-			context.finishClinited(targetClass);
-			return CMD_GOON;
+			boolean ret = clinit(targetClass.getSuperClass());
+			if (!ret) {
+				context.finishClinited(targetClass);
+			}
+			return ret;
 		} else {
-			int tid = context.getClinitThreadId(targetClass);
-			if (tid == VMContext.CLINIT_FINISHED) {
-				return CMD_GOON;
-			} else if (tid == VMContext.CLINIT_NONE) {
+			if (tid == VMContext.CLINIT_NONE) {
 				pc = lpc;
 				pushFrame(targetClass.getClinit());
 				context.setClinited(targetClass, this);
-				return CMD_BREAK;
-			} else if (tid == getThreadId()) {
-				return CMD_GOON;
+				return true;
 			} else {
+				pc = lpc;
+				yield = true;
 				assert context.getConsole().debug(
 						"Waiting for clinit of " + targetClass.getName());
-				return CMD_BACK;
+				return true;
 			}
 		}
 	}

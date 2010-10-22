@@ -35,6 +35,8 @@ public interface IClassLoader {
 	public static final char TYPE_BOOLEAN = 'Z';
 	public static final char TYPE_ARRAY = '[';
 
+	public static final String TOP_CLASS = "java/lang/Object";
+
 	/**
 	 * 1. Load a class by the class name into the specific VMContext.
 	 * 
