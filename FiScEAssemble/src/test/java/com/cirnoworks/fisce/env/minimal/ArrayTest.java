@@ -42,7 +42,7 @@ public class ArrayTest {
 
 	public void testArrayArray() throws Exception {
 		FiScEVM context = TestInitializer.getArrayContext();
-		context.setConsole(Log4JConsole.getConsole());
+		// context.setConsole(Log4JConsole.getConsole());
 		context.bootFromClass("EXCLUDE/fisce/test/ArrayTest");
 		// context.requestStop();
 		context.start();

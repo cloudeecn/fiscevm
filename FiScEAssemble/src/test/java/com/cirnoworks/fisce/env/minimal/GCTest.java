@@ -13,6 +13,7 @@ public class GCTest extends TestCase {
 		VMContext context = TestInitializer.getContext();
 		context.bootFromClass("EXCLUDE/fisce/test/TestGC");
 		// context.requestStop();
+		// context.setConsole(Log4JConsole.getConsole());
 		context.start();
 		try {
 			context.waitTillStopped(300);
@@ -95,7 +96,7 @@ public class GCTest extends TestCase {
 
 	public void testGCArray() throws Exception {
 		VMContext context = TestInitializer.getArrayContext();
-		//context.setConsole(Log4JConsole.getConsole());
+		// context.setConsole(Log4JConsole.getConsole());
 		context.bootFromClass("EXCLUDE/fisce/test/TestGC");
 		// context.requestStop();
 		context.start();
@@ -107,24 +108,24 @@ public class GCTest extends TestCase {
 		context.waitTillStopped(0);
 		System.out.println("STOP&RESUME!*************");
 		FileOutputStream fos;
-		fos = new FileOutputStream("data.xml");
+		fos = new FileOutputStream("dataa.xml");
 		context.saveData(fos);
 		fos.close();
 
 		((VMContext) context).getHeap().gc();
-		fos = new FileOutputStream("data0.xml");
+		fos = new FileOutputStream("dataa0.xml");
 		context.saveData(fos);
 		fos.close();
 		context = TestInitializer.getArrayContext();
-		//context.setConsole(Log4JConsole.getConsole());
-		FileInputStream fis = new FileInputStream("data0.xml");
+		// context.setConsole(Log4JConsole.getConsole());
+		FileInputStream fis = new FileInputStream("dataa0.xml");
 		context.bootFromData(fis);
 		fis.close();
-		fos = new FileOutputStream("data1.xml");
+		fos = new FileOutputStream("dataa1.xml");
 		context.saveData(fos);
 		fos.close();
 		((VMContext) context).getHeap().gc();
-		fos = new FileOutputStream("data2.xml");
+		fos = new FileOutputStream("dataa2.xml");
 		context.saveData(fos);
 		fos.close();
 		context.start();
@@ -138,7 +139,7 @@ public class GCTest extends TestCase {
 
 	public void testGCComp1() throws Exception {
 		VMContext context = TestInitializer.getArrayContext();
-		//context.setConsole(Log4JConsole.getConsole());
+		// context.setConsole(Log4JConsole.getConsole());
 		context.bootFromClass("EXCLUDE/fisce/test/TestGC");
 		// context.requestStop();
 		context.start();
@@ -159,7 +160,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 		context = TestInitializer.getContext();
-		//context.setConsole(Log4JConsole.getConsole());
+		// context.setConsole(Log4JConsole.getConsole());
 		FileInputStream fis = new FileInputStream("data0.xml");
 		context.bootFromData(fis);
 		fis.close();
@@ -181,7 +182,7 @@ public class GCTest extends TestCase {
 
 	public void testGCComp2() throws Exception {
 		VMContext context = TestInitializer.getContext();
-		//context.setConsole(Log4JConsole.getConsole());
+		// context.setConsole(Log4JConsole.getConsole());
 		context.bootFromClass("EXCLUDE/fisce/test/TestGC");
 		// context.requestStop();
 		context.start();
@@ -202,7 +203,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 		context = TestInitializer.getArrayContext();
-		//context.setConsole(Log4JConsole.getConsole());
+		// context.setConsole(Log4JConsole.getConsole());
 		FileInputStream fis = new FileInputStream("data0.xml");
 		context.bootFromData(fis);
 		fis.close();
