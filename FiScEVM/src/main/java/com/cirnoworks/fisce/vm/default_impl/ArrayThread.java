@@ -718,20 +718,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case ANEWARRAY: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				int count = popInt();
-				if (count < 0) {
-					throw new VMException("java/lang/IndexOutOfBoundException",
-							"" + count);
-				}
-				ConstantClass cc = (ConstantClass) method.getOwner()
-						.getConstantPool()[m];
-				ClassArray ca = (ClassArray) context.getClass("[L"
-						+ cc.getClazz().getName() + ";");
-				int a = heap.allocate(ca, count);
-				pushHandle(a);
+				opANewArray();
 				break;
 			}
 			case IRETURN:
@@ -1231,60 +1218,11 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case GETFIELD: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				int handle = popHandle();
-				ClassField field = ((ConstantFieldRef) method.getOwner()
-						.getConstantPool()[m]).getTargetField();
-				if (AbstractClass.hasFlag(field.getAccessFlags(),
-						AbstractClass.ACC_STATIC)) {
-					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", "field "
-									+ field.getUniqueName() + " is static");
-				}
-				char type = field.getDescriptor().charAt(0);
-				switch (type) {
-				case 'D':
-				case 'J':
-					pushLong(heap.getFieldLong(handle, field));
-					break;
-				case 'L':
-				case '[':
-					pushHandle(heap.getFieldInt(handle, field));
-					break;
-				default:
-					pushInt(heap.getFieldInt(handle, field));
-					break;
-				}
+				opGetField();
 				break;
 			}
 			case GETSTATIC: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				ConstantFieldRef cfr = (ConstantFieldRef) method.getOwner()
-						.getConstantPool()[m];
-				ClassBase targetClass = (ClassBase) cfr.getClazz().getClazz();
-				if (clinit(targetClass)) {
-					break;
-				}
-
-				ClassField field = cfr.getTargetField();
-				char type = field.getDescriptor().charAt(0);
-				switch (type) {
-				case 'D':
-				case 'J':
-					pushLong(heap.getStaticLong(field));
-					break;
-				case 'L':
-				case '[':
-					pushHandle(heap.getStaticInt(field));
-					break;
-				default:
-					pushInt(heap.getStaticInt(field));
-					break;
-				}
+				opGetStatic();
 				break;
 			}
 			case GOTO: {
@@ -1585,160 +1523,19 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case INVOKEINTERFACE: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int count = code[this.pc++] & 0xff;
-				this.pc++;
-				int[] args = new int[count];
-				byte[] types = new byte[count];
-				for (int i = count - 1; i >= 0; i--) {
-					args[i] = popType(tc);
-					types[i] = tc.type;
-				}
-				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				AbstractClass clazz = context.getClass(args[0]);
-				ClassMethod lookup = getInterfaceMethodFromConstant(m);
-				if (!clazz.canCastTo(lookup.getOwner())) {
-					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", "");
-				}
-				ClassMethod invoke = context.lookupMethodVirtual(
-						context.getClass(args[0]), lookup.getMethodName());
-				if (invoke == null) {
-					throw new VMException("java/lang/AbstractMethodError", "");
-				}
-				if (!AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_PUBLIC)) {
-					throw new VMException("java/lang/IllegalAccessError", "");
-				}
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_ABSTRACT)) {
-					throw new VMException("java/lang/AbstractMethodError", "");
-				}
-				if ((invoke.getAccessFlags() & AbstractClass.ACC_NATIVE) > 0) {
-					invoke.getNativeHandler().dealNative(args, this);
-				} else {
-					pushMethod(invoke, false, count, args, types);
-				}
+				opInvokeInterface();
 				break;
 			}
 			case INVOKESPECIAL: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				ClassMethod invoke = getMethodFromConstant(m);
-				ClassBase cb = invoke.getOwner();
-				int count = invoke.getParamCount() + 1;
-				int[] args = new int[count];
-				byte[] types = new byte[count];
-				for (int i = count - 1; i >= 0; i--) {
-					args[i] = popType(tc);
-					types[i] = tc.type;
-				}
-				if (((method.getOwner().getAccessFlags() & AbstractClass.ACC_SUPER) > 0)
-						&& cb.isSuperClassOf(method.getOwner())
-						&& !invoke.getName().equals("<init>")) {
-					invoke = context.lookupMethodVirtual(method.getOwner()
-							.getSuperClass(), invoke.getMethodName());
-				}
-				if (invoke == null) {
-					throw new VMException("java/lang/AbstractMethodError", "");
-				}
-				if ("<init>".equals(invoke.getName())
-						&& invoke.getOwner() != cb) {
-					throw new VMException("java/lang/NoSuchMethodError",
-							invoke.getUniqueName());
-				}
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_STATIC)) {
-					throw new VMException(
-							"java/lang/IncompatibleClassChangeError",
-							invoke.getUniqueName());
-				}
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_ABSTRACT)) {
-					throw new VMException("java/lang/AbstractMethodError",
-							invoke.getUniqueName());
-				}
-
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_NATIVE)) {
-					invoke.getNativeHandler().dealNative(args, this);
-				} else {
-					pushMethod(invoke, false, count, args, types);
-				}
+				opInvokeSpecial();
 				break;
 			}
 			case INVOKESTATIC: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				ClassMethod invoke = getMethodFromConstant(m);
-				if (!AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_STATIC)) {
-					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", "");
-				}
-				ClassBase targetClass = invoke.getOwner();
-				if (clinit(targetClass)) {
-					break;
-				}
-				int count = invoke.getParamCount();
-				int[] args = new int[count];
-				byte[] types = new byte[count];
-				for (int i = count - 1; i >= 0; i--) {
-					args[i] = popType(tc);
-					types[i] = tc.type;
-				}
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_NATIVE)) {
-					invoke.getNativeHandler().dealNative(args, this);
-				} else {
-					pushMethod(invoke, true, count, args, types);
-				}
+				opInvokeStatic();
 				break;
 			}
 			case INVOKEVIRTUAL: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				ClassMethod lookup = getMethodFromConstant(m);
-
-				int count = lookup.getParamCount() + 1;
-				int[] args = new int[count];
-				byte[] types = new byte[count];
-				for (int i = count - 1; i >= 0; i--) {
-					args[i] = popType(tc);
-					types[i] = tc.type;
-				}
-				ClassMethod invoke = context.lookupMethodVirtual(
-						context.getClass(args[0]), lookup.getMethodName());
-				if (invoke == null) {
-					throw new VMException("java/lang/AbstractMethodError", "");
-				}
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_STATIC)) {
-					throw new VMException(
-							"java/lang/IncompatibleClassChangeError",
-							invoke.getUniqueName());
-				}
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_STATIC)) {
-					throw new VMException(
-							"java/lang/IncompatibleClassChangeError",
-							invoke.getUniqueName());
-				}
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_ABSTRACT)) {
-					throw new VMException("java/lang/AbstractMethodError",
-							invoke.getUniqueName());
-				}
-				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
-						AbstractClass.ACC_NATIVE)) {
-					invoke.getNativeHandler().dealNative(args, this);
-				} else {
-					pushMethod(invoke, false, count, args, types);
-				}
+				opInvokeVirtual();
 				break;
 			}
 			case IOR: {
@@ -1945,44 +1742,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LOOKUPSWITCH: {
-				int padSize = (65536 - this.pc) % 4;
-				this.pc += padSize;
-				byte db1 = code[this.pc++];
-				byte db2 = code[this.pc++];
-				byte db3 = code[this.pc++];
-				byte db4 = code[this.pc++];
-				int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
-				byte np1 = code[this.pc++];
-				byte np2 = code[this.pc++];
-				byte np3 = code[this.pc++];
-				byte np4 = code[this.pc++];
-				int np = TypeUtil.bytesToSignedInt(np1, np2, np3, np4);
-				int[] match = new int[np];
-				int[] offset = new int[np];
-				for (int i = 0; i < np; i++) {
-					byte ma1 = code[this.pc++];
-					byte ma2 = code[this.pc++];
-					byte ma3 = code[this.pc++];
-					byte ma4 = code[this.pc++];
-					byte of1 = code[this.pc++];
-					byte of2 = code[this.pc++];
-					byte of3 = code[this.pc++];
-					byte of4 = code[this.pc++];
-					match[i] = TypeUtil.bytesToSignedInt(ma1, ma2, ma3, ma4);
-					offset[i] = TypeUtil.bytesToSignedInt(of1, of2, of3, of4);
-				}
-				int key = popInt();
-				boolean matched = false;
-				for (int i = 0; i < np; i++) {
-					if (key == match[i]) {
-						this.pc = this.lpc + offset[i];
-						matched = true;
-						break;
-					}
-				}
-				if (!matched) {
-					this.pc = this.lpc + db;
-				}
+				opLookupSwitch();
 				break;
 			}
 			case LOR: {
@@ -2089,66 +1849,11 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case NEW: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int idx = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				try {
-					ClassBase targetClass = (ClassBase) getClassFromConstant(idx);
-					if (AbstractClass.hasFlag(targetClass.getAccessFlags(),
-							AbstractClass.ACC_INTERFACE
-									| AbstractClass.ACC_ABSTRACT)) {
-						throw new VMException("java/lang/InstantiationError",
-								targetClass.getName());
-					}
-					if (clinit(targetClass)) {
-						break;
-					}
-					pushHandle(heap.allocate(targetClass));
-				} catch (VMException e) {
-					throw new VMCriticalException(e);
-				}
+				opNew();
 				break;
 			}
 			case NEWARRAY: {
-				byte atype = code[this.pc++];
-				String name;
-				switch (atype) {
-				case 4:
-					name = "[Z";
-					break;
-				case 5:
-					name = "[C";
-					break;
-				case 6:
-					name = "[F";
-					break;
-				case 7:
-					name = "[D";
-					break;
-				case 8:
-					name = "[B";
-					break;
-				case 9:
-					name = "[S";
-					break;
-				case 10:
-					name = "[I";
-					break;
-				case 11:
-					name = "[J";
-					break;
-				default:
-					throw new VMException("java/lang/VirtualMachineError",
-							"Unknown array type in NEWARRAY type=" + atype);
-				}
-				int count = popInt();
-				if (count < 0) {
-					throw new VMException(
-							"java/lang/NegativeArraySizeException", "" + count);
-				}
-				int handle = heap.allocate((ClassArray) context.getClass(name),
-						count);
-				pushHandle(handle);
+				opNewArray();
 				break;
 			}
 			case NOP: {
@@ -2164,91 +1869,11 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case PUTFIELD: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				ClassField field = getFieldFromConstant(index);
-				char type = field.getDescriptor().charAt(0);
-				long value;
-				switch (type) {
-				case 'D':
-				case 'J':
-					value = popLong();
-					break;
-				case 'L':
-				case '[':
-					value = popHandle();
-					break;
-				default:
-					value = popInt();
-				}
-				int handle = popHandle();
-
-				if (AbstractClass.hasFlag(field.getAccessFlags(),
-						AbstractClass.ACC_STATIC)) {
-					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", "field "
-									+ field.getUniqueName() + " is static");
-				}
-				if (AbstractClass.hasFlag(field.getAccessFlags(),
-						AbstractClass.ACC_FINAL)
-						&& method.getOwner() != field.getOwner()) {
-					throw new VMException("java/lang/IllegalAccessError",
-							"field " + field.getUniqueName() + " is final");
-				}
-				switch (type) {
-				case 'D':
-				case 'J':
-					heap.putFieldLong(handle, field, value);
-					break;
-				default:
-					heap.putFieldInt(handle, field, (int) value);
-					break;
-				}
+				opPutField();
 				break;
 			}
 			case PUTSTATIC: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				ConstantFieldRef cfr = (ConstantFieldRef) method.getOwner()
-						.getConstantPool()[index];
-				char type = cfr.getNameAndType().getDescriptor().charAt(0);
-
-				ClassBase targetClass = (ClassBase) cfr.getClazz().getClazz();
-				if (clinit(targetClass)) {
-					break;
-				}
-				long value;
-				switch (type) {
-				case 'D':
-				case 'J':
-					value = popLong();
-					break;
-				case 'L':
-				case '[':
-					value = popHandle();
-					break;
-				default:
-					value = popInt();
-					break;
-				}
-				ClassField field = cfr.getTargetField();
-				if (AbstractClass.hasFlag(field.getAccessFlags(),
-						AbstractClass.ACC_FINAL)
-						&& method.getOwner() != field.getOwner()) {
-					throw new VMException("java/lang/IllegalAccessError",
-							"field " + field.getUniqueName() + " is final");
-				}
-				switch (type) {
-				case 'D':
-				case 'J':
-					heap.setStaticLong(field, value);
-					break;
-				default:
-					heap.setStaticInt(field, (int) value);
-					break;
-				}
+				opPutStatic();
 
 				break;
 			}
@@ -2303,111 +1928,12 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case TABLESWITCH: {
-				int pad = (65536 - this.pc) % 4;
-				this.pc += pad;
-				byte db1 = code[this.pc++];
-				byte db2 = code[this.pc++];
-				byte db3 = code[this.pc++];
-				byte db4 = code[this.pc++];
-				byte lb1 = code[this.pc++];
-				byte lb2 = code[this.pc++];
-				byte lb3 = code[this.pc++];
-				byte lb4 = code[this.pc++];
-				byte hb1 = code[this.pc++];
-				byte hb2 = code[this.pc++];
-				byte hb3 = code[this.pc++];
-				byte hb4 = code[this.pc++];
-				int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
-				int lb = TypeUtil.bytesToSignedInt(lb1, lb2, lb3, lb4);
-				int hb = TypeUtil.bytesToSignedInt(hb1, hb2, hb3, hb4);
-				int count = hb - lb + 1;
-				int[] address = new int[count];
-				for (int i = 0; i < count; i++) {
-					byte ab1 = code[this.pc++];
-					byte ab2 = code[this.pc++];
-					byte ab3 = code[this.pc++];
-					byte ab4 = code[this.pc++];
-					address[i] = TypeUtil.bytesToSignedInt(ab1, ab2, ab3, ab4);
-				}
-				int target;
-				int index = popInt();
-				if (index < lb || index > hb) {
-					target = db;
-				} else {
-					target = address[index - lb];
-				}
-				this.pc = this.lpc + target;
+				opTableSwitch();
 				break;
 			}
 			case WIDE: {
-				int op2 = code[this.pc++] & 0xff;
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				switch (op2) {
-				case FLOAD:
-
-				case ILOAD: {
-					int value = getLocalInt(index);
-					pushInt(value);
-					break;
-				}
-				case ALOAD: {
-					int value = getLocalHandle(index);
-					pushHandle(value);
-					break;
-				}
-				case DLOAD:
-				case LLOAD: {
-					long value = getLocalLong(index);
-					pushLong(value);
-					break;
-				}
-				case FSTORE:
-
-				case ISTORE: {
-					int value = popInt();
-					putLocalInt(index, value);
-					break;
-				}
-				case ASTORE: {
-					int aref = popType(tc);
-					switch (tc.type) {
-					case ClassMethod.TYPE_HANDLE:
-						putLocalHandle(index, aref);
-						break;
-					case ClassMethod.TYPE_RETURN:
-						putLocalReturn(index, aref);
-						break;
-					default:
-						throw new VMException("java/lang/VirtualMachineError",
-								"type check error!");
-					}
-					break;
-				}
-				case DSTORE:
-				case LSTORE: {
-					long value = popLong();
-					putLocalLong(index, value);
-					break;
-				}
-				case RET: {
-					int addr = getLocalReturn(index);
-					this.pc = addr;
-					break;
-				}
-				case IINC: {
-					byte cb1 = code[this.pc++];
-					byte cb2 = code[this.pc++];
-					int cb = TypeUtil.bytesToSignedInt(cb1, cb2);
-					this.localVars[index] += cb;
-					break;
-				}
-				default: {
-					throw new VMException("java/lang/VirtualMachineError",
-							"Unknown OPCode " + op);
-				}
-				}
+				opWide();
+				break;
 			}
 			}
 
@@ -2431,6 +1957,591 @@ public final class ArrayThread implements IThread {
 			throw new VMCriticalException("Unhandled exception in VM!", e2);
 		}
 		return;
+	}
+
+	/**
+	 * @throws VMCriticalException
+	 * @throws VMException
+	 * 
+	 */
+	private void opGetField() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		int handle = popHandle();
+		ClassField field = ((ConstantFieldRef) method.getOwner()
+				.getConstantPool()[m]).getTargetField();
+		if (AbstractClass.hasFlag(field.getAccessFlags(),
+				AbstractClass.ACC_STATIC)) {
+			throw new VMException("java/lang/IncompatibleClassChangeError",
+					"field " + field.getUniqueName() + " is static");
+		}
+		char type = field.getDescriptor().charAt(0);
+		switch (type) {
+		case 'D':
+		case 'J':
+			pushLong(heap.getFieldLong(handle, field));
+			break;
+		case 'L':
+		case '[':
+			pushHandle(heap.getFieldInt(handle, field));
+			break;
+		default:
+			pushInt(heap.getFieldInt(handle, field));
+			break;
+		}
+	}
+
+	/**
+	 * @throws VMCriticalException
+	 * @throws VMException
+	 * 
+	 */
+	private void opGetStatic() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		ConstantFieldRef cfr = (ConstantFieldRef) method.getOwner()
+				.getConstantPool()[m];
+		ClassBase targetClass = (ClassBase) cfr.getClazz().getClazz();
+		if (clinit(targetClass)) {
+			return;
+		}
+
+		ClassField field = cfr.getTargetField();
+		char type = field.getDescriptor().charAt(0);
+		switch (type) {
+		case 'D':
+		case 'J':
+			pushLong(heap.getStaticLong(field));
+			break;
+		case 'L':
+		case '[':
+			pushHandle(heap.getStaticInt(field));
+			break;
+		default:
+			pushInt(heap.getStaticInt(field));
+			break;
+		}
+	}
+
+	/**
+	 * @throws VMCriticalException
+	 * @throws VMException
+	 * 
+	 */
+	private void opInvokeInterface() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int count = code[this.pc++] & 0xff;
+		this.pc++;
+		int[] args = new int[count];
+		byte[] types = new byte[count];
+		for (int i = count - 1; i >= 0; i--) {
+			args[i] = popType(tc);
+			types[i] = tc.type;
+		}
+		int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		AbstractClass clazz = context.getClass(args[0]);
+		ClassMethod lookup = getInterfaceMethodFromConstant(m);
+		if (!clazz.canCastTo(lookup.getOwner())) {
+			throw new VMException("java/lang/IncompatibleClassChangeError", "");
+		}
+		ClassMethod invoke = context.lookupMethodVirtual(
+				context.getClass(args[0]), lookup.getMethodName());
+		if (invoke == null) {
+			throw new VMException("java/lang/AbstractMethodError", "");
+		}
+		if (!AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_PUBLIC)) {
+			throw new VMException("java/lang/IllegalAccessError", "");
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_ABSTRACT)) {
+			throw new VMException("java/lang/AbstractMethodError", "");
+		}
+		if ((invoke.getAccessFlags() & AbstractClass.ACC_NATIVE) > 0) {
+			invoke.getNativeHandler().dealNative(args, this);
+		} else {
+			pushMethod(invoke, false, count, args, types);
+		}
+	}
+
+	/**
+	 * @throws VMCriticalException
+	 * @throws VMException
+	 * 
+	 */
+	private void opInvokeStatic() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		ClassMethod invoke = getMethodFromConstant(m);
+		if (!AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_STATIC)) {
+			throw new VMException("java/lang/IncompatibleClassChangeError", "");
+		}
+		ClassBase targetClass = invoke.getOwner();
+		if (clinit(targetClass)) {
+			return;
+		}
+		int count = invoke.getParamCount();
+		int[] args = new int[count];
+		byte[] types = new byte[count];
+		for (int i = count - 1; i >= 0; i--) {
+			args[i] = popType(tc);
+			types[i] = tc.type;
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_NATIVE)) {
+			invoke.getNativeHandler().dealNative(args, this);
+		} else {
+			pushMethod(invoke, true, count, args, types);
+		}
+	}
+
+	/**
+	 * @throws VMCriticalException
+	 * @throws VMException
+	 * 
+	 */
+	private void opInvokeVirtual() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		ClassMethod lookup = getMethodFromConstant(m);
+
+		int count = lookup.getParamCount() + 1;
+		int[] args = new int[count];
+		byte[] types = new byte[count];
+		for (int i = count - 1; i >= 0; i--) {
+			args[i] = popType(tc);
+			types[i] = tc.type;
+		}
+		ClassMethod invoke = context.lookupMethodVirtual(
+				context.getClass(args[0]), lookup.getMethodName());
+		if (invoke == null) {
+			throw new VMException("java/lang/AbstractMethodError", "");
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_STATIC)) {
+			throw new VMException("java/lang/IncompatibleClassChangeError",
+					invoke.getUniqueName());
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_STATIC)) {
+			throw new VMException("java/lang/IncompatibleClassChangeError",
+					invoke.getUniqueName());
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_ABSTRACT)) {
+			throw new VMException("java/lang/AbstractMethodError",
+					invoke.getUniqueName());
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_NATIVE)) {
+			invoke.getNativeHandler().dealNative(args, this);
+		} else {
+			pushMethod(invoke, false, count, args, types);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void opLookupSwitch() {
+		int padSize = (65536 - this.pc) % 4;
+		this.pc += padSize;
+		byte db1 = code[this.pc++];
+		byte db2 = code[this.pc++];
+		byte db3 = code[this.pc++];
+		byte db4 = code[this.pc++];
+		int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
+		byte np1 = code[this.pc++];
+		byte np2 = code[this.pc++];
+		byte np3 = code[this.pc++];
+		byte np4 = code[this.pc++];
+		int np = TypeUtil.bytesToSignedInt(np1, np2, np3, np4);
+		int[] match = new int[np];
+		int[] offset = new int[np];
+		for (int i = 0; i < np; i++) {
+			byte ma1 = code[this.pc++];
+			byte ma2 = code[this.pc++];
+			byte ma3 = code[this.pc++];
+			byte ma4 = code[this.pc++];
+			byte of1 = code[this.pc++];
+			byte of2 = code[this.pc++];
+			byte of3 = code[this.pc++];
+			byte of4 = code[this.pc++];
+			match[i] = TypeUtil.bytesToSignedInt(ma1, ma2, ma3, ma4);
+			offset[i] = TypeUtil.bytesToSignedInt(of1, of2, of3, of4);
+		}
+		int key = popInt();
+		boolean matched = false;
+		for (int i = 0; i < np; i++) {
+			if (key == match[i]) {
+				this.pc = this.lpc + offset[i];
+				matched = true;
+				break;
+			}
+		}
+		if (!matched) {
+			this.pc = this.lpc + db;
+		}
+	}
+
+	/**
+	 * @throws VMCriticalException
+	 * 
+	 */
+	private void opNew() throws VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int idx = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		try {
+			ClassBase targetClass = (ClassBase) getClassFromConstant(idx);
+			if (AbstractClass.hasFlag(targetClass.getAccessFlags(),
+					AbstractClass.ACC_INTERFACE | AbstractClass.ACC_ABSTRACT)) {
+				throw new VMException("java/lang/InstantiationError",
+						targetClass.getName());
+			}
+			if (clinit(targetClass)) {
+				return;
+			}
+			pushHandle(heap.allocate(targetClass));
+		} catch (VMException e) {
+			throw new VMCriticalException(e);
+		}
+	}
+
+	/**
+	 * @throws VMCriticalException
+	 * @throws VMException
+	 * 
+	 */
+	private void opNewArray() throws VMException, VMCriticalException {
+		byte atype = code[this.pc++];
+		String name;
+		switch (atype) {
+		case 4:
+			name = "[Z";
+			break;
+		case 5:
+			name = "[C";
+			break;
+		case 6:
+			name = "[F";
+			break;
+		case 7:
+			name = "[D";
+			break;
+		case 8:
+			name = "[B";
+			break;
+		case 9:
+			name = "[S";
+			break;
+		case 10:
+			name = "[I";
+			break;
+		case 11:
+			name = "[J";
+			break;
+		default:
+			throw new VMException("java/lang/VirtualMachineError",
+					"Unknown array type in NEWARRAY type=" + atype);
+		}
+		int count = popInt();
+		if (count < 0) {
+			throw new VMException("java/lang/NegativeArraySizeException", ""
+					+ count);
+		}
+		int handle = heap.allocate((ClassArray) context.getClass(name), count);
+		pushHandle(handle);
+	}
+
+	/**
+	 * @throws VMException
+	 * @throws VMCriticalException
+	 * 
+	 */
+	private void opPutField() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		ClassField field = getFieldFromConstant(index);
+		char type = field.getDescriptor().charAt(0);
+		long value;
+		switch (type) {
+		case 'D':
+		case 'J':
+			value = popLong();
+			break;
+		case 'L':
+		case '[':
+			value = popHandle();
+			break;
+		default:
+			value = popInt();
+		}
+		int handle = popHandle();
+
+		if (AbstractClass.hasFlag(field.getAccessFlags(),
+				AbstractClass.ACC_STATIC)) {
+			throw new VMException("java/lang/IncompatibleClassChangeError",
+					"field " + field.getUniqueName() + " is static");
+		}
+		if (AbstractClass.hasFlag(field.getAccessFlags(),
+				AbstractClass.ACC_FINAL)
+				&& method.getOwner() != field.getOwner()) {
+			throw new VMException("java/lang/IllegalAccessError", "field "
+					+ field.getUniqueName() + " is final");
+		}
+		switch (type) {
+		case 'D':
+		case 'J':
+			heap.putFieldLong(handle, field, value);
+			break;
+		default:
+			heap.putFieldInt(handle, field, (int) value);
+			break;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void opTableSwitch() {
+		int pad = (65536 - this.pc) % 4;
+		this.pc += pad;
+		byte db1 = code[this.pc++];
+		byte db2 = code[this.pc++];
+		byte db3 = code[this.pc++];
+		byte db4 = code[this.pc++];
+		byte lb1 = code[this.pc++];
+		byte lb2 = code[this.pc++];
+		byte lb3 = code[this.pc++];
+		byte lb4 = code[this.pc++];
+		byte hb1 = code[this.pc++];
+		byte hb2 = code[this.pc++];
+		byte hb3 = code[this.pc++];
+		byte hb4 = code[this.pc++];
+		int db = TypeUtil.bytesToSignedInt(db1, db2, db3, db4);
+		int lb = TypeUtil.bytesToSignedInt(lb1, lb2, lb3, lb4);
+		int hb = TypeUtil.bytesToSignedInt(hb1, hb2, hb3, hb4);
+		int count = hb - lb + 1;
+		int[] address = new int[count];
+		for (int i = 0; i < count; i++) {
+			byte ab1 = code[this.pc++];
+			byte ab2 = code[this.pc++];
+			byte ab3 = code[this.pc++];
+			byte ab4 = code[this.pc++];
+			address[i] = TypeUtil.bytesToSignedInt(ab1, ab2, ab3, ab4);
+		}
+		int target;
+		int index = popInt();
+		if (index < lb || index > hb) {
+			target = db;
+		} else {
+			target = address[index - lb];
+		}
+		this.pc = this.lpc + target;
+	}
+
+	/**
+	 * @throws VMException
+	 * 
+	 */
+	private void opWide() throws VMException {
+		int op2 = code[this.pc++] & 0xff;
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		switch (op2) {
+		case FLOAD:
+
+		case ILOAD: {
+			int value = getLocalInt(index);
+			pushInt(value);
+			break;
+		}
+		case ALOAD: {
+			int value = getLocalHandle(index);
+			pushHandle(value);
+			break;
+		}
+		case DLOAD:
+		case LLOAD: {
+			long value = getLocalLong(index);
+			pushLong(value);
+			break;
+		}
+		case FSTORE:
+
+		case ISTORE: {
+			int value = popInt();
+			putLocalInt(index, value);
+			break;
+		}
+		case ASTORE: {
+			int aref = popType(tc);
+			switch (tc.type) {
+			case ClassMethod.TYPE_HANDLE:
+				putLocalHandle(index, aref);
+				break;
+			case ClassMethod.TYPE_RETURN:
+				putLocalReturn(index, aref);
+				break;
+			default:
+				throw new VMException("java/lang/VirtualMachineError",
+						"type check error!");
+			}
+			break;
+		}
+		case DSTORE:
+		case LSTORE: {
+			long value = popLong();
+			putLocalLong(index, value);
+			break;
+		}
+		case RET: {
+			int addr = getLocalReturn(index);
+			this.pc = addr;
+			break;
+		}
+		case IINC: {
+			byte cb1 = code[this.pc++];
+			byte cb2 = code[this.pc++];
+			int cb = TypeUtil.bytesToSignedInt(cb1, cb2);
+			this.localVars[index] += cb;
+			break;
+		}
+		default: {
+			throw new VMException("java/lang/VirtualMachineError",
+					"Unknown OPCode " + op2);
+		}
+		}
+	}
+
+	/**
+	 * @throws VMCriticalException
+	 * @throws VMException
+	 * 
+	 */
+	private void opPutStatic() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		ConstantFieldRef cfr = (ConstantFieldRef) method.getOwner()
+				.getConstantPool()[index];
+		char type = cfr.getNameAndType().getDescriptor().charAt(0);
+
+		ClassBase targetClass = (ClassBase) cfr.getClazz().getClazz();
+		if (clinit(targetClass)) {
+			return;
+		}
+		long value;
+		switch (type) {
+		case 'D':
+		case 'J':
+			value = popLong();
+			break;
+		case 'L':
+		case '[':
+			value = popHandle();
+			break;
+		default:
+			value = popInt();
+			break;
+		}
+		ClassField field = cfr.getTargetField();
+		if (AbstractClass.hasFlag(field.getAccessFlags(),
+				AbstractClass.ACC_FINAL)
+				&& method.getOwner() != field.getOwner()) {
+			throw new VMException("java/lang/IllegalAccessError", "field "
+					+ field.getUniqueName() + " is final");
+		}
+		switch (type) {
+		case 'D':
+		case 'J':
+			heap.setStaticLong(field, value);
+			break;
+		default:
+			heap.setStaticInt(field, (int) value);
+			break;
+		}
+	}
+
+	/**
+	 * @throws VMException
+	 * @throws VMCriticalException
+	 * 
+	 */
+	private void opInvokeSpecial() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		ClassMethod invoke = getMethodFromConstant(m);
+		ClassBase cb = invoke.getOwner();
+		int count = invoke.getParamCount() + 1;
+		int[] args = new int[count];
+		byte[] types = new byte[count];
+		for (int i = count - 1; i >= 0; i--) {
+			args[i] = popType(tc);
+			types[i] = tc.type;
+		}
+		if (((method.getOwner().getAccessFlags() & AbstractClass.ACC_SUPER) > 0)
+				&& cb.isSuperClassOf(method.getOwner())
+				&& !invoke.getName().equals("<init>")) {
+			invoke = context.lookupMethodVirtual(method.getOwner()
+					.getSuperClass(), invoke.getMethodName());
+		}
+		if (invoke == null) {
+			throw new VMException("java/lang/AbstractMethodError", "");
+		}
+		if ("<init>".equals(invoke.getName()) && invoke.getOwner() != cb) {
+			throw new VMException("java/lang/NoSuchMethodError",
+					invoke.getUniqueName());
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_STATIC)) {
+			throw new VMException("java/lang/IncompatibleClassChangeError",
+					invoke.getUniqueName());
+		}
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_ABSTRACT)) {
+			throw new VMException("java/lang/AbstractMethodError",
+					invoke.getUniqueName());
+		}
+
+		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
+				AbstractClass.ACC_NATIVE)) {
+			invoke.getNativeHandler().dealNative(args, this);
+		} else {
+			pushMethod(invoke, false, count, args, types);
+		}
+	}
+
+	/**
+	 * @throws VMException
+	 * @throws VMCriticalException
+	 * 
+	 */
+	private void opANewArray() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		int count = popInt();
+		if (count < 0) {
+			throw new VMException("java/lang/IndexOutOfBoundException", ""
+					+ count);
+		}
+		ConstantClass cc = (ConstantClass) method.getOwner().getConstantPool()[m];
+		ClassArray ca = (ClassArray) context.getClass("[L"
+				+ cc.getClazz().getName() + ";");
+		int a = heap.allocate(ca, count);
+		pushHandle(a);
+
 	}
 
 	private void monitorEnter(int handle) {
