@@ -31,7 +31,7 @@ public final class DOMHelper {
 		// prevent instance.
 	}
 
-	public static List<Element> elements(Element e, String tag) {
+	public static List<Element> elements(Node e, String tag) {
 		List<Element> ret = new ArrayList<Element>();
 		NodeList children = e.getChildNodes();
 		for (int i = 0, max = children.getLength(); i < max; i++) {
