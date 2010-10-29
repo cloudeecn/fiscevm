@@ -77,7 +77,7 @@ public class AutoBoxingTest {
 			if (d != d.doubleValue()) {
 				FiScEVM.throwOut(new RuntimeException());
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			FiScEVM.throwOut(e);
 		}

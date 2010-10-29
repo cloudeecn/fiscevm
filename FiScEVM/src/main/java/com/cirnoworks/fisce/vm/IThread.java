@@ -16,8 +16,8 @@
  */
 package com.cirnoworks.fisce.vm;
 
+import java.util.BitSet;
 import java.util.List;
-import java.util.Set;
 
 import com.cirnoworks.fisce.vm.data.ClassMethod;
 import com.cirnoworks.fisce.vm.data.StackTraceElement;
@@ -262,7 +262,7 @@ public interface IThread {
 	 * @param tofill
 	 *            待填充的集合
 	 */
-	void fillUsedHandles(Set<Integer> tofill);
+	void fillUsedHandles(BitSet tofill);
 
 	/**
 	 * 取当前线程的线程id

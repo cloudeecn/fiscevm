@@ -23,10 +23,9 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
-
-import javax.print.attribute.standard.Finishings;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -87,16 +86,12 @@ public final class ArrayHeap implements IHeap {
 
 	}
 
-	private void releaseHandle(int handle) {
-		if (finalized.get(handle)) {
-			objects[handle] = null;
-			classId[handle] = -1;
-			handleCount--;
-			finalized.set(handle, false);
-		} else {
-			toFinalize.add(handle);
-			finalized.set(handle);
-		}
+	private void releaseHandle(int handle) throws VMException {
+		assert isArray(handle) || finalized.get(handle);
+		objects[handle] = null;
+		classId[handle] = -1;
+		handleCount--;
+		finalized.set(handle, false);
 	}
 
 	private int allocate(int cid, Object obj) throws VMException,
@@ -1235,8 +1230,8 @@ public final class ArrayHeap implements IHeap {
 		if (content == null) {
 			return 0;
 		}
-		int charHandle = allocate((ClassArray) context.getClass("[C"),
-				content.length());
+		int charHandle = allocate((ClassArray) context.getClass("[C"), content
+				.length());
 		ClassBase stringClass = (ClassBase) context
 				.getClass("java/lang/String");
 		ClassField valueField = context.getField("java/lang/String.value.[C");
@@ -1275,147 +1270,181 @@ public final class ArrayHeap implements IHeap {
 		}
 	}
 
-	public BitSet scanHeap() throws VMCriticalException {
-
-		BitSet used = new BitSet(MAX_OBJECTS);
-		try {
-			// BitSet touched = new BitSet(MAX_OBJECTS);
-			Set<Integer> pending = new HashSet<Integer>();
-			Set<Integer> processing = new HashSet<Integer>();
+	public void scanInit(BitSet used) throws VMException, VMCriticalException {
+		// BitSet touched = new BitSet(MAX_OBJECTS);
+		// Set<Integer> pending = new HashSet<Integer>();
+		// Class object
+		// Class static
+		// Threads holding
+		// String lit.
+		// toFinialized
+		for (AbstractClass clazz : context.getClasses()) {
+			if (clazz == null) {
+				continue;
+			}
+			int handle = context.getClassObjectHandleForClass(clazz);
 			// Class object
-			// Class static
-			// Threads holding
-			// String lit.
-			// toFinialized
-			for (AbstractClass clazz : context.getClasses()) {
-				if (clazz == null) {
-					continue;
-				}
-				int handle = context.getClassObjectHandleForClass(clazz);
-				// Class object
-				assert isHandleValid(handle) : "handle " + handle
-						+ " is invalid";
-				// context.getConsole().info(
-				// "SCAN INITC->" + handle + " " + clazz.getName());
-				pending.add(handle);
-				if (clazz instanceof ClassBase) {
-					ClassBase cb = (ClassBase) clazz;
-					// Class static
-					for (ClassField field : cb.getFields()) {
-						char t = field.getDescriptor().charAt(0);
-						if ((t == 'L' || t == '[')
-								&& ((field.getAccessFlags() & AbstractClass.ACC_STATIC) > 0)) {
-							// is a static ref
-							int handleSR = getStaticInt(field);
+			assert isHandleValid(handle) : "handle " + handle + " is invalid";
+			assert context.getConsole().info(
+					"SCAN INITC->" + handle + " " + clazz.getName());
+			// pending.add(handle);
+			used.set(handle);
+			if (clazz instanceof ClassBase) {
+				ClassBase cb = (ClassBase) clazz;
+				// Class static
+				for (ClassField field : cb.getFields()) {
+					char t = field.getDescriptor().charAt(0);
+					if ((t == 'L' || t == '[')
+							&& ((field.getAccessFlags() & AbstractClass.ACC_STATIC) > 0)) {
+						// is a static ref
+						int handleSR = getStaticInt(field);
 
-							if (handleSR == 0) {
-								// context.getConsole().info(
-								// "SCAN INITS->" + handleSR + " "
-								// + clazz.getName() + " "
-								// + field.getUniqueName() + " "
-								// + field.getAbsPos() + " NULL");
-								continue;
-							}
-							assert isHandleValid(handleSR);
-							// context.getConsole().info(
-							// "SCAN INITS->" + handleSR + " "
-							// + clazz.getName() + " "
-							// + field.getAbsPos() + " "
-							// + field.getUniqueName());
-							pending.add(handleSR);
+						if (handleSR == 0) {
+							assert context.getConsole().info(
+									"SCAN INITS->" + handleSR + " "
+											+ clazz.getName() + " "
+											+ field.getUniqueName() + " "
+											+ field.getAbsPos() + " NULL");
+							continue;
 						}
+						assert isHandleValid(handleSR);
+						assert context.getConsole().info(
+								"SCAN INITS->" + handleSR + " "
+										+ clazz.getName() + " "
+										+ field.getAbsPos() + " "
+										+ field.getUniqueName());
+						// pending.add(handleSR);
+						used.set(handleSR);
 					}
 				}
 			}
-			for (Integer slh : literals.values()) {
-				assert isHandleValid(slh);
-				// context.getConsole().info("SCAN INITL->" + slh);
-				pending.add(slh);
-			}
+		}
+		for (Integer slh : literals.values()) {
+			assert isHandleValid(slh);
+			assert context.getConsole().info("SCAN INITL->" + slh);
+			used.set(slh);
+			// pending.add(slh);
+		}
 
-			for (IThread thread : context.getThreadManager().getThreads()) {
-				thread.fillUsedHandles(pending);
-			}
+		for (IThread thread : context.getThreadManager().getThreads()) {
+			thread.fillUsedHandles(used);
+		}
 
-			for (Integer in : toFinalize) {
-				pending.add(in);
-			}
+		for (Integer in : toFinalize) {
+			assert isHandleValid(in) : "handle " + in + " is invalid";
+			assert context.getConsole().info("SCAN INITF->" + in);
+			used.set(in);
+		}
 
-			ArrayList<ClassField> fields = new ArrayList<ClassField>();
-			while (!pending.isEmpty()) {
-				processing.clear();
-				processing.addAll(pending);
-				pending.clear();
-				for (int handle : processing) {
-					if (!used.get(handle)) {
-						used.set(handle);
-						AbstractClass ac = context.getClass(handle);
-						if (ac instanceof ClassBase) {
-							fields.clear();
-							ClassBase clazz = (ClassBase) ac;
-							ClassBase cb = clazz;
-							do {
-								Collections.addAll(fields, cb.getFields());
-							} while ((cb = cb.getSuperClass()) != null);
-							for (ClassField field : fields) {
-								char type = field.getDescriptor().charAt(0);
-								if ((type == 'L' || type == '[')
-										&& ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0)) {
-									int toadd = getFieldHandle(handle, field);
+	}
+
+	private void scanRef(BitSet used, BitSet init) throws VMException,
+			VMCriticalException {
+		// BitSet used = new BitSet(MAX_OBJECTS);
+		Set<Integer> pending = new HashSet<Integer>();
+		for (int i = 0; i < MAX_OBJECTS; i++) {
+			if (init.get(i)) {
+				pending.add(i);
+			}
+		}
+		Set<Integer> processing = new HashSet<Integer>();
+		ArrayList<ClassField> fields = new ArrayList<ClassField>();
+		while (!pending.isEmpty()) {
+			processing.clear();
+			processing.addAll(pending);
+			pending.clear();
+			for (int handle : processing) {
+				if (!used.get(handle)) {
+					used.set(handle);
+					AbstractClass ac = context.getClass(handle);
+					if (ac instanceof ClassBase) {
+						fields.clear();
+						ClassBase clazz = (ClassBase) ac;
+						ClassBase cb = clazz;
+						do {
+							Collections.addAll(fields, cb.getFields());
+						} while ((cb = cb.getSuperClass()) != null);
+						for (ClassField field : fields) {
+							char type = field.getDescriptor().charAt(0);
+							if ((type == 'L' || type == '[')
+									&& ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0)) {
+								int toadd = getFieldHandle(handle, field);
+								if (toadd > 0) {
+									assert isHandleValid(toadd) : "invalid handle "
+											+ toadd
+											+ " in class "
+											+ ac.getName()
+											+ "."
+											+ field.getName() + " " + handle;
+									assert context.getConsole().info(
+											"SCAN " + handle + "->" + toadd);
+									pending.add(toadd);
+								}
+							}
+						}
+					} else if (ac instanceof ClassArray) {
+						// ClassArray clazz = (ClassArray) ac;
+						if (getArrayLength(handle) > 0) {
+							char type = ac.getName().charAt(1);
+
+							if (type == 'L' || type == '[') {
+								int length = getArrayLength(handle);
+								int[] obj = getArrayObjInt(handle);
+								for (int i = 0; i < length; i++) {
+									int toadd = obj[i];
 									if (toadd > 0) {
-										assert isHandleValid(toadd);
-										// context.getConsole()
-										// .info(
-										// "SCAN " + handle + "->"
-										// + toadd);
+										assert isHandleValid(toadd) : "invalid handle "
+												+ toadd
+												+ " in array"
+												+ ac.getName() + " " + handle;
+										assert context.getConsole()
+												.info(
+														"SCAN " + handle + "->"
+																+ toadd);
 										pending.add(toadd);
 									}
 								}
 							}
-						} else if (ac instanceof ClassArray) {
-							// ClassArray clazz = (ClassArray) ac;
-							if (getArrayLength(handle) > 0) {
-								char type = ac.getName().charAt(1);
-
-								if (type == 'L' || type == '[') {
-									int length = getArrayLength(handle);
-									int[] obj = getArrayObjInt(handle);
-									for (int i = 0; i < length; i++) {
-										int toadd = obj[i];
-										if (toadd > 0) {
-											assert isHandleValid(toadd);
-											// context.getConsole().info(
-											// "SCAN " + handle + "->"
-											// + toadd);
-											pending.add(toadd);
-										}
-									}
-								}
-							}
-						} else {
-							throw new VMException("java/lang/Error",
-									"Unsupported class type");
 						}
+					} else {
+						throw new VMException("java/lang/Error",
+								"Unsupported class type");
 					}
 				}
 			}
-		} catch (VMException e) {
-			throw new VMCriticalException(e);
 		}
-		return used;
 	}
 
-	public void gc() throws VMCriticalException {
-		// long t1 = System.nanoTime();
-		BitSet used = scanHeap();
-		int rl = 0;
+	public void gc() throws VMCriticalException, VMException {
+		long t1 = System.nanoTime();
+
+		int rl = 0, fi = 0;
+		BitSet used = new BitSet(MAX_OBJECTS);
+		BitSet add = new BitSet(MAX_OBJECTS);
+		scanInit(add);
+		scanRef(used, add);
+		add.clear();
 		for (int i = 1; i < MAX_OBJECTS; i++) {
-			if (classId[i] >= 0 && !used.get(i)) {
-				releaseHandle(i);
-				rl++;
+			if (classId[i] >= 0 && !used.get(i) && !finalized.get(i)
+					&& !isArray(i)) {
+				toFinalize.add(i);
+				finalized.set(i);
+				// used.set(i);
+				add.set(i);
+				fi++;
 			}
 		}
-		// long t2 = System.nanoTime();
+		scanRef(used, add);
+		for (int i = 1; i < MAX_OBJECTS; i++) {
+			if (classId[i] >= 0 && !used.get(i)) {
+				rl++;
+				releaseHandle(i);
+			}
+		}
+		long t2 = System.nanoTime();
+		System.out.println("#GC: to finalize " + fi + "objects, release " + rl
+				+ " objects, total " + handleCount + " objects in " + (t2 - t1)
+				/ 1000000f + "ms");
 	}
 
 	public int[] getToFinialize() {
@@ -1436,8 +1465,8 @@ public final class ArrayHeap implements IHeap {
 					.item(0)).getElementsByTagName("literal");
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(DOMHelper.getTextContent(li),
-						Integer.valueOf(li.getAttribute("handle")));
+				literals.put(DOMHelper.getTextContent(li), Integer.valueOf(li
+						.getAttribute("handle")));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")
@@ -1519,6 +1548,23 @@ public final class ArrayHeap implements IHeap {
 							"Unknown array content type [" + type + "]");
 				}
 				classId[handle] = cid;
+			}
+			Element finialize = (Element) data
+					.getElementsByTagName("finialize").item(0);
+			toFinalize.clear();
+			List<Element> pendings = DOMHelper.elements(finialize, "pending");
+			for (Element pending : pendings) {
+				String shandle = pending.getAttribute("handle");
+				Integer handle = Integer.valueOf(shandle);
+				toFinalize.add(handle);
+			}
+			finalized.clear();
+			List<Element> finializeds = DOMHelper.elements(finialize,
+					"finialized");
+			for (Element finalizedElement : finializeds) {
+				String shandle = finalizedElement.getAttribute("handle");
+				int handle = Integer.parseInt(shandle);
+				finalized.set(handle);
 			}
 		} catch (Exception e) {
 			throw new VMCriticalException(e);
@@ -1627,6 +1673,22 @@ public final class ArrayHeap implements IHeap {
 				default:
 					throw new VMCriticalException(
 							"Unknown array content type [" + type + "]");
+				}
+			}
+		}
+		Element finialize = document.createElement("finialize");
+		data.appendChild(finialize);
+		{
+			for (Integer in : toFinalize) {
+				Element ele = document.createElement("pending");
+				finialize.appendChild(ele);
+				ele.setAttribute("handle", in.toString());
+			}
+			for (int i = 0; i < MAX_OBJECTS; i++) {
+				if (finalized.get(i)) {
+					Element ele = document.createElement("finialized");
+					finialize.appendChild(ele);
+					ele.setAttribute("handle", String.valueOf(i));
 				}
 			}
 		}

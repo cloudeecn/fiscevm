@@ -18,13 +18,12 @@ package com.cirnoworks.fisce.vm.default_impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
-import java.util.Set;
 
 import com.cirnoworks.fisce.util.BufferUtil;
 import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.INativeHandler;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
@@ -360,8 +359,8 @@ public final class ArrayThread implements IThread {
 		}
 		setThreadHandle(threadHandle);
 		pushFrame(method);
-		putLocalHandle(0, heap.allocate(
-				(ClassArray) context.getClass("[Ljava/lang/String;"), 0));
+		putLocalHandle(0, heap.allocate((ClassArray) context
+				.getClass("[Ljava/lang/String;"), 0));
 		clinit(method.getOwner());
 	}
 
@@ -376,8 +375,9 @@ public final class ArrayThread implements IThread {
 		ClassMethod runner = context
 				.lookupMethodVirtual(runnerClass, "run.()V");
 		if (runner == null) {
-			throw new VMException("java/lang/NoSuchMethodError",
-					runnerClass.getName() + "." + ".run.()V");
+			throw new VMException("java/lang/NoSuchMethodError", runnerClass
+					.getName()
+					+ "." + ".run.()V");
 		}
 		setThreadHandle(handle);
 		pushFrame(runner);
@@ -618,9 +618,10 @@ public final class ArrayThread implements IThread {
 			ClassBase targetClass = method.getOwner().getSuperClass();
 			boolean cl = clinit(targetClass);
 			assert context.getConsole().debug(
-					method.getUniqueName() + " BEGIN_CLINIT LOOKUP SUPERCLASS="
-							+ targetClass == null ? null : targetClass
-							.getName() + " " + cl);
+					method.getUniqueName()
+							+ " BEGIN_CLINIT LOOKUP SUPERCLASS="
+							+ (targetClass == null ? null : (targetClass
+									.getName())) + " " + cl);
 			if (cl) {
 				return;
 			}
@@ -2052,8 +2053,8 @@ public final class ArrayThread implements IThread {
 		if (!clazz.canCastTo(lookup.getOwner())) {
 			throw new VMException("java/lang/IncompatibleClassChangeError", "");
 		}
-		ClassMethod invoke = context.lookupMethodVirtual(
-				context.getClass(args[0]), lookup.getMethodName());
+		ClassMethod invoke = context.lookupMethodVirtual(context
+				.getClass(args[0]), lookup.getMethodName());
 		if (invoke == null) {
 			throw new VMException("java/lang/AbstractMethodError", "");
 		}
@@ -2123,8 +2124,9 @@ public final class ArrayThread implements IThread {
 			args[i] = popType(tc);
 			types[i] = tc.type;
 		}
-		ClassMethod invoke = context.lookupMethodVirtual(
-				context.getClass(args[0]), lookup.getMethodName());
+		assert heap.isHandleValid(args[0]) : "invalid 'this' handle";
+		ClassMethod invoke = context.lookupMethodVirtual(context
+				.getClass(args[0]), lookup.getMethodName());
 		if (invoke == null) {
 			throw new VMException("java/lang/AbstractMethodError", "");
 		}
@@ -2140,8 +2142,8 @@ public final class ArrayThread implements IThread {
 		}
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 				AbstractClass.ACC_ABSTRACT)) {
-			throw new VMException("java/lang/AbstractMethodError",
-					invoke.getUniqueName());
+			throw new VMException("java/lang/AbstractMethodError", invoke
+					.getUniqueName());
 		}
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 				AbstractClass.ACC_NATIVE)) {
@@ -2505,8 +2507,8 @@ public final class ArrayThread implements IThread {
 			throw new VMException("java/lang/AbstractMethodError", "");
 		}
 		if ("<init>".equals(invoke.getName()) && invoke.getOwner() != cb) {
-			throw new VMException("java/lang/NoSuchMethodError",
-					invoke.getUniqueName());
+			throw new VMException("java/lang/NoSuchMethodError", invoke
+					.getUniqueName());
 		}
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 				AbstractClass.ACC_STATIC)) {
@@ -2515,8 +2517,8 @@ public final class ArrayThread implements IThread {
 		}
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 				AbstractClass.ACC_ABSTRACT)) {
-			throw new VMException("java/lang/AbstractMethodError",
-					invoke.getUniqueName());
+			throw new VMException("java/lang/AbstractMethodError", invoke
+					.getUniqueName());
 		}
 
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
@@ -2916,17 +2918,17 @@ public final class ArrayThread implements IThread {
 		return list;
 	}
 
-	public void fillUsedHandles(Set<Integer> tofill) {
+	public void fillUsedHandles(BitSet tofill) {
 		// int fpbak = getFP();
 		assert heap.isHandleValid(getThreadHandle());
 		saveFromCache();
-		// context.getConsole().info("SCAN INITT->" + getThreadHandle());
-		tofill.add(getThreadHandle());
+		assert context.getConsole().info("SCAN INITT1->" + getThreadHandle());
+		tofill.set(getThreadHandle());
 		if (getCurrentThrowable() > 0) {
 			assert heap.isHandleValid(getCurrentThrowable());
-			// context.getConsole().info("SCAN INITT->" +
-			// getCurrentThrowable());
-			tofill.add(getCurrentThrowable());
+			assert context.getConsole().info(
+					"SCAN INITT2->" + getCurrentThrowable());
+			tofill.set(getCurrentThrowable());
 		}
 		StringBuilder out = new StringBuilder(64);
 		for (int ii = frames.size() - 1; ii >= 0; ii--) {
@@ -2946,7 +2948,7 @@ public final class ArrayThread implements IThread {
 				for (int i = 0, max = frame.sp; i < max; i++) {
 					out.append((char) frame.opStackTypes[i]);
 				}
-				context.getConsole().debug(out.toString());
+				assert context.getConsole().debug(out.toString());
 				out.setLength(0);
 			}
 			for (int i = 0, max = frame.localVars.length; i < max; i++) {
@@ -2954,8 +2956,9 @@ public final class ArrayThread implements IThread {
 					int handle = frame.localVars[i];
 					if (handle > 0) {
 						assert heap.isHandleValid(handle) : handle;
-						// context.getConsole().info("SCAN INITT->" + handle);
-						tofill.add(handle);
+						assert context.getConsole().info(
+								"SCAN INITT3->" + handle);
+						tofill.set(handle);
 					}
 				}
 			}
@@ -2965,8 +2968,9 @@ public final class ArrayThread implements IThread {
 					int handle = frame.opStacks[i];
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);
-						// context.getConsole().info("SCAN INITT->" + handle);
-						tofill.add(handle);
+						assert context.getConsole().info(
+								"SCAN INITT4->" + handle);
+						tofill.set(handle);
 					}
 				}
 			}

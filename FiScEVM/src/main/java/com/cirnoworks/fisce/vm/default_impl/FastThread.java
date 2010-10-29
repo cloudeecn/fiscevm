@@ -18,13 +18,12 @@ package com.cirnoworks.fisce.vm.default_impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
-import java.util.Set;
 
 import com.cirnoworks.fisce.util.BufferUtil;
 import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.INativeHandler;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
@@ -2931,19 +2930,19 @@ public final class FastThread implements IThread {
 		return list;
 	}
 
-	public void fillUsedHandles(Set<Integer> tofill) {
+	public void fillUsedHandles(BitSet tofill) {
 		int fpbak = getFP();
 		if (fpbak > pFP) {
 			saveFromCache();
 		}
 		assert heap.isHandleValid(getThreadHandle());
 		// context.getConsole().info("SCAN INITT->" + getThreadHandle());
-		tofill.add(getThreadHandle());
+		tofill.set(getThreadHandle());
 		if (frames.getInt(pCurrentThrowable) > 0) {
 			assert heap.isHandleValid(frames.getInt(pCurrentThrowable));
 			// context.getConsole().info("SCAN INITT->" +
 			// getCurrentThrowable());
-			tofill.add(frames.getInt(pCurrentThrowable));
+			tofill.set(frames.getInt(pCurrentThrowable));
 		}
 		StringBuilder out = new StringBuilder(64);
 		while (getFP() > pFP) {
@@ -2975,7 +2974,7 @@ public final class FastThread implements IThread {
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);
 						// context.getConsole().info("SCAN INITT->" + handle);
-						tofill.add(handle);
+						tofill.set(handle);
 					}
 				}
 			}
@@ -2986,7 +2985,7 @@ public final class FastThread implements IThread {
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);
 						// context.getConsole().info("SCAN INITT->" + handle);
-						tofill.add(handle);
+						tofill.set(handle);
 					}
 				}
 			}

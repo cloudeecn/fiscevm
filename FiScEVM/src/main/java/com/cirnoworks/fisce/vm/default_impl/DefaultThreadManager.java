@@ -67,6 +67,8 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 	private boolean[] interrupted = new boolean[MAX_THREADS];
 	// thread id --> destroyPending
 	private boolean[] destroyPending = new boolean[MAX_THREADS];
+	// thread id --> daemon
+	private boolean[] daemon = new boolean[MAX_THREADS];
 	// handle --> monitor owner id
 	private int[] monitorOwnerId = new int[IHeap.MAX_OBJECTS];
 	// handle --> monitor owner times
@@ -323,8 +325,9 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 		ClassMethod method = context.getMethod(clazz.getName()
 				+ ".main.([Ljava/lang/String;)V");
 		if (method == null) {
-			throw new VMException("java/lang/NoSuchMethodError",
-					clazz.getName() + ".main(String[] args)");
+			throw new VMException("java/lang/NoSuchMethodError", clazz
+					.getName()
+					+ ".main(String[] args)");
 		}
 		DefaultThread dt = new DefaultThread(context, this);
 		ClassBase threadClass = (ClassBase) context
@@ -382,6 +385,9 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 		dt.setPriority(priority);
 		dt.create(threadHandle);
 		dt.setThreadId(fetchNextThreadId());
+		ClassField daemonField = context.getField("java/lang/Thread.daemon.Z");
+		boolean daemon = heap.getFieldBoolean(threadHandle, daemonField);
+		this.daemon[dt.getThreadId()]=daemon;
 		onThreadAdd(dt);
 		// System.out.println("XXXX+"+dt.getThreadId());
 		pendingThreads.add(dt);
@@ -397,6 +403,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 		long nextGC = System.currentTimeMillis() + 5000;
 		long nextGCForce = System.currentTimeMillis() + 15000;
 		Iterator<DefaultThread> idt = runningThreads.iterator();
+		boolean run = false;
 		int stateLocal;
 		try {
 			while (true) {
@@ -407,6 +414,9 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 				case STATE_RUNNING:
 					if (idt.hasNext()) {
 						DefaultThread dt = idt.next();
+						if (!daemon[dt.getThreadId()]) {
+							run = true;
+						}
 						int threadId = dt.getThreadId();
 						if (destroyPending[threadId]) {
 							onThreadRemove(dt);
@@ -440,6 +450,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 								break;
 							}
 						}
+						
 						boolean dead = dt.run(pricmds[dt.getPriority()]);
 						if (dead) {
 							synchronized (runningThreads) {
@@ -453,10 +464,11 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 								runningThreads.addAll(pendingThreads);
 								pendingThreads.clear();
 								nextWakeUpTimeTotal = 0;
+								run = true;
 							}
 						}
 
-						if (runningThreads.isEmpty()) {
+						if (!run) {
 							synchronized (stateLock) {
 								setState(STATE_DEAD);
 								workingThread = null;
@@ -481,6 +493,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 						}
 						nextWakeUpTimeTotal = Long.MAX_VALUE;
 						idt = runningThreads.iterator();
+						run = false;
 					}
 					break;
 				case STATE_STOP_PENDING:
@@ -625,14 +638,19 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 		dt.setPriority(priority);
 	}
 
+	public void setDaemon(int threadHandle, boolean daemon) {
+		this.daemon[getThread(threadHandle).getThreadId()] = daemon;
+	}
+
 	public IThread[] getThreads() throws VMException {
 		synchronized (threadsLock) {
 			IThread[] rt = runningThreads.toArray(new IThread[runningThreads
-					.size() + pendingThreads.size()]);
+					.size()
+					+ pendingThreads.size()]);
 			IThread[] pt = pendingThreads.toArray(new IThread[pendingThreads
 					.size()]);
-			System.arraycopy(pt, 0, rt, runningThreads.size(),
-					pendingThreads.size());
+			System.arraycopy(pt, 0, rt, runningThreads.size(), pendingThreads
+					.size());
 			return rt;
 		}
 	}
@@ -659,6 +677,8 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 						.getAttribute("interrupted"));
 				boolean destroyPending1 = Boolean.parseBoolean(te
 						.getAttribute("destroyPending"));
+				boolean daemon1 = Boolean.parseBoolean(te
+						.getAttribute("daemon"));
 				baos.reset();
 				Base64.decode(DOMHelper.getTextContent(te), baos);
 				DefaultThread dt = new DefaultThread(context, this);
@@ -671,6 +691,7 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 				nextWakeUpTime[tid] = nextWakeUpTime1;
 				interrupted[tid] = interrupted1;
 				destroyPending[tid] = destroyPending1;
+				daemon[tid] = daemon1;
 			}
 
 			Element monitorsElement = (Element) data.getElementsByTagName(
@@ -711,21 +732,24 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 		data.appendChild(threads);
 		for (DefaultThread dt : runningThreads) {
 			Element thread = document.createElement("thread");
-			DOMHelper.setTextContent(thread,Base64.encode(dt.getFullStack()));
+			DOMHelper.setTextContent(thread, Base64.encode(dt.getFullStack()));
 
 			int tid = dt.getThreadId();
 			thread.setAttribute("tid", String.valueOf(tid));
-			thread.setAttribute("waitForLockId",
-					String.valueOf(waitForLockId[tid]));
-			thread.setAttribute("waitForNotifyId",
-					String.valueOf(waitForNotifyId[tid]));
-			thread.setAttribute("pendingLockCount",
-					String.valueOf(pendingLockCount[tid]));
-			thread.setAttribute("nextWakeUpTime",
-					String.valueOf(nextWakeUpTime[tid]));
-			thread.setAttribute("interrupted", String.valueOf(interrupted[tid]));
-			thread.setAttribute("destroyPending",
-					String.valueOf(destroyPending[tid]));
+			thread.setAttribute("waitForLockId", String
+					.valueOf(waitForLockId[tid]));
+			thread.setAttribute("waitForNotifyId", String
+					.valueOf(waitForNotifyId[tid]));
+			thread.setAttribute("pendingLockCount", String
+					.valueOf(pendingLockCount[tid]));
+			thread.setAttribute("nextWakeUpTime", String
+					.valueOf(nextWakeUpTime[tid]));
+			thread
+					.setAttribute("interrupted", String
+							.valueOf(interrupted[tid]));
+			thread.setAttribute("destroyPending", String
+					.valueOf(destroyPending[tid]));
+			thread.setAttribute("daemon", String.valueOf(daemon[tid]));
 			threads.appendChild(thread);
 		}
 
@@ -737,9 +761,11 @@ public class DefaultThreadManager implements Runnable, IThreadManager {
 			if (monitorOwnerId[i] >= 0) {
 				Element monitor = document.createElement("monitor");
 				monitor.setAttribute("handle", String.valueOf(i));
-				monitor.setAttribute("owner", String.valueOf(monitorOwnerId[i]));
-				monitor.setAttribute("times",
-						String.valueOf(monitorOwnerTimes[i]));
+				monitor
+						.setAttribute("owner", String
+								.valueOf(monitorOwnerId[i]));
+				monitor.setAttribute("times", String
+						.valueOf(monitorOwnerTimes[i]));
 				monitors.appendChild(monitor);
 
 			}

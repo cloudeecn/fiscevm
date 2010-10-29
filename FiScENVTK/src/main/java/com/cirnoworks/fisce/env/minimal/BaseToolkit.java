@@ -35,6 +35,7 @@ import com.cirnoworks.fisce.env.minimal.nh.ClassIsInterface;
 import com.cirnoworks.fisce.env.minimal.nh.ClassIsPrimitive;
 import com.cirnoworks.fisce.env.minimal.nh.ClassNewInstance0;
 import com.cirnoworks.fisce.env.minimal.nh.ClassNewInstance0I;
+import com.cirnoworks.fisce.env.minimal.nh.FiScEVMDebugOut;
 import com.cirnoworks.fisce.env.minimal.nh.FiScEVMDecode;
 import com.cirnoworks.fisce.env.minimal.nh.FiScEVMDoubleToString;
 import com.cirnoworks.fisce.env.minimal.nh.FiScEVMEncode;
@@ -45,6 +46,7 @@ import com.cirnoworks.fisce.env.minimal.nh.FiScEVMGetFloatRaw;
 import com.cirnoworks.fisce.env.minimal.nh.FiScEVMStringToDouble;
 import com.cirnoworks.fisce.env.minimal.nh.FiScEVMStringToFloat;
 import com.cirnoworks.fisce.env.minimal.nh.FiScEVMThrowOut;
+import com.cirnoworks.fisce.env.minimal.nh.FinalizerGetFinalizee;
 import com.cirnoworks.fisce.env.minimal.nh.ObjectClone;
 import com.cirnoworks.fisce.env.minimal.nh.ObjectGetClass;
 import com.cirnoworks.fisce.env.minimal.nh.ObjectNotify;
@@ -106,6 +108,9 @@ public class BaseToolkit implements IToolkit {
 
 	public void setupContext() {
 		context.setThrower(new BaseThrower(context, this));
+
+		context.registerNativeHandler(new FinalizerGetFinalizee());
+
 		context.registerNativeHandler(new SystemCurrentTimeMillis());
 		context.registerNativeHandler(new SystemArrayCopy());
 		context.registerNativeHandler(new SystemGetProperty(this));
@@ -160,6 +165,7 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new FiScEVMStringToFloat());
 		context.registerNativeHandler(new FiScEVMDoubleToString());
 		context.registerNativeHandler(new FiScEVMFloatToString());
+		context.registerNativeHandler(new FiScEVMDebugOut());
 
 		context.registerNativeHandler(new SystemOutStreamWrite0());
 

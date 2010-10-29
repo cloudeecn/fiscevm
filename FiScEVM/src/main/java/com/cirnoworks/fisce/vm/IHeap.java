@@ -686,17 +686,16 @@ public interface IHeap {
 	boolean isHandleValid(int handle);
 
 	/**
-	 * 扫描堆内容，返回一个句柄是否被用到的位集
-	 * 
-	 * @return 位集，每一位表示一个对应的句柄是不是被用到
-	 * @throws VMCriticalException
-	 */
-	BitSet scanHeap() throws VMCriticalException;
-
-	/**
 	 * 垃圾收集，释放掉不使用的句柄和对应的内存空间
 	 * 
 	 * @throws VMCriticalException
+	 * @throws VMException 
 	 */
-	void gc() throws VMCriticalException;
+	void gc() throws VMCriticalException, VMException;
+	
+	/**
+	 * 获得需要执行finialize的对象句柄数组并清空等待队列里面的对象
+	 * @return 要执行finialize的对象句柄数组
+	 */
+	int[] getToFinialize();
 }

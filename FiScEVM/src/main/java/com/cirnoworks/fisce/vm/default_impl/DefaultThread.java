@@ -18,13 +18,12 @@ package com.cirnoworks.fisce.vm.default_impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
-import java.util.Set;
 
 import com.cirnoworks.fisce.util.BufferUtil;
 import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.INativeHandler;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
@@ -322,8 +321,8 @@ public final class DefaultThread implements IThread {
 		setThreadHandle(threadHandle);
 		setFP(pFP);
 		pushFrame(method);
-		putLocalHandle(0, heap.allocate(
-				(ClassArray) context.getClass("[Ljava/lang/String;"), 0));
+		putLocalHandle(0, heap.allocate((ClassArray) context
+				.getClass("[Ljava/lang/String;"), 0));
 		clinit(method.getOwner());
 	}
 
@@ -338,8 +337,9 @@ public final class DefaultThread implements IThread {
 		ClassMethod runner = context
 				.lookupMethodVirtual(runnerClass, "run.()V");
 		if (runner == null) {
-			throw new VMException("java/lang/NoSuchMethodError",
-					runnerClass.getName() + "." + ".run.()V");
+			throw new VMException("java/lang/NoSuchMethodError", runnerClass
+					.getName()
+					+ "." + ".run.()V");
 		}
 		setThreadHandle(handle);
 		setFP(pFP);
@@ -1549,8 +1549,8 @@ public final class DefaultThread implements IThread {
 					throw new VMException(
 							"java/lang/IncompatibleClassChangeError", "");
 				}
-				ClassMethod invoke = context.lookupMethodVirtual(
-						context.getClass(args[0]), lookup.getMethodName());
+				ClassMethod invoke = context.lookupMethodVirtual(context
+						.getClass(args[0]), lookup.getMethodName());
 				if (invoke == null) {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
@@ -1593,14 +1593,14 @@ public final class DefaultThread implements IThread {
 				}
 				if ("<init>".equals(invoke.getName())
 						&& invoke.getOwner() != cb) {
-					throw new VMException("java/lang/NoSuchMethodError",
-							invoke.getUniqueName());
+					throw new VMException("java/lang/NoSuchMethodError", invoke
+							.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError",
-							invoke.getUniqueName());
+							"java/lang/IncompatibleClassChangeError", invoke
+									.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_ABSTRACT)) {
@@ -1624,7 +1624,8 @@ public final class DefaultThread implements IThread {
 				if (!AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError", "");
+							"java/lang/IncompatibleClassChangeError", invoke
+									.getUniqueName());
 				}
 				ClassBase targetClass = invoke.getOwner();
 				if (clinit(targetClass)) {
@@ -1658,22 +1659,22 @@ public final class DefaultThread implements IThread {
 					args[i] = popType(tc);
 					types[i] = tc.type;
 				}
-				ClassMethod invoke = context.lookupMethodVirtual(
-						context.getClass(args[0]), lookup.getMethodName());
+				ClassMethod invoke = context.lookupMethodVirtual(context
+						.getClass(args[0]), lookup.getMethodName());
 				if (invoke == null) {
 					throw new VMException("java/lang/AbstractMethodError", "");
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError",
-							invoke.getUniqueName());
+							"java/lang/IncompatibleClassChangeError", invoke
+									.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_STATIC)) {
 					throw new VMException(
-							"java/lang/IncompatibleClassChangeError",
-							invoke.getUniqueName());
+							"java/lang/IncompatibleClassChangeError", invoke
+									.getUniqueName());
 				}
 				if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 						AbstractClass.ACC_ABSTRACT)) {
@@ -2737,7 +2738,8 @@ public final class DefaultThread implements IThread {
 		return context.getMethodById(getMID());
 	}
 
-	public List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list) throws VMException, VMCriticalException {
+	public List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list)
+			throws VMException, VMCriticalException {
 		if (list == null) {
 			list = new ArrayList<StackTraceElement>();
 		}
@@ -2786,7 +2788,7 @@ public final class DefaultThread implements IThread {
 				continue;
 			}
 			list.add(ste);
-			
+
 		}
 		assert context.getConsole().debug(
 				"######## DUMP STACK TRACE END   #########");
@@ -2794,16 +2796,16 @@ public final class DefaultThread implements IThread {
 		return list;
 	}
 
-	public void fillUsedHandles(Set<Integer> tofill) {
+	public void fillUsedHandles(BitSet tofill) {
 		int fpbak = getFP();
 		assert heap.isHandleValid(getThreadHandle());
 		// context.getConsole().info("SCAN INITT->" + getThreadHandle());
-		tofill.add(getThreadHandle());
+		tofill.set(getThreadHandle());
 		if (getCurrentThrowable() > 0) {
 			assert heap.isHandleValid(getCurrentThrowable());
 			// context.getConsole().info("SCAN INITT->" +
 			// getCurrentThrowable());
-			tofill.add(getCurrentThrowable());
+			tofill.set(getCurrentThrowable());
 		}
 		StringBuilder out = new StringBuilder(64);
 		while (getFP() > pFP) {
@@ -2835,7 +2837,7 @@ public final class DefaultThread implements IThread {
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);
 						// context.getConsole().info("SCAN INITT->" + handle);
-						tofill.add(handle);
+						tofill.set(handle);
 					}
 				}
 			}
@@ -2846,7 +2848,7 @@ public final class DefaultThread implements IThread {
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);
 						// context.getConsole().info("SCAN INITT->" + handle);
-						tofill.add(handle);
+						tofill.set(handle);
 					}
 				}
 			}

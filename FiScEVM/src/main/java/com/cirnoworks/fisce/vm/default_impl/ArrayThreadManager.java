@@ -381,10 +381,14 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 		if (priority == 0) {
 			priority = 5;
 		}
+		
 		// so we need to set the priority here...
 		dt.setPriority(priority);
 		dt.create(threadHandle);
 		dt.setThreadId(fetchNextThreadId());
+		ClassField daemonField = context.getField("java/lang/Thread.daemon.Z");
+		boolean daemon = heap.getFieldBoolean(threadHandle, daemonField);
+		this.daemon[dt.getThreadId()]=daemon;
 		onThreadAdd(dt);
 		// System.out.println("XXXX+"+dt.getThreadId());
 		pendingThreads.add(dt);
@@ -411,6 +415,9 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 				case STATE_RUNNING:
 					if (idt.hasNext()) {
 						ArrayThread dt = idt.next();
+						if (!daemon[dt.getThreadId()]) {
+							run = true;
+						}
 						int threadId = dt.getThreadId();
 						if (destroyPending[threadId]) {
 							onThreadRemove(dt);
@@ -443,9 +450,6 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 								// still locked
 								break;
 							}
-						}
-						if (daemon[dt.getThreadId()]) {
-							run = true;
 						}
 						boolean dead = dt.run(pricmds[dt.getPriority()]);
 						if (dead) {
@@ -632,10 +636,6 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 			return;
 		}
 		dt.setPriority(priority);
-	}
-
-	public void setDaemon(int threadHandle, boolean daemon) {
-		this.daemon[getThread(threadHandle).getThreadId()] = daemon;
 	}
 
 	public IThread[] getThreads() throws VMException {

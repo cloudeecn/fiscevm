@@ -26,20 +26,32 @@ public final class Finalizer extends Thread {
 
 	Finalizer() {
 		this.setDaemon(true);
+		this.setName("FINALIZER");
 	}
 
 	public void run() {
-		System.out.println("aaa");
 		try {
 			while (true) {
 				Object[] finalizee = getFinalizee();
-				for (Object o : finalizee) {
-					try {
-						o.finalize();
-						// markFinalized(o);
-					} catch (java.lang.Throwable e) {
-						e.printStackTrace();
+				if (finalizee.length > 0) {
+					// FiScEVM.debugOut("#FINALIZER "
+					// + System.identityHashCode(Thread.currentThread())
+					// + ":" + System.identityHashCode(finalizee) + ": "
+					// + finalizee.length + " objects to finalize...");
+					for (Object o : finalizee) {
+						try {
+							/*
+							 * FiScEVM.debugOut("FINALIZE " +
+							 * System.identityHashCode(o));
+							 */
+							o.finalize();
+							// markFinalized(o);
+						} catch (java.lang.Throwable e) {
+							e.printStackTrace();
+						}
 					}
+					// FiScEVM.debugOut("#FINALIZER:" + finalizee.length
+					// + " objects finalized.");
 				}
 				try {
 					Thread.sleep(100);

@@ -21,6 +21,8 @@ import java.io.UnsupportedEncodingException;
 public class FiScEVM {
 
 	private static String defaultEncoding = "utf-8";
+	
+	public static native void debugOut(String str);
 
 	public static void throwOut(Throwable t) {
 		throwOut(t, "");

@@ -30,7 +30,7 @@ public final class Float extends Number implements Comparable {
 
 	public static final float MIN_VALUE = 1.4e-45f;
 
-	public Float valueOf(float f) {
+	public static Float valueOf(float f) {
 		return new Float(f);
 	}
 
