@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.print.attribute.standard.Finishings;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -62,6 +64,9 @@ public final class ArrayHeap implements IHeap {
 	// handles[handle] --> class id
 	private int classId[] = new int[MAX_OBJECTS];
 	private int nextHandle;
+	private ArrayList<Integer> toFinalize = new ArrayList<Integer>();
+	private BitSet finalized = new BitSet(MAX_OBJECTS);
+	// no persist
 	private int handleCount;
 
 	{
@@ -83,9 +88,15 @@ public final class ArrayHeap implements IHeap {
 	}
 
 	private void releaseHandle(int handle) {
-		objects[handle] = null;
-		classId[handle] = -1;
-		handleCount--;
+		if (finalized.get(handle)) {
+			objects[handle] = null;
+			classId[handle] = -1;
+			handleCount--;
+			finalized.set(handle, false);
+		} else {
+			toFinalize.add(handle);
+			finalized.set(handle);
+		}
 	}
 
 	private int allocate(int cid, Object obj) throws VMException,
@@ -115,6 +126,7 @@ public final class ArrayHeap implements IHeap {
 		}
 		nextHandle = (h + 1) % MAX_OBJECTS;
 
+		assert !finalized.get(h);
 		objects[h] = obj;
 		classId[h] = cid;
 		handleCount++;
@@ -1274,6 +1286,7 @@ public final class ArrayHeap implements IHeap {
 			// Class static
 			// Threads holding
 			// String lit.
+			// toFinialized
 			for (AbstractClass clazz : context.getClasses()) {
 				if (clazz == null) {
 					continue;
@@ -1322,6 +1335,10 @@ public final class ArrayHeap implements IHeap {
 
 			for (IThread thread : context.getThreadManager().getThreads()) {
 				thread.fillUsedHandles(pending);
+			}
+
+			for (Integer in : toFinalize) {
+				pending.add(in);
 			}
 
 			ArrayList<ClassField> fields = new ArrayList<ClassField>();
@@ -1399,6 +1416,16 @@ public final class ArrayHeap implements IHeap {
 			}
 		}
 		// long t2 = System.nanoTime();
+	}
+
+	public int[] getToFinialize() {
+		int size = toFinalize.size();
+		int[] ret = new int[size];
+		for (int i = 0; i < size; i++) {
+			ret[i] = toFinalize.get(i);
+		}
+		toFinalize.clear();
+		return ret;
 	}
 
 	public void loadData(Element data) throws VMCriticalException {

@@ -613,10 +613,15 @@ public final class ArrayThread implements IThread {
 	private void runOneInst() throws VMCriticalException {
 		this.lpc = this.pc;
 		int op = code[this.pc++] & 0xff;
-		if (method.isClinit()) {
-			ClassBase targetClass = method.getOwner().getSuperClass();
+		if (lpc == 0 && method.isClinit()) {
 
-			if (clinit(targetClass)) {
+			ClassBase targetClass = method.getOwner().getSuperClass();
+			boolean cl = clinit(targetClass);
+			assert context.getConsole().debug(
+					method.getUniqueName() + " BEGIN_CLINIT LOOKUP SUPERCLASS="
+							+ targetClass == null ? null : targetClass
+							.getName() + " " + cl);
+			if (cl) {
 				return;
 			}
 		}

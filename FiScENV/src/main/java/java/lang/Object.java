@@ -16,7 +16,13 @@
  */
 package java.lang;
 
+
 public class Object {
+
+	static {
+		new Finalizer().start();
+		//FiScEVM.throwOut(new RuntimeException());
+	}
 
 	public final native Class<? extends Object> getClass();
 
@@ -61,6 +67,6 @@ public class Object {
 		wait(0);
 	}
 
-	protected void finalize() throws Throwable {
+	void finalize() throws Throwable {
 	}
 }
