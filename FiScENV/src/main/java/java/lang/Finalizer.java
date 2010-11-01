@@ -38,7 +38,8 @@ public final class Finalizer extends Thread {
 					// + System.identityHashCode(Thread.currentThread())
 					// + ":" + System.identityHashCode(finalizee) + ": "
 					// + finalizee.length + " objects to finalize...");
-					for (Object o : finalizee) {
+					for (int i = 0, max = finalizee.length; i < max; i++) {
+						Object o = finalizee[i];
 						try {
 							/*
 							 * FiScEVM.debugOut("FINALIZE " +
@@ -49,7 +50,9 @@ public final class Finalizer extends Thread {
 						} catch (java.lang.Throwable e) {
 							e.printStackTrace();
 						}
+						finalizee[i] = null;
 					}
+					finalizee = null;
 					// FiScEVM.debugOut("#FINALIZER:" + finalizee.length
 					// + " objects finalized.");
 				}
