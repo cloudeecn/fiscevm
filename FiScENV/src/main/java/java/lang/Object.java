@@ -67,6 +67,6 @@ public class Object {
 		wait(0);
 	}
 
-	void finalize() throws Throwable {
+	protected void finalize() throws Throwable {
 	}
 }
