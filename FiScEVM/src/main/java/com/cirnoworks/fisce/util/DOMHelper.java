@@ -72,6 +72,7 @@ public final class DOMHelper {
 			result.append(root.getNodeValue().replaceAll("&", "&amp;")
 					.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
 		} else {
+			boolean blank = root.getChildNodes().getLength() == 0;
 			if (root.getNodeType() != 9) {
 				StringBuffer attrs = new StringBuffer();
 				NamedNodeMap attributes = root.getAttributes();
@@ -79,14 +80,16 @@ public final class DOMHelper {
 					Node attribute = attributes.item(k);
 					attrs.append(" ").append(attribute.getNodeName())
 							.append("=\"").append(attribute.getNodeValue())
-							.append("\" ");
+							.append("\"");
 				}
 				result.append("\n");
-				for (int i = 0; i < level; i++) {
+				for (int i = 0, max = (level - 1) > 0 ? (level - 1) : 0; i < max; i++) {
 					result.append("\t");
 				}
-				result.append("<").append(root.getNodeName()).append(" ")
-						.append(attrs).append(">");
+				result.append("<").append(root.getNodeName()).append(attrs);
+				if (!blank) {
+					result.append(">");
+				}
 			} else {
 				result.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			}
@@ -103,13 +106,17 @@ public final class DOMHelper {
 			}
 
 			if (root.getNodeType() != 9) {
-				if (!hasText) {
-					result.append("\n");
-					for (int i = 0; i < level; i++) {
-						result.append("\t");
+				if (blank) {
+					result.append(" />");
+				} else {
+					if (!hasText) {
+						result.append("\n");
+						for (int i = 0, max = (level - 1) > 0 ? (level - 1) : 0; i < max; i++) {
+							result.append("\t");
+						}
 					}
+					result.append("</").append(root.getNodeName()).append(">");
 				}
-				result.append("</").append(root.getNodeName()).append(">");
 			}
 		}
 		return result.toString();
