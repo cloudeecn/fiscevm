@@ -19,6 +19,7 @@ package com.cirnoworks.fisce.vm.default_impl;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1230,8 +1231,8 @@ public final class ArrayHeap implements IHeap {
 		if (content == null) {
 			return 0;
 		}
-		int charHandle = allocate((ClassArray) context.getClass("[C"), content
-				.length());
+		int charHandle = allocate((ClassArray) context.getClass("[C"),
+				content.length());
 		ClassBase stringClass = (ClassBase) context
 				.getClass("java/lang/String");
 		ClassField valueField = context.getField("java/lang/String.value.[C");
@@ -1398,9 +1399,8 @@ public final class ArrayHeap implements IHeap {
 												+ " in array"
 												+ ac.getName() + " " + handle;
 										assert context.getConsole()
-												.info(
-														"SCAN " + handle + "->"
-																+ toadd);
+												.info("SCAN " + handle + "->"
+														+ toadd);
 										pending.add(toadd);
 									}
 								}
@@ -1465,8 +1465,8 @@ public final class ArrayHeap implements IHeap {
 					.item(0)).getElementsByTagName("literal");
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(DOMHelper.getTextContent(li), Integer.valueOf(li
-						.getAttribute("handle")));
+				literals.put(DOMHelper.getTextContent(li),
+						Integer.valueOf(li.getAttribute("handle")));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")

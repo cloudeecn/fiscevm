@@ -460,7 +460,8 @@ public class DefaultClassLoader implements IClassLoader {
 		assert context.getConsole().debug("Loading class " + className);
 		if (className.startsWith("[")) {
 			ClassArray ca = new ClassArray(context, this);
-			ca.setSuperClass((ClassBase) context.getClass(IClassLoader.TOP_CLASS));
+			ca.setSuperClass((ClassBase) context
+					.getClass(IClassLoader.TOP_CLASS));
 			ca.createInterfaces(0);
 			ca.setName(className);
 			ca.setSizeShift(getSizeShiftForArray(className));
@@ -536,7 +537,6 @@ public class DefaultClassLoader implements IClassLoader {
 				int ofs = supercl.getTotalSizeInHeap();
 				clazz.setOffsetInHeap(ofs);
 				ClassField[] fields = clazz.getFields();
-
 				for (int i = 0, max = fields.length; i < max; i++) {
 					ClassField field = fields[i];
 

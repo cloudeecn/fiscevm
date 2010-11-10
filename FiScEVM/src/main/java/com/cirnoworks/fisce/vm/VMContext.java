@@ -83,8 +83,8 @@ public class VMContext implements FiScEVM {
 			methodCount = Integer.parseInt(methods.getAttribute("next"));
 			for (int i = 0, max = methodElemehts.getLength(); i < max; i++) {
 				Element me = (Element) methodElemehts.item(i);
-				methodMap.put(DOMHelper.getTextContent(me), Integer.parseInt(me
-						.getAttribute("mid")));
+				methodMap.put(DOMHelper.getTextContent(me),
+						Integer.parseInt(me.getAttribute("mid")));
 			}
 
 			Element fields = (Element) root.getElementsByTagName("fields")
@@ -93,8 +93,8 @@ public class VMContext implements FiScEVM {
 			fieldCount = Integer.parseInt(fields.getAttribute("next"));
 			for (int i = 0, max = fieldElements.getLength(); i < max; i++) {
 				Element fe = (Element) fieldElements.item(i);
-				fieldMap.put(DOMHelper.getTextContent(fe), Integer.parseInt(fe
-						.getAttribute("fid")));
+				fieldMap.put(DOMHelper.getTextContent(fe),
+						Integer.parseInt(fe.getAttribute("fid")));
 			}
 
 			Element heapElement = (Element) root.getElementsByTagName("heap")
@@ -118,6 +118,24 @@ public class VMContext implements FiScEVM {
 				throw new VMCriticalException("Thread manager is wrong!");
 			}
 
+			
+
+			if (classLoader == null
+			/*
+			 * || !classLoader .getClass() .getCanonicalName()
+			 * .equals(((Element) root.getElementsByTagName(
+			 * "classloader").item(0)) .getAttribute("class"))
+			 */) {
+				throw new VMCriticalException("Class loader is wrong!");
+			}
+
+			initialize();
+			heap.loadData(heapElement);
+
+			for (INativeHandler inh : nativeHandlers.values()) {
+				inh.init(this);
+			}
+			
 			Element tks = (Element) root.getElementsByTagName("toolkits").item(
 					0);
 			NodeList toolkitElements = tks.getElementsByTagName("toolkit");
@@ -137,22 +155,12 @@ public class VMContext implements FiScEVM {
 							+ " not found!");
 				}
 			}
-
-			if (classLoader == null
-			/*
-			 * || !classLoader .getClass() .getCanonicalName()
-			 * .equals(((Element) root.getElementsByTagName(
-			 * "classloader").item(0)) .getAttribute("class"))
-			 */) {
-				throw new VMCriticalException("Class loader is wrong!");
-			}
-
-			initialize();
-			heap.loadData(heapElement);
+			
 			String[] classNames = classMap.keySet().toArray(
 					new String[classMap.keySet().size()]);
 			for (String cn : classNames) {
-				getClass(cn);
+				AbstractClass cl = getClass(cn);
+				assert cl != null;
 			}
 			threadManager.loadData(tmElement);
 		} catch (Exception e) {
@@ -254,6 +262,10 @@ public class VMContext implements FiScEVM {
 	public void bootFromClass(String name) throws VMException,
 			VMCriticalException {
 		initialize();
+
+		for (INativeHandler inh : nativeHandlers.values()) {
+			inh.init(this);
+		}
 		ClassBase cb = (ClassBase) getClass(name);
 		threadManager.bootFromMain(cb);
 	}
@@ -374,9 +386,6 @@ public class VMContext implements FiScEVM {
 		heap.setContext(this);
 		for (IToolkit toolkit : toolkits) {
 			toolkit.setupContext();
-		}
-		for (INativeHandler inh : nativeHandlers.values()) {
-			inh.init(this);
 		}
 
 	}
