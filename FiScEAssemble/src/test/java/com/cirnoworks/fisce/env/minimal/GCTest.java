@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 
 import junit.framework.TestCase;
 
-import com.cirnoworks.fisce.vm.FiScEVM;
 import com.cirnoworks.fisce.vm.VMContext;
 
 public class GCTest extends TestCase {

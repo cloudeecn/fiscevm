@@ -22,7 +22,6 @@ import java.io.InputStream;
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
 import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
 

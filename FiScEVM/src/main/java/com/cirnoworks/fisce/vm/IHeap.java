@@ -16,8 +16,6 @@
  */
 package com.cirnoworks.fisce.vm;
 
-import java.util.BitSet;
-
 import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.vm.data.AbstractClass;

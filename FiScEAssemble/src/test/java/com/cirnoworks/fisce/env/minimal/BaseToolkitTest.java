@@ -19,15 +19,11 @@ package com.cirnoworks.fisce.env.minimal;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
-import com.cirnoworks.fisce.env.minimal.BaseToolkit;
 import com.cirnoworks.fisce.vm.FiScEVM;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassMethod;
-import com.cirnoworks.fisce.vm.default_impl.DefaultClassLoader;
-import com.cirnoworks.fisce.vm.default_impl.DefaultHeap;
-import com.cirnoworks.fisce.vm.default_impl.DefaultThreadManager;
 
 public class BaseToolkitTest extends TestCase {
 	public void testHelloWorld() throws Exception {

@@ -18,10 +18,8 @@ package com.cirnoworks.fisce.env.minimal.nh;
 
 import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
-import com.cirnoworks.fisce.vm.data.ClassField;
 
 public class ThrowableFillInStackTrace0 extends NativeHandlerTemplate{
 

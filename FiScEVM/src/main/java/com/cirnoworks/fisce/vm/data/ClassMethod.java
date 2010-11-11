@@ -19,8 +19,6 @@ package com.cirnoworks.fisce.vm.data;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-
 import com.cirnoworks.fisce.vm.INativeHandler;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMException;

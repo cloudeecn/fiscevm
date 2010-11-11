@@ -21,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import com.cirnoworks.fisce.vm.IHeap;
 import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.ClassArray;
