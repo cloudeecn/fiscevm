@@ -154,4 +154,11 @@ public final class Class<T> {
 		return enumConstantDirectory;
 	}
 
+	/**
+	 * @return
+	 */
+	public String getCanonicalName() {
+		return getName();
+	}
+
 }

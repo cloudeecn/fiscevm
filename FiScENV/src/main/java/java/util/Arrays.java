@@ -3376,7 +3376,7 @@ public class Arrays {
 						}
 					} else {
 						// element is an Object[], so we assert that
-						assert elem instanceof Object[];
+						// assert elem instanceof Object[];
 						if (deepToStringImplContains(origArrays, elem)) {
 							sb.append("[...]"); //$NON-NLS-1$
 						} else {

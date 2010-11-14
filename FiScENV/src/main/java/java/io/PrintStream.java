@@ -103,6 +103,10 @@ public class PrintStream {
 		}
 	}
 
+	public void write(byte[] buf) {
+		write(buf, 0, buf.length);
+	}
+
 	private void write(char buf[]) {
 		try {
 			synchronized (this) {
