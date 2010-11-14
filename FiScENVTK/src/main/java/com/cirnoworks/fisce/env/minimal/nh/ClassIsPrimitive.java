@@ -20,12 +20,18 @@ import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.data.AbstractClass;
+import com.cirnoworks.fisce.vm.data.ClassArray;
+import com.cirnoworks.fisce.vm.data.ClassPrimitive;
 
-public class ClassIsPrimitive extends NativeHandlerTemplate{
+public class ClassIsPrimitive extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException, VMCriticalException {
-		thread.pushInt(0);
+	public void dealNative(int[] args, IThread thread) throws VMException,
+			VMCriticalException {
+		int thisHandle = args[0];
+		AbstractClass thisClass = context
+				.getClassForClassObjectHandle(thisHandle);
+		thread.pushInt(thisClass instanceof ClassPrimitive ? 1 : 0);
 	}
 
 	public String getUniqueName() {

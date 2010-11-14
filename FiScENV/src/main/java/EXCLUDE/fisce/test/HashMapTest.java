@@ -18,7 +18,7 @@ package EXCLUDE.fisce.test;
 
 import com.cirnoworks.fisce.privat.FiScEVM;
 
-import fisce.util.HashMap;
+import java.util.HashMap;
 
 /**
  * @author cloudee
@@ -36,7 +36,7 @@ public class HashMapTest {
 				FiScEVM.throwOut(new RuntimeException("size is wrong! "
 						+ map.size()));
 			}
-			if (map.contains(null)) {
+			if (map.containsKey(null)) {
 				FiScEVM.throwOut(new RuntimeException(
 						"Null exists before add null! "));
 			}
@@ -49,7 +49,7 @@ public class HashMapTest {
 				FiScEVM.throwOut(new RuntimeException(
 						"size is wrong after add null! " + map.size()));
 			}
-			if (!map.contains(null)) {
+			if (!map.containsKey(null)) {
 				FiScEVM.throwOut(new RuntimeException(
 						"Null not exist after add null! "));
 			}
@@ -63,7 +63,7 @@ public class HashMapTest {
 						"size is wrong after add and remove null! "
 								+ map.size()));
 			}
-			if (map.contains(null)) {
+			if (map.containsKey(null)) {
 				FiScEVM.throwOut(new RuntimeException(
 						"Null exists after add and remove null! "));
 			}
@@ -72,7 +72,7 @@ public class HashMapTest {
 						"get(null)!=null after add and remove null! "));
 			}
 			for (int i = 0; i < 500; i++) {
-				if (!map.contains(i)) {
+				if (!map.containsKey(i)) {
 					FiScEVM.throwOut(new RuntimeException("key " + i
 							+ " not exist!"));
 				}
@@ -84,7 +84,7 @@ public class HashMapTest {
 			}
 			for (int i = 501; i < 600; i++) {
 				Integer key = new Integer(i);
-				if (map.contains(key)) {
+				if (map.containsKey(key)) {
 					FiScEVM.throwOut(new RuntimeException("key " + i
 							+ " should not exist!"));
 				}
@@ -121,7 +121,7 @@ public class HashMapTest {
 			}
 			for (int i = 1; i < 500; i += 2) {
 				Integer key = new Integer(i);
-				if (!map.contains(key)) {
+				if (!map.containsKey(key)) {
 					FiScEVM.throwOut(new RuntimeException("key " + i
 							+ " not exist2!"));
 				}

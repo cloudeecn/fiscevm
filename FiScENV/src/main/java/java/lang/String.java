@@ -132,19 +132,19 @@ public final class String implements Comparable, CharSequence {
 
 	public String(StringBuffer buffer) {
 		synchronized (buffer) {
-			buffer.setShared();
-			this.value = buffer.getValue();
+			this.value = new char[buffer.length()];
 			this.offset = 0;
 			this.count = buffer.length();
+			System.arraycopy(buffer.getValue(), 0, value, 0, buffer.length());
 		}
 	}
 
 	public String(StringBuilder buffer) {
 		synchronized (buffer) {
-			buffer.setShared();
-			this.value = buffer.getValue();
+			this.value = new char[buffer.length()];
 			this.offset = 0;
 			this.count = buffer.length();
+			System.arraycopy(buffer.getValue(), 0, value, 0, buffer.length());
 		}
 	}
 

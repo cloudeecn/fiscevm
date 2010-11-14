@@ -26,7 +26,7 @@ import com.cirnoworks.fisce.vm.VMContext;
 public final class ClassArray extends AbstractClass {
 
 	private AbstractClass contentClass;
-	private char pType;
+	// private char pType;
 	private int sizeShift;
 
 	public AbstractClass getContentClass() {
@@ -37,13 +37,14 @@ public final class ClassArray extends AbstractClass {
 		this.contentClass = contentClass;
 	}
 
-	public char getpType() {
-		return pType;
-	}
-
-	public void setpType(char pType) {
-		this.pType = pType;
-	}
+	//
+	// public char getpType() {
+	// return pType;
+	// }
+	//
+	// public void setpType(char pType) {
+	// this.pType = pType;
+	// }
 
 	public int getSizeShift() {
 		return sizeShift;
@@ -58,8 +59,9 @@ public final class ClassArray extends AbstractClass {
 	}
 
 	public String toString() {
-		if (getContentClass() == null) {
-			return "[" + String.valueOf(pType);
+		AbstractClass cc = getContentClass();
+		if (cc instanceof ClassPrimitive) {
+			return "[" + String.valueOf(((ClassPrimitive) cc).getpType());
 		} else {
 			return "[" + getContentClass().getName();
 		}

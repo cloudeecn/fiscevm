@@ -284,13 +284,6 @@ public abstract class AbstractClass {
 						&& aOther.getContentClass() != null) {
 					return aThis.getContentClass().canCastTo(
 							aOther.getContentClass());
-				} else if (aThis.getContentClass() == null
-						&& aOther.getContentClass() == null) {
-					if (aThis.getpType() == aOther.getpType()) {
-						return true;
-					} else {
-						return false;
-					}
 				} else {
 					return false;
 				}
@@ -309,6 +302,8 @@ public abstract class AbstractClass {
 			if (superClass != null && superClass.canCastTo(other)) {
 				return true;
 			}
+		} else if (this instanceof ClassPrimitive) {
+			return false;
 		} else {
 			throw new VMException("java/lang/Error",
 					"class type not implemented!");

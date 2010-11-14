@@ -134,6 +134,10 @@ public final class Class<T> {
 		return enums;
 	}
 
+	public T[] getEnumConstants() {
+		return getEnums().clone();
+	}
+
 	HashMap<String, T> enumConstantDirectory;
 
 	HashMap<String, T> enumConstantDirectory() {

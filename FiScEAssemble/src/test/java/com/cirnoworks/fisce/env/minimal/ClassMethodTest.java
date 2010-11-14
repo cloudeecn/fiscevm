@@ -10,7 +10,7 @@ public class ClassMethodTest extends TestCase {
 	public void testGetParamCount() throws Exception {
 		VMContext context = TestInitializer.getContext();
 		context.bootFromClass("EXCLUDE/fisce/test/Dummy");
-		
+		context.getClass("java/lang/Math");
 		ClassBase it = (ClassBase) context
 				.getClass("EXCLUDE/fisce/test/ITester");
 		ClassBase t = (ClassBase) context.getClass("EXCLUDE/fisce/test/Tester");

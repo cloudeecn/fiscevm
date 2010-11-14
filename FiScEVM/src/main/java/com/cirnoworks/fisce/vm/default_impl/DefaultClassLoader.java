@@ -19,6 +19,10 @@ package com.cirnoworks.fisce.vm.default_impl;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.cirnoworks.fisce.vm.IClassLoader;
 import com.cirnoworks.fisce.vm.INativeHandler;
@@ -31,6 +35,7 @@ import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
 import com.cirnoworks.fisce.vm.data.ClassMethod;
+import com.cirnoworks.fisce.vm.data.ClassPrimitive;
 import com.cirnoworks.fisce.vm.data.IAttributesHolder;
 import com.cirnoworks.fisce.vm.data.IReference;
 import com.cirnoworks.fisce.vm.data.attributes.Attribute;
@@ -65,6 +70,37 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantUTF8;
  * @author cloudee
  */
 public class DefaultClassLoader implements IClassLoader {
+	public static final Map<Character, String> primitives;
+	public static final Map<String, Character> primitivesRev;
+
+	static {
+		{
+			HashMap<Character, String> temp = new HashMap<Character, String>();
+			temp.put(TYPE_BOOLEAN, "boolean");
+			temp.put(TYPE_BYTE, "byte");
+			temp.put(TYPE_SHORT, "short");
+			temp.put(TYPE_CHAR, "char");
+			temp.put(TYPE_INT, "int");
+			temp.put(TYPE_FLOAT, "float");
+			temp.put(TYPE_LONG, "long");
+			temp.put(TYPE_DOUBLE, "double");
+			primitives = Collections.unmodifiableMap(temp);
+		}
+		{
+			HashMap<String, Character> temp = new HashMap<String, Character>();
+			temp.put("boolean", TYPE_BOOLEAN);
+			temp.put("byte", TYPE_BYTE);
+			temp.put("short", TYPE_SHORT);
+			temp.put("char", TYPE_CHAR);
+			temp.put("int", TYPE_INT);
+			temp.put("float", TYPE_FLOAT);
+			temp.put("long", TYPE_LONG);
+			temp.put("double", TYPE_DOUBLE);
+			primitivesRev = Collections.unmodifiableMap(temp);
+		}
+
+	}
+
 	private int getSizeShiftForArray(String arrayName) {
 		char c = arrayName.charAt(1);
 		switch (c) {
@@ -235,6 +271,7 @@ public class DefaultClassLoader implements IClassLoader {
 
 		char methodsCount = dis.readChar();
 		cb.createMethods(methodsCount);
+		ArrayList<String> usle = new ArrayList<String>();
 		for (int i = 0; i < methodsCount; i++) {
 			ClassMethod method = new ClassMethod(context, cb);
 			method.setAccessFlags(dis.readChar());
@@ -278,8 +315,8 @@ public class DefaultClassLoader implements IClassLoader {
 				INativeHandler inh = context.getNativeHandler(method
 						.getUniqueName());
 				if (inh == null) {
-					throw new VMException("java/lang/UnsatisfiedLinkError",
-							method.getUniqueName());
+					usle.add(method.getUniqueName());
+
 				}
 				method.setNativeHandler(inh);
 			} else if (code == null) {
@@ -312,6 +349,10 @@ public class DefaultClassLoader implements IClassLoader {
 				method.setExceptions(ae.exceptions);
 			}
 			cb.getMethods()[i] = method;
+		}
+		if (usle.size() > 0) {
+			throw new VMException("java/lang/UnsatisfiedLinkError",
+					usle.toString());
 		}
 		fetchAttributes(cb, dis, cb);
 
@@ -468,6 +509,16 @@ public class DefaultClassLoader implements IClassLoader {
 			ca.setConstantsLoaded(true);
 			ca.setConstantsFilled(true);
 			return ca;
+		} else if (primitivesRev.containsKey(className)) {
+			ClassPrimitive cp = new ClassPrimitive(context, this);
+			cp.setSuperClass((ClassBase) context
+					.getClass(IClassLoader.TOP_CLASS));
+			cp.createInterfaces(0);
+			cp.setName(className);
+			cp.setConstantsLoaded(true);
+			cp.setConstantsFilled(true);
+			cp.setpType(primitivesRev.get(className));
+			return cp;
 		} else {
 			ClassBase cb = new ClassBase(context, this);
 			boolean found = false;
@@ -506,13 +557,14 @@ public class DefaultClassLoader implements IClassLoader {
 			ClassArray clazz = (ClassArray) ac;
 			String contentClassName = clazz.getName().substring(1);
 			char type = contentClassName.charAt(0);
-			clazz.setpType(type);
 			assert type == '[' || Character.isUpperCase(type) : clazz.getName();
 			if (type == '[') {
 				clazz.setContentClass(context.getClass(contentClassName));
 			} else if (type == 'L') {
 				clazz.setContentClass(context.getClass(contentClassName
 						.substring(1, contentClassName.length() - 1)));
+			} else {
+				clazz.setContentClass(context.getClass(primitives.get(type)));
 			}
 		} else if (ac instanceof ClassBase) {
 			ClassBase clazz = (ClassBase) ac;
@@ -573,6 +625,7 @@ public class DefaultClassLoader implements IClassLoader {
 				clazz.getInterfaces()[i] = (ClassBase) clazz
 						.getInterfaceInfos()[i].getClazz();
 			}
+		} else if (ac instanceof ClassPrimitive) {
 		} else {
 			throw new VMException("java/lang/Error", "Unsupported class type");
 		}
