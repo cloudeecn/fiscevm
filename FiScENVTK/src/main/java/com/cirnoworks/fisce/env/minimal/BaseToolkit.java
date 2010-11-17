@@ -106,8 +106,8 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new MathLog());
 		context.registerNativeHandler(new MathLog10());
 		context.registerNativeHandler(new MathLog1p());
-		context.registerNativeHandler(new MathNextAfterF());
-		context.registerNativeHandler(new MathNextAfterD());
+		context.registerNativeHandler(new MathUlpF());
+		context.registerNativeHandler(new MathUlpD());
 		context.registerNativeHandler(new MathPow());
 		context.registerNativeHandler(new MathRint());
 		context.registerNativeHandler(new MathSignumD());

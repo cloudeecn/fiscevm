@@ -26,7 +26,7 @@ import com.cirnoworks.fisce.vm.VMException;
  * @author Cloudee
  * 
  */
-public class MathNextAfterF extends NativeHandlerTemplate {
+public class MathUlpF extends NativeHandlerTemplate {
 
 	/*
 	 * (non-Javadoc)
@@ -37,8 +37,7 @@ public class MathNextAfterF extends NativeHandlerTemplate {
 	public void dealNative(int[] args, IThread thread) throws VMException,
 			VMCriticalException {
 		float param1 = Float.intBitsToFloat(args[0]);
-		float param2 = Float.intBitsToFloat(args[1]);
-		thread.pushFloat(Math.nextAfter(param1, param2));
+		thread.pushFloat(Math.ulp(param1));
 	}
 
 	/*
@@ -47,7 +46,7 @@ public class MathNextAfterF extends NativeHandlerTemplate {
 	 * @see com.cirnoworks.fisce.vm.INativeHandler#getUniqueName()
 	 */
 	public String getUniqueName() {
-		return "java/lang/Math.nextafterf.(FF)F";
+		return "java/lang/Math.ulp.(F)F";
 	}
 
 }

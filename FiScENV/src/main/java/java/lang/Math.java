@@ -1000,16 +1000,7 @@ public final class Math {
 	 *            the floating-point value to compute ulp of.
 	 * @return the size of a ulp of the argument.
 	 */
-	public static double ulp(double d) {
-		// special cases
-		if (Double.isInfinite(d)) {
-			return Double.POSITIVE_INFINITY;
-		} else if (d == Double.MAX_VALUE || d == -Double.MAX_VALUE) {
-			return pow(2, 971);
-		}
-		d = abs(d);
-		return nextafter(d, Double.MAX_VALUE) - d;
-	}
+	public static native double ulp(double d);
 
 	/**
 	 * Returns the argument's ulp (unit in the last place). The size of a ulp of
@@ -1030,20 +1021,5 @@ public final class Math {
 	 *            the floating-point value to compute ulp of.
 	 * @return the size of a ulp of the argument.
 	 */
-	public static float ulp(float f) {
-		// special cases
-		if (Float.isNaN(f)) {
-			return Float.NaN;
-		} else if (Float.isInfinite(f)) {
-			return Float.POSITIVE_INFINITY;
-		} else if (f == Float.MAX_VALUE || f == -Float.MAX_VALUE) {
-			return (float) pow(2, 104);
-		}
-		f = abs(f);
-		return nextafterf(f, Float.MAX_VALUE) - f;
-	}
-
-	private native static double nextafter(double x, double y);
-
-	private native static float nextafterf(float x, float y);
+	public static native float ulp(float f);
 }
