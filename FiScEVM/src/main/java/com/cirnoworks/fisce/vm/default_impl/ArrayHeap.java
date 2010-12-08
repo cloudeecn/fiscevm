@@ -87,7 +87,8 @@ public final class ArrayHeap implements IHeap {
 	}
 
 	private void releaseHandle(int handle) throws VMException {
-		assert isArray(handle) || finalized.get(handle);
+		assert isArray(handle) || finalized.get(handle)
+				|| !context.getClazzById(classId[handle]).isNeedFinalize();
 		objects[handle] = null;
 		classId[handle] = -1;
 		handleCount--;
@@ -1424,8 +1425,10 @@ public final class ArrayHeap implements IHeap {
 		scanRef(used, add);
 		add.clear();
 		for (int i = 1; i < MAX_OBJECTS; i++) {
-			if (classId[i] >= 0 && !used.get(i) && !finalized.get(i)
-					&& !isArray(i)) {
+			if (classId[i] >= 0
+					&& context.getClazzById(classId[i]).isNeedFinalize()
+					&& !used.get(i) && !finalized.get(i)
+			/* && !isArray(i) */) {
 				toFinalize.add(i);
 				finalized.set(i);
 				// used.set(i);

@@ -570,6 +570,7 @@ public class DefaultClassLoader implements IClassLoader {
 			ClassBase clazz = (ClassBase) ac;
 			// Load and verify all super classes:
 			assert !clazz.isLoaded();
+
 			String name = clazz.getName();
 
 			ConstantClass supercli = clazz.getSuperClassInfo();
@@ -604,6 +605,13 @@ public class DefaultClassLoader implements IClassLoader {
 				clazz.setTotalSizeInHeap(clazz.getSizeInHeap()
 						+ supercl.getTotalSizeInHeap());
 				clazz.setSuperClass(supercl);
+				if (context.lookupMethodVirtual(ac, "finalize.()V") != context
+						.getMethod(TOP_CLASS + ".finalize.()V")) {
+					// System.out.println(ac.getName() + " need finalize");
+					clazz.setNeedFinalize(true);
+				} else {
+					// System.out.println(ac.getName() + " need not finalize");
+				}
 			} else {
 				if (!name.equals(IClassLoader.TOP_CLASS)) {
 					throw new VMException("java/lang/VirtualMachineError",

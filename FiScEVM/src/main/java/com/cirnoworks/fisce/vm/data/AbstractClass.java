@@ -101,6 +101,7 @@ public abstract class AbstractClass {
 	protected boolean constantsLoaded = false;
 	protected boolean constantsFilled = false;
 	protected boolean loaded = false;
+	protected boolean needFinalize = false;
 
 	public AbstractClass(VMContext context, IClassLoader loader) {
 		this.context = context;
@@ -262,6 +263,14 @@ public abstract class AbstractClass {
 
 	public void setAccessFlags(char accessFlags) {
 		this.accessFlags = accessFlags;
+	}
+
+	public boolean isNeedFinalize() {
+		return needFinalize;
+	}
+
+	public void setNeedFinalize(boolean needFinalize) {
+		this.needFinalize = needFinalize;
 	}
 
 	public boolean isSuperClassOf(AbstractClass other) throws VMException {
