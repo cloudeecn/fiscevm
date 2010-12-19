@@ -78,9 +78,13 @@ public final class DOMHelper {
 				NamedNodeMap attributes = root.getAttributes();
 				for (int k = 0; k < attributes.getLength(); ++k) {
 					Node attribute = attributes.item(k);
-					attrs.append(" ").append(attribute.getNodeName())
-							.append("=\"").append(attribute.getNodeValue())
-							.append("\"");
+					attrs.append(" ")
+							.append(attribute.getNodeName())
+							.append("=\"")
+							.append(attribute.getNodeValue()
+									.replaceAll("&", "&amp;")
+									.replaceAll("<", "&lt;")
+									.replaceAll(">", "&gt;")).append("\"");
 				}
 				result.append("\n");
 				for (int i = 0, max = (level - 1) > 0 ? (level - 1) : 0; i < max; i++) {
