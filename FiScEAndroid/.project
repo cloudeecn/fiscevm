@@ -34,7 +34,7 @@
 		<link>
 			<name>res/fisce_scripts</name>
 			<type>2</type>
-			<location>/home/cloudee/fisce/FiScENV/target/classes</location>
+			<location>E:/home/cloudee/fisce/FiScENV/target/classes</location>
 		</link>
 	</linkedResources>
 </projectDescription>
