@@ -26,10 +26,10 @@ import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
 import com.cirnoworks.fisce.vm.data.StackTraceElement;
 
-public class FiScEVMThrowOut extends NativeHandlerTemplate{
+public class FiScEVMThrowOut extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException, VMCriticalException {
+	public void dealNative(int[] args, IThread thread) throws VMException,
+			VMCriticalException {
 		int throwableHandle = args[0];
 		int msgHandle = args[1];
 		ClassField backtrace = context
@@ -58,7 +58,9 @@ public class FiScEVMThrowOut extends NativeHandlerTemplate{
 		StackTraceElement[] stes = new StackTraceElement[size];
 		StringBuilder msgBuilder = new StringBuilder();
 		msgBuilder.append("Exception " + context.getClass(args[0]).getName()
-				+ " thrown out.\n");
+				+ " thrown out"
+				+ (msgHandle == 0 ? "." : ":" + heap.getString(msgHandle))
+				+ "\n");
 		for (int i = 0; i < size; i++) {
 			int stackTraceHandle = heap.getArrayHandle(stackTracesHandle, i);
 			String cn = heap.getString(heap.getFieldHandle(stackTraceHandle,
@@ -69,8 +71,8 @@ public class FiScEVMThrowOut extends NativeHandlerTemplate{
 					fileName));
 			int ln = heap.getFieldInt(stackTraceHandle, lineNumber);
 			StackTraceElement ste = new StackTraceElement(cn, mn, fn, ln);
-			msgBuilder.append("*\t" + cn + "." + mn + "(" + fn + ":" + ln
-					+ ")\n");
+			msgBuilder.append(cn + "." + mn + "(" + fn + ":" + ln
+					+ ") **\n");
 			stes[i] = ste;
 		}
 		throw new VMCriticalException(msgBuilder.toString());
