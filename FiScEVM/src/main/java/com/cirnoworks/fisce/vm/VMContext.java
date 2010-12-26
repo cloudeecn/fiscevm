@@ -53,13 +53,22 @@ public class VMContext implements FiScEVM {
 	public static final int CLINIT_NONE = -1;
 	public static final int CLINIT_FINISHED = -2;
 
-	public void bootFromData(InputStream is) throws VMCriticalException {
+	public Element getSaveData(InputStream is) throws VMCriticalException {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document document = db.parse(is);
 			Element root = (Element) document.getElementsByTagName("vmcontext")
 					.item(0);
+			return root;
+		} catch (Exception e) {
+			throw new VMCriticalException(e);
+		}
+	}
+
+	public void bootFromData(InputStream is) throws VMCriticalException {
+		try {
+			Element root = getSaveData(is);
 
 			Element classes = (Element) root.getElementsByTagName("classes")
 					.item(0);
@@ -118,8 +127,6 @@ public class VMContext implements FiScEVM {
 				throw new VMCriticalException("Thread manager is wrong!");
 			}
 
-			
-
 			if (classLoader == null
 			/*
 			 * || !classLoader .getClass() .getCanonicalName()
@@ -135,7 +142,7 @@ public class VMContext implements FiScEVM {
 			for (INativeHandler inh : nativeHandlers.values()) {
 				inh.init(this);
 			}
-			
+
 			Element tks = (Element) root.getElementsByTagName("toolkits").item(
 					0);
 			NodeList toolkitElements = tks.getElementsByTagName("toolkit");
@@ -155,7 +162,7 @@ public class VMContext implements FiScEVM {
 							+ " not found!");
 				}
 			}
-			
+
 			String[] classNames = classMap.keySet().toArray(
 					new String[classMap.keySet().size()]);
 			for (String cn : classNames) {
