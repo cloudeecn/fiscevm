@@ -177,6 +177,11 @@ public class VMContext implements FiScEVM {
 
 	public void saveData(OutputStream os) throws VMCriticalException,
 			IOException {
+		saveData(os, null);
+	}
+
+	public void saveData(OutputStream os, SaveDataPostProcesser postProcesser)
+			throws VMCriticalException, IOException {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -255,6 +260,9 @@ public class VMContext implements FiScEVM {
 				tks.appendChild(toolkitElement);
 			}
 			context.appendChild(tks);
+			if (postProcesser != null) {
+				postProcesser.postProcess(context);
+			}
 			String out = DOMHelper.getStringFromNode(document, 0);
 			OutputStreamWriter osw = new OutputStreamWriter(os, "utf-8");
 			osw.write(out);

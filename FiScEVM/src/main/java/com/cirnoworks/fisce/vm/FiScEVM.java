@@ -144,4 +144,6 @@ public interface FiScEVM {
 	 *            控制台输出
 	 */
 	void setConsole(IDebugConsole console);
+	
+	
 }
