@@ -70,7 +70,17 @@ public class ArrayFillTest {
 				FiScEVM.throwOut(new Error(), "double fill mismatch");
 			}
 		}
+		getArrayTest(distBoolean);
+		getArrayTest(distByte);
+		getArrayTest(distShort);
+		getArrayTest(distChar);
+		getArrayTest(distInt);
+		getArrayTest(distLong);
+		getArrayTest(distFloat);
+		getArrayTest(distDouble);
 	}
+
+	private static native void getArrayTest(Object data);
 
 	private static native void fillArrayTest(Object toFillOpt,
 			Object toFillNormal);

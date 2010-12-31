@@ -757,6 +757,15 @@ public final class DefaultHeap implements IHeap {
 		}
 	}
 
+	public void getArrayBoolean(boolean[] dst, int dstPos, int handle,
+			int srcPos, int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		ByteBuffer obj = getArrayObj(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = obj.get(srcPos + i) > 0;
+		}
+	}
+
 	public void fillArrayByte(int handle, int dstPos, byte[] src, int srcPos,
 			int len) throws VMException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
@@ -766,12 +775,31 @@ public final class DefaultHeap implements IHeap {
 		obj.put(src, srcPos, len);
 	}
 
+	public void getArrayByte(byte[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		ByteBuffer obj = getArrayObj(handle);
+		obj = obj.duplicate();
+		obj.position(srcPos);
+		obj.get(dst, dstPos, len);
+	}
+
 	public void fillArrayShort(int handle, int dstPos, short[] src, int srcPos,
 			int len) throws VMException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
 		ByteBuffer obj = getArrayObj(handle);
 		for (int i = 0; i < len; i++) {
 			obj.putInt((dstPos + i) << 2, src[srcPos + i]);
+		}
+	}
+
+	public void getArrayShort(short[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		ByteBuffer obj = getArrayObj(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = (short) obj.getInt((srcPos + i) << 2);
+
 		}
 	}
 
@@ -784,13 +812,29 @@ public final class DefaultHeap implements IHeap {
 		}
 	}
 
+	public void getArrayChar(char[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		ByteBuffer obj = getArrayObj(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = (char) obj.getInt((srcPos + i) << 2);
+		}
+	}
+
 	public void fillArrayInt(int handle, int dstPos, int[] src, int srcPos,
 			int len) throws VMException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
 		IntBuffer obj = getArrayObj(handle).asIntBuffer();
 		obj.position(dstPos);
 		obj.put(src, srcPos, len);
+	}
 
+	public void getArrayInt(int[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		IntBuffer obj = getArrayObj(handle).asIntBuffer();
+		obj.position(srcPos);
+		obj.get(dst, dstPos, len);
 	}
 
 	public void fillArrayLong(int handle, int dstPos, long[] src, int srcPos,
@@ -801,6 +845,14 @@ public final class DefaultHeap implements IHeap {
 		obj.put(src, srcPos, len);
 	}
 
+	public void getArrayLong(long[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		LongBuffer obj = getArrayObj(handle).asLongBuffer();
+		obj.position(srcPos);
+		obj.get(dst, dstPos, len);
+	}
+
 	public void fillArrayFloat(int handle, int dstPos, float[] src, int srcPos,
 			int len) throws VMException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
@@ -809,12 +861,28 @@ public final class DefaultHeap implements IHeap {
 		obj.put(src, srcPos, len);
 	}
 
+	public void getArrayFloat(float[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		FloatBuffer obj = getArrayObj(handle).asFloatBuffer();
+		obj.position(srcPos);
+		obj.get(dst, dstPos, len);
+	}
+
 	public void fillArrayDouble(int handle, int dstPos, double[] src,
 			int srcPos, int len) throws VMException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
 		DoubleBuffer obj = getArrayObj(handle).asDoubleBuffer();
 		obj.position(dstPos);
 		obj.put(src, srcPos, len);
+	}
+
+	public void getArrayDouble(double[] dst, int dstPos, int handle,
+			int srcPos, int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		DoubleBuffer obj = getArrayObj(handle).asDoubleBuffer();
+		obj.position(srcPos);
+		obj.get(dst, dstPos, len);
 	}
 
 	/*
@@ -1003,8 +1071,8 @@ public final class DefaultHeap implements IHeap {
 		if (content == null) {
 			return 0;
 		}
-		int charHandle = allocate((ClassArray) context.getClass("[C"), content
-				.length());
+		int charHandle = allocate((ClassArray) context.getClass("[C"),
+				content.length());
 		ClassBase stringClass = (ClassBase) context
 				.getClass("java/lang/String");
 		ClassField valueField = context.getField("java/lang/String.value.[C");
@@ -1042,16 +1110,16 @@ public final class DefaultHeap implements IHeap {
 		for (int i = 0; i < count; i++) {
 			switch (sizeShift) {
 			case 0:
-				putArrayByte(dstHandle, i + dstOfs, getArrayByte(srcHandle, i
-						+ srcOfs));
+				putArrayByte(dstHandle, i + dstOfs,
+						getArrayByte(srcHandle, i + srcOfs));
 				break;
 			case 2:
-				putArrayInt(dstHandle, i + dstOfs, getArrayInt(srcHandle, i
-						+ srcOfs));
+				putArrayInt(dstHandle, i + dstOfs,
+						getArrayInt(srcHandle, i + srcOfs));
 				break;
 			case 3:
-				putArrayLong(dstHandle, i + dstOfs, getArrayLong(srcHandle, i
-						+ srcOfs));
+				putArrayLong(dstHandle, i + dstOfs,
+						getArrayLong(srcHandle, i + srcOfs));
 				break;
 			}
 		}
@@ -1193,9 +1261,8 @@ public final class DefaultHeap implements IHeap {
 												+ " in array"
 												+ ac.getName() + " " + handle;
 										assert context.getConsole()
-												.info(
-														"SCAN " + handle + "->"
-																+ toadd);
+												.info("SCAN " + handle + "->"
+														+ toadd);
 										pending.add(toadd);
 									}
 								}
@@ -1258,8 +1325,8 @@ public final class DefaultHeap implements IHeap {
 					.item(0)).getElementsByTagName("literal");
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(DOMHelper.getTextContent(li), Integer.valueOf(li
-						.getAttribute("handle")));
+				literals.put(DOMHelper.getTextContent(li),
+						Integer.valueOf(li.getAttribute("handle")));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")

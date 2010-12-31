@@ -6,9 +6,9 @@ import java.util.Random;
 import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.IThread;
 import com.cirnoworks.fisce.vm.IToolkit;
+import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
@@ -52,6 +52,7 @@ class ArrayFillToolkit implements IToolkit {
 
 	public void setupContext() {
 		context.registerNativeHandler(new ArrayFillHandler());
+		context.registerNativeHandler(new ArrayGetHandler());
 	}
 
 	public InputStream getResourceByClassName(String className) {
@@ -166,6 +167,104 @@ class ArrayFillHandler extends NativeHandlerTemplate {
 
 	public String getUniqueName() {
 		return "EXCLUDE/fisce/test/ArrayFillTest.fillArrayTest.(Ljava/lang/Object;Ljava/lang/Object;)V";
+	}
+
+}
+
+class ArrayGetHandler extends NativeHandlerTemplate {
+
+	public void dealNative(int[] args, IThread thread) throws VMException,
+			VMCriticalException {
+		// args[0] -> arrayOpt
+		// args[1] -> arrayNormal
+		IHeap heap = context.getHeap();
+		ClassArray arrayClass = (ClassArray) context.getClazzById(heap
+				.getClass(args[0]));
+		int len = heap.getArrayLength(args[0]);
+		assert arrayClass instanceof ClassArray : "Type mismatch!";
+		char type = arrayClass.getName().charAt(1);
+		// Z B S C I J F D
+		switch (type) {
+		case 'Z': {
+			boolean[] tmp = new boolean[len];
+			heap.getArrayBoolean(tmp, 0, args[0], 0, len);
+			for (int i = 0; i < len; i++) {
+				assert heap.getArrayBoolean(args[0], i) == tmp[i] : "Mismatch at "
+						+ i;
+			}
+			break;
+		}
+		case 'B': {
+			byte[] tmp = new byte[len];
+			heap.getArrayByte(tmp, 0, args[0], 0, len);
+			for (int i = 0; i < len; i++) {
+				assert heap.getArrayByte(args[0], i) == tmp[i] : "Mismatch at "
+						+ i;
+			}
+			break;
+		}
+		case 'S': {
+			short[] tmp = new short[len];
+			heap.getArrayShort(tmp, 0, args[0], 0, len);
+			for (int i = 0; i < len; i++) {
+				assert heap.getArrayShort(args[0], i) == tmp[i] : "Mismatch at "
+						+ i;
+			}
+			break;
+		}
+		case 'C': {
+			char[] tmp = new char[len];
+			heap.getArrayChar(tmp, 0, args[0], 0, len);
+			for (int i = 0; i < len; i++) {
+				assert heap.getArrayChar(args[0], i) == tmp[i] : "Mismatch at "
+						+ i;
+			}
+			break;
+		}
+		case 'I': {
+			int[] tmp = new int[len];
+			heap.getArrayInt(tmp, 0, args[0], 0, len);
+			for (int i = 0; i < len; i++) {
+				assert heap.getArrayInt(args[0], i) == tmp[i] : "Mismatch at "
+						+ i;
+			}
+			break;
+		}
+		case 'J': {
+			long[] tmp = new long[len];
+			heap.getArrayLong(tmp, 0, args[0], 0, len);
+			for (int i = 0; i < len; i++) {
+				assert heap.getArrayLong(args[0], i) == tmp[i] : "Mismatch at "
+						+ i;
+			}
+			break;
+		}
+		case 'F': {
+			float[] tmp = new float[len];
+			heap.getArrayFloat(tmp, 0, args[0], 0, len);
+			for (int i = 0; i < len; i++) {
+				assert heap.getArrayFloat(args[0], i) == tmp[i] : "Mismatch at "
+						+ i;
+			}
+			break;
+		}
+		case 'D': {
+			double[] tmp = new double[len];
+			heap.getArrayDouble(tmp, 0, args[0], 0, len);
+			for (int i = 0; i < len; i++) {
+				assert heap.getArrayDouble(args[0], i) == tmp[i] : "Mismatch at "
+						+ i;
+			}
+			break;
+		}
+		default: {
+			assert false : "Illegal type " + type;
+		}
+		}
+	}
+
+	public String getUniqueName() {
+		return "EXCLUDE/fisce/test/ArrayFillTest.getArrayTest.(Ljava/lang/Object;)V";
 	}
 
 }

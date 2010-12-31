@@ -559,6 +559,30 @@ public interface IHeap {
 	void fillArrayDouble(int handle, int dstPos, double[] src, int srcPos,
 			int len) throws VMException, VMCriticalException;
 
+	void getArrayBoolean(boolean[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException;
+
+	void getArrayByte(byte[] dst, int dstPos, int handle, int srcPos, int len)
+			throws VMException, VMCriticalException;
+
+	void getArrayShort(short[] dst, int dstPos, int handle, int srcPos, int len)
+			throws VMException, VMCriticalException;
+
+	void getArrayChar(char[] dst, int dstPos, int handle, int srcPos, int len)
+			throws VMException, VMCriticalException;
+
+	void getArrayInt(int[] dst, int dstPos, int handle, int srcPos, int len)
+			throws VMException, VMCriticalException;
+
+	void getArrayLong(long[] dst, int dstPos, int handle, int srcPos, int len)
+			throws VMException, VMCriticalException;
+
+	void getArrayFloat(float[] dst, int dstPos, int handle, int srcPos, int len)
+			throws VMException, VMCriticalException;
+
+	void getArrayDouble(double[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException;
+
 	/**
 	 * 复制数组的内容
 	 * 
@@ -621,7 +645,8 @@ public interface IHeap {
 
 	public void setStaticByte(ClassField field, byte value) throws VMException;
 
-	public void setStaticShort(ClassField field, short value) throws VMException;
+	public void setStaticShort(ClassField field, short value)
+			throws VMException;
 
 	public void setStaticChar(ClassField field, char value) throws VMException;
 
@@ -687,12 +712,13 @@ public interface IHeap {
 	 * 垃圾收集，释放掉不使用的句柄和对应的内存空间
 	 * 
 	 * @throws VMCriticalException
-	 * @throws VMException 
+	 * @throws VMException
 	 */
 	void gc() throws VMCriticalException, VMException;
-	
+
 	/**
 	 * 获得需要执行finialize的对象句柄数组并清空等待队列里面的对象
+	 * 
 	 * @return 要执行finialize的对象句柄数组
 	 */
 	int[] getToFinialize();

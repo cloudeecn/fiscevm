@@ -798,7 +798,7 @@ public final class ArrayHeap implements IHeap {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return getArrayObjFloat(handle)[index];
+		return Float.intBitsToFloat(getArrayObjFloat(handle)[index]);
 	}
 
 	/*
@@ -812,7 +812,7 @@ public final class ArrayHeap implements IHeap {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
-		return getArrayObjDouble(handle)[index];
+		return Double.longBitsToDouble(getArrayObjDouble(handle)[index]);
 	}
 
 	/*
@@ -979,10 +979,26 @@ public final class ArrayHeap implements IHeap {
 		}
 	}
 
+	public void getArrayBoolean(boolean[] dst, int dstPos, int handle,
+			int srcPos, int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		byte[] src = getArrayObjBoolean(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = src[srcPos + i] > 0;
+		}
+	}
+
 	public void fillArrayByte(int handle, int dstPos, byte[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
 		byte[] dst = getArrayObjByte(handle);
+		System.arraycopy(src, srcPos, dst, dstPos, len);
+	}
+
+	public void getArrayByte(byte[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		byte[] src = getArrayObjBoolean(handle);
 		System.arraycopy(src, srcPos, dst, dstPos, len);
 	}
 
@@ -995,12 +1011,30 @@ public final class ArrayHeap implements IHeap {
 		}
 	}
 
+	public void getArrayShort(short[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		int[] src = getArrayObjShort(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = (short) src[srcPos + i];
+		}
+	}
+
 	public void fillArrayChar(int handle, int dstPos, char[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
 		int[] dst = getArrayObjChar(handle);
 		for (int i = 0; i < len; i++) {
 			dst[dstPos + i] = src[srcPos + i];
+		}
+	}
+
+	public void getArrayChar(char[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		int[] src = getArrayObjChar(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = (char) src[srcPos + i];
 		}
 	}
 
@@ -1012,10 +1046,24 @@ public final class ArrayHeap implements IHeap {
 
 	}
 
+	public void getArrayInt(int[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		int[] src = getArrayObjInt(handle);
+		System.arraycopy(src, srcPos, dst, dstPos, len);
+	}
+
 	public void fillArrayLong(int handle, int dstPos, long[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
 		long[] dst = getArrayObjLong(handle);
+		System.arraycopy(src, srcPos, dst, dstPos, len);
+	}
+
+	public void getArrayLong(long[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		long[] src = getArrayObjLong(handle);
 		System.arraycopy(src, srcPos, dst, dstPos, len);
 	}
 
@@ -1028,12 +1076,30 @@ public final class ArrayHeap implements IHeap {
 		}
 	}
 
+	public void getArrayFloat(float[] dst, int dstPos, int handle, int srcPos,
+			int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		int[] src = getArrayObjFloat(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = Float.intBitsToFloat(src[srcPos + i]);
+		}
+	}
+
 	public void fillArrayDouble(int handle, int dstPos, double[] src,
 			int srcPos, int len) throws VMException, VMCriticalException {
 		validateFillArray(handle, dstPos, src.length, srcPos, len);
 		long[] dst = getArrayObjDouble(handle);
 		for (int i = 0; i < len; i++) {
 			dst[dstPos + i] = Double.doubleToRawLongBits(src[srcPos + i]);
+		}
+	}
+
+	public void getArrayDouble(double[] dst, int dstPos, int handle,
+			int srcPos, int len) throws VMException, VMCriticalException {
+		validateFillArray(handle, srcPos, dst.length, dstPos, len);
+		long[] src = getArrayObjDouble(handle);
+		for (int i = 0; i < len; i++) {
+			dst[dstPos + i] = Double.longBitsToDouble(src[srcPos + i]);
 		}
 	}
 
