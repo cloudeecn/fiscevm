@@ -1511,8 +1511,8 @@ public final class ArrayHeap implements IHeap {
 		}
 		long t2 = System.nanoTime();
 		System.out.println("#GC: to finalize " + fi + "objects, release " + rl
-				+ " objects, total " + handleCount + " objects in " + (t2 - t1)
-				/ 1000000f + "ms");
+				+ " objects in " + (t2 - t1) / 1000000f + "ms, " + handleCount
+				+ " objects in use");
 	}
 
 	public int[] getToFinialize() {
