@@ -36,7 +36,7 @@ public interface IHeap {
 	/**
 	 * 最大的静态区的大小（字节）
 	 */
-	public static final int MAX_STATIC = 1048576;
+	public static final int MAX_STATIC = 131072;
 
 	/**
 	 * 由VMContext调用，将堆管理器绑定到虚拟机上
@@ -65,6 +65,14 @@ public interface IHeap {
 	 *             读取的时候虚拟机出现异常
 	 */
 	void loadData(Element data) throws VMCriticalException;
+	
+	/**
+	 * 重建字符串常量表
+	 * 在读取的最后阶段调用
+	 * @throws VMCriticalException 虚拟机异常
+	 * @throws VMException 虚拟机异常
+	 */
+	void rebuildLiteral() throws VMCriticalException, VMException;
 
 	/**
 	 * 分配一个对象

@@ -67,6 +67,8 @@ public final class ArrayHeap implements IHeap {
 	private BitSet finalized = new BitSet(MAX_OBJECTS);
 	// no persist
 	private int handleCount;
+	// Temp var for loading
+	private int[] literalHandles;
 
 	{
 		// init
@@ -1529,13 +1531,6 @@ public final class ArrayHeap implements IHeap {
 		// Document document = data.getOwnerDocument();
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			NodeList lis = ((Element) data.getElementsByTagName("literals")
-					.item(0)).getElementsByTagName("literal");
-			for (int i = 0, max = lis.getLength(); i < max; i++) {
-				Element li = (Element) lis.item(i);
-				literals.put(DOMHelper.getTextContent(li),
-						Integer.valueOf(li.getAttribute("handle")));
-			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")
 					.item(0);
@@ -1634,9 +1629,27 @@ public final class ArrayHeap implements IHeap {
 				int handle = Integer.parseInt(shandle);
 				finalized.set(handle);
 			}
+
+			NodeList lis = ((Element) data.getElementsByTagName("literals")
+					.item(0)).getElementsByTagName("literal");
+			literalHandles = new int[lis.getLength()];
+			for (int i = 0, max = lis.getLength(); i < max; i++) {
+				Element li = (Element) lis.item(i);
+				int handle = Integer.valueOf(li.getAttribute("handle"));
+				literalHandles[i] = handle;
+
+			}
 		} catch (Exception e) {
 			throw new VMCriticalException(e);
 		}
+	}
+
+	public void rebuildLiteral() throws VMException, VMCriticalException {
+		for (int handle : literalHandles) {
+			String key = getString(handle);
+			literals.put(key, handle);
+		}
+		literalHandles = null;
 	}
 
 	public void saveData(Element data) throws VMCriticalException {
@@ -1649,7 +1662,7 @@ public final class ArrayHeap implements IHeap {
 			li.appendChild(lit);
 
 			lit.setAttribute("handle", ls.getValue().toString());
-			DOMHelper.setTextContent(lit, ls.getKey());
+			// DOMHelper.setTextContent(lit, ls.getKey());
 		}
 
 		Element cs = document.createElement("statics");

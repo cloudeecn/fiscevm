@@ -70,6 +70,8 @@ public final class DefaultHeap implements IHeap {
 	private BitSet finalized = new BitSet(MAX_OBJECTS);
 	// no presist
 	private int handleCount;
+	//temp var for loading
+	private int[] literalHandles;
 
 	{
 		// init
@@ -1324,10 +1326,10 @@ public final class DefaultHeap implements IHeap {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			NodeList lis = ((Element) data.getElementsByTagName("literals")
 					.item(0)).getElementsByTagName("literal");
+			literalHandles=new int[lis.getLength()];
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literals.put(DOMHelper.getTextContent(li),
-						Integer.valueOf(li.getAttribute("handle")));
+				literalHandles[i]=Integer.valueOf(li.getAttribute("handle"));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")
@@ -1393,6 +1395,14 @@ public final class DefaultHeap implements IHeap {
 		}
 	}
 
+	public void rebuildLiteral() throws VMException, VMCriticalException {
+		for (int handle : literalHandles) {
+			String key = getString(handle);
+			literals.put(key, handle);
+		}
+		literalHandles = null;
+	}
+	
 	public void saveData(Element data) {
 
 		// private HashMap<String, Integer> literals = new HashMap<String,
@@ -1405,7 +1415,7 @@ public final class DefaultHeap implements IHeap {
 			li.appendChild(lit);
 
 			lit.setAttribute("handle", ls.getValue().toString());
-			DOMHelper.setTextContent(lit, ls.getKey());
+//			DOMHelper.setTextContent(lit, ls.getKey());
 		}
 
 		// private ByteBuffer staticArea = BufferUtil.createBuffer(MAX_STATIC);

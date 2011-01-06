@@ -169,9 +169,14 @@ public class VMContext implements FiScEVM {
 				AbstractClass cl = getClass(cn);
 				assert cl != null;
 			}
+			heap.rebuildLiteral();
 			threadManager.loadData(tmElement);
 		} catch (Exception e) {
-			throw new VMCriticalException(e);
+			if (e instanceof VMCriticalException) {
+				throw (VMCriticalException)e;
+			} else {
+				throw new VMCriticalException(e);
+			}
 		}
 	}
 
