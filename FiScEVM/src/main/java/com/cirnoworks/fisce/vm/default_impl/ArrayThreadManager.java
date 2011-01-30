@@ -401,8 +401,8 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 			}
 			setState(STATE_RUNNING);
 		}
-		long nextGC = System.currentTimeMillis() + 5000;
-		long nextGCForce = System.currentTimeMillis() + 15000;
+		long nextGC =0;
+		long nextGCForce = 0;
 		Iterator<ArrayThread> idt = runningThreads.iterator();
 		boolean run = false;
 		int stateLocal;
@@ -477,9 +477,9 @@ public class ArrayThreadManager implements Runnable, IThreadManager {
 						}
 						long now = System.currentTimeMillis();
 						long sleepTime = nextWakeUpTimeTotal - now;
-						if ((sleepTime > 100 && now > nextGC)
+						if ((sleepTime > 10 && now > nextGC)
 								|| now > nextGCForce) {
-							nextGC = now + 5000;
+							nextGC = now + 2000;
 							nextGCForce = nextGC + 10000;
 							heap.gc();
 							now = System.currentTimeMillis();
