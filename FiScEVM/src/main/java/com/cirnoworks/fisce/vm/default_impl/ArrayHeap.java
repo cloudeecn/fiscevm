@@ -712,7 +712,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public boolean getArrayBoolean(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -726,7 +726,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public byte getArrayByte(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -740,7 +740,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public short getArrayShort(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -754,7 +754,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public char getArrayChar(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -768,7 +768,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public int getArrayInt(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -782,7 +782,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public long getArrayLong(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -796,7 +796,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public float getArrayFloat(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -810,7 +810,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public double getArrayDouble(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -824,7 +824,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public int getArrayHandle(int handle, int index) throws VMException,
 			VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -838,7 +838,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayBoolean(int handle, int index, boolean value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -853,7 +853,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayByte(int handle, int index, byte value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -867,7 +867,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayShort(int handle, int index, short value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -881,7 +881,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayChar(int handle, int index, char value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -895,7 +895,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayInt(int handle, int index, int value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -909,7 +909,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayLong(int handle, int index, long value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -923,7 +923,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayFloat(int handle, int index, float value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -937,7 +937,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayDouble(int handle, int index, double value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
@@ -951,7 +951,7 @@ public final class ArrayHeap implements IHeap {
 	 */
 	public void putArrayHandle(int handle, int index, int value)
 			throws VMException, VMCriticalException {
-		if (index < 0 || index > getArrayLength(handle)) {
+		if (index < 0 || index >= getArrayLength(handle)) {
 			throw new VMException("java/lang/IndexOutOfBoundsException", index
 					+ ":" + getArrayLength(handle));
 		}
