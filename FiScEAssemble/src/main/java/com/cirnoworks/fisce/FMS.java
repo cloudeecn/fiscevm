@@ -60,6 +60,7 @@ public class FMS {
 		vm.setThreadManager(threadManager);
 		vm.setConsole(new SystemOutConsole());
 		vm.addToolkit(new BaseToolkit());
+		vm.addToolkit(new EclipseRunSupportToolkit());
 		String boot;
 		if (i < max) {
 			boot = args[i];
