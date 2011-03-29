@@ -20,6 +20,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import com.cirnoworks.fisce.util.BufferUtil;
 import com.cirnoworks.fisce.util.TypeUtil;
@@ -359,8 +361,8 @@ public final class ArrayThread implements IThread {
 		}
 		setThreadHandle(threadHandle);
 		pushFrame(method);
-		putLocalHandle(0, heap.allocate((ClassArray) context
-				.getClass("[Ljava/lang/String;"), 0));
+		putLocalHandle(0, heap.allocate(
+				(ClassArray) context.getClass("[Ljava/lang/String;"), 0));
 		clinit(method.getOwner());
 	}
 
@@ -375,9 +377,8 @@ public final class ArrayThread implements IThread {
 		ClassMethod runner = context
 				.lookupMethodVirtual(runnerClass, "run.()V");
 		if (runner == null) {
-			throw new VMException("java/lang/NoSuchMethodError", runnerClass
-					.getName()
-					+ "." + ".run.()V");
+			throw new VMException("java/lang/NoSuchMethodError",
+					runnerClass.getName() + "." + ".run.()V");
 		}
 		setThreadHandle(handle);
 		pushFrame(runner);
@@ -605,12 +606,47 @@ public final class ArrayThread implements IThread {
 		}
 	}
 
+	int[] count = new int[256];
+	long[] tcount = new long[256];
+	long nextShowTime;
+	private final boolean profile;
+	{
+		profile = false;
+	}
+
+	private void showCount() {
+		TreeMap<Integer, ArrayList<Integer>> tm = new TreeMap<Integer, ArrayList<Integer>>();
+		for (int i = 0; i < 256; i++) {
+			int c = count[i];
+			if (tm.containsKey(c)) {
+				tm.get(c).add(i);
+			} else {
+				ArrayList<Integer> al = new ArrayList<Integer>();
+				al.add(i);
+				tm.put(c, al);
+			}
+		}
+		System.out.println("\n\n===========================\n");
+		int displayed = 0;
+		for (Entry<Integer, ArrayList<Integer>> entry : tm.entrySet()) {
+			int c = entry.getKey();
+			for (int i : entry.getValue()) {
+				if (displayed > 245 && c > 0) {
+					System.out.println(OP_NAME[i] + ": " + c + " " + tcount[i]
+							/ c / 1000000f + "ms");
+				}
+				displayed++;
+			}
+		}
+	}
+
 	/**
 	 * 
 	 * @return yield
 	 * @throws VMCriticalException
 	 */
 	private void runOneInst() throws VMCriticalException {
+
 		this.lpc = this.pc;
 		int op = code[this.pc++] & 0xff;
 		if (lpc == 0 && method.isClinit()) {
@@ -624,6 +660,15 @@ public final class ArrayThread implements IThread {
 									.getName())) + " " + cl);
 			if (cl) {
 				return;
+			}
+		}
+		long time = 0;
+		if (profile) {
+			count[op]++;
+			time = System.nanoTime();
+			if (time > nextShowTime) {
+				nextShowTime = time + 10000000000l;
+				showCount();
 			}
 		}
 
@@ -729,31 +774,11 @@ public final class ArrayThread implements IThread {
 			}
 			case IRETURN:
 			case FRETURN: {
-				int value = popInt();
-				if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
-					if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
-						monitorExit(context.getClassObjectHandleForClass(method
-								.getOwner()));
-					} else {
-						monitorExit(getLocalHandle(0));
-					}
-				}
-				popFrame();
-				pushInt(value);
+				opIFReturn();
 				break;
 			}
 			case ARETURN: {
-				int aref = popHandle();
-				if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
-					if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
-						monitorExit(context.getClassObjectHandleForClass(method
-								.getOwner()));
-					} else {
-						monitorExit(getLocalHandle(0));
-					}
-				}
-				popFrame();
-				pushHandle(aref);
+				opAReturn();
 				break;
 			}
 			case ARRAYLENGTH: {
@@ -1271,7 +1296,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case IADD: {
-				pushInt(popInt() + popInt());
+				opIAdd();
 				break;
 			}
 			case IAND: {
@@ -1504,10 +1529,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case IINC: {
-				int index = code[this.pc++] & 0xff;
-
-				int value = code[this.pc++];
-				this.localVars[index] += value;
+				opIINC();
 				break;
 			}
 			case IMUL: {
@@ -1654,58 +1676,15 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LDC: {
-				char index = (char) (code[this.pc++] & 0xff);
-				Constant con = getConstant(index);
-				if (con instanceof ConstantInteger) {
-					pushInt(((ConstantInteger) con).getData());
-				} else if (con instanceof ConstantFloat) {
-					pushFloat(((ConstantFloat) con).getData());
-				} else if (con instanceof ConstantString) {
-					pushHandle(((ConstantString) con).getHandle());
-				} else if (con instanceof ConstantClass) {
-					pushHandle(context
-							.getClassObjectHandleForClass(((ConstantClass) con)
-									.getClazz()));
-				} else {
-					throw new VMException("java/lang/VirtualMachineError",
-							"LDC type wrong!" + con);
-				}
+				opLDC();
 				break;
 			}
 			case LDC_W: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				Constant con = getConstant(index);
-				if (con instanceof ConstantInteger) {
-					pushInt(((ConstantInteger) con).getData());
-				} else if (con instanceof ConstantFloat) {
-					pushFloat(((ConstantFloat) con).getData());
-				} else if (con instanceof ConstantString) {
-					pushHandle(((ConstantString) con).getHandle());
-				} else if (con instanceof ConstantClass) {
-					pushHandle(context
-							.getClassObjectHandleForClass(((ConstantClass) con)
-									.getClazz()));
-				} else {
-					throw new VMException("java/lang/VirtualMachineError",
-							"LDCW type wrong!" + con);
-				}
+				opLDCW();
 				break;
 			}
 			case LDC2_W: {
-				byte ib1 = code[this.pc++];
-				byte ib2 = code[this.pc++];
-				int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-				Constant con = getConstant(index);
-				if (con instanceof ConstantLong) {
-					pushLong(((ConstantLong) con).getData());
-				} else if (con instanceof ConstantDouble) {
-					pushDouble(((ConstantDouble) con).getData());
-				} else {
-					throw new VMException("java/lang/VirtualMachineError",
-							"LDC2_W type wrong!" + con);
-				}
+				opLDC2W();
 				break;
 			}
 			case LDIV: {
@@ -1766,17 +1745,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case LRETURN: {
-				long value = popLong();
-				if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
-					if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
-						monitorExit(context.getClassObjectHandleForClass(method
-								.getOwner()));
-					} else {
-						monitorExit(getLocalHandle(0));
-					}
-				}
-				popFrame();
-				pushLong(value);
+				opLReturn();
 
 				break;
 			}
@@ -1890,18 +1859,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case RETURN: {
-				if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
-					if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
-						monitorExit(context.getClassObjectHandleForClass(method
-								.getOwner()));
-					} else {
-						monitorExit(getLocalHandle(0));
-					}
-				}
-				if (method.isClinit()) {
-					context.finishClinited(method.getOwner());
-				}
-				popFrame();
+				opReturn();
 				break;
 			}
 			case SALOAD: {
@@ -1925,12 +1883,7 @@ public final class ArrayThread implements IThread {
 				break;
 			}
 			case SWAP: {
-				int value1 = popType(tc);
-				byte type1 = tc.type;
-				int value2 = popType(tc);
-				byte type2 = tc.type;
-				pushType(value1, type1);
-				pushType(value2, type2);
+				opSwap();
 				break;
 			}
 			case TABLESWITCH: {
@@ -1961,8 +1914,146 @@ public final class ArrayThread implements IThread {
 			}
 		} catch (RuntimeException e2) {
 			throw new VMCriticalException("Unhandled exception in VM!", e2);
+		} finally {
+			if (profile) {
+				long time1 = System.nanoTime();
+				tcount[op] += time1 - time;
+			}
 		}
 		return;
+	}
+	
+	public void opIINC(){
+		int index = code[this.pc++] & 0xff;
+		int value = code[this.pc++];
+		this.localVars[index] += value;
+	}
+
+	private void opLDC2W() throws VMException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		Constant con = getConstant(index);
+		if (con instanceof ConstantLong) {
+			pushLong(((ConstantLong) con).getData());
+		} else if (con instanceof ConstantDouble) {
+			pushDouble(((ConstantDouble) con).getData());
+		} else {
+			throw new VMException("java/lang/VirtualMachineError",
+					"LDC2_W type wrong!" + con);
+		}
+	}
+
+	private void opLDCW() throws VMException, VMCriticalException {
+		byte ib1 = code[this.pc++];
+		byte ib2 = code[this.pc++];
+		int index = TypeUtil.bytesToUnsignedInt(ib1, ib2);
+		Constant con = getConstant(index);
+		if (con instanceof ConstantInteger) {
+			pushInt(((ConstantInteger) con).getData());
+		} else if (con instanceof ConstantFloat) {
+			pushFloat(((ConstantFloat) con).getData());
+		} else if (con instanceof ConstantString) {
+			pushHandle(((ConstantString) con).getHandle());
+		} else if (con instanceof ConstantClass) {
+			pushHandle(context
+					.getClassObjectHandleForClass(((ConstantClass) con)
+							.getClazz()));
+		} else {
+			throw new VMException("java/lang/VirtualMachineError",
+					"LDCW type wrong!" + con);
+		}
+	}
+
+	private void opLDC() throws VMException, VMCriticalException {
+		char index = (char) (code[this.pc++] & 0xff);
+		Constant con = getConstant(index);
+		if (con instanceof ConstantInteger) {
+			pushInt(((ConstantInteger) con).getData());
+		} else if (con instanceof ConstantFloat) {
+			pushFloat(((ConstantFloat) con).getData());
+		} else if (con instanceof ConstantString) {
+			pushHandle(((ConstantString) con).getHandle());
+		} else if (con instanceof ConstantClass) {
+			pushHandle(context
+					.getClassObjectHandleForClass(((ConstantClass) con)
+							.getClazz()));
+		} else {
+			throw new VMException("java/lang/VirtualMachineError",
+					"LDC type wrong!" + con);
+		}
+	}
+
+	private void opIAdd() {
+		sp--;
+		opStacks[sp - 1] += opStacks[sp];
+		// pushInt(popInt() + popInt());
+	}
+
+	private void opAReturn() throws VMException, VMCriticalException {
+		int aref = popHandle();
+		if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
+			if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
+				monitorExit(context.getClassObjectHandleForClass(method
+						.getOwner()));
+			} else {
+				monitorExit(getLocalHandle(0));
+			}
+		}
+		popFrame();
+		pushHandle(aref);
+	}
+
+	private void opIFReturn() throws VMException, VMCriticalException {
+		int value = popInt();
+		if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
+			if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
+				monitorExit(context.getClassObjectHandleForClass(method
+						.getOwner()));
+			} else {
+				monitorExit(getLocalHandle(0));
+			}
+		}
+		popFrame();
+		pushInt(value);
+	}
+
+	private void opLReturn() throws VMException, VMCriticalException {
+		long value = popLong();
+		if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
+			if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
+				monitorExit(context.getClassObjectHandleForClass(method
+						.getOwner()));
+			} else {
+				monitorExit(getLocalHandle(0));
+			}
+		}
+		popFrame();
+		pushLong(value);
+	}
+
+	private void opReturn() throws VMException, VMCriticalException {
+		if ((method.getAccessFlags() & AbstractClass.ACC_SYNCHRONIZED) > 0) {
+			if ((method.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
+				monitorExit(context.getClassObjectHandleForClass(method
+						.getOwner()));
+			} else {
+				monitorExit(getLocalHandle(0));
+			}
+		}
+		if (method.isClinit()) {
+			context.finishClinited(method.getOwner());
+		}
+		popFrame();
+	}
+
+	private void opSwap() throws VMException, VMCriticalException {
+		int value1 = popType(tc);
+		byte type1 = tc.type;
+		int value2 = popType(tc);
+		byte type2 = tc.type;
+		pushType(value1, type1);
+		pushType(value2, type2);
 	}
 
 	/**
@@ -2053,8 +2144,8 @@ public final class ArrayThread implements IThread {
 		if (!clazz.canCastTo(lookup.getOwner())) {
 			throw new VMException("java/lang/IncompatibleClassChangeError", "");
 		}
-		ClassMethod invoke = context.lookupMethodVirtual(context
-				.getClass(args[0]), lookup.getMethodName());
+		ClassMethod invoke = context.lookupMethodVirtual(
+				context.getClass(args[0]), lookup.getMethodName());
 		if (invoke == null) {
 			throw new VMException("java/lang/AbstractMethodError", "");
 		}
@@ -2125,8 +2216,8 @@ public final class ArrayThread implements IThread {
 			types[i] = tc.type;
 		}
 		assert heap.isHandleValid(args[0]) : "invalid 'this' handle";
-		ClassMethod invoke = context.lookupMethodVirtual(context
-				.getClass(args[0]), lookup.getMethodName());
+		ClassMethod invoke = context.lookupMethodVirtual(
+				context.getClass(args[0]), lookup.getMethodName());
 		if (invoke == null) {
 			throw new VMException("java/lang/AbstractMethodError", "");
 		}
@@ -2142,8 +2233,8 @@ public final class ArrayThread implements IThread {
 		}
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 				AbstractClass.ACC_ABSTRACT)) {
-			throw new VMException("java/lang/AbstractMethodError", invoke
-					.getUniqueName());
+			throw new VMException("java/lang/AbstractMethodError",
+					invoke.getUniqueName());
 		}
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 				AbstractClass.ACC_NATIVE)) {
@@ -2507,8 +2598,8 @@ public final class ArrayThread implements IThread {
 			throw new VMException("java/lang/AbstractMethodError", "");
 		}
 		if ("<init>".equals(invoke.getName()) && invoke.getOwner() != cb) {
-			throw new VMException("java/lang/NoSuchMethodError", invoke
-					.getUniqueName());
+			throw new VMException("java/lang/NoSuchMethodError",
+					invoke.getUniqueName());
 		}
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 				AbstractClass.ACC_STATIC)) {
@@ -2517,8 +2608,8 @@ public final class ArrayThread implements IThread {
 		}
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
 				AbstractClass.ACC_ABSTRACT)) {
-			throw new VMException("java/lang/AbstractMethodError", invoke
-					.getUniqueName());
+			throw new VMException("java/lang/AbstractMethodError",
+					invoke.getUniqueName());
 		}
 
 		if (AbstractClass.hasFlag(invoke.getAccessFlags(),
