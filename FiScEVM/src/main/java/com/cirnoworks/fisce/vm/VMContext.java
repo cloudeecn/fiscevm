@@ -492,32 +492,63 @@ public class VMContext implements FiScEVM {
 		return classMap.get(className);
 	}
 
+	/**
+	 * 通过类直接找到类的ClassId，如果类还没有被加载，则返回Null
+	 * @param clazz
+	 * @return
+	 */
 	public final Integer getClazzId(AbstractClass clazz) {
 		return classMap.get(clazz.getName());
 	}
 
+	/**
+	 * 直接通过ClassId来取得类
+	 * @param cid ClassId
+	 * @return 类
+	 */
 	public final AbstractClass getClazzById(int cid) {
 		return classes[cid];
 	}
 
+	/**
+	 * 获取正在进行某个类的clinit的线程id
+	 * @param clazz 类
+	 * @return 正在进行这个类的clinit的线程ID，如果返回CLINIT_FINISHED的话，表示clinit已经执行完成
+	 */
 	public final int getClinitThreadId(ClassBase clazz) {
 		Integer cid = getClazzId(clazz);
 		assert cid != null;
 		return classClinitThreadId[cid];
 	}
 
+	/**
+	 * 通告虚拟机，开始进行某个类的clinit
+	 * @param clazz 开始进行clinit的类
+	 * @param thread 运行clinit的线程
+	 */
 	public final void setClinited(ClassBase clazz, IThread thread) {
 		Integer cid = getClazzId(clazz);
 		assert cid != null;
 		classClinitThreadId[cid] = thread.getThreadId();
 	}
 
+	/**
+	 * 通告虚拟机，Class的clinit已经完成。主要由Thread实现类调用。
+	 * @param clazz Class对象，必须是对应类（不是数组）的
+	 */
 	public final void finishClinited(ClassBase clazz) {
 		Integer cid = getClazzId(clazz);
 		assert cid != null;
 		classClinitThreadId[cid] = CLINIT_FINISHED;
 	}
 
+	/**
+	 * 取得类的AbstractClass对象，如果该类还没有载入，则载入
+	 * @param name 类名，包名之间的分隔符用 "/" 比如 "java/lang/Object"
+	 * @return 该类的AbstractClass对象
+	 * @throws VMException 出现虚拟机内部可以处理的异常
+	 * @throws VMCriticalException 出现导致虚拟机崩溃的异常
+	 */
 	public synchronized AbstractClass getClass(String name) throws VMException,
 			VMCriticalException {
 		AbstractClass ret = getClazz(name);
