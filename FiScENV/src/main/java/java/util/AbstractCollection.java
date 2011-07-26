@@ -17,6 +17,8 @@
 
 package java.util;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * Class {@code AbstractCollection} is an abstract implementation of the
  * {@code Collection} interface. A subclass must implement the abstract methods
@@ -352,8 +354,8 @@ public abstract class AbstractCollection<E> implements Collection<E> {
 		int size = size(), index = 0;
 		if (size > contents.length) {
 			try {
-				contents = (T[]) contents.getClass().newArray(size);
-			} catch (Exception e){
+				contents = (T[]) FiScEVM.newArray(contents.getClass(), size);
+			} catch (Exception e) {
 				throw new Error(e);
 			}
 		}

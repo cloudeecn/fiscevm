@@ -51,17 +51,14 @@ public final class Class<T> {
 		return (T) newInstance0();
 	}
 
-	@SuppressWarnings("unchecked")
-	public T newArray(int size) throws InstantiationException,
-			IllegalAccessException {
-		return (T) newInstance0(size);
+	public boolean desiredAssertionStatus() {
+		return false;
 	}
+
+	
 
 	private native Object newInstance0() throws InstantiationException,
 			IllegalAccessException;
-
-	private native Object[] newInstance0(int size)
-			throws InstantiationException, IllegalAccessException;
 
 	public native boolean isInstance(Object obj);
 

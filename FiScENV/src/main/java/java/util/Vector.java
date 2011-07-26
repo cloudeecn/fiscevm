@@ -19,6 +19,8 @@ package java.util;
 
 import java.io.IOException;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * Vector is a variable size contiguous indexable array of objects. The size of
  * the vector is the number of objects it contains. The capacity of the vector
@@ -983,7 +985,8 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
 	public synchronized <T> T[] toArray(T[] contents) {
 		if (elementCount > contents.length) {
 			try {
-				contents = (T[]) contents.getClass().newArray(elementCount);
+				contents = (T[]) FiScEVM.newArray(contents.getClass(),
+						elementCount);
 			} catch (Exception e) {
 				throw new Error(e);
 			}

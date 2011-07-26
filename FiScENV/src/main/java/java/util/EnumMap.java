@@ -18,6 +18,8 @@ package java.util;
 
 import java.io.IOException;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * An {@code Map} specialized for use with {@code Enum} types as keys.
  */
@@ -362,7 +364,8 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
 			Object[] entryArray = array;
 			if (size > array.length) {
 				try {
-					entryArray = (Object[]) array.getClass().newArray(size);
+					entryArray = (Object[]) FiScEVM.newArray(array.getClass(),
+							size);
 				} catch (Exception e) {
 					throw new Error(e);
 				}

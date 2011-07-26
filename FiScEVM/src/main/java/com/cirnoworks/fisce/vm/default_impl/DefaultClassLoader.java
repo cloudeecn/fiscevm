@@ -314,6 +314,9 @@ public class DefaultClassLoader implements IClassLoader {
 					AbstractClass.ACC_NATIVE)) {
 				INativeHandler inh = context.getNativeHandler(method
 						.getUniqueName());
+				if(method.getUniqueName().startsWith("L")){
+					System.out.println(method.getOwner());
+				}
 				if (inh == null) {
 					usle.add(method.getUniqueName());
 

@@ -69,7 +69,9 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new SystemNanoTime());
 
 		context.registerNativeHandler(new ClassForName());
+		context.registerNativeHandler(new ClassNewArray0());
 		context.registerNativeHandler(new ClassNewInstance0());
+		context.registerNativeHandler(new ClassNewInstance0Ex());
 		context.registerNativeHandler(new ClassNewInstance0I());
 		context.registerNativeHandler(new ClassGetName());
 		context.registerNativeHandler(new ClassIsArray());

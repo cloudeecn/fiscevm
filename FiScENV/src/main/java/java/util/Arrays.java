@@ -17,6 +17,8 @@
 
 package java.util;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * {@code Arrays} contains static methods which operate on arrays.
  * 
@@ -133,7 +135,8 @@ public class Arrays {
 			int size = size();
 			if (size > contents.length) {
 				try {
-					contents = (T[]) contents.getClass().newArray(size);
+					contents = (T[]) FiScEVM
+							.newArray(contents.getClass(), size);
 				} catch (Exception e) {
 					throw new Error(e);
 				}

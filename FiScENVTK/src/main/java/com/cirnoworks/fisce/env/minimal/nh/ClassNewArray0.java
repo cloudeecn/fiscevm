@@ -22,28 +22,38 @@ import com.cirnoworks.fisce.vm.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+import com.cirnoworks.fisce.vm.data.ClassMethod;
 
-public class ClassNewInstance0I extends NativeHandlerTemplate {
-
+public class ClassNewArray0 extends NativeHandlerTemplate {
 	public void dealNative(int[] args, IThread thread) throws VMException,
 			VMCriticalException {
 		AbstractClass clazz = context
 				.getClassForClassObjectHandle(args[0]/* this */);
 		int size = args[1];
-		if (!(clazz instanceof ClassArray)) {
-			throw new VMException("java/lang/IncompatibleClassChangeError",
-					"class is not an array!");
+		ClassArray cArray;
+		if (clazz instanceof ClassBase) {
+			cArray = (ClassArray) context
+					.getClass("[L" + clazz.getName() + ";");
+		} else {
+			cArray = (ClassArray) context.getClass("[" + clazz.getName());
 		}
-		int handle = context.getHeap().allocate((ClassArray) clazz, size);
+		int handle = context.getHeap().allocate(cArray, size);
 		thread.pushHandle(handle);
 
 		/* object.<init>() */
-		thread.pushFrame(context.getMethod(clazz.getName() + ".<init>.()V"));
+		ClassMethod method = context.getMethod(/*cArray.getName() +*/ "java/lang/Object.<init>.()V");
+		if (method == null) {
+			throw new VMException("java/lang/NoSuchMethodException",
+					"Cannot find initial method " + cArray.getName()
+							+ ".<init>.()V*"+cArray.getContentClass());
+		}
+		thread.pushFrame(method);
 		thread.putLocalHandle(0, handle);
 	}
 
 	public String getUniqueName() {
-		return "com/cirnoworks/fisce/privat/FiScEVM.newInstance0.(Ljava/lang/Class;I)[Ljava/lang/Object;";
+		return "com/cirnoworks/fisce/privat/FiScEVM.newArray0.(Ljava/lang/Class;I)[Ljava/lang/Object;";
 	}
 
 }

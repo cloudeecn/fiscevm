@@ -17,6 +17,8 @@
 
 package java.util;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * ArrayList is an implementation of {@link List}, backed by an array. All
  * optional operations adding, removing, and replacing are supported. The
@@ -623,7 +625,7 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>,
 	public <T> T[] toArray(T[] contents) {
 		if (size > contents.length) {
 			try {
-				contents = (T[]) contents.getClass().newArray(size);
+				contents = (T[]) FiScEVM.newArray(contents.getClass(), size);
 			} catch (Exception e) {
 				throw new Error(e);
 			}

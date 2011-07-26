@@ -19,6 +19,8 @@ package java.util;
 
 import java.io.IOException;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * LinkedList is an implementation of List, backed by a linked list. All
  * optional operations (adding, removing and replacing) are supported. The
@@ -758,7 +760,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 		int index = 0;
 		if (size > contents.length) {
 			try {
-				contents = (T[]) contents.getClass().newArray(size);
+				contents = (T[]) FiScEVM.newArray(contents.getClass(), size);
 			} catch (Exception e) {
 				throw new Error(e);
 			}

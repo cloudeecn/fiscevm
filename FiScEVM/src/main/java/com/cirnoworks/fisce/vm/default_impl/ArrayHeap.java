@@ -1324,9 +1324,11 @@ public final class ArrayHeap implements IHeap {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
 		assert isArray(srcHandle) && isArray(dstHandle);
-		if (!srcClass.canCastTo(dstClass)) {
-			throw new VMException("java/lang/ArrayStoreException", "");
-		}
+		//TODO more study in arrayCopy
+//		if (!srcClass.canCastTo(dstClass)) {
+//			throw new VMException("java/lang/ArrayStoreException",
+//					srcClass.getName() + "/" + dstClass.getName());
+//		}
 		System.arraycopy(objects[srcHandle], srcOfs, objects[dstHandle],
 				dstOfs, count);
 	}

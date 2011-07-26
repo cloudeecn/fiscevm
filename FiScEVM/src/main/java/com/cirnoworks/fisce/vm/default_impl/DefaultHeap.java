@@ -1098,9 +1098,10 @@ public final class DefaultHeap implements IHeap {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
 		assert isArray(srcHandle) && isArray(dstHandle);
-		if (!srcClass.canCastTo(dstClass)) {
-			throw new VMException("java/lang/ArrayStoreException", "");
-		}
+		//TODO more study in arrayCopy
+//		if (!srcClass.canCastTo(dstClass)) {
+//			throw new VMException("java/lang/ArrayStoreException", "");
+//		}
 		int sizeShift = ((ClassArray) srcClass).getSizeShift();
 		/*
 		 * ByteBuffer srcbb = getArrayObj(srcHandle, srcOfs + count); ByteBuffer
