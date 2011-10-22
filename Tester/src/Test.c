@@ -363,8 +363,10 @@ void testHashMap() {
 	t3 = clock();
 	fy_hashMapDestroy(context, hashMap);
 	t4 = clock();
-	printf("HashMap time %ld %ld %ld/%ld\n",
-			(t2 - t1), (t3-t2),(t4-t3),CLOCKS_PER_SEC);
+	printf("HashMap time %f %f %f\n",
+			(t2 - t1) * (double) 1000 / (double) CLOCKS_PER_SEC
+			, (t3 - t2) * (double) 1000 / (double) CLOCKS_PER_SEC
+			,(t4 - t3) * (double) 1000 / (double) CLOCKS_PER_SEC);
 	CU_ASSERT_EQUAL(blocks, vm_getAllocated());
 	fy_vmFree(context, hashMap);
 }
