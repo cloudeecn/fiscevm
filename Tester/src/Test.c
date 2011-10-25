@@ -294,7 +294,7 @@ void testThread() {
 	fy_threadCreateWithMethod(context, thread, threadHandle, method,
 			&exception);
 	ASSERT(exception.exceptionType == exception_none);
-	message = fy_threadRun(context, thread, 99999);
+	message = fy_threadRun(context, thread, 2147483647);
 
 	switch (message.messageType) {
 	case message_none:

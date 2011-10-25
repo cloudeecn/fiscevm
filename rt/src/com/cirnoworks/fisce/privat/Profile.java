@@ -8,10 +8,10 @@ package com.cirnoworks.fisce.privat;
  * 
  * @author yuxuanhuang
  */
-public class Profile extends Thread {
+public class Profile implements Runnable {
 
 	public static void main(String[] args) {
-		new Profile().start();
+		new Thread(new Profile()).start();
 	}
 
 	int j;
