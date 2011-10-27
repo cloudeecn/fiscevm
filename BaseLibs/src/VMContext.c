@@ -77,7 +77,7 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 	 fy_str *primitives[128];
 	 fy_hashMap *mapPrimitivesRev;
 	 */
-	if (fy_gInited != 0x1234567890abcdefl) {
+	if (fy_gInited != 0x1234567890abcdefll) {
 		vm_die("Init global first!");
 	}
 
