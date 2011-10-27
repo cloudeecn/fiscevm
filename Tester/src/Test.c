@@ -98,7 +98,7 @@ void testMemManage() {
 
 	for (i = 0; i < 17; i++) {
 		address[i] = fy_vmAllocate(context, 4096);
-		printf("%p\n", address[i]);
+		/*printf("%p\n", address[i]);*/
 	}
 
 	fy_vmFree(context, address[6]);
@@ -270,11 +270,13 @@ void testThread() {
 	ASSERT(clazzThread != NULL);
 	ASSERT(fieldThreadPriority != NULL);
 	count = clazz->methodCount;
+#ifdef _DEBUG
 	for (i = 0; i < count; i++) {
 		method = clazz->methods[i];
 		fy_strPrint(method->uniqueName);
 		printf("\n");
 	}
+#endif
 	method = NULL;
 	name = fy_strAllocateFromUTF8(context,
 			"EXCLUDE/fisce/test/Tester.main.([Ljava/lang/String;)V");
