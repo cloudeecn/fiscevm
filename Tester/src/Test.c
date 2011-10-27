@@ -115,8 +115,6 @@ void testString() {
 	const char *cc1 = "ABC中文DEF";
 	const char *cc2 = "ABC中文DEG";
 	printf("%s\n%d", cc, (int) strlen(cc));
-	printf("%d~%d %d~%d\n", (char) 0b11000000, (char) 0b11011111,
-			(char) 0b11100000, (char) 0b11101111);
 	fy_str *js = fy_vmAllocate(context, sizeof(fy_str));
 	fy_str *js1 = fy_vmAllocate(context, sizeof(fy_str));
 	fy_str *js2 = fy_vmAllocate(context, sizeof(fy_str));
