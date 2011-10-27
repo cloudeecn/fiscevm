@@ -929,7 +929,7 @@ fy_message fy_threadRun(fy_VMContext *context, fy_thread *thread, jint ops) {
 	char msg[256];
 
 	ivalue = 0x6789abcd;
-	lvalue = 0x6789abcdef1234L;
+	lvalue = 0x6789abcdef1234LL;
 	pstr1 = NULL;
 
 	message.messageType = message_continue;

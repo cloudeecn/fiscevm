@@ -50,7 +50,7 @@ void fy_gInit() {
 	*fy_gCDouble = TYPE_DOUBLE;
 	*fy_gCArray = TYPE_ARRAY;
 	
-	fy_gInited = 0x1234567890abcdefl;
+	fy_gInited = 0x1234567890abcdefll;
 }
 void fy_gDestroy() {
 	fy_gInited = 0;
