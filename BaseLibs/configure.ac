@@ -4,8 +4,7 @@
 AC_PREREQ([2.68])
 AC_INIT(libfisce, 0.01, cloudeecn@gmail.com)
 AM_INIT_AUTOMAKE()
-AC_CONFIG_SRCDIR([inc/fyc/Class.h])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([inc/fyc/config.h])
 
 
 AC_ARG_ENABLE(debug,
@@ -25,7 +24,7 @@ fi
 
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_INSTALL
+AC_PROG_INSTALL ye
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
