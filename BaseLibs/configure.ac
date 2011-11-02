@@ -3,6 +3,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT(libfisce, 0.01, cloudeecn@gmail.com)
+AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE()
 AC_CONFIG_HEADERS([inc/fyc/config.h])
 
