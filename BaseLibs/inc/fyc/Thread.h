@@ -23,6 +23,7 @@
 #include "Portable.h"
 #include "Structs.h"
 #include "Debug.h"
+#include "ThreadManager.h"
 
 #define NOP  0x00
 #define ACONST_NULL  0x01

@@ -21,8 +21,8 @@
 #include "VMContext.h"
 
 fy_message fy_tmRun(fy_VMContext *context);
-void fy_monitorEnter(fy_VMContext *context,fy_thread *thread,jint monitorId);
-void fy_monitorExit(fy_VMContext *context,fy_thread *thread,jint monitorId);
+void fy_tmMonitorEnter(fy_VMContext *context,fy_thread *thread,jint monitorId);
+void fy_tmMonitorExit(fy_VMContext *context,fy_thread *thread,jint monitorId);
 
 #endif /* THREADMANAGER_H_ */
 
