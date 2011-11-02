@@ -36,7 +36,7 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([floor gettimeofday memset])
+AC_CHECK_FUNCS([floor memset])
 
 #params
 CFLAGS="$CFLAGS -Wall -W -I${PWD}/inc/"
