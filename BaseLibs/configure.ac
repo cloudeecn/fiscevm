@@ -2,7 +2,6 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_INIT(libfisce, 0.01, cloudeecn@gmail.com)
-AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE()
 
 AC_ARG_ENABLE(debug,
@@ -22,7 +21,7 @@ fi
 
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_INSTALL ye
+AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
