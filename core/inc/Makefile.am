@@ -1,4 +1,4 @@
-FiScEIncludedir=${includedir}/FiScE
+FiScEIncludedir=${includedir}/fyc
 FiScEInclude_HEADERS = \
 	fyc/Class.h \
 	fyc/ClassLoader.h \
