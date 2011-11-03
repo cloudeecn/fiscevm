@@ -27,7 +27,7 @@ AC_PROG_RANLIB
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[floor])
-
+AC_CHECK_LIB([cunit],[CU_initialize_registry])
 # Checks for header files.
 AC_CHECK_HEADERS([float.h memory.h stdlib.h string.h sys/time.h unistd.h])
 
