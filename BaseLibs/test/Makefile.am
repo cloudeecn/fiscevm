@@ -1,3 +1,3 @@
-lib_LIBRARIES=libfisce.a
-libfisce_a_SOURCES = \
+noinst_PROGRAMS = fiscetest
+fiscetest_SOURCES = \
 	Test.c
