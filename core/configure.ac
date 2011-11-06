@@ -24,7 +24,7 @@ AC_ARG_ENABLE(verbose,
   [cu_do_verbose="no"])
 if test x"$cu_do_verbose" = xyes ; then
 	echo "++++++++++ Enabling verbose mode compilation."
-	CFLAGS="-DFY_VERBOSE"
+	CFLAGS="$CFLAGS -DFY_VERBOSE"
 	ENABLE_VERBOSE="TRUE"
 else
 	echo "---------- Disabling verboxd mode compilation."
