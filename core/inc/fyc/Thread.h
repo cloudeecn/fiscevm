@@ -268,6 +268,7 @@ void fy_threadMonitorEnter(fy_VMContext *context, fy_thread *thread,
 
 void fy_threadMonitorExit(fy_VMContext *context, fy_thread *thread, jint handle);
 
+#if 0
 void fy_threadPutLocalType(fy_VMContext *context, fy_thread *thread, int pos,
 		jint value, jbyte type);
 
@@ -293,6 +294,7 @@ jint fy_threadGetLocalInt(fy_VMContext *context, fy_thread *thread, int pos);
 jlong fy_threadGetLocalLong(fy_VMContext *context, fy_thread *thread, int pos);
 
 jint fy_threadGetLocalReturn(fy_VMContext *context, fy_thread *thread, int pos);
+#endif
 
 void fy_threadPushType(fy_VMContext *context, fy_thread *thread, jint value,
 		jbyte type);

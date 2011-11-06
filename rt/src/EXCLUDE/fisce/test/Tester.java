@@ -90,25 +90,49 @@ public class Tester extends Thread implements ITester {
 
 	static public void main(String[] args) {
 		new Profile().run();
-		/*
-		 * int i = 5; double d = 1.1; double d2 = 0; String s = "Hello"; for (i
-		 * = 1; i < 2; i++) { i++; d2 = d * 1.1; d = 0; s += " World"; }
-		 * FiScEVM.debugOut(d2); FiScEVM.debugOut(d); FiScEVM.debugOut(i);
-		 * FiScEVM.debugOut(s); FiScEVM.debugOut(System.currentTimeMillis());
-		 * FiScEVM.debugOut(System.nanoTime());
-		 * 
-		 * FiScEVM.debugOut("Hello world " + 123 + " " + (i +
-		 * 12345678901234567l) + " " + 123.4f + " " + (123.4d + i) +
-		 * "  我们来试试中文！"); FiScEVM.debugOut("" + 0.0 / d + " " + 1.0 / d + " " +
-		 * -1.0 / d); byte[] b = FiScEVM .encode(new char[] { 'T', 'e', 's',
-		 * 't', '\n' }, 0, 5); for (byte bb : b) { FiScEVM.debugOut(bb); } b =
-		 * FiScEVM.encode("ASDF\n".toCharArray(), 0, 5); for (byte bb : b) {
-		 * FiScEVM.debugOut(bb); } // Tester t = new Tester(); //
-		 * System.out.println("i2=" + t.i2); System.out.println("Hello " + 111 +
-		 * "world"); System.out.println("5*3=" + 5 * 3 + "\n" + "5.0*3.3=" +
-		 * 5.0f * 3.3 + "\n" + "77*65=" + 77 * 65 + "\n"); is1 = 5555; is2 = 6;
-		 * is1 = 5555; System.out.println("" + is1 + " " + is2 + " " + fs1 + " "
-		 * + fs2); System.out.println("Hello world!");
-		 */
+		int k = 1000000;
+		if (k > 100) {
+			k += 5;
+		}
+
+		int i = 5;
+		double d = 1.1;
+		double d2 = 0;
+		String s = "Hello";
+		for (i = 1; i < 2; i++) {
+			i++;
+			d2 = d * 1.1;
+			d = 0;
+			s += " World";
+		}
+		FiScEVM.debugOut(d2);
+		FiScEVM.debugOut(d);
+		FiScEVM.debugOut(i);
+		FiScEVM.debugOut(s);
+		FiScEVM.debugOut(System.currentTimeMillis());
+		FiScEVM.debugOut(System.nanoTime());
+
+		FiScEVM.debugOut("Hello world " + 123 + " " + (i + 12345678901234567l)
+				+ " " + 123.4f + " " + (123.4d + i) + "  我们来试试中文！");
+		FiScEVM.debugOut("" + 0.0 / d + " " + 1.0 / d + " " + -1.0 / d);
+		byte[] b = FiScEVM
+				.encode(new char[] { 'T', 'e', 's', 't', '\n' }, 0, 5);
+		for (byte bb : b) {
+			FiScEVM.debugOut(bb);
+		}
+		b = FiScEVM.encode("ASDF\n".toCharArray(), 0, 5);
+		for (byte bb : b) {
+			FiScEVM.debugOut(bb);
+		} // Tester t = new Tester(); //
+		// System.out.println("i2=" + t.i2);
+		System.out.println("Hello " + 111 + "world");
+		System.out.println("5*3=" + 5 * 3 + "\n" + "5.0*3.3=" + 5.0f * 3.3
+				+ "\n" + "77*65=" + 77 * 65 + "\n");
+		is1 = 5555;
+		is2 = 6;
+		is1 = 5555;
+		System.out.println("" + is1 + " " + is2 + " " + fs1 + " " + fs2);
+		System.out.println("Hello world!");
+
 	}
 }

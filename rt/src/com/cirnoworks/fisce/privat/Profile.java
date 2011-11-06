@@ -20,7 +20,7 @@ public class Profile implements Runnable {
 		long t0 = System.nanoTime();
 		int k = 0;
 		int i;
-		while (true) {
+		for (int u = 0; u < 20; u++) {
 			long t1 = System.nanoTime();
 			for (i = 0; i < 100000; i++) {
 				k += i;
