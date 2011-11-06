@@ -18,6 +18,19 @@ else
 	ENABLE_DEBUG="FALSE"
 fi
 
+AC_ARG_ENABLE(verbose,
+  [AS_HELP_STRING([--enable-verbose],[enable verbose output for byte code executed [default=no]])],
+  [cu_do_verbose=$enableval],
+  [cu_do_verbose="no"])
+if test x"$cu_do_verbose" = xyes ; then
+	echo "++++++++++ Enabling verbose mode compilation."
+	CFLAGS="-DFY_VERBOSE"
+	ENABLE_VERBOSE="TRUE"
+else
+	echo "---------- Disabling verboxd mode compilation."
+	ENABLE_VERBOSe="FALSE"
+fi
+
 
 # Checks for programs.
 AC_PROG_CC
