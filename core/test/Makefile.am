@@ -1,5 +1,4 @@
-AM_LDFLAGS=-L../src
 noinst_PROGRAMS = fiscetest
 fiscetest_SOURCES = \
 	Test.c
-fiscetest_LDADD=-lfisce
+fiscetest_LDADD  = ../src/libfisce.a
