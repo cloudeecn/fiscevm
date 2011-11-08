@@ -931,8 +931,8 @@ void fy_threadCreateWithData(fy_VMContext *context, fy_thread *thread,
 	/*TODO*/
 }
 
-void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
-		fy_thread *thread, jint lpc, fy_exception *exception) {
+void fy_threadFillException(fy_VMContext *context, fy_thread *thread, jint lpc,
+		fy_exception *exception) {
 	//TODO
 }
 
