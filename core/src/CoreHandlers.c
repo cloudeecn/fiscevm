@@ -107,11 +107,7 @@ static void VMDebugOutI(struct fy_VMContext *context, struct fy_thread *thread,
 
 static void VMDebugOutJ(struct fy_VMContext *context, struct fy_thread *thread,
 		void *data, jint *args, jint argsCount, fy_exception *exception) {
-#if defined(_WIN32)
-	printf("VMDebugOutI: %I64d\n", fy_I2TOL(args[0],args[1]));
-#elif defined(_POSIX_SOURCE)
-	printf("VMDebugOutI: %lld\n", fy_I2TOL(args[0],args[1]));
-#endif
+	printf("VMDebugOutI: %"PRINT64"d\n", fy_I2TOL(args[0],args[1]));
 }
 
 static void VMDebugOutF(struct fy_VMContext *context, struct fy_thread *thread,
@@ -164,7 +160,7 @@ static void VMDecode(struct fy_VMContext *context, struct fy_thread *thread,
 	newArray = vm_allocate(len + 1);
 	memcpy(newArray, array + ofs, len);
 	newArray[len] = 0;
-	str = fy_strAllocateFromUTF8(context, newArray);
+	str = fy_strAllocateFromUTF8(context, (char*) newArray);
 	vm_free(newArray);
 
 	handleRet = fy_heapAllocateArray(context, charArray, maxi = str->length,
@@ -218,7 +214,7 @@ static void VMEncode(struct fy_VMContext *context, struct fy_thread *thread,
 			vm_free(out);
 			return;
 		}
-		read = fy_utf8Write(ch, &outTmp, &left);
+		read = fy_utf8Write(ch, (char**) &outTmp, &left);
 		if (read <= 0) {
 			break;
 		}

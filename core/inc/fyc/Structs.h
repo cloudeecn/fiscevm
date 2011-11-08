@@ -257,14 +257,14 @@ typedef struct LineNumberTable {
 	jchar line_number;
 } LineNumberTable;
 
-typedef struct ExceptionTable {
+struct ExceptionTable {
 	jchar start_pc;
 	jchar end_pc;
 	jchar handler_pc;
 	jubyte catchTypeDerefed;
 
 	classInfo ci;
-} ExceptionTable;
+};
 
 typedef struct fy_method {
 	jchar access_flags;
@@ -497,11 +497,11 @@ typedef struct fy_VMContext {
 	jint nextThreadId;
 	fy_exception exitException;
 	jint exitCode;
-/* #END THREAD MANAGER*/
+	/* #END THREAD MANAGER*/
 
 	/* #BEGIN PORTABLE*/
 	void *portableData;
-	/* #END PORTABLE*/
+/* #END PORTABLE*/
 } fy_VMContext;
 
 typedef void (*fy_nhFunction)(struct fy_VMContext *context,

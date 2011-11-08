@@ -511,6 +511,21 @@ void fy_vmRegisterNativeHandler(fy_VMContext *context, const char *name,
 	fy_strRelease(context, str);
 }
 
+fy_class *fy_vmLookupClassFromExceptionHandler(fy_VMContext *context,
+		struct ExceptionTable *exceptionHandler, fy_exception *exception) {
+	fy_class *clazz;
+	if (exceptionHandler->catchTypeDerefed == 0) {
+		clazz = fy_vmLookupClassFromConstant(context,
+				exceptionHandler->ci.constantClass, exception);
+		if (exception->exceptionType != exception_none) {
+			return NULL;
+		}
+	} else {
+		clazz = exceptionHandler->ci.clazz;
+	}
+	return clazz;
+}
+
 void fy_vmBootup(fy_VMContext *context, jchar* bootStrapClass) {
 
 }

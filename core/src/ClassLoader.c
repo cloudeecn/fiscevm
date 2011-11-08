@@ -519,7 +519,7 @@ static void loadMethods(fy_VMContext *context, fy_class *clazz, fy_data *data) {
 				kcount = fy_dataRead2(data);
 				method->exception_table_length = kcount;
 				method->exception_table = fy_vmAllocate(context,
-						sizeof(ExceptionTable) * kcount);
+						sizeof(struct ExceptionTable) * kcount);
 				for (k = 0; k < kcount; k++) {
 					method->exception_table[k].start_pc = fy_dataRead2(data);
 					method->exception_table[k].end_pc = fy_dataRead2(data);

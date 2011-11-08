@@ -242,11 +242,10 @@ void testHeap() {
 	compare = fy_strAllocate(context);
 
 	sHandle = fy_heapLiteral(context, str, &exception);
-	ASSERT(sHandle != 0);
-	ASSERT(exception.exceptionType == exception_none);
+	ASSERT(sHandle != 0);ASSERT(exception.exceptionType == exception_none);
 	fy_heapGetString(context, sHandle, compare, &exception);
-	ASSERT(exception.exceptionType == exception_none);
-	CU_ASSERT( fy_strCmp(str,compare)==0);
+	ASSERT(exception.exceptionType == exception_none);CU_ASSERT(
+			fy_strCmp(str,compare)==0);
 	CU_ASSERT(sHandle == fy_heapLiteral(context, compare, &exception));
 	fy_strRelease(context, str);
 	fy_strRelease(context, compare);
@@ -266,9 +265,7 @@ void testThread() {
 	int i, count;
 
 	exception.exceptionType = exception_none;
-	ASSERT(clazz != NULL);
-	ASSERT(clazzThread != NULL);
-	ASSERT(fieldThreadPriority != NULL);
+	ASSERT(clazz != NULL);ASSERT(clazzThread != NULL);ASSERT(fieldThreadPriority != NULL);
 	count = clazz->methodCount;
 #ifdef _DEBUG
 	for (i = 0; i < count; i++) {
@@ -294,7 +291,7 @@ void testThread() {
 	fy_threadCreateWithMethod(context, thread, threadHandle, method,
 			&exception);
 	ASSERT(exception.exceptionType == exception_none);
-	message = fy_threadRun(context, thread, 2147483647);
+	fy_threadRun(context, thread, &message, 2147483647);
 
 	switch (message.messageType) {
 	case message_none:
@@ -364,9 +361,9 @@ void testHashMap() {
 	fy_hashMapDestroy(context, hashMap);
 	t4 = clock();
 	printf("HashMap time %f %f %f\n",
-			(t2 - t1) * (double) 1000 / (double) CLOCKS_PER_SEC
-			, (t3 - t2) * (double) 1000 / (double) CLOCKS_PER_SEC
-			,(t4 - t3) * (double) 1000 / (double) CLOCKS_PER_SEC);
+			(t2 - t1) * (double) 1000 / (double) CLOCKS_PER_SEC,
+			(t3 - t2) * (double) 1000 / (double) CLOCKS_PER_SEC,
+			(t4 - t3) * (double) 1000 / (double) CLOCKS_PER_SEC);
 	CU_ASSERT_EQUAL(blocks, vm_getAllocated());
 	fy_vmFree(context, hashMap);
 }

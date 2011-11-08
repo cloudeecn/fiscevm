@@ -42,9 +42,9 @@ extern "C" {
 
 typedef unsigned int juint;
 typedef unsigned short jchar;
-typedef int jint;
-typedef short jshort;
-typedef char jbyte;
+typedef signed int jint;
+typedef signed short jshort;
+typedef signed char jbyte;
 typedef unsigned char jubyte;
 typedef float jfloat;
 typedef double jdouble;
@@ -72,8 +72,14 @@ typedef long long jlong;
 #define FALSE 0
 #endif
 
-#define fy_I2TOL(I1,I2) ((jlong)(((julong)(I1)<<32) | ((juint)(I2))))
-#define fy_I2TOUL(I1,I2) ((julong)(((julong)(I1)<<32) | ((juint)(I2))))
+#if defined(_WIN32)
+#define PRINT64 "I64"
+#elif defined(_POSIX_SOURCE) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#define PRINT64 "ll"
+#endif
+
+#define fy_I2TOL(I1,I2) ((jlong)(((julong)(I1)<<32) | ((julong)(I2))))
+#define fy_I2TOUL(I1,I2) ((julong)(((julong)(I1)<<32) | ((julong)(I2))))
 #define fy_B2TOI(B1,B2) ((((juint)(B1))<<8)|((juint)(B2)))
 #define fy_B4TOI(B1,B2,B3,B4) ((((juint)(B1))<<24)|(((juint)(B2))<<16)|(((juint)(B3))<<8)|((juint)(B4)))
 #define fy_HOFL(L) ((jint)(L>>32))

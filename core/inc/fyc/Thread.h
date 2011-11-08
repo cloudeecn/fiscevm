@@ -338,7 +338,8 @@ void fy_threadCreateWithData(fy_VMContext *context, fy_thread *thread,
 void fy_threadCreateWithMethod(fy_VMContext *context, fy_thread *thread,
 		int threadHandle, fy_method *method, fy_exception *exception);
 
-fy_message fy_threadRun(fy_VMContext *context, fy_thread *thread, jint ops);
+void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
+		jint ops);
 #ifdef	__cplusplus
 }
 #endif

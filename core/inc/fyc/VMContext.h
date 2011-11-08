@@ -68,6 +68,9 @@ fy_class *fy_vmLookupClassFromConstant(fy_VMContext *context,
 
 void fy_vmRegisterNativeHandler(fy_VMContext *context, const char *name,
 		void *data, fy_nhFunction handler);
+
+fy_class *fy_vmLookupClassFromExceptionHandler(fy_VMContext *context,
+		struct ExceptionTable *exceptionHandler, fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif
