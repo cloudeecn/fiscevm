@@ -90,6 +90,10 @@ public class Tester extends Thread implements ITester {
 
 	static public void main(String[] args) {
 		new Profile().run();
+		int a = 0;
+		if (a == 0) {
+			throw new NullPointerException();
+		}
 		int k = 1000000;
 		if (k > 100) {
 			k += 5;
@@ -124,7 +128,7 @@ public class Tester extends Thread implements ITester {
 		for (byte bb : b) {
 			FiScEVM.debugOut(bb);
 		} // Tester t = new Tester(); //
-		// System.out.println("i2=" + t.i2);
+			// System.out.println("i2=" + t.i2);
 		System.out.println("Hello " + 111 + "world");
 		System.out.println("5*3=" + 5 * 3 + "\n" + "5.0*3.3=" + 5.0f * 3.3
 				+ "\n" + "77*65=" + 77 * 65 + "\n");
