@@ -45,6 +45,15 @@ extern "C" {
 #define TH_TYPE_WIDE2  '_'
 #define TH_TYPE_UNKNOWN  'X'
 
+#define FY_BASE_STRING "java/lang/String"
+#define FY_BASE_OBJECT "java/lang/Object"
+#define FY_BASE_CLASS "java/lang/Class"
+#define FY_BASE_THROWABLE "java/lang/Throwable"
+#define FY_BASE_THREAD "java/lang/Thread"
+#define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
+#define FY_INIT "<init>"
+#define FY_CLINIT "<clinit>"
+
 /**
  * Declared abstract; may not be instantiated.
  */
@@ -377,10 +386,29 @@ typedef struct fy_object {
 	} data;
 
 } fy_object;
+/*
+ * Memory for Thread:
+ *
+ * Stack:
+ * LLLLSSSSSSSLLLLLSSSSSSS
+ * ^
+ * Begin
+ * |<---len-->|
+ *
+ */
+
+typedef struct fy_thread_frame{
+	fy_method *method;
+	juint sp;
+	juint pc;
+} fy_thread_frame;
 
 typedef struct fy_thread {
 	jboolean inUse;
 	jboolean yield;
+
+	jint frameCount;
+
 	jint handle;
 	jint currentThrowable;
 	jint status;
@@ -458,13 +486,23 @@ typedef struct fy_VMContext {
 	fy_str *sArrayShort;
 	fy_str *sArrayInteger;
 	fy_str *sArrayLong;
+
+	fy_str *sThrowableStackTrace;
+	fy_str *sStackTraceElement;
+	fy_str *sStackTraceElementArray;
+	fy_str *sStackTraceElementDeclaringClass;
+	fy_str *sStackTraceElementMethodName;
+	fy_str *sStackTraceElementFileName;
+	fy_str *sStackTraceElementLineNumber;
+
+
 	struct fy_class *TOP_THROWABLE;
 	struct fy_class *TOP_CLASS;
 
-	fy_str *primitives[128];
-	fy_hashMap *mapPrimitivesRev;
+	struct fy_str *primitives[128];
+	struct fy_hashMap *mapPrimitivesRev;
 
-	fy_linkedList* managedMemory;
+	struct fy_linkedList* managedMemory;
 	int classesCount;
 
 	struct fy_class *classes[MAX_CLASSES];
@@ -491,7 +529,7 @@ typedef struct fy_VMContext {
 	int pricmds[10];
 	fy_linkedList threads;
 	int state;
-	fy_thread *workingThread;
+	struct fy_thread *workingThread;
 	fy_linkedList pendingThreads;
 	jlong nextWakeUpTimeTotal;
 	jint nextThreadId;

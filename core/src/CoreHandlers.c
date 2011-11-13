@@ -317,30 +317,30 @@ static void VMFloatToString(struct fy_VMContext *context,
 void fy_coreRegisterCoreHandlers(fy_VMContext *context) {
 	fy_vmRegisterNativeHandler(
 			context,
-			"java/lang/System.arraycopy.(Ljava/lang/Object;ILjava/lang/Object;II)V",
+			"java/lang/System.arraycopy.(L"FY_BASE_OBJECT";IL"FY_BASE_OBJECT";II)V",
 			NULL, SystemArrayCopy);
 	fy_vmRegisterNativeHandler(context,
 			"java/lang/System.currentTimeMillis.()J", NULL, SystemTimeMS);
 	fy_vmRegisterNativeHandler(context, "java/lang/System.nanoTime.()J", NULL,
 			SystemTimeNS);
 	fy_vmRegisterNativeHandler(context,
-			"java/lang/Object.getClass.()Ljava/lang/Class;", NULL,
+			""FY_BASE_OBJECT".getClass.()L"FY_BASE_CLASS";", NULL,
 			ObjectGetClass);
 	fy_vmRegisterNativeHandler(context,
-			"java/lang/Class.getComponentType.()Ljava/lang/Class;", NULL,
+			""FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
 			ClassGetComponentType);
 	fy_vmRegisterNativeHandler(context,
-			"java/lang/Thread.currentThread.()Ljava/lang/Thread;", NULL,
+			""FY_BASE_THREAD".currentThread.()L"FY_BASE_THREAD";", NULL,
 			ThreadCurrentThread);
-	fy_vmRegisterNativeHandler(context, "java/lang/Thread.setPriority0.(I)V",
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".setPriority0.(I)V",
 			NULL, ThreadSetPriority);
-	fy_vmRegisterNativeHandler(context, "java/lang/Thread.isAlive.()Z", NULL,
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".isAlive.()Z", NULL,
 			ThreadIsAlive);
-	fy_vmRegisterNativeHandler(context, "java/lang/Thread.start0.()V", NULL,
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".start0.()V", NULL,
 			ThreadStart);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(Ljava/lang/String;)V",
+			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(L"FY_BASE_STRING";)V",
 			NULL, VMDebugOut);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(I)V", NULL,
@@ -356,17 +356,17 @@ void fy_coreRegisterCoreHandlers(fy_VMContext *context) {
 			VMDebugOutD);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/FiScEVM.throwOut.(Ljava/lang/Throwable;Ljava/lang/String;)V",
+			"com/cirnoworks/fisce/privat/FiScEVM.throwOut.(L"FY_BASE_THROWABLE";L"FY_BASE_STRING";)V",
 			NULL, VMThrowOut);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.exit.(I)V", NULL, VMExit);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/FiScEVM.decode.(Ljava/lang/String;[BII)[C",
+			"com/cirnoworks/fisce/privat/FiScEVM.decode.(L"FY_BASE_STRING";[BII)[C",
 			NULL, VMDecode);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/FiScEVM.encode.(Ljava/lang/String;[CII)[B",
+			"com/cirnoworks/fisce/privat/FiScEVM.encode.(L"FY_BASE_STRING";[CII)[B",
 			NULL, VMEncode);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.getDoubleRaw.(D)J", NULL,
@@ -376,22 +376,22 @@ void fy_coreRegisterCoreHandlers(fy_VMContext *context) {
 			VMGetFloatRaw);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/FiScEVM.stringToDouble.(Ljava/lang/String;)D",
+			"com/cirnoworks/fisce/privat/FiScEVM.stringToDouble.(L"FY_BASE_STRING";)D",
 			NULL, VMStringToDouble);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/FiScEVM.doubleToString.(D)Ljava/lang/String;",
+			"com/cirnoworks/fisce/privat/FiScEVM.doubleToString.(D)L"FY_BASE_STRING";",
 			NULL, VMDoubleToString);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/FiScEVM.stringToFloat.(Ljava/lang/String;)F",
+			"com/cirnoworks/fisce/privat/FiScEVM.stringToFloat.(L"FY_BASE_STRING";)F",
 			NULL, VMStringToFloat);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/FiScEVM.floatToString.(F)Ljava/lang/String;",
+			"com/cirnoworks/fisce/privat/FiScEVM.floatToString.(F)L"FY_BASE_STRING";",
 			NULL, VMFloatToString);
 	fy_vmRegisterNativeHandler(
 			context,
-			"com/cirnoworks/fisce/privat/SystemOutputStream.write0.(ILjava/lang/String;)V",
+			"com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V",
 			NULL, SOSWrite);
 }

@@ -834,6 +834,7 @@ void fy_threadPushFrame(fy_VMContext *context, fy_thread *thread,
 	for (i = 0; i < maxi; i++) {
 		iframe(thread,ltb+i) = 0;
 	}
+	thread->frameCount++;
 	updateLocalBuf(context, thread);
 #ifdef _DEBUG
 	if (thread->fp > 0) {
@@ -860,6 +861,7 @@ void fy_threadPopFrame(fy_VMContext *context, fy_thread *thread) {
 	}
 #endif
 	thread->fp -= getSIZE(context, thread);
+	thread->frameCount--;
 	updateLocalBuf(context, thread);
 #ifdef _DEBUG
 	if (thread->fp > 0) {
@@ -931,9 +933,61 @@ void fy_threadCreateWithData(fy_VMContext *context, fy_thread *thread,
 	/*TODO*/
 }
 
-void fy_threadFillException(fy_VMContext *context, fy_thread *thread, jint lpc,
-		fy_exception *exception) {
+void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
+		juint handle, fy_exception *exception) {
 	//TODO
+#define fy_simpleErrorHandle if(exception->exceptionType != exception_none) return
+	fy_class *clazz, *array;
+	fy_field *declaringClass, *methodName, *fileName, *lineNumber;
+	juint arrayHandle;
+
+	clazz = fy_vmLookupClass(context, context.sStackTraceElement, exception);
+	fy_simpleErrorHandle;
+	array = fy_vmLookupClass(context, context.sStackTraceElementArray,
+			exception);
+	fy_simpleErrorHandle;
+
+	declaringClass = fy_vmGetField(context,
+			context->sStackTraceElementDeclaringClass);
+	if (declaringClass == NULL) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/VirtualMachineError");
+		sprintf_sf(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"Can't find field %s.",
+				context->sStackTraceElementDeclaringClass);
+	}
+
+	methodName = fy_vmGetField(context, context->sStackTraceElementMethodName);
+	if (methodName == NULL) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/VirtualMachineError");
+		sprintf_sf(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"Can't find field %s.", context->sStackTraceElementMethodName);
+	}
+
+	fileName = fy_vmGetField(context, context->sStackTraceElementFileName);
+	if (fileName == NULL) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/VirtualMachineError");
+		sprintf_sf(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"Can't find field %s.", context->sStackTraceElementFileName);
+	}
+
+	lineNumber = fy_vmGetField(context, context->sStackTraceElementLineNumber);
+	if (lineNumber == NULL) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/VirtualMachineError");
+		sprintf_sf(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"Can't find field %s.", context->sStackTraceElementLineNumber);
+	}
+	arrayHandle=fy_heapAllocateArray(context,array,thread->frameCount,exception);
+	fy_simpleErrorHandle;
+
+
 }
 
 void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,

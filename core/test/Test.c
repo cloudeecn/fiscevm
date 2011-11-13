@@ -141,7 +141,7 @@ void testString() {
 void testClassLoader() {
 	fy_str *str = fy_vmAllocate(context, sizeof(fy_str));
 	fy_strInit(context, str, 128);
-	fy_strAppendUTF8(context, str, "java/lang/String", -1);
+	fy_strAppendUTF8(context, str, ""FY_BASE_STRING"", -1);
 	/*fy_class *classString = fy_clLoadclass(context, str);*/
 	fy_strDestroy(context, str);
 	fy_vmFree(context, str);
@@ -163,7 +163,7 @@ static fy_class *lookup(const char *name) {
 	return clazz;
 }
 void testClassLoaderFull() {
-	char *names[] = { "java/lang/String", "[[[Ljava/lang/String;", "[[[I",
+	char *names[] = { ""FY_BASE_STRING"", "[[[L"FY_BASE_STRING";", "[[[I",
 			"int", "double", "java/lang/Double", "java/lang/Math", NULL };
 	int i = 0;
 	char *nm;
@@ -183,8 +183,8 @@ void testClassLoaderFull() {
 		}CU_ASSERT_NOT_EQUAL(clazz, NULL);
 		fy_strRelease(context, snm);
 	}
-	clStr = lookup("java/lang/String");
-	clObj = lookup("java/lang/Object");
+	clStr = lookup(""FY_BASE_STRING"");
+	clObj = lookup(""FY_BASE_OBJECT"");
 	clazz = lookup("java/lang/Integer");
 	CU_ASSERT(fy_classCanCastTo(context,clStr,clObj));
 	CU_ASSERT_FALSE(fy_classCanCastTo(context,clStr,clazz));
@@ -214,11 +214,11 @@ void testClassMethod() {
 		}
 	}CU_ASSERT_NOT_EQUAL(target, NULL);
 	CU_ASSERT_EQUAL(target->paramCount, 8);
-	class0 = lookup("java/lang/Object");
+	class0 = lookup(""FY_BASE_OBJECT"");
 	class1 = lookup("[[B");
 	class2 = lookup("[[C");
 	class3 = lookup("[[[B");
-	class4 = lookup("[[Ljava/lang/Object;");
+	class4 = lookup("[[L"FY_BASE_OBJECT";");
 	class5 = lookup("[[LEXCLUDE/fisce/test/ITester;");
 	class6 = lookup("[[LEXCLUDE/fisce/test/Tester;");
 	class7 = lookup("[[LEXCLUDE/fisce/test/TesterChild;");
@@ -257,7 +257,7 @@ void testThread() {
 	fy_method *method;
 	fy_exception exception;
 	fy_class *clazz = lookup("EXCLUDE/fisce/test/Tester");
-	fy_class *clazzThread = lookup("java/lang/Thread");
+	fy_class *clazzThread = lookup(FY_BASE_THREAD);
 	fy_field *fieldThreadPriority = fy_vmLookupFieldStatic(context, clazzThread,
 			fy_strAllocateFromUTF8(context, ".priority.I"));
 	jint threadHandle;
@@ -276,7 +276,7 @@ void testThread() {
 #endif
 	method = NULL;
 	name = fy_strAllocateFromUTF8(context,
-			"EXCLUDE/fisce/test/Tester.main.([Ljava/lang/String;)V");
+			"EXCLUDE/fisce/test/Tester.main.([L"FY_BASE_STRING";)V");
 
 	thread = fy_vmAllocate(context, sizeof(fy_thread));
 	method = fy_vmGetMethod(context, name);

@@ -92,25 +92,40 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 	context->sFloat = fy_strAllocateFromUTF8(context, "float");
 	context->sLong = fy_strAllocateFromUTF8(context, "long");
 	context->sDouble = fy_strAllocateFromUTF8(context, "double");
-	context->sTopClass = fy_strAllocateFromUTF8(context, "java/lang/Object");
-	context->sClassClass = fy_strAllocateFromUTF8(context, "java/lang/Class");
+	context->sTopClass = fy_strAllocateFromUTF8(context, FY_BASE_OBJECT);
+	context->sClassClass = fy_strAllocateFromUTF8(context, FY_BASE_CLASS);
 	context->sClassThrowable = fy_strAllocateFromUTF8(context,
-			"java/lang/Throwable");
-	context->sString = fy_strAllocateFromUTF8(context, "java/lang/String");
+			FY_BASE_THROWABLE);
+	context->sString = fy_strAllocateFromUTF8(context, FY_BASE_STRING);
 	context->sStringArray = fy_strAllocateFromUTF8(context,
-			"[Ljava/lang/Throwable;");
+			"[L"FY_BASE_THROWABLE";");
 	context->sMainPostfix = fy_strAllocateFromUTF8(context,
-			".main.([Ljava/lang/String;)V");
+			".main.([L"FY_BASE_STRING";)V");
 	context->sThrowablePrintStacktrace = fy_strAllocateFromUTF8(context,
-			"java/lang/Throwable.printStackTrace.()V");
-	context->sInit = fy_strAllocateFromUTF8(context, "<init>");
-	context->sClinit = fy_strAllocateFromUTF8(context, "<clinit>");
+			FY_BASE_THROWABLE".printStackTrace.()V");
+	context->sInit = fy_strAllocateFromUTF8(context, FY_INIT);
+	context->sClinit = fy_strAllocateFromUTF8(context, FY_CLINIT);
 	context->sStringCount = fy_strAllocateFromUTF8(context,
-			"java/lang/String.count.I");
+			FY_BASE_STRING".count.I");
 	context->sStringValue = fy_strAllocateFromUTF8(context,
-			"java/lang/String.value.[C");
+			FY_BASE_STRING".value.[C");
 	context->sStringOffset = fy_strAllocateFromUTF8(context,
-			"java/lang/String.offset.I");
+			FY_BASE_STRING".offset.I");
+
+	context->sStackTraceElement = fy_strAllocateFromUTF8(context,
+			FY_BASE_STACKTHREADELEMENT);
+	context->sStackTraceElementArray = fy_strAllocateFromUTF8(context,
+			"[L"FY_BASE_STACKTHREADELEMENT";");
+	context->sStackTraceElementDeclaringClass = fy_strAllocateFromUTF8(context,
+			FY_BASE_STACKTHREADELEMENT".declaringClass."FY_BASE_STRING);
+	context->sStackTraceElementMethodName = fy_strAllocateFromUTF8(context,
+			FY_BASE_STACKTHREADELEMENT".methodName."FY_BASE_STRING);
+	context->sStackTraceElementFileName = fy_strAllocateFromUTF8(context,
+			FY_BASE_STACKTHREADELEMENT".fileName."FY_BASE_STRING);
+	context->sStackTraceElementLineNumber = fy_strAllocateFromUTF8(context,
+			FY_BASE_STACKTHREADELEMENT".lineNumber.I");
+	context->sThrowableStackTrace = fy_strAllocateFromUTF8(context,
+			FY_BASE_THROWABLE".stackTrace.[L"FY_BASE_STACKTHREADELEMENT";");
 
 	context->sArrayBoolean = fy_strAllocateFromUTF8(context, "[Z");
 	context->sArrayChar = fy_strAllocateFromUTF8(context, "[C");

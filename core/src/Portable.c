@@ -23,6 +23,9 @@
  */
 static long int blocks = 0;
 
+#ifdef __GNUC__
+__attribute__((malloc))
+#endif
 void *vm_allocate(juint size) {
 	void *ret;
 	blocks++;
@@ -68,7 +71,7 @@ static void vm_die_break() {
 }
 void vm_die(char *format, ...) {
 	/*Put breakpoint here for exception handle!*/
-	int i=0;
+	int i = 0;
 	va_list arg_ptr;
 	printf("%s", "Fatal error happened!\n");
 

@@ -64,6 +64,14 @@ typedef unsigned long long julong;
 typedef long long jlong;
 #endif
 
+#if __STDC_VERSION__ >= 199901L
+#define _C99
+#define _FY_RESTRICT restrict
+#else
+#define _FY_RESTRICT
+#endif
+
+
 #ifndef TRUE
 #define TRUE 1
 #endif
