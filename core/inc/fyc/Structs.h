@@ -397,25 +397,33 @@ typedef struct fy_object {
  *
  */
 
-typedef struct fy_thread_frame{
+typedef struct fy_frame{
 	fy_method *method;
+	jbyte *code;
+	juint bottomPos;
+#ifdef FY_STRICT_CHECK
+	juint size;
+	juint localCount;
+	juint codeSize;
+#endif
+	juint methodId;
 	juint sp;
 	juint pc;
-} fy_thread_frame;
+} fy_frame;
 
 typedef struct fy_thread {
 	jboolean inUse;
 	jboolean yield;
-
-	jint frameCount;
 
 	jint handle;
 	jint currentThrowable;
 	jint status;
 	jint priority;
 	jint threadId;
-	jint fp;
-	jint frames[STACK_SIZE];
+	fy_linkedList *frames;
+
+	jint stack[STACK_SIZE];
+	jint typeStack[STACK_SIZE];
 
 	/*Used by thread manager*/
 	jint waitForLockId;
@@ -425,8 +433,6 @@ typedef struct fy_thread {
 	jboolean interrupted;
 	jboolean daemon;
 
-	struct fy_method *method;
-	jubyte *code;
 } fy_thread;
 
 typedef struct fy_exception {

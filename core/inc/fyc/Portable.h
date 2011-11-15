@@ -71,6 +71,13 @@ typedef long long jlong;
 #define _FY_RESTRICT
 #endif
 
+#if 1
+#define FY_FASTCALL __fastcall
+#endif
+
+#ifdef _DEBUG
+#define FY_STRICT_CHECK
+#endif
 
 #ifndef TRUE
 #define TRUE 1

@@ -20,7 +20,7 @@
 #define CMD_BREAK  1
 #define CMD_GOON  2
 #define CMD_BACK  3
-
+#if 0
 #define dSIZE  0
 #define dMID  -1
 #define dLC  -2
@@ -37,6 +37,7 @@
 #define lframe(thread,OFFSET) (*(_s8*)((thread)->frames+(OFFSET)))
 #define fframe(thread,OFFSET) (*(float*)((thread)->frames+(OFFSET)))
 #define dframe(thread,OFFSET) (*(double*)((thread)->frames+(OFFSET)))
+#endif
 
 #ifdef VERBOSE_LOG
 static char *OP_NAME[] = { /**/
@@ -265,102 +266,7 @@ void fy_threadSetCurrentThrowable(fy_VMContext *context, fy_thread *thread,
 	}
 }
 
-static jint getSIZE(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dSIZE);
-}
-
-static void setSIZE(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dSIZE) = value;
-}
-
-static jint getMID(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dMID);
-}
-
-static void setMID(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dMID) = value;
-}
-
-static jint getLC(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dLC);
-}
-
-static void setLC(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dLC) = value;
-}
-
-static jint getLB(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dLB);
-}
-
-static void setLB(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dLB) = value;
-}
-
-static jint getSC(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dSC);
-}
-
-static void setSC(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dSC) = value;
-}
-
-static jint getSB(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dSB);
-}
-
-static void setSB(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dSB) = value;
-}
-
-static jint getSR(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dSR);
-}
-
-static void setSR(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dSR) = value;
-}
-
-static jint incSR(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dSR)++;
-}
-
-static jint decSR(fy_VMContext *context, fy_thread *thread) {
-	return --iframe(thread,thread->fp+dSR);
-}
-
-static jint getLTB(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dLTB);
-}
-
-static void setLTB(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dLTB) = value;
-}
-
-static jint getSTB(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dSTB);
-}
-
-static void setSTB(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dSTB) = value;
-}
-
-static jint getLPC(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dLPC);
-}
-
-static void setLPC(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dLPC) = value;
-}
-
-static jint getPC(fy_VMContext *context, fy_thread *thread) {
-	return iframe(thread,thread->fp+dPC);
-}
-
-static void setPC(fy_VMContext *context, fy_thread *thread, jint value) {
-	iframe(thread,thread->fp+dPC) = value;
-}
-
+#if 0
 static jubyte nextU1(fy_VMContext *context, fy_thread *thread) {
 	int pc = getPC(context, thread);
 	jubyte *code = thread->code;
@@ -436,6 +342,7 @@ static void movePC(fy_VMContext *context, fy_thread *thread, int ofs) {
 static void opGOTO(fy_VMContext *context, fy_thread *thread, int ofs) {
 	setPC(context, thread, getLPC(context, thread) + ofs);
 }
+#endif
 
 static jint processThrowable(fy_VMContext *context, fy_thread *thread,
 		jint handle, jint lpc, fy_exception *exception) {
@@ -474,7 +381,7 @@ static jint processThrowable(fy_VMContext *context, fy_thread *thread,
 }
 
 static jboolean clinit(fy_VMContext *context, fy_thread *thread,
-		fy_class *clazz) {
+		fy_class *clazz, _FY_RESTRICT int *pc, _FY_RESTRICT int *lpc) {
 	int tid;
 	jboolean ret;
 	if (clazz == NULL) {
@@ -492,7 +399,7 @@ static jboolean clinit(fy_VMContext *context, fy_thread *thread,
 		return ret;
 	} else {
 		if (tid == 0) {
-			setPC(context, thread, getLPC(context, thread));
+			*pc = *lpc;
 			fy_threadPushFrame(context, thread, clazz->clinit);
 			clazz->clinitThreadId = thread->threadId;
 			return TRUE;
@@ -533,6 +440,7 @@ static jint threadmulitANewArray(fy_VMContext *context, fy_class *clazz,
 	return ret;
 }
 
+#if 0
 static void updateLocalBuf(fy_VMContext *context, fy_thread *thread) {
 	if (thread->fp != 0) {
 		thread->method = fy_threadGetCurrentMethod(context, thread);
@@ -542,6 +450,7 @@ static void updateLocalBuf(fy_VMContext *context, fy_thread *thread) {
 		thread->code = NULL;
 	}
 }
+#endif
 
 static jint opLDC(fy_VMContext *context, fy_class *owner, jchar index,
 		jbyte *type, fy_exception *exception) {
@@ -613,7 +522,7 @@ void fy_threadMonitorEnter(fy_VMContext *context, fy_thread *thread,
 void fy_threadMonitorExit(fy_VMContext *context, fy_thread *thread, jint handle) {
 	/*TODO*/
 }
-
+#if 0
 static void fy_threadPutLocalType(fy_VMContext *context, fy_thread *thread,
 		int pos, jint value, jbyte type) {
 	int framepos = getLB(context, thread) + pos;
@@ -709,7 +618,7 @@ void fy_threadPushHandle(fy_VMContext *context, fy_thread *thread, jint value) {
 	ASSERT(getSR(context,thread)<getSC(context,thread));ASSERT(value>=0||value<MAX_OBJECTS);
 	iframe(thread,getSB(context,thread)+getSR(context,thread)) = value;
 	iframe(thread,getSTB(context,thread)+incSR(context,thread)) =
-			TH_TYPE_HANDLE;
+	TH_TYPE_HANDLE;
 }
 
 void fy_threadPushInt(fy_VMContext *context, fy_thread *thread, jint value) {
@@ -773,11 +682,12 @@ jlong fy_threadPopLong(fy_VMContext *context, fy_thread *thread) {
 jdouble fy_threadPopDouble(fy_VMContext *context, fy_thread *thread) {
 	return fy_longToDouble(fy_threadPopLong(context, thread));
 }
+#endif
 
 void fy_threadInit(fy_VMContext *context, fy_thread *thread) {
 
 }
-
+#ifdef 0
 void fy_threadGetFrameInfo(fy_VMContext *context, fy_thread *thread, char *out,
 		size_t outSize) {
 	sprintf_s(out, outSize,
@@ -875,6 +785,7 @@ void fy_threadPopFrame(fy_VMContext *context, fy_thread *thread) {
 	}
 #endif
 }
+#endif
 
 void fy_threadPushMethod(fy_VMContext *context, fy_thread *thread,
 		fy_method *invoke, jboolean isStatic, int argsCount, jint *args,
@@ -908,7 +819,6 @@ void fy_threadCreateWithMethod(fy_VMContext *context, fy_thread *thread,
 			break;
 		}
 		thread->handle = threadHandle;
-		thread->fp = 0;
 		fy_threadPushFrame(context, thread, method);
 		clazz = fy_vmLookupClass(context, context->sStringArray, exception);
 		if (exception->exceptionType != exception_none) {
@@ -932,7 +842,7 @@ void fy_threadCreateWithData(fy_VMContext *context, fy_thread *thread,
 		jbyte *data, jint length, fy_exception *exception) {
 	/*TODO*/
 }
-
+#if 0
 void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
 		juint handle, fy_exception *exception) {
 	//TODO
@@ -984,14 +894,58 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
 		sprintf_sf(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"Can't find field %s.", context->sStackTraceElementLineNumber);
 	}
-	arrayHandle=fy_heapAllocateArray(context,array,thread->frameCount,exception);
+	arrayHandle = fy_heapAllocateArray(context, array, thread->frameCount,
+			exception);
 	fy_simpleErrorHandle;
 
+}
+#endif
 
+#ifdef FY_STRICT_CHECK
+# define
+#else
+#endif
+
+#define FY_PUSHI(V) { \
+# ifdef FY_STRICT_CHECK
+	if(sp>=bottomPos+size||sp<bottomPos+localCount){vm_die("Stack overflow! %ld",sp);} \
+# endif
+	typeStack[sp]=TH_TYPE_INT;stack[sp++]=V \
 }
 
+#define FY_PUSHH(V) { \
+	typeStack[sp]=TH_TYPE_HANDLE;stack[sp++]=V \
+}
+#define FY_PUSHR(V) {typeStack[sp]=TH_TYPE_RETURN;stack[sp++]=V}
+
+#define FY_PUSHW(W) { \
+	typeStack[sp]=TH_TYPE_WIDE;stack[sp++]=fy_HOFL(W); \
+	typeStack[sp]=TH_TYPE_WIDE;stack[sp++]=fy_HOFL(W); \
+}
+
+#define FY_FRAME_TO_LOCAL(ptrFrame) { \
+	sp=ptrFrame->sp;pc=ptrFrame->pc;lpc=ptrFrame->lpc; \
+	sb=ptrFrame->bottomPos;method = ptrFrame->method \
+# ifdef FY_STRICT_CHECK
+	size = ptrFrame->size;localCount = ptrFrame -> localCount;codeSize = ptrFrame->codeSize;
+# endif
+}
+
+
+/**
+ * DON'T USE RETURN HERE!!!!
+ */
 void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 		jint ops) {
+	juint sb, sp, pc, lpc, opCount;
+#ifdef FY_STRICT_CHECK
+	juint size, localCount, codeSize;
+#endif
+	jbyte *code;
+	fy_method *method = NULL;
+	fy_frame *frame = NULL;
+	jint *stack = thread.stack, *typeStack = thread->typeStack;
+	fy_exception *exception = &(message->body.exception);
 
 	jint index;
 	jint aref;
@@ -1000,10 +954,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 	jint op;
 	jshort svalue;
 
-	fy_method *method = NULL;
-	fy_exception *exception = &(message->body.exception);
-
-	int i, opCount;
+	int i;
 	jlong lvalue, lvalue2;
 	jdouble dvalue1, dvalue2;
 	jfloat fvalue1, fvalue2;
@@ -1027,9 +978,10 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 
 	message->messageType = message_continue;
 	exception->exceptionType = exception_none;
-	for (opCount = 0; opCount < ops; opCount++) {
-		method = thread->method;
-		if (thread->fp == 0) {
+	opCount = 0;
+	while (opCount < ops) {
+		//move current frame data to local
+		if (thread->frames->count == 0) {
 			/*Time to quit!*/
 			if (thread->currentThrowable) {
 				DLOG("XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX");
@@ -1045,19 +997,246 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				message->messageType = message_thread_dead;
 				break;
 			}
+		} else {
+			frame = thread->frames->last;
+			method = frame->method;
 		}
-		if (thread->currentThrowable) {
-			ivalue = processThrowable(context, thread, thread->currentThrowable,
-					getLPC(context, thread), exception);
-			if (exception->exceptionType != exception_none) {
-				message->messageType = message_exception;
-			} else {
-				if (ivalue >= 0) {
-					setSR(context, thread, 0);
-					fy_threadPushHandle(context, thread, ivalue);
-					thread->currentThrowable = 0;
-					setPC(context, thread, 0);
+
+		for (; opCount < ops; opCount++) {
+			if (thread->currentThrowable) {
+				ivalue = processThrowable(context, thread,
+						thread->currentThrowable, getLPC(context, thread),
+						exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
 				} else {
+					if (ivalue >= 0) {
+						sp = 0;
+
+						pc = 0;
+						setSR(context, thread, 0);
+						fy_threadPushHandle(context, thread, ivalue);
+						thread->currentThrowable = 0;
+						setPC(context, thread, 0);
+					} else {
+						if (method->access_flags & fy_ACC_SYNCHRONIZED) {
+							if (method->access_flags & fy_ACC_STATIC) {
+								fy_threadMonitorExit(context, thread,
+										method->owner->classObjId);
+							} else {
+								fy_threadMonitorExit(
+										context,
+										thread,
+										fy_threadGetLocalHandle(context, thread,
+												0));
+							}
+						}
+						fy_threadPopFrame(context, thread);
+					}
+				}
+			} else {
+
+				/*RUN_ONE_INST!!!!!*/
+
+				setLPC(context, thread, getPC(context, thread));
+				op = nextU1(context, thread);
+				if (method->clinit) {
+					if (clinit(context, thread, method->owner->super)) {
+						continue;
+					}
+				}
+
+#ifdef _DEBUG
+#ifdef VERBOSE_LOG
+				fy_strSPrint(msg, 256, method->uniqueName);
+				DLOG("##%6d/%6d %s %d %s SR=%d\n", opCount, ops, msg,
+						getLPC(context, thread), OP_NAME[op], getSR(context, thread));
+#endif
+#endif
+
+				switch (op) {
+				case AALOAD: {
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					fy_threadPushHandle(
+							context,
+							thread,
+							fy_heapGetArrayHandle(context, aref, index,
+									exception));
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					break;
+				}
+				case IALOAD: {
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					fy_threadPushInt(
+							context,
+							thread,
+							fy_heapGetArrayInt(context, aref, index,
+									exception));
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					break;
+				}
+				case AASTORE: {
+					hvalue = fy_threadPopHandle(context, thread);
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					DLOG("AASTORE %d[%d]=%d", aref, index, hvalue);
+					clazz1 = fy_heapGetClassOfObject(context, aref);
+					clazz2 = clazz1->ci.arr.contentClass;
+					if (hvalue != 0
+							&& !fy_classCanCastTo(context,
+									fy_heapGetClassOfObject(context, hvalue),
+									clazz2)) {
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/ArrayStoreException");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Data type not compatable!");
+						message->messageType = message_exception;
+						break;/*EXCEPTION_THROWN*/
+					}
+					fy_heapPutArrayHandle(context, aref, index, hvalue,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;/*EXCEPTION_THROWN*/
+					}
+					break;
+				}
+				case IASTORE: {
+					ivalue = fy_threadPopInt(context, thread);
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+
+					fy_heapPutArrayInt(context, aref, index, ivalue, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;/*EXCEPTION_THROWN*/
+					}
+					break;
+				}
+				case ACONST_NULL: {
+					fy_threadPushHandle(context, thread, 0);
+					break;
+				}
+
+				case ILOAD:
+				case FLOAD: {
+
+					index = nextU1(context, thread);
+					ivalue = fy_threadGetLocalInt(context, thread, index);
+					fy_threadPushInt(context, thread, ivalue);
+					break;
+				}
+				case ALOAD: {
+					index = nextU1(context, thread);
+					ivalue = fy_threadGetLocalHandle(context, thread, index);
+					fy_threadPushHandle(context, thread, ivalue);
+					break;
+				}
+				case ILOAD_0:
+				case FLOAD_0: {
+					fy_threadPushInt(context, thread,
+							fy_threadGetLocalInt(context, thread, 0));
+					break;
+				}
+				case ALOAD_0: {
+					fy_threadPushHandle(context, thread,
+							fy_threadGetLocalHandle(context, thread, 0));
+					break;
+				}
+				case ILOAD_1:
+				case FLOAD_1: {
+					fy_threadPushInt(context, thread,
+							fy_threadGetLocalInt(context, thread, 1));
+					break;
+				}
+				case ALOAD_1: {
+					fy_threadPushHandle(context, thread,
+							fy_threadGetLocalHandle(context, thread, 1));
+					break;
+				}
+				case ILOAD_2:
+				case FLOAD_2: {
+					fy_threadPushInt(context, thread,
+							fy_threadGetLocalInt(context, thread, 2));
+					break;
+				}
+				case ALOAD_2: {
+					fy_threadPushHandle(context, thread,
+							fy_threadGetLocalHandle(context, thread, 2));
+					break;
+				}
+				case ILOAD_3:
+				case FLOAD_3: {
+					ivalue = fy_threadGetLocalInt(context, thread, 3);
+					fy_threadPushInt(context, thread, ivalue);
+					break;
+				}
+				case ALOAD_3: {
+					fy_threadPushHandle(context, thread,
+							fy_threadGetLocalHandle(context, thread, 3));
+					break;
+				}
+				case ANEWARRAY: {
+					ch1 = nextU2(context, thread);
+					index = fy_threadPopInt(context, thread);
+					if (index < 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IndexOutOfBoundException");
+						sprintf_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "%d", index);
+						break;
+					}
+
+					clazz1 = fy_vmLookupClassFromConstant(context,
+							(ConstantClass*) method->owner->constantPools[ch1],
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;/*EXCEPTION_THROWN*/
+					}
+					fy_strInit(context, &str1, 64);
+					if (clazz1->type == obj) {
+						fy_strAppendUTF8(context, &str1, "[L", 3);
+						fy_strAppend(context, &str1, clazz1->className);
+						fy_strAppendUTF8(context, &str1, ";", 3);
+					} else if (clazz1->type == arr) {
+						fy_strAppendUTF8(context, &str1, "[", 3);
+						fy_strAppend(context, &str1, clazz1->className);
+					}
+					clazz2 = fy_vmLookupClass(context, &str1, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_strDestroy(context, &str1);
+					fy_threadPushHandle(
+							context,
+							thread,
+							fy_heapAllocateArray(context, clazz2, index,
+									exception));
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;/*EXCEPTION_THROWN*/
+					}
+					break;
+				}
+				case IRETURN:
+				case FRETURN: {
+					ivalue = fy_threadPopInt(context, thread);
 					if (method->access_flags & fy_ACC_SYNCHRONIZED) {
 						if (method->access_flags & fy_ACC_STATIC) {
 							fy_threadMonitorExit(context, thread,
@@ -1071,2168 +1250,2004 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 						}
 					}
 					fy_threadPopFrame(context, thread);
-				}
-			}
-		} else {
-
-			/*RUN_ONE_INST!!!!!*/
-
-			setLPC(context, thread, getPC(context, thread));
-			op = nextU1(context, thread);
-			if (method->clinit) {
-				if (clinit(context, thread, method->owner->super)) {
-					continue;
-				}
-			}
-
-#ifdef _DEBUG
-#ifdef VERBOSE_LOG
-			fy_strSPrint(msg, 256, method->uniqueName);
-			DLOG("##%6d/%6d %s %d %s SR=%d\n", opCount, ops, msg,
-					getLPC(context, thread), OP_NAME[op], getSR(context, thread));
-#endif
-#endif
-
-			switch (op) {
-			case AALOAD: {
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				fy_threadPushHandle(context, thread,
-						fy_heapGetArrayHandle(context, aref, index, exception));
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				break;
-			}
-			case IALOAD: {
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				fy_threadPushInt(context, thread,
-						fy_heapGetArrayInt(context, aref, index, exception));
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				break;
-			}
-			case AASTORE: {
-				hvalue = fy_threadPopHandle(context, thread);
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				DLOG("AASTORE %d[%d]=%d", aref, index, hvalue);
-				clazz1 = fy_heapGetClassOfObject(context, aref);
-				clazz2 = clazz1->ci.arr.contentClass;
-				if (hvalue != 0
-						&& !fy_classCanCastTo(context,
-								fy_heapGetClassOfObject(context, hvalue),
-								clazz2)) {
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/ArrayStoreException");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Data type not compatable!");
-					message->messageType = message_exception;
-					break;/*EXCEPTION_THROWN*/
-				}
-				fy_heapPutArrayHandle(context, aref, index, hvalue, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;/*EXCEPTION_THROWN*/
-				}
-				break;
-			}
-			case IASTORE: {
-				ivalue = fy_threadPopInt(context, thread);
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-
-				fy_heapPutArrayInt(context, aref, index, ivalue, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;/*EXCEPTION_THROWN*/
-				}
-				break;
-			}
-			case ACONST_NULL: {
-				fy_threadPushHandle(context, thread, 0);
-				break;
-			}
-
-			case ILOAD:
-			case FLOAD: {
-
-				index = nextU1(context, thread);
-				ivalue = fy_threadGetLocalInt(context, thread, index);
-				fy_threadPushInt(context, thread, ivalue);
-				break;
-			}
-			case ALOAD: {
-				index = nextU1(context, thread);
-				ivalue = fy_threadGetLocalHandle(context, thread, index);
-				fy_threadPushHandle(context, thread, ivalue);
-				break;
-			}
-			case ILOAD_0:
-			case FLOAD_0: {
-				fy_threadPushInt(context, thread,
-						fy_threadGetLocalInt(context, thread, 0));
-				break;
-			}
-			case ALOAD_0: {
-				fy_threadPushHandle(context, thread,
-						fy_threadGetLocalHandle(context, thread, 0));
-				break;
-			}
-			case ILOAD_1:
-			case FLOAD_1: {
-				fy_threadPushInt(context, thread,
-						fy_threadGetLocalInt(context, thread, 1));
-				break;
-			}
-			case ALOAD_1: {
-				fy_threadPushHandle(context, thread,
-						fy_threadGetLocalHandle(context, thread, 1));
-				break;
-			}
-			case ILOAD_2:
-			case FLOAD_2: {
-				fy_threadPushInt(context, thread,
-						fy_threadGetLocalInt(context, thread, 2));
-				break;
-			}
-			case ALOAD_2: {
-				fy_threadPushHandle(context, thread,
-						fy_threadGetLocalHandle(context, thread, 2));
-				break;
-			}
-			case ILOAD_3:
-			case FLOAD_3: {
-				ivalue = fy_threadGetLocalInt(context, thread, 3);
-				fy_threadPushInt(context, thread, ivalue);
-				break;
-			}
-			case ALOAD_3: {
-				fy_threadPushHandle(context, thread,
-						fy_threadGetLocalHandle(context, thread, 3));
-				break;
-			}
-			case ANEWARRAY: {
-				ch1 = nextU2(context, thread);
-				index = fy_threadPopInt(context, thread);
-				if (index < 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IndexOutOfBoundException");
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "%d", index);
-					break;
-				}
-
-				clazz1 = fy_vmLookupClassFromConstant(context,
-						(ConstantClass*) method->owner->constantPools[ch1],
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;/*EXCEPTION_THROWN*/
-				}
-				fy_strInit(context, &str1, 64);
-				if (clazz1->type == obj) {
-					fy_strAppendUTF8(context, &str1, "[L", 3);
-					fy_strAppend(context, &str1, clazz1->className);
-					fy_strAppendUTF8(context, &str1, ";", 3);
-				} else if (clazz1->type == arr) {
-					fy_strAppendUTF8(context, &str1, "[", 3);
-					fy_strAppend(context, &str1, clazz1->className);
-				}
-				clazz2 = fy_vmLookupClass(context, &str1, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_strDestroy(context, &str1);
-				fy_threadPushHandle(
-						context,
-						thread,
-						fy_heapAllocateArray(context, clazz2, index,
-								exception));
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;/*EXCEPTION_THROWN*/
-				}
-				break;
-			}
-			case IRETURN:
-			case FRETURN: {
-				ivalue = fy_threadPopInt(context, thread);
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
-						fy_threadMonitorExit(context, thread,
-								method->owner->classObjId);
-					} else {
-						fy_threadMonitorExit(context, thread,
-								fy_threadGetLocalHandle(context, thread, 0));
-					}
-				}
-				fy_threadPopFrame(context, thread);
-				fy_threadPushInt(context, thread, ivalue);
-				break;
-			}
-			case ARETURN: {
-				aref = fy_threadPopHandle(context, thread);
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
-						fy_threadMonitorExit(context, thread,
-								method->owner->classObjId);
-					} else {
-						fy_threadMonitorExit(context, thread,
-								fy_threadGetLocalHandle(context, thread, 0));
-					}
-				}
-				fy_threadPopFrame(context, thread);
-				fy_threadPushHandle(context, thread, aref);
-				break;
-			}
-			case ARRAYLENGTH: {
-				aref = fy_threadPopHandle(context, thread);
-				index = fy_heapArrayLength(context, aref, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushInt(context, thread, index);
-				break;
-			}
-			case ISTORE:
-			case FSTORE: {
-				index = nextU1(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-
-				fy_threadPutLocalInt(context, thread, index, ivalue);
-				break;
-			}
-			case ASTORE: {
-				index = nextU1(context, thread);
-				aref = fy_threadPopType(context, thread, &type);
-				fy_threadPutLocalType(context, thread, index, aref, type);
-				break;
-			}
-			case ISTORE_0:
-			case FSTORE_0: {
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPutLocalInt(context, thread, 0, ivalue);
-				break;
-			}
-			case ASTORE_0: {
-				aref = fy_threadPopType(context, thread, &type);
-				fy_threadPutLocalType(context, thread, 0, aref, type);
-				break;
-			}
-			case ISTORE_1:
-			case FSTORE_1: {
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPutLocalInt(context, thread, 1, ivalue);
-				break;
-			}
-			case ASTORE_1: {
-				aref = fy_threadPopType(context, thread, &type);
-				fy_threadPutLocalType(context, thread, 1, aref, type);
-				break;
-			}
-			case ISTORE_2:
-			case FSTORE_2: {
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPutLocalInt(context, thread, 2, ivalue);
-				break;
-			}
-			case ASTORE_2: {
-				aref = fy_threadPopType(context, thread, &type);
-				fy_threadPutLocalType(context, thread, 2, aref, type);
-				break;
-			}
-			case ISTORE_3:
-			case FSTORE_3: {
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPutLocalInt(context, thread, 3, ivalue);
-				break;
-			}
-			case ASTORE_3: {
-				aref = fy_threadPopType(context, thread, &type);
-				ASSERT(type == TH_TYPE_HANDLE || type == TH_TYPE_RETURN);
-				fy_threadPutLocalType(context, thread, 3, aref, type);
-				break;
-			}
-			case ATHROW: {
-				aref = fy_threadPopHandle(context, thread);
-				thread->currentThrowable = aref;
-				break;
-			}
-			case BALOAD: {
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				ivalue = fy_heapGetArrayByte(context, aref, index, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushInt(context, thread, ivalue);
-				break;
-			}
-			case BASTORE: {
-				ivalue = fy_threadPopInt(context, thread);
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				fy_heapPutArrayByte(context, aref, index, (jbyte) ivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				break;
-			}
-			case BIPUSH: {
-				ivalue = nextS1(context, thread);
-				fy_threadPushInt(context, thread, ivalue);
-				break;
-			}
-			case FALOAD:
-			case CALOAD: {
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				ivalue = fy_heapGetArrayInt(context, aref, index, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushInt(context, thread, ivalue);
-				break;
-			}
-			case FASTORE:
-			case CASTORE: {
-				ivalue = fy_threadPopInt(context, thread);
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				fy_heapPutArrayInt(context, aref, index, ivalue, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				break;
-			}
-			case CHECKCAST: {
-				index = nextU2(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				if (aref == 0) {
-					fy_threadPushHandle(context, thread, aref);
-				} else {
-					clazz1 = fy_heapGetClassOfObject(context, aref);
-					clazz2 = fy_vmLookupClassFromConstant(context,
-							method->owner->constantPools[index], exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						break;
-					}
-					if (fy_classCanCastTo(context, clazz1, clazz2)) {
-						fy_threadPushHandle(context, thread, aref);
-					} else {
-						message->messageType = message_exception;
-						exception->exceptionType = exception_normal;
-						strcpy_s(exception->exceptionName,
-								sizeof(exception->exceptionName),
-								"java/lang/ClassCastException");
-						fy_strInit(context, &str1, 64);
-						fy_strAppendUTF8(context, &str1, "from ", 99);
-						fy_strAppend(context, &str1, clazz1->className);
-						fy_strAppendUTF8(context, &str1, "to ", 99);
-						fy_strAppend(context, &str1, clazz2->className);
-						fy_strSPrint(exception->exceptionDesc,
-								sizeof(exception->exceptionDesc), &str1);
-						fy_strDestroy(context, &str1);
-					}
-				}
-				break;
-			}
-			case D2F: {
-				fy_threadPushFloat(context, thread,
-						(float) fy_threadPopDouble(context, thread));
-				break;
-			}
-			case D2I: {
-				fy_threadPushInt(context, thread,
-						(int) fy_threadPopDouble(context, thread));
-				break;
-			}
-			case D2L: {
-				fy_threadPushLong(context, thread,
-						(long) fy_threadPopDouble(context, thread));
-				break;
-			}
-			case DADD: {
-				fy_threadPushDouble(
-						context,
-						thread,
-						fy_threadPopDouble(context, thread)
-								+ fy_threadPopDouble(context, thread));
-				break;
-			}
-			case DALOAD: {
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				dvalue1 = fy_heapGetArrayDouble(context, aref, index,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushDouble(context, thread, dvalue1);
-				break;
-			}
-			case DASTORE: {
-				dvalue1 = fy_threadPopDouble(context, thread);
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				fy_heapPutArrayDouble(context, aref, index, dvalue1, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				break;
-			}
-			case DCMPG:
-				dvalue2 = fy_threadPopDouble(context, thread);
-				dvalue1 = fy_threadPopDouble(context, thread);
-				if (fy_isnand(dvalue1) || fy_isnand(dvalue2)) {
-					fy_threadPushInt(context, thread, 1);
-				} else {
-					fy_threadPushInt(
-							context,
-							thread,
-							dvalue1 == dvalue2 ? 0 :
-							(dvalue1 - dvalue2 > 0) ? 1 : -1);
-					;;
-				}
-				break;
-			case DCMPL: {
-				dvalue2 = fy_threadPopDouble(context, thread);
-				dvalue1 = fy_threadPopDouble(context, thread);
-				if (fy_isnand(dvalue1) || fy_isnand(dvalue2)) {
-					fy_threadPushInt(context, thread, -1);
-				} else {
-					fy_threadPushInt(
-							context,
-							thread,
-							dvalue1 == dvalue2 ? 0 :
-							(dvalue1 - dvalue2 > 0) ? 1 : -1);
-					;;
-				}
-				break;
-			}
-			case DCONST_0: {
-				fy_threadPushDouble(context, thread, 0);
-				break;
-			}
-			case DCONST_1: {
-				fy_threadPushDouble(context, thread, 1);
-				break;
-			}
-			case DDIV: {
-				dvalue2 = fy_threadPopDouble(context, thread);
-				dvalue1 = fy_threadPopDouble(context, thread);
-				fy_threadPushDouble(context, thread, dvalue1 / dvalue2);
-				break;
-			}
-			case DMUL: {
-				dvalue2 = fy_threadPopDouble(context, thread);
-				dvalue1 = fy_threadPopDouble(context, thread);
-				fy_threadPushDouble(context, thread, dvalue1 * dvalue2);
-				break;
-			}
-			case DNEG: {
-				fy_threadPushDouble(context, thread,
-						-fy_threadPopDouble(context, thread));
-				break;
-			}
-			case DREM: {
-				dvalue2 = fy_threadPopDouble(context, thread);
-				dvalue1 = fy_threadPopDouble(context, thread);
-				if (dvalue2 == 0) {
-					fy_threadPushDouble(context, thread, 0.0 / dvalue2);
-				} else {
-					fy_threadPushDouble(context, thread,
-							dvalue1 - floor(dvalue1 / dvalue2) * dvalue2);
-				}
-
-				break;
-			}
-			case DRETURN: {
-				dvalue1 = fy_threadPopDouble(context, thread);
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
-						fy_threadMonitorExit(context, thread,
-								method->owner->classObjId);
-					} else {
-						fy_threadMonitorExit(context, thread,
-								fy_threadGetLocalHandle(context, thread, 0));
-					}
-				}
-				fy_threadPopFrame(context, thread);
-				fy_threadPushDouble(context, thread, dvalue1);
-				break;
-			}
-			case DSUB: {
-				dvalue2 = fy_threadPopDouble(context, thread);
-				dvalue1 = fy_threadPopDouble(context, thread);
-				fy_threadPushDouble(context, thread, dvalue1 - dvalue2);
-				break;
-			}
-			case DUP: {
-				ivalue = fy_threadPopType(context, thread, &type);
-				fy_threadPushType(context, thread, ivalue, type);
-				fy_threadPushType(context, thread, ivalue, type);
-				break;
-			}
-			case DUP_X1: {
-				ivalue = fy_threadPopType(context, thread, &type);
-				ivalue2 = fy_threadPopType(context, thread, &type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				break;
-			}
-			case DUP_X2: {
-				ivalue = fy_threadPopType(context, thread, &type);
-				ivalue2 = fy_threadPopType(context, thread, &type2);
-				ivalue3 = fy_threadPopType(context, thread, &type3);
-				fy_threadPushType(context, thread, ivalue, type);
-				fy_threadPushType(context, thread, ivalue3, type3);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				break;
-			}
-			case DUP2: {
-				ivalue = fy_threadPopType(context, thread, &type);
-				ivalue2 = fy_threadPopType(context, thread, &type2);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				break;
-			}
-			case DUP2_X1: {
-				ivalue = fy_threadPopType(context, thread, &type);
-				ivalue2 = fy_threadPopType(context, thread, &type2);
-				ivalue3 = fy_threadPopType(context, thread, &type3);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				fy_threadPushType(context, thread, ivalue3, type3);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				break;
-			}
-			case DUP2_X2: {
-				ivalue = fy_threadPopType(context, thread, &type);
-				ivalue2 = fy_threadPopType(context, thread, &type2);
-				ivalue3 = fy_threadPopType(context, thread, &type3);
-				ivalue4 = fy_threadPopType(context, thread, &type4);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				fy_threadPushType(context, thread, ivalue4, type4);
-				fy_threadPushType(context, thread, ivalue3, type3);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				break;
-			}
-			case F2D: {
-				fy_threadPushDouble(context, thread,
-						fy_threadPopFloat(context, thread));
-				break;
-			}
-			case F2I: {
-				fy_threadPushInt(context, thread,
-						(int) fy_threadPopFloat(context, thread));
-				break;
-			}
-			case F2L: {
-				fy_threadPushLong(context, thread,
-						(long) fy_threadPopFloat(context, thread));
-				break;
-			}
-			case FADD: {
-				fy_threadPushFloat(
-						context,
-						thread,
-						fy_threadPopFloat(context, thread)
-								+ fy_threadPopFloat(context, thread));
-				break;
-			}
-			case FCMPG: {
-				fvalue2 = fy_threadPopFloat(context, thread);
-				fvalue1 = fy_threadPopFloat(context, thread);
-				if (fy_isnanf(fvalue1) || fy_isnanf(fvalue2)) {
-					fy_threadPushInt(context, thread, 1);
-				} else {
-					fy_threadPushInt(
-							context,
-							thread,
-							fvalue1 == fvalue2 ? 0 :
-							(fvalue1 - fvalue2 > 0) ? 1 : -1);
-					;;
-				}
-				break;
-			}
-			case FCMPL: {
-				fvalue2 = fy_threadPopFloat(context, thread);
-				fvalue1 = fy_threadPopFloat(context, thread);
-				if (fy_isnanf(fvalue1) || fy_isnanf(fvalue2)) {
-					fy_threadPushInt(context, thread, -1);
-				} else {
-					fy_threadPushInt(
-							context,
-							thread,
-							fvalue1 == fvalue2 ? 0 :
-							(fvalue1 - fvalue2 > 0) ? 1 : -1);
-					;;
-				}
-				break;
-			}
-			case FCONST_0: {
-				fy_threadPushFloat(context, thread, 0.0f);
-				break;
-			}
-			case FCONST_1: {
-				fy_threadPushFloat(context, thread, 1.0f);
-				break;
-			}
-			case FCONST_2: {
-				fy_threadPushFloat(context, thread, 2.0f);
-				break;
-			}
-			case FDIV: {
-				fvalue2 = fy_threadPopFloat(context, thread);
-				fy_threadPushFloat(context, thread,
-						fy_threadPopFloat(context, thread) / fvalue2);
-				break;
-			}
-			case FMUL: {
-				fy_threadPushFloat(
-						context,
-						thread,
-						fy_threadPopFloat(context, thread)
-								* fy_threadPopFloat(context, thread));
-				break;
-			}
-			case FNEG: {
-				fy_threadPushFloat(context, thread,
-						-fy_threadPopFloat(context, thread));
-				break;
-			}
-			case FREM: {
-				fvalue2 = fy_threadPopFloat(context, thread);
-				fvalue1 = fy_threadPopFloat(context, thread);
-				if (fvalue2 == 0) {
-					fy_threadPushFloat(context, thread, 0.0f / fvalue2);
-				} else {
-					fy_threadPushFloat(
-							context,
-							thread,
-							fvalue1
-									- (float) floor(fvalue1 / fvalue2) * fvalue2);
-				}
-				break;
-			}
-			case FSUB: {
-				fvalue2 = fy_threadPopFloat(context, thread);
-				fvalue1 = fy_threadPopFloat(context, thread);
-				fy_threadPushFloat(context, thread, fvalue1 - fvalue2);
-				break;
-			}
-			case GETFIELD: {
-				index = nextU2(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				field =
-						fy_vmLookupFieldFromConstant(
-								context,
-								(ConstantFieldRef*) (method->owner->constantPools[index]),
-								exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				if (field->access_flags & fy_ACC_STATIC) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
-					fy_strSPrint(msg, 256, field->uniqueName);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"field %s is static", msg);
-					break;
-				}
-				type = (jbyte) field->descriptor->content[0];
-				switch (type) {
-				case 'D':
-				case 'J':
-					lvalue = fy_heapGetFieldLong(context, aref, field,
-							exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						break;
-					}
-					fy_threadPushLong(context, thread, lvalue);
-					break;
-				case 'L':
-				case '[':
-					aref = fy_heapGetFieldHandle(context, aref, field,
-							exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						break;
-					}
-					fy_threadPushHandle(context, thread, aref);
-					break;
-				default:
-					ivalue = fy_heapGetFieldInt(context, aref, field,
-							exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						break;
-					}
 					fy_threadPushInt(context, thread, ivalue);
 					break;
 				}
-				break;
-			}
-			case GETSTATIC: {
-				index = nextU2(context, thread);
-				field =
-						fy_vmLookupFieldFromConstant(
-								context,
-								(ConstantFieldRef*) (method->owner->constantPools[index]),
-								exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				clazz1 = field->owner;
-				if (clinit(context, thread, clazz1)) {
-					break;
-				}
-				type = (jbyte) field->descriptor->content[0];
-				switch (type) {
-				case 'D':
-				case 'J':
-					lvalue = fy_heapGetStaticLong(context, field, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						break;
+				case ARETURN: {
+					aref = fy_threadPopHandle(context, thread);
+					if (method->access_flags & fy_ACC_SYNCHRONIZED) {
+						if (method->access_flags & fy_ACC_STATIC) {
+							fy_threadMonitorExit(context, thread,
+									method->owner->classObjId);
+						} else {
+							fy_threadMonitorExit(
+									context,
+									thread,
+									fy_threadGetLocalHandle(context, thread,
+											0));
+						}
 					}
-					fy_threadPushLong(context, thread, lvalue);
-					break;
-				case 'L':
-				case '[':
-					aref = fy_heapGetStaticInt(context, field, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						break;
-					}
+					fy_threadPopFrame(context, thread);
 					fy_threadPushHandle(context, thread, aref);
 					break;
-				default:
-					ivalue = fy_heapGetStaticInt(context, field, exception);
+				}
+				case ARRAYLENGTH: {
+					aref = fy_threadPopHandle(context, thread);
+					index = fy_heapArrayLength(context, aref, exception);
 					if (exception->exceptionType != exception_none) {
 						message->messageType = message_exception;
 						break;
 					}
-					fy_threadPushInt(context, thread, ivalue);
+					fy_threadPushInt(context, thread, index);
 					break;
 				}
-				break;
-			}
-			case GOTO: {
-				opGOTO(context, thread, nextS2(context, thread));
-				break;
-			}
-			case GOTO_W: {
-				opGOTO(context, thread, nextS4(context, thread));
-				break;
-			}
-			case I2B: {
-				fy_threadPushInt(context, thread,
-						(jbyte) fy_threadPopInt(context, thread));
-				break;
-			}
-			case I2C: {
-				fy_threadPushInt(context, thread,
-						(jchar) fy_threadPopInt(context, thread));
-				break;
-			}
-			case I2D: {
-				fy_threadPushDouble(context, thread,
-						(jdouble) fy_threadPopInt(context, thread));
-				break;
-			}
-			case I2F: {
-				fy_threadPushFloat(context, thread,
-						(jfloat) fy_threadPopInt(context, thread));
-				break;
-			}
-			case I2L: {
-				fy_threadPushLong(context, thread,
-						(jlong) fy_threadPopInt(context, thread));
-				break;
-			}
-			case I2S: {
-				fy_threadPushInt(context, thread,
-						(jshort) fy_threadPopInt(context, thread));
-				break;
-			}
-			case IADD: {
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPushInt(
-						context,
-						thread,
-						(juint) ivalue
-								+ (juint) fy_threadPopInt(context, thread));
-				break;
-			}
-			case IAND: {
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPushInt(context, thread,
-						ivalue & fy_threadPopInt(context, thread));
-				break;
-			}
-			case ICONST_M1: {
-				fy_threadPushInt(context, thread, -1);
-				break;
-			}
-			case ICONST_0: {
-				fy_threadPushInt(context, thread, 0);
-				break;
-			}
-			case ICONST_1: {
-				fy_threadPushInt(context, thread, 1);
-				break;
-			}
-			case ICONST_2: {
-				fy_threadPushInt(context, thread, 2);
-				break;
-			}
-			case ICONST_3: {
-				fy_threadPushInt(context, thread, 3);
-				break;
-			}
-			case ICONST_4: {
-				fy_threadPushInt(context, thread, 4);
-				break;
-			}
-			case ICONST_5: {
-				fy_threadPushInt(context, thread, 5);
-				break;
-			}
-			case IDIV: {
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/ArithmeticException");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Divided by zero!");
-				}
-
-				fy_threadPushInt(context, thread,
-						fy_threadPopInt(context, thread) / ivalue);
-				break;
-			}
-			case IF_ICMPEQ: {
-				index = nextS2(context, thread);
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue == ivalue2) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IF_ACMPEQ: {
-				index = nextS2(context, thread);
-				ivalue2 = fy_threadPopHandle(context, thread);
-				ivalue = fy_threadPopHandle(context, thread);
-				if (ivalue != ivalue2) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IF_ICMPNE: {
-				index = nextS2(context, thread);
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue != ivalue2) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IF_ACMPNE: {
-				index = nextS2(context, thread);
-				ivalue2 = fy_threadPopHandle(context, thread);
-				ivalue = fy_threadPopHandle(context, thread);
-				if (ivalue != ivalue2) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IF_ICMPLT: {
-				index = nextS2(context, thread);
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue < ivalue2) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IF_ICMPLE: {
-				index = nextS2(context, thread);
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue <= ivalue2) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IF_ICMPGT: {
-				index = nextS2(context, thread);
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue > ivalue2) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IF_ICMPGE: {
-				index = nextS2(context, thread);
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue >= ivalue2) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-
-			case IFEQ: {
-				index = nextS2(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue == 0) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IFNULL: {
-				index = nextS2(context, thread);
-				ivalue = fy_threadPopHandle(context, thread);
-				if (ivalue == 0) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-
-			case IFNE: {
-				index = nextS2(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue != 0) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IFNONNULL: {
-				index = nextS2(context, thread);
-				ivalue = fy_threadPopHandle(context, thread);
-				if (ivalue != 0) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-
-			case IFLT: {
-				index = nextS2(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue < 0) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IFLE: {
-				index = nextS2(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue <= 0) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IFGT: {
-				index = nextS2(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue > 0) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IFGE: {
-				index = nextS2(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue >= 0) {
-					opGOTO(context, thread, index);
-				}
-				break;
-			}
-			case IINC: {
-				index = nextU1(context, thread);
-
-				ivalue = nextS1(context, thread);
-				fy_threadPutLocalInt(
-						context,
-						thread,
-						index,
-						(juint) fy_threadGetLocalInt(context, thread, index)
-								+ ivalue);
-				break;
-			}
-			case IMUL: {
-				fy_threadPushInt(
-						context,
-						thread,
-						(juint) fy_threadPopInt(context, thread)
-								* fy_threadPopInt(context, thread));
-				break;
-			}
-			case INEG: {
-				fy_threadPushInt(context, thread,
-						-fy_threadPopInt(context, thread));
-				break;
-			}
-			case INSTANCEOF: {
-				index = nextU2(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				clazz1 = fy_heapGetClassOfObject(context, aref);
-				clazz2 = fy_vmLookupClassFromConstant(context,
-						(ConstantClass*) (method->owner->constantPools[index]),
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushInt(context, thread,
-						fy_classCanCastTo(context, clazz1, clazz2) ? 1 : 0);
-				break;
-			}
-			case INVOKEINTERFACE: {
-				index = nextU2(context, thread); /*m*/
-				ivalue = nextU1(context, thread); /*count*/
-				nextU1(context, thread);
-				pivalue = vm_allocate(ivalue * sizeof(jint));/*args*/
-				pbvalue = vm_allocate(ivalue * sizeof(jbyte)); /*types*/
-				for (i = ivalue - 1; i >= 0; i--) {
-					pivalue[i] = fy_threadPopType(context, thread, pbvalue + i);
-				}
-				if (pivalue[0] == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/NullPointerException");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				clazz1 = context->objects[pivalue[0]].clazz;
-				mvalue =
-						fy_vmLookupMethodFromConstant(
-								context,
-								(ConstantMethodRef*) (method->owner->constantPools[index]),
-								exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if (!fy_classCanCastTo(context, clazz1, mvalue->owner)) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				mvalue = fy_vmLookupMethodVirtual(context, clazz1,
-						mvalue->fullName);
-				if (mvalue == NULL) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if ((mvalue->access_flags & fy_ACC_PUBLIC) == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IllegalAccessError");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if ((mvalue->access_flags & fy_ACC_ABSTRACT)) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if (mvalue->access_flags & fy_ACC_NATIVE) {
-					nh = fy_hashMapGet(context, context->mapMUNameToNH,
-							mvalue->uniqueName);
-					if (nh == NULL) {
-						message->messageType = message_invoke_native;
-						message->body.nativeMethod = mvalue;
-					} else {
-						(nh->handler)(context, thread, nh->data, pivalue,
-								ivalue, exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							vm_free(pivalue);
-							vm_free(pbvalue);
-							break;
-						}
-					}
-				} else {
-					fy_threadPushMethod(context, thread, mvalue, FALSE, ivalue,
-							pivalue, pbvalue);
-				}
-				vm_free(pivalue);
-				vm_free(pbvalue);
-				break;
-			}
-			case INVOKESPECIAL: {
-				index = nextU2(context, thread);/*m*/
-				clazz1 = method->owner;
-				mvalue = fy_vmLookupMethodFromConstant(context,
-						(ConstantMethodRef*) (clazz1->constantPools[index]),
-						exception);
-				clazz2 = mvalue->owner;
-				ivalue = mvalue->paramCount + 1;/*count*/
-				pivalue = vm_allocate(sizeof(jint) * ivalue);
-				pbvalue = vm_allocate(sizeof(jbyte) * ivalue);
-				for (i = ivalue - 1; i >= 0; i--) {
-					pivalue[i] = fy_threadPopType(context, thread, pbvalue + i);
-				}
-				if ((clazz1->accessFlags & fy_ACC_SUPER)
-						&& fy_classIsSuperClassOf(context, clazz2, clazz1)
-						&& fy_strCmp(mvalue->name, context->sInit)) {
-					mvalue = fy_vmLookupMethodVirtual(context, clazz1->super,
-							mvalue->fullName);
-				}
-				if (mvalue == NULL) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
-					exception->exceptionDesc[0] = 0;
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if (fy_strCmp(mvalue->name, context->sInit) > 0
-						&& mvalue->owner != clazz2) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/NoSuchMethodError");
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if (mvalue->access_flags & fy_ACC_STATIC) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if (mvalue->access_flags & fy_ACC_ABSTRACT) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if (mvalue->access_flags & fy_ACC_NATIVE) {
-					nh = fy_hashMapGet(context, context->mapMUNameToNH,
-							mvalue->uniqueName);
-					if (nh == NULL) {
-						message->messageType = message_invoke_native;
-						message->body.nativeMethod = mvalue;
-					} else {
-						(nh->handler)(context, thread, nh->data, pivalue,
-								ivalue, exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							vm_free(pivalue);
-							vm_free(pbvalue);
-							break;
-						}
-					}
-				} else {
-					fy_threadPushMethod(context, thread, mvalue, FALSE, ivalue,
-							pivalue, pbvalue);
-				}
-				vm_free(pivalue);
-				vm_free(pbvalue);
-				break;
-			}
-			case INVOKESTATIC: {
-				clazz1 = method->owner;
-				index = nextU2(context, thread);/*m*/
-				mvalue = fy_vmLookupMethodFromConstant(context,
-						(ConstantMethodRef*) (clazz1->constantPools[index]),
-						exception);
-				clazz2 = mvalue->owner;
-				if ((mvalue->access_flags & fy_ACC_STATIC) == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					break;
-				}
-
-				if (clinit(context, thread, clazz2)) {
-					break;
-				}
-				ivalue = mvalue->paramCount;
-				pivalue = vm_allocate(sizeof(jint) * ivalue);
-				pbvalue = vm_allocate(sizeof(jbyte) * ivalue);
-				for (i = ivalue - 1; i >= 0; i--) {
-					pivalue[i] = fy_threadPopType(context, thread, pbvalue + i);
-				}
-				if (mvalue->access_flags & fy_ACC_NATIVE) {
-					nh = fy_hashMapGet(context, context->mapMUNameToNH,
-							mvalue->uniqueName);
-					if (nh == NULL) {
-						message->messageType = message_invoke_native;
-						message->body.nativeMethod = mvalue;
-					} else {
-						(nh->handler)(context, thread, nh->data, pivalue,
-								ivalue, exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							vm_free(pivalue);
-							vm_free(pbvalue);
-							break;
-						}
-					}
-				} else {
-					fy_threadPushMethod(context, thread, mvalue, TRUE, ivalue,
-							pivalue, pbvalue);
-				}
-				vm_free(pivalue);
-				vm_free(pbvalue);
-				break;
-			}
-			case INVOKEVIRTUAL: {
-				clazz1 = method->owner;
-				index = nextU2(context, thread);/*m*/
-				mvalue = fy_vmLookupMethodFromConstant(context,
-						(ConstantMethodRef*) (clazz1->constantPools[index]),
-						exception);
-				ivalue = mvalue->paramCount + 1;
-
-				pivalue = vm_allocate(ivalue * sizeof(jint));/*args*/
-				pbvalue = vm_allocate(ivalue * sizeof(jbyte)); /*types*/
-				for (i = ivalue - 1; i >= 0; i--) {
-					pivalue[i] = fy_threadPopType(context, thread, pbvalue + i);
-				}ASSERT(pbvalue[0]==TH_TYPE_HANDLE);
-				if (pivalue[0] == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/NullPointerException");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				clazz2 = context->objects[pivalue[0]].clazz;
-				mvalue = fy_vmLookupMethodVirtual(context, clazz2,
-						mvalue->fullName);
-
-				if (mvalue == NULL) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if (mvalue->access_flags & fy_ACC_STATIC) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if ((mvalue->access_flags & fy_ACC_ABSTRACT)) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					vm_free(pivalue);
-					vm_free(pbvalue);
-					break;
-				}
-				if (mvalue->access_flags & fy_ACC_NATIVE) {
-					nh = fy_hashMapGet(context, context->mapMUNameToNH,
-							mvalue->uniqueName);
-					if (nh == NULL) {
-						message->messageType = message_invoke_native;
-						message->body.nativeMethod = mvalue;
-					} else {
-						(nh->handler)(context, thread, nh->data, pivalue,
-								ivalue, exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							vm_free(pivalue);
-							vm_free(pbvalue);
-							break;
-						}
-					}
-				} else {
-					fy_threadPushMethod(context, thread, mvalue, FALSE, ivalue,
-							pivalue, pbvalue);
-				}
-				vm_free(pivalue);
-				vm_free(pbvalue);
-				break;
-			}
-			case IOR: {
-				fy_threadPushInt(
-						context,
-						thread,
-						fy_threadPopInt(context, thread)
-								| fy_threadPopInt(context, thread));
-				break;
-			}
-			case IREM: {
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				if (ivalue2 == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/ArithmeticException");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Divided by zero!");
-					break;
-				}
-				fy_threadPushInt(context, thread, ivalue % ivalue2);
-				break;
-			}
-			case ISHL: {
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPushInt(context, thread, ivalue << ivalue2);
-				break;
-			}
-			case ISHR: {
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPushInt(context, thread, ivalue >> ivalue2);
-				break;
-			}
-			case ISUB: {
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPushInt(context, thread, (juint) ivalue - ivalue2);
-				break;
-			}
-			case IUSHR: {
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPushInt(context, thread, ((juint) ivalue) >> ivalue2);
-				break;
-			}
-			case IXOR: {
-				ivalue2 = fy_threadPopInt(context, thread);
-				ivalue = fy_threadPopInt(context, thread);
-				fy_threadPushInt(context, thread, ivalue ^ ivalue2);
-				break;
-			}
-			case JSR: {
-				index = nextS2(context, thread);
-				fy_threadPushType(context, thread, getPC(context, thread),
-						TH_TYPE_RETURN);
-				opGOTO(context, thread, index);
-				break;
-			}
-			case JSR_W: {
-				index = nextS4(context, thread);
-				fy_threadPushType(context, thread, getPC(context, thread),
-						TH_TYPE_RETURN);
-				opGOTO(context, thread, index);
-				break;
-			}
-			case L2D: {
-				fy_threadPushDouble(context, thread,
-						(jdouble) fy_threadPopLong(context, thread));
-				break;
-			}
-			case L2F: {
-				fy_threadPushFloat(context, thread,
-						(jfloat) fy_threadPopLong(context, thread));
-				break;
-			}
-			case L2I: {
-				fy_threadPushInt(context, thread,
-						(jint) fy_threadPopLong(context, thread));
-				break;
-			}
-			case LADD: {
-				fy_threadPushLong(
-						context,
-						thread,
-						(julong) fy_threadPopLong(context, thread)
-								+ fy_threadPopLong(context, thread));
-				break;
-			}
-			case LALOAD: {
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				lvalue = fy_heapGetArrayLong(context, aref, index, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushLong(context, thread, lvalue);
-				break;
-			}
-			case LAND: {
-				fy_threadPushLong(
-						context,
-						thread,
-						fy_threadPopLong(context, thread)
-								& fy_threadPopLong(context, thread));
-				break;
-			}
-			case LASTORE: {
-				lvalue = fy_threadPopLong(context, thread);
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				fy_heapPutArrayLong(context, aref, index, lvalue, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				break;
-			}
-			case LCMP: {
-				lvalue2 = fy_threadPopLong(context, thread);
-				lvalue = fy_threadPopLong(context, thread);
-				fy_threadPushInt(context, thread,
-						lvalue == lvalue2 ? 0 : (lvalue > lvalue2 ? 1 : -1));
-				break;
-			}
-			case LCONST_0: {
-				fy_threadPushLong(context, thread, 0);
-				break;
-			}
-			case LCONST_1: {
-				fy_threadPushLong(context, thread, 1);
-				break;
-			}
-			case LDC: {
-				index = nextU1(context, thread);
-
-				ivalue = opLDC(context, method->owner, index, &type, exception);
-
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-
-				fy_threadPushType(context, thread, ivalue, type);
-				break;
-			}
-			case LDC_W: {
-				index = nextU2(context, thread);
-				ivalue = opLDC(context, method->owner, index, &type, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushType(context, thread, ivalue, type);
-				break;
-			}
-			case LDC2_W: {
-				index = nextU2(context, thread);
-				lvalue = opLDC2(context, method->owner, index, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushLong(context, thread, lvalue);
-				break;
-			}
-			case LDIV: {
-				lvalue2 = fy_threadPopLong(context, thread);
-				lvalue = fy_threadPopLong(context, thread);
-				if (lvalue2 == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/ArithmeticException");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Divided by zero!");
-				}
-				fy_threadPushLong(context, thread, lvalue / lvalue2);
-				break;
-			}
-			case DLOAD:
-			case LLOAD: {
-				index = nextU1(context, thread);
-				fy_threadPushLong(context, thread,
-						fy_threadGetLocalLong(context, thread, index));
-				break;
-			}
-			case DLOAD_0:
-			case LLOAD_0: {
-				fy_threadPushLong(context, thread,
-						fy_threadGetLocalLong(context, thread, 0));
-				break;
-			}
-			case DLOAD_1:
-			case LLOAD_1: {
-				fy_threadPushLong(context, thread,
-						fy_threadGetLocalLong(context, thread, 1));
-				break;
-			}
-			case DLOAD_2:
-			case LLOAD_2: {
-				fy_threadPushLong(context, thread,
-						fy_threadGetLocalLong(context, thread, 2));
-				break;
-			}
-			case DLOAD_3:
-			case LLOAD_3: {
-				fy_threadPushLong(context, thread,
-						fy_threadGetLocalLong(context, thread, 3));
-				break;
-			}
-			case LMUL: {
-				fy_threadPushLong(
-						context,
-						thread,
-						(julong) fy_threadPopLong(context, thread)
-								* fy_threadPopLong(context, thread));
-				break;
-			}
-			case LNEG: {
-				fy_threadPushLong(context, thread,
-						-fy_threadPopLong(context, thread));
-				break;
-			}
-			case LOOKUPSWITCH: {
-				index = (65536 - getPC(context, thread)) % 4;
-				movePC(context, thread, index);
-				ivalue = nextS4(context, thread);/*db*/
-				ivalue2 = nextS4(context, thread);/*np*/
-				pivalue = vm_allocate(sizeof(jint) * ivalue2); /*match*/
-				pivalue2 = vm_allocate(sizeof(jint) * ivalue2); /*offset*/
-				for (i = 0; i < ivalue2; i++) {
-					pivalue[i] = nextS4(context, thread);
-					pivalue2[i] = nextS4(context, thread);
-				}
-				index = fy_threadPopInt(context, thread);
-				bvalue1 = FALSE; /*matched*/
-				for (i = 0; i < ivalue2; i++) {
-					if (index == pivalue[i]) {
-						opGOTO(context, thread, pivalue2[i]);
-						bvalue1 = TRUE;
-						break;
-					}
-				}
-				vm_free(pivalue);
-				vm_free(pivalue2);
-				if (!bvalue1) {
-					opGOTO(context, thread, ivalue);
-				}
-				break;
-			}
-			case LOR: {
-				fy_threadPushLong(
-						context,
-						thread,
-						fy_threadPopLong(context, thread)
-								| fy_threadPopLong(context, thread));
-				break;
-			}
-			case LREM: {
-				lvalue2 = fy_threadPopLong(context, thread);
-				lvalue = fy_threadPopLong(context, thread);
-				if (lvalue2 == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/ArithmeticException");
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Divided by zero!");
-				}
-				fy_threadPushLong(context, thread, lvalue % lvalue2);
-				break;
-			}
-			case LRETURN: {
-				lvalue = fy_threadPopLong(context, thread);
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
-						fy_threadMonitorExit(context, thread,
-								method->owner->classObjId);
-					} else {
-						fy_threadMonitorExit(context, thread,
-								fy_threadGetLocalHandle(context, thread, 0));
-					}
-				}
-				fy_threadPopFrame(context, thread);
-				fy_threadPushLong(context, thread, lvalue);
-
-				break;
-			}
-			case LSHL: {
-				lvalue2 = fy_threadPopInt(context, thread) & 0x3f;
-				lvalue = fy_threadPopLong(context, thread);
-				fy_threadPushLong(context, thread, lvalue << lvalue2);
-				break;
-			}
-			case LSHR: {
-				lvalue2 = fy_threadPopInt(context, thread) & 0x3f;
-				lvalue = fy_threadPopLong(context, thread);
-				fy_threadPushLong(context, thread, lvalue >> lvalue2);
-				break;
-			}
-			case DSTORE:
-			case LSTORE: {
-				index = nextU1(context, thread);
-				fy_threadPutLocalLong(context, thread, index,
-						fy_threadPopLong(context, thread));
-				break;
-			}
-			case DSTORE_0:
-			case LSTORE_0: {
-				fy_threadPutLocalLong(context, thread, 0,
-						fy_threadPopLong(context, thread));
-				break;
-			}
-			case DSTORE_1:
-			case LSTORE_1: {
-				fy_threadPutLocalLong(context, thread, 1,
-						fy_threadPopLong(context, thread));
-				break;
-			}
-			case DSTORE_2:
-			case LSTORE_2: {
-				fy_threadPutLocalLong(context, thread, 2,
-						fy_threadPopLong(context, thread));
-				break;
-			}
-			case DSTORE_3:
-			case LSTORE_3: {
-				fy_threadPutLocalLong(context, thread, 3,
-						fy_threadPopLong(context, thread));
-				break;
-			}
-			case LSUB: {
-				lvalue2 = fy_threadPopLong(context, thread);
-				lvalue = fy_threadPopLong(context, thread);
-				fy_threadPushLong(context, thread, (julong) lvalue - lvalue2);
-				break;
-			}
-			case LUSHR: {
-				lvalue2 = fy_threadPopInt(context, thread) & 0x3f;
-				lvalue = fy_threadPopLong(context, thread);
-				fy_threadPushLong(context, thread,
-						((julong) lvalue) >> lvalue2);
-				break;
-			}
-			case LXOR: {
-				lvalue2 = fy_threadPopLong(context, thread);
-				lvalue = fy_threadPopLong(context, thread);
-				fy_threadPushLong(context, thread, lvalue ^ lvalue2);
-				break;
-			}
-			case MONITORENTER: {
-				aref = fy_threadPopHandle(context, thread);
-				fy_threadMonitorEnter(context, thread, aref);
-				break;
-			}
-			case MONITOREXIT: {
-				aref = fy_threadPopHandle(context, thread);
-				fy_threadMonitorExit(context, thread, aref);
-				break;
-			}
-			case MULTIANEWARRAY: {
-				index = nextU2(context, thread);
-				ivalue = nextU1(context, thread);
-				clazz1 = fy_vmLookupClassFromConstant(context,
-						(ConstantClass*) method->owner->constantPools[index],
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				pivalue = vm_allocate(sizeof(int) * ivalue);
-				for (i = ivalue - 1; i >= 0; i--) {
-					pivalue[i] = fy_threadPopInt(context, thread);
-				}
-				aref = threadmulitANewArray(context, clazz1, ivalue, pivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushHandle(context, thread, aref);
-				vm_free(pivalue);
-				break;
-			}
-			case NEW: {
-				index = nextU2(context, thread);
-				clazz1 = fy_vmLookupClassFromConstant(context,
-						(ConstantClass*) method->owner->constantPools[index],
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				if (clazz1->accessFlags
-						& (fy_ACC_INTERFACE | fy_ACC_ABSTRACT)) {
-					fy_strSPrint(msg, 256, clazz1->className);
-					vm_die("InstantiationErro %s", msg);
-				}
-				if (clinit(context, thread, clazz1)) {
-					break;
-				}
-				aref = fy_heapAllocate(context, clazz1, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushHandle(context, thread, aref);
-				break;
-			}
-			case NEWARRAY: {
-				type = nextU1(context, thread);
-				index = fy_threadPopInt(context, thread);
-				if (index < 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/NegativeArraySizeException");
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "%d", index);
-				}
-				switch (type) {
-				case 4:
-					pstr1 = context->sArrayBoolean;
-					break;
-				case 5:
-					pstr1 = context->sArrayChar;
-					break;
-				case 6:
-					pstr1 = context->sArrayFloat;
-					break;
-				case 7:
-					pstr1 = context->sArrayDouble;
-					break;
-				case 8:
-					pstr1 = context->sArrayByte;
-					break;
-				case 9:
-					pstr1 = context->sArrayShort;
-					break;
-				case 10:
-					pstr1 = context->sArrayInteger;
-					break;
-				case 11:
-					pstr1 = context->sArrayLong;
-					break;
-				default:
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/VirtualMachineError");
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Unknown array type in NEWARRAY type=%d", type);
-					break;
-				}
-				if (message->messageType == message_exception) {
-					break;
-				}
-				clazz1 = fy_vmLookupClass(context, pstr1, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				aref = fy_heapAllocateArray(context, clazz1, index, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushHandle(context, thread, aref);
-				break;
-			}
-			case NOP: {
-				break;
-			}
-			case POP: {
-				fy_threadPopType(context, thread, &type);
-				break;
-			}
-			case POP2: {
-				fy_threadPopType(context, thread, &type);
-				fy_threadPopType(context, thread, &type);
-				break;
-			}
-			case PUTFIELD: {
-				index = nextU2(context, thread);
-				field = fy_vmLookupFieldFromConstant(context,
-						(ConstantFieldRef*) method->owner->constantPools[index],
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				type = (jbyte) field->descriptor->content[0];
-				switch (type) {
-				case 'D':
-				case 'J':
-					lvalue = fy_threadPopLong(context, thread);
-					break;
-				case 'L':
-				case '[':
-					ivalue = fy_threadPopHandle(context, thread);
-					break;
-				default:
+				case ISTORE:
+				case FSTORE: {
+					index = nextU1(context, thread);
 					ivalue = fy_threadPopInt(context, thread);
-				}
-				aref = fy_threadPopHandle(context, thread);
-				if (field->access_flags & fy_ACC_STATIC) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
-					fy_strSPrint(msg, 256, field->uniqueName);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Field %s is static", msg);
-					break;
-				}
 
-				if ((field->access_flags & fy_ACC_FINAL)
-						&& method->owner != field->owner) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IllegalAccessError");
-					fy_strSPrint(msg, 256, field->uniqueName);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Field %s is final", msg);
-					break;
-				}
-
-				switch (type) {
-				case 'D':
-				case 'J':
-					fy_heapPutFieldLong(context, aref, field, lvalue,
-							exception);
-					break;
-				default:
-					fy_heapPutFieldInt(context, aref, field, ivalue, exception);
-					break;
-				}
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				break;
-			}
-			case PUTSTATIC: {
-				index = nextU2(context, thread);
-				field =
-						fy_vmLookupFieldFromConstant(
-								context,
-								(ConstantFieldRef*) (method->owner->constantPools[index]),
-								exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				if ((field->access_flags & fy_ACC_FINAL)
-						&& (field->owner != method->owner)) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/IllegalAccessError");
-					fy_strSPrint(msg, sizeof(msg), field->uniqueName);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Field %s is final", msg);
-					break;
-				}
-				clazz1 = field->owner;
-				if (clinit(context, thread, clazz1)) {
-					break;
-				}
-				type = (jbyte) field->descriptor->content[0];
-				switch (type) {
-				case 'D':
-				case 'J':
-					fy_heapPutStaticLong(context, field,
-							fy_threadPopLong(context, thread), exception);
-					break;
-				case 'L':
-				case '[':
-					fy_heapPutStaticHandle(context, field,
-							fy_threadPopHandle(context, thread), exception);
-					break;
-				default:
-					fy_heapPutStaticInt(context, field,
-							fy_threadPopInt(context, thread), exception);
-					break;
-				}
-				break;
-			}
-			case RET: {
-				index = nextU1(context, thread);
-				ivalue = fy_threadGetLocalReturn(context, thread, index);
-				setPC(context, thread, ivalue);
-				break;
-			}
-			case RETURN: {
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
-						fy_threadMonitorExit(context, thread,
-								method->owner->classObjId);
-					} else {
-						fy_threadMonitorExit(context, thread,
-								fy_threadGetLocalHandle(context, thread, 0));
-					}
-				}
-				if (fy_strCmp(method->name, context->sClinit) == 0) {
-					method->owner->clinitThreadId = -1;
-				}
-				fy_threadPopFrame(context, thread);
-				break;
-			}
-			case SALOAD: {
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				svalue = fy_heapGetArrayShort(context, aref, index, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				fy_threadPushInt(context, thread, svalue);
-				break;
-			}
-			case SASTORE: {
-				ivalue = fy_threadPopInt(context, thread);
-				index = fy_threadPopInt(context, thread);
-				aref = fy_threadPopHandle(context, thread);
-				fy_heapPutArrayShort(context, aref, index, (short) ivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				break;
-			}
-			case SIPUSH: {
-				ivalue = nextS2(context, thread);
-				fy_threadPushInt(context, thread, ivalue);
-				break;
-			}
-			case SWAP: {
-				ivalue = fy_threadPopType(context, thread, &type);
-				ivalue2 = fy_threadPopType(context, thread, &type2);
-				fy_threadPushType(context, thread, ivalue, type);
-				fy_threadPushType(context, thread, ivalue2, type2);
-				break;
-			}
-			case TABLESWITCH: {
-				index = (65536 - getPC(context, thread)) % 4;
-				movePC(context, thread, index);
-				ivalue = nextS4(context, thread);/*db*/
-				ivalue2 = nextS4(context, thread);/*lb*/
-				ivalue3 = nextS4(context, thread);/*hb*/
-				index = ivalue3 - ivalue2 + 1;/*count*/
-				pivalue = vm_allocate(sizeof(jint) * index);
-				for (i = 0; i < index; i++) {
-					pivalue[i] = nextS4(context, thread);
-				}
-
-				index = fy_threadPopInt(context, thread);
-				if (index < ivalue2 || index > ivalue3) {
-					ivalue4 = ivalue;
-				} else {
-					ivalue4 = pivalue[index - ivalue2];
-				}
-				vm_free(pivalue);
-				opGOTO(context, thread, ivalue4);
-				break;
-			}
-			case WIDE: {
-				op2 = nextU1(context, thread);
-				index = nextU2(context, thread);
-				switch (op2) {
-				case FLOAD:
-				case ILOAD: {
-					ivalue = fy_threadGetLocalInt(context, thread, index);
-					fy_threadPushInt(context, thread, ivalue);
-					break;
-				}
-				case ALOAD: {
-					aref = fy_threadGetLocalHandle(context, thread, index);
-					fy_threadPushHandle(context, thread, aref);
-					break;
-				}
-				case DLOAD:
-				case LLOAD: {
-					lvalue = fy_threadGetLocalLong(context, thread, index);
-					fy_threadPushLong(context, thread, lvalue);
-					break;
-				}
-				case FSTORE:
-				case ISTORE: {
-					ivalue = fy_threadPopInt(context, thread);
 					fy_threadPutLocalInt(context, thread, index, ivalue);
 					break;
 				}
 				case ASTORE: {
+					index = nextU1(context, thread);
 					aref = fy_threadPopType(context, thread, &type);
 					fy_threadPutLocalType(context, thread, index, aref, type);
 					break;
 				}
-				case DSTORE:
-				case LSTORE: {
-					lvalue = fy_threadPopLong(context, thread);
-					fy_threadPutLocalLong(context, thread, index, lvalue);
+				case ISTORE_0:
+				case FSTORE_0: {
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPutLocalInt(context, thread, 0, ivalue);
 					break;
 				}
-				case RET: {
-					ivalue = fy_threadGetLocalReturn(context, thread, index);
-					setPC(context, thread, ivalue);
+				case ASTORE_0: {
+					aref = fy_threadPopType(context, thread, &type);
+					fy_threadPutLocalType(context, thread, 0, aref, type);
+					break;
+				}
+				case ISTORE_1:
+				case FSTORE_1: {
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPutLocalInt(context, thread, 1, ivalue);
+					break;
+				}
+				case ASTORE_1: {
+					aref = fy_threadPopType(context, thread, &type);
+					fy_threadPutLocalType(context, thread, 1, aref, type);
+					break;
+				}
+				case ISTORE_2:
+				case FSTORE_2: {
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPutLocalInt(context, thread, 2, ivalue);
+					break;
+				}
+				case ASTORE_2: {
+					aref = fy_threadPopType(context, thread, &type);
+					fy_threadPutLocalType(context, thread, 2, aref, type);
+					break;
+				}
+				case ISTORE_3:
+				case FSTORE_3: {
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPutLocalInt(context, thread, 3, ivalue);
+					break;
+				}
+				case ASTORE_3: {
+					aref = fy_threadPopType(context, thread, &type);
+					ASSERT(type == TH_TYPE_HANDLE || type == TH_TYPE_RETURN);
+					fy_threadPutLocalType(context, thread, 3, aref, type);
+					break;
+				}
+				case ATHROW: {
+					aref = fy_threadPopHandle(context, thread);
+					thread->currentThrowable = aref;
+					break;
+				}
+				case BALOAD: {
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					ivalue = fy_heapGetArrayByte(context, aref, index,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushInt(context, thread, ivalue);
+					break;
+				}
+				case BASTORE: {
+					ivalue = fy_threadPopInt(context, thread);
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					fy_heapPutArrayByte(context, aref, index, (jbyte) ivalue,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					break;
+				}
+				case BIPUSH: {
+					ivalue = nextS1(context, thread);
+					fy_threadPushInt(context, thread, ivalue);
+					break;
+				}
+				case FALOAD:
+				case CALOAD: {
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					ivalue = fy_heapGetArrayInt(context, aref, index,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushInt(context, thread, ivalue);
+					break;
+				}
+				case FASTORE:
+				case CASTORE: {
+					ivalue = fy_threadPopInt(context, thread);
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					fy_heapPutArrayInt(context, aref, index, ivalue, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					break;
+				}
+				case CHECKCAST: {
+					index = nextU2(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					if (aref == 0) {
+						fy_threadPushHandle(context, thread, aref);
+					} else {
+						clazz1 = fy_heapGetClassOfObject(context, aref);
+						clazz2 = fy_vmLookupClassFromConstant(context,
+								method->owner->constantPools[index], exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							break;
+						}
+						if (fy_classCanCastTo(context, clazz1, clazz2)) {
+							fy_threadPushHandle(context, thread, aref);
+						} else {
+							message->messageType = message_exception;
+							exception->exceptionType = exception_normal;
+							strcpy_s(exception->exceptionName,
+									sizeof(exception->exceptionName),
+									"java/lang/ClassCastException");
+							fy_strInit(context, &str1, 64);
+							fy_strAppendUTF8(context, &str1, "from ", 99);
+							fy_strAppend(context, &str1, clazz1->className);
+							fy_strAppendUTF8(context, &str1, "to ", 99);
+							fy_strAppend(context, &str1, clazz2->className);
+							fy_strSPrint(exception->exceptionDesc,
+									sizeof(exception->exceptionDesc), &str1);
+							fy_strDestroy(context, &str1);
+						}
+					}
+					break;
+				}
+				case D2F: {
+					fy_threadPushFloat(context, thread,
+							(float) fy_threadPopDouble(context, thread));
+					break;
+				}
+				case D2I: {
+					fy_threadPushInt(context, thread,
+							(int) fy_threadPopDouble(context, thread));
+					break;
+				}
+				case D2L: {
+					fy_threadPushLong(context, thread,
+							(long) fy_threadPopDouble(context, thread));
+					break;
+				}
+				case DADD: {
+					fy_threadPushDouble(
+							context,
+							thread,
+							fy_threadPopDouble(context, thread)
+									+ fy_threadPopDouble(context, thread));
+					break;
+				}
+				case DALOAD: {
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					dvalue1 = fy_heapGetArrayDouble(context, aref, index,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushDouble(context, thread, dvalue1);
+					break;
+				}
+				case DASTORE: {
+					dvalue1 = fy_threadPopDouble(context, thread);
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					fy_heapPutArrayDouble(context, aref, index, dvalue1,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					break;
+				}
+				case DCMPG:
+					dvalue2 = fy_threadPopDouble(context, thread);
+					dvalue1 = fy_threadPopDouble(context, thread);
+					if (fy_isnand(dvalue1) || fy_isnand(dvalue2)) {
+						fy_threadPushInt(context, thread, 1);
+					} else {
+						fy_threadPushInt(
+								context,
+								thread,
+								dvalue1 == dvalue2 ? 0 :
+								(dvalue1 - dvalue2 > 0) ? 1 : -1);
+						;;
+					}
+					break;
+				case DCMPL: {
+					dvalue2 = fy_threadPopDouble(context, thread);
+					dvalue1 = fy_threadPopDouble(context, thread);
+					if (fy_isnand(dvalue1) || fy_isnand(dvalue2)) {
+						fy_threadPushInt(context, thread, -1);
+					} else {
+						fy_threadPushInt(
+								context,
+								thread,
+								dvalue1 == dvalue2 ? 0 :
+								(dvalue1 - dvalue2 > 0) ? 1 : -1);
+						;;
+					}
+					break;
+				}
+				case DCONST_0: {
+					fy_threadPushDouble(context, thread, 0);
+					break;
+				}
+				case DCONST_1: {
+					fy_threadPushDouble(context, thread, 1);
+					break;
+				}
+				case DDIV: {
+					dvalue2 = fy_threadPopDouble(context, thread);
+					dvalue1 = fy_threadPopDouble(context, thread);
+					fy_threadPushDouble(context, thread, dvalue1 / dvalue2);
+					break;
+				}
+				case DMUL: {
+					dvalue2 = fy_threadPopDouble(context, thread);
+					dvalue1 = fy_threadPopDouble(context, thread);
+					fy_threadPushDouble(context, thread, dvalue1 * dvalue2);
+					break;
+				}
+				case DNEG: {
+					fy_threadPushDouble(context, thread,
+							-fy_threadPopDouble(context, thread));
+					break;
+				}
+				case DREM: {
+					dvalue2 = fy_threadPopDouble(context, thread);
+					dvalue1 = fy_threadPopDouble(context, thread);
+					if (dvalue2 == 0) {
+						fy_threadPushDouble(context, thread, 0.0 / dvalue2);
+					} else {
+						fy_threadPushDouble(context, thread,
+								dvalue1 - floor(dvalue1 / dvalue2) * dvalue2);
+					}
+
+					break;
+				}
+				case DRETURN: {
+					dvalue1 = fy_threadPopDouble(context, thread);
+					if (method->access_flags & fy_ACC_SYNCHRONIZED) {
+						if (method->access_flags & fy_ACC_STATIC) {
+							fy_threadMonitorExit(context, thread,
+									method->owner->classObjId);
+						} else {
+							fy_threadMonitorExit(
+									context,
+									thread,
+									fy_threadGetLocalHandle(context, thread,
+											0));
+						}
+					}
+					fy_threadPopFrame(context, thread);
+					fy_threadPushDouble(context, thread, dvalue1);
+					break;
+				}
+				case DSUB: {
+					dvalue2 = fy_threadPopDouble(context, thread);
+					dvalue1 = fy_threadPopDouble(context, thread);
+					fy_threadPushDouble(context, thread, dvalue1 - dvalue2);
+					break;
+				}
+				case DUP: {
+					ivalue = fy_threadPopType(context, thread, &type);
+					fy_threadPushType(context, thread, ivalue, type);
+					fy_threadPushType(context, thread, ivalue, type);
+					break;
+				}
+				case DUP_X1: {
+					ivalue = fy_threadPopType(context, thread, &type);
+					ivalue2 = fy_threadPopType(context, thread, &type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					break;
+				}
+				case DUP_X2: {
+					ivalue = fy_threadPopType(context, thread, &type);
+					ivalue2 = fy_threadPopType(context, thread, &type2);
+					ivalue3 = fy_threadPopType(context, thread, &type3);
+					fy_threadPushType(context, thread, ivalue, type);
+					fy_threadPushType(context, thread, ivalue3, type3);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					break;
+				}
+				case DUP2: {
+					ivalue = fy_threadPopType(context, thread, &type);
+					ivalue2 = fy_threadPopType(context, thread, &type2);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					break;
+				}
+				case DUP2_X1: {
+					ivalue = fy_threadPopType(context, thread, &type);
+					ivalue2 = fy_threadPopType(context, thread, &type2);
+					ivalue3 = fy_threadPopType(context, thread, &type3);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					fy_threadPushType(context, thread, ivalue3, type3);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					break;
+				}
+				case DUP2_X2: {
+					ivalue = fy_threadPopType(context, thread, &type);
+					ivalue2 = fy_threadPopType(context, thread, &type2);
+					ivalue3 = fy_threadPopType(context, thread, &type3);
+					ivalue4 = fy_threadPopType(context, thread, &type4);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					fy_threadPushType(context, thread, ivalue4, type4);
+					fy_threadPushType(context, thread, ivalue3, type3);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					break;
+				}
+				case F2D: {
+					fy_threadPushDouble(context, thread,
+							fy_threadPopFloat(context, thread));
+					break;
+				}
+				case F2I: {
+					fy_threadPushInt(context, thread,
+							(int) fy_threadPopFloat(context, thread));
+					break;
+				}
+				case F2L: {
+					fy_threadPushLong(context, thread,
+							(long) fy_threadPopFloat(context, thread));
+					break;
+				}
+				case FADD: {
+					fy_threadPushFloat(
+							context,
+							thread,
+							fy_threadPopFloat(context, thread)
+									+ fy_threadPopFloat(context, thread));
+					break;
+				}
+				case FCMPG: {
+					fvalue2 = fy_threadPopFloat(context, thread);
+					fvalue1 = fy_threadPopFloat(context, thread);
+					if (fy_isnanf(fvalue1) || fy_isnanf(fvalue2)) {
+						fy_threadPushInt(context, thread, 1);
+					} else {
+						fy_threadPushInt(
+								context,
+								thread,
+								fvalue1 == fvalue2 ? 0 :
+								(fvalue1 - fvalue2 > 0) ? 1 : -1);
+						;;
+					}
+					break;
+				}
+				case FCMPL: {
+					fvalue2 = fy_threadPopFloat(context, thread);
+					fvalue1 = fy_threadPopFloat(context, thread);
+					if (fy_isnanf(fvalue1) || fy_isnanf(fvalue2)) {
+						fy_threadPushInt(context, thread, -1);
+					} else {
+						fy_threadPushInt(
+								context,
+								thread,
+								fvalue1 == fvalue2 ? 0 :
+								(fvalue1 - fvalue2 > 0) ? 1 : -1);
+						;;
+					}
+					break;
+				}
+				case FCONST_0: {
+					fy_threadPushFloat(context, thread, 0.0f);
+					break;
+				}
+				case FCONST_1: {
+					fy_threadPushFloat(context, thread, 1.0f);
+					break;
+				}
+				case FCONST_2: {
+					fy_threadPushFloat(context, thread, 2.0f);
+					break;
+				}
+				case FDIV: {
+					fvalue2 = fy_threadPopFloat(context, thread);
+					fy_threadPushFloat(context, thread,
+							fy_threadPopFloat(context, thread) / fvalue2);
+					break;
+				}
+				case FMUL: {
+					fy_threadPushFloat(
+							context,
+							thread,
+							fy_threadPopFloat(context, thread)
+									* fy_threadPopFloat(context, thread));
+					break;
+				}
+				case FNEG: {
+					fy_threadPushFloat(context, thread,
+							-fy_threadPopFloat(context, thread));
+					break;
+				}
+				case FREM: {
+					fvalue2 = fy_threadPopFloat(context, thread);
+					fvalue1 = fy_threadPopFloat(context, thread);
+					if (fvalue2 == 0) {
+						fy_threadPushFloat(context, thread, 0.0f / fvalue2);
+					} else {
+						fy_threadPushFloat(
+								context,
+								thread,
+								fvalue1
+										- (float) floor(fvalue1 / fvalue2)
+												* fvalue2);
+					}
+					break;
+				}
+				case FSUB: {
+					fvalue2 = fy_threadPopFloat(context, thread);
+					fvalue1 = fy_threadPopFloat(context, thread);
+					fy_threadPushFloat(context, thread, fvalue1 - fvalue2);
+					break;
+				}
+				case GETFIELD: {
+					index = nextU2(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					field =
+							fy_vmLookupFieldFromConstant(
+									context,
+									(ConstantFieldRef*) (method->owner->constantPools[index]),
+									exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					if (field->access_flags & fy_ACC_STATIC) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IncompatibleClassChangeError");
+						fy_strSPrint(msg, 256, field->uniqueName);
+						sprintf_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"field %s is static", msg);
+						break;
+					}
+					type = (jbyte) field->descriptor->content[0];
+					switch (type) {
+					case 'D':
+					case 'J':
+						lvalue = fy_heapGetFieldLong(context, aref, field,
+								exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							break;
+						}
+						fy_threadPushLong(context, thread, lvalue);
+						break;
+					case 'L':
+					case '[':
+						aref = fy_heapGetFieldHandle(context, aref, field,
+								exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							break;
+						}
+						fy_threadPushHandle(context, thread, aref);
+						break;
+					default:
+						ivalue = fy_heapGetFieldInt(context, aref, field,
+								exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							break;
+						}
+						fy_threadPushInt(context, thread, ivalue);
+						break;
+					}
+					break;
+				}
+				case GETSTATIC: {
+					index = nextU2(context, thread);
+					field =
+							fy_vmLookupFieldFromConstant(
+									context,
+									(ConstantFieldRef*) (method->owner->constantPools[index]),
+									exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					clazz1 = field->owner;
+					if (clinit(context, thread, clazz1)) {
+						break;
+					}
+					type = (jbyte) field->descriptor->content[0];
+					switch (type) {
+					case 'D':
+					case 'J':
+						lvalue = fy_heapGetStaticLong(context, field,
+								exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							break;
+						}
+						fy_threadPushLong(context, thread, lvalue);
+						break;
+					case 'L':
+					case '[':
+						aref = fy_heapGetStaticInt(context, field, exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							break;
+						}
+						fy_threadPushHandle(context, thread, aref);
+						break;
+					default:
+						ivalue = fy_heapGetStaticInt(context, field, exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							break;
+						}
+						fy_threadPushInt(context, thread, ivalue);
+						break;
+					}
+					break;
+				}
+				case GOTO: {
+					opGOTO(context, thread, nextS2(context, thread));
+					break;
+				}
+				case GOTO_W: {
+					opGOTO(context, thread, nextS4(context, thread));
+					break;
+				}
+				case I2B: {
+					fy_threadPushInt(context, thread,
+							(jbyte) fy_threadPopInt(context, thread));
+					break;
+				}
+				case I2C: {
+					fy_threadPushInt(context, thread,
+							(jchar) fy_threadPopInt(context, thread));
+					break;
+				}
+				case I2D: {
+					fy_threadPushDouble(context, thread,
+							(jdouble) fy_threadPopInt(context, thread));
+					break;
+				}
+				case I2F: {
+					fy_threadPushFloat(context, thread,
+							(jfloat) fy_threadPopInt(context, thread));
+					break;
+				}
+				case I2L: {
+					fy_threadPushLong(context, thread,
+							(jlong) fy_threadPopInt(context, thread));
+					break;
+				}
+				case I2S: {
+					fy_threadPushInt(context, thread,
+							(jshort) fy_threadPopInt(context, thread));
+					break;
+				}
+				case IADD: {
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPushInt(
+							context,
+							thread,
+							(juint) ivalue
+									+ (juint) fy_threadPopInt(context, thread));
+					break;
+				}
+				case IAND: {
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPushInt(context, thread,
+							ivalue & fy_threadPopInt(context, thread));
+					break;
+				}
+				case ICONST_M1: {
+					fy_threadPushInt(context, thread, -1);
+					break;
+				}
+				case ICONST_0: {
+					fy_threadPushInt(context, thread, 0);
+					break;
+				}
+				case ICONST_1: {
+					fy_threadPushInt(context, thread, 1);
+					break;
+				}
+				case ICONST_2: {
+					fy_threadPushInt(context, thread, 2);
+					break;
+				}
+				case ICONST_3: {
+					fy_threadPushInt(context, thread, 3);
+					break;
+				}
+				case ICONST_4: {
+					fy_threadPushInt(context, thread, 4);
+					break;
+				}
+				case ICONST_5: {
+					fy_threadPushInt(context, thread, 5);
+					break;
+				}
+				case IDIV: {
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/ArithmeticException");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Divided by zero!");
+					}
+
+					fy_threadPushInt(context, thread,
+							fy_threadPopInt(context, thread) / ivalue);
+					break;
+				}
+				case IF_ICMPEQ: {
+					index = nextS2(context, thread);
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue == ivalue2) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IF_ACMPEQ: {
+					index = nextS2(context, thread);
+					ivalue2 = fy_threadPopHandle(context, thread);
+					ivalue = fy_threadPopHandle(context, thread);
+					if (ivalue != ivalue2) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IF_ICMPNE: {
+					index = nextS2(context, thread);
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue != ivalue2) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IF_ACMPNE: {
+					index = nextS2(context, thread);
+					ivalue2 = fy_threadPopHandle(context, thread);
+					ivalue = fy_threadPopHandle(context, thread);
+					if (ivalue != ivalue2) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IF_ICMPLT: {
+					index = nextS2(context, thread);
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue < ivalue2) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IF_ICMPLE: {
+					index = nextS2(context, thread);
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue <= ivalue2) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IF_ICMPGT: {
+					index = nextS2(context, thread);
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue > ivalue2) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IF_ICMPGE: {
+					index = nextS2(context, thread);
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue >= ivalue2) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+
+				case IFEQ: {
+					index = nextS2(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue == 0) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IFNULL: {
+					index = nextS2(context, thread);
+					ivalue = fy_threadPopHandle(context, thread);
+					if (ivalue == 0) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+
+				case IFNE: {
+					index = nextS2(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue != 0) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IFNONNULL: {
+					index = nextS2(context, thread);
+					ivalue = fy_threadPopHandle(context, thread);
+					if (ivalue != 0) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+
+				case IFLT: {
+					index = nextS2(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue < 0) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IFLE: {
+					index = nextS2(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue <= 0) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IFGT: {
+					index = nextS2(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue > 0) {
+						opGOTO(context, thread, index);
+					}
+					break;
+				}
+				case IFGE: {
+					index = nextS2(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue >= 0) {
+						opGOTO(context, thread, index);
+					}
 					break;
 				}
 				case IINC: {
-					ivalue = nextS2(context, thread);
+					index = nextU1(context, thread);
+
+					ivalue = nextS1(context, thread);
 					fy_threadPutLocalInt(
 							context,
 							thread,
 							index,
-							fy_threadGetLocalInt(context, thread, index)
+							(juint) fy_threadGetLocalInt(context, thread, index)
 									+ ivalue);
 					break;
 				}
-				default: {
-					vm_die("Unknown OPCode %d", op2);
+				case IMUL: {
+					fy_threadPushInt(
+							context,
+							thread,
+							(juint) fy_threadPopInt(context, thread)
+									* fy_threadPopInt(context, thread));
+					break;
+				}
+				case INEG: {
+					fy_threadPushInt(context, thread,
+							-fy_threadPopInt(context, thread));
+					break;
+				}
+				case INSTANCEOF: {
+					index = nextU2(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					clazz1 = fy_heapGetClassOfObject(context, aref);
+					clazz2 =
+							fy_vmLookupClassFromConstant(
+									context,
+									(ConstantClass*) (method->owner->constantPools[index]),
+									exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushInt(context, thread,
+							fy_classCanCastTo(context, clazz1, clazz2) ? 1 : 0);
+					break;
+				}
+				case INVOKEINTERFACE: {
+					index = nextU2(context, thread); /*m*/
+					ivalue = nextU1(context, thread); /*count*/
+					nextU1(context, thread);
+					pivalue = vm_allocate(ivalue * sizeof(jint));/*args*/
+					pbvalue = vm_allocate(ivalue * sizeof(jbyte)); /*types*/
+					for (i = ivalue - 1; i >= 0; i--) {
+						pivalue[i] = fy_threadPopType(context, thread,
+								pbvalue + i);
+					}
+					if (pivalue[0] == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/NullPointerException");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					clazz1 = context->objects[pivalue[0]].clazz;
+					mvalue =
+							fy_vmLookupMethodFromConstant(
+									context,
+									(ConstantMethodRef*) (method->owner->constantPools[index]),
+									exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if (!fy_classCanCastTo(context, clazz1, mvalue->owner)) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IncompatibleClassChangeError");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					mvalue = fy_vmLookupMethodVirtual(context, clazz1,
+							mvalue->fullName);
+					if (mvalue == NULL) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/AbstractMethodError");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if ((mvalue->access_flags & fy_ACC_PUBLIC) == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IllegalAccessError");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if ((mvalue->access_flags & fy_ACC_ABSTRACT)) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/AbstractMethodError");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if (mvalue->access_flags & fy_ACC_NATIVE) {
+						nh = fy_hashMapGet(context, context->mapMUNameToNH,
+								mvalue->uniqueName);
+						if (nh == NULL) {
+							message->messageType = message_invoke_native;
+							message->body.nativeMethod = mvalue;
+						} else {
+							(nh->handler)(context, thread, nh->data, pivalue,
+									ivalue, exception);
+							if (exception->exceptionType != exception_none) {
+								message->messageType = message_exception;
+								vm_free(pivalue);
+								vm_free(pbvalue);
+								break;
+							}
+						}
+					} else {
+						fy_threadPushMethod(context, thread, mvalue, FALSE,
+								ivalue, pivalue, pbvalue);
+					}
+					vm_free(pivalue);
+					vm_free(pbvalue);
+					break;
+				}
+				case INVOKESPECIAL: {
+					index = nextU2(context, thread);/*m*/
+					clazz1 = method->owner;
+					mvalue = fy_vmLookupMethodFromConstant(context,
+							(ConstantMethodRef*) (clazz1->constantPools[index]),
+							exception);
+					clazz2 = mvalue->owner;
+					ivalue = mvalue->paramCount + 1;/*count*/
+					pivalue = vm_allocate(sizeof(jint) * ivalue);
+					pbvalue = vm_allocate(sizeof(jbyte) * ivalue);
+					for (i = ivalue - 1; i >= 0; i--) {
+						pivalue[i] = fy_threadPopType(context, thread,
+								pbvalue + i);
+					}
+					if ((clazz1->accessFlags & fy_ACC_SUPER)
+							&& fy_classIsSuperClassOf(context, clazz2, clazz1)
+							&& fy_strCmp(mvalue->name, context->sInit)) {
+						mvalue = fy_vmLookupMethodVirtual(context,
+								clazz1->super, mvalue->fullName);
+					}
+					if (mvalue == NULL) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/AbstractMethodError");
+						exception->exceptionDesc[0] = 0;
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if (fy_strCmp(mvalue->name, context->sInit) > 0
+							&& mvalue->owner != clazz2) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/NoSuchMethodError");
+						fy_strSPrint(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								mvalue->uniqueName);
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if (mvalue->access_flags & fy_ACC_STATIC) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IncompatibleClassChangeError");
+						fy_strSPrint(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								mvalue->uniqueName);
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if (mvalue->access_flags & fy_ACC_ABSTRACT) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/AbstractMethodError");
+						fy_strSPrint(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								mvalue->uniqueName);
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if (mvalue->access_flags & fy_ACC_NATIVE) {
+						nh = fy_hashMapGet(context, context->mapMUNameToNH,
+								mvalue->uniqueName);
+						if (nh == NULL) {
+							message->messageType = message_invoke_native;
+							message->body.nativeMethod = mvalue;
+						} else {
+							(nh->handler)(context, thread, nh->data, pivalue,
+									ivalue, exception);
+							if (exception->exceptionType != exception_none) {
+								message->messageType = message_exception;
+								vm_free(pivalue);
+								vm_free(pbvalue);
+								break;
+							}
+						}
+					} else {
+						fy_threadPushMethod(context, thread, mvalue, FALSE,
+								ivalue, pivalue, pbvalue);
+					}
+					vm_free(pivalue);
+					vm_free(pbvalue);
+					break;
+				}
+				case INVOKESTATIC: {
+					clazz1 = method->owner;
+					index = nextU2(context, thread);/*m*/
+					mvalue = fy_vmLookupMethodFromConstant(context,
+							(ConstantMethodRef*) (clazz1->constantPools[index]),
+							exception);
+					clazz2 = mvalue->owner;
+					if ((mvalue->access_flags & fy_ACC_STATIC) == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IncompatibleClassChangeError");
+						fy_strSPrint(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								mvalue->uniqueName);
+						break;
+					}
+
+					if (clinit(context, thread, clazz2)) {
+						break;
+					}
+					ivalue = mvalue->paramCount;
+					pivalue = vm_allocate(sizeof(jint) * ivalue);
+					pbvalue = vm_allocate(sizeof(jbyte) * ivalue);
+					for (i = ivalue - 1; i >= 0; i--) {
+						pivalue[i] = fy_threadPopType(context, thread,
+								pbvalue + i);
+					}
+					if (mvalue->access_flags & fy_ACC_NATIVE) {
+						nh = fy_hashMapGet(context, context->mapMUNameToNH,
+								mvalue->uniqueName);
+						if (nh == NULL) {
+							message->messageType = message_invoke_native;
+							message->body.nativeMethod = mvalue;
+						} else {
+							(nh->handler)(context, thread, nh->data, pivalue,
+									ivalue, exception);
+							if (exception->exceptionType != exception_none) {
+								message->messageType = message_exception;
+								vm_free(pivalue);
+								vm_free(pbvalue);
+								break;
+							}
+						}
+					} else {
+						fy_threadPushMethod(context, thread, mvalue, TRUE,
+								ivalue, pivalue, pbvalue);
+					}
+					vm_free(pivalue);
+					vm_free(pbvalue);
+					break;
+				}
+				case INVOKEVIRTUAL: {
+					clazz1 = method->owner;
+					index = nextU2(context, thread);/*m*/
+					mvalue = fy_vmLookupMethodFromConstant(context,
+							(ConstantMethodRef*) (clazz1->constantPools[index]),
+							exception);
+					ivalue = mvalue->paramCount + 1;
+
+					pivalue = vm_allocate(ivalue * sizeof(jint));/*args*/
+					pbvalue = vm_allocate(ivalue * sizeof(jbyte)); /*types*/
+					for (i = ivalue - 1; i >= 0; i--) {
+						pivalue[i] = fy_threadPopType(context, thread,
+								pbvalue + i);
+					}ASSERT(pbvalue[0]==TH_TYPE_HANDLE);
+					if (pivalue[0] == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/NullPointerException");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					clazz2 = context->objects[pivalue[0]].clazz;
+					mvalue = fy_vmLookupMethodVirtual(context, clazz2,
+							mvalue->fullName);
+
+					if (mvalue == NULL) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/AbstractMethodError");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if (mvalue->access_flags & fy_ACC_STATIC) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IncompatibleClassChangeError");
+						fy_strSPrint(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								mvalue->uniqueName);
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if ((mvalue->access_flags & fy_ACC_ABSTRACT)) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/AbstractMethodError");
+						fy_strSPrint(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								mvalue->uniqueName);
+						vm_free(pivalue);
+						vm_free(pbvalue);
+						break;
+					}
+					if (mvalue->access_flags & fy_ACC_NATIVE) {
+						nh = fy_hashMapGet(context, context->mapMUNameToNH,
+								mvalue->uniqueName);
+						if (nh == NULL) {
+							message->messageType = message_invoke_native;
+							message->body.nativeMethod = mvalue;
+						} else {
+							(nh->handler)(context, thread, nh->data, pivalue,
+									ivalue, exception);
+							if (exception->exceptionType != exception_none) {
+								message->messageType = message_exception;
+								vm_free(pivalue);
+								vm_free(pbvalue);
+								break;
+							}
+						}
+					} else {
+						fy_threadPushMethod(context, thread, mvalue, FALSE,
+								ivalue, pivalue, pbvalue);
+					}
+					vm_free(pivalue);
+					vm_free(pbvalue);
+					break;
+				}
+				case IOR: {
+					fy_threadPushInt(
+							context,
+							thread,
+							fy_threadPopInt(context, thread)
+									| fy_threadPopInt(context, thread));
+					break;
+				}
+				case IREM: {
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					if (ivalue2 == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/ArithmeticException");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Divided by zero!");
+						break;
+					}
+					fy_threadPushInt(context, thread, ivalue % ivalue2);
+					break;
+				}
+				case ISHL: {
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPushInt(context, thread, ivalue << ivalue2);
+					break;
+				}
+				case ISHR: {
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPushInt(context, thread, ivalue >> ivalue2);
+					break;
+				}
+				case ISUB: {
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPushInt(context, thread, (juint) ivalue - ivalue2);
+					break;
+				}
+				case IUSHR: {
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPushInt(context, thread,
+							((juint) ivalue) >> ivalue2);
+					break;
+				}
+				case IXOR: {
+					ivalue2 = fy_threadPopInt(context, thread);
+					ivalue = fy_threadPopInt(context, thread);
+					fy_threadPushInt(context, thread, ivalue ^ ivalue2);
+					break;
+				}
+				case JSR: {
+					index = nextS2(context, thread);
+					fy_threadPushType(context, thread, getPC(context, thread),
+							TH_TYPE_RETURN);
+					opGOTO(context, thread, index);
+					break;
+				}
+				case JSR_W: {
+					index = nextS4(context, thread);
+					fy_threadPushType(context, thread, getPC(context, thread),
+							TH_TYPE_RETURN);
+					opGOTO(context, thread, index);
+					break;
+				}
+				case L2D: {
+					fy_threadPushDouble(context, thread,
+							(jdouble) fy_threadPopLong(context, thread));
+					break;
+				}
+				case L2F: {
+					fy_threadPushFloat(context, thread,
+							(jfloat) fy_threadPopLong(context, thread));
+					break;
+				}
+				case L2I: {
+					fy_threadPushInt(context, thread,
+							(jint) fy_threadPopLong(context, thread));
+					break;
+				}
+				case LADD: {
+					fy_threadPushLong(
+							context,
+							thread,
+							(julong) fy_threadPopLong(context, thread)
+									+ fy_threadPopLong(context, thread));
+					break;
+				}
+				case LALOAD: {
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					lvalue = fy_heapGetArrayLong(context, aref, index,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushLong(context, thread, lvalue);
+					break;
+				}
+				case LAND: {
+					fy_threadPushLong(
+							context,
+							thread,
+							fy_threadPopLong(context, thread)
+									& fy_threadPopLong(context, thread));
+					break;
+				}
+				case LASTORE: {
+					lvalue = fy_threadPopLong(context, thread);
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					fy_heapPutArrayLong(context, aref, index, lvalue,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					break;
+				}
+				case LCMP: {
+					lvalue2 = fy_threadPopLong(context, thread);
+					lvalue = fy_threadPopLong(context, thread);
+					fy_threadPushInt(
+							context,
+							thread,
+							lvalue == lvalue2 ?
+									0 : (lvalue > lvalue2 ? 1 : -1));
+					break;
+				}
+				case LCONST_0: {
+					fy_threadPushLong(context, thread, 0);
+					break;
+				}
+				case LCONST_1: {
+					fy_threadPushLong(context, thread, 1);
+					break;
+				}
+				case LDC: {
+					index = nextU1(context, thread);
+
+					ivalue = opLDC(context, method->owner, index, &type,
+							exception);
+
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+
+					fy_threadPushType(context, thread, ivalue, type);
+					break;
+				}
+				case LDC_W: {
+					index = nextU2(context, thread);
+					ivalue = opLDC(context, method->owner, index, &type,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushType(context, thread, ivalue, type);
+					break;
+				}
+				case LDC2_W: {
+					index = nextU2(context, thread);
+					lvalue = opLDC2(context, method->owner, index, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushLong(context, thread, lvalue);
+					break;
+				}
+				case LDIV: {
+					lvalue2 = fy_threadPopLong(context, thread);
+					lvalue = fy_threadPopLong(context, thread);
+					if (lvalue2 == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/ArithmeticException");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Divided by zero!");
+					}
+					fy_threadPushLong(context, thread, lvalue / lvalue2);
+					break;
+				}
+				case DLOAD:
+				case LLOAD: {
+					index = nextU1(context, thread);
+					fy_threadPushLong(context, thread,
+							fy_threadGetLocalLong(context, thread, index));
+					break;
+				}
+				case DLOAD_0:
+				case LLOAD_0: {
+					fy_threadPushLong(context, thread,
+							fy_threadGetLocalLong(context, thread, 0));
+					break;
+				}
+				case DLOAD_1:
+				case LLOAD_1: {
+					fy_threadPushLong(context, thread,
+							fy_threadGetLocalLong(context, thread, 1));
+					break;
+				}
+				case DLOAD_2:
+				case LLOAD_2: {
+					fy_threadPushLong(context, thread,
+							fy_threadGetLocalLong(context, thread, 2));
+					break;
+				}
+				case DLOAD_3:
+				case LLOAD_3: {
+					fy_threadPushLong(context, thread,
+							fy_threadGetLocalLong(context, thread, 3));
+					break;
+				}
+				case LMUL: {
+					fy_threadPushLong(
+							context,
+							thread,
+							(julong) fy_threadPopLong(context, thread)
+									* fy_threadPopLong(context, thread));
+					break;
+				}
+				case LNEG: {
+					fy_threadPushLong(context, thread,
+							-fy_threadPopLong(context, thread));
+					break;
+				}
+				case LOOKUPSWITCH: {
+					index = (65536 - getPC(context, thread)) % 4;
+					movePC(context, thread, index);
+					ivalue = nextS4(context, thread);/*db*/
+					ivalue2 = nextS4(context, thread);/*np*/
+					pivalue = vm_allocate(sizeof(jint) * ivalue2); /*match*/
+					pivalue2 = vm_allocate(sizeof(jint) * ivalue2); /*offset*/
+					for (i = 0; i < ivalue2; i++) {
+						pivalue[i] = nextS4(context, thread);
+						pivalue2[i] = nextS4(context, thread);
+					}
+					index = fy_threadPopInt(context, thread);
+					bvalue1 = FALSE; /*matched*/
+					for (i = 0; i < ivalue2; i++) {
+						if (index == pivalue[i]) {
+							opGOTO(context, thread, pivalue2[i]);
+							bvalue1 = TRUE;
+							break;
+						}
+					}
+					vm_free(pivalue);
+					vm_free(pivalue2);
+					if (!bvalue1) {
+						opGOTO(context, thread, ivalue);
+					}
+					break;
+				}
+				case LOR: {
+					fy_threadPushLong(
+							context,
+							thread,
+							fy_threadPopLong(context, thread)
+									| fy_threadPopLong(context, thread));
+					break;
+				}
+				case LREM: {
+					lvalue2 = fy_threadPopLong(context, thread);
+					lvalue = fy_threadPopLong(context, thread);
+					if (lvalue2 == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/ArithmeticException");
+						strcpy_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Divided by zero!");
+					}
+					fy_threadPushLong(context, thread, lvalue % lvalue2);
+					break;
+				}
+				case LRETURN: {
+					lvalue = fy_threadPopLong(context, thread);
+					if (method->access_flags & fy_ACC_SYNCHRONIZED) {
+						if (method->access_flags & fy_ACC_STATIC) {
+							fy_threadMonitorExit(context, thread,
+									method->owner->classObjId);
+						} else {
+							fy_threadMonitorExit(
+									context,
+									thread,
+									fy_threadGetLocalHandle(context, thread,
+											0));
+						}
+					}
+					fy_threadPopFrame(context, thread);
+					fy_threadPushLong(context, thread, lvalue);
+
+					break;
+				}
+				case LSHL: {
+					lvalue2 = fy_threadPopInt(context, thread) & 0x3f;
+					lvalue = fy_threadPopLong(context, thread);
+					fy_threadPushLong(context, thread, lvalue << lvalue2);
+					break;
+				}
+				case LSHR: {
+					lvalue2 = fy_threadPopInt(context, thread) & 0x3f;
+					lvalue = fy_threadPopLong(context, thread);
+					fy_threadPushLong(context, thread, lvalue >> lvalue2);
+					break;
+				}
+				case DSTORE:
+				case LSTORE: {
+					index = nextU1(context, thread);
+					fy_threadPutLocalLong(context, thread, index,
+							fy_threadPopLong(context, thread));
+					break;
+				}
+				case DSTORE_0:
+				case LSTORE_0: {
+					fy_threadPutLocalLong(context, thread, 0,
+							fy_threadPopLong(context, thread));
+					break;
+				}
+				case DSTORE_1:
+				case LSTORE_1: {
+					fy_threadPutLocalLong(context, thread, 1,
+							fy_threadPopLong(context, thread));
+					break;
+				}
+				case DSTORE_2:
+				case LSTORE_2: {
+					fy_threadPutLocalLong(context, thread, 2,
+							fy_threadPopLong(context, thread));
+					break;
+				}
+				case DSTORE_3:
+				case LSTORE_3: {
+					fy_threadPutLocalLong(context, thread, 3,
+							fy_threadPopLong(context, thread));
+					break;
+				}
+				case LSUB: {
+					lvalue2 = fy_threadPopLong(context, thread);
+					lvalue = fy_threadPopLong(context, thread);
+					fy_threadPushLong(context, thread,
+							(julong) lvalue - lvalue2);
+					break;
+				}
+				case LUSHR: {
+					lvalue2 = fy_threadPopInt(context, thread) & 0x3f;
+					lvalue = fy_threadPopLong(context, thread);
+					fy_threadPushLong(context, thread,
+							((julong) lvalue) >> lvalue2);
+					break;
+				}
+				case LXOR: {
+					lvalue2 = fy_threadPopLong(context, thread);
+					lvalue = fy_threadPopLong(context, thread);
+					fy_threadPushLong(context, thread, lvalue ^ lvalue2);
+					break;
+				}
+				case MONITORENTER: {
+					aref = fy_threadPopHandle(context, thread);
+					fy_threadMonitorEnter(context, thread, aref);
+					break;
+				}
+				case MONITOREXIT: {
+					aref = fy_threadPopHandle(context, thread);
+					fy_threadMonitorExit(context, thread, aref);
+					break;
+				}
+				case MULTIANEWARRAY: {
+					index = nextU2(context, thread);
+					ivalue = nextU1(context, thread);
+					clazz1 =
+							fy_vmLookupClassFromConstant(
+									context,
+									(ConstantClass*) method->owner->constantPools[index],
+									exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					pivalue = vm_allocate(sizeof(int) * ivalue);
+					for (i = ivalue - 1; i >= 0; i--) {
+						pivalue[i] = fy_threadPopInt(context, thread);
+					}
+					aref = threadmulitANewArray(context, clazz1, ivalue,
+							pivalue, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushHandle(context, thread, aref);
+					vm_free(pivalue);
+					break;
+				}
+				case NEW: {
+					index = nextU2(context, thread);
+					clazz1 =
+							fy_vmLookupClassFromConstant(
+									context,
+									(ConstantClass*) method->owner->constantPools[index],
+									exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					if (clazz1->accessFlags
+							& (fy_ACC_INTERFACE | fy_ACC_ABSTRACT)) {
+						fy_strSPrint(msg, 256, clazz1->className);
+						vm_die("InstantiationErro %s", msg);
+					}
+					if (clinit(context, thread, clazz1)) {
+						break;
+					}
+					aref = fy_heapAllocate(context, clazz1, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushHandle(context, thread, aref);
+					break;
+				}
+				case NEWARRAY: {
+					type = nextU1(context, thread);
+					index = fy_threadPopInt(context, thread);
+					if (index < 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/NegativeArraySizeException");
+						sprintf_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "%d", index);
+					}
+					switch (type) {
+					case 4:
+						pstr1 = context->sArrayBoolean;
+						break;
+					case 5:
+						pstr1 = context->sArrayChar;
+						break;
+					case 6:
+						pstr1 = context->sArrayFloat;
+						break;
+					case 7:
+						pstr1 = context->sArrayDouble;
+						break;
+					case 8:
+						pstr1 = context->sArrayByte;
+						break;
+					case 9:
+						pstr1 = context->sArrayShort;
+						break;
+					case 10:
+						pstr1 = context->sArrayInteger;
+						break;
+					case 11:
+						pstr1 = context->sArrayLong;
+						break;
+					default:
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/VirtualMachineError");
+						sprintf_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Unknown array type in NEWARRAY type=%d", type);
+						break;
+					}
+					if (message->messageType == message_exception) {
+						break;
+					}
+					clazz1 = fy_vmLookupClass(context, pstr1, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					aref = fy_heapAllocateArray(context, clazz1, index,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushHandle(context, thread, aref);
+					break;
+				}
+				case NOP: {
+					break;
+				}
+				case POP: {
+					fy_threadPopType(context, thread, &type);
+					break;
+				}
+				case POP2: {
+					fy_threadPopType(context, thread, &type);
+					fy_threadPopType(context, thread, &type);
+					break;
+				}
+				case PUTFIELD: {
+					index = nextU2(context, thread);
+					field =
+							fy_vmLookupFieldFromConstant(
+									context,
+									(ConstantFieldRef*) method->owner->constantPools[index],
+									exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					type = (jbyte) field->descriptor->content[0];
+					switch (type) {
+					case 'D':
+					case 'J':
+						lvalue = fy_threadPopLong(context, thread);
+						break;
+					case 'L':
+					case '[':
+						ivalue = fy_threadPopHandle(context, thread);
+						break;
+					default:
+						ivalue = fy_threadPopInt(context, thread);
+					}
+					aref = fy_threadPopHandle(context, thread);
+					if (field->access_flags & fy_ACC_STATIC) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IncompatibleClassChangeError");
+						fy_strSPrint(msg, 256, field->uniqueName);
+						sprintf_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Field %s is static", msg);
+						break;
+					}
+
+					if ((field->access_flags & fy_ACC_FINAL)
+							&& method->owner != field->owner) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IllegalAccessError");
+						fy_strSPrint(msg, 256, field->uniqueName);
+						sprintf_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Field %s is final", msg);
+						break;
+					}
+
+					switch (type) {
+					case 'D':
+					case 'J':
+						fy_heapPutFieldLong(context, aref, field, lvalue,
+								exception);
+						break;
+					default:
+						fy_heapPutFieldInt(context, aref, field, ivalue,
+								exception);
+						break;
+					}
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					break;
+				}
+				case PUTSTATIC: {
+					index = nextU2(context, thread);
+					field =
+							fy_vmLookupFieldFromConstant(
+									context,
+									(ConstantFieldRef*) (method->owner->constantPools[index]),
+									exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					if ((field->access_flags & fy_ACC_FINAL)
+							&& (field->owner != method->owner)) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s(exception->exceptionName,
+								sizeof(exception->exceptionName),
+								"java/lang/IllegalAccessError");
+						fy_strSPrint(msg, sizeof(msg), field->uniqueName);
+						sprintf_s(exception->exceptionDesc,
+								sizeof(exception->exceptionDesc),
+								"Field %s is final", msg);
+						break;
+					}
+					clazz1 = field->owner;
+					if (clinit(context, thread, clazz1)) {
+						break;
+					}
+					type = (jbyte) field->descriptor->content[0];
+					switch (type) {
+					case 'D':
+					case 'J':
+						fy_heapPutStaticLong(context, field,
+								fy_threadPopLong(context, thread), exception);
+						break;
+					case 'L':
+					case '[':
+						fy_heapPutStaticHandle(context, field,
+								fy_threadPopHandle(context, thread), exception);
+						break;
+					default:
+						fy_heapPutStaticInt(context, field,
+								fy_threadPopInt(context, thread), exception);
+						break;
+					}
+					break;
+				}
+				case RET: {
+					index = nextU1(context, thread);
+					ivalue = fy_threadGetLocalReturn(context, thread, index);
+					setPC(context, thread, ivalue);
+					break;
+				}
+				case RETURN: {
+					if (method->access_flags & fy_ACC_SYNCHRONIZED) {
+						if (method->access_flags & fy_ACC_STATIC) {
+							fy_threadMonitorExit(context, thread,
+									method->owner->classObjId);
+						} else {
+							fy_threadMonitorExit(
+									context,
+									thread,
+									fy_threadGetLocalHandle(context, thread,
+											0));
+						}
+					}
+					if (fy_strCmp(method->name, context->sClinit) == 0) {
+						method->owner->clinitThreadId = -1;
+					}
+					fy_threadPopFrame(context, thread);
+					break;
+				}
+				case SALOAD: {
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					svalue = fy_heapGetArrayShort(context, aref, index,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					fy_threadPushInt(context, thread, svalue);
+					break;
+				}
+				case SASTORE: {
+					ivalue = fy_threadPopInt(context, thread);
+					index = fy_threadPopInt(context, thread);
+					aref = fy_threadPopHandle(context, thread);
+					fy_heapPutArrayShort(context, aref, index, (short) ivalue,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						break;
+					}
+					break;
+				}
+				case SIPUSH: {
+					ivalue = nextS2(context, thread);
+					fy_threadPushInt(context, thread, ivalue);
+					break;
+				}
+				case SWAP: {
+					ivalue = fy_threadPopType(context, thread, &type);
+					ivalue2 = fy_threadPopType(context, thread, &type2);
+					fy_threadPushType(context, thread, ivalue, type);
+					fy_threadPushType(context, thread, ivalue2, type2);
+					break;
+				}
+				case TABLESWITCH: {
+					index = (65536 - getPC(context, thread)) % 4;
+					movePC(context, thread, index);
+					ivalue = nextS4(context, thread);/*db*/
+					ivalue2 = nextS4(context, thread);/*lb*/
+					ivalue3 = nextS4(context, thread);/*hb*/
+					index = ivalue3 - ivalue2 + 1;/*count*/
+					pivalue = vm_allocate(sizeof(jint) * index);
+					for (i = 0; i < index; i++) {
+						pivalue[i] = nextS4(context, thread);
+					}
+
+					index = fy_threadPopInt(context, thread);
+					if (index < ivalue2 || index > ivalue3) {
+						ivalue4 = ivalue;
+					} else {
+						ivalue4 = pivalue[index - ivalue2];
+					}
+					vm_free(pivalue);
+					opGOTO(context, thread, ivalue4);
+					break;
+				}
+				case WIDE: {
+					op2 = nextU1(context, thread);
+					index = nextU2(context, thread);
+					switch (op2) {
+					case FLOAD:
+					case ILOAD: {
+						ivalue = fy_threadGetLocalInt(context, thread, index);
+						fy_threadPushInt(context, thread, ivalue);
+						break;
+					}
+					case ALOAD: {
+						aref = fy_threadGetLocalHandle(context, thread, index);
+						fy_threadPushHandle(context, thread, aref);
+						break;
+					}
+					case DLOAD:
+					case LLOAD: {
+						lvalue = fy_threadGetLocalLong(context, thread, index);
+						fy_threadPushLong(context, thread, lvalue);
+						break;
+					}
+					case FSTORE:
+					case ISTORE: {
+						ivalue = fy_threadPopInt(context, thread);
+						fy_threadPutLocalInt(context, thread, index, ivalue);
+						break;
+					}
+					case ASTORE: {
+						aref = fy_threadPopType(context, thread, &type);
+						fy_threadPutLocalType(context, thread, index, aref,
+								type);
+						break;
+					}
+					case DSTORE:
+					case LSTORE: {
+						lvalue = fy_threadPopLong(context, thread);
+						fy_threadPutLocalLong(context, thread, index, lvalue);
+						break;
+					}
+					case RET: {
+						ivalue = fy_threadGetLocalReturn(context, thread,
+								index);
+						setPC(context, thread, ivalue);
+						break;
+					}
+					case IINC: {
+						ivalue = nextS2(context, thread);
+						fy_threadPutLocalInt(
+								context,
+								thread,
+								index,
+								fy_threadGetLocalInt(context, thread, index)
+										+ ivalue);
+						break;
+					}
+					default: {
+						vm_die("Unknown OPCode %d", op2);
+					}
+					}
+					break;
 				}
 				}
+			}
+			if (thread->yield) {
+				thread->yield = FALSE;
+				message->messageType = message_none;
 				break;
 			}
+			if (message->messageType == message_exception) {
+				//send the exception to the VM caller for PI handle.
+				break;
 			}
-		}
-		if (thread->yield) {
-			thread->yield = FALSE;
-			message->messageType = message_none;
-			break;
-		}
-		if (message->messageType == message_exception) {
-			//send the exception to the VM caller for PI handle.
-			break;
-		}
-		if (message->messageType != message_continue) {
-			break;
+			if (message->messageType != message_continue) {
+				break;
+			}
 		}
 	}
 }
