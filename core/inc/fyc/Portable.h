@@ -27,10 +27,10 @@
 #define NULL 0
 #endif
 
-/*#ifndef DEBUG
- #define DEBUG
- #endif
- */
+#ifndef DEBUG
+#define DEBUG
+#endif
+
 /*We should define it on platforms which doesn't support __PRETTY_FUNCTION__*/
 #if 0
 #define __PRETTY_FUNCTION__ __FILE__

@@ -16,7 +16,6 @@
  */
 
 #include "fyc/Thread.h"
-#if 1
 #define CMD_BREAK  1
 #define CMD_GOON  2
 #define CMD_BACK  3
@@ -902,33 +901,73 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
 #endif
 
 #ifdef FY_STRICT_CHECK
-# define
+# define fy_checkPush(SIZE) if(sp>=sb+size+SIZE || sp<sb+localCount){ \
+		vm_die("Stack overflow! %d",sp); \
+}
+# define fy_checkPop(SIZE,T) { \
+}
+
+# define fy_frameToLocalCheck { \
+	size = ptrFrame->size; \
+	localCount = ptrFrame -> localCount; \
+	codeSize = ptrFrame->codeSize; \
+}
 #else
+# define fy_checkPush(SIZE) {}
+# define fy_checkPop(SIZE,T) {}
+# define fy_frameToLocalCheck {}
 #endif
 
-#define FY_PUSHI(V) { \
-# ifdef FY_STRICT_CHECK
-	if(sp>=bottomPos+size||sp<bottomPos+localCount){vm_die("Stack overflow! %ld",sp);} \
-# endif
-	typeStack[sp]=TH_TYPE_INT;stack[sp++]=V \
+#define fy_threadPushInt(C,T,V) { \
+	fy_checkPush(0) \
+	typeStack[sp]=TH_TYPE_INT;stack[sp++]=V; \
 }
 
-#define FY_PUSHH(V) { \
-	typeStack[sp]=TH_TYPE_HANDLE;stack[sp++]=V \
+#define fy_threadPushHandle(C,T,V) { \
+		fy_checkPush(0) \
+	typeStack[sp]=TH_TYPE_HANDLE;stack[sp++]=V; \
 }
-#define FY_PUSHR(V) {typeStack[sp]=TH_TYPE_RETURN;stack[sp++]=V}
+#define fy_threadPushReturn(C,T,V) { \
+	fy_checkPush(0) \
+	typeStack[sp]=TH_TYPE_RETURN;stack[sp++]=V; \
+}
 
-#define FY_PUSHW(W) { \
+
+#define fy_threadPushLong(C,T,W) { \
+	fy_checkPush(1) \
 	typeStack[sp]=TH_TYPE_WIDE;stack[sp++]=fy_HOFL(W); \
-	typeStack[sp]=TH_TYPE_WIDE;stack[sp++]=fy_HOFL(W); \
+	typeStack[sp]=TH_TYPE_WIDE2;stack[sp++]=fy_LOFL(W); \
+}
+
+#define fy_threadPopInt(C,T,O) { \
+	fy_checkPop(0,typeStack[sp-1]) \
+	O=stack[--sp]; \
+}
+
+#define fy_threadPopHandle(C,T,O) { \
+	fy_checkPop(0,typeStack[sp-1]) \
+	O=stack[--sp]; \
+}
+
+#define fy_threadPopReturn(C,T,O) { \
+	fy_checkPop(0,typeStack[sp-1]) \
+	O=stack[--sp]; \
+}
+
+#define fy_threadPopLong(C,T,O) { \
+	fy_checkPop(1,typeStack[sp-1]) \
+	O=stack[--sp]; \
+	O=(O<<32) + (julong)stack[--sp]; \
+}
+
+#define fy_threadPutLocalInt(C,T,P,V) { \
+
 }
 
 #define FY_FRAME_TO_LOCAL(ptrFrame) { \
 	sp=ptrFrame->sp;pc=ptrFrame->pc;lpc=ptrFrame->lpc; \
 	sb=ptrFrame->bottomPos;method = ptrFrame->method \
-# ifdef FY_STRICT_CHECK
-	size = ptrFrame->size;localCount = ptrFrame -> localCount;codeSize = ptrFrame->codeSize;
-# endif
+	fy_frameToLocalCheck
 }
 
 
@@ -3252,4 +3291,3 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 	}
 }
 
-#endif
