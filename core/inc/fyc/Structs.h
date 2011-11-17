@@ -33,6 +33,7 @@ extern "C" {
 #define COPY_SIZE 1048576
 #define OLD_ENTRIES 16384
 #define STACK_SIZE 525288
+#define MAX_FRAMES 256
 
 #define CLASS_OBJ 0
 #define CLASS_ARR 1
@@ -399,8 +400,8 @@ typedef struct fy_object {
 
 typedef struct fy_frame{
 	fy_method *method;
-	jbyte *code;
-	juint bottomPos;
+	jubyte *code;
+	juint sb;
 #ifdef FY_STRICT_CHECK
 	juint size;
 	juint localCount;
@@ -421,10 +422,11 @@ typedef struct fy_thread {
 	jint status;
 	jint priority;
 	jint threadId;
-	fy_linkedList *frames;
 
-	jint stack[STACK_SIZE];
-	jint typeStack[STACK_SIZE];
+	juint frameCount;
+	fy_frame frames[MAX_FRAMES];
+	juint stack[STACK_SIZE];
+	juint typeStack[STACK_SIZE];
 
 	/*Used by thread manager*/
 	jint waitForLockId;
@@ -553,7 +555,7 @@ typedef struct fy_VMContext {
 } fy_VMContext;
 
 typedef void (*fy_nhFunction)(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception);
 
 typedef struct fy_nh {

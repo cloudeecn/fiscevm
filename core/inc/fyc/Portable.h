@@ -27,10 +27,6 @@
 #define NULL 0
 #endif
 
-#ifndef DEBUG
-#define DEBUG
-#endif
-
 /*We should define it on platforms which doesn't support __PRETTY_FUNCTION__*/
 #if 0
 #define __PRETTY_FUNCTION__ __FILE__
@@ -65,10 +61,14 @@ typedef long long jlong;
 #endif
 
 #if __STDC_VERSION__ >= 199901L
-#define _C99
-#define _FY_RESTRICT restrict
+# define _C99
+# define _C_EXT
+# define _FY_RESTRICT restrict
 #else
-#define _FY_RESTRICT
+# ifdef __GNUC__
+#  define _C_EXT
+# endif
+# define _FY_RESTRICT
 #endif
 
 #if 1
@@ -95,10 +95,11 @@ typedef long long jlong;
 #define PRINT64 "ll"
 #endif
 
-#define fy_I2TOL(I1,I2) ((jlong)(((julong)(I1)<<32) | ((julong)(I2))))
-#define fy_I2TOUL(I1,I2) ((julong)(((julong)(I1)<<32) | ((julong)(I2))))
-#define fy_B2TOI(B1,B2) ((((juint)(B1))<<8)|((juint)(B2)))
-#define fy_B4TOI(B1,B2,B3,B4) ((((juint)(B1))<<24)|(((juint)(B2))<<16)|(((juint)(B3))<<8)|((juint)(B4)))
+#define fy_I2TOL(I1,I2) ((jlong)(((julong)(I1)<<32) + ((julong)(I2))))
+#define fy_I2TOUL(I1,I2) ((julong)(((julong)(I1)<<32) + ((julong)(I2))))
+#define fy_B2TOUI(B1,B2) ((((juint)(B1))<<8)+((juint)(B2)))
+#define fy_B2TOI(B1,B2) ((jshort)((((juint)(B1))<<8)+((juint)(B2))))
+#define fy_B4TOI(B1,B2,B3,B4) ((((juint)(B1))<<24)+(((juint)(B2))<<16)+(((juint)(B3))<<8)+((juint)(B4)))
 #define fy_HOFL(L) ((jint)(L>>32))
 #define fy_LOFL(L) ((jint)(L))
 

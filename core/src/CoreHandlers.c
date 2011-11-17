@@ -18,7 +18,7 @@
 #include "fyc/CoreHandlers.h"
 
 static void SystemArrayCopy(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	jint srcHandle = args[0];
 	jint srcPos = args[1];
@@ -30,60 +30,60 @@ static void SystemArrayCopy(struct fy_VMContext *context,
 }
 
 static void SystemTimeMS(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
-	fy_threadPushLong(context, thread, fy_portTimeMillSec(context));
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
+	fy_nativeReturnLong(context, thread, fy_portTimeMillSec(context));
 }
 
 static void SystemTimeNS(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
-	fy_threadPushLong(context, thread, fy_portTimeNanoSec(context));
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
+	fy_nativeReturnLong(context, thread, fy_portTimeNanoSec(context));
 }
 
 static void ObjectGetClass(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
-	fy_threadPushHandle(context, thread, clazz->classObjId);
+	fy_nativeReturnHandle(context, thread, clazz->classObjId);
 }
 
 static void ClassGetComponentType(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
 	if (clazz->type == arr) {
-		fy_threadPushHandle(context, thread,
+		fy_nativeReturnHandle(context, thread,
 				clazz->ci.arr.contentClass->classObjId);
 	} else {
-		fy_threadPushHandle(context, thread, 0);
+		fy_nativeReturnHandle(context, thread, 0);
 	}
 }
 
 static void ThreadCurrentThread(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
-	fy_threadPushHandle(context, thread, thread->handle);
+	fy_nativeReturnHandle(context, thread, thread->handle);
 }
 
 static void ThreadSetPriority(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	/*TODO implement thread manager first*/
 }
 
 static void ThreadIsAlive(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	/*TODO implement thread manager first*/
-	fy_threadPushInt(context, thread, 0);
+	fy_nativeReturnInt(context, thread, 0);
 }
 
 static void ThreadStart(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	/*TODO implement thread manager first*/
 }
 
 static void VMDebugOut(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	fy_str *str;
 	fy_vmLookupClass(context, context->sString, exception);
 	if (exception->exceptionType != exception_none) {
@@ -101,42 +101,42 @@ static void VMDebugOut(struct fy_VMContext *context, struct fy_thread *thread,
 }
 
 static void VMDebugOutI(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	printf("VMDebugOutI: %d\n", args[0]);
 }
 
 static void VMDebugOutJ(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	printf("VMDebugOutI: %"PRINT64"d\n", fy_I2TOL(args[0],args[1]));
 }
 
 static void VMDebugOutF(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	printf("VMDebugOutI: %f\n", fy_intToFloat(args[0]));
 }
 
 static void VMDebugOutD(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	printf("VMDebugOutI: %f\n", fy_longToDouble(fy_I2TOL(args[0],args[1])));
 }
 
 static void VMThrowOut(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	/*TODO */
 }
 
 static void VMExit(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	/*TODO */
 }
 
 static void SOSWrite(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	putchar(args[1]);
 }
 
 static void VMDecode(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	jint handleSrc = args[1];
 	jint ofs = args[2];
 	jint len = args[3];
@@ -148,12 +148,12 @@ static void VMDecode(struct fy_VMContext *context, struct fy_thread *thread,
 	fy_class *charArray;
 	charArray = fy_vmLookupClass(context, context->sArrayChar, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadPushHandle(context, thread, 0);
+		fy_nativeReturnHandle(context, thread, 0);
 		return;
 	}
 	array = fy_heapGetArrayBytes(context, handleSrc, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadPushHandle(context, thread, 0);
+		fy_nativeReturnHandle(context, thread, 0);
 		return;
 	}
 
@@ -166,7 +166,7 @@ static void VMDecode(struct fy_VMContext *context, struct fy_thread *thread,
 	handleRet = fy_heapAllocateArray(context, charArray, maxi = str->length,
 			exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadPushHandle(context, thread, 0);
+		fy_nativeReturnHandle(context, thread, 0);
 		fy_strDestroy(context, str);
 		vm_free(str);
 		return;
@@ -174,7 +174,7 @@ static void VMDecode(struct fy_VMContext *context, struct fy_thread *thread,
 	for (i = 0; i < maxi; i++) {
 		fy_heapPutArrayChar(context, handleRet, i, str->content[i], exception);
 		if (exception->exceptionType != exception_none) {
-			fy_threadPushHandle(context, thread, 0);
+			fy_nativeReturnHandle(context, thread, 0);
 			fy_strDestroy(context, str);
 			vm_free(str);
 			return;
@@ -182,11 +182,11 @@ static void VMDecode(struct fy_VMContext *context, struct fy_thread *thread,
 	}
 	fy_strDestroy(context, str);
 	vm_free(str);
-	fy_threadPushHandle(context, thread, handleRet);
+	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
 static void VMEncode(struct fy_VMContext *context, struct fy_thread *thread,
-		void *data, jint *args, jint argsCount, fy_exception *exception) {
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	jint handleSrc = args[1];
 	jint ofs = args[2];
 	jint len = args[3];
@@ -201,7 +201,7 @@ static void VMEncode(struct fy_VMContext *context, struct fy_thread *thread,
 	jchar ch;
 	byteClass = fy_vmLookupClass(context, context->sArrayByte, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadPushHandle(context, thread, 0);
+		fy_nativeReturnHandle(context, thread, 0);
 		return;
 	}
 	left = len * 3 + 1;
@@ -210,7 +210,7 @@ static void VMEncode(struct fy_VMContext *context, struct fy_thread *thread,
 	for (i = 0; i < len; i++) {
 		ch = fy_heapGetArrayChar(context, handleSrc, i + ofs, exception);
 		if (exception->exceptionType != exception_none) {
-			fy_threadPushHandle(context, thread, 0);
+			fy_nativeReturnHandle(context, thread, 0);
 			vm_free(out);
 			return;
 		}
@@ -222,38 +222,38 @@ static void VMEncode(struct fy_VMContext *context, struct fy_thread *thread,
 	}
 	handleRet = fy_heapAllocateArray(context, byteClass, olen, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadPushHandle(context, thread, 0);
+		fy_nativeReturnHandle(context, thread, 0);
 		vm_free(out);
 		return;
 	}
 
 	outTmp = fy_heapGetArrayBytes(context, handleRet, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadPushHandle(context, thread, 0);
+		fy_nativeReturnHandle(context, thread, 0);
 		vm_free(out);
 		return;
 	}
 
 	memcpy(outTmp, out, olen);
 	vm_free(out);
-	fy_threadPushHandle(context, thread, handleRet);
+	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
 static void VMGetDoubleRaw(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
-	fy_threadPushLong(context, thread,
+	fy_nativeReturnLong(context, thread,
 			((jlong) args[0] << 32) | ((juint) args[1]));
 }
 
 static void VMGetFloatRaw(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
-	fy_threadPushInt(context, thread, args[0]);
+	fy_nativeReturnInt(context, thread, args[0]);
 }
 
 static void VMStringToDouble(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_str *str = fy_strAllocate(context);
 	char ch[64];
@@ -261,11 +261,11 @@ static void VMStringToDouble(struct fy_VMContext *context,
 	str = fy_heapGetString(context, args[0], str, exception);
 	fy_strSPrint(ch, sizeof(ch), str);
 	value = atof(ch);
-	fy_threadPushLong(context, thread, fy_doubleToLong(value));
+	fy_nativeReturnLong(context, thread, fy_doubleToLong(value));
 }
 
 static void VMDoubleToString(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	jlong lvalue = ((julong) args[0] << 32) | ((juint) args[1]);
 	jdouble dvalue = fy_longToDouble(lvalue);
@@ -280,11 +280,11 @@ static void VMDoubleToString(struct fy_VMContext *context,
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
-	fy_threadPushHandle(context, thread, handleRet);
+	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
 static void VMStringToFloat(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_str *str = fy_strAllocate(context);
 	char ch[64];
@@ -292,11 +292,11 @@ static void VMStringToFloat(struct fy_VMContext *context,
 	str = fy_heapGetString(context, args[0], str, exception);
 	fy_strSPrint(ch, sizeof(ch), str);
 	value = atof(ch);
-	fy_threadPushInt(context, thread, fy_floatToInt((jfloat) value));
+	fy_nativeReturnInt(context, thread, fy_floatToInt((jfloat) value));
 }
 
 static void VMFloatToString(struct fy_VMContext *context,
-		struct fy_thread *thread, void *data, jint *args, jint argsCount,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	jint value = args[0];
 	jfloat fvalue = fy_intToFloat(value);
@@ -311,7 +311,7 @@ static void VMFloatToString(struct fy_VMContext *context,
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
-	fy_threadPushHandle(context, thread, handleRet);
+	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
 void fy_coreRegisterCoreHandlers(fy_VMContext *context) {

@@ -275,7 +275,7 @@ void fy_nativeReturnLong(fy_VMContext *context,fy_thread *thread,jlong value);
 
 #define fy_nativeReturnFloat(C,T,V) fy_nativeReturnInt(C,T,fy_floatToInt(V))
 
-#define fy_nativeReturnDouble(C,T,V) fy_nativeReturnInt(C,T,fy_doubleToLong(V))
+#define fy_nativeReturnDouble(C,T,V) fy_nativeReturnLong(C,T,fy_doubleToLong(V))
 
 fy_method *fy_threadGetCurrentMethod(fy_VMContext *context, fy_thread *thread);
 

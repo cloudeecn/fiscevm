@@ -17,23 +17,20 @@
 
 #include "fyc/Heap.h"
 
-
-
 void fy_heapRelease(fy_VMContext *context, juint handle) {
-	fy_object *objects = context->objects;
 	ASSERT(handle > 0 && handle <= MAX_OBJECTS);
-	if (objects[handle].clazz != NULL) {
+	if (fy_heapGetObject(context, handle)->clazz != NULL) {
 		vm_die("Illegal handle");
 	}
-	switch (objects[handle].sizeShift) {
+	switch (fy_heapGetObject(context, handle)->sizeShift) {
 	case fy_SIZE_SHIFT_BYTE:
-		vm_free(objects[handle].data.bdata);
+		vm_free(fy_heapGetObject(context, handle)->data.bdata);
 		break;
 	case fy_SIZE_SHIFT_LONG:
-		vm_free(objects[handle].data.ldata);
+		vm_free(fy_heapGetObject(context, handle)->data.ldata);
 		break;
 	default:
-		vm_free(objects[handle].data.idata);
+		vm_free(fy_heapGetObject(context, handle)->data.idata);
 		break;
 	}
 }
@@ -41,7 +38,7 @@ void fy_heapRelease(fy_VMContext *context, juint handle) {
 static int allocate(fy_VMContext *context, int size, fy_exception *exception) {
 	int handle = context->nextHandle;
 	while (1) {
-		if (context->objects[handle].clazz == NULL) {
+		if (fy_heapGetObject(context, handle)->clazz == NULL) {
 			break;
 		}
 		handle++;
@@ -86,10 +83,10 @@ int fy_heapAllocate(fy_VMContext *context, fy_class *clazz,
 				"Memory overflow");
 		return 0;
 	}
-	context->objects[handle].length = length;
-	context->objects[handle].clazz = clazz;
-	context->objects[handle].sizeShift = fy_SIZE_SHIFT_INT;
-	context->objects[handle].data.idata = idata;
+	fy_heapGetObject(context, handle)->length = length;
+	fy_heapGetObject(context, handle)->clazz = clazz;
+	fy_heapGetObject(context, handle)->sizeShift = fy_SIZE_SHIFT_INT;
+	fy_heapGetObject(context, handle)->data.idata = idata;
 
 	return handle;
 }
@@ -118,25 +115,25 @@ int fy_heapAllocateArray(fy_VMContext *context, fy_class *clazz, int length,
 				"Memory overflow");
 		return 0;
 	}
-	context->objects[handle].length = length;
-	context->objects[handle].clazz = clazz;
-	context->objects[handle].sizeShift = sizeShift;
+	fy_heapGetObject(context, handle)->length = length;
+	fy_heapGetObject(context, handle)->clazz = clazz;
+	fy_heapGetObject(context, handle)->sizeShift = sizeShift;
 	switch (sizeShift) {
 	case fy_SIZE_SHIFT_BYTE:
-		context->objects[handle].data.bdata = (jbyte*) data;
+		fy_heapGetObject(context, handle)->data.bdata = (jbyte*) data;
 		break;
 	case fy_SIZE_SHIFT_LONG:
-		context->objects[handle].data.ldata = (jlong*) data;
+		fy_heapGetObject(context, handle)->data.ldata = (jlong*) data;
 		break;
 	default:
-		context->objects[handle].data.idata = (jint*) data;
+		fy_heapGetObject(context, handle)->data.idata = (jint*) data;
 		break;
 	}
 	return handle;
 }
 
 fy_class* fy_heapGetClassOfObject(fy_VMContext *context, jint handle) {
-	return context->objects[handle].clazz;
+	return fy_heapGetObject(context, handle)->clazz;
 }
 
 fy_str* fy_heapGetString(fy_VMContext *context, jint handle, fy_str *target,
@@ -241,8 +238,8 @@ void fy_heapArrayCopy(fy_VMContext *context, jint src, jint srcPos, jint dest,
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				"java/lang/ArrayStoreException");
 	}
-	sObject = context->objects + src;
-	dObject = context->objects + dest;
+	sObject = fy_heapGetObject(context, src);
+	dObject = fy_heapGetObject(context, dest);
 	if (srcPos < 0 || destPos < 0 || len < 0 || (srcPos + len > sObject->length)
 			|| (destPos + len > dObject->length)) {
 		exception->exceptionType = exception_normal;
@@ -275,13 +272,6 @@ void fy_heapArrayCopy(fy_VMContext *context, jint src, jint srcPos, jint dest,
 	}
 }
 
-
-
-
-
-
-
-
 #define CHECK_NPT(X) if (handle == 0) { \
 exception->exceptionType = exception_normal; \
 strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), "java/lang/NullPointerException"); \
@@ -306,7 +296,7 @@ return X;\
 
 #ifdef _DEBUG
 static jboolean validate(fy_VMContext *context, jint handle, fy_field *field) {
-	fy_class *handleClass = context->objects[handle].clazz;
+	fy_class *handleClass = fy_heapGetObject(context, handle)->clazz;
 	fy_class *fieldClass = field->owner;
 	return fy_classCanCastTo(context, handleClass, fieldClass);
 }
@@ -314,13 +304,13 @@ static jboolean validate(fy_VMContext *context, jint handle, fy_field *field) {
 
 jint fy_heapArrayLength(fy_VMContext *context, jint handle,
 		fy_exception *exception) {
-	return context->objects[handle].length;
+	return fy_heapGetObject(context, handle)->length;
 }
 
 jboolean fy_heapGetArrayBoolean(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
 
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -330,7 +320,7 @@ jboolean fy_heapGetArrayBoolean(fy_VMContext *context, jint handle, jint index,
 }
 jint fy_heapGetArrayHandle(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -339,7 +329,7 @@ jint fy_heapGetArrayHandle(fy_VMContext *context, jint handle, jint index,
 }
 jbyte fy_heapGetArrayByte(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -349,15 +339,14 @@ jbyte fy_heapGetArrayByte(fy_VMContext *context, jint handle, jint index,
 
 jbyte *fy_heapGetArrayBytes(fy_VMContext *context, jint handle,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	CHECK_NPT(0)
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);CHECK_NPT(0)
 	return obj->data.bdata;
 }
 
 jshort fy_heapGetArrayShort(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -366,7 +355,7 @@ jshort fy_heapGetArrayShort(fy_VMContext *context, jint handle, jint index,
 }
 jchar fy_heapGetArrayChar(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -375,7 +364,7 @@ jchar fy_heapGetArrayChar(fy_VMContext *context, jint handle, jint index,
 }
 jint fy_heapGetArrayInt(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -384,7 +373,7 @@ jint fy_heapGetArrayInt(fy_VMContext *context, jint handle, jint index,
 }
 jlong fy_heapGetArrayLong(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -393,7 +382,7 @@ jlong fy_heapGetArrayLong(fy_VMContext *context, jint handle, jint index,
 }
 jfloat fy_heapGetArrayFloat(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -402,7 +391,7 @@ jfloat fy_heapGetArrayFloat(fy_VMContext *context, jint handle, jint index,
 }
 jdouble fy_heapGetArrayDouble(fy_VMContext *context, jint handle, jint index,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT(0)CHECK_IOOB(0)
@@ -412,7 +401,7 @@ jdouble fy_heapGetArrayDouble(fy_VMContext *context, jint handle, jint index,
 
 void fy_heapPutArrayBoolean(fy_VMContext *context, jint handle, jint index,
 		jboolean value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -421,7 +410,7 @@ void fy_heapPutArrayBoolean(fy_VMContext *context, jint handle, jint index,
 }
 void fy_heapPutArrayHandle(fy_VMContext *context, jint handle, jint index,
 		jint value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -430,7 +419,7 @@ void fy_heapPutArrayHandle(fy_VMContext *context, jint handle, jint index,
 }
 void fy_heapPutArrayByte(fy_VMContext *context, jint handle, jint index,
 		jbyte value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -439,7 +428,7 @@ void fy_heapPutArrayByte(fy_VMContext *context, jint handle, jint index,
 }
 void fy_heapPutArrayShort(fy_VMContext *context, jint handle, jint index,
 		jshort value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -448,7 +437,7 @@ void fy_heapPutArrayShort(fy_VMContext *context, jint handle, jint index,
 }
 void fy_heapPutArrayChar(fy_VMContext *context, jint handle, jint index,
 		jchar value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -457,7 +446,7 @@ void fy_heapPutArrayChar(fy_VMContext *context, jint handle, jint index,
 }
 void fy_heapPutArrayInt(fy_VMContext *context, jint handle, jint index,
 		jint value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -466,7 +455,7 @@ void fy_heapPutArrayInt(fy_VMContext *context, jint handle, jint index,
 }
 void fy_heapPutArrayLong(fy_VMContext *context, jint handle, jint index,
 		jlong value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -475,7 +464,7 @@ void fy_heapPutArrayLong(fy_VMContext *context, jint handle, jint index,
 }
 void fy_heapPutArrayFloat(fy_VMContext *context, jint handle, jint index,
 		jfloat value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -484,7 +473,7 @@ void fy_heapPutArrayFloat(fy_VMContext *context, jint handle, jint index,
 }
 void fy_heapPutArrayDouble(fy_VMContext *context, jint handle, jint index,
 		jdouble value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
 	CHECK_NPT()CHECK_IOOB()
@@ -494,81 +483,72 @@ void fy_heapPutArrayDouble(fy_VMContext *context, jint handle, jint index,
 
 jboolean fy_heapGetFieldBoolean(fy_VMContext *context, jint handle,
 		fy_field *field, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return (jboolean) obj->data.idata[field->posAbs];
 }
 jint fy_heapGetFieldHandle(fy_VMContext *context, jint handle, fy_field *field,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return (jint) obj->data.idata[field->posAbs];
 }
 jbyte fy_heapGetFieldByte(fy_VMContext *context, jint handle, fy_field *field,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return (jbyte) obj->data.idata[field->posAbs];
 }
 jshort fy_heapGetFieldShort(fy_VMContext *context, jint handle, fy_field *field,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return (jshort) obj->data.idata[field->posAbs];
 }
 jchar fy_heapGetFieldChar(fy_VMContext *context, jint handle, fy_field *field,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return (jchar) obj->data.idata[field->posAbs];
 }
 jint fy_heapGetFieldInt(fy_VMContext *context, jint handle, fy_field *field,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return (jint) obj->data.idata[field->posAbs];
 }
 jlong fy_heapGetFieldLong(fy_VMContext *context, jint handle, fy_field *field,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return fy_I2TOL(obj->data.idata[field->posAbs],obj->data.idata[field->posAbs+1]);
 }
 jfloat fy_heapGetFieldFloat(fy_VMContext *context, jint handle, fy_field *field,
 		fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return *((jfloat*) ((obj->data.idata) + (field->posAbs)));
 }
 jdouble fy_heapGetFieldDouble(fy_VMContext *context, jint handle,
 		fy_field *field, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
 	return fy_longToDouble(
@@ -577,63 +557,56 @@ jdouble fy_heapGetFieldDouble(fy_VMContext *context, jint handle,
 
 void fy_heapPutFieldBoolean(fy_VMContext *context, jint handle, fy_field *field,
 		jboolean value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	obj->data.idata[field->posAbs] = value;
 }
 void fy_heapPutFieldHandle(fy_VMContext *context, jint handle, fy_field *field,
 		jint value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	obj->data.idata[field->posAbs] = value;
 }
 void fy_heapPutFieldByte(fy_VMContext *context, jint handle, fy_field *field,
 		jbyte value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	obj->data.idata[field->posAbs] = value;
 }
 void fy_heapPutFieldShort(fy_VMContext *context, jint handle, fy_field *field,
 		jshort value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	obj->data.idata[field->posAbs] = value;
 }
 void fy_heapPutFieldChar(fy_VMContext *context, jint handle, fy_field *field,
 		jchar value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	obj->data.idata[field->posAbs] = value;
 }
 void fy_heapPutFieldInt(fy_VMContext *context, jint handle, fy_field *field,
 		jint value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	obj->data.idata[field->posAbs] = value;
 }
 void fy_heapPutFieldLong(fy_VMContext *context, jint handle, fy_field *field,
 		jlong value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	obj->data.idata[field->posAbs] = (jint) (value >> 32);
@@ -641,19 +614,17 @@ void fy_heapPutFieldLong(fy_VMContext *context, jint handle, fy_field *field,
 }
 void fy_heapPutFieldFloat(fy_VMContext *context, jint handle, fy_field *field,
 		jfloat value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	fy_object *obj = fy_heapGetObject(context, handle);
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	obj->data.idata[field->posAbs] = fy_floatToInt(value);
 }
 void fy_heapPutFieldDouble(fy_VMContext *context, jint handle, fy_field *field,
 		jdouble value, fy_exception *exception) {
-	fy_object *obj = context->objects + handle;
+	fy_object *obj = fy_heapGetObject(context, handle);
 	jlong longValue;
-	ASSERT(obj->clazz!=NULL);
-	ASSERT(validate(context,handle,field));
+	ASSERT(obj->clazz!=NULL);ASSERT(validate(context,handle,field));
 
 	CHECK_NPT()
 	longValue = fy_doubleToLong(value);

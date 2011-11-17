@@ -312,7 +312,7 @@ void testThread() {
 		break;
 	default:
 	case message_continue:
-		printf("Invalid message type %d", message.messageType);
+		printf("Invalid message type %d\n", message.messageType);
 		break;
 	}CU_ASSERT_EQUAL(message.messageType, message_thread_dead);
 }

@@ -30,6 +30,8 @@ void fy_heapRelease(fy_VMContext *context, juint handle);
 int fy_heapAllocate(fy_VMContext *context, fy_class *clazz,
 		fy_exception *exception);
 
+#define fy_heapGetObject(CONTEXT,HANDLE) ((CONTEXT)->objects+(HANDLE))
+
 fy_class* fy_heapGetClassOfObject(fy_VMContext *context, jint handle);
 
 int fy_heapAllocateArray(fy_VMContext *context, fy_class *clazz, int length,
