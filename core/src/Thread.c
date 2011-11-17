@@ -760,7 +760,6 @@ void fy_threadGetFrameInfo(fy_VMContext *context, fy_thread *thread, char *out,
 
 static fy_frame *fy_threadPushFrame(fy_VMContext *context, fy_thread *thread,
 		fy_method *invoke) {
-	/*TODO*/
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	juint sb, sp;
 	if (frame == NULL) {
@@ -936,8 +935,6 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 
 	frame = fy_threadCurrentFrame(context, thread);
 	while (opCount < ops) {
-//move current frame data to local
-		//TODO move
 		if (frame == NULL) {
 			/*Time to quit!*/
 			if (thread->currentThrowable) {
