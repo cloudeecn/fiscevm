@@ -409,6 +409,7 @@ typedef struct fy_frame{
 	juint methodId;
 	juint sp;
 	juint pc;
+	juint lpc;
 } fy_frame;
 
 typedef struct fy_thread {
@@ -444,14 +445,17 @@ typedef struct fy_exception {
 	char exceptionDesc[64];
 } fy_exception;
 
+typedef enum fy_messageType {
+	message_continue,
+	/*message_frameChange,*/
+	message_none,
+	message_thread_dead,
+	message_invoke_native,
+	message_exception
+} fy_messageType;
+
 typedef struct fy_message {
-	enum messageType {
-		message_continue,
-		message_none,
-		message_thread_dead,
-		message_invoke_native,
-		message_exception
-	} messageType;
+	fy_messageType messageType;
 	union {
 		fy_method *nativeMethod;
 		fy_exception exception;

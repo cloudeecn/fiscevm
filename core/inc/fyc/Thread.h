@@ -260,72 +260,22 @@ extern "C" {
 void fy_threadSetCurrentThrowable(fy_VMContext *context, fy_thread *thread,
 		jint handle, fy_exception *exception);
 
-void fy_threadPushFrame(fy_VMContext *context, fy_thread *thread,
-		fy_method *method);
-
 void fy_threadMonitorEnter(fy_VMContext *context, fy_thread *thread,
 		jint handle);
 
 void fy_threadMonitorExit(fy_VMContext *context, fy_thread *thread, jint handle);
 
-#if 0
-void fy_threadPutLocalType(fy_VMContext *context, fy_thread *thread, int pos,
-		jint value, jbyte type);
-
-void fy_threadPutLocalHandle(fy_VMContext *context, fy_thread *thread, int pos,
-		jint handle);
-
-void fy_threadPutLocalInt(fy_VMContext *context, fy_thread *thread, int pos,
-		jint value);
-
-void fy_threadPutLocalLong(fy_VMContext *context, fy_thread *thread, int pos,
-		jlong value);
-
-void fy_threadPutLocalReturn(fy_VMContext *context, fy_thread *thread, int pos,
-		jint value);
-
-jint fy_threadGetLocalType(fy_VMContext *context, fy_thread *thread, int pos,
-		jbyte *type);
-
-jint fy_threadGetLocalHandle(fy_VMContext *context, fy_thread *thread, int pos);
-
-jint fy_threadGetLocalInt(fy_VMContext *context, fy_thread *thread, int pos);
-
-jlong fy_threadGetLocalLong(fy_VMContext *context, fy_thread *thread, int pos);
-
-jint fy_threadGetLocalReturn(fy_VMContext *context, fy_thread *thread, int pos);
-#endif
-
-void fy_threadPushType(fy_VMContext *context, fy_thread *thread, jint value,
-		jbyte type);
-
-void fy_threadPushHandle(fy_VMContext *context, fy_thread *thread, jint value);
-
-void fy_threadPushInt(fy_VMContext *context, fy_thread *thread, jint value);
-
-void fy_threadPushFloat(fy_VMContext *context, fy_thread *thread, jfloat value);
-
-void fy_threadPushLong(fy_VMContext *context, fy_thread *thread, jlong value);
-
-void fy_threadPushDouble(fy_VMContext *context, fy_thread *thread,
-		jdouble value);
-
-jint fy_threadPopType(fy_VMContext *context, fy_thread *thread, jbyte *type);
-
-jint fy_threadPopHandle(fy_VMContext *context, fy_thread *thread);
-
-jint fy_threadPopInt(fy_VMContext *context, fy_thread *thread);
-
-jfloat fy_threadPopFloat(fy_VMContext *context, fy_thread *thread);
-
-jlong fy_threadPopLong(fy_VMContext *context, fy_thread *thread);
-
-jdouble fy_threadPopDouble(fy_VMContext *context, fy_thread *thread);
-
 void fy_threadInit(fy_VMContext *context, fy_thread *thread);
 
-void fy_threadGetFrameInfo(fy_VMContext *context, fy_thread *thread, char *out,
-		size_t outSize);
+void fy_nativeReturnInt(fy_VMContext *context,fy_thread *thread,jint value);
+
+void fy_nativeReturnHandle(fy_VMContext *context,fy_thread *thread,jint value);
+
+void fy_nativeReturnLong(fy_VMContext *context,fy_thread *thread,jlong value);
+
+#define fy_nativeReturnFloat(C,T,V) fy_nativeReturnInt(C,T,fy_floatToInt(V))
+
+#define fy_nativeReturnDouble(C,T,V) fy_nativeReturnInt(C,T,fy_doubleToLong(V))
 
 fy_method *fy_threadGetCurrentMethod(fy_VMContext *context, fy_thread *thread);
 
