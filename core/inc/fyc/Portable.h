@@ -62,13 +62,13 @@ typedef long long jlong;
 
 #if __STDC_VERSION__ >= 199901L
 # define _C99
-# define _C_EXT
 # define _FY_RESTRICT restrict
 #else
-# ifdef __GNUC__
-#  define _C_EXT
-# endif
 # define _FY_RESTRICT
+#endif
+
+#if defined(_C99) || defined(__GNUC__)
+# define _FY_LATE_DECLARATION
 #endif
 
 #if 1
