@@ -350,7 +350,7 @@ static jint processThrowable(fy_VMContext *context, fy_frame *frame,
 	jint i, imax;
 	struct ExceptionTable *handlers;
 	struct ExceptionTable *handler;
-	jint target;
+	jint target = 0;
 	DLOG("EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 	throwableClass = fy_heapGetClassOfObject(context, handle);
 	handlers = frame->method->exception_table;
@@ -910,14 +910,14 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 	juint ivalue, ivalue2, ivalue3, ivalue4;
 	int i;
 	julong lvalue, lvalue2;
-	jdouble dvalue1, dvalue2;
-	jfloat fvalue1, fvalue2;
+	jdouble dvalue, dvalue2;
+	jfloat fvalue, fvalue2;
 	fy_method *mvalue;
 	fy_field *field = NULL;
 	fy_class *clazz1 = NULL, *clazz2 = NULL, *clinitClazz;
 	jchar ch1;
 	fy_str str1;
-	jbyte type, type2, type3, type4;
+	juint type, type2, type3, type4;
 	jint *pivalue, *pivalue2;
 	fy_str *pstr1;
 	jboolean bvalue1;
@@ -1536,12 +1536,12 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			}
 			case DADD: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1, dvalue2;
+				jdouble dvalue, dvalue2;
 				julong lvalue;
 #endif
-				fy_threadPopDouble(dvalue1);
+				fy_threadPopDouble(dvalue);
 				fy_threadPopDouble(dvalue2);
-				lvalue = fy_doubleToLong(dvalue1 + dvalue2);
+				lvalue = fy_doubleToLong(dvalue + dvalue2);
 				fy_threadPushLong(lvalue);
 				break;
 			}
@@ -1582,30 +1582,30 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			}
 			case DCMPG: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1, dvalue2;
+				jdouble dvalue, dvalue2;
 #endif
 				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue1);
-				if (fy_isnand(dvalue1) || fy_isnand(dvalue2)) {
+				fy_threadPopDouble(dvalue);
+				if (fy_isnand(dvalue) || fy_isnand(dvalue2)) {
 					fy_threadPushInt( 1);
 				} else {
 					fy_threadPushInt(
-							dvalue1 == dvalue2 ? 0 : (dvalue1 - dvalue2 > 0) ? 1 : -1);
+							dvalue == dvalue2 ? 0 : (dvalue - dvalue2 > 0) ? 1 : -1);
 
 				}
 				break;
 			}
 			case DCMPL: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1, dvalue2;
+				jdouble dvalue, dvalue2;
 #endif
 				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue1);
-				if (fy_isnand(dvalue1) || fy_isnand(dvalue2)) {
+				fy_threadPopDouble(dvalue);
+				if (fy_isnand(dvalue) || fy_isnand(dvalue2)) {
 					fy_threadPushInt( -1);
 				} else {
 					fy_threadPushInt(
-							dvalue1 == dvalue2 ? 0 : (dvalue1 - dvalue2 > 0) ? 1 : -1);
+							dvalue == dvalue2 ? 0 : (dvalue - dvalue2 > 0) ? 1 : -1);
 
 				}
 				break;
@@ -1620,49 +1620,49 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			}
 			case DDIV: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1, dvalue2;
+				jdouble dvalue, dvalue2;
 				julong lvalue;
 #endif
 				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue1);
-				lvalue = fy_doubleToLong(dvalue1 / dvalue2);
+				fy_threadPopDouble(dvalue);
+				lvalue = fy_doubleToLong(dvalue / dvalue2);
 				fy_threadPushLong(lvalue);
 				break;
 			}
 			case DMUL: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1, dvalue2;
+				jdouble dvalue, dvalue2;
 				julong lvalue;
 #endif
 				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue1);
-				lvalue = fy_doubleToLong(dvalue1 * dvalue2);
+				fy_threadPopDouble(dvalue);
+				lvalue = fy_doubleToLong(dvalue * dvalue2);
 				fy_threadPushLong(lvalue);
 				break;
 			}
 			case DNEG: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1;
+				jdouble dvalue;
 				julong lvalue;
 #endif
-				fy_threadPopDouble(dvalue1);
-				lvalue = fy_doubleToLong(-dvalue1);
+				fy_threadPopDouble(dvalue);
+				lvalue = fy_doubleToLong(-dvalue);
 				fy_threadPushLong(lvalue);
 				break;
 			}
 			case DREM: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1, dvalue2;
+				jdouble dvalue, dvalue2;
 				julong lvalue;
 #endif
 				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue1);
+				fy_threadPopDouble(dvalue);
 				if (dvalue2 == 0) {
 					lvalue = fy_doubleToLong(0.0 / dvalue2);
 					fy_threadPushLong(lvalue);
 				} else {
 					lvalue = fy_doubleToLong(
-							dvalue1 - floor(dvalue1 / dvalue2) * dvalue2);
+							dvalue - floor(dvalue / dvalue2) * dvalue2);
 					fy_threadPushLong( lvalue);
 				}
 
@@ -1670,9 +1670,9 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			}
 			case DRETURN: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1;
+				jdouble dvalue;
 #endif
-				fy_threadPopDouble(dvalue1);
+				fy_threadPopDouble(dvalue);
 				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
 					if (method->access_flags & fy_ACC_STATIC) {
 						fy_threadMonitorExit(context, thread,
@@ -1682,18 +1682,18 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					}
 				}fy_localToFrame(frame);
 				frame = fy_threadPopFrame(context, thread);
-				fy_nativeReturnDouble(context, thread, dvalue1);
+				fy_nativeReturnDouble(context, thread, dvalue);
 				fallout = fallout_invoke;
 				break;
 			}
 			case DSUB: {
 #ifdef _FY_LATE_DECLARATION
-				jdouble dvalue1, dvalue2;
+				jdouble dvalue, dvalue2;
 				julong lvalue;
 #endif
 				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue1);
-				lvalue = fy_doubleToLong(dvalue1 - dvalue2);
+				fy_threadPopDouble(dvalue);
+				lvalue = fy_doubleToLong(dvalue - dvalue2);
 				fy_threadPushLong(lvalue);
 				break;
 			}
@@ -1825,29 +1825,29 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			}
 			case FCMPG: {
 #ifdef _FY_LATE_DECLARATION
-				jfloat fvalue1, fvalue2;
+				jfloat fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue1);
-				if (fy_isnanf(fvalue1) || fy_isnanf(fvalue2)) {
+				fy_threadPopFloat(fvalue);
+				if (fy_isnanf(fvalue) || fy_isnanf(fvalue2)) {
 					fy_threadPushInt(1);
 				} else {
 					fy_threadPushInt(
-							fvalue1 == fvalue2 ? 0 : (fvalue1 - fvalue2 > 0) ? 1 : -1);
+							fvalue == fvalue2 ? 0 : (fvalue - fvalue2 > 0) ? 1 : -1);
 				}
 				break;
 			}
 			case FCMPL: {
 #ifdef _FY_LATE_DECLARATION
-				jfloat fvalue1, fvalue2;
+				jfloat fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue1);
-				if (fy_isnanf(fvalue1) || fy_isnanf(fvalue2)) {
+				fy_threadPopFloat(fvalue);
+				if (fy_isnanf(fvalue) || fy_isnanf(fvalue2)) {
 					fy_threadPushInt(-1);
 				} else {
 					fy_threadPushInt(
-							fvalue1 == fvalue2 ? 0 : (fvalue1 - fvalue2 > 0) ? 1 : -1);
+							fvalue == fvalue2 ? 0 : (fvalue - fvalue2 > 0) ? 1 : -1);
 				}
 				break;
 			}
@@ -1865,51 +1865,51 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			}
 			case FDIV: {
 #ifdef _FY_LATE_DECLARATION
-				jfloat fvalue1, fvalue2;
+				jfloat fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue1);
-				fy_threadPushInt(fy_floatToInt(fvalue1 / fvalue2));
+				fy_threadPopFloat(fvalue);
+				fy_threadPushInt(fy_floatToInt(fvalue / fvalue2));
 				break;
 			}
 			case FMUL: {
 #ifdef _FY_LATE_DECLARATION
-				jfloat fvalue1, fvalue2;
+				jfloat fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue1);
-				fy_threadPushInt(fy_floatToInt(fvalue1 * fvalue2));
+				fy_threadPopFloat(fvalue);
+				fy_threadPushInt(fy_floatToInt(fvalue * fvalue2));
 				break;
 			}
 			case FNEG: {
 #ifdef _FY_LATE_DECLARATION
-				jfloat fvalue1;
+				jfloat fvalue;
 #endif
-				fy_threadPopFloat(fvalue1);
-				fy_threadPushInt(fy_floatToInt(-fvalue1));
+				fy_threadPopFloat(fvalue);
+				fy_threadPushInt(fy_floatToInt(-fvalue));
 				break;
 			}
 			case FREM: {
 #ifdef _FY_LATE_DECLARATION
-				jfloat fvalue1, fvalue2;
+				jfloat fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue1);
+				fy_threadPopFloat(fvalue);
 				if (fvalue2 == 0) {
 					fy_threadPushInt(fy_floatToInt( 0.0f / fvalue2));
 				} else {
 					fy_threadPushInt(
-							fy_floatToInt( fvalue1 - (float) floor(fvalue1 / fvalue2) * fvalue2));
+							fy_floatToInt( fvalue - (float) floor(fvalue / fvalue2) * fvalue2));
 				}
 				break;
 			}
 			case FSUB: {
 #ifdef _FY_LATE_DECLARATION
-				jfloat fvalue1, fvalue2;
+				jfloat fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue1);
-				fy_threadPushInt(fy_floatToInt(fvalue1 - fvalue2));
+				fy_threadPopFloat(fvalue);
+				fy_threadPushInt(fy_floatToInt(fvalue - fvalue2));
 				break;
 			}
 			case GETFIELD: {
@@ -3408,6 +3408,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					pstr1 = context->sArrayLong;
 					break;
 				default:
+					pstr1 = NULL; /*make compiler happy*/
 					message->messageType = message_exception;
 					fallout = fallout_noinvoke;
 					exception->exceptionType = exception_normal;
