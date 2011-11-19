@@ -90,9 +90,9 @@ typedef long long jlong;
 #endif
 
 #if defined(_WIN32)
-#define PRINT64 "I64"
-#elif defined(_POSIX_SOURCE) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
-#define PRINT64 "ll"
+# define PRINT64 "I64"
+#else
+# define PRINT64 "ll"
 #endif
 
 #define fy_I2TOL(I1,I2) ((jlong)(((julong)(I1)<<32) + ((julong)(I2))))
