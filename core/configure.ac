@@ -54,7 +54,8 @@ AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[floor])
-AC_CHECK_LIB([cunit],[CU_initialize_registry])
+AC_CHECK_LIB([cunit],[CU_initialize_registry],
+  [fy_test=$enableval])
 # Checks for header files.
 AC_CHECK_HEADERS([float.h memory.h stdlib.h string.h sys/time.h unistd.h])
 
