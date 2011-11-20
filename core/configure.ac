@@ -3,6 +3,8 @@
 
 AC_INIT(libfisce, 0.01, cloudeecn@gmail.com)
 AM_INIT_AUTOMAKE()
+AC_CONFIG_HEADERS([inc/fiscecon.h])
+AC_CONFIG_SRCDIR(src/VMContext.c)
 
 AC_ARG_ENABLE(debug,
   [AS_HELP_STRING([--enable-debug],[enable debugging [default=no]])],
