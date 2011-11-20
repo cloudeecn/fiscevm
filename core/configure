@@ -11430,12 +11430,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_cunit_CU_initialize_registry" >&5
 $as_echo "$ac_cv_lib_cunit_CU_initialize_registry" >&6; }
 if test "x$ac_cv_lib_cunit_CU_initialize_registry" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCUNIT 1
-_ACEOF
-
-  LIBS="-lcunit $LIBS"
-
+  fy_test=$enableval
 fi
 
 # Checks for header files.

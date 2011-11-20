@@ -182,7 +182,7 @@ top_srcdir = @top_srcdir@
 fiscetest_SOURCES = \
 	Test.c
 
-fiscetest_LDADD = ../src/libfisce.la
+fiscetest_LDADD = ../src/libfisce.la -lcunit
 all: all-am
 
 .SUFFIXES:
