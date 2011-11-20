@@ -18,6 +18,10 @@
 #ifndef FY_HARDWARE_H_
 #define FY_HARDWARE_H_
 
+#include "../fiscecon.h"
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include<memory.h>
 #include<stdlib.h>
 #include<stdio.h>

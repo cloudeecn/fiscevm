@@ -69,7 +69,7 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([floor memset])
 
 #params
-CFLAGS="$CFLAGS -fpic -Wall -I${PWD}/inc/"
+CFLAGS="$CFLAGS -fPIC -Wall"
 
 
 AC_CONFIG_FILES(Makefile src/Makefile inc/Makefile test/Makefile)
