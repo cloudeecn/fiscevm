@@ -72,6 +72,10 @@ typedef long long jlong;
 #endif
 
 #if 1
+#define _FY_GOTO
+#endif
+
+#if 1
 #define FY_FASTCALL __fastcall
 #else
 #define FY_FASTCALL

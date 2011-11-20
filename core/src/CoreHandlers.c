@@ -273,7 +273,6 @@ static void VMDoubleToString(struct fy_VMContext *context,
 	fy_str *str;
 	char ch[64];
 	sprintf_s(ch, sizeof(ch), "%f", dvalue);
-	DLOG("DTOS: %s", ch);
 	str = fy_strAllocateFromUTF8(context, ch);
 	handleRet = fy_heapMakeString(context, str, exception);
 	fy_strRelease(context, str);
@@ -304,7 +303,6 @@ static void VMFloatToString(struct fy_VMContext *context,
 	fy_str *str;
 	char ch[64];
 	sprintf_s(ch, sizeof(ch), "%f", fvalue);
-	DLOG("FTOS: %s", ch);
 	str = fy_strAllocateFromUTF8(context, ch);
 	handleRet = fy_heapMakeString(context, str, exception);
 	fy_strRelease(context, str);

@@ -32,7 +32,7 @@ extern "C" {
 #define EDEN_SIZE 65536
 #define COPY_SIZE 1048576
 #define OLD_ENTRIES 16384
-#define STACK_SIZE 525288
+#define STACK_SIZE 16384
 #define MAX_FRAMES 256
 
 #define CLASS_OBJ 0

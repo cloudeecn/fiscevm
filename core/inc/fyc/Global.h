@@ -38,16 +38,16 @@
 extern "C" {
 #endif
 
-jchar *fy_gCBoolean;
-jchar *fy_gCByte;
-jchar *fy_gCShort;
-jchar *fy_gCChar;
-jchar *fy_gCInt;
-jchar *fy_gCFloat;
-jchar *fy_gCLong;
-jchar *fy_gCDouble;
-jchar *fy_gCArray;
-julong fy_gInited;
+extern jchar *fy_gCBoolean;
+extern jchar *fy_gCByte;
+extern jchar *fy_gCShort;
+extern jchar *fy_gCChar;
+extern jchar *fy_gCInt;
+extern jchar *fy_gCFloat;
+extern jchar *fy_gCLong;
+extern jchar *fy_gCDouble;
+extern jchar *fy_gCArray;
+extern julong fy_gInited;
 
 void fy_gInit();
 void fy_gDestroy();

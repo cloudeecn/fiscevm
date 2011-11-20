@@ -18,7 +18,7 @@
 #include "fyc/VMPortable.h"
 #if defined(_WIN32)
 #include <windows.h>
-#elif defined(_POSIX_SOURCE) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 #include <sys/time.h>
 #include <unistd.h>
 #endif
@@ -29,7 +29,7 @@ typedef struct PortableData {
 	LARGE_INTEGER lpFreq;
 	LARGE_INTEGER lpPerfCountBegin;
 	double perfIdv;
-#elif defined(_POSIX_SOURCE) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tvBeginTime;
 #endif
 } PortableData;
@@ -43,7 +43,7 @@ void fy_portInit(fy_VMContext *context) {
 	QueryPerformanceFrequency(&(pd->lpFreq));
 	QueryPerformanceCounter(&(pd->lpPerfCountBegin));
 	pd->perfIdv = 1000000000.0 / pd->lpFreq.QuadPart;
-#elif defined(_POSIX_SOURCE) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	gettimeofday(&(pd->tvBeginTime),NULL);
 #endif
 }
@@ -54,7 +54,6 @@ void fy_portDestroy(fy_VMContext *context) {
 }
 jlong fy_portTimeMillSec(fy_VMContext *context) {
 	PortableData *pd = (PortableData*) (context->portableData);
-	printf("TIMEMS!!!!\n");
 #if defined(_WIN32)
 	jlong timeDelta;
 	LARGE_INTEGER lPerfCount;
@@ -62,7 +61,7 @@ jlong fy_portTimeMillSec(fy_VMContext *context) {
 	timeDelta = lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart;
 	timeDelta = timeDelta * 1000 / pd->lpFreq.QuadPart;
 	return timeDelta + pd->initTimeInMillSec;
-#elif defined(_POSIX_SOURCE) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
 	gettimeofday(&tv,NULL);
 	return ((jlong)tv.tv_sec)*1000+((jlong)tv.tv_usec)/1000;
@@ -76,7 +75,7 @@ jlong fy_portTimeNanoSec(fy_VMContext *context) {
 	QueryPerformanceCounter(&lPerfCount);
 	return (jlong) ((lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart)
 			* pd->perfIdv);
-#elif defined(_POSIX_SOURCE) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
 	gettimeofday(&tv,NULL);
 	return ((jlong)tv.tv_sec)*1000000000+((jlong)tv.tv_usec)*1000;
