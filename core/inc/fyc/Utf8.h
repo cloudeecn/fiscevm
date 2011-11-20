@@ -14,8 +14,8 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef UTF8_H_
-#define UTF8_H_
+#ifndef FY_UTF8_H_
+#define FY_UTF8_H_
 #include "Portable.h"
 #ifdef	__cplusplus
 extern "C" {
@@ -35,4 +35,4 @@ int fy_utf8Write(jchar unicode, char **to, jint *left);
 }
 #endif
 
-#endif /* UTF8_H_ */
+#endif /* FY_UTF8_H_ */

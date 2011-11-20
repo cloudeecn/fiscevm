@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef THREADMANAGER_H_
-#define THREADMANAGER_H_
+#ifndef FY_THREADMANAGER_H_
+#define FY_THREADMANAGER_H_
 
 #include "VMContext.h"
 
@@ -24,5 +24,5 @@ fy_message fy_tmRun(fy_VMContext *context);
 void fy_tmMonitorEnter(fy_VMContext *context,fy_thread *thread,jint monitorId);
 void fy_tmMonitorExit(fy_VMContext *context,fy_thread *thread,jint monitorId);
 
-#endif /* THREADMANAGER_H_ */
+#endif /* FY_THREADMANAGER_H_ */
 

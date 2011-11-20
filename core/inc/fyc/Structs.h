@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STRUCTS_H_
-#define STRUCTS_H_
+#ifndef FY_STRUCTS_H_
+#define FY_STRUCTS_H_
 
 #include "Portable.h"
 
@@ -566,4 +566,4 @@ typedef struct fy_nh {
 #ifdef	__cplusplus
 }
 #endif
-#endif /* STRUCTS_H_ */
+#endif /* FY_STRUCTS_H_ */

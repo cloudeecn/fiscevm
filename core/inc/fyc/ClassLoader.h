@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLASSLOADER_H
-#define	CLASSLOADER_H
+#ifndef FY_CLASSLOADER_H
+#define	FY_CLASSLOADER_H
 
 #include "Portable.h"
 #include "Structs.h"
@@ -49,5 +49,5 @@ void fy_clCloseResource(fy_VMContext *context, fy_data *data);
 }
 #endif
 
-#endif	/* CLASSLOADER_H */
+#endif	/* FY_CLASSLOADER_H */
 

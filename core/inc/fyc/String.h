@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STRING_H_
-#define STRING_H_
+#ifndef FY_STRING_H_
+#define FY_STRING_H_
 
 #include "Portable.h"
 #include "Structs.h"
@@ -62,4 +62,4 @@ fy_str *fy_strAllocateClone(fy_VMContext *context, fy_str *from);
 }
 #endif
 
-#endif /* STRING_H_ */
+#endif /* FY_STRING_H_ */

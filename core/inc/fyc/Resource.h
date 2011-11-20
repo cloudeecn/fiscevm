@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RESOURCE_H_
-#define RESOURCE_H_
+#ifndef FY_RESOURCE_H_
+#define FY_RESOURCE_H_
 
 #include "Portable.h"
 #include "Data.h"
@@ -32,4 +32,4 @@ void fy_resourceReleaseData(fy_VMContext *context, fy_data *data);
 #ifdef	__cplusplus
 }
 #endif
-#endif /* RESOURCE_H_ */
+#endif /* FY_RESOURCE_H_ */

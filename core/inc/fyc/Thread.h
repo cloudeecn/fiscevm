@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef THREAD_H_
-#define THREAD_H_
+#ifndef FY_THREAD_H_
+#define FY_THREAD_H_
 
 #include <math.h>
 #include <float.h>
@@ -293,4 +293,4 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 #ifdef	__cplusplus
 }
 #endif
-#endif /* HEAP_H_ */
+#endif /* FY_HEAP_H_ */

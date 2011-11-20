@@ -1,5 +1,5 @@
-lib_LIBRARIES=libfisce.a
-libfisce_a_SOURCES = \
+lib_LTLIBRARIES=libfisce.la
+libfisce_la_SOURCES = \
 	Class.c \
 	ClassLoader.c \
 	CoreHandlers.c \

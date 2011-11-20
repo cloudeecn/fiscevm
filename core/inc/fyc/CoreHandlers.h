@@ -17,8 +17,8 @@
 
 
 
-#ifndef COREHANDLERS_H_
-#define COREHANDLERS_H_
+#ifndef FY_COREHANDLERS_H_
+#define FY_COREHANDLERS_H_
 
 #include <float.h>
 #include "Structs.h"
@@ -37,4 +37,4 @@ void fy_coreRegisterCoreHandlers(fy_VMContext *context);
 }
 #endif
 
-#endif /* COREHANDLERS_H_ */
+#endif /* FY_COREHANDLERS_H_ */

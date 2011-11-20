@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GLOBAL_H_
-#define GLOBAL_H_
+#ifndef FY_GLOBAL_H_
+#define FY_GLOBAL_H_
 
 #include "Portable.h"
 #include "Structs.h"
@@ -55,4 +55,4 @@ void fy_gDestroy();
 #ifdef	__cplusplus
 }
 #endif
-#endif /* GLOBAL_H_ */
+#endif /* FY_GLOBAL_H_ */

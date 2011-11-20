@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HEAP_H_
-#define HEAP_H_
+#ifndef FY_HEAP_H_
+#define FY_HEAP_H_
 
 #include "Portable.h"
 #include "Structs.h"
@@ -167,4 +167,4 @@ void fy_heapPutStaticDouble(fy_VMContext *context, fy_field *field,
 #ifdef	__cplusplus
 }
 #endif
-#endif /* HEAP_H_ */
+#endif /* FY_HEAP_H_ */

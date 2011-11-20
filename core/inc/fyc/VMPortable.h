@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VMPORTABLE_H_
-#define VMPORTABLE_H_
+#ifndef FY_VMPORTABLE_H_
+#define FY_VMPORTABLE_H_
 
 #include "Structs.h"
 
@@ -33,4 +33,4 @@ jlong fy_portTimeNanoSec(fy_VMContext *context);
 }
 #endif
 
-#endif /* VMPORTABLE_H_ */
+#endif /* FY_VMPORTABLE_H_ */

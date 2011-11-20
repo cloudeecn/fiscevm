@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LINKEDLIST_H_
-#define LINKEDLIST_H_
+#ifndef FY_LINKEDLIST_H_
+#define FY_LINKEDLIST_H_
 
 #include "Portable.h"
 #include "Structs.h"
@@ -42,4 +42,4 @@ void fy_linkedListTraverse(fy_linkedList* list,
 }
 #endif
 
-#endif /* LINKEDLIST_H_ */
+#endif /* FY_LINKEDLIST_H_ */

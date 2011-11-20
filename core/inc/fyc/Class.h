@@ -14,8 +14,8 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CLASS_H_
-#define CLASS_H_
+#ifndef FY_CLASS_H_
+#define FY_CLASS_H_
 #include "Portable.h"
 #include "Structs.h"
 #include "VMContext.h"
@@ -45,4 +45,4 @@ jboolean fy_classIsSuperClassOf(fy_VMContext *context, fy_class *this,
 }
 #endif
 
-#endif /* CLASS_H_ */
+#endif /* FY_CLASS_H_ */

@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HARDWARE_H_
-#define HARDWARE_H_
+#ifndef FY_HARDWARE_H_
+#define FY_HARDWARE_H_
 
 #include<memory.h>
 #include<stdlib.h>
@@ -120,4 +120,4 @@ long int vm_getAllocated();
 #ifdef	__cplusplus
 }
 #endif
-#endif /* HARDWARE_H_ */
+#endif /* FY_HARDWARE_H_ */

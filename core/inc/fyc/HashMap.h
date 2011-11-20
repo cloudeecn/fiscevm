@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HASHMAP_H_
-#define HASHMAP_H_
+#ifndef FY_HASHMAP_H_
+#define FY_HASHMAP_H_
 
 #include "Portable.h"
 #include "Structs.h"
@@ -44,4 +44,4 @@ void fy_hashMapDestroy(fy_VMContext *context, fy_hashMap *this);
 }
 #endif
 
-#endif /* HASHMAP_H_ */
+#endif /* FY_HASHMAP_H_ */

@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATA_H
-#define	DATA_H
+#ifndef FY_DATA_H
+#define	FY_DATA_H
 
 #include "Structs.h"
 #include "Portable.h"
@@ -37,5 +37,5 @@ void fy_dataSkip(fy_data *data, int size);
 }
 #endif
 
-#endif	/* DATA_H */
+#endif	/* FY_DATA_H */
 

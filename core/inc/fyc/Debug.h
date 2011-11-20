@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEBUG_H_
-#define DEBUG_H_
+#ifndef FY_DEBUG_H_
+#define FY_DEBUG_H_
 
 #include "Portable.h"
 #include "Structs.h"
@@ -45,4 +45,4 @@ void varprintf(const char *format,...);
 }
 #endif
 
-#endif /* DEBUG_H_ */
+#endif /* FY_DEBUG_H_ */

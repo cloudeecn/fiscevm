@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VMCONTEXT_H_
-#define VMCONTEXT_H_
+#ifndef FY_VMCONTEXT_H_
+#define FY_VMCONTEXT_H_
 
 #include "Portable.h"
 #include "Global.h"
@@ -74,4 +74,4 @@ fy_class *fy_vmLookupClassFromExceptionHandler(fy_VMContext *context,
 #ifdef	__cplusplus
 }
 #endif
-#endif /* VMCONTEXT_H_ */
+#endif /* FY_VMCONTEXT_H_ */
