@@ -14,7 +14,7 @@ if test x"$cu_do_debug" = xyes ; then
 	ENABLE_DEBUG="TRUE"
 else
 	echo "---------- Disabling debug mode compilation."
-	CFLAGS="$CFLAGS -flto"
+	CFLAGS="$CFLAGS -O3"
 	ENABLE_DEBUG="FALSE"
 fi
 
