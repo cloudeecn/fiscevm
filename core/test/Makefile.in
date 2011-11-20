@@ -47,7 +47,7 @@ CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_fiscetest_OBJECTS = Test.$(OBJEXT)
 fiscetest_OBJECTS = $(am_fiscetest_OBJECTS)
-fiscetest_DEPENDENCIES = ../src/libfisce.a
+fiscetest_DEPENDENCIES = ../src/libfisce.la
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -182,7 +182,7 @@ top_srcdir = @top_srcdir@
 fiscetest_SOURCES = \
 	Test.c
 
-fiscetest_LDADD = ../src/libfisce.a
+fiscetest_LDADD = ../src/libfisce.la
 all: all-am
 
 .SUFFIXES:
