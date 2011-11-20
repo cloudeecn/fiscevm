@@ -6,9 +6,9 @@ AM_INIT_AUTOMAKE()
 
 AC_ARG_ENABLE(debug,
   [AS_HELP_STRING([--enable-debug],[enable debugging [default=no]])],
-  [cu_do_debug=$enableval],
-  [cu_do_debug="no"])
-if test x"$cu_do_debug" = xyes ; then
+  [fy_do_debug=$enableval],
+  [fy_do_debug="no"])
+if test x"$fy_do_debug" = xyes ; then
 	echo "++++++++++ Enabling debug mode compilation."
 	CFLAGS="$CFLAGS -D_DEBUG -g3 -O0"
 	ENABLE_DEBUG="TRUE"
@@ -20,15 +20,29 @@ fi
 
 AC_ARG_ENABLE(verbose,
   [AS_HELP_STRING([--enable-verbose],[enable verbose output for byte code executed [default=no]])],
-  [cu_do_verbose=$enableval],
-  [cu_do_verbose="no"])
-if test x"$cu_do_verbose" = xyes ; then
+  [fy_do_verbose=$enableval],
+  [fy_do_verbose="no"])
+if test x"$fy_do_verbose" = xyes ; then
 	echo "++++++++++ Enabling verbose mode compilation."
 	CFLAGS="$CFLAGS -DFY_VERBOSE"
 	ENABLE_VERBOSE="TRUE"
 else
-	echo "---------- Disabling verboxd mode compilation."
+	echo "---------- Disabling verbose mode compilation."
 	ENABLE_VERBOSe="FALSE"
+fi
+
+AC_ARG_ENABLE(lto,
+  [AS_HELP_STRING([--enable-lto],
+  [enable link time optimization, will greatly increase speed of accessing heap [default=no]])],
+  [fy_do_lto=$enableval],
+  [fy_do_lto="no"])
+if test x"$fy_do_lto" = xyes ; then
+	echo "++++++++++ Enabling link time optimization."
+	CFLAGS="$CFLAGS -flto"
+	ENABLE_LTO="TRUE"
+else
+	echo "---------- Disabling link time optimization."
+	ENABLE_LTO="FALSE"
 fi
 
 
@@ -37,6 +51,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[floor])
