@@ -319,6 +319,21 @@ static void throwableFillInStackTrace(struct fy_VMContext *context,
 	fy_threadFillException(context, thread, value, exception);
 }
 
+static void classGetName(struct fy_VMContext *context, struct fy_thread *thread,
+		void *data, juint *args, jint argsCount, fy_exception *exception) {
+	juint handle;
+	fy_object *obj = fy_heapGetObject(context,args[0]);
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	if (exception->exceptionType != exception_none) {
+		return;
+	}
+	handle = fy_heapMakeString(context, clazz->className, exception);
+	if (exception->exceptionType != exception_none) {
+		return;
+	}
+	fy_nativeReturnHandle(context, thread, handle);
+}
+
 void fy_coreRegisterCoreHandlers(fy_VMContext *context) {
 	fy_vmRegisterNativeHandler(
 			context,
@@ -402,4 +417,7 @@ void fy_coreRegisterCoreHandlers(fy_VMContext *context) {
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_THROWABLE".fillInStackTrace0.()V", NULL,
 			throwableFillInStackTrace);
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".getName0.()L"FY_BASE_STRING";", NULL, classGetName);
+
 }

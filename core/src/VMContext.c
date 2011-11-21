@@ -81,6 +81,8 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 		vm_die("Init global first!");
 	}
 
+	context->nextHandle = 1;
+
 	context->managedMemory = vm_allocate(sizeof(fy_linkedList));
 	fy_linkedListInit(context->managedMemory);
 
@@ -94,6 +96,8 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 	context->sDouble = fy_strAllocateFromUTF8(context, "double");
 	context->sTopClass = fy_strAllocateFromUTF8(context, FY_BASE_OBJECT);
 	context->sClassClass = fy_strAllocateFromUTF8(context, FY_BASE_CLASS);
+	context->sClassClassId = fy_strAllocateFromUTF8(context,
+			FY_BASE_CLASS".classId.I");
 	context->sClassThrowable = fy_strAllocateFromUTF8(context,
 			FY_BASE_THROWABLE);
 	context->sString = fy_strAllocateFromUTF8(context, FY_BASE_STRING);
@@ -185,7 +189,7 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 
 	context->literals = fy_vmAllocate(context, sizeof(fy_hashMap));
 	fy_hashMapInitSimple(context, context->literals);
-	context->nextHandle = 1;
+
 
 	fy_coreRegisterCoreHandlers(context);
 	fy_portInit(context);
@@ -430,6 +434,7 @@ fy_class *fy_vmLookupClass(fy_VMContext *context, fy_str *name,
 		fy_exception *exception) {
 	fy_class *clazz;
 	fy_class *clazz2;
+	fy_field *classIdField;
 	clazz = getClass(context, name);
 	if (clazz == NULL) {
 		clazz = fy_clLoadclass(context, name, exception);
@@ -449,9 +454,56 @@ fy_class *fy_vmLookupClass(fy_VMContext *context, fy_str *name,
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}
+		classIdField = fy_vmGetField(context, context->sClassClassId);
+		if (exception->exceptionType != exception_none) {
+			return NULL;
+		}
+		fy_heapPutFieldInt(context, clazz->classObjId, classIdField,
+				clazz->classId, exception);
+		if (exception->exceptionType != exception_none) {
+			return NULL;
+		}
 	}
 	return clazz;
 }
+
+fy_class *fy_vmGetClassFromClassObject(fy_VMContext *context, juint handle,
+		fy_exception *exception) {
+	fy_class *classClass;
+	fy_class *inputClass;
+	fy_class *ret;
+	jint classId;
+	fy_field *classIdField;
+	inputClass = fy_heapGetClassOfObject(context, handle);
+	classClass = fy_vmLookupClass(context, context->sClassClass, exception);
+	if (exception->exceptionType != exception_none) {
+		return NULL;
+	}
+	if (inputClass != classClass) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/VirtualMachineError");
+		strcpy_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"Get class ID for non-class object");
+		return NULL;
+	}
+	classIdField = fy_vmGetField(context, context->sClassClassId);
+	if (classIdField == NULL) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/VirtualMachineError");
+		strcpy_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"Can't find field for classId in "FY_BASE_CLASS);
+		return NULL;
+	}
+	classId = fy_heapGetFieldInt(context, handle, classIdField, exception);
+	if (exception->exceptionType != exception_none) {
+		return NULL;
+	}
+	return context->classes[classId];
+
+}
+
 fy_class *fy_vmLookupClassFromConstant(fy_VMContext *context,
 		ConstantClass *classInfo, fy_exception *exception) {
 	if (classInfo->derefed == 0) {

@@ -364,6 +364,8 @@ typedef struct fy_class {
 		} prm;
 	} ci;
 
+	juint classNameHandle;
+
 	/*Need persist*/
 	juint classObjId;
 	jint clinitThreadId;
@@ -471,6 +473,7 @@ typedef struct fy_VMContext {
 
 	fy_str *sTopClass;
 	fy_str *sClassClass;
+	fy_str *sClassClassId;
 	fy_str *sClassThrowable;
 	fy_str *sBoolean;
 	fy_str *sByte;
