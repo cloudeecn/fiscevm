@@ -70,7 +70,7 @@ void fy_vmRegisterNativeHandler(fy_VMContext *context, const char *name,
 		void *data, fy_nhFunction handler);
 
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_VMContext *context,
-		struct ExceptionTable *exceptionHandler, fy_exception *exception);
+		fy_exceptionHandler *exceptionHandler, fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif

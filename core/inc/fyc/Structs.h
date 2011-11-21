@@ -262,19 +262,19 @@ typedef struct fy_field {
 
 } fy_field;
 
-typedef struct LineNumberTable {
+typedef struct fy_lineNumber {
 	jchar start_pc;
 	jchar line_number;
-} LineNumberTable;
+} fy_lineNumber;
 
-struct ExceptionTable {
+typedef struct fy_exceptionHandler {
 	jchar start_pc;
 	jchar end_pc;
 	jchar handler_pc;
 	jubyte catchTypeDerefed;
 
 	classInfo ci;
-};
+} fy_exceptionHandler;
 
 typedef struct fy_method {
 	jchar access_flags;
@@ -297,10 +297,10 @@ typedef struct fy_method {
 	jubyte *code;
 
 	jchar exception_table_length;
-	struct ExceptionTable *exception_table;
+	struct fy_exceptionHandler *exception_table;
 
 	jchar line_number_table_length;
-	struct LineNumberTable* line_number_table;
+	struct fy_lineNumber* line_number_table;
 
 	jint paramCount;
 	jbyte *paramTypes;

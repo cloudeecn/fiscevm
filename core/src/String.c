@@ -171,6 +171,17 @@ void fy_strClear(fy_str *_this) {
 	_this->length = 0;
 }
 
+fy_str *fy_strReplaceOne(fy_str *str, jchar from, jchar to) {
+	int i;
+	for (i = str->length - 1; i >= 0; i--) {
+		if (str->content[i] == from) {
+			str->content[i] = to;
+		}
+	}
+	str->hashed = FALSE;
+	return str;
+}
+
 char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) {
 	int i, count;
 	jchar unicode;

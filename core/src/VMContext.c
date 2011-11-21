@@ -117,11 +117,11 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 	context->sStackTraceElementArray = fy_strAllocateFromUTF8(context,
 			"[L"FY_BASE_STACKTHREADELEMENT";");
 	context->sStackTraceElementDeclaringClass = fy_strAllocateFromUTF8(context,
-			FY_BASE_STACKTHREADELEMENT".declaringClass."FY_BASE_STRING);
+			FY_BASE_STACKTHREADELEMENT".declaringClass.L"FY_BASE_STRING";");
 	context->sStackTraceElementMethodName = fy_strAllocateFromUTF8(context,
-			FY_BASE_STACKTHREADELEMENT".methodName."FY_BASE_STRING);
+			FY_BASE_STACKTHREADELEMENT".methodName.L"FY_BASE_STRING";");
 	context->sStackTraceElementFileName = fy_strAllocateFromUTF8(context,
-			FY_BASE_STACKTHREADELEMENT".fileName."FY_BASE_STRING);
+			FY_BASE_STACKTHREADELEMENT".fileName.L"FY_BASE_STRING";");
 	context->sStackTraceElementLineNumber = fy_strAllocateFromUTF8(context,
 			FY_BASE_STACKTHREADELEMENT".lineNumber.I");
 	context->sThrowableStackTrace = fy_strAllocateFromUTF8(context,
@@ -527,7 +527,7 @@ void fy_vmRegisterNativeHandler(fy_VMContext *context, const char *name,
 }
 
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_VMContext *context,
-		struct ExceptionTable *exceptionHandler, fy_exception *exception) {
+		fy_exceptionHandler *exceptionHandler, fy_exception *exception) {
 	fy_class *clazz;
 	if (exceptionHandler->catchTypeDerefed == 0) {
 		clazz = fy_vmLookupClassFromConstant(context,

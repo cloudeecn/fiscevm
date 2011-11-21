@@ -465,7 +465,7 @@ static void countParams(fy_VMContext *context, fy_str *desc, fy_method *method) 
 static void loadMethods(fy_VMContext *context, fy_class *clazz, fy_data *data) {
 	jchar i, count, j, jcount, k, kcount, l, lcount;
 	fy_str *ATT_CODE = fy_strAllocateFromUTF8(context, "Code");
-	fy_str *ATT_LINENUM = fy_strAllocateFromUTF8(context, "LineNumberTable");
+	fy_str *ATT_LINENUM = fy_strAllocateFromUTF8(context, "fy_lineNumber");
 	fy_str *ATT_SYNTH = fy_strAllocateFromUTF8(context, "Synthetic");
 	fy_str *attrName;
 	juint attrSize;
@@ -519,7 +519,7 @@ static void loadMethods(fy_VMContext *context, fy_class *clazz, fy_data *data) {
 				kcount = fy_dataRead2(data);
 				method->exception_table_length = kcount;
 				method->exception_table = fy_vmAllocate(context,
-						sizeof(struct ExceptionTable) * kcount);
+						sizeof(fy_exceptionHandler) * kcount);
 				for (k = 0; k < kcount; k++) {
 					method->exception_table[k].start_pc = fy_dataRead2(data);
 					method->exception_table[k].end_pc = fy_dataRead2(data);
@@ -536,7 +536,7 @@ static void loadMethods(fy_VMContext *context, fy_class *clazz, fy_data *data) {
 					if (fy_strCmp(ATT_LINENUM, attrNameCode) == 0) {
 						lcount = fy_dataRead2(data);
 						method->line_number_table = fy_vmAllocate(context,
-								sizeof(LineNumberTable) * lcount);
+								sizeof(fy_lineNumber) * lcount);
 						method->line_number_table_length = lcount;
 						for (l = 0; l < lcount; l++) {
 							method->line_number_table[l].start_pc =

@@ -56,6 +56,8 @@ void fy_strClear(fy_str *this);
 
 char *fy_strSPrint(char *target, size_t targetSize, fy_str *str);
 
+fy_str *fy_strReplaceOne(fy_str *str, jchar from,jchar to);
+
 fy_str *fy_strAllocateClone(fy_VMContext *context, fy_str *from);
 
 #ifdef	__cplusplus

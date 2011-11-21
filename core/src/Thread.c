@@ -16,27 +16,6 @@
  */
 
 #include "fyc/Thread.h"
-#define CMD_BREAK  1
-#define CMD_GOON  2
-#define CMD_BACK  3
-#if 0
-#define dSIZE  0
-#define dMID  -1
-#define dLC  -2
-#define dLB  -3
-#define dSC  -4
-#define dSB  -5
-#define dSR  -6
-#define dLTB  -7
-#define dSTB  -8
-#define dLPC  -9
-#define dPC  -10
-
-#define iframe(thread,OFFSET) (*((thread)->frames+(OFFSET)))
-#define lframe(thread,OFFSET) (*(_s8*)((thread)->frames+(OFFSET)))
-#define fframe(thread,OFFSET) (*(float*)((thread)->frames+(OFFSET)))
-#define dframe(thread,OFFSET) (*(double*)((thread)->frames+(OFFSET)))
-#endif
 
 #ifdef FY_VERBOSE
 static char *OP_NAME[] = { /**/
@@ -245,34 +224,14 @@ static char *OP_NAME[] = { /**/
 "BREAKPOINT" /* 0xCA */};
 #endif
 
-void fy_threadSetCurrentThrowable(fy_VMContext *context, fy_thread *thread,
-		jint handle, fy_exception *exception) {
-	fy_class *clazz;
-	if (handle != 0) {
-		clazz = fy_heapGetClassOfObject(context, handle);
-		if (fy_classCanCastTo(context, clazz, context->TOP_THROWABLE)) {
-			thread->currentThrowable = handle;
-		} else {
-			char name[64];
-			fy_strSPrint(name, 64, clazz->className);
-			exception->exceptionType = exception_normal;
-			strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-					"Java/lang/VirtualMachineError");
-			sprintf_s(exception->exceptionDesc, 64, "Wrong object thrown: %s",
-					name);
-
-		}
-	}
-}
-
 static jint processThrowable(fy_VMContext *context, fy_frame *frame,
 		jint handle, jint lpc, fy_exception *exception) {
 	fy_class *throwableClass;
 	fy_class *handlerClass;
 	jint i, imax;
-	struct ExceptionTable *handlers;
-	struct ExceptionTable *handler;
-	jint target = 0;
+	fy_exceptionHandler *handlers;
+	fy_exceptionHandler *handler;
+	jint target = -1;
 	DLOG("EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 	throwableClass = fy_heapGetClassOfObject(context, handle);
 	handlers = frame->method->exception_table;
@@ -287,7 +246,7 @@ static jint processThrowable(fy_VMContext *context, fy_frame *frame,
 				handlerClass = fy_vmLookupClassFromExceptionHandler(context,
 						handler, exception);
 				if (exception->exceptionType != exception_none) {
-					target = 0;
+					target = -1;
 					break;
 				}
 				if (fy_classCanCastTo(context, throwableClass, handlerClass)) {
@@ -298,7 +257,7 @@ static jint processThrowable(fy_VMContext *context, fy_frame *frame,
 		}
 	}
 	return target;
-	//Jump after found the target is move to run() for futher optimize
+	//Jump after found the target is move to run() for further optimize
 }
 
 static jint threadmulitANewArray(fy_VMContext *context, fy_class *clazz,
@@ -401,23 +360,31 @@ void fy_threadInit(fy_VMContext *context, fy_thread *thread) {
 
 }
 
-void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
+void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 		juint handle, fy_exception *exception) {
-	//TODO
-#define fy_simpleErrorHandle if(exception->exceptionType != exception_none) return
+#define FY_SIMPLE_ERROR_HANDLE if(exception->exceptionType != exception_none) return;
+
 	fy_class *clazz, *array;
-	fy_field *declaringClass, *methodName, *fileName, *lineNumber;
-	juint arrayHandle;
+	fy_field *declaringClassField, *methodNameField, *fileNameField,
+			*lineNumberField;
+	fy_frame *frame;
+	fy_method *method;
+	fy_str *str;
+	juint arrayHandle, itemHandle, strHandle;
+	juint lpc;
+	jint i, j, t;
+	jint lineNumber;
+	fy_lineNumber *ln;
 
 	clazz = fy_vmLookupClass(context, context->sStackTraceElement, exception);
-	fy_simpleErrorHandle;
+	FY_SIMPLE_ERROR_HANDLE
 	array = fy_vmLookupClass(context, context->sStackTraceElementArray,
 			exception);
-	fy_simpleErrorHandle;
+	FY_SIMPLE_ERROR_HANDLE
 
-	declaringClass = fy_vmGetField(context,
+	declaringClassField = fy_vmGetField(context,
 			context->sStackTraceElementDeclaringClass);
-	if (declaringClass == NULL) {
+	if (declaringClassField == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				"java/lang/VirtualMachineError");
@@ -425,8 +392,9 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
 				context->sStackTraceElementDeclaringClass);
 	}
 
-	methodName = fy_vmGetField(context, context->sStackTraceElementMethodName);
-	if (methodName == NULL) {
+	methodNameField = fy_vmGetField(context,
+			context->sStackTraceElementMethodName);
+	if (methodNameField == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				"java/lang/VirtualMachineError");
@@ -434,8 +402,8 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
 				context->sStackTraceElementMethodName);
 	}
 
-	fileName = fy_vmGetField(context, context->sStackTraceElementFileName);
-	if (fileName == NULL) {
+	fileNameField = fy_vmGetField(context, context->sStackTraceElementFileName);
+	if (fileNameField == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				"java/lang/VirtualMachineError");
@@ -443,8 +411,9 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
 				context->sStackTraceElementFileName);
 	}
 
-	lineNumber = fy_vmGetField(context, context->sStackTraceElementLineNumber);
-	if (lineNumber == NULL) {
+	lineNumberField = fy_vmGetField(context,
+			context->sStackTraceElementLineNumber);
+	if (lineNumberField == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				"java/lang/VirtualMachineError");
@@ -453,8 +422,53 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread, juint lpc,
 	}
 	arrayHandle = fy_heapAllocateArray(context, array, thread->frameCount,
 			exception);
-	fy_simpleErrorHandle;
+	FY_SIMPLE_ERROR_HANDLE
 
+	t = 0;
+	for (i = thread->frameCount - 1; i >= 0; i--) {
+		itemHandle = fy_heapAllocate(context, clazz, exception);
+		FY_SIMPLE_ERROR_HANDLE
+		frame = thread->frames + i;
+		method = frame->method;
+		str = fy_strAllocateClone(context, method->owner->className);
+		fy_strReplaceOne(str, '/', '.');
+		strHandle = fy_heapMakeString(context, str, exception);
+		fy_strRelease(context, str);
+		FY_SIMPLE_ERROR_HANDLE
+		fy_heapPutFieldHandle(context, itemHandle, declaringClassField,
+				strHandle, exception);
+		FY_SIMPLE_ERROR_HANDLE
+		strHandle = fy_heapMakeString(context, method->name, exception);
+		FY_SIMPLE_ERROR_HANDLE
+		fy_heapPutFieldHandle(context, itemHandle, methodNameField, strHandle,
+				exception);
+		FY_SIMPLE_ERROR_HANDLE
+		fy_heapPutFieldHandle(context, itemHandle, fileNameField, 0, exception);
+		FY_SIMPLE_ERROR_HANDLE
+
+		lineNumber = -1;
+		ln = method->line_number_table;
+		if (method->access_flags & fy_ACC_NATIVE) {
+			lineNumber = -2;
+		} else {
+			lpc = frame->lpc;
+			for (j = method->line_number_table_length - 1; j >= 0; j--) {
+				ln = method->line_number_table + j;
+				if (lpc >= method->line_number_table[j].start_pc) {
+					lineNumber = ln->line_number;
+					break;
+				}
+			}
+		}
+
+		fy_heapPutFieldInt(context, itemHandle, lineNumberField, lineNumber,
+				exception);
+		FY_SIMPLE_ERROR_HANDLE
+
+		fy_heapPutArrayHandle(context, arrayHandle, t, itemHandle, exception);
+		FY_SIMPLE_ERROR_HANDLE
+		t++;
+	}
 }
 
 #ifdef FY_STRICT_CHECK
@@ -848,6 +862,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				ASSERT( method != NULL);
 				frame = fy_threadPushFrame(context, thread, method);
 				stack[frame->sb] = thread->currentThrowable;
+				typeStack[frame->sb] = TH_TYPE_HANDLE;
 				thread->currentThrowable = 0;
 				continue;
 			} else {
@@ -868,12 +883,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				message->messageType = message_exception;
 				break;
 			} else {
-				if (ivalue >= 0) {
-					/*Found*/
-					sp = 0;
-					lpc = pc = ivalue;
-					thread->currentThrowable = 0;
-				} else {
+				if (ivalue & 0x80000000) {
 					/*Not found, will return*/
 					if (method->access_flags & fy_ACC_SYNCHRONIZED) {
 						if (method->access_flags & fy_ACC_STATIC) {
@@ -883,8 +893,15 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 							fy_threadMonitorExit(context, thread, stack[sb]);
 						}
 					}
-					fy_threadPopFrame(context, thread);
+					frame = fy_threadPopFrame(context, thread);
 					continue;
+				} else {
+
+					/*Found*/
+					sp = sb + method->max_locals;
+					lpc = pc = ivalue;
+					fy_threadPushHandle(thread->currentThrowable);
+					thread->currentThrowable = 0;
 				}
 			}
 		}
@@ -1310,6 +1327,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopHandle(ivalue);
 				thread->currentThrowable = ivalue;
+				FY_FALLOUT_NOINVOKE
 				break;
 			}
 			case BALOAD: {

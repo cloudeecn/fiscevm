@@ -312,6 +312,13 @@ static void VMFloatToString(struct fy_VMContext *context,
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
+static void throwableFillInStackTrace(struct fy_VMContext *context,
+		struct fy_thread *thread, void *data, juint *args, jint argsCount,
+		fy_exception *exception) {
+	jint value = args[0];
+	fy_threadFillException(context, thread, value, exception);
+}
+
 void fy_coreRegisterCoreHandlers(fy_VMContext *context) {
 	fy_vmRegisterNativeHandler(
 			context,
@@ -392,4 +399,7 @@ void fy_coreRegisterCoreHandlers(fy_VMContext *context) {
 			context,
 			"com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V",
 			NULL, SOSWrite);
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_THROWABLE".fillInStackTrace0.()V", NULL,
+			throwableFillInStackTrace);
 }
