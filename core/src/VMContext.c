@@ -107,6 +107,8 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 			".main.([L"FY_BASE_STRING";)V");
 	context->sThrowablePrintStacktrace = fy_strAllocateFromUTF8(context,
 			FY_BASE_THROWABLE".printStackTrace.()V");
+	context->sThrowableDetailMessage = fy_strAllocateFromUTF8(context,
+			FY_BASE_THROWABLE".detailMessage.L"FY_BASE_STRING";");
 	context->sInit = fy_strAllocateFromUTF8(context, FY_INIT);
 	context->sClinit = fy_strAllocateFromUTF8(context, FY_CLINIT);
 	context->sStringCount = fy_strAllocateFromUTF8(context,
