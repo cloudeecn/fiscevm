@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/Thread.h"
+#include "fyc/intern/IThread.h"
 
 #ifdef FY_VERBOSE
 static char *OP_NAME[] = { /**/
@@ -365,8 +365,8 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 #define FY_SIMPLE_ERROR_HANDLE if(exception->exceptionType != exception_none) return;
 
 	fy_class *clazz, *array;
-	fy_field *declaringClassField, *methodNameField, *fileNameField,
-			*lineNumberField;
+	fy_field *throwableStackTraceElements, *declaringClassField,
+			*methodNameField, *fileNameField, *lineNumberField;
 	fy_frame *frame;
 	fy_method *method;
 	fy_str *str;
@@ -375,6 +375,19 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 	jint i, j, t;
 	jint lineNumber;
 	fy_lineNumber *ln;
+
+	fy_vmLookupClass(context, context->sClassThrowable, exception);
+	FY_SIMPLE_ERROR_HANDLE
+	throwableStackTraceElements = fy_vmGetField(context,
+			context->sThrowableStackTrace);
+	if (throwableStackTraceElements == NULL) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/VirtualMachineError");
+		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"Can't find nessessery sThrowableStackTrace");
+		return;
+	}
 
 	clazz = fy_vmLookupClass(context, context->sStackTraceElement, exception);
 	FY_SIMPLE_ERROR_HANDLE
@@ -390,6 +403,7 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 				"java/lang/VirtualMachineError");
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sStackTraceElementDeclaringClass);
+		return;
 	}
 
 	methodNameField = fy_vmGetField(context,
@@ -400,6 +414,7 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 				"java/lang/VirtualMachineError");
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sStackTraceElementMethodName);
+		return;
 	}
 
 	fileNameField = fy_vmGetField(context, context->sStackTraceElementFileName);
@@ -409,6 +424,7 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 				"java/lang/VirtualMachineError");
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sStackTraceElementFileName);
+		return;
 	}
 
 	lineNumberField = fy_vmGetField(context,
@@ -419,6 +435,7 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 				"java/lang/VirtualMachineError");
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sStackTraceElementLineNumber);
+		return;
 	}
 	arrayHandle = fy_heapAllocateArray(context, array, thread->frameCount,
 			exception);
@@ -469,6 +486,8 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 		FY_SIMPLE_ERROR_HANDLE
 		t++;
 	}
+	fy_heapPutFieldHandle(context,handle,throwableStackTraceElements,arrayHandle,exception);
+	/*The last line, so don't need error handle*/
 }
 
 #ifdef FY_STRICT_CHECK
@@ -732,7 +751,7 @@ static fy_class *clinit(fy_VMContext *context, fy_thread *thread,
 	return NULL;
 }
 
-void fy_threadPushMethod(fy_VMContext *context, fy_thread *thread,
+FY_EXPORT void fy_threadPushMethod(fy_VMContext *context, fy_thread *thread,
 		fy_method *invoke, fy_frame **localFrame) {
 	fy_frame *frame = fy_threadPushFrame(context, thread, invoke);
 	if (localFrame != NULL) {
@@ -3774,7 +3793,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 	}
 }
 
-void fy_nativeReturnInt(fy_VMContext *context, fy_thread *thread, jint value) {
+FY_EXPORT void fy_nativeReturnInt(fy_VMContext *context, fy_thread *thread, jint value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;
@@ -3785,7 +3804,7 @@ void fy_nativeReturnInt(fy_VMContext *context, fy_thread *thread, jint value) {
 	frame->sp = sp + 1;
 }
 
-void fy_nativeReturnHandle(fy_VMContext *context, fy_thread *thread, jint value) {
+FY_EXPORT void fy_nativeReturnHandle(fy_VMContext *context, fy_thread *thread, jint value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;
@@ -3796,7 +3815,7 @@ void fy_nativeReturnHandle(fy_VMContext *context, fy_thread *thread, jint value)
 	frame->sp = sp + 1;
 }
 
-void fy_nativeReturnLong(fy_VMContext *context, fy_thread *thread, jlong value) {
+FY_EXPORT void fy_nativeReturnLong(fy_VMContext *context, fy_thread *thread, jlong value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;

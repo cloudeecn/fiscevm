@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "fyc/ClassLoader.h"
+#include "fyc/intern/IClassLo.h"
 
 #ifdef _DEBUG
 static int checkConstantBonud(fy_class *clazz, int idx) {
@@ -285,9 +285,6 @@ static void loadInterfaces(fy_VMContext *context, fy_class *clazz,
 			vm_die("Exception %s caught: %s", exception.exceptionName,
 					exception.exceptionDesc);
 		}
-#ifdef _DEBUG
-		fy_strPrint(clazz->interfaces[i]->className);
-#endif
 	}
 }
 

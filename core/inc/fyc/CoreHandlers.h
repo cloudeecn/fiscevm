@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-void fy_coreRegisterCoreHandlers(fy_VMContext *context);
+
 
 #ifdef	__cplusplus
 }

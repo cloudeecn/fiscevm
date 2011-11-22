@@ -26,14 +26,14 @@
 extern "C" {
 #endif
 
-void fy_strPrint(fy_str *str);
+FY_EXPORT void fy_strPrint(fy_str *str);
 
 #ifdef _DEBUG
 
 #define ASSERT(TEST) {if((TEST)==0) vm_die("ASSERTION ERROR IN %s:%d", __FILE__,__LINE__);}
 void varprintf(const char *format,...);
 #define   DLOG   \
-        printf( "%s(%s:%d): ",__FUNCTION__,   __FILE__,   __LINE__);         varprintf
+        printf( "%s(%s:%d):D: ",__FUNCTION__,   __FILE__,   __LINE__);         varprintf
 #else
 
 #define ASSERT(TEST)

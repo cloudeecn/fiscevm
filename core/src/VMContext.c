@@ -190,7 +190,6 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 	context->literals = fy_vmAllocate(context, sizeof(fy_hashMap));
 	fy_hashMapInitSimple(context, context->literals);
 
-
 	fy_coreRegisterCoreHandlers(context);
 	fy_portInit(context);
 }
@@ -448,14 +447,19 @@ fy_class *fy_vmLookupClass(fy_VMContext *context, fy_str *name,
 		}
 		clazz2 = fy_vmLookupClass(context, context->sClassClass, exception);
 		if (exception->exceptionType != exception_none) {
-			vm_die("Can't find TOP_CLASS");
+			return NULL;
 		}
 		clazz->classObjId = fy_heapAllocate(context, clazz2, exception);
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}
 		classIdField = fy_vmGetField(context, context->sClassClassId);
-		if (exception->exceptionType != exception_none) {
+		if (classIdField == NULL) {
+			exception->exceptionType = exception_normal;
+			strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+					"java/lang/VirtualMachineError");
+			strcpy_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+					FY_BASE_CLASS" has no integer field classId");
 			return NULL;
 		}
 		fy_heapPutFieldInt(context, clazz->classObjId, classIdField,
