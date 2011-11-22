@@ -92,6 +92,11 @@ public class Tester extends Thread implements ITester {
 		int a = 0;
 		System.out.println("Start...");
 		new Profile().run();
+		int[] ia = null;
+		if (a == 1) {
+			ia = new int[50];
+		}
+		System.out.println(ia.length);
 		// int a = 0;
 		// int ib = 11111;
 		// if (a == 0) {
