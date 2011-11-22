@@ -89,10 +89,9 @@ public class Tester extends Thread implements ITester {
 	}
 
 	static public void main(String[] args) {
-		int a = 0
-				;
+		int a = 0;
 		System.out.println("Start...");
-		// new Profile().run();
+		new Profile().run();
 		// int a = 0;
 		// int ib = 11111;
 		// if (a == 0) {

@@ -772,31 +772,33 @@ void fy_threadPushMethod(fy_VMContext *context, fy_thread *thread,
 void fy_threadCreateWithMethod(fy_VMContext *context, fy_thread *thread,
 		int threadHandle, fy_method *method, fy_exception *exception) {
 	fy_class *clazz;
-	do {
-		if (!fy_strEndsWith(method->uniqueName, context->sMainPostfix)) {
-			fy_strPrint(method->uniqueName);
-			printf("\n");
-			fy_strPrint(context->sMainPostfix);
-			printf("\n");
-			vm_die("The boot method must be static void main(String[])");
-		}
-		if ((method->access_flags & fy_ACC_STATIC) == 0) {
-			vm_die("The first method of a thread must have no return value.");
-			break;
-		}
-		thread->handle = threadHandle;
-		fy_threadPushFrame(context, thread, method);
-		clazz = fy_vmLookupClass(context, context->sStringArray, exception);
-		if (exception->exceptionType != exception_none) {
-			break;
-		}
+	if (!fy_strEndsWith(method->uniqueName, context->sMainPostfix)) {
+		exception->exceptionType = exception_normal;
+		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/InternalError");
+		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"The boot method must be static void main(String[])");
+		return;
+	}
+	if ((method->access_flags & fy_ACC_STATIC) == 0) {
+		exception->exceptionType = exception_normal;
+		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/InternalError");
+		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"The first method of a thread must have no return value.");
+		return;
+	}
+	thread->handle = threadHandle;
+	fy_threadPushFrame(context, thread, method);
+	clazz = fy_vmLookupClass(context, context->sStringArray, exception);
+	if (exception->exceptionType != exception_none) {
+		return;
+	}
 
-		thread->stack[0] = fy_heapAllocateArray(context, clazz, 0, exception);
-		if (exception->exceptionType != exception_none) {
-			break;
-		}
-
-	} while (0);
+	thread->stack[0] = fy_heapAllocateArray(context, clazz, 0, exception);
+	if (exception->exceptionType != exception_none) {
+		return;
+	}
 }
 
 void fy_threadCreateWithRun(fy_VMContext *context, fy_thread *thread,
@@ -3786,7 +3788,36 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 		}
 		if (message->messageType == message_exception) {
 			//send the exception to the VM caller for PI handle.
-			break;
+#ifdef _FY_LATE_DECLARATION
+			fy_class *clazz1, clazz2;
+			fy_str *str1;
+			fy_field *field;
+#endif
+			exception->exceptionType = exception_none;
+			str1 = vm_allocate(sizeof(fy_str));
+			fy_strInit(context, str1, 64);
+			fy_strAppendUTF8(context, str1, exception->exceptionName,
+					sizeof(exception->exceptionName));
+			clazz1 = fy_vmLookupClass(context, str1, exception);
+			if (exception->exceptionType != exception_none) {
+				break;
+			}
+			clazz2 = fy_vmLookupClass(context, context->TOP_THROWABLE,
+					exception);
+			if (exception->exceptionType != exception_none) {
+				break;
+			}
+			if (!fy_classCanCastTo(clazz1, clazz2)) {
+				exception->exceptionType = exception_normal;
+				sprintf_s(exception->exceptionName,
+						sizeof(exception->exceptionName),
+						"java/lang/ClassCastException");
+				fy_strSPrint(exception->exceptionDesc,
+						sizeof(exception->exceptionDesc), clazz1->className);
+				break;
+			}
+
+			message->messageType = message_continue;
 		}
 		if (message->messageType != message_continue) {
 			break;

@@ -369,7 +369,7 @@ static void loadFields(fy_VMContext *context, fy_class *clazz, fy_data *data) {
 
 static void countParams(fy_VMContext *context, fy_str *desc, fy_method *method) {
 	jbyte *temp;
-	jbyte returnType=TH_TYPE_UNKNOWN;
+	jbyte returnType = TH_TYPE_UNKNOWN;
 	int pc = 0;
 	jchar ch;
 	int i, maxi;
@@ -729,8 +729,7 @@ fy_class *fy_clLoadclass(fy_VMContext *context, fy_str *name,
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
 		clazz->className = fy_strAllocateClone(context, name);
 		clazz->ci.arr.sizeShift = getSizeShiftForArray(name);
-	} else if (fy_hashMapGet(context, context->mapPrimitivesRev, name)
-			!= NULL) {
+	} else if (fy_hashMapGet(context, context->mapPrimitivesRev, name) != NULL) {
 		clazz = fy_vmAllocate(context, sizeof(fy_class));
 		clazz->className = fy_strAllocateClone(context, name);
 		clazz->type = prm;
@@ -746,9 +745,13 @@ fy_class *fy_clLoadclass(fy_VMContext *context, fy_str *name,
 
 		data = fy_clOpenResource(context, localName);
 		if (data == NULL) {
-			fy_strPrint(localName);
-			printf("\n");
-			vm_die("Class not found Exception!");
+			exception->exceptionType = exception_normal;
+			sprintf_s(exception->exceptionName,
+					sizeof(exception->exceptionName),
+					"java/lang/ClassNotFoundException");
+			fy_strSPrint(exception->exceptionDesc,
+					sizeof(exception->exceptionDesc), name);
+			return NULL;
 		}
 
 		tmpData = *data;

@@ -36,6 +36,7 @@
 #define FY_BASE_THROWABLE "java/lang/Throwable"
 #define FY_BASE_THREAD "java/lang/Thread"
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
+#define FY_FIELD_MESSAGE FY_BASE_THROWABLE".detailMessage.L"FY_BASE_STRING";"
 #define FY_INIT "<init>"
 #define FY_CLINIT "<clinit>"
 
@@ -416,6 +417,7 @@ typedef struct fy_VMContext {
 	fy_str *sArrayLong;
 
 	fy_str *sThrowableStackTrace;
+	fy_str *sThrowableDetailMessage;
 	fy_str *sStackTraceElement;
 	fy_str *sStackTraceElementArray;
 	fy_str *sStackTraceElementDeclaringClass;
