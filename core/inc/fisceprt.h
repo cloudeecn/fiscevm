@@ -42,7 +42,7 @@ typedef jint jboolean;
 #ifdef _MSC_VER
 # define FY_EXPORT __declspec(dllexport)
 #elif defined(__GNUC__)
-# ifdef _WIN32fy
+# ifdef _WIN32
 #  define FY_EXPORT __attribute__((externally_visible)) __attribute__((dllexport))
 # else
 #  define FY_EXPORT __attribute__((externally_visible))
