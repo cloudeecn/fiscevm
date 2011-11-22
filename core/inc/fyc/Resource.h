@@ -18,7 +18,7 @@
 #ifndef FY_RESOURCE_H_
 #define FY_RESOURCE_H_
 
-#include "Portable.h"
+#include "../fisceprt.h"
 #include "Data.h"
 #include "VMContext.h"
 #ifdef	__cplusplus

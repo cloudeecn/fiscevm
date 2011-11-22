@@ -18,8 +18,8 @@
 #ifndef FY_HASHMAP_H_
 #define FY_HASHMAP_H_
 
-#include "Portable.h"
-#include "Structs.h"
+#include "../fisceprt.h"
+#include "../fiscestu.h"
 #include "VMContext.h"
 #include "String.h"
 #include <string.h>

@@ -18,8 +18,8 @@
 #ifndef FY_GLOBAL_H_
 #define FY_GLOBAL_H_
 
-#include "Portable.h"
-#include "Structs.h"
+#include "../fisceprt.h"
+#include "../fiscestu.h"
 #include "HashMap.h"
 #include "VMContext.h"
 

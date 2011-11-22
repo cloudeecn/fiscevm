@@ -20,8 +20,9 @@
 
 #include <math.h>
 #include <float.h>
-#include "Portable.h"
-#include "Structs.h"
+#include "../fisceprt.h"
+#include "../fiscestu.h"
+#include "../fiscedev.h"
 #include "Debug.h"
 #include "ThreadManager.h"
 
@@ -254,21 +255,14 @@
 #define JSR_W  0xC9
 #define BREAKPOINT  0xCA
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+void fy_threadReturnInt(fy_VMContext *context, fy_thread *thread, jint value);
 
-void fy_nativeReturnInt(fy_VMContext *context, fy_thread *thread, jint value);
+void fy_threadReturnHandle(fy_VMContext *context, fy_thread *thread, jint value);
 
-void fy_nativeReturnHandle(fy_VMContext *context, fy_thread *thread, jint value);
+void fy_threadReturnLong(fy_VMContext *context, fy_thread *thread, jlong value);
 
-void fy_nativeReturnLong(fy_VMContext *context, fy_thread *thread, jlong value);
+#define fy_threadReturnFloat(C,T,V) fy_threadReturnInt(C,T,fy_floatToInt(V))
 
-#define fy_nativeReturnFloat(C,T,V) fy_nativeReturnInt(C,T,fy_floatToInt(V))
+#define fy_threadReturnDouble(C,T,V) fy_threadReturnLong(C,T,fy_doubleToLong(V))
 
-#define fy_nativeReturnDouble(C,T,V) fy_nativeReturnLong(C,T,fy_doubleToLong(V))
-
-#ifdef	__cplusplus
-}
-#endif
 #endif /* FY_HEAP_H_ */

@@ -16,4 +16,5 @@ libfisce_a_SOURCES = \
 	Thread.c \
 	Utf8.c \
 	VMContext.c \
-	VMPortable.c
+	VMPortable.c \
+	ExpDev.c

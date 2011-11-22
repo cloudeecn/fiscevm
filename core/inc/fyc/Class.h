@@ -16,8 +16,8 @@
  */
 #ifndef FY_CLASS_H_
 #define FY_CLASS_H_
-#include "Portable.h"
-#include "Structs.h"
+#include "../fisceprt.h"
+#include "../fiscestu.h"
 #include "VMContext.h"
 #include "String.h"
 #include "Debug.h"

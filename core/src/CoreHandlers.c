@@ -16,6 +16,7 @@
  */
 
 #include "fyc/CoreHandlers.h"
+#include "fiscedev.h"
 
 static void SystemArrayCopy(struct fy_VMContext *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,

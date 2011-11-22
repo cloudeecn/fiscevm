@@ -7,10 +7,10 @@
 
 #include <stdio.h>
 #include <time.h>
-#include "fyc/Structs.h"
+#include "fiscestu.h"
+#include "fisceprt.h"
 #include "fyc/VMContext.h"
 #include "fyc/Class.h"
-#include "fyc/Portable.h"
 #include "fyc/LinkedList.h"
 #include "fyc/Data.h"
 #include "fyc/String.h"
@@ -21,6 +21,9 @@
 #include "fyc/Thread.h"
 #include <assert.h>
 #include <time.h>
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 
 #include "CUnit/CUnit.h"
 #include "CUnit/Automated.h"
@@ -242,10 +245,11 @@ void testHeap() {
 	compare = fy_strAllocate(context);
 
 	sHandle = fy_heapLiteral(context, str, &exception);
-	ASSERT(sHandle != 0);ASSERT(exception.exceptionType == exception_none);
+	ASSERT(sHandle != 0);
+	ASSERT(exception.exceptionType == exception_none);
 	fy_heapGetString(context, sHandle, compare, &exception);
-	ASSERT(exception.exceptionType == exception_none);CU_ASSERT(
-			fy_strCmp(str,compare)==0);
+	ASSERT(exception.exceptionType == exception_none);
+	CU_ASSERT( fy_strCmp(str,compare)==0);
 	CU_ASSERT(sHandle == fy_heapLiteral(context, compare, &exception));
 	fy_strRelease(context, str);
 	fy_strRelease(context, compare);
@@ -265,7 +269,9 @@ void testThread() {
 	int i, count;
 
 	exception.exceptionType = exception_none;
-	ASSERT(clazz != NULL);ASSERT(clazzThread != NULL);ASSERT(fieldThreadPriority != NULL);
+	ASSERT(clazz != NULL);
+	ASSERT(clazzThread != NULL);
+	ASSERT(fieldThreadPriority != NULL);
 	count = clazz->methodCount;
 #ifdef _DEBUG
 	for (i = 0; i < count; i++) {
@@ -330,9 +336,9 @@ void testHashMap() {
 	blocks = vm_getAllocated();
 	fy_hashMapInit(context, hashMap, 16, 12);
 
-	clock_t t1, t2, t3, t4;
+	jlong t1, t2, t3, t4;
 
-	t1 = clock();
+	t1 = fy_portTimeMillSec(context);
 	for (i = 0; i < 10000; i++) {
 		sprintf_s(buf, 10, "%d", i);
 		tmp = fy_strNew(context, buf);
@@ -342,7 +348,7 @@ void testHashMap() {
 		values[i] = i * 3;
 	}
 
-	t2 = clock();
+	t2 = fy_portTimeMillSec(context);
 
 	CU_ASSERT_EQUAL(hashMap->size, 10000);
 	for (i = 0; i < 15000; i++) {
@@ -357,13 +363,11 @@ void testHashMap() {
 		fy_strDestroy(context, tmp);
 		fy_vmFree(context, tmp);
 	}
-	t3 = clock();
+	t3 = fy_portTimeMillSec(context);
 	fy_hashMapDestroy(context, hashMap);
-	t4 = clock();
-	printf("HashMap time %f %f %f\n",
-			(t2 - t1) * (double) 1000 / (double) CLOCKS_PER_SEC,
-			(t3 - t2) * (double) 1000 / (double) CLOCKS_PER_SEC,
-			(t4 - t3) * (double) 1000 / (double) CLOCKS_PER_SEC);
+	t4 = fy_portTimeMillSec(context);
+	printf("HashMap time %"PRINT64"d %"PRINT64"d %"PRINT64"d\n", (t2 - t1),
+			(t3 - t2), (t4 - t3));
 	CU_ASSERT_EQUAL(blocks, vm_getAllocated());
 	fy_vmFree(context, hashMap);
 }

@@ -20,7 +20,6 @@
 #include <windows.h>
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 #include <sys/time.h>
-#include <unistd.h>
 #endif
 #include <time.h>
 typedef struct PortableData {

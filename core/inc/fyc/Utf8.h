@@ -16,7 +16,7 @@
  */
 #ifndef FY_UTF8_H_
 #define FY_UTF8_H_
-#include "Portable.h"
+#include "../fisceprt.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif

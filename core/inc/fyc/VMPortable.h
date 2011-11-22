@@ -18,7 +18,7 @@
 #ifndef FY_VMPORTABLE_H_
 #define FY_VMPORTABLE_H_
 
-#include "Structs.h"
+#include "../fiscestu.h"
 
 #ifdef	__cplusplus
 extern "C" {

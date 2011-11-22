@@ -18,8 +18,8 @@
 #ifndef FY_STRING_H_
 #define FY_STRING_H_
 
-#include "Portable.h"
-#include "Structs.h"
+#include "../fisceprt.h"
+#include "../fiscestu.h"
 #include "VMContext.h"
 #include "Utf8.h"
 

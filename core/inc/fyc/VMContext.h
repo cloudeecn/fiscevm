@@ -18,9 +18,9 @@
 #ifndef FY_VMCONTEXT_H_
 #define FY_VMCONTEXT_H_
 
-#include "Portable.h"
+#include "../fisceprt.h"
 #include "Global.h"
-#include "Structs.h"
+#include "../fiscestu.h"
 #include "LinkedList.h"
 #include "Class.h"
 #include "HashMap.h"

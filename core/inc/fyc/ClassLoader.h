@@ -18,8 +18,8 @@
 #ifndef FY_CLASSLOADER_H
 #define	FY_CLASSLOADER_H
 
-#include "Portable.h"
-#include "Structs.h"
+#include "../fisceprt.h"
+#include "../fiscestu.h"
 #include "VMContext.h"
 #include "String.h"
 #include "Class.h"

@@ -75,7 +75,7 @@ am_libfisce_a_OBJECTS = Class.$(OBJEXT) ClassLoader.$(OBJEXT) \
 	HeapAccessers.$(OBJEXT) LinkedList.$(OBJEXT) \
 	Portable.$(OBJEXT) Resource.$(OBJEXT) String.$(OBJEXT) \
 	Thread.$(OBJEXT) Utf8.$(OBJEXT) VMContext.$(OBJEXT) \
-	VMPortable.$(OBJEXT)
+	VMPortable.$(OBJEXT) ExpDev.$(OBJEXT)
 libfisce_a_OBJECTS = $(am_libfisce_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -195,7 +195,8 @@ libfisce_a_SOURCES = \
 	Thread.c \
 	Utf8.c \
 	VMContext.c \
-	VMPortable.c
+	VMPortable.c \
+	ExpDev.c
 
 all: all-am
 
@@ -279,6 +280,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CoreHandlers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ExpDev.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Global.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Heap.Po@am__quote@

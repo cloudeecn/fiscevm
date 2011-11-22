@@ -26,6 +26,8 @@ import fisce.util.HashMap;
 public final class Class<T> {
 
 	private Class() {
+		/*stub code to make compiler happy*/
+		classId=0;
 	}
 
 	public String toString() {

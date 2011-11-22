@@ -18,8 +18,8 @@
 #ifndef FY_DEBUG_H_
 #define FY_DEBUG_H_
 
-#include "Portable.h"
-#include "Structs.h"
+#include "../fisceprt.h"
+#include "../fiscestu.h"
 #include "String.h"
 
 #ifdef	__cplusplus

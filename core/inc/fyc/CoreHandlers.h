@@ -21,7 +21,8 @@
 #define FY_COREHANDLERS_H_
 
 #include <float.h>
-#include "Structs.h"
+#include "../fiscestu.h"
+#include "../fiscedev.h"
 #include "VMContext.h"
 #include "Thread.h"
 #include "Heap.h"

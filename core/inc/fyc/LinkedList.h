@@ -18,8 +18,8 @@
 #ifndef FY_LINKEDLIST_H_
 #define FY_LINKEDLIST_H_
 
-#include "Portable.h"
-#include "Structs.h"
+#include "../fisceprt.h"
+#include "../fiscestu.h"
 #include "Debug.h"
 
 #ifdef	__cplusplus

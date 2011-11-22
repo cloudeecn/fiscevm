@@ -18,8 +18,8 @@
 #ifndef FY_DATA_H
 #define	FY_DATA_H
 
-#include "Structs.h"
-#include "Portable.h"
+#include "../fiscestu.h"
+#include "../fisceprt.h"
 
 #ifdef	__cplusplus
 extern "C" {
