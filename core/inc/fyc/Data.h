@@ -25,13 +25,13 @@
 extern "C" {
 #endif
 
-FY_EXPORT jubyte fy_dataRead(fy_data *data);
-FY_EXPORT jchar fy_dataRead2(fy_data *data);
-FY_EXPORT juint fy_dataRead4(fy_data *data);
-FY_EXPORT julong fy_dataRead8(fy_data *data);
-FY_EXPORT float fy_dataReadf(fy_data *data);
-FY_EXPORT double fy_dataReadd(fy_data *data);
-FY_EXPORT void fy_dataSkip(fy_data *data, int size);
+jubyte fy_dataRead(fy_data *data);
+jchar fy_dataRead2(fy_data *data);
+juint fy_dataRead4(fy_data *data);
+julong fy_dataRead8(fy_data *data);
+float fy_dataReadf(fy_data *data);
+double fy_dataReadd(fy_data *data);
+void fy_dataSkip(fy_data *data, int size);
 
 #ifdef	__cplusplus
 }

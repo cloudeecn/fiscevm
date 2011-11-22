@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/intern/IThread.h"
+#include "fyc/Thread.h"
 
 #ifdef FY_VERBOSE
 static char *OP_NAME[] = { /**/
@@ -384,7 +384,7 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				"java/lang/VirtualMachineError");
-		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+		strcpy_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"Can't find nessessery sThrowableStackTrace");
 		return;
 	}
@@ -751,7 +751,7 @@ static fy_class *clinit(fy_VMContext *context, fy_thread *thread,
 	return NULL;
 }
 
-FY_EXPORT void fy_threadPushMethod(fy_VMContext *context, fy_thread *thread,
+void fy_threadPushMethod(fy_VMContext *context, fy_thread *thread,
 		fy_method *invoke, fy_frame **localFrame) {
 	fy_frame *frame = fy_threadPushFrame(context, thread, invoke);
 	if (localFrame != NULL) {
@@ -3793,7 +3793,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 	}
 }
 
-FY_EXPORT void fy_nativeReturnInt(fy_VMContext *context, fy_thread *thread, jint value) {
+void fy_nativeReturnInt(fy_VMContext *context, fy_thread *thread, jint value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;
@@ -3804,7 +3804,7 @@ FY_EXPORT void fy_nativeReturnInt(fy_VMContext *context, fy_thread *thread, jint
 	frame->sp = sp + 1;
 }
 
-FY_EXPORT void fy_nativeReturnHandle(fy_VMContext *context, fy_thread *thread, jint value) {
+void fy_nativeReturnHandle(fy_VMContext *context, fy_thread *thread, jint value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;
@@ -3815,7 +3815,7 @@ FY_EXPORT void fy_nativeReturnHandle(fy_VMContext *context, fy_thread *thread, j
 	frame->sp = sp + 1;
 }
 
-FY_EXPORT void fy_nativeReturnLong(fy_VMContext *context, fy_thread *thread, jlong value) {
+void fy_nativeReturnLong(fy_VMContext *context, fy_thread *thread, jlong value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;

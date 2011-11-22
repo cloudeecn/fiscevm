@@ -28,18 +28,18 @@
 extern "C" {
 #endif
 
-FY_EXPORT void fy_hashMapInit(fy_VMContext *context, fy_hashMap *this, juint initSize,
+void fy_hashMapInit(fy_VMContext *context, fy_hashMap *this, juint initSize,
 		juint loadFactor);
-FY_EXPORT void fy_hashMapInitSimple(fy_VMContext *context, fy_hashMap *this);
-FY_EXPORT void *fy_hashMapPut(fy_VMContext *context, fy_hashMap *this, fy_str *key,
+void fy_hashMapInitSimple(fy_VMContext *context, fy_hashMap *this);
+void *fy_hashMapPut(fy_VMContext *context, fy_hashMap *this, fy_str *key,
 		void *value);
-FY_EXPORT int fy_hashMapPutInt(fy_VMContext *context, fy_hashMap *this, fy_str *key,
+int fy_hashMapPutInt(fy_VMContext *context, fy_hashMap *this, fy_str *key,
 		int value);
-FY_EXPORT void *fy_hashMapPutUtf8(fy_VMContext *context, fy_hashMap *this,
+void *fy_hashMapPutUtf8(fy_VMContext *context, fy_hashMap *this,
 		const char *keyUtf8, void *value);
-FY_EXPORT void *fy_hashMapGet(fy_VMContext *context, fy_hashMap *this, fy_str *key);
-FY_EXPORT int fy_hashMapGetInt(fy_VMContext *context, fy_hashMap *this, fy_str *key);
-FY_EXPORT void fy_hashMapDestroy(fy_VMContext *context, fy_hashMap *this);
+void *fy_hashMapGet(fy_VMContext *context, fy_hashMap *this, fy_str *key);
+int fy_hashMapGetInt(fy_VMContext *context, fy_hashMap *this, fy_str *key);
+void fy_hashMapDestroy(fy_VMContext *context, fy_hashMap *this);
 #ifdef	__cplusplus
 }
 #endif

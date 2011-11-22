@@ -26,15 +26,6 @@
 #include "Thread.h"
 #include "Heap.h"
 
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-
-
-#ifdef	__cplusplus
-}
-#endif
+void fy_coreRegisterCoreHandlers(fy_VMContext *context);
 
 #endif /* FY_COREHANDLERS_H_ */

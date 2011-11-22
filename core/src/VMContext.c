@@ -475,7 +475,6 @@ fy_class *fy_vmGetClassFromClassObject(fy_VMContext *context, juint handle,
 		fy_exception *exception) {
 	fy_class *classClass;
 	fy_class *inputClass;
-	fy_class *ret;
 	jint classId;
 	fy_field *classIdField;
 	inputClass = fy_heapGetClassOfObject(context, handle);

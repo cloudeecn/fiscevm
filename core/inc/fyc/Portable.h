@@ -51,12 +51,21 @@ typedef double jdouble;
 typedef jint jboolean;
 
 #ifdef _MSC_VER
-#define FY_EXPORT __declspec(dllexport)
-
 #else
-#define FY_EXPORT __attribute__((externally_visible)) __declspec(dllexport)
-#define strcpy_s(T,TS,S) strncpy(T,S,TS)
-#define sprintf_s snprintf
+# define strcpy_s(T,TS,S) strncpy(T,S,TS)
+# define sprintf_s snprintf
+#endif
+
+#ifdef _MSC_VER
+# define FY_EXPORT __declspec(dllexport)
+#elif defined(__GNUC__)
+# ifdef _WIN32
+#  define FY_EXPORT __attribute__((externally_visible)) __attribute__((dllexport))
+# else
+#  define FY_EXPORT __attribute__((externally_visible))
+# endif
+#else
+# define FY_EXPORT
 #endif
 
 #ifdef _MSC_VER
