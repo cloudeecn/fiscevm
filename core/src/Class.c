@@ -16,7 +16,7 @@
  */
 #include "fyc/Class.h"
 
-jboolean fy_classIsSuperClassOf(fy_VMContext *context, fy_class *this,
+jboolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
 		fy_class *other) {
 	if (this == other) {
 		return FALSE;
@@ -24,7 +24,7 @@ jboolean fy_classIsSuperClassOf(fy_VMContext *context, fy_class *this,
 	return fy_classCanCastTo(context, other, this);
 }
 
-jboolean fy_classCanCastTo(fy_VMContext *context, fy_class *this,
+jboolean fy_classCanCastTo(fy_context *context, fy_class *this,
 		fy_class *other) {
 	fy_class **interfaces;
 	int i, max;

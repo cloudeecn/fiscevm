@@ -19,16 +19,22 @@
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
 
-#define CLASS_OBJ 0
-#define CLASS_ARR 1
-#define CLASS_PRM 2
-
-#define TH_TYPE_INT  'I'
-#define TH_TYPE_WIDE  'W'
-#define TH_TYPE_HANDLE  'H'
-#define TH_TYPE_RETURN  'R'
-#define TH_TYPE_WIDE2  '_'
-#define TH_TYPE_UNKNOWN  'X'
+/*Bellow are used by context*/
+#define FY_TYPE_BYTE  'B'
+#define FY_TYPE_CHAR  'C'
+#define FY_TYPE_DOUBLE  'D'
+#define FY_TYPE_FLOAT  'F'
+#define FY_TYPE_INT  'I'
+#define FY_TYPE_LONG  'J'
+#define FY_TYPE_HANDLE  'L'
+#define FY_TYPE_SHORT  'S'
+#define FY_TYPE_BOOLEAN  'Z'
+#define FY_TYPE_ARRAY  '['
+/*Below and FY_TYPE_INT/FY_TYPE_HANDLE are used by thread*/
+#define FY_TYPE_WIDE  'W'
+#define FY_TYPE_RETURN  'R'
+#define FY_TYPE_WIDE2  '_'
+#define FY_TYPE_UNKNOWN  'X'
 
 #define FY_BASE_STRING "java/lang/String"
 #define FY_BASE_OBJECT "java/lang/Object"
@@ -39,19 +45,19 @@
 #define FY_INIT "<init>"
 #define FY_CLINIT "<clinit>"
 
-#define fy_ACC_ABSTRACT 1024
-#define fy_ACC_FINAL 16
-#define fy_ACC_INTERFACE 512
-#define fy_ACC_NATIVE 256
-#define fy_ACC_PRIVATE 2
-#define fy_ACC_PROTECTED 4
-#define fy_ACC_PUBLIC 1
-#define fy_ACC_STATIC 8
-#define fy_ACC_STRICT 2048
-#define fy_ACC_SUPER 32
-#define fy_ACC_SYNCHRONIZED 32
-#define fy_ACC_TRANSIENT 128
-#define fy_ACC_VOLATILE 64
+#define FY_ACC_ABSTRACT 1024
+#define FY_ACC_FINAL 16
+#define FY_ACC_INTERFACE 512
+#define FY_ACC_NATIVE 256
+#define FY_ACC_PRIVATE 2
+#define FY_ACC_PROTECTED 4
+#define FY_ACC_PUBLIC 1
+#define FY_ACC_STATIC 8
+#define FY_ACC_STRICT 2048
+#define FY_ACC_SUPER 32
+#define FY_ACC_SYNCHRONIZED 32
+#define FY_ACC_TRANSIENT 128
+#define FY_ACC_VOLATILE 64
 
 #ifdef	__cplusplus
 extern "C" {
@@ -358,7 +364,7 @@ typedef struct fy_thread {
 
 typedef struct fy_exception {
 	enum exceptionType {
-		exception_none, exception_normal
+		exception_none = 0, exception_normal
 	/*, exception_critical // use vm_die instead!*/
 	} exceptionType;
 	char exceptionName[64];
@@ -366,7 +372,7 @@ typedef struct fy_exception {
 } fy_exception;
 
 typedef enum fy_messageType {
-	message_continue,
+	message_continue = 0,
 	/*message_frameChange,*/
 	message_none, message_thread_dead, message_invoke_native, message_exception
 } fy_messageType;
@@ -380,7 +386,7 @@ typedef struct fy_message {
 
 } fy_message;
 
-typedef struct fy_VMContext {
+typedef struct fy_context {
 
 	int status;
 
@@ -468,9 +474,9 @@ typedef struct fy_VMContext {
 	/* #BEGIN PORTABLE*/
 	void *portableData;
 /* #END PORTABLE*/
-} fy_VMContext;
+} fy_context;
 
-typedef void (*fy_nhFunction)(struct fy_VMContext *context,
+typedef void (*fy_nhFunction)(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception);
 

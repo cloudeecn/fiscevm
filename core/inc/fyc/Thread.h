@@ -255,11 +255,41 @@
 #define JSR_W  0xC9
 #define BREAKPOINT  0xCA
 
-void fy_threadReturnInt(fy_VMContext *context, fy_thread *thread, jint value);
+void fy_threadSetCurrentThrowable(fy_context *context, fy_thread *thread,
+		jint handle, fy_exception *exception);
 
-void fy_threadReturnHandle(fy_VMContext *context, fy_thread *thread, jint value);
+void fy_threadMonitorEnter(fy_context *context, fy_thread *thread, jint handle);
 
-void fy_threadReturnLong(fy_VMContext *context, fy_thread *thread, jlong value);
+void fy_threadMonitorExit(fy_context *context, fy_thread *thread, jint handle);
+
+void fy_threadInit(fy_context *context, fy_thread *thread);
+
+fy_method *fy_threadGetCurrentMethod(fy_context *context, fy_thread *thread);
+
+void fy_threadCreateWithRun(fy_context *context, fy_thread *thread, int handle,
+		fy_exception *exception);
+
+void fy_threadCreateWithData(fy_context *context, fy_thread *thread,
+		jbyte *data, jint length, fy_exception *exception);
+
+void fy_threadCreateWithMethod(fy_context *context, fy_thread *thread,
+		int threadHandle, fy_method *method, fy_exception *exception);
+
+void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
+		jint ops);
+
+void fy_threadFillException(fy_context *context, fy_thread *thread,
+		juint handle, fy_exception *exception);
+
+juint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
+		_FY_RESTRICT fy_exception *toPrepare,
+		_FY_RESTRICT fy_exception *exception);
+
+void fy_threadReturnInt(fy_context *context, fy_thread *thread, jint value);
+
+void fy_threadReturnHandle(fy_context *context, fy_thread *thread, jint value);
+
+void fy_threadReturnLong(fy_context *context, fy_thread *thread, jlong value);
 
 #define fy_threadReturnFloat(C,T,V) fy_threadReturnInt(C,T,fy_floatToInt(V))
 

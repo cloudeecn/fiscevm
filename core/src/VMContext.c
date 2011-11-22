@@ -21,7 +21,7 @@
 
 /************public***************/
 
-void *fy_vmAllocate(fy_VMContext *context, int size) {
+void *fy_vmAllocate(fy_context *context, int size) {
 	void *ret;
 #ifdef _DEBUG
 	fy_linkedListNode* node;
@@ -49,7 +49,7 @@ void *fy_vmAllocate(fy_VMContext *context, int size) {
 	return (jbyte*) ret + sizeof(fy_linkedListNode*);
 }
 
-void fy_vmFree(fy_VMContext *context, void *address) {
+void fy_vmFree(fy_context *context, void *address) {
 	void *base = (jbyte*) address - sizeof(fy_linkedListNode*);
 	fy_linkedListNode* node = *((fy_linkedListNode**) base);
 #ifdef _DEBUG
@@ -63,7 +63,7 @@ void fy_vmFree(fy_VMContext *context, void *address) {
 	vm_free(base);
 }
 
-void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
+void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	/*
 	 fy_str *sBoolean;
 	 fy_str *sByte;
@@ -77,9 +77,7 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 	 fy_str *primitives[128];
 	 fy_hashMap *mapPrimitivesRev;
 	 */
-	if (fy_gInited != 0x1234567890abcdefll) {
-		vm_die("Init global first!");
-	}
+	jchar *cc;
 
 	context->nextHandle = 1;
 
@@ -142,32 +140,41 @@ void fy_vmContextInit(fy_VMContext *context, fy_exception *exception) {
 	context->sArrayInteger = fy_strAllocateFromUTF8(context, "[I");
 	context->sArrayLong = fy_strAllocateFromUTF8(context, "[J");
 
-	context->primitives[TYPE_BOOLEAN] = context->sBoolean;
-	context->primitives[TYPE_BYTE] = context->sByte;
-	context->primitives[TYPE_SHORT] = context->sShort;
-	context->primitives[TYPE_CHAR] = context->sChar;
-	context->primitives[TYPE_INT] = context->sInt;
-	context->primitives[TYPE_FLOAT] = context->sFloat;
-	context->primitives[TYPE_LONG] = context->sLong;
-	context->primitives[TYPE_DOUBLE] = context->sDouble;
+	context->primitives[FY_TYPE_BOOLEAN] = context->sBoolean;
+	context->primitives[FY_TYPE_BYTE] = context->sByte;
+	context->primitives[FY_TYPE_SHORT] = context->sShort;
+	context->primitives[FY_TYPE_CHAR] = context->sChar;
+	context->primitives[FY_TYPE_INT] = context->sInt;
+	context->primitives[FY_TYPE_FLOAT] = context->sFloat;
+	context->primitives[FY_TYPE_LONG] = context->sLong;
+	context->primitives[FY_TYPE_DOUBLE] = context->sDouble;
 
 	context->mapPrimitivesRev = fy_vmAllocate(context, sizeof(fy_hashMap));
 	fy_hashMapInit(context, context->mapPrimitivesRev, 13, 12);
-	fy_hashMapPut(context, context->mapPrimitivesRev, context->sBoolean,
-			fy_gCBoolean);
-	fy_hashMapPut(context, context->mapPrimitivesRev, context->sByte,
-			fy_gCByte);
-	fy_hashMapPut(context, context->mapPrimitivesRev, context->sShort,
-			fy_gCShort);
-	fy_hashMapPut(context, context->mapPrimitivesRev, context->sChar,
-			fy_gCChar);
-	fy_hashMapPut(context, context->mapPrimitivesRev, context->sInt, fy_gCInt);
-	fy_hashMapPut(context, context->mapPrimitivesRev, context->sFloat,
-			fy_gCFloat);
-	fy_hashMapPut(context, context->mapPrimitivesRev, context->sLong,
-			fy_gCLong);
-	fy_hashMapPut(context, context->mapPrimitivesRev, context->sDouble,
-			fy_gCDouble);
+	cc = fy_vmAllocate(context, sizeof(jchar));
+	*cc = FY_TYPE_BOOLEAN;
+	fy_hashMapPut(context, context->mapPrimitivesRev, context->sBoolean, cc);
+	cc = fy_vmAllocate(context, sizeof(jchar));
+	*cc = FY_TYPE_BYTE;
+	fy_hashMapPut(context, context->mapPrimitivesRev, context->sByte, cc);
+	cc = fy_vmAllocate(context, sizeof(jchar));
+	*cc = FY_TYPE_SHORT;
+	fy_hashMapPut(context, context->mapPrimitivesRev, context->sShort, cc);
+	cc = fy_vmAllocate(context, sizeof(jchar));
+	*cc = FY_TYPE_CHAR;
+	fy_hashMapPut(context, context->mapPrimitivesRev, context->sChar, cc);
+	cc = fy_vmAllocate(context, sizeof(jchar));
+	*cc = FY_TYPE_INT;
+	fy_hashMapPut(context, context->mapPrimitivesRev, context->sInt, cc);
+	cc = fy_vmAllocate(context, sizeof(jchar));
+	*cc = FY_TYPE_FLOAT;
+	fy_hashMapPut(context, context->mapPrimitivesRev, context->sFloat, cc);
+	cc = fy_vmAllocate(context, sizeof(jchar));
+	*cc = FY_TYPE_LONG;
+	fy_hashMapPut(context, context->mapPrimitivesRev, context->sLong, cc);
+	cc = fy_vmAllocate(context, sizeof(jchar));
+	*cc = FY_TYPE_DOUBLE;
+	fy_hashMapPut(context, context->mapPrimitivesRev, context->sDouble, cc);
 
 	context->mapClassNameToId = fy_vmAllocate(context, sizeof(fy_hashMap));
 	fy_hashMapInit(context, context->mapClassNameToId, 1024, 12);
@@ -202,7 +209,7 @@ static void fy_memReleaser(fy_linkedListNode *node) {
 	node->info = 0;
 }
 
-static fy_class* getClass(fy_VMContext *context, fy_str *name) {
+static fy_class* getClass(fy_context *context, fy_str *name) {
 	int *pFid;
 	fy_class *ret;
 	pFid = fy_hashMapGet(context, context->mapClassNameToId, name);
@@ -218,7 +225,7 @@ static fy_class* getClass(fy_VMContext *context, fy_str *name) {
 	return ret;
 }
 
-void fy_vmContextDestroy(fy_VMContext *context) {
+void fy_vmContextDestroy(fy_context *context) {
 	int i;
 	fy_portDestroy(context);
 	for (i = 0; i < MAX_OBJECTS; i++) {
@@ -245,7 +252,7 @@ void fy_vmContextDestroy(fy_VMContext *context) {
 	vm_free(context->managedMemory);
 }
 
-void fy_vmRegisterField(fy_VMContext *context, fy_field *field) {
+void fy_vmRegisterField(fy_context *context, fy_field *field) {
 	int *pFid;
 	pFid = fy_hashMapGet(context, context->mapFieldNameToId, field->uniqueName);
 	if (pFid == NULL) {
@@ -257,7 +264,7 @@ void fy_vmRegisterField(fy_VMContext *context, fy_field *field) {
 	context->fields[*pFid] = field;
 }
 
-fy_field *fy_vmGetField(fy_VMContext *context, fy_str *uniqueName) {
+fy_field *fy_vmGetField(fy_context *context, fy_str *uniqueName) {
 	int *pMid = fy_hashMapGet(context, context->mapFieldNameToId, uniqueName);
 	if (pMid == NULL) {
 		return NULL;
@@ -265,7 +272,7 @@ fy_field *fy_vmGetField(fy_VMContext *context, fy_str *uniqueName) {
 	return context->fields[*pMid];
 }
 
-fy_field *fy_vmLookupFieldVirtual(fy_VMContext *context, fy_class *clazz,
+fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
 		fy_str *fieldName) {
 	/*TODO Maybe wrong!!! need to check*/
 	int *pFid;
@@ -301,7 +308,7 @@ fy_field *fy_vmLookupFieldVirtual(fy_VMContext *context, fy_class *clazz,
 	return field;
 }
 
-fy_field *fy_vmLookupFieldStatic(fy_VMContext *context, fy_class *clazz,
+fy_field *fy_vmLookupFieldStatic(fy_context *context, fy_class *clazz,
 		fy_str *fieldName) {
 	/*TODO Maybe wrong!!! need to check*/
 	int *pFid;
@@ -326,7 +333,7 @@ fy_field *fy_vmLookupFieldStatic(fy_VMContext *context, fy_class *clazz,
 	return field;
 }
 
-int fy_vmGetMethodId(fy_VMContext *context, fy_str *uniqueName) {
+int fy_vmGetMethodId(fy_context *context, fy_str *uniqueName) {
 	int *pMid;
 	pMid = fy_hashMapGet(context, context->mapMethodNameToId, uniqueName);
 	if (pMid == NULL) {
@@ -335,7 +342,7 @@ int fy_vmGetMethodId(fy_VMContext *context, fy_str *uniqueName) {
 	return *pMid;
 }
 
-void fy_vmRegisterMethod(fy_VMContext *context, fy_method *method) {
+void fy_vmRegisterMethod(fy_context *context, fy_method *method) {
 	int *pMid;
 	pMid = fy_hashMapGet(context, context->mapMethodNameToId,
 			method->uniqueName);
@@ -348,7 +355,7 @@ void fy_vmRegisterMethod(fy_VMContext *context, fy_method *method) {
 	context->methods[*pMid] = method;
 }
 
-fy_method *fy_vmGetMethod(fy_VMContext *context, fy_str *uniqueName) {
+fy_method *fy_vmGetMethod(fy_context *context, fy_str *uniqueName) {
 	int *pMid = fy_hashMapGet(context, context->mapMethodNameToId, uniqueName);
 	if (pMid == NULL) {
 		return NULL;
@@ -356,7 +363,7 @@ fy_method *fy_vmGetMethod(fy_VMContext *context, fy_str *uniqueName) {
 	return context->methods[*pMid];
 }
 
-fy_method *fy_vmLookupMethodVirtual(fy_VMContext *context, fy_class *clazz,
+fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 		fy_str *methodName) {
 	int *pMid;
 	fy_method *method = NULL;
@@ -390,7 +397,7 @@ fy_method *fy_vmLookupMethodVirtual(fy_VMContext *context, fy_class *clazz,
 	return method;
 }
 
-fy_method *fy_vmLookupMethodStatic(fy_VMContext *context, fy_class *clazz,
+fy_method *fy_vmLookupMethodStatic(fy_context *context, fy_class *clazz,
 		fy_str *methodName) {
 	int *pMid;
 	fy_method *method = NULL;
@@ -412,7 +419,7 @@ fy_method *fy_vmLookupMethodStatic(fy_VMContext *context, fy_class *clazz,
 	return method;
 }
 
-void fy_vmRegisterClass(fy_VMContext *context, fy_class *clazz) {
+void fy_vmRegisterClass(fy_context *context, fy_class *clazz) {
 	int *pCid;
 	pCid = fy_hashMapGet(context, context->mapClassNameToId, clazz->className);
 	if (pCid == NULL) {
@@ -431,7 +438,7 @@ void fy_vmRegisterClass(fy_VMContext *context, fy_class *clazz) {
 }
 
 /*Likes com.cirnoworks.fisce.vm.VMContext.getClass(String name)*/
-fy_class *fy_vmLookupClass(fy_VMContext *context, fy_str *name,
+fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
 		fy_exception *exception) {
 	fy_class *clazz;
 	fy_class *clazz2;
@@ -473,7 +480,7 @@ fy_class *fy_vmLookupClass(fy_VMContext *context, fy_str *name,
 	return clazz;
 }
 
-fy_class *fy_vmGetClassFromClassObject(fy_VMContext *context, juint handle,
+fy_class *fy_vmGetClassFromClassObject(fy_context *context, juint handle,
 		fy_exception *exception) {
 	fy_class *classClass;
 	fy_class *inputClass;
@@ -509,7 +516,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_VMContext *context, juint handle,
 
 }
 
-fy_class *fy_vmLookupClassFromConstant(fy_VMContext *context,
+fy_class *fy_vmLookupClassFromConstant(fy_context *context,
 		ConstantClass *classInfo, fy_exception *exception) {
 	if (classInfo->derefed == 0) {
 		classInfo->ci.clazz = fy_vmLookupClass(context, classInfo->ci.className,
@@ -522,7 +529,7 @@ fy_class *fy_vmLookupClassFromConstant(fy_VMContext *context,
 	return classInfo->ci.clazz;
 }
 
-fy_field *fy_vmLookupFieldFromConstant(fy_VMContext *context,
+fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 		ConstantFieldRef *fieldInfo, fy_exception *exception) {
 	fy_field *field;
 	if (fieldInfo->derefed == 0) {
@@ -544,7 +551,7 @@ fy_field *fy_vmLookupFieldFromConstant(fy_VMContext *context,
 	return field;
 }
 
-fy_method *fy_vmLookupMethodFromConstant(fy_VMContext *context,
+fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 		ConstantMethodRef *methodInfo, fy_exception *exception) {
 	fy_method *method;
 	if (methodInfo->derefed == 0) {
@@ -568,7 +575,7 @@ fy_method *fy_vmLookupMethodFromConstant(fy_VMContext *context,
 	return method;
 }
 
-void fy_vmRegisterNativeHandler(fy_VMContext *context, const char *name,
+void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 		void *data, fy_nhFunction handler) {
 	fy_nh* nh;
 	fy_str* str;
@@ -583,7 +590,7 @@ void fy_vmRegisterNativeHandler(fy_VMContext *context, const char *name,
 	fy_strRelease(context, str);
 }
 
-fy_class *fy_vmLookupClassFromExceptionHandler(fy_VMContext *context,
+fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 		fy_exceptionHandler *exceptionHandler, fy_exception *exception) {
 	fy_class *clazz;
 	if (exceptionHandler->catchTypeDerefed == 0) {
@@ -598,7 +605,7 @@ fy_class *fy_vmLookupClassFromExceptionHandler(fy_VMContext *context,
 	return clazz;
 }
 
-void fy_vmBootup(fy_VMContext *context, jchar* bootStrapClass) {
+void fy_vmBootup(fy_context *context, jchar* bootStrapClass) {
 
 }
 

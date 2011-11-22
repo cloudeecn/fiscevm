@@ -28,18 +28,18 @@
 extern "C" {
 #endif
 
-void fy_hashMapInit(fy_VMContext *context, fy_hashMap *this, juint initSize,
+void fy_hashMapInit(fy_context *context, fy_hashMap *this, juint initSize,
 		juint loadFactor);
-void fy_hashMapInitSimple(fy_VMContext *context, fy_hashMap *this);
-void *fy_hashMapPut(fy_VMContext *context, fy_hashMap *this, fy_str *key,
+void fy_hashMapInitSimple(fy_context *context, fy_hashMap *this);
+void *fy_hashMapPut(fy_context *context, fy_hashMap *this, fy_str *key,
 		void *value);
-int fy_hashMapPutInt(fy_VMContext *context, fy_hashMap *this, fy_str *key,
+int fy_hashMapPutInt(fy_context *context, fy_hashMap *this, fy_str *key,
 		int value);
-void *fy_hashMapPutUtf8(fy_VMContext *context, fy_hashMap *this,
+void *fy_hashMapPutUtf8(fy_context *context, fy_hashMap *this,
 		const char *keyUtf8, void *value);
-void *fy_hashMapGet(fy_VMContext *context, fy_hashMap *this, fy_str *key);
-int fy_hashMapGetInt(fy_VMContext *context, fy_hashMap *this, fy_str *key);
-void fy_hashMapDestroy(fy_VMContext *context, fy_hashMap *this);
+void *fy_hashMapGet(fy_context *context, fy_hashMap *this, fy_str *key);
+int fy_hashMapGetInt(fy_context *context, fy_hashMap *this, fy_str *key);
+void fy_hashMapDestroy(fy_context *context, fy_hashMap *this);
 #ifdef	__cplusplus
 }
 #endif

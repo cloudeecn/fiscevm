@@ -19,10 +19,7 @@
 #define FY_THREADMANAGER_H_
 
 #include "VMContext.h"
-
-fy_message fy_tmRun(fy_VMContext *context);
-void fy_tmMonitorEnter(fy_VMContext *context,fy_thread *thread,jint monitorId);
-void fy_tmMonitorExit(fy_VMContext *context,fy_thread *thread,jint monitorId);
+#include "VMPortable.h"
 
 #endif /* FY_THREADMANAGER_H_ */
 

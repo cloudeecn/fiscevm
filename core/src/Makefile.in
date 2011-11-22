@@ -71,11 +71,11 @@ libfisce_a_AR = $(AR) $(ARFLAGS)
 libfisce_a_LIBADD =
 am_libfisce_a_OBJECTS = Class.$(OBJEXT) ClassLoader.$(OBJEXT) \
 	CoreHandlers.$(OBJEXT) Data.$(OBJEXT) Debug.$(OBJEXT) \
-	Global.$(OBJEXT) HashMap.$(OBJEXT) Heap.$(OBJEXT) \
-	HeapAccessers.$(OBJEXT) LinkedList.$(OBJEXT) \
-	Portable.$(OBJEXT) Resource.$(OBJEXT) String.$(OBJEXT) \
-	Thread.$(OBJEXT) Utf8.$(OBJEXT) VMContext.$(OBJEXT) \
-	VMPortable.$(OBJEXT) ExpDev.$(OBJEXT)
+	HashMap.$(OBJEXT) Heap.$(OBJEXT) HeapAccessers.$(OBJEXT) \
+	LinkedList.$(OBJEXT) Portable.$(OBJEXT) Resource.$(OBJEXT) \
+	String.$(OBJEXT) Thread.$(OBJEXT) ThreadManager.$(OBJEXT) \
+	Utf8.$(OBJEXT) VMContext.$(OBJEXT) VMPortable.$(OBJEXT) \
+	ExpDev.$(OBJEXT)
 libfisce_a_OBJECTS = $(am_libfisce_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -184,7 +184,6 @@ libfisce_a_SOURCES = \
 	CoreHandlers.c \
 	Data.c \
 	Debug.c \
-	Global.c \
 	HashMap.c \
 	Heap.c \
 	HeapAccessers.c \
@@ -193,6 +192,7 @@ libfisce_a_SOURCES = \
 	Resource.c \
 	String.c \
 	Thread.c \
+	ThreadManager.c \
 	Utf8.c \
 	VMContext.c \
 	VMPortable.c \
@@ -281,7 +281,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ExpDev.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Global.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Heap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HeapAccessers.Po@am__quote@
@@ -290,6 +289,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Resource.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Thread.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ThreadManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Utf8.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VMContext.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VMPortable.Po@am__quote@

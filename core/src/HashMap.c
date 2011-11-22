@@ -16,7 +16,7 @@
  */
 #include "fyc/HashMap.h"
 
-static void expandBuckets(fy_VMContext *context, fy_hashMap *this,
+static void expandBuckets(fy_context *context, fy_hashMap *this,
 		juint targetSize) {
 	int i, imax;
 	fy_hashMapEntry *entry;
@@ -57,7 +57,7 @@ static void expandBuckets(fy_VMContext *context, fy_hashMap *this,
 
 }
 
-static fy_hashMapEntry *getBucket(fy_VMContext *context, fy_hashMap *this,
+static fy_hashMapEntry *getBucket(fy_context *context, fy_hashMap *this,
 		fy_str *key) {
 	juint hashCode;
 	fy_hashMapEntry *entry;
@@ -74,17 +74,17 @@ static fy_hashMapEntry *getBucket(fy_VMContext *context, fy_hashMap *this,
 	return NULL;
 }
 
-void fy_hashMapInit(fy_VMContext *context, fy_hashMap *this, juint initSize,
+void fy_hashMapInit(fy_context *context, fy_hashMap *this, juint initSize,
 		juint loadFactor) {
 	this->loadFactor = loadFactor;
 	this->bucketsCount = initSize;
 	this->buckets = fy_vmAllocate(context, sizeof(fy_hashMapEntry*) * initSize);
 	this->size = 0;
 }
-void fy_hashMapInitSimple(fy_VMContext *context, fy_hashMap *this) {
+void fy_hashMapInitSimple(fy_context *context, fy_hashMap *this) {
 	fy_hashMapInit(context, this, 16, 12);
 }
-void *fy_hashMapPut(fy_VMContext *context, fy_hashMap *this, fy_str *key,
+void *fy_hashMapPut(fy_context *context, fy_hashMap *this, fy_str *key,
 		void *value) {
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
@@ -124,7 +124,7 @@ void *fy_hashMapPut(fy_VMContext *context, fy_hashMap *this, fy_str *key,
 	}
 }
 
-void *fy_hashMapPutUtf8(fy_VMContext *context, fy_hashMap *this,
+void *fy_hashMapPutUtf8(fy_context *context, fy_hashMap *this,
 		const char *keyUtf8, void *value) {
 	fy_str *key;
 	void *ret;
@@ -140,12 +140,12 @@ void *fy_hashMapPutUtf8(fy_VMContext *context, fy_hashMap *this,
 	return ret;
 }
 
-void* fy_hashMapGet(fy_VMContext *context, fy_hashMap *this, fy_str *key) {
+void* fy_hashMapGet(fy_context *context, fy_hashMap *this, fy_str *key) {
 	fy_hashMapEntry *entry = getBucket(context, this, key);
 	return entry == NULL ? NULL : entry->value;
 }
 
-void fy_hashMapDestroy(fy_VMContext *context, fy_hashMap *this) {
+void fy_hashMapDestroy(fy_context *context, fy_hashMap *this) {
 	int i, imax;
 	fy_hashMapEntry *entry, *tmp;
 	for (i = 0, imax = this->bucketsCount; i < imax; i++) {

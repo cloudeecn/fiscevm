@@ -30,11 +30,11 @@ static int checkConstantBonud(fy_class *clazz, int idx) {
 
 static int getSizeShiftForArray(fy_str *arrayName) {
 	switch (arrayName->content[1]) {
-	case TYPE_BOOLEAN:
-	case TYPE_BYTE:
+	case FY_TYPE_BOOLEAN:
+	case FY_TYPE_BYTE:
 		return fy_SIZE_SHIFT_BYTE;
-	case TYPE_DOUBLE:
-	case TYPE_LONG:
+	case FY_TYPE_DOUBLE:
+	case FY_TYPE_LONG:
 		return fy_SIZE_SHIFT_LONG;
 	default:
 		return fy_SIZE_SHIFT_INT;
@@ -53,7 +53,7 @@ static int getSizeFromDescriptor(fy_str *descriptor) {
 }
 #endif
 
-static void fillConstantContent(fy_VMContext *context, fy_class *ret,
+static void fillConstantContent(fy_context *context, fy_class *ret,
 		fy_data *data) {
 	int i, imax, j;
 	int cpSkip;
@@ -268,7 +268,7 @@ static void fillConstantContent(fy_VMContext *context, fy_class *ret,
 	}
 }
 
-static void loadInterfaces(fy_VMContext *context, fy_class *clazz,
+static void loadInterfaces(fy_context *context, fy_class *clazz,
 		fy_data *data) {
 	int i, count;
 	fy_exception exception;
@@ -288,7 +288,7 @@ static void loadInterfaces(fy_VMContext *context, fy_class *clazz,
 	}
 }
 
-static void loadFields(fy_VMContext *context, fy_class *clazz, fy_data *data) {
+static void loadFields(fy_context *context, fy_class *clazz, fy_data *data) {
 	int i, count, j, countj;
 	int length;
 
@@ -332,7 +332,7 @@ static void loadFields(fy_VMContext *context, fy_class *clazz, fy_data *data) {
 			length = 1;
 			break;
 		}
-		if (field->access_flags & fy_ACC_STATIC) {
+		if (field->access_flags & FY_ACC_STATIC) {
 			field->posAbs = staticPos;
 			staticPos += length;
 		} else {
@@ -367,9 +367,9 @@ static void loadFields(fy_VMContext *context, fy_class *clazz, fy_data *data) {
 	strConstantValue = 0;
 }
 
-static void countParams(fy_VMContext *context, fy_str *desc, fy_method *method) {
+static void countParams(fy_context *context, fy_str *desc, fy_method *method) {
 	jbyte *temp;
-	jbyte returnType = TH_TYPE_UNKNOWN;
+	jbyte returnType = FY_TYPE_UNKNOWN;
 	int pc = 0;
 	jchar ch;
 	int i, maxi;
@@ -392,19 +392,19 @@ static void countParams(fy_VMContext *context, fy_str *desc, fy_method *method) 
 				case 'I':
 				case 'S':
 				case 'Z':
-					returnType = TH_TYPE_INT;
+					returnType = FY_TYPE_INT;
 					break;
 				case 'D':
 				case 'J':
-					returnType = TH_TYPE_WIDE;
+					returnType = FY_TYPE_WIDE;
 					break;
 				case '[':
 				case 'L':
-					returnType = TH_TYPE_HANDLE;
+					returnType = FY_TYPE_HANDLE;
 					break;
 				case 'V':
 				default:
-					returnType = TH_TYPE_UNKNOWN;
+					returnType = FY_TYPE_UNKNOWN;
 					break;
 				}
 				break;
@@ -416,12 +416,12 @@ static void countParams(fy_VMContext *context, fy_str *desc, fy_method *method) 
 				case 'I':
 				case 'S':
 				case 'Z':
-					temp[pc++] = TH_TYPE_INT;
+					temp[pc++] = FY_TYPE_INT;
 					break;
 				case 'D':
 				case 'J':
-					temp[pc++] = TH_TYPE_WIDE;
-					temp[pc++] = TH_TYPE_WIDE2;
+					temp[pc++] = FY_TYPE_WIDE;
+					temp[pc++] = FY_TYPE_WIDE2;
 					break;
 				case '[':
 					while ((ch = desc->content[++i]) == '[') {
@@ -430,12 +430,12 @@ static void countParams(fy_VMContext *context, fy_str *desc, fy_method *method) 
 						while ((ch = desc->content[++i]) != ';') {
 						}
 					}
-					temp[pc++] = TH_TYPE_HANDLE;
+					temp[pc++] = FY_TYPE_HANDLE;
 					break;
 				case 'L':
 					while ((ch = desc->content[++i]) != ';')
 						;
-					temp[pc++] = TH_TYPE_HANDLE;
+					temp[pc++] = FY_TYPE_HANDLE;
 					break;
 				default:
 					msg[0] = 0;
@@ -459,7 +459,7 @@ static void countParams(fy_VMContext *context, fy_str *desc, fy_method *method) 
 	vm_free(temp);
 }
 
-static void loadMethods(fy_VMContext *context, fy_class *clazz, fy_data *data) {
+static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data) {
 	jchar i, count, j, jcount, k, kcount, l, lcount;
 	fy_str *ATT_CODE = fy_strAllocateFromUTF8(context, "Code");
 	fy_str *ATT_LINENUM = fy_strAllocateFromUTF8(context, "fy_lineNumber");
@@ -560,12 +560,12 @@ static void loadMethods(fy_VMContext *context, fy_class *clazz, fy_data *data) {
 }
 
 /************public***************/
-fy_str *fy_clGetConstantString(fy_VMContext *context, fy_class *clazz,
+fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
 		jchar idx) {
 	return ((ConstantUtf8Info*) clazz->constantPools[idx])->string;
 }
 
-fy_data *fy_clOpenResource(fy_VMContext *context, fy_str *name) {
+fy_data *fy_clOpenResource(fy_context *context, fy_str *name) {
 	int i, max;
 	int size = 0;
 	char *cname;
@@ -581,11 +581,11 @@ fy_data *fy_clOpenResource(fy_VMContext *context, fy_str *name) {
 	return ret;
 }
 
-void fy_clCloseResource(fy_VMContext *context, fy_data *data) {
+void fy_clCloseResource(fy_context *context, fy_data *data) {
 	fy_resourceReleaseData(context, data);
 }
 
-static fy_class *fy_clLoadclassPriv(fy_VMContext *context, fy_data *data) {
+static fy_class *fy_clLoadclassPriv(fy_context *context, fy_data *data) {
 	jchar i, icount;
 	fy_str *attrName;
 	juint attrSize;
@@ -623,7 +623,7 @@ static fy_class *fy_clLoadclassPriv(fy_VMContext *context, fy_data *data) {
 	clazz->phase = 1;
 	return clazz;
 }
-void fy_clPhase2(fy_VMContext *context, fy_class *clazz,
+void fy_clPhase2(fy_context *context, fy_class *clazz,
 		fy_exception *exception) {
 	fy_str *name;
 	jchar i;
@@ -634,7 +634,7 @@ void fy_clPhase2(fy_VMContext *context, fy_class *clazz,
 	switch (clazz->type) {
 	case arr:
 		switch (clazz->className->content[1]) {
-		case TYPE_ARRAY:
+		case FY_TYPE_ARRAY:
 			name = fy_vmAllocate(context, sizeof(fy_str));
 			fy_strInit(context, name, clazz->className->length);
 			name->length = clazz->className->length - 1;
@@ -645,7 +645,7 @@ void fy_clPhase2(fy_VMContext *context, fy_class *clazz,
 			fy_strDestroy(context, name);
 			fy_vmFree(context, name);
 			break;
-		case TYPE_HANDLE:
+		case FY_TYPE_HANDLE:
 			name = fy_vmAllocate(context, sizeof(fy_str));
 			fy_strInit(context, name, clazz->className->length);
 			name->length = clazz->className->length - 3;
@@ -678,7 +678,7 @@ void fy_clPhase2(fy_VMContext *context, fy_class *clazz,
 			}
 			clazz->sizeAbs = clazz->super->sizeAbs + clazz->sizeRel;
 			for (i = 0; i < clazz->fieldCount; i++) {
-				if (clazz->fields[i]->access_flags & fy_ACC_STATIC) {
+				if (clazz->fields[i]->access_flags & FY_ACC_STATIC) {
 
 				} else {
 					clazz->fields[i]->posAbs = clazz->super->sizeAbs
@@ -716,14 +716,14 @@ void fy_clPhase2(fy_VMContext *context, fy_class *clazz,
 	clazz->phase = 2;
 	fy_strRelease(context, FINALIZE);
 }
-fy_class *fy_clLoadclass(fy_VMContext *context, fy_str *name,
+fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		fy_exception *exception) {
 
 	fy_data *data;
 	fy_data tmpData;
 	fy_class *clazz;
 
-	if (name->content[0] == TYPE_ARRAY) {
+	if (name->content[0] == FY_TYPE_ARRAY) {
 		clazz = fy_vmAllocate(context, sizeof(fy_class));
 		clazz->type = arr;
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);

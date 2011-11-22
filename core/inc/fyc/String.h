@@ -30,20 +30,20 @@ extern "C" {
 #define fy_strAllocate(CONTEXT) fy_strInit((CONTEXT),fy_vmAllocate((CONTEXT),sizeof(fy_str)),16)
 #define fy_strRelease(CONTEXT,STR) fy_strDestroy((CONTEXT),(STR));fy_vmFree((CONTEXT),(STR));
 
-fy_str *fy_strAllocateFromUTF8(fy_VMContext *context, const char *utf8);
+fy_str *fy_strAllocateFromUTF8(fy_context *context, const char *utf8);
 
-fy_str *fy_strInit(struct fy_VMContext *context, fy_str *string, jint size);
+fy_str *fy_strInit(struct fy_context *context, fy_str *string, jint size);
 
-fy_str *fy_strNew(struct fy_VMContext *context, const char *utf8);
+fy_str *fy_strNew(struct fy_context *context, const char *utf8);
 
-void fy_strDestroy(struct fy_VMContext *context, fy_str *string);
+void fy_strDestroy(struct fy_context *context, fy_str *string);
 
-fy_str *fy_strAppend(struct fy_VMContext *context, fy_str *this,
+fy_str *fy_strAppend(struct fy_context *context, fy_str *this,
 		const fy_str *string);
-fy_str *fy_strAppendChar(fy_VMContext *context, fy_str *this, jchar ch);
-fy_str *fy_strAppendUTF8(struct fy_VMContext *context, fy_str *this,
+fy_str *fy_strAppendChar(fy_context *context, fy_str *this, jchar ch);
+fy_str *fy_strAppendUTF8(struct fy_context *context, fy_str *this,
 		const char* utf8, jint size);
-fy_str *fy_strSubstring(struct fy_VMContext *context, fy_str *this, jint begin,
+fy_str *fy_strSubstring(struct fy_context *context, fy_str *this, jint begin,
 		jint end);
 juint fy_strUtf8Count(fy_str *str);
 
@@ -58,7 +58,7 @@ char *fy_strSPrint(char *target, size_t targetSize, fy_str *str);
 
 fy_str *fy_strReplaceOne(fy_str *str, jchar from,jchar to);
 
-fy_str *fy_strAllocateClone(fy_VMContext *context, fy_str *from);
+fy_str *fy_strAllocateClone(fy_context *context, fy_str *from);
 
 #ifdef	__cplusplus
 }

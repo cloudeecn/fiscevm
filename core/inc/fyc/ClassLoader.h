@@ -31,15 +31,15 @@
 #define fy_SIZE_SHIFT_INT 2 /*4 bytes*/
 #define fy_SIZE_SHIFT_LONG 3 /*8 bytes*/
 
-fy_str *fy_clGetConstantString(fy_VMContext *context, fy_class *clazz,
+fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
 		jchar idx);
-fy_class *fy_clLoadclass(fy_VMContext *context, fy_str *name,
+fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		fy_exception *exception);
-void fy_clPhase2(fy_VMContext *context, fy_class *clazz,
+void fy_clPhase2(fy_context *context, fy_class *clazz,
 		fy_exception *exception);
 
-fy_data *fy_clOpenResource(fy_VMContext *context, fy_str *name);
-void fy_clCloseResource(fy_VMContext *context, fy_data *data);
+fy_data *fy_clOpenResource(fy_context *context, fy_str *name);
+void fy_clCloseResource(fy_context *context, fy_data *data);
 
 #endif	/* FY_CLASSLOADER_H */
 

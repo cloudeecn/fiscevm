@@ -27,6 +27,6 @@
 #include "Thread.h"
 #include "Heap.h"
 
-void fy_coreRegisterCoreHandlers(fy_VMContext *context);
+void fy_coreRegisterCoreHandlers(fy_context *context);
 
 #endif /* FY_COREHANDLERS_H_ */

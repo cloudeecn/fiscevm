@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 
-FY_EXPORT void fy_nativeReturnInt(fy_VMContext *context, fy_thread *thread,
+_FY_EXPORT void fy_nativeReturnInt(fy_context *context, fy_thread *thread,
 		jint value);
 
-FY_EXPORT void fy_nativeReturnHandle(fy_VMContext *context, fy_thread *thread,
+_FY_EXPORT void fy_nativeReturnHandle(fy_context *context, fy_thread *thread,
 		jint value);
 
-FY_EXPORT void fy_nativeReturnLong(fy_VMContext *context, fy_thread *thread,
+_FY_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
 		jlong value);
 
 #define fy_nativeReturnFloat(C,T,V) fy_nativeReturnInt(C,T,fy_floatToInt(V))

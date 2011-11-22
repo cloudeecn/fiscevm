@@ -33,7 +33,7 @@ typedef struct PortableData {
 #endif
 } PortableData;
 
-void fy_portInit(fy_VMContext *context) {
+void fy_portInit(fy_context *context) {
 	PortableData *pd;
 	pd = (PortableData*) (context->portableData = vm_allocate(
 			sizeof(PortableData)));
@@ -46,12 +46,12 @@ void fy_portInit(fy_VMContext *context) {
 	gettimeofday(&(pd->tvBeginTime),NULL);
 #endif
 }
-void fy_portDestroy(fy_VMContext *context) {
+void fy_portDestroy(fy_context *context) {
 	PortableData *pd = (PortableData*) (context->portableData);
 
 	vm_free(context->portableData);
 }
-jlong fy_portTimeMillSec(fy_VMContext *context) {
+jlong fy_portTimeMillSec(fy_context *context) {
 	PortableData *pd = (PortableData*) (context->portableData);
 #if defined(_WIN32)
 	jlong timeDelta;
@@ -67,7 +67,7 @@ jlong fy_portTimeMillSec(fy_VMContext *context) {
 #endif
 	return 0;
 }
-jlong fy_portTimeNanoSec(fy_VMContext *context) {
+jlong fy_portTimeNanoSec(fy_context *context) {
 	PortableData *pd = (PortableData*) (context->portableData);
 #if defined(_WIN32)
 	LARGE_INTEGER lPerfCount;

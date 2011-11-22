@@ -26,7 +26,7 @@ static long int blocks = 0;
 #ifdef __GNUC__
 __attribute__((malloc))
 #endif
-FY_EXPORT void *vm_allocate(juint size) {
+_FY_EXPORT void *vm_allocate(juint size) {
 	void *ret;
 	blocks++;
 	ret = malloc(size);
@@ -38,12 +38,12 @@ FY_EXPORT void *vm_allocate(juint size) {
 	return ret;
 }
 
-FY_EXPORT void vm_free(void *target) {
+_FY_EXPORT void vm_free(void *target) {
 	blocks--;
 	free(target);
 }
 
-FY_EXPORT long int vm_getAllocated() {
+_FY_EXPORT long int vm_getAllocated() {
 	return blocks;
 }
 static void vm_die_break() {
@@ -69,7 +69,7 @@ static void vm_die_break() {
 	i++;
 	i++;
 }
-FY_EXPORT void vm_die(char *format, ...) {
+_FY_EXPORT void vm_die(char *format, ...) {
 	/*Put breakpoint here for exception handle!*/
 	int i = 0;
 	va_list arg_ptr;
@@ -101,30 +101,30 @@ union fy_itof {
 	jint i;
 };
 
-FY_EXPORT jlong fy_doubleToLong(jdouble value) {
+_FY_EXPORT jlong fy_doubleToLong(jdouble value) {
 	union fy_dtol d;
 	d.d = value;
 	return d.l;
 }
-FY_EXPORT jdouble fy_longToDouble(jlong value) {
+_FY_EXPORT jdouble fy_longToDouble(jlong value) {
 	union fy_dtol d;
 	d.l = value;
 	return d.d;
 }
-FY_EXPORT jint fy_floatToInt(jfloat value) {
+_FY_EXPORT jint fy_floatToInt(jfloat value) {
 	union fy_itof d;
 	d.f = value;
 	return d.i;
 }
-FY_EXPORT jfloat fy_intToFloat(jint value) {
+_FY_EXPORT jfloat fy_intToFloat(jint value) {
 	union fy_itof d;
 	d.i = value;
 	return d.f;
 }
 
-FY_EXPORT jboolean fy_isnand(jdouble d) {
+_FY_EXPORT jboolean fy_isnand(jdouble d) {
 	return d != d;
 }
-FY_EXPORT jboolean fy_isnanf(jfloat f) {
+_FY_EXPORT jboolean fy_isnanf(jfloat f) {
 	return f != f;
 }

@@ -18,7 +18,7 @@
 #include "fyc/CoreHandlers.h"
 #include "fiscedev.h"
 
-static void SystemArrayCopy(struct fy_VMContext *context,
+static void SystemArrayCopy(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	jint srcHandle = args[0];
@@ -30,24 +30,24 @@ static void SystemArrayCopy(struct fy_VMContext *context,
 			exception);
 }
 
-static void SystemTimeMS(struct fy_VMContext *context, struct fy_thread *thread,
+static void SystemTimeMS(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	fy_nativeReturnLong(context, thread, fy_portTimeMillSec(context));
 }
 
-static void SystemTimeNS(struct fy_VMContext *context, struct fy_thread *thread,
+static void SystemTimeNS(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	fy_nativeReturnLong(context, thread, fy_portTimeNanoSec(context));
 }
 
-static void ObjectGetClass(struct fy_VMContext *context,
+static void ObjectGetClass(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
 	fy_nativeReturnHandle(context, thread, clazz->classObjId);
 }
 
-static void ClassGetComponentType(struct fy_VMContext *context,
+static void ClassGetComponentType(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
@@ -59,31 +59,31 @@ static void ClassGetComponentType(struct fy_VMContext *context,
 	}
 }
 
-static void ThreadCurrentThread(struct fy_VMContext *context,
+static void ThreadCurrentThread(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_nativeReturnHandle(context, thread, thread->handle);
 }
 
-static void ThreadSetPriority(struct fy_VMContext *context,
+static void ThreadSetPriority(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	/*TODO implement thread manager first*/
 }
 
-static void ThreadIsAlive(struct fy_VMContext *context,
+static void ThreadIsAlive(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	/*TODO implement thread manager first*/
 	fy_nativeReturnInt(context, thread, 0);
 }
 
-static void ThreadStart(struct fy_VMContext *context, struct fy_thread *thread,
+static void ThreadStart(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	/*TODO implement thread manager first*/
 }
 
-static void VMDebugOut(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	fy_str *str;
 	fy_vmLookupClass(context, context->sString, exception);
@@ -101,42 +101,42 @@ static void VMDebugOut(struct fy_VMContext *context, struct fy_thread *thread,
 	fy_strRelease(context, str);
 }
 
-static void VMDebugOutI(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMDebugOutI(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	printf("VMDebugOutI: %d\n", args[0]);
 }
 
-static void VMDebugOutJ(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMDebugOutJ(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
-	printf("VMDebugOutI: %"PRINT64"d\n", fy_I2TOL(args[0],args[1]));
+	printf("VMDebugOutI: %"FY_PRINT64"d\n", fy_I2TOL(args[0],args[1]));
 }
 
-static void VMDebugOutF(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMDebugOutF(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	printf("VMDebugOutI: %f\n", fy_intToFloat(args[0]));
 }
 
-static void VMDebugOutD(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMDebugOutD(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	printf("VMDebugOutI: %f\n", fy_longToDouble(fy_I2TOL(args[0],args[1])));
 }
 
-static void VMThrowOut(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMThrowOut(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	/*TODO */
 }
 
-static void VMExit(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMExit(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	/*TODO */
 }
 
-static void SOSWrite(struct fy_VMContext *context, struct fy_thread *thread,
+static void SOSWrite(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	putchar(args[1]);
 }
 
-static void VMDecode(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	jint handleSrc = args[1];
 	jint ofs = args[2];
@@ -186,7 +186,7 @@ static void VMDecode(struct fy_VMContext *context, struct fy_thread *thread,
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
-static void VMEncode(struct fy_VMContext *context, struct fy_thread *thread,
+static void VMEncode(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	jint handleSrc = args[1];
 	jint ofs = args[2];
@@ -240,20 +240,20 @@ static void VMEncode(struct fy_VMContext *context, struct fy_thread *thread,
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
-static void VMGetDoubleRaw(struct fy_VMContext *context,
+static void VMGetDoubleRaw(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_nativeReturnLong(context, thread,
 			((jlong) args[0] << 32) | ((juint) args[1]));
 }
 
-static void VMGetFloatRaw(struct fy_VMContext *context,
+static void VMGetFloatRaw(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_nativeReturnInt(context, thread, args[0]);
 }
 
-static void VMStringToDouble(struct fy_VMContext *context,
+static void VMStringToDouble(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_str *str = fy_strAllocate(context);
@@ -265,7 +265,7 @@ static void VMStringToDouble(struct fy_VMContext *context,
 	fy_nativeReturnLong(context, thread, fy_doubleToLong(value));
 }
 
-static void VMDoubleToString(struct fy_VMContext *context,
+static void VMDoubleToString(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	jlong lvalue = ((julong) args[0] << 32) | ((juint) args[1]);
@@ -283,7 +283,7 @@ static void VMDoubleToString(struct fy_VMContext *context,
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
-static void VMStringToFloat(struct fy_VMContext *context,
+static void VMStringToFloat(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	fy_str *str = fy_strAllocate(context);
@@ -295,7 +295,7 @@ static void VMStringToFloat(struct fy_VMContext *context,
 	fy_nativeReturnInt(context, thread, fy_floatToInt((jfloat) value));
 }
 
-static void VMFloatToString(struct fy_VMContext *context,
+static void VMFloatToString(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	jint value = args[0];
@@ -313,17 +313,16 @@ static void VMFloatToString(struct fy_VMContext *context,
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
-static void throwableFillInStackTrace(struct fy_VMContext *context,
+static void throwableFillInStackTrace(struct fy_context *context,
 		struct fy_thread *thread, void *data, juint *args, jint argsCount,
 		fy_exception *exception) {
 	jint value = args[0];
 	fy_threadFillException(context, thread, value, exception);
 }
 
-static void classGetName(struct fy_VMContext *context, struct fy_thread *thread,
+static void classGetName(struct fy_context *context, struct fy_thread *thread,
 		void *data, juint *args, jint argsCount, fy_exception *exception) {
 	juint handle;
-	fy_object *obj = fy_heapGetObject(context,args[0]);
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	if (exception->exceptionType != exception_none) {
 		return;
@@ -335,7 +334,7 @@ static void classGetName(struct fy_VMContext *context, struct fy_thread *thread,
 	fy_nativeReturnHandle(context, thread, handle);
 }
 
-void fy_coreRegisterCoreHandlers(fy_VMContext *context) {
+void fy_coreRegisterCoreHandlers(fy_context *context) {
 	fy_vmRegisterNativeHandler(
 			context,
 			"java/lang/System.arraycopy.(L"FY_BASE_OBJECT";IL"FY_BASE_OBJECT";II)V",

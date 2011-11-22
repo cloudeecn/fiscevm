@@ -224,8 +224,8 @@ static char *OP_NAME[] = { /**/
 "BREAKPOINT" /* 0xCA */};
 #endif
 
-static jint processThrowable(fy_VMContext *context, fy_frame *frame,
-		jint handle, jint lpc, fy_exception *exception) {
+static jint processThrowable(fy_context *context, fy_frame *frame, jint handle,
+		jint lpc, fy_exception *exception) {
 	fy_class *throwableClass;
 	fy_class *handlerClass;
 	jint i, imax;
@@ -260,7 +260,7 @@ static jint processThrowable(fy_VMContext *context, fy_frame *frame,
 	//Jump after found the target is move to run() for further optimize
 }
 
-static jint threadmulitANewArray(fy_VMContext *context, fy_class *clazz,
+static jint threadmulitANewArray(fy_context *context, fy_class *clazz,
 		jint layers, jint *elementsForEachLayer, fy_exception *exception) {
 	int i;
 	jint handle;
@@ -285,7 +285,7 @@ static jint threadmulitANewArray(fy_VMContext *context, fy_class *clazz,
 	return ret;
 }
 
-static jint opLDC(fy_VMContext *context, fy_class *owner, jchar index,
+static jint opLDC(fy_context *context, fy_class *owner, jchar index,
 		juint *type, fy_exception *exception) {
 	ConstantStringInfo *constantStringInfo;
 	ConstantClass *constantClass;
@@ -294,10 +294,10 @@ static jint opLDC(fy_VMContext *context, fy_class *owner, jchar index,
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Integer:
 	case CONSTANT_Float:
-		*type = TH_TYPE_INT;
+		*type = FY_TYPE_INT;
 		return ((ConstantIntegerFloatInfo*) (owner->constantPools[index]))->value;
 	case CONSTANT_String:
-		*type = TH_TYPE_HANDLE;
+		*type = FY_TYPE_HANDLE;
 		constantStringInfo =
 				((ConstantStringInfo*) (owner->constantPools[index]));
 		if (!constantStringInfo->derefed) {
@@ -314,7 +314,7 @@ static jint opLDC(fy_VMContext *context, fy_class *owner, jchar index,
 		return hvalue;
 	case CONSTANT_Class:
 		constantClass = (ConstantClass*) (owner->constantPools[index]);
-		*type = TH_TYPE_HANDLE;
+		*type = FY_TYPE_HANDLE;
 		clazz = fy_vmLookupClassFromConstant(context, constantClass, exception);
 		if (exception->exceptionType != exception_none) {
 			return 0;
@@ -330,7 +330,7 @@ static jint opLDC(fy_VMContext *context, fy_class *owner, jchar index,
 	}
 }
 
-static jlong opLDC2(fy_VMContext *context, fy_class *owner, jchar index,
+static jlong opLDC2(fy_context *context, fy_class *owner, jchar index,
 		fy_exception *exception) {
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Double:
@@ -347,20 +347,19 @@ static jlong opLDC2(fy_VMContext *context, fy_class *owner, jchar index,
 	}
 }
 
-void fy_threadMonitorEnter(fy_VMContext *context, fy_thread *thread,
-		jint handle) {
+void fy_threadMonitorEnter(fy_context *context, fy_thread *thread, jint handle) {
 	/*TODO*/
 }
 
-void fy_threadMonitorExit(fy_VMContext *context, fy_thread *thread, jint handle) {
+void fy_threadMonitorExit(fy_context *context, fy_thread *thread, jint handle) {
 	/*TODO*/
 }
 
-void fy_threadInit(fy_VMContext *context, fy_thread *thread) {
+void fy_threadInit(fy_context *context, fy_thread *thread) {
 
 }
 
-void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
+void fy_threadFillException(fy_context *context, fy_thread *thread,
 		juint handle, fy_exception *exception) {
 #define FY_SIMPLE_ERROR_HANDLE if(exception->exceptionType != exception_none) return;
 
@@ -465,7 +464,7 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 
 		lineNumber = -1;
 		ln = method->line_number_table;
-		if (method->access_flags & fy_ACC_NATIVE) {
+		if (method->access_flags & FY_ACC_NATIVE) {
 			lineNumber = -2;
 		} else {
 			lpc = frame->lpc;
@@ -556,22 +555,22 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 
 #define fy_threadPushInt(V) { \
 	fy_checkPush(0) \
-	typeStack[sp]=TH_TYPE_INT;stack[sp++]=V; \
+	typeStack[sp]=FY_TYPE_INT;stack[sp++]=V; \
 }
 
 #define fy_threadPushHandle(V) { \
 		fy_checkPush(0) \
-	typeStack[sp]=TH_TYPE_HANDLE;stack[sp++]=V; \
+	typeStack[sp]=FY_TYPE_HANDLE;stack[sp++]=V; \
 }
 #define fy_threadPushReturn(V) { \
 	fy_checkPush(0) \
-	typeStack[sp]=TH_TYPE_RETURN;stack[sp++]=V; \
+	typeStack[sp]=FY_TYPE_RETURN;stack[sp++]=V; \
 }
 
 #define fy_threadPushLong(W) { \
 	fy_checkPush(1) \
-	typeStack[sp]=TH_TYPE_WIDE;stack[sp++]=fy_HOFL((W)); \
-	typeStack[sp]=TH_TYPE_WIDE2;stack[sp++]=fy_LOFL((W)); \
+	typeStack[sp]=FY_TYPE_WIDE;stack[sp++]=fy_HOFL((W)); \
+	typeStack[sp]=FY_TYPE_WIDE2;stack[sp++]=fy_LOFL((W)); \
 }
 
 #define fy_threadPopType(O,T) { \
@@ -615,13 +614,13 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 #define fy_threadPutLocalInt(P,V) { \
 	fy_checkPutLocal(P,0) \
 	stack[sb+(P)]=(V); \
-	typeStack[sb+(P)]=TH_TYPE_INT; \
+	typeStack[sb+(P)]=FY_TYPE_INT; \
 }
 
 #define fy_threadPutLocalHandle(P,V) { \
 	fy_checkPutLocal(P,0) \
 	stack[sb+(P)]=(V); \
-	typeStack[sb+(P)]=TH_TYPE_HANDLE; \
+	typeStack[sb+(P)]=FY_TYPE_HANDLE; \
 }
 
 #define fy_threadPutLocalType(P,V,TYPE) { \
@@ -634,27 +633,27 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 	fy_checkPutLocal(P,1) \
 	stack[sb+(P)]=fy_HOFL(W); \
 	stack[sb+(P)+1]=fy_LOFL(W); \
-	typeStack[sb+(P)]=TH_TYPE_WIDE; \
-	typeStack[sb+(P)+1]=TH_TYPE_WIDE2; \
+	typeStack[sb+(P)]=FY_TYPE_WIDE; \
+	typeStack[sb+(P)+1]=FY_TYPE_WIDE2; \
 }
 
 #define fy_threadGetLocalInt(P,O) { \
-	fy_checkGetLocal(P,0,TH_TYPE_INT) \
+	fy_checkGetLocal(P,0,FY_TYPE_INT) \
 	O=stack[sb+(P)]; \
 }
 
 #define fy_threadGetLocalHandle(P,O) { \
-	fy_checkGetLocal(P,0,TH_TYPE_HANDLE) \
+	fy_checkGetLocal(P,0,FY_TYPE_HANDLE) \
 	O=stack[sb+(P)]; \
 }
 
 #define fy_threadGetLocalReturn(P,O) { \
-	fy_checkGetLocal(P,0,TH_TYPE_RETURN) \
+	fy_checkGetLocal(P,0,FY_TYPE_RETURN) \
 	O=stack[sb+(P)]; \
 }
 
 #define fy_threadGetLocalLong(P,O) { \
-	fy_checkGetLocal(P,1,TH_TYPE_WIDE) \
+	fy_checkGetLocal(P,1,FY_TYPE_WIDE) \
 	O=stack[sb+(P)]; \
 	O=((julong)O<<32)+((julong)stack[sb+(P)+1]); \
 }
@@ -679,7 +678,7 @@ void fy_threadFillException(fy_VMContext *context, fy_thread *thread,
 	fy_localToFrameCheck(ptrFrame) \
 }
 
-static fy_frame *fy_threadCurrentFrame(fy_VMContext *context, fy_thread *thread) {
+static fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 	juint frameCount = thread->frameCount;
 	if (frameCount == 0) {
 		return NULL;
@@ -688,7 +687,7 @@ static fy_frame *fy_threadCurrentFrame(fy_VMContext *context, fy_thread *thread)
 	}
 }
 
-static fy_frame *fy_threadPushFrame(fy_VMContext *context, fy_thread *thread,
+static fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
 		fy_method *invoke) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	juint sb, sp;
@@ -720,7 +719,7 @@ static fy_frame *fy_threadPushFrame(fy_VMContext *context, fy_thread *thread,
 	return frame;
 }
 
-static fy_frame *fy_threadPopFrame(fy_VMContext *context, fy_thread *thread) {
+static fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread) {
 	juint fc = --(thread->frameCount);
 	if (fc <= 0) {
 		return NULL;
@@ -729,8 +728,7 @@ static fy_frame *fy_threadPopFrame(fy_VMContext *context, fy_thread *thread) {
 	}
 }
 
-static fy_class *clinit(fy_VMContext *context, fy_thread *thread,
-		fy_class *clazz) {
+static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz) {
 	juint tid;
 	fy_class *ret;
 	if (clazz == NULL) {
@@ -752,24 +750,24 @@ static fy_class *clinit(fy_VMContext *context, fy_thread *thread,
 	return NULL;
 }
 
-void fy_threadPushMethod(fy_VMContext *context, fy_thread *thread,
+void fy_threadPushMethod(fy_context *context, fy_thread *thread,
 		fy_method *invoke, fy_frame **localFrame) {
 	fy_frame *frame = fy_threadPushFrame(context, thread, invoke);
 	if (localFrame != NULL) {
 		*localFrame = frame;
 	}
 
-	if (invoke->access_flags & fy_ACC_SYNCHRONIZED) {
+	if (invoke->access_flags & FY_ACC_SYNCHRONIZED) {
 		fy_threadMonitorEnter(
 				context,
 				thread,
-				(invoke->access_flags & fy_ACC_STATIC) ?
+				(invoke->access_flags & FY_ACC_STATIC) ?
 						invoke->owner->classObjId : thread->stack[frame->sb]);
 	}
 
 }
 
-void fy_threadCreateWithMethod(fy_VMContext *context, fy_thread *thread,
+void fy_threadCreateWithMethod(fy_context *context, fy_thread *thread,
 		int threadHandle, fy_method *method, fy_exception *exception) {
 	fy_class *clazz;
 	if (!fy_strEndsWith(method->uniqueName, context->sMainPostfix)) {
@@ -780,7 +778,7 @@ void fy_threadCreateWithMethod(fy_VMContext *context, fy_thread *thread,
 				"The boot method must be static void main(String[])");
 		return;
 	}
-	if ((method->access_flags & fy_ACC_STATIC) == 0) {
+	if ((method->access_flags & FY_ACC_STATIC) == 0) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
 				"java/lang/InternalError");
@@ -801,12 +799,12 @@ void fy_threadCreateWithMethod(fy_VMContext *context, fy_thread *thread,
 	}
 }
 
-void fy_threadCreateWithRun(fy_VMContext *context, fy_thread *thread,
-		int handle, fy_exception *exception) {
+void fy_threadCreateWithRun(fy_context *context, fy_thread *thread, int handle,
+		fy_exception *exception) {
 	/*TODO*/
 }
 
-void fy_threadCreateWithData(fy_VMContext *context, fy_thread *thread,
+void fy_threadCreateWithData(fy_context *context, fy_thread *thread,
 		jbyte *data, jint length, fy_exception *exception) {
 	/*TODO*/
 }
@@ -828,7 +826,7 @@ void fy_threadCreateWithData(fy_VMContext *context, fy_thread *thread,
 /**
  * DON'T USE RETURN HERE!!!!
  */
-void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
+void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		jint ops) {
 	juint sb, sp, pc, lpc, opCount, op;
 #ifndef _FY_GOTO
@@ -863,9 +861,8 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 	jboolean bvalue1;
 	fy_nh *nh;
 	char msg[256];
+	fy_exception exceptionToPrepare;
 
-	ivalue = 0x6789abcd;
-	lvalue = 0x6789abcdef1234LL;
 	pstr1 = NULL;
 #endif
 
@@ -884,7 +881,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				ASSERT( method != NULL);
 				frame = fy_threadPushFrame(context, thread, method);
 				stack[frame->sb] = thread->currentThrowable;
-				typeStack[frame->sb] = TH_TYPE_HANDLE;
+				typeStack[frame->sb] = FY_TYPE_HANDLE;
 				thread->currentThrowable = 0;
 				continue;
 			} else {
@@ -907,8 +904,8 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			} else {
 				if (ivalue & 0x80000000) {
 					/*Not found, will return*/
-					if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-						if (method->access_flags & fy_ACC_STATIC) {
+					if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+						if (method->access_flags & FY_ACC_STATIC) {
 							fy_threadMonitorExit(context, thread,
 									method->owner->classObjId);
 						} else {
@@ -1200,8 +1197,8 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				juint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
+				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+					if (method->access_flags & FY_ACC_STATIC) {
 						fy_threadMonitorExit(context, thread,
 								method->owner->classObjId);
 					} else {
@@ -1221,8 +1218,8 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				juint ivalue;
 #endif
 				fy_threadPopHandle(ivalue);
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
+				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+					if (method->access_flags & FY_ACC_STATIC) {
 						fy_threadMonitorExit(context, thread,
 								method->owner->classObjId);
 					} else {
@@ -1627,8 +1624,8 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				jdouble dvalue;
 #endif
 				fy_threadPopDouble(dvalue);
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
+				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+					if (method->access_flags & FY_ACC_STATIC) {
 						fy_threadMonitorExit(context, thread,
 								method->owner->classObjId);
 					} else {
@@ -1884,7 +1881,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (field->access_flags & fy_ACC_STATIC) {
+				if (field->access_flags & FY_ACC_STATIC) {
 #ifdef _FY_LATE_DECLARATION
 					char msg[256];
 #endif
@@ -2074,7 +2071,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			}
 			case I2F: {
 				/*CUSTOM*/
-				fy_checkPop(0, TH_TYPE_INT);
+				fy_checkPop(0, FY_TYPE_INT);
 				stack[sp - 1] = fy_floatToInt((jfloat) stack[sp - 1]);
 				break;
 			}
@@ -2090,7 +2087,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 			}
 			case I2S: {
 				/*CUSTOM*/
-				fy_checkPop(0, TH_TYPE_INT);
+				fy_checkPop(0, FY_TYPE_INT);
 				stack[sp - 1] = (jshort) stack[sp - 1];
 				break;
 			}
@@ -2454,7 +2451,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if ((mvalue->access_flags & fy_ACC_PUBLIC) == 0) {
+				if ((mvalue->access_flags & FY_ACC_PUBLIC) == 0) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2465,7 +2462,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if ((mvalue->access_flags & fy_ACC_ABSTRACT)) {
+				if ((mvalue->access_flags & FY_ACC_ABSTRACT)) {
 					message->messageType = message_exception;
 
 					exception->exceptionType = exception_normal;
@@ -2477,7 +2474,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}fy_localToFrame(frame);
-				if (mvalue->access_flags & fy_ACC_NATIVE) {
+				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef _FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
@@ -2516,7 +2513,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				ivalue = mvalue->paramCount + 1;/*count*/
 				fy_checkCall(ivalue);
 				sp -= ivalue;
-				if ((clazz1->accessFlags & fy_ACC_SUPER)
+				if ((clazz1->accessFlags & FY_ACC_SUPER)
 						&& fy_classIsSuperClassOf(context, clazz2, clazz1)
 						&& fy_strCmp(mvalue->name, context->sInit)) {
 					mvalue = fy_vmLookupMethodVirtual(context, clazz1->super,
@@ -2545,7 +2542,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (mvalue->access_flags & fy_ACC_STATIC) {
+				if (mvalue->access_flags & FY_ACC_STATIC) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2557,7 +2554,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (mvalue->access_flags & fy_ACC_ABSTRACT) {
+				if (mvalue->access_flags & FY_ACC_ABSTRACT) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2569,7 +2566,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}fy_localToFrame(frame);
-				if (mvalue->access_flags & fy_ACC_NATIVE) {
+				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef _FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
@@ -2605,7 +2602,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 						(ConstantMethodRef*) (clazz1->constantPools[ivalue3]),
 						exception);
 				clazz2 = mvalue->owner;
-				if ((mvalue->access_flags & fy_ACC_STATIC) == 0) {
+				if ((mvalue->access_flags & FY_ACC_STATIC) == 0) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2639,7 +2636,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				fy_checkCall(ivalue);
 				sp -= ivalue;
 				fy_localToFrame(frame);
-				if (mvalue->access_flags & fy_ACC_NATIVE) {
+				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef _FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
@@ -2677,7 +2674,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				ivalue = mvalue->paramCount + 1;
 				fy_checkCall(ivalue);
 				sp -= ivalue;
-				ASSERT(typeStack[sp]==TH_TYPE_HANDLE);
+				ASSERT(typeStack[sp]==FY_TYPE_HANDLE);
 				if (stack[sp] == 0) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
@@ -2704,7 +2701,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (mvalue->access_flags & fy_ACC_STATIC) {
+				if (mvalue->access_flags & FY_ACC_STATIC) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2716,7 +2713,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if ((mvalue->access_flags & fy_ACC_ABSTRACT)) {
+				if ((mvalue->access_flags & FY_ACC_ABSTRACT)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2728,7 +2725,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}fy_localToFrame(frame);
-				if (mvalue->access_flags & fy_ACC_NATIVE) {
+				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef _FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
@@ -3119,8 +3116,8 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				julong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
+				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+					if (method->access_flags & FY_ACC_STATIC) {
 						fy_threadMonitorExit(context, thread,
 								method->owner->classObjId);
 					} else {
@@ -3295,7 +3292,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				if (clazz1->accessFlags
-						& (fy_ACC_INTERFACE | fy_ACC_ABSTRACT)) {
+						& (FY_ACC_INTERFACE | FY_ACC_ABSTRACT)) {
 #ifdef _FY_LATE_DECLARATION
 					char msg[256];
 #endif
@@ -3446,7 +3443,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				default:
 					fy_threadPopInt(ivalue);
 				}fy_threadPopHandle(ivalue2);
-				if (field->access_flags & fy_ACC_STATIC) {
+				if (field->access_flags & FY_ACC_STATIC) {
 #ifdef _FY_LATE_DECLARATION
 					char msg[256];
 #endif
@@ -3463,7 +3460,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 
-				if ((field->access_flags & fy_ACC_FINAL)
+				if ((field->access_flags & FY_ACC_FINAL)
 						&& method->owner != field->owner) {
 #ifdef _FY_LATE_DECLARATION
 					char msg[256];
@@ -3517,7 +3514,7 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if ((field->access_flags & fy_ACC_FINAL)
+				if ((field->access_flags & FY_ACC_FINAL)
 						&& (field->owner != method->owner)) {
 #ifdef _FY_LATE_DECLARATION
 					char msg[256];
@@ -3593,8 +3590,8 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case RETURN: {
-				if (method->access_flags & fy_ACC_SYNCHRONIZED) {
-					if (method->access_flags & fy_ACC_STATIC) {
+				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+					if (method->access_flags & FY_ACC_STATIC) {
 						fy_threadMonitorExit(context, thread,
 								method->owner->classObjId);
 					} else {
@@ -3789,57 +3786,17 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 		if (message->messageType == message_exception) {
 			//send the exception to the VM caller for PI handle.
 #ifdef _FY_LATE_DECLARATION
-			fy_class *clazz1;
-			fy_str *str1;
-			juint ivalue, ivalue2;
-			fy_field *field;
+			fy_exception exceptionToPrepare;
 #endif
+			exceptionToPrepare = *exception;
 			exception->exceptionType = exception_none;
-			str1 = fy_strAllocateFromUTF8(context, exception->exceptionName);
-			clazz1 = fy_vmLookupClass(context, str1, exception);
-			fy_strRelease(context, str1);
+			exception->exceptionName[0] = 0;
+			exception->exceptionDesc[0] = 0;
+			thread->currentThrowable = fy_threadPrepareThrowable(context,
+					thread, &exceptionToPrepare, exception);
 			if (exception->exceptionType != exception_none) {
 				break;
 			}
-
-			if (!fy_classCanCastTo(context, clazz1, context->TOP_THROWABLE)) {
-				exception->exceptionType = exception_normal;
-				sprintf_s(exception->exceptionName,
-						sizeof(exception->exceptionName),
-						"java/lang/ClassCastException");
-				fy_strSPrint(exception->exceptionDesc,
-						sizeof(exception->exceptionDesc), clazz1->className);
-				break;
-			}
-			ivalue = fy_heapAllocate(context, clazz1, exception);
-			if (exception->exceptionType != exception_none) {
-				break;
-			}
-			field = fy_vmGetField(context, context->sThrowableDetailMessage);
-			if (field == NULL) {
-				exception->exceptionType = exception_normal;
-				sprintf_s(exception->exceptionName,
-						sizeof(exception->exceptionName),
-						"java/lang/ClassNotFoundException");
-				fy_strSPrint(exception->exceptionDesc,
-						sizeof(exception->exceptionDesc),
-						context->sThrowableDetailMessage);
-				break;
-			}
-			str1 = fy_strAllocateFromUTF8(context, exception->exceptionDesc);
-			ivalue2 = fy_heapMakeString(context, str1, exception);
-			if (exception->exceptionType != exception_none) {
-				break;
-			}fy_strRelease(context, str1);
-			fy_heapPutFieldHandle(context, ivalue, field, ivalue2, exception);
-			if (exception->exceptionType != exception_none) {
-				break;
-			}
-			fy_threadFillException(context, thread, ivalue, exception);
-			if (exception->exceptionType != exception_none) {
-				break;
-			}
-			thread->currentThrowable = ivalue;
 			message->messageType = message_continue;
 		}
 		if (message->messageType != message_continue) {
@@ -3848,29 +3805,80 @@ void fy_threadRun(fy_VMContext *context, fy_thread *thread, fy_message *message,
 	}
 }
 
-void fy_threadReturnInt(fy_VMContext *context, fy_thread *thread, jint value) {
+juint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
+		_FY_RESTRICT fy_exception *toPrepare,
+		_FY_RESTRICT fy_exception *exception) {
+	fy_class *clazz1;
+	fy_str *str1;
+	juint ivalue, ivalue2;
+	fy_field *field;
+	str1 = fy_strAllocateFromUTF8(context, toPrepare->exceptionName);
+	clazz1 = fy_vmLookupClass(context, str1, exception);
+	fy_strRelease(context, str1);
+	if (exception->exceptionType != exception_none) {
+		return 0;
+	}
+
+	if (!fy_classCanCastTo(context, clazz1, context->TOP_THROWABLE)) {
+		exception->exceptionType = exception_normal;
+		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/ClassCastException");
+		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				clazz1->className);
+		return 0;
+	}
+	ivalue = fy_heapAllocate(context, clazz1, exception);
+	if (exception->exceptionType != exception_none) {
+		return 0;
+	}
+	field = fy_vmGetField(context, context->sThrowableDetailMessage);
+	if (field == NULL) {
+		exception->exceptionType = exception_normal;
+		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/ClassNotFoundException");
+		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				context->sThrowableDetailMessage);
+		return 0;
+	}
+	str1 = fy_strAllocateFromUTF8(context, toPrepare->exceptionDesc);
+	ivalue2 = fy_heapMakeString(context, str1, exception);
+	if (exception->exceptionType != exception_none) {
+		return 0;
+	}fy_strRelease(context, str1);
+	fy_heapPutFieldHandle(context, ivalue, field, ivalue2, exception);
+	if (exception->exceptionType != exception_none) {
+		return 0;
+	}
+	fy_threadFillException(context, thread, ivalue, exception);
+	if (exception->exceptionType != exception_none) {
+		return 0;
+	}
+	return ivalue;
+}
+
+void fy_threadReturnInt(fy_context *context, fy_thread *thread, jint value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;
 	juint *stack = thread->stack;
 	juint *typeStack = thread->typeStack;
 	stack[sp] = value;
-	typeStack[sp] = TH_TYPE_INT;
+	typeStack[sp] = FY_TYPE_INT;
 	frame->sp = sp + 1;
 }
 
-void fy_threadReturnHandle(fy_VMContext *context, fy_thread *thread, jint value) {
+void fy_threadReturnHandle(fy_context *context, fy_thread *thread, jint value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;
 	juint *stack = thread->stack;
 	juint *typeStack = thread->typeStack;
 	stack[sp] = value;
-	typeStack[sp] = TH_TYPE_HANDLE;
+	typeStack[sp] = FY_TYPE_HANDLE;
 	frame->sp = sp + 1;
 }
 
-void fy_threadReturnLong(fy_VMContext *context, fy_thread *thread, jlong value) {
+void fy_threadReturnLong(fy_context *context, fy_thread *thread, jlong value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	juint sp = frame->sp;
@@ -3878,8 +3886,8 @@ void fy_threadReturnLong(fy_VMContext *context, fy_thread *thread, jlong value) 
 	juint *typeStack = thread->typeStack;
 	stack[sp] = fy_HOFL(value);
 	stack[sp + 1] = fy_LOFL(value);
-	typeStack[sp] = TH_TYPE_WIDE;
-	typeStack[sp + 1] = TH_TYPE_WIDE2;
+	typeStack[sp] = FY_TYPE_WIDE;
+	typeStack[sp + 1] = FY_TYPE_WIDE2;
 	frame->sp = sp + 2;
 }
 

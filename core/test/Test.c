@@ -16,7 +16,6 @@
 #include "fyc/String.h"
 #include "fyc/ClassLoader.h"
 #include "fyc/Debug.h"
-#include "fyc/Global.h"
 #include "fyc/HashMap.h"
 #include "fyc/Thread.h"
 #include <assert.h>
@@ -28,13 +27,12 @@
 #include "CUnit/CUnit.h"
 #include "CUnit/Automated.h"
 
-static fy_VMContext *context;
+static fy_context *context;
 
 int test_init(void) {
 	fy_exception exception;
-	fy_gInit();
 	exception.exceptionType = exception_none;
-	context = vm_allocate(sizeof(fy_VMContext));
+	context = vm_allocate(sizeof(fy_context));
 	fy_vmContextInit(context, &exception);
 	if (exception.exceptionType != exception_none) {
 		vm_die("Exception in initialize: %s  || %s", exception.exceptionName,
@@ -47,7 +45,6 @@ int test_clean(void) {
 	printf("Release resources\n");
 	fy_vmContextDestroy(context);
 	vm_free(context);
-	fy_gDestroy();
 	printf("ALL TEST DONE!!!MemLeak=%ld\n", vm_getAllocated());
 	return 0;
 }
@@ -366,7 +363,7 @@ void testHashMap() {
 	t3 = fy_portTimeMillSec(context);
 	fy_hashMapDestroy(context, hashMap);
 	t4 = fy_portTimeMillSec(context);
-	printf("HashMap time %"PRINT64"d %"PRINT64"d %"PRINT64"d\n", (t2 - t1),
+	printf("HashMap time %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d\n", (t2 - t1),
 			(t3 - t2), (t4 - t3));
 	CU_ASSERT_EQUAL(blocks, vm_getAllocated());
 	fy_vmFree(context, hashMap);

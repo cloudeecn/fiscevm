@@ -5,7 +5,6 @@ libfisce_a_SOURCES = \
 	CoreHandlers.c \
 	Data.c \
 	Debug.c \
-	Global.c \
 	HashMap.c \
 	Heap.c \
 	HeapAccessers.c \
@@ -14,6 +13,7 @@ libfisce_a_SOURCES = \
 	Resource.c \
 	String.c \
 	Thread.c \
+	ThreadManager.c \
 	Utf8.c \
 	VMContext.c \
 	VMPortable.c \

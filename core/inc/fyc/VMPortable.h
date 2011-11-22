@@ -24,10 +24,10 @@
 extern "C" {
 #endif
 
-void fy_portInit(fy_VMContext *context);
-void fy_portDestroy(fy_VMContext *context);
-jlong fy_portTimeMillSec(fy_VMContext *context);
-jlong fy_portTimeNanoSec(fy_VMContext *context);
+void fy_portInit(fy_context *context);
+void fy_portDestroy(fy_context *context);
+jlong fy_portTimeMillSec(fy_context *context);
+jlong fy_portTimeNanoSec(fy_context *context);
 
 #ifdef	__cplusplus
 }

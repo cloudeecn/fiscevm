@@ -26,142 +26,142 @@
 extern "C" {
 #endif
 
-void fy_heapRelease(fy_VMContext *context, juint handle);
-int fy_heapAllocate(fy_VMContext *context, fy_class *clazz,
+void fy_heapRelease(fy_context *context, juint handle);
+int fy_heapAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception);
 
 #define fy_heapGetObject(CONTEXT,HANDLE) ((CONTEXT)->objects+(HANDLE))
 
-fy_class* fy_heapGetClassOfObject(fy_VMContext *context, jint handle);
+fy_class* fy_heapGetClassOfObject(fy_context *context, jint handle);
 
-int fy_heapAllocateArray(fy_VMContext *context, fy_class *clazz, int length,
+int fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
 		fy_exception *exception);
 
-jint fy_heapArrayLength(fy_VMContext *context, jint handle,
+jint fy_heapArrayLength(fy_context *context, jint handle,
 		fy_exception *exception);
-void fy_heapArrayCopy(fy_VMContext *context, jint src, jint srcPos, jint dest,
+void fy_heapArrayCopy(fy_context *context, jint src, jint srcPos, jint dest,
 		jint destPos, jint len, fy_exception *exception);
 
-fy_str* fy_heapGetString(fy_VMContext *context, jint handle, fy_str *target,
+fy_str* fy_heapGetString(fy_context *context, jint handle, fy_str *target,
 		fy_exception *exception);
-jint fy_heapMakeString(fy_VMContext *context, fy_str *target,
+jint fy_heapMakeString(fy_context *context, fy_str *target,
 		fy_exception *exception);
-jint fy_heapLiteral(fy_VMContext *context, fy_str *str, fy_exception *exception);
+jint fy_heapLiteral(fy_context *context, fy_str *str, fy_exception *exception);
 
-jboolean fy_heapGetArrayBoolean(fy_VMContext *context, jint handle, jint index,
+jboolean fy_heapGetArrayBoolean(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
-jint fy_heapGetArrayHandle(fy_VMContext *context, jint handle, jint index,
+jint fy_heapGetArrayHandle(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
-jbyte fy_heapGetArrayByte(fy_VMContext *context, jint handle, jint index,
+jbyte fy_heapGetArrayByte(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
-jbyte *fy_heapGetArrayBytes(fy_VMContext *context, jint handle,
+jbyte *fy_heapGetArrayBytes(fy_context *context, jint handle,
 		fy_exception *exception);
-jshort fy_heapGetArrayShort(fy_VMContext *context, jint handle, jint index,
+jshort fy_heapGetArrayShort(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
-jchar fy_heapGetArrayChar(fy_VMContext *context, jint handle, jint index,
+jchar fy_heapGetArrayChar(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
-jint fy_heapGetArrayInt(fy_VMContext *context, jint handle, jint index,
+jint fy_heapGetArrayInt(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
-jlong fy_heapGetArrayLong(fy_VMContext *context, jint handle, jint index,
+jlong fy_heapGetArrayLong(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
-jfloat fy_heapGetArrayFloat(fy_VMContext *context, jint handle, jint index,
+jfloat fy_heapGetArrayFloat(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
-jdouble fy_heapGetArrayDouble(fy_VMContext *context, jint handle, jint index,
+jdouble fy_heapGetArrayDouble(fy_context *context, jint handle, jint index,
 		fy_exception *exception);
 
-void fy_heapPutArrayBoolean(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayBoolean(fy_context *context, jint handle, jint index,
 		jboolean value, fy_exception *exception);
-void fy_heapPutArrayHandle(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayHandle(fy_context *context, jint handle, jint index,
 		jint value, fy_exception *exception);
-void fy_heapPutArrayByte(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayByte(fy_context *context, jint handle, jint index,
 		jbyte value, fy_exception *exception);
-void fy_heapPutArrayShort(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayShort(fy_context *context, jint handle, jint index,
 		jshort value, fy_exception *exception);
-void fy_heapPutArrayChar(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayChar(fy_context *context, jint handle, jint index,
 		jchar value, fy_exception *exception);
-void fy_heapPutArrayInt(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayInt(fy_context *context, jint handle, jint index,
 		jint value, fy_exception *exception);
-void fy_heapPutArrayLong(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayLong(fy_context *context, jint handle, jint index,
 		jlong value, fy_exception *exception);
-void fy_heapPutArrayFloat(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayFloat(fy_context *context, jint handle, jint index,
 		jfloat value, fy_exception *exception);
-void fy_heapPutArrayDouble(fy_VMContext *context, jint handle, jint index,
+void fy_heapPutArrayDouble(fy_context *context, jint handle, jint index,
 		jdouble value, fy_exception *exception);
 
-jboolean fy_heapGetFieldBoolean(fy_VMContext *context, jint handle,
+jboolean fy_heapGetFieldBoolean(fy_context *context, jint handle,
 		fy_field *field, fy_exception *exception);
-jint fy_heapGetFieldHandle(fy_VMContext *context, jint handle, fy_field *field,
+jint fy_heapGetFieldHandle(fy_context *context, jint handle, fy_field *field,
 		fy_exception *exception);
-jbyte fy_heapGetFieldByte(fy_VMContext *context, jint handle, fy_field *field,
+jbyte fy_heapGetFieldByte(fy_context *context, jint handle, fy_field *field,
 		fy_exception *exception);
-jshort fy_heapGetFieldShort(fy_VMContext *context, jint handle, fy_field *field,
+jshort fy_heapGetFieldShort(fy_context *context, jint handle, fy_field *field,
 		fy_exception *exception);
-jchar fy_heapGetFieldChar(fy_VMContext *context, jint handle, fy_field *field,
+jchar fy_heapGetFieldChar(fy_context *context, jint handle, fy_field *field,
 		fy_exception *exception);
-jint fy_heapGetFieldInt(fy_VMContext *context, jint handle, fy_field *field,
+jint fy_heapGetFieldInt(fy_context *context, jint handle, fy_field *field,
 		fy_exception *exception);
-jlong fy_heapGetFieldLong(fy_VMContext *context, jint handle, fy_field *field,
+jlong fy_heapGetFieldLong(fy_context *context, jint handle, fy_field *field,
 		fy_exception *exception);
-jfloat fy_heapGetFieldFloat(fy_VMContext *context, jint handle, fy_field *field,
+jfloat fy_heapGetFieldFloat(fy_context *context, jint handle, fy_field *field,
 		fy_exception *exception);
-jdouble fy_heapGetFieldDouble(fy_VMContext *context, jint handle,
+jdouble fy_heapGetFieldDouble(fy_context *context, jint handle,
 		fy_field *field, fy_exception *exception);
 
-void fy_heapPutFieldBoolean(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldBoolean(fy_context *context, jint handle, fy_field *field,
 		jboolean value, fy_exception *exception);
-void fy_heapPutFieldHandle(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldHandle(fy_context *context, jint handle, fy_field *field,
 		jint value, fy_exception *exception);
-void fy_heapPutFieldByte(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldByte(fy_context *context, jint handle, fy_field *field,
 		jbyte value, fy_exception *exception);
-void fy_heapPutFieldShort(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldShort(fy_context *context, jint handle, fy_field *field,
 		jshort value, fy_exception *exception);
-void fy_heapPutFieldChar(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldChar(fy_context *context, jint handle, fy_field *field,
 		jchar value, fy_exception *exception);
-void fy_heapPutFieldInt(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldInt(fy_context *context, jint handle, fy_field *field,
 		jint value, fy_exception *exception);
-void fy_heapPutFieldLong(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldLong(fy_context *context, jint handle, fy_field *field,
 		jlong value, fy_exception *exception);
-void fy_heapPutFieldFloat(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldFloat(fy_context *context, jint handle, fy_field *field,
 		jfloat value, fy_exception *exception);
-void fy_heapPutFieldDouble(fy_VMContext *context, jint handle, fy_field *field,
+void fy_heapPutFieldDouble(fy_context *context, jint handle, fy_field *field,
 		jdouble value, fy_exception *exception);
 
-jboolean fy_heapGetStaticBoolean(fy_VMContext *context, fy_field *field,
+jboolean fy_heapGetStaticBoolean(fy_context *context, fy_field *field,
 		fy_exception *exception);
-jint fy_heapGetStaticHandle(fy_VMContext *context, fy_field *field,
+jint fy_heapGetStaticHandle(fy_context *context, fy_field *field,
 		fy_exception *exception);
-jbyte fy_heapGetStaticByte(fy_VMContext *context, fy_field *field,
+jbyte fy_heapGetStaticByte(fy_context *context, fy_field *field,
 		fy_exception *exception);
-jshort fy_heapGetStaticShort(fy_VMContext *context, fy_field *field,
+jshort fy_heapGetStaticShort(fy_context *context, fy_field *field,
 		fy_exception *exception);
-jchar fy_heapGetStaticChar(fy_VMContext *context, fy_field *field,
+jchar fy_heapGetStaticChar(fy_context *context, fy_field *field,
 		fy_exception *exception);
-jint fy_heapGetStaticInt(fy_VMContext *context, fy_field *field,
+jint fy_heapGetStaticInt(fy_context *context, fy_field *field,
 		fy_exception *exception);
-jlong fy_heapGetStaticLong(fy_VMContext *context, fy_field *field,
+jlong fy_heapGetStaticLong(fy_context *context, fy_field *field,
 		fy_exception *exception);
-jfloat fy_heapGetStaticFloat(fy_VMContext *context, fy_field *field,
+jfloat fy_heapGetStaticFloat(fy_context *context, fy_field *field,
 		fy_exception *exception);
-jdouble fy_heapGetStaticDouble(fy_VMContext *context, fy_field *field,
+jdouble fy_heapGetStaticDouble(fy_context *context, fy_field *field,
 		fy_exception *exception);
 
-void fy_heapPutStaticBoolean(fy_VMContext *context, fy_field *field,
+void fy_heapPutStaticBoolean(fy_context *context, fy_field *field,
 		jboolean value, fy_exception *exception);
-void fy_heapPutStaticHandle(fy_VMContext *context, fy_field *field, jint value,
+void fy_heapPutStaticHandle(fy_context *context, fy_field *field, jint value,
 		fy_exception *exception);
-void fy_heapPutStaticByte(fy_VMContext *context, fy_field *field, jbyte value,
+void fy_heapPutStaticByte(fy_context *context, fy_field *field, jbyte value,
 		fy_exception *exception);
-void fy_heapPutStaticShort(fy_VMContext *context, fy_field *field, jshort value,
+void fy_heapPutStaticShort(fy_context *context, fy_field *field, jshort value,
 		fy_exception *exception);
-void fy_heapPutStaticChar(fy_VMContext *context, fy_field *field, jchar value,
+void fy_heapPutStaticChar(fy_context *context, fy_field *field, jchar value,
 		fy_exception *exception);
-void fy_heapPutStaticInt(fy_VMContext *context, fy_field *field, jint value,
+void fy_heapPutStaticInt(fy_context *context, fy_field *field, jint value,
 		fy_exception *exception);
-void fy_heapPutStaticLong(fy_VMContext *context, fy_field *field, jlong value,
+void fy_heapPutStaticLong(fy_context *context, fy_field *field, jlong value,
 		fy_exception *exception);
-void fy_heapPutStaticFloat(fy_VMContext *context, fy_field *field, jfloat value,
+void fy_heapPutStaticFloat(fy_context *context, fy_field *field, jfloat value,
 		fy_exception *exception);
-void fy_heapPutStaticDouble(fy_VMContext *context, fy_field *field,
+void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 		jdouble value, fy_exception *exception);
 
 #ifdef	__cplusplus

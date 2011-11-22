@@ -17,7 +17,7 @@
 
 #include "fyc/String.h"
 
-fy_str *fy_strInit(fy_VMContext *context, fy_str *_this, jint size) {
+fy_str *fy_strInit(fy_context *context, fy_str *_this, jint size) {
 	if (_this->content != NULL) {
 		vm_die("duplicated initJavaString");
 	}
@@ -28,21 +28,21 @@ fy_str *fy_strInit(fy_VMContext *context, fy_str *_this, jint size) {
 	return _this;
 }
 
-fy_str *fy_strNew(fy_VMContext *context, const char *utf8) {
+fy_str *fy_strNew(fy_context *context, const char *utf8) {
 	fy_str *ret = fy_vmAllocate(context, sizeof(fy_str));
 	fy_strInit(context, ret, fy_utf8SizeS(utf8, -1));
 	fy_strAppendUTF8(context, ret, utf8, -1);
 	return ret;
 }
 
-void fy_strDestroy(fy_VMContext *context, fy_str *string) {
+void fy_strDestroy(fy_context *context, fy_str *string) {
 	fy_vmFree(context, string->content);
 	string->length = 0;
 	string->maxLength = 0;
 
 }
 
-fy_str *fy_strAllocateFromUTF8(fy_VMContext *context, const char *utf8) {
+fy_str *fy_strAllocateFromUTF8(fy_context *context, const char *utf8) {
 	fy_str *ret;
 	size_t size;
 	size = fy_utf8SizeS(utf8, -1);
@@ -52,7 +52,7 @@ fy_str *fy_strAllocateFromUTF8(fy_VMContext *context, const char *utf8) {
 	return ret;
 }
 
-static fy_str *fy_strEnsureSize(fy_VMContext *context, fy_str *_this, jint size) {
+static fy_str *fy_strEnsureSize(fy_context *context, fy_str *_this, jint size) {
 	int len;
 	jchar *newContent;
 	if (_this->maxLength < size) {
@@ -70,7 +70,7 @@ static fy_str *fy_strEnsureSize(fy_VMContext *context, fy_str *_this, jint size)
 	return _this;
 }
 
-static fy_str *fy_strAppendPriv(fy_VMContext *context, fy_str *_this,
+static fy_str *fy_strAppendPriv(fy_context *context, fy_str *_this,
 		jchar *from, jint length) {
 
 	if (_this == NULL || from == NULL) {
@@ -83,15 +83,15 @@ static fy_str *fy_strAppendPriv(fy_VMContext *context, fy_str *_this,
 	return _this;
 }
 
-fy_str *fy_strAppendChar(fy_VMContext *context, fy_str *_this, jchar ch) {
+fy_str *fy_strAppendChar(fy_context *context, fy_str *_this, jchar ch) {
 	return fy_strAppendPriv(context, _this, &ch, 1);
 }
 
-fy_str *fy_strAppend(fy_VMContext *context, fy_str *_this, const fy_str *string) {
+fy_str *fy_strAppend(fy_context *context, fy_str *_this, const fy_str *string) {
 	return fy_strAppendPriv(context, _this, string->content, string->length);
 }
 
-fy_str *fy_strAppendUTF8(fy_VMContext *context, fy_str *_this, const char *utf8,
+fy_str *fy_strAppendUTF8(fy_context *context, fy_str *_this, const char *utf8,
 		jint size) {
 	const char *inbuf = utf8;
 	jchar outbuf;
@@ -106,7 +106,7 @@ fy_str *fy_strAppendUTF8(fy_VMContext *context, fy_str *_this, const char *utf8,
 	return _this;
 }
 
-fy_str *fy_strSubstring(fy_VMContext *context, fy_str *_this, jint begin,
+fy_str *fy_strSubstring(fy_context *context, fy_str *_this, jint begin,
 		jint end) {
 	int size = end - begin;
 	int i;
@@ -204,7 +204,7 @@ char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) {
 	return target;
 }
 
-fy_str *fy_strAllocateClone(fy_VMContext *context, fy_str *from) {
+fy_str *fy_strAllocateClone(fy_context *context, fy_str *from) {
 	fy_str *_this = fy_vmAllocate(context, sizeof(fy_str));
 	fy_strInit(context, _this, from->length);
 	fy_strAppend(context, _this, from);

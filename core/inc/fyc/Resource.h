@@ -25,9 +25,9 @@
 extern "C" {
 #endif
 
-fy_data *fy_resourceAllocateData(fy_VMContext *context, const char *name);
+fy_data *fy_resourceAllocateData(fy_context *context, const char *name);
 
-void fy_resourceReleaseData(fy_VMContext *context, fy_data *data);
+void fy_resourceReleaseData(fy_context *context, fy_data *data);
 
 #ifdef	__cplusplus
 }

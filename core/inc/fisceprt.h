@@ -40,15 +40,15 @@ typedef jint jboolean;
 #endif
 
 #ifdef _MSC_VER
-# define FY_EXPORT __declspec(dllexport)
+# define _FY_EXPORT __declspec(dllexport)
 #elif defined(__GNUC__)
 # ifdef _WIN32
-#  define FY_EXPORT __attribute__((externally_visible)) __attribute__((dllexport))
+#  define _FY_EXPORT __attribute__((externally_visible)) __attribute__((dllexport))
 # else
-#  define FY_EXPORT __attribute__((externally_visible))
+#  define _FY_EXPORT __attribute__((externally_visible))
 # endif
 #else
-# define FY_EXPORT
+# define _FY_EXPORT
 #endif
 
 #ifdef _MSC_VER
@@ -75,9 +75,9 @@ typedef long long jlong;
 #endif
 
 #if 1
-#define FY_FASTCALL __fastcall
+#define _FY_FASTCALL __fastcall
 #else
-#define FY_FASTCALL
+#define _FY_FASTCALL
 #endif
 
 #ifdef _DEBUG
@@ -93,9 +93,9 @@ typedef long long jlong;
 #endif
 
 #if defined(_WIN32)
-# define PRINT64 "I64"
+# define FY_PRINT64 "I64"
 #else
-# define PRINT64 "ll"
+# define FY_PRINT64 "ll"
 #endif
 
 #define fy_I2TOL(I1,I2) ((jlong)(((julong)(I1)<<32) + ((julong)(I2))))
@@ -106,18 +106,18 @@ typedef long long jlong;
 #define fy_HOFL(L) ((jint)(L>>32))
 #define fy_LOFL(L) ((jint)(L))
 
-FY_EXPORT jlong fy_doubleToLong(jdouble value);
-FY_EXPORT jdouble fy_longToDouble(jlong value);
-FY_EXPORT jint fy_floatToInt(jfloat value);
-FY_EXPORT jfloat fy_intToFloat(jint value);
+_FY_EXPORT jlong fy_doubleToLong(jdouble value);
+_FY_EXPORT jdouble fy_longToDouble(jlong value);
+_FY_EXPORT jint fy_floatToInt(jfloat value);
+_FY_EXPORT jfloat fy_intToFloat(jint value);
 
-FY_EXPORT jboolean fy_isnand(jdouble d);
-FY_EXPORT jboolean fy_isnanf(jfloat f);
+_FY_EXPORT jboolean fy_isnand(jdouble d);
+_FY_EXPORT jboolean fy_isnanf(jfloat f);
 
-FY_EXPORT void *vm_allocate(juint size);
-FY_EXPORT void vm_free(void *target);
-FY_EXPORT void vm_die(char *msg, ...);
-FY_EXPORT long int vm_getAllocated();
+_FY_EXPORT void *vm_allocate(juint size);
+_FY_EXPORT void vm_free(void *target);
+_FY_EXPORT void vm_die(char *msg, ...);
+_FY_EXPORT long int vm_getAllocated();
 
 #ifdef	__cplusplus
 }
