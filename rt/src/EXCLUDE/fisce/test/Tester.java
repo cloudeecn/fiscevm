@@ -89,8 +89,25 @@ public class Tester extends Thread implements ITester {
 	}
 
 	static public void main(String[] args) {
-		new Profile().run();
-		int a = 0;
+		int a = 0
+				;
+		System.out.println("Start...");
+		// new Profile().run();
+		// int a = 0;
+		// int ib = 11111;
+		// if (a == 0) {
+		// ib *= 11111;
+		// ib *= 11111;
+		// ib *= 11111;
+		// }
+		// String sb = "b=" + ib;
+		// FiScEVM.debugOut(sb);
+		// FiScEVM.debugOut(Integer.toString(ib, 10));
+		// FiScEVM.debugOut(ib);
+
+		if (a == 0) {
+		}
+
 		if (a == 0) {
 			throw new NullPointerException();
 		}
@@ -119,16 +136,6 @@ public class Tester extends Thread implements ITester {
 		FiScEVM.debugOut("Hello world " + 123 + " " + (i + 12345678901234567l)
 				+ " " + 123.4f + " " + (123.4d + i) + "  我们来试试中文！");
 		FiScEVM.debugOut("" + 0.0 / d + " " + 1.0 / d + " " + -1.0 / d);
-		byte[] b = FiScEVM
-				.encode(new char[] { 'T', 'e', 's', 't', '\n' }, 0, 5);
-		for (byte bb : b) {
-			FiScEVM.debugOut(bb);
-		}
-		b = FiScEVM.encode("ASDF\n".toCharArray(), 0, 5);
-		for (byte bb : b) {
-			FiScEVM.debugOut(bb);
-		} // Tester t = new Tester(); //
-			// System.out.println("i2=" + t.i2);
 		System.out.println("Hello " + 111 + "world");
 		System.out.println("5*3=" + 5 * 3 + "\n" + "5.0*3.3=" + 5.0f * 3.3
 				+ "\n" + "77*65=" + 77 * 65 + "\n");

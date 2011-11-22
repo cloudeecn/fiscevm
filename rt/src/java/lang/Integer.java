@@ -17,6 +17,8 @@
 
 package java.lang;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * The wrapper for the primitive type {@code int}.
  * <p>

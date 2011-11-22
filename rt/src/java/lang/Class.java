@@ -78,6 +78,8 @@ public final class Class<T> {
 			name = getName0();
 		return name;
 	}
+	
+	private final transient int classId;
 
 	private transient String name;
 
