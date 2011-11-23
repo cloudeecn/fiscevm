@@ -17,12 +17,19 @@
 
 #include "fyc/ThreadManager.h"
 
-static fy_thread *getThreadByHandle(fy_uint targetHandle, fy_exception *exception) {
+static fy_thread *getThreadByHandle(fy_uint targetHandle,
+		fy_exception *exception) {
 	//TODO
 	return NULL;
 }
 
-void fy_tmSleep(fy_context *context, fy_thread *thread, jlong time) {
+static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
+		fy_uint monitorId, fy_exception *exception) {
+	//TODO;
+	return 0;
+}
+
+void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time) {
 	thread->nextWakeTime = fy_portTimeMillSec(context) + time;
 }
 
@@ -73,4 +80,64 @@ fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
 	return ret;
 }
 
-//void fy_tmWait(fy_context *context,)
+void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
+		fy_long time, fy_exception *exception) {
+	fy_object *monitor;
+
+	ASSERT( thread->waitForNotifyId == 0);
+	monitor = context->objects + monitorId;
+	ASSERT(monitor->clazz!=NULL);
+	if (monitor->monitorOwnerId != thread->threadId) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/IllegalMonitorStateException");
+		exception->exceptionDesc[0] = 0;
+		return;
+	}
+	thread->waitForNotifyId = monitorId;
+	thread->pendingLockCount = releaseMonitor(context, thread, monitorId,
+			exception);
+	if (exception->exceptionType != exception_none) {
+		return;
+	}
+	if (time <= 0) {
+		thread->nextWakeTime = 0x7FFFFFFFFFFFFFFFLL;
+	} else {
+		thread->nextWakeTime = fy_portTimeMillSec() + time;
+	}
+	thread->yield = TRUE;
+}
+
+void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
+		fy_boolean all, fy_exception *exception) {
+	fy_object *monitor;
+	fy_int i;
+	fy_thread * target;
+	fy_linkedListNode *node;
+
+	ASSERT(thread->waitForNotifyId == 0);
+	monitor = context->objects + monitorId;
+	ASSERT(monitor->clazz!=NULL);
+	if (monitor->monitorOwnerId != thread->threadId) {
+		exception->exceptionType = exception_normal;
+		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
+				"java/lang/IllegalMonitorStateException");
+		exception->exceptionDesc[0] = 0;
+		return;
+	}
+	node = context->threads.head;
+	while ((node = node->next) != NULL) {
+		target = node->info;
+		if (target->waitForNotifyId == monitorId) {
+			target->waitForNotifyId = 0;
+			ASSERT(target->waitForLockId==0);
+			target->waitForLockId = monitorId;
+			target->nextWakeTime = 0;
+			if (!all) {
+				break;
+			}
+		}
+	}
+}
+
+fy_boolean fy_tmIsAlive()

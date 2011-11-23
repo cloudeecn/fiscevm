@@ -52,9 +52,9 @@ fy_uint fy_dataRead4(fy_data *data) {
 	return ret;
 }
 
-julong fy_dataRead8(fy_data *data) {
+fy_ulong fy_dataRead8(fy_data *data) {
 	int i;
-	julong ret = 0;
+	fy_ulong ret = 0;
 	if (data->size < 8) {
 		fy_fault("Buffer overflow!");
 	}

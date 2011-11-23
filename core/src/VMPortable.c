@@ -23,7 +23,7 @@
 #endif
 #include <time.h>
 typedef struct PortableData {
-	jlong initTimeInMillSec;
+	fy_long initTimeInMillSec;
 #if defined(_WIN32)
 	LARGE_INTEGER lpFreq;
 	LARGE_INTEGER lpPerfCountBegin;
@@ -37,7 +37,7 @@ void fy_portInit(fy_context *context) {
 	PortableData *pd;
 	pd = (PortableData*) (context->portableData = fy_allocate(
 			sizeof(PortableData)));
-	pd->initTimeInMillSec = (jlong) time(NULL) * 1000;
+	pd->initTimeInMillSec = (fy_long) time(NULL) * 1000;
 #if defined(_WIN32)
 	QueryPerformanceFrequency(&(pd->lpFreq));
 	QueryPerformanceCounter(&(pd->lpPerfCountBegin));
@@ -51,10 +51,10 @@ void fy_portDestroy(fy_context *context) {
 
 	fy_free(context->portableData);
 }
-jlong fy_portTimeMillSec(fy_context *context) {
+fy_long fy_portTimeMillSec(fy_context *context) {
 	PortableData *pd = (PortableData*) (context->portableData);
 #if defined(_WIN32)
-	jlong timeDelta;
+	fy_long timeDelta;
 	LARGE_INTEGER lPerfCount;
 	QueryPerformanceCounter(&lPerfCount);
 	timeDelta = lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart;
@@ -63,21 +63,21 @@ jlong fy_portTimeMillSec(fy_context *context) {
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
 	gettimeofday(&tv,NULL);
-	return ((jlong)tv.tv_sec)*1000+((jlong)tv.tv_usec)/1000;
+	return ((fy_long)tv.tv_sec)*1000+((fy_long)tv.tv_usec)/1000;
 #endif
 	return 0;
 }
-jlong fy_portTimeNanoSec(fy_context *context) {
+fy_long fy_portTimeNanoSec(fy_context *context) {
 	PortableData *pd = (PortableData*) (context->portableData);
 #if defined(_WIN32)
 	LARGE_INTEGER lPerfCount;
 	QueryPerformanceCounter(&lPerfCount);
-	return (jlong) ((lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart)
+	return (fy_long) ((lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart)
 			* pd->perfIdv);
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
 	gettimeofday(&tv,NULL);
-	return ((jlong)tv.tv_sec)*1000000000+((jlong)tv.tv_usec)*1000;
+	return ((fy_long)tv.tv_sec)*1000000000+((fy_long)tv.tv_usec)*1000;
 #endif
 	return 0;
 }

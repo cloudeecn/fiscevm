@@ -53,29 +53,29 @@ void testPortable() {
 	CU_ASSERT_EQUAL(sizeof(fy_ubyte), 1);
 	CU_ASSERT_EQUAL(sizeof(fy_char), 2);
 	CU_ASSERT_EQUAL(sizeof(fy_uint), 4);
-	CU_ASSERT_EQUAL(sizeof(julong), 8);
+	CU_ASSERT_EQUAL(sizeof(fy_ulong), 8);
 	CU_ASSERT_EQUAL(sizeof(fy_byte), 1);
 	CU_ASSERT_EQUAL(sizeof(fy_short), 2);
 	CU_ASSERT_EQUAL(sizeof(fy_int), 4);
-	CU_ASSERT_EQUAL(sizeof(jlong), 8);
+	CU_ASSERT_EQUAL(sizeof(fy_long), 8);
 	CU_ASSERT_EQUAL(sizeof(fy_float), 4);
 	CU_ASSERT_EQUAL(sizeof(fy_double), 8);
 	CU_ASSERT_EQUAL(fy_I2TOL(0x12345678,0x9ABCDEF0),
-			(jlong)0x123456789ABCDEF0LL);
+			(fy_long)0x123456789ABCDEF0LL);
 	CU_ASSERT_EQUAL(fy_I2TOL(0x9ABCDEF0,0x12345678),
-			(jlong)0x9ABCDEF012345678LL);
+			(fy_long)0x9ABCDEF012345678LL);
 	CU_ASSERT_EQUAL(fy_I2TOL(0x12345678,0x22345678),
-			(jlong)0x1234567822345678LL);
+			(fy_long)0x1234567822345678LL);
 	CU_ASSERT_EQUAL(fy_I2TOL(0x92345678,0x9ABCDEF0),
-			(jlong)0x923456789ABCDEF0LL);
+			(fy_long)0x923456789ABCDEF0LL);
 	CU_ASSERT_EQUAL(fy_I2TOUL(0x12345678,0x9ABCDEF0),
-			(julong)0x123456789ABCDEF0LL);
+			(fy_ulong)0x123456789ABCDEF0LL);
 	CU_ASSERT_EQUAL(fy_I2TOUL(0x9ABCDEF0,0x12345678),
-			(julong)0x9ABCDEF012345678LL);
+			(fy_ulong)0x9ABCDEF012345678LL);
 	CU_ASSERT_EQUAL(fy_I2TOUL(0x12345678,0x22345678),
-			(julong)0x1234567822345678LL);
+			(fy_ulong)0x1234567822345678LL);
 	CU_ASSERT_EQUAL(fy_I2TOUL(0x92345678,0x9ABCDEF0),
-			(julong)0x923456789ABCDEF0LL);
+			(fy_ulong)0x923456789ABCDEF0LL);
 	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0xAB), 0x12AB);
 	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0x12), 0xAB12);
 	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0x12), 0x1212);
@@ -333,7 +333,7 @@ void testHashMap() {
 	blocks = fy_getAllocated();
 	fy_hashMapInit(context, hashMap, 16, 12);
 
-	jlong t1, t2, t3, t4;
+	fy_long t1, t2, t3, t4;
 
 	t1 = fy_portTimeMillSec(context);
 	for (i = 0; i < 10000; i++) {

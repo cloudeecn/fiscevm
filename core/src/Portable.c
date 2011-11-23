@@ -18,6 +18,13 @@
 #include "fisceprt.h"
 #include <stdio.h>
 #include <string.h>
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#include <sys/time.h>
+#include <errno.h>
+#endif
+#include <time.h>
 /*
  char dying_message[4096];
  */
@@ -93,7 +100,7 @@ void vm_dummy() {
 
 union fy_dtol {
 	fy_double d;
-	jlong l;
+	fy_long l;
 };
 
 union fy_itof {
@@ -101,12 +108,12 @@ union fy_itof {
 	fy_int i;
 };
 
-_FY_EXPORT jlong fy_doubleToLong(fy_double value) {
+_FY_EXPORT fy_long fy_doubleToLong(fy_double value) {
 	union fy_dtol d;
 	d.d = value;
 	return d.l;
 }
-_FY_EXPORT fy_double fy_longToDouble(jlong value) {
+_FY_EXPORT fy_double fy_longToDouble(fy_long value) {
 	union fy_dtol d;
 	d.l = value;
 	return d.d;
@@ -127,4 +134,23 @@ _FY_EXPORT fy_boolean fy_isnand(fy_double d) {
 }
 _FY_EXPORT fy_boolean fy_isnanf(fy_float f) {
 	return f != f;
+}
+
+_FY_EXPORT void fy_sleep(fy_long ms, fy_long ns) {
+#if defined(_WIN32)
+
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+	struct timeval tv;
+	int ret;
+	tv.tv_sec = ms / 1000;
+	tv.tv_usec = ms % 1000 * 1000 + ns / 1000 % 1000;
+	ret = select(0, NULL, NULL, NULL, &tv);
+	if (ret == 0) {
+		return;
+	} else if (ret == EINTR) {
+		/*TODO ???*/
+	} else {
+		/*TODO ???*/
+	}
+#endif
 }

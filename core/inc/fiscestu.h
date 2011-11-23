@@ -160,7 +160,7 @@ typedef struct ConstantIntegerFloatInfo {
 } ConstantIntegerFloatInfo;
 
 typedef struct ConstantLongDoubleInfo {
-	jlong value;
+	fy_long value;
 } ConstantLongDoubleInfo;
 
 typedef struct ConstantNameAndTypeInfo {
@@ -315,7 +315,7 @@ typedef struct fy_object {
 	fy_int monitorOwnerId;
 	fy_int monitorOwnerTimes;
 	union fy_object_data {
-		jlong *ldata;
+		fy_long *ldata;
 		fy_int *idata;
 		fy_byte *bdata;
 	} data;
@@ -356,7 +356,7 @@ typedef struct fy_thread {
 	fy_int waitForLockId;
 	fy_int waitForNotifyId;
 	fy_int pendingLockCount;
-	jlong nextWakeTime;
+	fy_long nextWakeTime;
 	fy_boolean interrupted;
 	fy_boolean daemon;
 
@@ -465,7 +465,7 @@ typedef struct fy_context {
 	int state;
 	struct fy_thread *workingThread;
 	fy_linkedList pendingThreads;
-	jlong nextWakeUpTimeTotal;
+	fy_long nextWakeUpTimeTotal;
 	fy_int nextThreadId;
 	fy_exception exitException;
 	fy_int exitCode;

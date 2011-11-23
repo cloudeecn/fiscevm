@@ -330,7 +330,7 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 	}
 }
 
-static jlong opLDC2(fy_context *context, fy_class *owner, fy_char index,
+static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
 		fy_exception *exception) {
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Double:
@@ -602,13 +602,13 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 #define fy_threadPopLong(O) { \
 	fy_checkPop(1,typeStack[sp-1]) \
 	O = stack[--sp]; \
-	O += ((julong)stack[--sp])<<32; \
+	O += ((fy_ulong)stack[--sp])<<32; \
 }
 
 #define fy_threadPopDouble(O) { \
 	fy_checkPop(1,typeStack[sp-1]) \
 	sp-=2; \
-	O=fy_longToDouble((((julong)stack[sp])<<32)+(julong)stack[sp+1]); \
+	O=fy_longToDouble((((fy_ulong)stack[sp])<<32)+(fy_ulong)stack[sp+1]); \
 }
 
 #define fy_threadPutLocalInt(P,V) { \
@@ -655,7 +655,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 #define fy_threadGetLocalLong(P,O) { \
 	fy_checkGetLocal(P,1,FY_TYPE_WIDE) \
 	O=stack[sb+(P)]; \
-	O=((julong)O<<32)+((julong)stack[sb+(P)+1]); \
+	O=((fy_ulong)O<<32)+((fy_ulong)stack[sb+(P)+1]); \
 }
 
 #define fy_frameToLocal(ptrFrame) { \
@@ -847,7 +847,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifndef _FY_LATE_DECLARATION
 	fy_uint ivalue, ivalue2, ivalue3, ivalue4;
 	int i;
-	julong lvalue, lvalue2;
+	fy_ulong lvalue, lvalue2;
 	fy_double dvalue, dvalue2;
 	fy_float fvalue, fvalue2;
 	fy_method *mvalue;
@@ -1461,7 +1461,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case D2F: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				fy_threadPushInt(
@@ -1470,7 +1470,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case D2I: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				fy_threadPushInt((fy_int)fy_longToDouble(lvalue));
@@ -1478,17 +1478,17 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case D2L: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
-				lvalue = (jlong) fy_longToDouble(lvalue);
+				lvalue = (fy_long) fy_longToDouble(lvalue);
 				fy_threadPushLong(lvalue);
 				break;
 			}
 			case DADD: {
 #ifdef _FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopDouble(dvalue);
 				fy_threadPopDouble(dvalue2);
@@ -1499,7 +1499,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case LALOAD:
 			case DALOAD: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 				fy_uint ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue3);
@@ -1516,7 +1516,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case LASTORE:
 			case DASTORE: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 				fy_uint ivalue2, ivalue3;
 #endif
 				fy_threadPopLong(lvalue);
@@ -1572,7 +1572,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DDIV: {
 #ifdef _FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopDouble(dvalue2);
 				fy_threadPopDouble(dvalue);
@@ -1583,7 +1583,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DMUL: {
 #ifdef _FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopDouble(dvalue2);
 				fy_threadPopDouble(dvalue);
@@ -1594,7 +1594,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DNEG: {
 #ifdef _FY_LATE_DECLARATION
 				fy_double dvalue;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopDouble(dvalue);
 				lvalue = fy_doubleToLong(-dvalue);
@@ -1604,7 +1604,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DREM: {
 #ifdef _FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopDouble(dvalue2);
 				fy_threadPopDouble(dvalue);
@@ -1640,7 +1640,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DSUB: {
 #ifdef _FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopDouble(dvalue2);
 				fy_threadPopDouble(dvalue);
@@ -1737,7 +1737,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case F2D: {
 #ifdef _FY_LATE_DECLARATION
 				fy_float fvalue;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopFloat(fvalue);
 				lvalue = fy_doubleToLong(fvalue);
@@ -1756,10 +1756,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case F2L: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopInt(ivalue);
-				lvalue = (julong) (jlong) fy_intToFloat(ivalue);
+				lvalue = (fy_ulong) (fy_long) fy_intToFloat(ivalue);
 				fy_threadPushLong(lvalue);
 				break;
 			}
@@ -1902,7 +1902,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				case 'D':
 				case 'J': {
 #ifdef _FY_LATE_DECLARATION
-					julong lvalue;
+					fy_ulong lvalue;
 #endif
 					lvalue = fy_heapGetFieldLong(context, ivalue2, field,
 							exception);
@@ -1975,8 +1975,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							break;
 						} else {
 							thread->yield = TRUE;
+							FY_FALLOUT_NOINVOKE
+							break;
 						}
-						break;
 					}
 				}
 				type = (fy_byte) field->descriptor->content[0];
@@ -1984,7 +1985,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				case 'D':
 				case 'J': {
 #ifdef _FY_LATE_DECLARATION
-					julong lvalue;
+					fy_ulong lvalue;
 #endif
 					lvalue = fy_heapGetStaticLong(context, field, exception);
 					if (exception->exceptionType != exception_none) {
@@ -2062,7 +2063,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case I2D: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue;
-				jlong lvalue;
+				fy_long lvalue;
 #endif
 				fy_threadPopInt(ivalue);
 				lvalue = fy_doubleToLong((fy_double) ivalue);
@@ -2078,7 +2079,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case I2L: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue;
-				jlong lvalue;
+				fy_long lvalue;
 #endif
 				fy_threadPopInt(ivalue);
 				lvalue = ivalue;
@@ -2628,8 +2629,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							break;
 						} else {
 							thread->yield = TRUE;
+							FY_FALLOUT_NOINVOKE
+							break;
 						}
-						break;
 					}
 				}
 				ivalue = mvalue->paramCount;
@@ -2847,7 +2849,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case L2D: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				lvalue = fy_doubleToLong(lvalue);
@@ -2856,7 +2858,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case L2F: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 				fy_uint ivalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -2866,7 +2868,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case L2I: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				fy_threadPushInt((fy_uint)lvalue);
@@ -2874,7 +2876,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LADD: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
@@ -2884,7 +2886,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LAND: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
@@ -2894,20 +2896,20 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LCMP: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
 				fy_threadPushInt(
-						lvalue == lvalue2 ? 0 : ((jlong)lvalue > (jlong)lvalue2 ? 1 : -1));
+						lvalue == lvalue2 ? 0 : ((fy_long)lvalue > (fy_long)lvalue2 ? 1 : -1));
 				break;
 			}
 			case LCONST_0: {
-				fy_threadPushLong((julong)0);
+				fy_threadPushLong((fy_ulong)0);
 				break;
 			}
 			case LCONST_1: {
-				fy_threadPushLong((julong)1);
+				fy_threadPushLong((fy_ulong)1);
 				break;
 			}
 			case LDC: {
@@ -2947,7 +2949,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case LDC2_W: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue3;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				ivalue3 = fy_nextU2(code );
 				lvalue = opLDC2(context, method->owner, ivalue3, exception);
@@ -2960,7 +2962,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LDIV: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
@@ -2976,14 +2978,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				lvalue = (julong) ((jlong) lvalue / (jlong) lvalue2);
+				lvalue = (fy_ulong) ((fy_long) lvalue / (fy_long) lvalue2);
 				fy_threadPushLong( lvalue);
 				break;
 			}
 			case DLOAD:
 			case LLOAD: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 				fy_uint ivalue;
 #endif
 				ivalue = fy_nextU1(code);
@@ -2994,7 +2996,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DLOAD_0:
 			case LLOAD_0: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(0, lvalue);
 				fy_threadPushLong(lvalue);
@@ -3003,7 +3005,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DLOAD_1:
 			case LLOAD_1: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(1, lvalue);
 				fy_threadPushLong(lvalue);
@@ -3012,7 +3014,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DLOAD_2:
 			case LLOAD_2: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(2, lvalue);
 				fy_threadPushLong(lvalue);
@@ -3021,7 +3023,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DLOAD_3:
 			case LLOAD_3: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(3, lvalue);
 				fy_threadPushLong(lvalue);
@@ -3029,17 +3031,17 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LMUL: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
-				lvalue = (julong) ((jlong) lvalue * (jlong) lvalue2);
+				lvalue = (fy_ulong) ((fy_long) lvalue * (fy_long) lvalue2);
 				fy_threadPushLong(lvalue);
 				break;
 			}
 			case LNEG: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				fy_threadPushLong(-lvalue);
@@ -3080,7 +3082,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LOR: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
@@ -3090,7 +3092,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LREM: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
@@ -3107,13 +3109,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				lvalue = (julong) ((jlong) lvalue % (jlong) lvalue2);
+				lvalue = (fy_ulong) ((fy_long) lvalue % (fy_long) lvalue2);
 				fy_threadPushLong(lvalue);
 				break;
 			}
 			case LRETURN: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
@@ -3133,7 +3135,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case LSHL: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopInt(ivalue);
 				fy_threadPopLong(lvalue);
@@ -3144,17 +3146,17 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case LSHR: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue;
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopInt(ivalue);
 				fy_threadPopLong(lvalue);
-				lvalue = ((jlong) lvalue) >> ivalue;
+				lvalue = ((fy_long) lvalue) >> ivalue;
 				fy_threadPushLong(lvalue);
 				break;
 			}
 			case LUSHR: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -3166,7 +3168,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DSTORE:
 			case LSTORE: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 				fy_uint ivalue;
 #endif
 				ivalue = fy_nextU1(code);
@@ -3177,7 +3179,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DSTORE_0:
 			case LSTORE_0: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				fy_threadPutLocalLong(0, lvalue);
@@ -3186,7 +3188,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DSTORE_1:
 			case LSTORE_1: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				fy_threadPutLocalLong(1, lvalue);
@@ -3195,7 +3197,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DSTORE_2:
 			case LSTORE_2: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				fy_threadPutLocalLong(2, lvalue);
@@ -3204,7 +3206,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case DSTORE_3:
 			case LSTORE_3: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue;
+				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				fy_threadPutLocalLong(3, lvalue);
@@ -3212,7 +3214,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LSUB: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
@@ -3222,7 +3224,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LXOR: {
 #ifdef _FY_LATE_DECLARATION
-				julong lvalue, lvalue2;
+				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
@@ -3312,8 +3314,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							break;
 						} else {
 							thread->yield = TRUE;
+							FY_FALLOUT_NOINVOKE
+							break;
 						}
-						break;
 					}
 				}
 				ivalue = fy_heapAllocate(context, clazz1, exception);
@@ -3415,7 +3418,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case PUTFIELD: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
-				julong lvalue;
+				fy_ulong lvalue;
 				fy_uint type;
 				fy_field *field;
 #endif
@@ -3545,8 +3548,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							break;
 						} else {
 							thread->yield = TRUE;
+							FY_FALLOUT_NOINVOKE
+							break;
 						}
-						break;
 					}
 				}
 				type = (fy_byte) field->descriptor->content[0];
@@ -3554,7 +3558,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				case 'D':
 				case 'J': {
 #ifdef _FY_LATE_DECLARATION
-					julong lvalue;
+					fy_ulong lvalue;
 #endif
 					fy_threadPopLong(lvalue);
 					fy_heapPutStaticLong(context, field, lvalue, exception);
@@ -3708,7 +3712,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				case DLOAD:
 				case LLOAD: {
 #ifdef _FY_LATE_DECLARATION
-					julong lvalue;
+					fy_ulong lvalue;
 #endif
 					fy_threadGetLocalLong(ivalue3, lvalue);
 					fy_threadPushLong(lvalue);
@@ -3735,7 +3739,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				case DSTORE:
 				case LSTORE: {
 #ifdef _FY_LATE_DECLARATION
-					julong lvalue;
+					fy_ulong lvalue;
 #endif
 					fy_threadPopLong(lvalue);
 					fy_threadPutLocalLong( ivalue3, lvalue);
@@ -3878,7 +3882,7 @@ void fy_threadReturnHandle(fy_context *context, fy_thread *thread, fy_int value)
 	frame->sp = sp + 1;
 }
 
-void fy_threadReturnLong(fy_context *context, fy_thread *thread, jlong value) {
+void fy_threadReturnLong(fy_context *context, fy_thread *thread, fy_long value) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	/*As both run and main are void, no need to consider frame is NULL*/
 	fy_uint sp = frame->sp;

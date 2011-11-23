@@ -12,6 +12,6 @@ _FY_EXPORT void fy_nativeReturnHandle(fy_context *context, fy_thread *thread,
 }
 
 _FY_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
-		jlong value) {
+		fy_long value) {
 	return fy_threadReturnLong(context, thread, value);
 }

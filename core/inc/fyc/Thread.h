@@ -289,7 +289,7 @@ void fy_threadReturnInt(fy_context *context, fy_thread *thread, fy_int value);
 
 void fy_threadReturnHandle(fy_context *context, fy_thread *thread, fy_int value);
 
-void fy_threadReturnLong(fy_context *context, fy_thread *thread, jlong value);
+void fy_threadReturnLong(fy_context *context, fy_thread *thread, fy_long value);
 
 #define fy_threadReturnFloat(C,T,V) fy_threadReturnInt(C,T,fy_floatToInt(V))
 

@@ -21,7 +21,7 @@ _FY_EXPORT void fy_nativeReturnHandle(fy_context *context, fy_thread *thread,
 		fy_int value);
 
 _FY_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
-		jlong value);
+		fy_long value);
 
 #define fy_nativeReturnFloat(C,T,V) fy_nativeReturnInt(C,T,fy_floatToInt(V))
 

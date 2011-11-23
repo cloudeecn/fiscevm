@@ -26,8 +26,8 @@ extern "C" {
 
 void fy_portInit(fy_context *context);
 void fy_portDestroy(fy_context *context);
-jlong fy_portTimeMillSec(fy_context *context);
-jlong fy_portTimeNanoSec(fy_context *context);
+fy_long fy_portTimeMillSec(fy_context *context);
+fy_long fy_portTimeNanoSec(fy_context *context);
 
 #ifdef	__cplusplus
 }

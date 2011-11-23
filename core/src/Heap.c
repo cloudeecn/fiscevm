@@ -123,7 +123,7 @@ int fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
 		fy_heapGetObject(context, handle)->data.bdata = (fy_byte*) data;
 		break;
 	case fy_SIZE_SHIFT_LONG:
-		fy_heapGetObject(context, handle)->data.ldata = (jlong*) data;
+		fy_heapGetObject(context, handle)->data.ldata = (fy_long*) data;
 		break;
 	default:
 		fy_heapGetObject(context, handle)->data.idata = (fy_int*) data;
@@ -373,7 +373,7 @@ fy_int fy_heapGetArrayInt(fy_context *context, fy_int handle, fy_int index,
 
 	return obj->data.idata[index];
 }
-jlong fy_heapGetArrayLong(fy_context *context, fy_int handle, fy_int index,
+fy_long fy_heapGetArrayLong(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
@@ -456,7 +456,7 @@ void fy_heapPutArrayInt(fy_context *context, fy_int handle, fy_int index,
 	obj->data.idata[index] = value;
 }
 void fy_heapPutArrayLong(fy_context *context, fy_int handle, fy_int index,
-		jlong value, fy_exception *exception) {
+		fy_long value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 
@@ -537,7 +537,7 @@ fy_int fy_heapGetFieldInt(fy_context *context, fy_int handle, fy_field *field,
 	CHECK_NPT(0)
 	return (fy_int) obj->data.idata[field->posAbs];
 }
-jlong fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
+fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
@@ -621,7 +621,7 @@ void fy_heapPutFieldInt(fy_context *context, fy_int handle, fy_field *field,
 	obj->data.idata[field->posAbs] = value;
 }
 void fy_heapPutFieldLong(fy_context *context, fy_int handle, fy_field *field,
-		jlong value, fy_exception *exception) {
+		fy_long value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->clazz!=NULL);
 	ASSERT(validate(context,handle,field));
@@ -642,7 +642,7 @@ void fy_heapPutFieldFloat(fy_context *context, fy_int handle, fy_field *field,
 void fy_heapPutFieldDouble(fy_context *context, fy_int handle, fy_field *field,
 		fy_double value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	jlong longValue;
+	fy_long longValue;
 	ASSERT(obj->clazz!=NULL);
 	ASSERT(validate(context,handle,field));
 
@@ -682,11 +682,11 @@ fy_int fy_heapGetStaticInt(fy_context *context, fy_field *field,
 	CHECK_STATIC(0)
 	return field->owner->staticArea[field->posAbs];
 }
-jlong fy_heapGetStaticLong(fy_context *context, fy_field *field,
+fy_long fy_heapGetStaticLong(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
-	return ((jlong) field->owner->staticArea[field->posAbs] << 32)
-			| ((jlong) field->owner->staticArea[field->posAbs + 1]);
+	return ((fy_long) field->owner->staticArea[field->posAbs] << 32)
+			| ((fy_long) field->owner->staticArea[field->posAbs + 1]);
 }
 fy_float fy_heapGetStaticFloat(fy_context *context, fy_field *field,
 		fy_exception *exception) {
@@ -695,10 +695,10 @@ fy_float fy_heapGetStaticFloat(fy_context *context, fy_field *field,
 }
 fy_double fy_heapGetStaticDouble(fy_context *context, fy_field *field,
 		fy_exception *exception) {
-	jlong lvalue;
+	fy_long lvalue;
 	CHECK_STATIC(0)
-	lvalue = ((jlong) field->owner->staticArea[field->posAbs] << 32)
-			| ((jlong) field->owner->staticArea[field->posAbs + 1]);
+	lvalue = ((fy_long) field->owner->staticArea[field->posAbs] << 32)
+			| ((fy_long) field->owner->staticArea[field->posAbs + 1]);
 	return fy_longToDouble(lvalue);
 }
 
@@ -732,7 +732,7 @@ void fy_heapPutStaticInt(fy_context *context, fy_field *field, fy_int value,
 	CHECK_STATIC()
 	field->owner->staticArea[field->posAbs] = value;
 }
-void fy_heapPutStaticLong(fy_context *context, fy_field *field, jlong value,
+void fy_heapPutStaticLong(fy_context *context, fy_field *field, fy_long value,
 		fy_exception *exception) {
 	CHECK_STATIC()
 	field->owner->staticArea[field->posAbs] = (fy_int) (value >> 32);
@@ -745,7 +745,7 @@ void fy_heapPutStaticFloat(fy_context *context, fy_field *field, fy_float value,
 }
 void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 		fy_double value, fy_exception *exception) {
-	jlong lvalue;
+	fy_long lvalue;
 	CHECK_STATIC()
 	lvalue = fy_doubleToLong(value);
 	field->owner->staticArea[field->posAbs] = (fy_int) (lvalue >> 32);

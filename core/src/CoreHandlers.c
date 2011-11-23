@@ -244,7 +244,7 @@ static void VMGetDoubleRaw(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_nativeReturnLong(context, thread,
-			((jlong) args[0] << 32) | ((fy_uint) args[1]));
+			((fy_long) args[0] << 32) | ((fy_uint) args[1]));
 }
 
 static void VMGetFloatRaw(struct fy_context *context,
@@ -268,7 +268,7 @@ static void VMStringToDouble(struct fy_context *context,
 static void VMDoubleToString(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	jlong lvalue = ((julong) args[0] << 32) | ((fy_uint) args[1]);
+	fy_long lvalue = ((fy_ulong) args[0] << 32) | ((fy_uint) args[1]);
 	fy_double dvalue = fy_longToDouble(lvalue);
 	fy_int handleRet;
 	fy_str *str;

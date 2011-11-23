@@ -84,6 +84,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	context->managedMemory = fy_allocate(sizeof(fy_linkedList));
 	fy_linkedListInit(context->managedMemory);
 
+	fy_linkedListInit(&(context->threads));
+
 	context->sBoolean = fy_strAllocateFromUTF8(context, "boolean");
 	context->sByte = fy_strAllocateFromUTF8(context, "byte");
 	context->sShort = fy_strAllocateFromUTF8(context, "short");
