@@ -19,10 +19,10 @@
 
 void fy_strPrint(fy_str *str) {
 	int i, count;
-	jchar unicode;
+	fy_char unicode;
 	char buf[4];
 	char *tmp;
-	jint left;
+	fy_int left;
 	count = str->length;
 	for (i = 0; i < count; i++) {
 		unicode = str->content[i];

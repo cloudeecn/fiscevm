@@ -17,7 +17,7 @@
 #include "fyc/HashMap.h"
 
 static void expandBuckets(fy_context *context, fy_hashMap *this,
-		juint targetSize) {
+		fy_uint targetSize) {
 	int i, imax;
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
@@ -59,7 +59,7 @@ static void expandBuckets(fy_context *context, fy_hashMap *this,
 
 static fy_hashMapEntry *getBucket(fy_context *context, fy_hashMap *this,
 		fy_str *key) {
-	juint hashCode;
+	fy_uint hashCode;
 	fy_hashMapEntry *entry;
 
 	hashCode = fy_strHash(key);
@@ -74,8 +74,8 @@ static fy_hashMapEntry *getBucket(fy_context *context, fy_hashMap *this,
 	return NULL;
 }
 
-void fy_hashMapInit(fy_context *context, fy_hashMap *this, juint initSize,
-		juint loadFactor) {
+void fy_hashMapInit(fy_context *context, fy_hashMap *this, fy_uint initSize,
+		fy_uint loadFactor) {
 	this->loadFactor = loadFactor;
 	this->bucketsCount = initSize;
 	this->buckets = fy_vmAllocate(context, sizeof(fy_hashMapEntry*) * initSize);
@@ -129,14 +129,14 @@ void *fy_hashMapPutUtf8(fy_context *context, fy_hashMap *this,
 	fy_str *key;
 	void *ret;
 
-	key = vm_allocate(sizeof(fy_str));
+	key = fy_allocate(sizeof(fy_str));
 	fy_strInit(context, key, fy_utf8SizeS(keyUtf8, -1));
 	fy_strAppendUTF8(context, key, keyUtf8, -1);
 
 	ret = fy_hashMapPut(context, this, key, value);
 
 	fy_strDestroy(context, key);
-	vm_free(key);
+	fy_free(key);
 	return ret;
 }
 

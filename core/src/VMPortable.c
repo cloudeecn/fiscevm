@@ -35,7 +35,7 @@ typedef struct PortableData {
 
 void fy_portInit(fy_context *context) {
 	PortableData *pd;
-	pd = (PortableData*) (context->portableData = vm_allocate(
+	pd = (PortableData*) (context->portableData = fy_allocate(
 			sizeof(PortableData)));
 	pd->initTimeInMillSec = (jlong) time(NULL) * 1000;
 #if defined(_WIN32)
@@ -49,7 +49,7 @@ void fy_portInit(fy_context *context) {
 void fy_portDestroy(fy_context *context) {
 	PortableData *pd = (PortableData*) (context->portableData);
 
-	vm_free(context->portableData);
+	fy_free(context->portableData);
 }
 jlong fy_portTimeMillSec(fy_context *context) {
 	PortableData *pd = (PortableData*) (context->portableData);

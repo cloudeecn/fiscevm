@@ -32,10 +32,10 @@ static fy_context *context;
 int test_init(void) {
 	fy_exception exception;
 	exception.exceptionType = exception_none;
-	context = vm_allocate(sizeof(fy_context));
+	context = fy_allocate(sizeof(fy_context));
 	fy_vmContextInit(context, &exception);
 	if (exception.exceptionType != exception_none) {
-		vm_die("Exception in initialize: %s  || %s", exception.exceptionName,
+		fy_fault("Exception in initialize: %s  || %s", exception.exceptionName,
 				exception.exceptionDesc);
 	}
 	return 0;
@@ -44,22 +44,22 @@ int test_init(void) {
 int test_clean(void) {
 	printf("Release resources\n");
 	fy_vmContextDestroy(context);
-	vm_free(context);
-	printf("ALL TEST DONE!!!MemLeak=%ld\n", vm_getAllocated());
+	fy_free(context);
+	printf("ALL TEST DONE!!!MemLeak=%ld\n", fy_getAllocated());
 	return 0;
 }
 
 void testPortable() {
-	CU_ASSERT_EQUAL(sizeof(jubyte), 1);
-	CU_ASSERT_EQUAL(sizeof(jchar), 2);
-	CU_ASSERT_EQUAL(sizeof(juint), 4);
+	CU_ASSERT_EQUAL(sizeof(fy_ubyte), 1);
+	CU_ASSERT_EQUAL(sizeof(fy_char), 2);
+	CU_ASSERT_EQUAL(sizeof(fy_uint), 4);
 	CU_ASSERT_EQUAL(sizeof(julong), 8);
-	CU_ASSERT_EQUAL(sizeof(jbyte), 1);
-	CU_ASSERT_EQUAL(sizeof(jshort), 2);
-	CU_ASSERT_EQUAL(sizeof(jint), 4);
+	CU_ASSERT_EQUAL(sizeof(fy_byte), 1);
+	CU_ASSERT_EQUAL(sizeof(fy_short), 2);
+	CU_ASSERT_EQUAL(sizeof(fy_int), 4);
 	CU_ASSERT_EQUAL(sizeof(jlong), 8);
-	CU_ASSERT_EQUAL(sizeof(jfloat), 4);
-	CU_ASSERT_EQUAL(sizeof(jdouble), 8);
+	CU_ASSERT_EQUAL(sizeof(fy_float), 4);
+	CU_ASSERT_EQUAL(sizeof(fy_double), 8);
 	CU_ASSERT_EQUAL(fy_I2TOL(0x12345678,0x9ABCDEF0),
 			(jlong)0x123456789ABCDEF0LL);
 	CU_ASSERT_EQUAL(fy_I2TOL(0x9ABCDEF0,0x12345678),
@@ -125,7 +125,7 @@ void testString() {
 	fy_strAppendUTF8(context, js1, cc1, 999);
 	fy_strAppendUTF8(context, js2, cc2, 999);
 	for (i = 0; i < js->length; i++) {
-		printf("%d ", (juint) js->content[i]);
+		printf("%d ", (fy_uint) js->content[i]);
 	}
 	printf("\n");
 	fy_strPrint(js);
@@ -157,7 +157,7 @@ static fy_class *lookup(const char *name) {
 	clazz = fy_vmLookupClass(context, sName, &exception);
 	fy_strRelease(context, sName);
 	if (exception.exceptionType != exception_none) {
-		vm_die("Exception %s caught: %s", exception.exceptionName,
+		fy_fault("Exception %s caught: %s", exception.exceptionName,
 				exception.exceptionDesc);
 	}
 	return clazz;
@@ -178,7 +178,7 @@ void testClassLoaderFull() {
 		snm = fy_strAllocateFromUTF8(context, nm);
 		clazz = fy_vmLookupClass(context, snm, &exception);
 		if (exception.exceptionType != exception_none) {
-			vm_die("Exception in initialize: %s  || %s",
+			fy_fault("Exception in initialize: %s  || %s",
 					exception.exceptionName, exception.exceptionDesc);
 		}CU_ASSERT_NOT_EQUAL(clazz, NULL);
 		fy_strRelease(context, snm);
@@ -235,7 +235,7 @@ void testClassMethod() {
 void testHeap() {
 	fy_str *str;
 	fy_str *compare;
-	jint sHandle;
+	fy_int sHandle;
 	fy_exception exception;
 	exception.exceptionType = exception_none;
 	str = fy_strAllocateFromUTF8(context, "咩哈哈哈ABCabc,|/");
@@ -261,7 +261,7 @@ void testThread() {
 	fy_class *clazzThread = lookup(FY_BASE_THREAD);
 	fy_field *fieldThreadPriority = fy_vmLookupFieldStatic(context, clazzThread,
 			fy_strAllocateFromUTF8(context, ".priority.I"));
-	jint threadHandle;
+	fy_int threadHandle;
 	fy_message message;
 	int i, count;
 
@@ -325,12 +325,12 @@ void testHashMap() {
 	int i;
 	char buf[256];
 	//	char buf1[256];
-	juint values[10000];
-	juint *value;
+	fy_uint values[10000];
+	fy_uint *value;
 	fy_str *tmp;
 	fy_hashMap *hashMap = fy_vmAllocate(context, sizeof(fy_hashMap));
 	memset(buf, 0, 256);
-	blocks = vm_getAllocated();
+	blocks = fy_getAllocated();
 	fy_hashMapInit(context, hashMap, 16, 12);
 
 	jlong t1, t2, t3, t4;
@@ -365,7 +365,7 @@ void testHashMap() {
 	t4 = fy_portTimeMillSec(context);
 	printf("HashMap time %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d\n", (t2 - t1),
 			(t3 - t2), (t4 - t3));
-	CU_ASSERT_EQUAL(blocks, vm_getAllocated());
+	CU_ASSERT_EQUAL(blocks, fy_getAllocated());
 	fy_vmFree(context, hashMap);
 }
 

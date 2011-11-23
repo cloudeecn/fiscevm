@@ -18,19 +18,19 @@
 #include "fyc/Data.h"
 
 /*****************public*********************/
-jubyte fy_dataRead(fy_data *data) {
+fy_ubyte fy_dataRead(fy_data *data) {
 	if (data->size < 1) {
-		vm_die("Buffer overflow!");
+		fy_fault("Buffer overflow!");
 	}
 	data->size--;
 	return *(data->data++);
 }
 
-jchar fy_dataRead2(fy_data *data) {
+fy_char fy_dataRead2(fy_data *data) {
 	int i;
-	jchar ret = 0;
+	fy_char ret = 0;
 	if (data->size < 2) {
-		vm_die("Buffer overflow!");
+		fy_fault("Buffer overflow!");
 	}
 	data->size -= 2;
 	for (i = 0; i < 2; i++) {
@@ -39,11 +39,11 @@ jchar fy_dataRead2(fy_data *data) {
 	return ret;
 }
 
-juint fy_dataRead4(fy_data *data) {
+fy_uint fy_dataRead4(fy_data *data) {
 	int i;
-	juint ret = 0;
+	fy_uint ret = 0;
 	if (data->size < 4) {
-		vm_die("Buffer overflow!");
+		fy_fault("Buffer overflow!");
 	}
 	data->size -= 4;
 	for (i = 0; i < 4; i++) {
@@ -56,7 +56,7 @@ julong fy_dataRead8(fy_data *data) {
 	int i;
 	julong ret = 0;
 	if (data->size < 8) {
-		vm_die("Buffer overflow!");
+		fy_fault("Buffer overflow!");
 	}
 	data->size -= 8;
 	for (i = 0; i < 8; i++) {
@@ -67,7 +67,7 @@ julong fy_dataRead8(fy_data *data) {
 
 void fy_dataSkip(fy_data *data, int size) {
 	if (data->size < size) {
-		vm_die("Buffer overflow!");
+		fy_fault("Buffer overflow!");
 	}
 	data->size -= size;
 	data->data += size;

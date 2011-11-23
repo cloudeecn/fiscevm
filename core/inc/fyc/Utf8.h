@@ -21,15 +21,15 @@
 extern "C" {
 #endif
 
-juint fy_utf8Size(jchar unicode);
+fy_uint fy_utf8Size(fy_char unicode);
 
-juint fy_utf8SizeU(char firstByte);
+fy_uint fy_utf8SizeU(char firstByte);
 
-juint fy_utf8SizeS(const char *str, jint length);
+fy_uint fy_utf8SizeS(const char *str, fy_int length);
 
-jchar fy_utf8Read(const char **from, jint *left);
+fy_char fy_utf8Read(const char **from, fy_int *left);
 
-int fy_utf8Write(jchar unicode, char **to, jint *left);
+int fy_utf8Write(fy_char unicode, char **to, fy_int *left);
 
 #ifdef	__cplusplus
 }

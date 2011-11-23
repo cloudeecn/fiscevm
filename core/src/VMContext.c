@@ -32,10 +32,10 @@ void *fy_vmAllocate(fy_context *context, int size) {
 		return NULL;
 	}
 #endif
-	ret = vm_allocate(size + sizeof(fy_linkedListNode*));
+	ret = fy_allocate(size + sizeof(fy_linkedListNode*));
 
 	if (ret == NULL) {
-		vm_die("OUT OF MEMORY");
+		fy_fault("OUT OF MEMORY");
 	}
 #ifdef _DEBUG
 	node = fy_linkedListAppend(context->managedMemory, ret);
@@ -46,21 +46,21 @@ void *fy_vmAllocate(fy_context *context, int size) {
 			ret);
 #endif
 
-	return (jbyte*) ret + sizeof(fy_linkedListNode*);
+	return (fy_byte*) ret + sizeof(fy_linkedListNode*);
 }
 
 void fy_vmFree(fy_context *context, void *address) {
-	void *base = (jbyte*) address - sizeof(fy_linkedListNode*);
+	void *base = (fy_byte*) address - sizeof(fy_linkedListNode*);
 	fy_linkedListNode* node = *((fy_linkedListNode**) base);
 #ifdef _DEBUG
 	/*	printf("Unallocate managed:%p at node %p\n", base, node);*/
 #endif
 	if (node->info != base) {
-		vm_die("Error freeing address %p", address);
+		fy_fault("Error freeing address %p", address);
 	}
 	node->info = NULL;
 	fy_linkedListRemoveNode(context->managedMemory, node);
-	vm_free(base);
+	fy_free(base);
 }
 
 void fy_vmContextInit(fy_context *context, fy_exception *exception) {
@@ -77,11 +77,11 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 fy_str *primitives[128];
 	 fy_hashMap *mapPrimitivesRev;
 	 */
-	jchar *cc;
+	fy_char *cc;
 
 	context->nextHandle = 1;
 
-	context->managedMemory = vm_allocate(sizeof(fy_linkedList));
+	context->managedMemory = fy_allocate(sizeof(fy_linkedList));
 	fy_linkedListInit(context->managedMemory);
 
 	context->sBoolean = fy_strAllocateFromUTF8(context, "boolean");
@@ -151,28 +151,28 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	context->mapPrimitivesRev = fy_vmAllocate(context, sizeof(fy_hashMap));
 	fy_hashMapInit(context, context->mapPrimitivesRev, 13, 12);
-	cc = fy_vmAllocate(context, sizeof(jchar));
+	cc = fy_vmAllocate(context, sizeof(fy_char));
 	*cc = FY_TYPE_BOOLEAN;
 	fy_hashMapPut(context, context->mapPrimitivesRev, context->sBoolean, cc);
-	cc = fy_vmAllocate(context, sizeof(jchar));
+	cc = fy_vmAllocate(context, sizeof(fy_char));
 	*cc = FY_TYPE_BYTE;
 	fy_hashMapPut(context, context->mapPrimitivesRev, context->sByte, cc);
-	cc = fy_vmAllocate(context, sizeof(jchar));
+	cc = fy_vmAllocate(context, sizeof(fy_char));
 	*cc = FY_TYPE_SHORT;
 	fy_hashMapPut(context, context->mapPrimitivesRev, context->sShort, cc);
-	cc = fy_vmAllocate(context, sizeof(jchar));
+	cc = fy_vmAllocate(context, sizeof(fy_char));
 	*cc = FY_TYPE_CHAR;
 	fy_hashMapPut(context, context->mapPrimitivesRev, context->sChar, cc);
-	cc = fy_vmAllocate(context, sizeof(jchar));
+	cc = fy_vmAllocate(context, sizeof(fy_char));
 	*cc = FY_TYPE_INT;
 	fy_hashMapPut(context, context->mapPrimitivesRev, context->sInt, cc);
-	cc = fy_vmAllocate(context, sizeof(jchar));
+	cc = fy_vmAllocate(context, sizeof(fy_char));
 	*cc = FY_TYPE_FLOAT;
 	fy_hashMapPut(context, context->mapPrimitivesRev, context->sFloat, cc);
-	cc = fy_vmAllocate(context, sizeof(jchar));
+	cc = fy_vmAllocate(context, sizeof(fy_char));
 	*cc = FY_TYPE_LONG;
 	fy_hashMapPut(context, context->mapPrimitivesRev, context->sLong, cc);
-	cc = fy_vmAllocate(context, sizeof(jchar));
+	cc = fy_vmAllocate(context, sizeof(fy_char));
 	*cc = FY_TYPE_DOUBLE;
 	fy_hashMapPut(context, context->mapPrimitivesRev, context->sDouble, cc);
 
@@ -204,8 +204,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 }
 
 static void fy_memReleaser(fy_linkedListNode *node) {
-	vm_free(node->info);
-	/*	printf("%ld\n",vm_getAllocated());*/
+	fy_free(node->info);
+	/*	printf("%ld\n",fy_getAllocated());*/
 	node->info = 0;
 }
 
@@ -217,7 +217,7 @@ static fy_class* getClass(fy_context *context, fy_str *name) {
 		return NULL;
 	}
 	if (*pFid < 0 || *pFid >= MAX_CLASSES) {
-		vm_die("Invalid class id=%d", *pFid);
+		fy_fault("Invalid class id=%d", *pFid);
 	}
 	if (pFid == NULL || (ret = context->classes[*pFid]) == NULL) {
 		return NULL;
@@ -232,13 +232,13 @@ void fy_vmContextDestroy(fy_context *context) {
 		if (context->objects[i].clazz != NULL) {
 			switch (context->objects[i].sizeShift) {
 			case fy_SIZE_SHIFT_BYTE:
-				vm_free(context->objects[i].data.bdata);
+				fy_free(context->objects[i].data.bdata);
 				break;
 			case fy_SIZE_SHIFT_LONG:
-				vm_free(context->objects[i].data.ldata);
+				fy_free(context->objects[i].data.ldata);
 				break;
 			default:
-				vm_free(context->objects[i].data.idata);
+				fy_free(context->objects[i].data.idata);
 				break;
 			}
 		}
@@ -249,7 +249,7 @@ void fy_vmContextDestroy(fy_context *context) {
 #endif
 	fy_linkedListTraverse(context->managedMemory, fy_memReleaser);
 	fy_linkedListDestroy(context->managedMemory);
-	vm_free(context->managedMemory);
+	fy_free(context->managedMemory);
 }
 
 void fy_vmRegisterField(fy_context *context, fy_field *field) {
@@ -337,7 +337,7 @@ int fy_vmGetMethodId(fy_context *context, fy_str *uniqueName) {
 	int *pMid;
 	pMid = fy_hashMapGet(context, context->mapMethodNameToId, uniqueName);
 	if (pMid == NULL) {
-		vm_die("Can't find method!");
+		fy_fault("Can't find method!");
 	}
 	return *pMid;
 }
@@ -426,7 +426,7 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz) {
 		pCid = fy_vmAllocate(context, sizeof(int));
 		*pCid = (context->classesCount++) + 1;
 		if (*pCid >= MAX_CLASSES) {
-			vm_die("Too many classes!");
+			fy_fault("Too many classes!");
 		}
 		fy_hashMapPut(context, context->mapClassNameToId, clazz->className,
 				pCid);
@@ -480,11 +480,11 @@ fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
 	return clazz;
 }
 
-fy_class *fy_vmGetClassFromClassObject(fy_context *context, juint handle,
+fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 		fy_exception *exception) {
 	fy_class *classClass;
 	fy_class *inputClass;
-	jint classId;
+	fy_int classId;
 	fy_field *classIdField;
 	inputClass = fy_heapGetClassOfObject(context, handle);
 	classClass = fy_vmLookupClass(context, context->sClassClass, exception);
@@ -541,7 +541,7 @@ fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 		field = fy_vmLookupFieldStatic(context, fieldInfo->clazz,
 				fieldInfo->nameType);
 		if (field == NULL) {
-			vm_die("Field not found");
+			fy_fault("Field not found");
 		}
 		fieldInfo->derefed = 1;
 		fieldInfo->field = field;
@@ -565,7 +565,7 @@ fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 		if (method == NULL) {
 			fy_strPrint(methodInfo->clazz->className);
 			fy_strPrint(methodInfo->nameType);
-			vm_die("Method not found");
+			fy_fault("Method not found");
 		}
 		methodInfo->derefed = 1;
 		methodInfo->method = method;
@@ -581,7 +581,7 @@ void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 	fy_str* str;
 	str = fy_strAllocateFromUTF8(context, name);
 	if (fy_hashMapGet(context, context->mapMUNameToNH, str) != NULL) {
-		vm_die("Native handler conflict %s", name);
+		fy_fault("Native handler conflict %s", name);
 	}
 	nh = fy_vmAllocate(context, sizeof(fy_nh));
 	nh->data = data;
@@ -605,7 +605,7 @@ fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 	return clazz;
 }
 
-void fy_vmBootup(fy_context *context, jchar* bootStrapClass) {
+void fy_vmBootup(fy_context *context, fy_char* bootStrapClass) {
 
 }
 

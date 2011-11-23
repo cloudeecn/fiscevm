@@ -17,9 +17,9 @@
 
 #include "fyc/String.h"
 
-fy_str *fy_strInit(fy_context *context, fy_str *_this, jint size) {
+fy_str *fy_strInit(fy_context *context, fy_str *_this, fy_int size) {
 	if (_this->content != NULL) {
-		vm_die("duplicated initJavaString");
+		fy_fault("duplicated initJavaString");
 	}
 	_this->length = 0;
 	_this->maxLength = size;
@@ -52,16 +52,16 @@ fy_str *fy_strAllocateFromUTF8(fy_context *context, const char *utf8) {
 	return ret;
 }
 
-static fy_str *fy_strEnsureSize(fy_context *context, fy_str *_this, jint size) {
+static fy_str *fy_strEnsureSize(fy_context *context, fy_str *_this, fy_int size) {
 	int len;
-	jchar *newContent;
+	fy_char *newContent;
 	if (_this->maxLength < size) {
 
 		len = _this->maxLength;
 		while (len < size) {
 			len <<= 1;
 		}
-		newContent = fy_vmAllocate(context, len * sizeof(jchar));
+		newContent = fy_vmAllocate(context, len * sizeof(fy_char));
 		memcpy(newContent, _this->content, _this->length << 1);
 		fy_vmFree(context, _this->content);
 		_this->content = newContent;
@@ -71,10 +71,10 @@ static fy_str *fy_strEnsureSize(fy_context *context, fy_str *_this, jint size) {
 }
 
 static fy_str *fy_strAppendPriv(fy_context *context, fy_str *_this,
-		jchar *from, jint length) {
+		fy_char *from, fy_int length) {
 
 	if (_this == NULL || from == NULL) {
-		vm_die("NPT");
+		fy_fault("NPT");
 	}
 	fy_strEnsureSize(context, _this, _this->length + length);
 	memcpy(_this->content + _this->length, from, length << 1);
@@ -83,7 +83,7 @@ static fy_str *fy_strAppendPriv(fy_context *context, fy_str *_this,
 	return _this;
 }
 
-fy_str *fy_strAppendChar(fy_context *context, fy_str *_this, jchar ch) {
+fy_str *fy_strAppendChar(fy_context *context, fy_str *_this, fy_char ch) {
 	return fy_strAppendPriv(context, _this, &ch, 1);
 }
 
@@ -92,10 +92,10 @@ fy_str *fy_strAppend(fy_context *context, fy_str *_this, const fy_str *string) {
 }
 
 fy_str *fy_strAppendUTF8(fy_context *context, fy_str *_this, const char *utf8,
-		jint size) {
+		fy_int size) {
 	const char *inbuf = utf8;
-	jchar outbuf;
-	jint sl = strlen(utf8);
+	fy_char outbuf;
+	fy_int sl = strlen(utf8);
 	if (size > sl || size < 0) {
 		size = sl;
 	}
@@ -106,15 +106,15 @@ fy_str *fy_strAppendUTF8(fy_context *context, fy_str *_this, const char *utf8,
 	return _this;
 }
 
-fy_str *fy_strSubstring(fy_context *context, fy_str *_this, jint begin,
-		jint end) {
+fy_str *fy_strSubstring(fy_context *context, fy_str *_this, fy_int begin,
+		fy_int end) {
 	int size = end - begin;
 	int i;
 	if (_this == NULL) {
-		vm_die("Null pointer exception.");
+		fy_fault("Null pointer exception.");
 	}
 	if (begin < 0 || end < 0 || end >= _this->length || begin > end) {
-		vm_die("Index out of bound exception");
+		fy_fault("Index out of bound exception");
 	}
 	_this->length = size;
 	for (i = 0; i < size; i++) {
@@ -124,8 +124,8 @@ fy_str *fy_strSubstring(fy_context *context, fy_str *_this, jint begin,
 	return _this;
 }
 
-juint fy_strUtf8Count(fy_str *str) {
-	juint size = 0;
+fy_uint fy_strUtf8Count(fy_str *str) {
+	fy_uint size = 0;
 	int i, count;
 	count = str->length;
 	for (i = 0; i < count; i++) {
@@ -140,8 +140,8 @@ int fy_strCmp(fy_str *left, fy_str *right) {
 					0 : (left->length > right->length ? 1 : -1);
 	int len = left->length > right->length ? right->length : left->length;
 	int i;
-	jchar *lc = left->content;
-	jchar *rc = right->content;
+	fy_char *lc = left->content;
+	fy_char *rc = right->content;
 	int ret;
 	for (i = 0; i < len; i++) {
 		ret = lc[i] - rc[i];
@@ -152,7 +152,7 @@ int fy_strCmp(fy_str *left, fy_str *right) {
 	return resultWhenEqual;
 }
 
-jboolean fy_strEndsWith(fy_str *_this, fy_str *right) {
+fy_boolean fy_strEndsWith(fy_str *_this, fy_str *right) {
 	int delta;
 	int i;
 	if (_this->length < right->length) {
@@ -171,7 +171,7 @@ void fy_strClear(fy_str *_this) {
 	_this->length = 0;
 }
 
-fy_str *fy_strReplaceOne(fy_str *str, jchar from, jchar to) {
+fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to) {
 	int i;
 	for (i = str->length - 1; i >= 0; i--) {
 		if (str->content[i] == from) {
@@ -184,9 +184,9 @@ fy_str *fy_strReplaceOne(fy_str *str, jchar from, jchar to) {
 
 char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) {
 	int i, count;
-	jchar unicode;
+	fy_char unicode;
 	char *tmp;
-	jint left;
+	fy_int left;
 	tmp = target;
 	left = targetSize;
 	count = str->length;
@@ -213,16 +213,16 @@ fy_str *fy_strAllocateClone(fy_context *context, fy_str *from) {
 	return _this;
 }
 
-static juint hash(fy_str *key) {
+static fy_uint hash(fy_str *key) {
 	int i, imax;
-	juint ret = 0;
+	fy_uint ret = 0;
 	for (i = 0, imax = key->length; i < imax; i++) {
 		ret = (ret << 5) + (ret << 2) + ret + key->content[i];
 	}
 	return ret;
 }
 
-juint fy_strHash(fy_str *str) {
+fy_uint fy_strHash(fy_str *str) {
 	if (str->hashed) {
 		return str->hashCode;
 	} else {

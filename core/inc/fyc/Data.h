@@ -25,9 +25,9 @@
 extern "C" {
 #endif
 
-jubyte fy_dataRead(fy_data *data);
-jchar fy_dataRead2(fy_data *data);
-juint fy_dataRead4(fy_data *data);
+fy_ubyte fy_dataRead(fy_data *data);
+fy_char fy_dataRead2(fy_data *data);
+fy_uint fy_dataRead4(fy_data *data);
 julong fy_dataRead8(fy_data *data);
 float fy_dataReadf(fy_data *data);
 double fy_dataReadd(fy_data *data);

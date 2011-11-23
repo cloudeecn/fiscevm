@@ -26,27 +26,27 @@ static long int blocks = 0;
 #ifdef __GNUC__
 __attribute__((malloc))
 #endif
-_FY_EXPORT void *vm_allocate(juint size) {
+_FY_EXPORT void *fy_allocate(fy_uint size) {
 	void *ret;
 	blocks++;
 	ret = malloc(size);
 	if (ret != NULL) {
 		memset(ret, 0, size);
 	} else {
-		vm_die("Out of memory!");
+		fy_fault("Out of memory!");
 	}
 	return ret;
 }
 
-_FY_EXPORT void vm_free(void *target) {
+_FY_EXPORT void fy_free(void *target) {
 	blocks--;
 	free(target);
 }
 
-_FY_EXPORT long int vm_getAllocated() {
+_FY_EXPORT long int fy_getAllocated() {
 	return blocks;
 }
-static void vm_die_break() {
+static void fy_fault_break() {
 	int i = 0;
 	i++;
 	i++;
@@ -69,7 +69,7 @@ static void vm_die_break() {
 	i++;
 	i++;
 }
-_FY_EXPORT void vm_die(char *format, ...) {
+_FY_EXPORT void fy_fault(char *format, ...) {
 	/*Put breakpoint here for exception handle!*/
 	int i = 0;
 	va_list arg_ptr;
@@ -83,7 +83,7 @@ _FY_EXPORT void vm_die(char *format, ...) {
 	i++;
 	i++;
 	i++;
-	vm_die_break();
+	fy_fault_break();
 	exit(-1);
 }
 
@@ -92,39 +92,39 @@ void vm_dummy() {
 }
 
 union fy_dtol {
-	jdouble d;
+	fy_double d;
 	jlong l;
 };
 
 union fy_itof {
-	jfloat f;
-	jint i;
+	fy_float f;
+	fy_int i;
 };
 
-_FY_EXPORT jlong fy_doubleToLong(jdouble value) {
+_FY_EXPORT jlong fy_doubleToLong(fy_double value) {
 	union fy_dtol d;
 	d.d = value;
 	return d.l;
 }
-_FY_EXPORT jdouble fy_longToDouble(jlong value) {
+_FY_EXPORT fy_double fy_longToDouble(jlong value) {
 	union fy_dtol d;
 	d.l = value;
 	return d.d;
 }
-_FY_EXPORT jint fy_floatToInt(jfloat value) {
+_FY_EXPORT fy_int fy_floatToInt(fy_float value) {
 	union fy_itof d;
 	d.f = value;
 	return d.i;
 }
-_FY_EXPORT jfloat fy_intToFloat(jint value) {
+_FY_EXPORT fy_float fy_intToFloat(fy_int value) {
 	union fy_itof d;
 	d.i = value;
 	return d.f;
 }
 
-_FY_EXPORT jboolean fy_isnand(jdouble d) {
+_FY_EXPORT fy_boolean fy_isnand(fy_double d) {
 	return d != d;
 }
-_FY_EXPORT jboolean fy_isnanf(jfloat f) {
+_FY_EXPORT fy_boolean fy_isnanf(fy_float f) {
 	return f != f;
 }

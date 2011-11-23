@@ -32,7 +32,7 @@
 #define fy_SIZE_SHIFT_LONG 3 /*8 bytes*/
 
 fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
-		jchar idx);
+		fy_char idx);
 fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		fy_exception *exception);
 void fy_clPhase2(fy_context *context, fy_class *clazz,

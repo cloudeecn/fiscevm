@@ -35,7 +35,7 @@ extern "C" {
 void fy_vmContextInit(fy_context *context, fy_exception *exception);
 void fy_vmContextDestroy(fy_context *context);
 
-void fy_vmBootup(fy_context *context, jchar* bootStrapClass);
+void fy_vmBootup(fy_context *context, fy_char* bootStrapClass);
 void* fy_vmAllocate(fy_context *context, int size);
 void fy_vmFree(fy_context *context, void *address);
 
@@ -67,7 +67,7 @@ fy_class *fy_vmLookupClassFromConstant(fy_context *context,
 
 void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 		void *data, fy_nhFunction handler);
-fy_class *fy_vmGetClassFromClassObject(fy_context *context, juint handle,
+fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 		fy_exception *exception);
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 		fy_exceptionHandler *exceptionHandler, fy_exception *exception);

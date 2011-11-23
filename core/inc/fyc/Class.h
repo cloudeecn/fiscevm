@@ -36,9 +36,9 @@
 extern "C" {
 #endif
 
-jboolean fy_classCanCastTo(fy_context *context, fy_class *this,
+fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 		fy_class *other);
-jboolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
+fy_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
 		fy_class *other);
 
 #ifdef	__cplusplus

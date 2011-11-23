@@ -65,16 +65,16 @@ extern "C" {
 
 typedef struct fy_hashMapEntry {
 	struct fy_str *key;
-	juint keyHash;
+	fy_uint keyHash;
 	void *value;
 	struct fy_hashMapEntry *next;
 } fy_hashMapEntry;
 
 typedef struct fy_hashMap {
-	jchar loadFactor;
-	juint bucketsCount;
+	fy_char loadFactor;
+	fy_uint bucketsCount;
 	fy_hashMapEntry **buckets;
-	juint size;
+	fy_uint size;
 } fy_hashMap;
 
 typedef struct fy_linkedListNode {
@@ -94,17 +94,17 @@ typedef struct fy_str {
 	int maxLength;
 	int hashed;
 	int hashCode;
-	jchar* content;
+	fy_char* content;
 } fy_str;
 
 typedef union stringInfo {
-	jchar string_index;
+	fy_char string_index;
 	fy_str* string;
-	jint handle;
+	fy_int handle;
 } stringInfo;
 
 typedef union classInfo {
-	jchar name_index;
+	fy_char name_index;
 	fy_str* className;
 	struct ConstantClass *constantClass;
 	struct fy_class *clazz;
@@ -112,20 +112,20 @@ typedef union classInfo {
 
 typedef struct ConstantClass {
 
-	jubyte derefed;
+	fy_ubyte derefed;
 
 	classInfo ci;
 } ConstantClass;
 
 typedef struct ConstantFieldRef {
 
-	jubyte derefed;
+	fy_ubyte derefed;
 
-	jchar class_index;
+	fy_char class_index;
 	ConstantClass *constantClass;
 	struct fy_class *clazz;
 
-	jchar name_type_index;
+	fy_char name_type_index;
 	struct ConstantNameAndTypeInfo *constantNameType;
 	fy_str* nameType;
 
@@ -134,13 +134,13 @@ typedef struct ConstantFieldRef {
 
 typedef struct ConstantMethodRef {
 
-	jubyte derefed;
+	fy_ubyte derefed;
 
-	jchar class_index;
+	fy_char class_index;
 	ConstantClass *constantClass;
 	struct fy_class *clazz;
 
-	jchar name_type_index;
+	fy_char name_type_index;
 	struct ConstantNameAndTypeInfo *constantNameType;
 	fy_str* nameType;
 
@@ -150,13 +150,13 @@ typedef struct ConstantMethodRef {
 
 typedef struct ConstantStringInfo {
 
-	jubyte derefed;
+	fy_ubyte derefed;
 
 	stringInfo ci;
 } ConstantStringInfo;
 
 typedef struct ConstantIntegerFloatInfo {
-	jint value;
+	fy_int value;
 } ConstantIntegerFloatInfo;
 
 typedef struct ConstantLongDoubleInfo {
@@ -165,10 +165,10 @@ typedef struct ConstantLongDoubleInfo {
 
 typedef struct ConstantNameAndTypeInfo {
 
-	jchar name_index;
+	fy_char name_index;
 	fy_str* name;
 
-	jchar descriptor_index;
+	fy_char descriptor_index;
 	fy_str* descriptor;
 } ConstantNameAndTypeInfo;
 
@@ -178,12 +178,12 @@ typedef struct ConstantUtf8Info {
 } ConstantUtf8Info;
 
 typedef struct fy_field {
-	jchar access_flags;
+	fy_char access_flags;
 
-	jchar name_index;
+	fy_char name_index;
 	fy_str* name;
 
-	jchar descriptor_index;
+	fy_char descriptor_index;
 	fy_str* descriptor;
 
 	fy_str* fullName;
@@ -191,30 +191,30 @@ typedef struct fy_field {
 
 	struct fy_class* owner;
 
-	juint posRel;
-	juint posAbs;
+	fy_uint posRel;
+	fy_uint posAbs;
 
-	juint initHigh;
-	juint initLow;
+	fy_uint initHigh;
+	fy_uint initLow;
 
 } fy_field;
 
 typedef struct fy_lineNumber {
-	jchar start_pc;
-	jchar line_number;
+	fy_char start_pc;
+	fy_char line_number;
 } fy_lineNumber;
 
 typedef struct fy_exceptionHandler {
-	jchar start_pc;
-	jchar end_pc;
-	jchar handler_pc;
-	jubyte catchTypeDerefed;
+	fy_char start_pc;
+	fy_char end_pc;
+	fy_char handler_pc;
+	fy_ubyte catchTypeDerefed;
 
 	classInfo ci;
 } fy_exceptionHandler;
 
 typedef struct fy_method {
-	jchar access_flags;
+	fy_char access_flags;
 
 	fy_str* name;
 
@@ -225,26 +225,26 @@ typedef struct fy_method {
 
 	struct fy_class* owner;
 
-	jubyte synthetic;
+	fy_ubyte synthetic;
 
-	jchar max_stack;
-	jchar max_locals;
+	fy_char max_stack;
+	fy_char max_locals;
 
-	juint codeLength;
-	jubyte *code;
+	fy_uint codeLength;
+	fy_ubyte *code;
 
-	jchar exception_table_length;
+	fy_char exception_table_length;
 	struct fy_exceptionHandler *exception_table;
 
-	jchar line_number_table_length;
+	fy_char line_number_table_length;
 	struct fy_lineNumber* line_number_table;
 
-	jint paramCount;
-	jbyte *paramTypes;
-	jbyte returnType;
+	fy_int paramCount;
+	fy_byte *paramTypes;
+	fy_byte returnType;
 
-	jint method_id;
-	jboolean clinit;
+	fy_int method_id;
+	fy_boolean clinit;
 } fy_method;
 
 typedef struct fy_class {
@@ -257,50 +257,50 @@ typedef struct fy_class {
 	enum type {
 		obj, prm, arr
 	} type;
-	jubyte phase;
-	jubyte needFinalize;
-	jchar constantPoolCount;
-	jubyte *constantTypes;
+	fy_ubyte phase;
+	fy_ubyte needFinalize;
+	fy_char constantPoolCount;
+	fy_ubyte *constantTypes;
 	void** constantPools;
 
-	jchar accessFlags;
+	fy_char accessFlags;
 	ConstantClass* thisClass;
 	fy_str* className;
 	ConstantClass* superClass;
 	struct fy_class* super;
-	jchar interfacesCount;
+	fy_char interfacesCount;
 	struct fy_class** interfaces;
-	jchar fieldCount;
+	fy_char fieldCount;
 	fy_field** fields;
-	jchar methodCount;
+	fy_char methodCount;
 	fy_method** methods;
 	fy_method* clinit;
 	fy_str* sourceFile;
 	int classId;
 
 	/*fields filled by classloader*/
-	juint sizeRel;
-	juint sizeAbs;
-	juint ofsInHeap;
+	fy_uint sizeRel;
+	fy_uint sizeAbs;
+	fy_uint ofsInHeap;
 
-	juint staticSize;
-	jint *staticArea;
+	fy_uint staticSize;
+	fy_int *staticArea;
 
 	union {
 		struct {
-			jchar sizeShift;
+			fy_char sizeShift;
 			struct fy_class *contentClass;
 		} arr;
 		struct {
-			jchar pType;
+			fy_char pType;
 		} prm;
 	} ci;
 
-	juint classNameHandle;
+	fy_uint classNameHandle;
 
 	/*Need persist*/
-	juint classObjId;
-	jint clinitThreadId;
+	fy_uint classObjId;
+	fy_int clinitThreadId;
 } fy_class;
 
 typedef struct fy_data {
@@ -310,62 +310,62 @@ typedef struct fy_data {
 
 typedef struct fy_object {
 	fy_class *clazz;
-	jint length;
+	fy_int length;
 	int sizeShift;
-	jint monitorOwnerId;
-	jint monitorOwnerTimes;
+	fy_int monitorOwnerId;
+	fy_int monitorOwnerTimes;
 	union fy_object_data {
 		jlong *ldata;
-		jint *idata;
-		jbyte *bdata;
+		fy_int *idata;
+		fy_byte *bdata;
 	} data;
 
 } fy_object;
 
 typedef struct fy_frame {
 	fy_method *method;
-	jubyte *code;
-	juint sb;
+	fy_ubyte *code;
+	fy_uint sb;
 #ifdef FY_STRICT_CHECK
-	juint size;
-	juint localCount;
-	juint codeSize;
+	fy_uint size;
+	fy_uint localCount;
+	fy_uint codeSize;
 #endif
-	juint methodId;
-	juint sp;
-	juint pc;
-	juint lpc;
+	fy_uint methodId;
+	fy_uint sp;
+	fy_uint pc;
+	fy_uint lpc;
 } fy_frame;
 
 typedef struct fy_thread {
-	jboolean inUse;
-	jboolean yield;
+	fy_boolean inUse;
+	fy_boolean yield;
 
-	jint handle;
-	jint currentThrowable;
-	jint status;
-	jint priority;
-	jint threadId;
+	fy_int handle;
+	fy_int currentThrowable;
+	fy_int status;
+	fy_int priority;
+	fy_int threadId;
 
-	juint frameCount;
+	fy_uint frameCount;
 	fy_frame frames[MAX_FRAMES];
-	juint stack[STACK_SIZE];
-	juint typeStack[STACK_SIZE];
+	fy_uint stack[STACK_SIZE];
+	fy_uint typeStack[STACK_SIZE];
 
 	/*Used by thread manager*/
-	jint waitForLockId;
-	jint waitForNotifyId;
-	jint pendingLockCount;
+	fy_int waitForLockId;
+	fy_int waitForNotifyId;
+	fy_int pendingLockCount;
 	jlong nextWakeTime;
-	jboolean interrupted;
-	jboolean daemon;
+	fy_boolean interrupted;
+	fy_boolean daemon;
 
 } fy_thread;
 
 typedef struct fy_exception {
 	enum exceptionType {
 		exception_none = 0, exception_normal
-	/*, exception_critical // use vm_die instead!*/
+	/*, exception_critical // use fy_fault instead!*/
 	} exceptionType;
 	char exceptionName[64];
 	char exceptionDesc[64];
@@ -466,9 +466,9 @@ typedef struct fy_context {
 	struct fy_thread *workingThread;
 	fy_linkedList pendingThreads;
 	jlong nextWakeUpTimeTotal;
-	jint nextThreadId;
+	fy_int nextThreadId;
 	fy_exception exitException;
-	jint exitCode;
+	fy_int exitCode;
 	/* #END THREAD MANAGER*/
 
 	/* #BEGIN PORTABLE*/
@@ -477,7 +477,7 @@ typedef struct fy_context {
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,
-		struct fy_thread *thread, void *data, juint *args, jint argsCount,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception);
 
 typedef struct fy_nh {

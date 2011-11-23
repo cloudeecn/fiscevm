@@ -15,10 +15,10 @@ extern "C" {
 #endif
 
 _FY_EXPORT void fy_nativeReturnInt(fy_context *context, fy_thread *thread,
-		jint value);
+		fy_int value);
 
 _FY_EXPORT void fy_nativeReturnHandle(fy_context *context, fy_thread *thread,
-		jint value);
+		fy_int value);
 
 _FY_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
 		jlong value);

@@ -19,7 +19,7 @@
 #ifdef _DEBUG
 static int checkConstantBonud(fy_class *clazz, int idx) {
 	if (idx > clazz->constantPoolCount) {
-		vm_die("Constant index out of bound %d/%d", idx,
+		fy_fault("Constant index out of bound %d/%d", idx,
 				clazz->constantPoolCount);
 	}
 	return idx;
@@ -68,12 +68,12 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 	ConstantNameAndTypeInfo* tmpConstantNameAndTypeInfo;
 	ConstantUtf8Info* tmpConstantUtf8Info;
 	void **constantPools;
-	jubyte *constantTypes;
+	fy_ubyte *constantTypes;
 
 	ret->constantPoolCount = fy_dataRead2(data);
 	/*read constantPool*/
 	ret->constantTypes = constantTypes = fy_vmAllocate(context,
-			sizeof(jubyte) * (ret->constantPoolCount + 1));
+			sizeof(fy_ubyte) * (ret->constantPoolCount + 1));
 	ret->constantPools = constantPools = fy_vmAllocate(context,
 			sizeof(void*) * (ret->constantPoolCount + 1));
 	/*Phase 1*/
@@ -152,7 +152,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 			tmp = tmpConstantUtf8Info;
 			break;
 		default:
-			vm_die("Unknown constant pool type %d", tag);
+			fy_fault("Unknown constant pool type %d", tag);
 			/*make compiler happy*/
 			return;
 		}
@@ -198,7 +198,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 		case CONSTANT_Utf8:
 			break;
 		default:
-			vm_die("Unknown constant pool type %d", tag);
+			fy_fault("Unknown constant pool type %d", tag);
 			break;
 		}
 	}
@@ -262,7 +262,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 		case CONSTANT_Utf8:
 			break;
 		default:
-			vm_die("Unknown constant pool type %d", tag);
+			fy_fault("Unknown constant pool type %d", tag);
 			break;
 		}
 	}
@@ -282,7 +282,7 @@ static void loadInterfaces(fy_context *context, fy_class *clazz,
 				(ConstantClass*) clazz->constantPools[fy_dataRead2(data)],
 				&exception);
 		if (exception.exceptionType != exception_none) {
-			vm_die("Exception %s caught: %s", exception.exceptionName,
+			fy_fault("Exception %s caught: %s", exception.exceptionName,
 					exception.exceptionDesc);
 		}
 	}
@@ -293,10 +293,10 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_data *data) {
 	int length;
 
 	fy_str *attrName;
-	juint attrSize;
+	fy_uint attrSize;
 	fy_field *field;
-	juint pos = 0;
-	juint staticPos = 0;
+	fy_uint pos = 0;
+	fy_uint staticPos = 0;
 	fy_str *strConstantValue = fy_vmAllocate(context, sizeof(fy_str));
 
 	fy_strInit(context, strConstantValue, 13);
@@ -368,14 +368,14 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_data *data) {
 }
 
 static void countParams(fy_context *context, fy_str *desc, fy_method *method) {
-	jbyte *temp;
-	jbyte returnType = FY_TYPE_UNKNOWN;
+	fy_byte *temp;
+	fy_byte returnType = FY_TYPE_UNKNOWN;
 	int pc = 0;
-	jchar ch;
+	fy_char ch;
 	int i, maxi;
-	jboolean begin = FALSE;
+	fy_boolean begin = FALSE;
 	char msg[256];
-	temp = vm_allocate(desc->length * sizeof(temp));
+	temp = fy_allocate(desc->length * sizeof(temp));
 	maxi = desc->length;
 	for (i = 0; i < maxi; i++) {
 		ch = desc->content[i];
@@ -444,30 +444,30 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method) {
 					} else {
 						fy_strSPrint(msg, sizeof(msg), desc);
 					}
-					vm_die("Malformed description data for %s", msg);
+					fy_fault("Malformed description data for %s", msg);
 					break;
 				}
 			}
 		}
 	}
 	if (method != NULL) {
-		method->paramTypes = fy_vmAllocate(context, pc * sizeof(jbyte));
+		method->paramTypes = fy_vmAllocate(context, pc * sizeof(fy_byte));
 		method->paramCount = pc;
-		memcpy(method->paramTypes, temp, pc * sizeof(jbyte));
+		memcpy(method->paramTypes, temp, pc * sizeof(fy_byte));
 		method->returnType = returnType;
 	}
-	vm_free(temp);
+	fy_free(temp);
 }
 
 static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data) {
-	jchar i, count, j, jcount, k, kcount, l, lcount;
+	fy_char i, count, j, jcount, k, kcount, l, lcount;
 	fy_str *ATT_CODE = fy_strAllocateFromUTF8(context, "Code");
 	fy_str *ATT_LINENUM = fy_strAllocateFromUTF8(context, "fy_lineNumber");
 	fy_str *ATT_SYNTH = fy_strAllocateFromUTF8(context, "Synthetic");
 	fy_str *attrName;
-	juint attrSize;
+	fy_uint attrSize;
 	fy_str *attrNameCode;
-	juint attrSizeCode;
+	fy_uint attrSizeCode;
 	fy_method *method;
 	clazz->methodCount = count = fy_dataRead2(data);
 	clazz->methods = fy_vmAllocate(context, sizeof(fy_method*) * count);
@@ -561,7 +561,7 @@ static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data) {
 
 /************public***************/
 fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
-		jchar idx) {
+		fy_char idx) {
 	return ((ConstantUtf8Info*) clazz->constantPools[idx])->string;
 }
 
@@ -574,10 +574,10 @@ fy_data *fy_clOpenResource(fy_context *context, fy_str *name) {
 	for (i = 0, max = name->length; i < max; i++) {
 		size += fy_utf8Size(name->content[i]);
 	}
-	cname = vm_allocate(size + 1);
+	cname = fy_allocate(size + 1);
 	fy_strSPrint(cname, size + 1, name);
 	ret = fy_resourceAllocateData(context, cname);
-	vm_free(cname);
+	fy_free(cname);
 	return ret;
 }
 
@@ -586,9 +586,9 @@ void fy_clCloseResource(fy_context *context, fy_data *data) {
 }
 
 static fy_class *fy_clLoadclassPriv(fy_context *context, fy_data *data) {
-	jchar i, icount;
+	fy_char i, icount;
 	fy_str *attrName;
-	juint attrSize;
+	fy_uint attrSize;
 	fy_str *ATTR_SOURCE_FILE = fy_strAllocateFromUTF8(context, "SourceFile");
 	fy_class *clazz = fy_vmAllocate(context, sizeof(fy_class));
 	clazz->type = obj;
@@ -617,7 +617,7 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_data *data) {
 #ifdef _DEBUG
 	if (data->size > 0) {
 		fy_strPrint(clazz->className);
-		vm_die("Still %d bytes unread!", data->size);
+		fy_fault("Still %d bytes unread!", data->size);
 	}
 #endif
 	clazz->phase = 1;
@@ -626,7 +626,7 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_data *data) {
 void fy_clPhase2(fy_context *context, fy_class *clazz,
 		fy_exception *exception) {
 	fy_str *name;
-	jchar i;
+	fy_char i;
 	fy_str *FINALIZE = fy_strAllocateFromUTF8(context, ".finalize.()V");
 #ifdef _DEBUG
 	char buf[255];
@@ -668,7 +668,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz,
 		if (clazz->superClass != NULL) {
 #ifdef _DEBUG
 			if (fy_strCmp(context->sTopClass, clazz->className) == 0) {
-				vm_die("java.lang.Object cannot have super class!", buf);
+				fy_fault("java.lang.Object cannot have super class!", buf);
 			}
 #endif
 			clazz->super = fy_vmLookupClassFromConstant(context,
@@ -701,7 +701,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz,
 #ifdef _DEBUG
 			if (fy_strCmp(context->sTopClass, clazz->className) != 0) {
 				fy_strSPrint(buf, 255, clazz->className);
-				vm_die("%s must have super class!", buf);
+				fy_fault("%s must have super class!", buf);
 			}
 #endif
 			clazz->sizeAbs = clazz->sizeRel;
@@ -734,7 +734,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->className = fy_strAllocateClone(context, name);
 		clazz->type = prm;
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
-		clazz->ci.prm.pType = *(jchar*) fy_hashMapGet(context,
+		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(context,
 				context->mapPrimitivesRev, name);
 	} else {
 		fy_str *localName = fy_vmAllocate(context, sizeof(fy_str));

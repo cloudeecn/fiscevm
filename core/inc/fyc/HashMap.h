@@ -28,8 +28,8 @@
 extern "C" {
 #endif
 
-void fy_hashMapInit(fy_context *context, fy_hashMap *this, juint initSize,
-		juint loadFactor);
+void fy_hashMapInit(fy_context *context, fy_hashMap *this, fy_uint initSize,
+		fy_uint loadFactor);
 void fy_hashMapInitSimple(fy_context *context, fy_hashMap *this);
 void *fy_hashMapPut(fy_context *context, fy_hashMap *this, fy_str *key,
 		void *value);

@@ -30,7 +30,7 @@ void fy_strPrint(fy_str *str);
 
 #ifdef _DEBUG
 
-#define ASSERT(TEST) {if((TEST)==0) vm_die("ASSERTION ERROR IN %s:%d", __FILE__,__LINE__);}
+#define ASSERT(TEST) {if((TEST)==0) fy_fault("ASSERTION ERROR IN %s:%d", __FILE__,__LINE__);}
 void varprintf(const char *format, ...);
 #define   DLOG   \
         printf( "%s(%s:%d):D: ",__FUNCTION__,   __FILE__,   __LINE__);         varprintf

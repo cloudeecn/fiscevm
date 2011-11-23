@@ -32,7 +32,7 @@
 /*************public****************/
 
 void fy_linkedListInit(fy_linkedList* list) {
-	struct fy_linkedListNode* node = vm_allocate(
+	struct fy_linkedListNode* node = fy_allocate(
 			sizeof(struct fy_linkedListNode));
 	list->head = node;
 	list->last = node;
@@ -40,12 +40,12 @@ void fy_linkedListInit(fy_linkedList* list) {
 }
 
 static void fy_linkedListReleaser(fy_linkedListNode *node) {
-	vm_free(node);
+	fy_free(node);
 }
 
 void fy_linkedListDestroy(fy_linkedList *list) {
 	fy_linkedListTraverse(list, fy_linkedListReleaser);
-	vm_free(list->head);
+	fy_free(list->head);
 }
 
 void* fy_linkedListRemove(fy_linkedList* list, void* content) {
@@ -68,16 +68,16 @@ void* fy_linkedListRemoveNode(fy_linkedList* list, fy_linkedListNode *node) {
 		node->next->prev = node->prev;
 	}
 	ret = node->info;
-	vm_free(node);
+	fy_free(node);
 	list->count--;
 	return ret;
 }
 
 fy_linkedListNode* fy_linkedListAppend(fy_linkedList* list, void* content) {
-	struct fy_linkedListNode* node = vm_allocate(
+	struct fy_linkedListNode* node = fy_allocate(
 			sizeof(struct fy_linkedListNode));
 	if (node == NULL) {
-		vm_die("OUT OF MEMORY!!");
+		fy_fault("OUT OF MEMORY!!");
 	}
 
 	list->last->next = node;
@@ -105,7 +105,7 @@ void fy_linkedListTraverse(fy_linkedList* list,
 	}
 #ifdef _DEBUG
 	if (i != list->count) {
-		vm_die("err: %d %d", i, list->count);
+		fy_fault("err: %d %d", i, list->count);
 	}
 #endif
 }

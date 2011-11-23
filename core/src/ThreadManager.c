@@ -17,7 +17,7 @@
 
 #include "fyc/ThreadManager.h"
 
-static fy_thread *getThreadByHandle(juint targetHandle, fy_exception *exception) {
+static fy_thread *getThreadByHandle(fy_uint targetHandle, fy_exception *exception) {
 	//TODO
 	return NULL;
 }
@@ -26,10 +26,10 @@ void fy_tmSleep(fy_context *context, fy_thread *thread, jlong time) {
 	thread->nextWakeTime = fy_portTimeMillSec(context) + time;
 }
 
-void fy_tmInterrupt(fy_context *context, juint targetHandle,
+void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
 		fy_exception *exception) {
 	fy_thread *target;
-	juint exceptionHandle;
+	fy_uint exceptionHandle;
 	fy_exception targetException;
 	targetException.exceptionType = exception_none;
 	sprintf_s(targetException.exceptionName,
@@ -57,10 +57,10 @@ void fy_tmInterrupt(fy_context *context, juint targetHandle,
 	}
 }
 
-jboolean fy_tmIsInterrupted(fy_context *context, juint targetHandle,
-		jboolean clear, fy_exception *exception) {
+fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
+		fy_boolean clear, fy_exception *exception) {
 	fy_thread *target;
-	jboolean ret;
+	fy_boolean ret;
 
 	target = getThreadByHandle(targetHandle, exception);
 	if (exception->exceptionType != exception_none) {
@@ -73,3 +73,4 @@ jboolean fy_tmIsInterrupted(fy_context *context, juint targetHandle,
 	return ret;
 }
 
+//void fy_tmWait(fy_context *context,)
