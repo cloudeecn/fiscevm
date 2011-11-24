@@ -32,34 +32,19 @@ void fy_mmDestroy(fy_memblock *block) {
 
 void *fy_mmAllocate(fy_memblock *block, int size) {
 	void *ret;
-
-#ifdef _DEBUG
-	fy_linkedListNode* node;
-#endif
-#if 0
-	/*This will cause a bug...*/
-	if (size == 0) {
-		return NULL;
-	}
-#endif
-	ret = fy_allocate(size + sizeof(fy_linkedListNode*));
-
+	fy_memblockNode *node = fy_allocate(sizeof(fy_memblockNode) + size);
 	if (ret == NULL) {
 		fy_fault("OUT OF MEMORY");
 	}
-#ifdef _DEBUG
-	node = fy_linkedListAppend(block, ret);
-	*((fy_linkedListNode**) ret) = node;
-	/*	printf("Allocate managed:%p at node %p\n", ret, node);*/
-#else
-	*((fy_linkedListNode**) ret) = fy_linkedListAppend(context->managedMemory,
-			ret);
-#endif
-
-	return (fy_byte*) ret + sizeof(fy_linkedListNode*);
+	((fy_memblockNode) block->last)->next = node;
+	node->prev = block->last;
+	((fy_memblockNode) block->last) = node;
+	block->blocks++;
+	return node->data;
 }
 
 void fy_vmFree(fy_memblock *block, void *address) {
+
 	void *base = (fy_byte*) address - sizeof(fy_linkedListNode*);
 	fy_linkedListNode* node = *((fy_linkedListNode**) base);
 #ifdef _DEBUG
