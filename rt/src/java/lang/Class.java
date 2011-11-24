@@ -26,8 +26,6 @@ import fisce.util.HashMap;
 public final class Class<T> {
 
 	private Class() {
-		/*stub code to make compiler happy*/
-		classId=0;
 	}
 
 	public String toString() {
@@ -81,8 +79,6 @@ public final class Class<T> {
 		return name;
 	}
 	
-	private final transient int classId;
-
 	private transient String name;
 
 	private native String getName0();

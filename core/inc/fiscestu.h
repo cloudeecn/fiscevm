@@ -314,6 +314,7 @@ typedef struct fy_object {
 	int sizeShift;
 	fy_int monitorOwnerId;
 	fy_int monitorOwnerTimes;
+	fy_uint attachedId;
 	union fy_object_data {
 		fy_long *ldata;
 		fy_int *idata;
@@ -392,7 +393,6 @@ typedef struct fy_context {
 
 	fy_str *sTopClass;
 	fy_str *sClassClass;
-	fy_str *sClassClassId;
 	fy_str *sClassThrowable;
 	fy_str *sBoolean;
 	fy_str *sByte;

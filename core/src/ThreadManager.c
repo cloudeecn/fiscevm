@@ -140,4 +140,6 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 	}
 }
 
-fy_boolean fy_tmIsAlive()
+fy_boolean fy_tmIsAlive(fy_context *context,fy_uint threadHandle){
+
+}
