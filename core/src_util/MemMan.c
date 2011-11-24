@@ -45,15 +45,13 @@ void *fy_mmAllocate(fy_memblock *block, int size) {
 
 void fy_vmFree(fy_memblock *block, void *address) {
 
-	void *base = (fy_byte*) address - sizeof(fy_linkedListNode*);
-	fy_linkedListNode* node = *((fy_linkedListNode**) base);
-#ifdef _DEBUG
-	/*	printf("Unallocate managed:%p at node %p\n", base, node);*/
-#endif
-	if (node->info != base) {
-		fy_fault("Error freeing address %p", address);
+	fy_memblockNode *base = (fy_byte*) address - ((fy_memblockNode*) 0)->data;
+	base->prev->next = base->next;
+	if (base == block->last) {
+		block->last = base->prev;
+	} else {
+		base->next->prev = base->prev;
 	}
-	node->info = NULL;
-	fy_linkedListRemoveNode(block, node);
 	fy_free(base);
+	block->blocks--;
 }
