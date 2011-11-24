@@ -36,9 +36,9 @@ void *fy_mmAllocate(fy_memblock *block, int size) {
 	if (ret == NULL) {
 		fy_fault("OUT OF MEMORY");
 	}
-	((fy_memblockNode) block->last)->next = node;
+	((fy_memblockNode*) block->last)->next = node;
 	node->prev = block->last;
-	((fy_memblockNode) block->last) = node;
+	block->last = node;
 	block->blocks++;
 	return node->data;
 }
