@@ -138,7 +138,7 @@ _FY_EXPORT fy_boolean fy_isnanf(fy_float f) {
 
 _FY_EXPORT void fy_sleep(fy_long ms, fy_long ns) {
 #if defined(_WIN32)
-
+/*TODO Windows implement*/
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
 	int ret;

@@ -21,47 +21,7 @@
 
 /************public***************/
 
-void *fy_vmAllocate(fy_context *context, int size) {
-	void *ret;
-#ifdef _DEBUG
-	fy_linkedListNode* node;
-#endif
-#if 0
-	/*This will cause a bug...*/
-	if (size == 0) {
-		return NULL;
-	}
-#endif
-	ret = fy_allocate(size + sizeof(fy_linkedListNode*));
 
-	if (ret == NULL) {
-		fy_fault("OUT OF MEMORY");
-	}
-#ifdef _DEBUG
-	node = fy_linkedListAppend(context->managedMemory, ret);
-	*((fy_linkedListNode**) ret) = node;
-	/*	printf("Allocate managed:%p at node %p\n", ret, node);*/
-#else
-	*((fy_linkedListNode**) ret) = fy_linkedListAppend(context->managedMemory,
-			ret);
-#endif
-
-	return (fy_byte*) ret + sizeof(fy_linkedListNode*);
-}
-
-void fy_vmFree(fy_context *context, void *address) {
-	void *base = (fy_byte*) address - sizeof(fy_linkedListNode*);
-	fy_linkedListNode* node = *((fy_linkedListNode**) base);
-#ifdef _DEBUG
-	/*	printf("Unallocate managed:%p at node %p\n", base, node);*/
-#endif
-	if (node->info != base) {
-		fy_fault("Error freeing address %p", address);
-	}
-	node->info = NULL;
-	fy_linkedListRemoveNode(context->managedMemory, node);
-	fy_free(base);
-}
 
 void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	/*
@@ -86,59 +46,59 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_linkedListInit(&(context->threads));
 
-	context->sBoolean = fy_strAllocateFromUTF8(context, "boolean");
-	context->sByte = fy_strAllocateFromUTF8(context, "byte");
-	context->sShort = fy_strAllocateFromUTF8(context, "short");
-	context->sChar = fy_strAllocateFromUTF8(context, "char");
-	context->sInt = fy_strAllocateFromUTF8(context, "int");
-	context->sFloat = fy_strAllocateFromUTF8(context, "float");
-	context->sLong = fy_strAllocateFromUTF8(context, "long");
-	context->sDouble = fy_strAllocateFromUTF8(context, "double");
-	context->sTopClass = fy_strAllocateFromUTF8(context, FY_BASE_OBJECT);
-	context->sClassClass = fy_strAllocateFromUTF8(context, FY_BASE_CLASS);
-	context->sClassThrowable = fy_strAllocateFromUTF8(context,
+	context->sBoolean = fy_strCreateFromUTF8(context, "boolean");
+	context->sByte = fy_strCreateFromUTF8(context, "byte");
+	context->sShort = fy_strCreateFromUTF8(context, "short");
+	context->sChar = fy_strCreateFromUTF8(context, "char");
+	context->sInt = fy_strCreateFromUTF8(context, "int");
+	context->sFloat = fy_strCreateFromUTF8(context, "float");
+	context->sLong = fy_strCreateFromUTF8(context, "long");
+	context->sDouble = fy_strCreateFromUTF8(context, "double");
+	context->sTopClass = fy_strCreateFromUTF8(context, FY_BASE_OBJECT);
+	context->sClassClass = fy_strCreateFromUTF8(context, FY_BASE_CLASS);
+	context->sClassThrowable = fy_strCreateFromUTF8(context,
 			FY_BASE_THROWABLE);
-	context->sString = fy_strAllocateFromUTF8(context, FY_BASE_STRING);
-	context->sStringArray = fy_strAllocateFromUTF8(context,
+	context->sString = fy_strCreateFromUTF8(context, FY_BASE_STRING);
+	context->sStringArray = fy_strCreateFromUTF8(context,
 			"[L"FY_BASE_THROWABLE";");
-	context->sMainPostfix = fy_strAllocateFromUTF8(context,
+	context->sMainPostfix = fy_strCreateFromUTF8(context,
 			".main.([L"FY_BASE_STRING";)V");
-	context->sThrowablePrintStacktrace = fy_strAllocateFromUTF8(context,
+	context->sThrowablePrintStacktrace = fy_strCreateFromUTF8(context,
 			FY_BASE_THROWABLE".printStackTrace.()V");
-	context->sThrowableDetailMessage = fy_strAllocateFromUTF8(context,
+	context->sThrowableDetailMessage = fy_strCreateFromUTF8(context,
 			FY_BASE_THROWABLE".detailMessage.L"FY_BASE_STRING";");
-	context->sInit = fy_strAllocateFromUTF8(context, FY_INIT);
-	context->sClinit = fy_strAllocateFromUTF8(context, FY_CLINIT);
-	context->sStringCount = fy_strAllocateFromUTF8(context,
+	context->sInit = fy_strCreateFromUTF8(context, FY_INIT);
+	context->sClinit = fy_strCreateFromUTF8(context, FY_CLINIT);
+	context->sStringCount = fy_strCreateFromUTF8(context,
 			FY_BASE_STRING".count.I");
-	context->sStringValue = fy_strAllocateFromUTF8(context,
+	context->sStringValue = fy_strCreateFromUTF8(context,
 			FY_BASE_STRING".value.[C");
-	context->sStringOffset = fy_strAllocateFromUTF8(context,
+	context->sStringOffset = fy_strCreateFromUTF8(context,
 			FY_BASE_STRING".offset.I");
 
-	context->sStackTraceElement = fy_strAllocateFromUTF8(context,
+	context->sStackTraceElement = fy_strCreateFromUTF8(context,
 			FY_BASE_STACKTHREADELEMENT);
-	context->sStackTraceElementArray = fy_strAllocateFromUTF8(context,
+	context->sStackTraceElementArray = fy_strCreateFromUTF8(context,
 			"[L"FY_BASE_STACKTHREADELEMENT";");
-	context->sStackTraceElementDeclaringClass = fy_strAllocateFromUTF8(context,
+	context->sStackTraceElementDeclaringClass = fy_strCreateFromUTF8(context,
 			FY_BASE_STACKTHREADELEMENT".declaringClass.L"FY_BASE_STRING";");
-	context->sStackTraceElementMethodName = fy_strAllocateFromUTF8(context,
+	context->sStackTraceElementMethodName = fy_strCreateFromUTF8(context,
 			FY_BASE_STACKTHREADELEMENT".methodName.L"FY_BASE_STRING";");
-	context->sStackTraceElementFileName = fy_strAllocateFromUTF8(context,
+	context->sStackTraceElementFileName = fy_strCreateFromUTF8(context,
 			FY_BASE_STACKTHREADELEMENT".fileName.L"FY_BASE_STRING";");
-	context->sStackTraceElementLineNumber = fy_strAllocateFromUTF8(context,
+	context->sStackTraceElementLineNumber = fy_strCreateFromUTF8(context,
 			FY_BASE_STACKTHREADELEMENT".lineNumber.I");
-	context->sThrowableStackTrace = fy_strAllocateFromUTF8(context,
+	context->sThrowableStackTrace = fy_strCreateFromUTF8(context,
 			FY_BASE_THROWABLE".stackTrace.[L"FY_BASE_STACKTHREADELEMENT";");
 
-	context->sArrayBoolean = fy_strAllocateFromUTF8(context, "[Z");
-	context->sArrayChar = fy_strAllocateFromUTF8(context, "[C");
-	context->sArrayFloat = fy_strAllocateFromUTF8(context, "[F");
-	context->sArrayDouble = fy_strAllocateFromUTF8(context, "[D");
-	context->sArrayByte = fy_strAllocateFromUTF8(context, "[B");
-	context->sArrayShort = fy_strAllocateFromUTF8(context, "[S");
-	context->sArrayInteger = fy_strAllocateFromUTF8(context, "[I");
-	context->sArrayLong = fy_strAllocateFromUTF8(context, "[J");
+	context->sArrayBoolean = fy_strCreateFromUTF8(context, "[Z");
+	context->sArrayChar = fy_strCreateFromUTF8(context, "[C");
+	context->sArrayFloat = fy_strCreateFromUTF8(context, "[F");
+	context->sArrayDouble = fy_strCreateFromUTF8(context, "[D");
+	context->sArrayByte = fy_strCreateFromUTF8(context, "[B");
+	context->sArrayShort = fy_strCreateFromUTF8(context, "[S");
+	context->sArrayInteger = fy_strCreateFromUTF8(context, "[I");
+	context->sArrayLong = fy_strCreateFromUTF8(context, "[J");
 
 	context->primitives[FY_TYPE_BOOLEAN] = context->sBoolean;
 	context->primitives[FY_TYPE_BYTE] = context->sByte;
@@ -551,7 +511,7 @@ void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 		void *data, fy_nhFunction handler) {
 	fy_nh* nh;
 	fy_str* str;
-	str = fy_strAllocateFromUTF8(context, name);
+	str = fy_strCreateFromUTF8(context, name);
 	if (fy_hashMapGet(context, context->mapMUNameToNH, str) != NULL) {
 		fy_fault("Native handler conflict %s", name);
 	}

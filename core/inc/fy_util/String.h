@@ -20,17 +20,24 @@
 
 #include "../fisceprt.h"
 #include "../fiscestu.h"
-#include "VMContext.h"
 #include "Utf8.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#define fy_strAllocate(CONTEXT) fy_strInit((CONTEXT),fy_vmAllocate((CONTEXT),sizeof(fy_str)),16)
-#define fy_strRelease(CONTEXT,STR) fy_strDestroy((CONTEXT),(STR));fy_vmFree((CONTEXT),(STR));
+typedef struct fy_str {
+	int length;
+	int maxLength;
+	int hashed;
+	int hashCode;
+	fy_char* content;
+} fy_str;
 
-fy_str *fy_strAllocateFromUTF8(fy_context *context, const char *utf8);
+#define fy_strCreate(BLOCK) fy_strInit((BLOCK),fy_vmAllocate((BLOCK),sizeof(fy_str)),16)
+#define fy_strRelease(BLOCK,STR) fy_strDestroy((BLOCK),(STR));fy_vmFree((BLOCK),(STR));
+
+fy_str *fy_strCreateFromUTF8(fy_context *context, const char *utf8);
 
 fy_str *fy_strInit(struct fy_context *context, fy_str *string, fy_int size);
 
@@ -58,7 +65,7 @@ char *fy_strSPrint(char *target, size_t targetSize, fy_str *str);
 
 fy_str *fy_strReplaceOne(fy_str *str, fy_char from,fy_char to);
 
-fy_str *fy_strAllocateClone(fy_context *context, fy_str *from);
+fy_str *fy_strCreateClone(fy_context *context, fy_str *from);
 
 #ifdef	__cplusplus
 }

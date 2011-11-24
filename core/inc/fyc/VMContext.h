@@ -20,9 +20,10 @@
 
 #include "../fisceprt.h"
 #include "../fiscestu.h"
-#include "LinkedList.h"
+#include "../fy_util/LinkedList.h"
+#include "../fy_util/MemMan.h"
+#include "../fy_util/HashMap.h"
 #include "Class.h"
-#include "HashMap.h"
 #include "ClassLoader.h"
 #include "Heap.h"
 #include "CoreHandlers.h"
@@ -36,8 +37,7 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception);
 void fy_vmContextDestroy(fy_context *context);
 
 void fy_vmBootup(fy_context *context, fy_char* bootStrapClass);
-void* fy_vmAllocate(fy_context *context, int size);
-void fy_vmFree(fy_context *context, void *address);
+
 
 void fy_vmRegisterField(fy_context *context, fy_field *field);
 fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,

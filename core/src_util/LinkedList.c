@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/LinkedList.h"
+#include "fy_util/LinkedList.h"
 
 /*************private*****************/
 /*

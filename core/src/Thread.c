@@ -446,7 +446,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		FY_SIMPLE_ERROR_HANDLE
 		frame = thread->frames + i;
 		method = frame->method;
-		str = fy_strAllocateClone(context, method->owner->className);
+		str = fy_strCreateClone(context, method->owner->className);
 		fy_strReplaceOne(str, '/', '.');
 		strHandle = fy_heapMakeString(context, str, exception);
 		fy_strRelease(context, str);
@@ -3816,7 +3816,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	fy_str *str1;
 	fy_uint ivalue, ivalue2;
 	fy_field *field;
-	str1 = fy_strAllocateFromUTF8(context, toPrepare->exceptionName);
+	str1 = fy_strCreateFromUTF8(context, toPrepare->exceptionName);
 	clazz1 = fy_vmLookupClass(context, str1, exception);
 	fy_strRelease(context, str1);
 	if (exception->exceptionType != exception_none) {
@@ -3844,7 +3844,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 				context->sThrowableDetailMessage);
 		return 0;
 	}
-	str1 = fy_strAllocateFromUTF8(context, toPrepare->exceptionDesc);
+	str1 = fy_strCreateFromUTF8(context, toPrepare->exceptionDesc);
 	ivalue2 = fy_heapMakeString(context, str1, exception);
 	if (exception->exceptionType != exception_none) {
 		return 0;

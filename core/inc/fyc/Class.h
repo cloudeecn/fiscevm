@@ -18,8 +18,8 @@
 #define FY_CLASS_H_
 #include "../fisceprt.h"
 #include "../fiscestu.h"
+#include "../fy_util/String.h"
 #include "VMContext.h"
-#include "String.h"
 #include "Debug.h"
 #define CONSTANT_Class	 7
 #define CONSTANT_Fieldref	 9

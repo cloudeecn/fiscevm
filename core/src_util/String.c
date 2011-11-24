@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/String.h"
+#include "fy_util/String.h"
 
 fy_str *fy_strInit(fy_context *context, fy_str *_this, fy_int size) {
 	if (_this->content != NULL) {
@@ -42,7 +42,7 @@ void fy_strDestroy(fy_context *context, fy_str *string) {
 
 }
 
-fy_str *fy_strAllocateFromUTF8(fy_context *context, const char *utf8) {
+fy_str *fy_strCreateFromUTF8(fy_context *context, const char *utf8) {
 	fy_str *ret;
 	size_t size;
 	size = fy_utf8SizeS(utf8, -1);
@@ -204,7 +204,7 @@ char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) {
 	return target;
 }
 
-fy_str *fy_strAllocateClone(fy_context *context, fy_str *from) {
+fy_str *fy_strCreateClone(fy_context *context, fy_str *from) {
 	fy_str *_this = fy_vmAllocate(context, sizeof(fy_str));
 	fy_strInit(context, _this, from->length);
 	fy_strAppend(context, _this, from);

@@ -20,13 +20,22 @@
 
 #include "../fisceprt.h"
 #include "../fiscestu.h"
-#include "VMContext.h"
 #include "String.h"
+#include "VMContext.h"
 #include <string.h>
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
+
+
+
+typedef struct fy_hashMap {
+	fy_char loadFactor;
+	fy_uint bucketsCount;
+	fy_hashMapEntry **buckets;
+	fy_uint size;
+} fy_hashMap;
 
 void fy_hashMapInit(fy_context *context, fy_hashMap *this, fy_uint initSize,
 		fy_uint loadFactor);

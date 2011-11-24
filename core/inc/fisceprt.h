@@ -71,6 +71,14 @@ typedef long long fy_long;
 # define _FY_LATE_DECLARATION
 #endif
 
+#if defined(_C99)
+# define _FY_VLS(TYPE,X) TYPE X[]
+#elif defined(__GNUC__)
+# define _FY_VLS(TYPE,X) TYPE X[0]
+#else
+# define _FY_VLS(TYPE,X) TYPE X[1]
+#endif
+
 #if 1
 #define _FY_GOTO
 #endif

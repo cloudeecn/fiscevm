@@ -90,7 +90,7 @@ static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
-	str = fy_strAllocate(context);
+	str = fy_strCreate(context);
 	fy_heapGetString(context, args[0], str, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
@@ -161,7 +161,7 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 	newArray = fy_allocate(len + 1);
 	memcpy(newArray, array + ofs, len);
 	newArray[len] = 0;
-	str = fy_strAllocateFromUTF8(context, (char*) newArray);
+	str = fy_strCreateFromUTF8(context, (char*) newArray);
 	fy_free(newArray);
 
 	handleRet = fy_heapAllocateArray(context, charArray, maxi = str->length,
@@ -256,7 +256,7 @@ static void VMGetFloatRaw(struct fy_context *context,
 static void VMStringToDouble(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	fy_str *str = fy_strAllocate(context);
+	fy_str *str = fy_strCreate(context);
 	char ch[64];
 	fy_double value;
 	str = fy_heapGetString(context, args[0], str, exception);
@@ -274,7 +274,7 @@ static void VMDoubleToString(struct fy_context *context,
 	fy_str *str;
 	char ch[64];
 	sprintf_s(ch, sizeof(ch), "%f", dvalue);
-	str = fy_strAllocateFromUTF8(context, ch);
+	str = fy_strCreateFromUTF8(context, ch);
 	handleRet = fy_heapMakeString(context, str, exception);
 	fy_strRelease(context, str);
 	if (exception->exceptionType != exception_none) {
@@ -286,7 +286,7 @@ static void VMDoubleToString(struct fy_context *context,
 static void VMStringToFloat(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	fy_str *str = fy_strAllocate(context);
+	fy_str *str = fy_strCreate(context);
 	char ch[64];
 	fy_double value;
 	str = fy_heapGetString(context, args[0], str, exception);
@@ -304,7 +304,7 @@ static void VMFloatToString(struct fy_context *context,
 	fy_str *str;
 	char ch[64];
 	sprintf_s(ch, sizeof(ch), "%f", fvalue);
-	str = fy_strAllocateFromUTF8(context, ch);
+	str = fy_strCreateFromUTF8(context, ch);
 	handleRet = fy_heapMakeString(context, str, exception);
 	fy_strRelease(context, str);
 	if (exception->exceptionType != exception_none) {

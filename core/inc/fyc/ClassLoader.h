@@ -20,8 +20,8 @@
 
 #include "../fisceprt.h"
 #include "../fiscestu.h"
+#include "../fy_util/String.h"
 #include "VMContext.h"
-#include "String.h"
 #include "Class.h"
 #include "Data.h"
 #include "Resource.h"

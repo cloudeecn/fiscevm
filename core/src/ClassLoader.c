@@ -461,9 +461,9 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method) {
 
 static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data) {
 	fy_char i, count, j, jcount, k, kcount, l, lcount;
-	fy_str *ATT_CODE = fy_strAllocateFromUTF8(context, "Code");
-	fy_str *ATT_LINENUM = fy_strAllocateFromUTF8(context, "fy_lineNumber");
-	fy_str *ATT_SYNTH = fy_strAllocateFromUTF8(context, "Synthetic");
+	fy_str *ATT_CODE = fy_strCreateFromUTF8(context, "Code");
+	fy_str *ATT_LINENUM = fy_strCreateFromUTF8(context, "fy_lineNumber");
+	fy_str *ATT_SYNTH = fy_strCreateFromUTF8(context, "Synthetic");
 	fy_str *attrName;
 	fy_uint attrSize;
 	fy_str *attrNameCode;
@@ -589,7 +589,7 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_data *data) {
 	fy_char i, icount;
 	fy_str *attrName;
 	fy_uint attrSize;
-	fy_str *ATTR_SOURCE_FILE = fy_strAllocateFromUTF8(context, "SourceFile");
+	fy_str *ATTR_SOURCE_FILE = fy_strCreateFromUTF8(context, "SourceFile");
 	fy_class *clazz = fy_vmAllocate(context, sizeof(fy_class));
 	clazz->type = obj;
 	fy_dataSkip(data, 8);
@@ -627,7 +627,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz,
 		fy_exception *exception) {
 	fy_str *name;
 	fy_char i;
-	fy_str *FINALIZE = fy_strAllocateFromUTF8(context, ".finalize.()V");
+	fy_str *FINALIZE = fy_strCreateFromUTF8(context, ".finalize.()V");
 #ifdef _DEBUG
 	char buf[255];
 #endif
@@ -727,11 +727,11 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz = fy_vmAllocate(context, sizeof(fy_class));
 		clazz->type = arr;
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
-		clazz->className = fy_strAllocateClone(context, name);
+		clazz->className = fy_strCreateClone(context, name);
 		clazz->ci.arr.sizeShift = getSizeShiftForArray(name);
 	} else if (fy_hashMapGet(context, context->mapPrimitivesRev, name) != NULL) {
 		clazz = fy_vmAllocate(context, sizeof(fy_class));
-		clazz->className = fy_strAllocateClone(context, name);
+		clazz->className = fy_strCreateClone(context, name);
 		clazz->type = prm;
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
 		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(context,

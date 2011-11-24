@@ -5,6 +5,10 @@
  *      Author: cloudee
  */
 #include "fisceprt.h"
+#include "fy_util/LinkedList.h"
+#include "fy_util/MemMan.h"
+#include "fy_util/String.h"
+#include "fy_util/HashMap.h"
 #ifndef FISCESTU_H_
 #define FISCESTU_H_
 
@@ -62,40 +66,6 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-typedef struct fy_hashMapEntry {
-	struct fy_str *key;
-	fy_uint keyHash;
-	void *value;
-	struct fy_hashMapEntry *next;
-} fy_hashMapEntry;
-
-typedef struct fy_hashMap {
-	fy_char loadFactor;
-	fy_uint bucketsCount;
-	fy_hashMapEntry **buckets;
-	fy_uint size;
-} fy_hashMap;
-
-typedef struct fy_linkedListNode {
-	void* info;
-	struct fy_linkedListNode *next; /* Point to next node */
-	struct fy_linkedListNode *prev; /* Point to prev node */
-} fy_linkedListNode;
-
-typedef struct fy_linkedList {
-	struct fy_linkedListNode *head; /* Header node(persist, just for convenient, doesn't store data) */
-	struct fy_linkedListNode *last; /* Point to the last node of the link */
-	int count; /* count of the node except the head node */
-} fy_linkedList;
-
-typedef struct fy_str {
-	int length;
-	int maxLength;
-	int hashed;
-	int hashCode;
-	fy_char* content;
-} fy_str;
 
 typedef union stringInfo {
 	fy_char string_index;
@@ -312,7 +282,7 @@ typedef struct fy_object {
 	fy_class *clazz;
 	fy_int length;
 	int sizeShift;
-	fy_int monitorOwnerId;
+	fy_uint monitorOwnerId;
 	fy_int monitorOwnerTimes;
 	fy_uint attachedId;
 	union fy_object_data {
@@ -342,8 +312,8 @@ typedef struct fy_thread {
 	fy_boolean inUse;
 	fy_boolean yield;
 
-	fy_int handle;
-	fy_int currentThrowable;
+	fy_uint handle;
+	fy_uint currentThrowable;
 	fy_int status;
 	fy_int priority;
 	fy_int threadId;
@@ -360,6 +330,7 @@ typedef struct fy_thread {
 	fy_long nextWakeTime;
 	fy_boolean interrupted;
 	fy_boolean daemon;
+	fy_boolean destroyPending;
 
 } fy_thread;
 
@@ -436,9 +407,9 @@ typedef struct fy_context {
 	struct fy_str *primitives[128];
 	struct fy_hashMap *mapPrimitivesRev;
 
-	struct fy_linkedList* managedMemory;
-	int classesCount;
+	fy_memblock *memblocks;
 
+	int classesCount;
 	struct fy_class *classes[MAX_CLASSES];
 
 	struct fy_hashMap *mapClassNameToId;

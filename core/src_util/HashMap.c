@@ -14,7 +14,14 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "fyc/HashMap.h"
+#include "fy_util/HashMap.h"
+
+typedef struct fy_hashMapEntry {
+	struct fy_str *key;
+	fy_uint keyHash;
+	void *value;
+	struct fy_hashMapEntry *next;
+} fy_hashMapEntry;
 
 static void expandBuckets(fy_context *context, fy_hashMap *this,
 		fy_uint targetSize) {
@@ -94,7 +101,7 @@ void *fy_hashMapPut(fy_context *context, fy_hashMap *this, fy_str *key,
 	entry = getBucket(context, this, key);
 	if (entry == NULL) {
 		entry = fy_vmAllocate(context, sizeof(fy_hashMapEntry));
-		keyClone = fy_strAllocateClone(context,key);
+		keyClone = fy_strCreateClone(context,key);
 		entry->key = keyClone;
 		entry->keyHash = fy_strHash(keyClone);
 		entry->value = value;

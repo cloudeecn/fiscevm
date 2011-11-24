@@ -9,14 +9,15 @@
 #include <time.h>
 #include "fiscestu.h"
 #include "fisceprt.h"
+#include "fy_util/HashMap.h"
+#include "fy_util/LinkedList.h"
+#include "fy_util/String.h"
+#include "fy_util/Utf8.h"
 #include "fyc/VMContext.h"
 #include "fyc/Class.h"
-#include "fyc/LinkedList.h"
 #include "fyc/Data.h"
-#include "fyc/String.h"
 #include "fyc/ClassLoader.h"
 #include "fyc/Debug.h"
-#include "fyc/HashMap.h"
 #include "fyc/Thread.h"
 #include <assert.h>
 #include <time.h>
@@ -148,7 +149,7 @@ void testClassLoader() {
 	printf("Test class loader finished.\n");
 }
 static fy_class *lookup(const char *name) {
-	fy_str *sName = fy_strAllocateFromUTF8(context, name);
+	fy_str *sName = fy_strCreateFromUTF8(context, name);
 	fy_exception exception;
 	fy_class *clazz;
 	exception.exceptionType = exception_none;
@@ -175,7 +176,7 @@ void testClassLoaderFull() {
 	exception.exceptionType = exception_none;
 	while ((nm = names[i++]) != NULL) {
 		DLOG("###Full loading class %s\n", nm);
-		snm = fy_strAllocateFromUTF8(context, nm);
+		snm = fy_strCreateFromUTF8(context, nm);
 		clazz = fy_vmLookupClass(context, snm, &exception);
 		if (exception.exceptionType != exception_none) {
 			fy_fault("Exception in initialize: %s  || %s",
@@ -198,7 +199,7 @@ void testClassMethod() {
 	fy_method *method;
 	fy_str *sComplex;
 	int i;
-	sComplex = fy_strAllocateFromUTF8(context, "complex");
+	sComplex = fy_strCreateFromUTF8(context, "complex");
 	lookup("com/cirnoworks/fisce/privat/StringUtils");
 
 	it = lookup("EXCLUDE/fisce/test/ITester");
@@ -238,8 +239,8 @@ void testHeap() {
 	fy_int sHandle;
 	fy_exception exception;
 	exception.exceptionType = exception_none;
-	str = fy_strAllocateFromUTF8(context, "咩哈哈哈ABCabc,|/");
-	compare = fy_strAllocate(context);
+	str = fy_strCreateFromUTF8(context, "咩哈哈哈ABCabc,|/");
+	compare = fy_strCreate(context);
 
 	sHandle = fy_heapLiteral(context, str, &exception);
 	ASSERT(sHandle != 0);
@@ -260,7 +261,7 @@ void testThread() {
 	fy_class *clazz = lookup("EXCLUDE/fisce/test/Tester");
 	fy_class *clazzThread = lookup(FY_BASE_THREAD);
 	fy_field *fieldThreadPriority = fy_vmLookupFieldStatic(context, clazzThread,
-			fy_strAllocateFromUTF8(context, ".priority.I"));
+			fy_strCreateFromUTF8(context, ".priority.I"));
 	fy_int threadHandle;
 	fy_message message;
 	int i, count;
@@ -278,7 +279,7 @@ void testThread() {
 	}
 #endif
 	method = NULL;
-	name = fy_strAllocateFromUTF8(context,
+	name = fy_strCreateFromUTF8(context,
 			"EXCLUDE/fisce/test/Tester.main.([L"FY_BASE_STRING";)V");
 
 	thread = fy_vmAllocate(context, sizeof(fy_thread));

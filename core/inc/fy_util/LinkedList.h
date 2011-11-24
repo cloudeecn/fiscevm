@@ -26,7 +26,17 @@
 extern "C" {
 #endif
 
+typedef struct fy_linkedListNode {
+	void* info;
+	struct fy_linkedListNode *next; /* Point to next node */
+	struct fy_linkedListNode *prev; /* Point to prev node */
+} fy_linkedListNode;
 
+typedef struct fy_linkedList {
+	struct fy_linkedListNode *head; /* Header node(persist, just for convenient, doesn't store data) */
+	struct fy_linkedListNode *last; /* Point to the last node of the link */
+	int count; /* count of the node except the head node */
+} fy_linkedList;
 
 void fy_linkedListInit(fy_linkedList* list);
 void fy_linkedListDestroy(fy_linkedList *list);

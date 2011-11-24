@@ -140,6 +140,14 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 	}
 }
 
-fy_boolean fy_tmIsAlive(fy_context *context,fy_uint threadHandle){
+fy_boolean fy_tmIsAlive(fy_context *context, fy_uint threadHandle,
+		fy_exception *exception) {
+	fy_thread *target;
 
+	target = getThreadByHandle(threadHandle, exception);
+	return target != NULL;
+}
+
+void fy_tmDestroyThread(fy_thread *thread) {
+	thread->destroyPending = TRUE;
 }
