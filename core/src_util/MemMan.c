@@ -13,7 +13,10 @@ typedef struct fy_memblockNode {
 } fy_memblockNode;
 
 void fy_mmInit(fy_memblock *block) {
-	block->last = block->first = fy_allocate(sizeof(fy_memblockNode));
+	if ((block->last = block->first = fy_allocate(sizeof(fy_memblockNode)))
+			== NULL) {
+		fy_fault("OUT OF MEMORY");
+	};
 	block->blocks = 0;
 }
 
