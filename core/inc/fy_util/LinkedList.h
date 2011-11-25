@@ -19,7 +19,7 @@
 #define FY_LINKEDLIST_H_
 
 #include "../fisceprt.h"
-#include "../fiscestu.h"
+#include "MemMan.h"
 #include "Debug.h"
 
 #ifdef	__cplusplus

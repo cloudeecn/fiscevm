@@ -33,14 +33,14 @@ static long int blocks = 0;
 #ifdef __GNUC__
 __attribute__((malloc))
 #endif
-_FY_EXPORT void *fy_allocate(fy_uint size) {
+_FY_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception) {
 	void *ret;
 	blocks++;
 	ret = malloc(size);
 	if (ret != NULL) {
 		memset(ret, 0, size);
 	} else {
-		fy_fault("Out of memory!");
+		fy_fault(exception, NULL, "Out of memory!");
 	}
 	return ret;
 }
@@ -53,45 +53,34 @@ _FY_EXPORT void fy_free(void *target) {
 _FY_EXPORT long int fy_getAllocated() {
 	return blocks;
 }
-static void fy_fault_break() {
-	int i = 0;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-	i++;
-}
-_FY_EXPORT void fy_fault(char *format, ...) {
-	/*Put breakpoint here for exception handle!*/
-	int i = 0;
-	va_list arg_ptr;
-	printf("%s", "Fatal error happened!\n");
 
-	va_start(arg_ptr, format);
-	vfprintf(stdout, format, arg_ptr);
-	va_end(arg_ptr);
-	printf("============\n");
-	i++;
-	i++;
-	i++;
-	i++;
-	fy_fault_break();
-	exit(-1);
+_FY_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
+		const char *format, ...) {
+	va_list arg_ptr;
+	int i = 0;
+	if (clazz == NULL) {
+		clazz = "fisce/lang/FatalError";
+	}
+	if (exception == NULL) {
+		printf("Fatal error happened %s\n", clazz);
+		va_start(arg_ptr, format);
+		vfprintf(stdout, format, arg_ptr);
+		va_end(arg_ptr);
+		printf("============\n");
+		i++;
+		i++;
+		i++;
+		i++;
+		exit(-1);
+	} else {
+		exception->exceptionType = exception_normal;
+		strcpy(exception->exceptionName, clazz);
+		va_start(arg_ptr, format);
+		vsprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				format, arg_ptr);
+		vfprintf(stdout, format, arg_ptr);
+		va_end(arg_ptr);
+	}
 }
 
 void vm_dummy() {
@@ -138,7 +127,7 @@ _FY_EXPORT fy_boolean fy_isnanf(fy_float f) {
 
 _FY_EXPORT void fy_sleep(fy_long ms, fy_long ns) {
 #if defined(_WIN32)
-/*TODO Windows implement*/
+	/*TODO Windows implement*/
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
 	int ret;

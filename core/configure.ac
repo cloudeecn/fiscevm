@@ -72,5 +72,6 @@ AC_CHECK_FUNCS([floor memset])
 CFLAGS="$CFLAGS -fPIC -Wall"
 
 
-AC_CONFIG_FILES(Makefile src/Makefile inc/Makefile test/Makefile)
+AC_CONFIG_FILES(Makefile src_util/Makefile testutil/Makefile)
+dnl src/Makefile  test/Makefile)
 AC_OUTPUT

@@ -41,12 +41,21 @@ typedef unsigned long long fy_ulong;
 typedef long long fy_long;
 #endif
 
+typedef struct fy_exception {
+	enum exceptionType {
+		exception_none = 0, exception_normal
+	/*, exception_critical // use fy_fault instead!*/
+	} exceptionType;
+	char exceptionName[64];
+	char exceptionDesc[64];
+} fy_exception;
+#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)->exceptionType!=exception_none) return
 #ifdef _MSC_VER
 #else
 # define strcpy_s(T,TS,S) strncpy(T,S,TS)
 # define sprintf_s snprintf
+# define vsprintf_s vsnprintf
 #endif
-
 #ifdef _MSC_VER
 # define _FY_EXPORT __declspec(dllexport)
 #elif defined(__GNUC__)
@@ -58,19 +67,15 @@ typedef long long fy_long;
 #else
 # define _FY_EXPORT
 #endif
-
-
 #if __STDC_VERSION__ >= 199901L
 # define _C99
 # define _FY_RESTRICT restrict
 #else
 # define _FY_RESTRICT
 #endif
-
 #if defined(_C99) || defined(__GNUC__)
 # define _FY_LATE_DECLARATION
 #endif
-
 #if defined(_C99)
 # define _FY_VLS(TYPE,X) TYPE X[]
 #elif defined(__GNUC__)
@@ -78,35 +83,28 @@ typedef long long fy_long;
 #else
 # define _FY_VLS(TYPE,X) TYPE X[1]
 #endif
-
 #if 1
 #define _FY_GOTO
 #endif
-
 #if 1
 #define _FY_FASTCALL __fastcall
 #else
 #define _FY_FASTCALL
 #endif
-
 #ifdef _DEBUG
 #define FY_STRICT_CHECK
 #endif
-
 #ifndef TRUE
 #define TRUE 1
 #endif
-
 #ifndef FALSE
 #define FALSE 0
 #endif
-
 #if defined(_WIN32)
 # define FY_PRINT64 "I64"
 #else
 # define FY_PRINT64 "ll"
 #endif
-
 #define fy_I2TOL(I1,I2) ((fy_long)(((fy_ulong)(I1)<<32) + ((fy_ulong)(I2))))
 #define fy_I2TOUL(I1,I2) ((fy_ulong)(((fy_ulong)(I1)<<32) + ((fy_ulong)(I2))))
 #define fy_B2TOUI(B1,B2) ((((fy_uint)(B1))<<8)+((fy_uint)(B2)))
@@ -114,12 +112,10 @@ typedef long long fy_long;
 #define fy_B4TOI(B1,B2,B3,B4) ((((fy_uint)(B1))<<24)+(((fy_uint)(B2))<<16)+(((fy_uint)(B3))<<8)+((fy_uint)(B4)))
 #define fy_HOFL(L) ((fy_int)(L>>32))
 #define fy_LOFL(L) ((fy_int)(L))
-
 _FY_EXPORT fy_long fy_doubleToLong(fy_double value);
 _FY_EXPORT fy_double fy_longToDouble(fy_long value);
 _FY_EXPORT fy_int fy_floatToInt(fy_float value);
 _FY_EXPORT fy_float fy_intToFloat(fy_int value);
-
 _FY_EXPORT fy_boolean fy_isnand(fy_double d);
 _FY_EXPORT fy_boolean fy_isnanf(fy_float f);
 
@@ -127,7 +123,6 @@ _FY_EXPORT void *fy_allocate(fy_uint size);
 _FY_EXPORT void fy_free(void *target);
 _FY_EXPORT void fy_fault(char *msg, ...);
 _FY_EXPORT long int fy_getAllocated();
-_FY_EXPORT void fy_sleep(fy_long ms,fy_long ns);
 
 #ifdef	__cplusplus
 }

@@ -12,11 +12,10 @@ typedef struct fy_memblockNode {
 	_FY_VLS(fy_ubyte,data);
 } fy_memblockNode;
 
-void fy_mmInit(fy_memblock *block) {
-	if ((block->last = block->first = fy_allocate(sizeof(fy_memblockNode)))
-			== NULL) {
-		fy_fault("OUT OF MEMORY");
-	};
+void fy_mmInit(fy_memblock *block, fy_exception *exception) {
+	block->last = block->first = fy_allocate(sizeof(fy_memblockNode),
+			exception);
+	fy_exceptionCheckAndReturn(exception);
 	block->blocks = 0;
 }
 
@@ -33,12 +32,11 @@ void fy_mmDestroy(fy_memblock *block) {
 	}
 }
 
-void *fy_mmAllocate(fy_memblock *block, int size) {
+void *fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception) {
 	void *ret;
-	fy_memblockNode *node = fy_allocate(sizeof(fy_memblockNode) + size);
-	if (ret == NULL) {
-		fy_fault("OUT OF MEMORY");
-	}
+	fy_memblockNode *node = fy_allocate(sizeof(fy_memblockNode) + size,
+			exception);
+	fy_exceptionCheckAndReturn(exception) NULL;
 	((fy_memblockNode*) block->last)->next = node;
 	node->prev = block->last;
 	block->last = node;

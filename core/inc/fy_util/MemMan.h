@@ -16,10 +16,10 @@ typedef struct fy_memblock {
 	fy_int blocks;
 } fy_memblock;
 
-void fy_mmInit(fy_memblock *block);
+void fy_mmInit(fy_memblock *block, fy_exception *exception);
 void fy_mmDestroy(fy_memblock *block);
 
-void* fy_mmAllocate(fy_memblock *block, int size);
+void* fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception);
 void fy_mmFree(fy_memblock *block, void *address);
 
 #endif /* MEMMAN_H_ */

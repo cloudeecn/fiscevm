@@ -19,9 +19,7 @@
 #define FY_HASHMAP_H_
 
 #include "../fisceprt.h"
-#include "../fiscestu.h"
 #include "String.h"
-#include "VMContext.h"
 #include <string.h>
 
 #ifdef	__cplusplus
@@ -33,22 +31,22 @@ extern "C" {
 typedef struct fy_hashMap {
 	fy_char loadFactor;
 	fy_uint bucketsCount;
-	fy_hashMapEntry **buckets;
+	void **buckets;
 	fy_uint size;
 } fy_hashMap;
 
-void fy_hashMapInit(fy_context *context, fy_hashMap *this, fy_uint initSize,
+void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initSize,
 		fy_uint loadFactor);
-void fy_hashMapInitSimple(fy_context *context, fy_hashMap *this);
-void *fy_hashMapPut(fy_context *context, fy_hashMap *this, fy_str *key,
+void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this);
+void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
 		void *value);
-int fy_hashMapPutInt(fy_context *context, fy_hashMap *this, fy_str *key,
+int fy_hashMapPutInt(fy_memblock *mem, fy_hashMap *this, fy_str *key,
 		int value);
-void *fy_hashMapPutUtf8(fy_context *context, fy_hashMap *this,
+void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
 		const char *keyUtf8, void *value);
-void *fy_hashMapGet(fy_context *context, fy_hashMap *this, fy_str *key);
-int fy_hashMapGetInt(fy_context *context, fy_hashMap *this, fy_str *key);
-void fy_hashMapDestroy(fy_context *context, fy_hashMap *this);
+void *fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key);
+int fy_hashMapGetInt(fy_memblock *mem, fy_hashMap *this, fy_str *key);
+void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this);
 #ifdef	__cplusplus
 }
 #endif

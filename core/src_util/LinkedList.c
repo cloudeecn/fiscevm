@@ -19,47 +19,51 @@
 
 /*************private*****************/
 /*
-//static struct fy_linkedListNode* lookupNode(fy_linkedList* list, void* content) {
-//	struct fy_linkedListNode* node = list->head;
-//	while ((node = node->link) != NULL) {
-//		if (node->info == content) {
-//			return node;
-//		}
-//	}
-//	return NULL;
-//}
+ //static struct fy_linkedListNode* lookupNode(fy_linkedList* list, void* content) {
+ //	struct fy_linkedListNode* node = list->head;
+ //	while ((node = node->link) != NULL) {
+ //		if (node->info == content) {
+ //			return node;
+ //		}
+ //	}
+ //	return NULL;
+ //}
  */
 /*************public****************/
 
-void fy_linkedListInit(fy_linkedList* list) {
-	struct fy_linkedListNode* node = fy_allocate(
-			sizeof(struct fy_linkedListNode));
+void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
+		fy_exception *exception) {
+	struct fy_linkedListNode* node = fy_mmAllocate(block,
+			sizeof(struct fy_linkedListNode), exception);
+	fy_exceptionCheckAndReturn(exception);
 	list->head = node;
 	list->last = node;
 	list->count = 0;
 }
 
-static void fy_linkedListReleaser(fy_linkedListNode *node) {
-	fy_free(node);
+static void fy_linkedListReleaser(fy_memblock *block, fy_linkedListNode *node,fy_exception) {
+	fy_mmFree(block, node);
 }
 
-void fy_linkedListDestroy(fy_linkedList *list) {
+void fy_linkedListDestroy(fy_memblock *block, fy_linkedList *list) {
 	fy_linkedListTraverse(list, fy_linkedListReleaser);
-	fy_free(list->head);
+	fy_mmFree(block, list->head);
 }
 
-void* fy_linkedListRemove(fy_linkedList* list, void* content) {
+void* fy_linkedListRemove(fy_memblock *block, fy_linkedList* list,
+		void* content) {
 	struct fy_linkedListNode* node = list->head;
 	while (node->next != NULL) {
 		if (node->next->info == content) {
-			return fy_linkedListRemoveNode(list, node->next);
+			return fy_linkedListRemoveNode(block, list, node->next);
 		}
 		node = node->next;
 	}
 	return NULL;
 }
 
-void* fy_linkedListRemoveNode(fy_linkedList* list, fy_linkedListNode *node) {
+void* fy_linkedListRemoveNode(fy_memblock *block, fy_linkedList* list,
+		fy_linkedListNode *node) {
 	void *ret;
 	node->prev->next = node->next;
 	if (node == list->last) {
@@ -68,14 +72,15 @@ void* fy_linkedListRemoveNode(fy_linkedList* list, fy_linkedListNode *node) {
 		node->next->prev = node->prev;
 	}
 	ret = node->info;
-	fy_free(node);
+	fy_mmFree(block, node);
 	list->count--;
 	return ret;
 }
 
-fy_linkedListNode* fy_linkedListAppend(fy_linkedList* list, void* content) {
-	struct fy_linkedListNode* node = fy_allocate(
-			sizeof(struct fy_linkedListNode));
+fy_linkedListNode* fy_linkedListAppend(fy_memblock *block, fy_linkedList* list,
+		void* content,fy_exception *exception) {
+	struct fy_linkedListNode* node = fy_mmAllocate(block,
+			sizeof(struct fy_linkedListNode),exception);
 	if (node == NULL) {
 		fy_fault("OUT OF MEMORY!!");
 	}
@@ -89,8 +94,11 @@ fy_linkedListNode* fy_linkedListAppend(fy_linkedList* list, void* content) {
 	return node;
 }
 
-void fy_linkedListTraverse(fy_linkedList* list,
-		void(*fun)(struct fy_linkedListNode* node)) {
+void fy_linkedListTraverse(
+		fy_memblock *block,
+		fy_linkedList* list,
+		void(*fun)(fy_memblock *block, struct fy_linkedListNode* node,
+				fy_exception *exception), fy_exception *exception) {
 	struct fy_linkedListNode* node = list->head;
 	struct fy_linkedListNode* next = node->next;
 #ifdef _DEBUG
@@ -101,7 +109,8 @@ void fy_linkedListTraverse(fy_linkedList* list,
 		i++;
 #endif
 		next = node->next;
-		fun(node);
+		fun(block, node, exception);
+		fy_exceptionCheckAndReturn(exception);
 	}
 #ifdef _DEBUG
 	if (i != list->count) {

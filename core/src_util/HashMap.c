@@ -23,7 +23,7 @@ typedef struct fy_hashMapEntry {
 	struct fy_hashMapEntry *next;
 } fy_hashMapEntry;
 
-static void expandBuckets(fy_context *context, fy_hashMap *this,
+static void expandBuckets(fy_memblock *mem, fy_hashMap *this,
 		fy_uint targetSize) {
 	int i, imax;
 	fy_hashMapEntry *entry;
@@ -33,8 +33,7 @@ static void expandBuckets(fy_context *context, fy_hashMap *this,
 	if (targetSize <= this->bucketsCount) {
 		return;
 	} else {
-		newEntries = fy_vmAllocate(context,
-				sizeof(fy_hashMapEntry*) * targetSize);
+		newEntries = fy_mmAllocate(mem, sizeof(fy_hashMapEntry*) * targetSize);
 		for (i = 0, imax = this->bucketsCount; i < imax; i++) {
 			if ((entry = this->buckets[i]) != NULL) {
 
@@ -57,14 +56,14 @@ static void expandBuckets(fy_context *context, fy_hashMap *this,
 				} while (entry != NULL);
 			}
 		}
-		fy_vmFree(context, this->buckets);
+		fy_mmFree(mem, this->buckets);
 		this->buckets = newEntries;
 		this->bucketsCount = targetSize;
 	}
 
 }
 
-static fy_hashMapEntry *getBucket(fy_context *context, fy_hashMap *this,
+static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 		fy_str *key) {
 	fy_uint hashCode;
 	fy_hashMapEntry *entry;
@@ -81,33 +80,33 @@ static fy_hashMapEntry *getBucket(fy_context *context, fy_hashMap *this,
 	return NULL;
 }
 
-void fy_hashMapInit(fy_context *context, fy_hashMap *this, fy_uint initSize,
+void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initSize,
 		fy_uint loadFactor) {
 	this->loadFactor = loadFactor;
 	this->bucketsCount = initSize;
-	this->buckets = fy_vmAllocate(context, sizeof(fy_hashMapEntry*) * initSize);
+	this->buckets = fy_mmAllocate(mem, sizeof(fy_hashMapEntry*) * initSize);
 	this->size = 0;
 }
-void fy_hashMapInitSimple(fy_context *context, fy_hashMap *this) {
-	fy_hashMapInit(context, this, 16, 12);
+void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this) {
+	fy_hashMapInit(mem, this, 16, 12);
 }
-void *fy_hashMapPut(fy_context *context, fy_hashMap *this, fy_str *key,
+void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
 		void *value) {
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
 	fy_str *keyClone;
 	int pos;
 	void *ret = NULL;
-	entry = getBucket(context, this, key);
+	entry = getBucket(mem, this, key);
 	if (entry == NULL) {
-		entry = fy_vmAllocate(context, sizeof(fy_hashMapEntry));
-		keyClone = fy_strCreateClone(context,key);
+		entry = fy_vmAllocate(mem, sizeof(fy_hashMapEntry));
+		keyClone = fy_strCreateClone(mem, key);
 		entry->key = keyClone;
 		entry->keyHash = fy_strHash(keyClone);
 		entry->value = value;
 
 		if ((this->size + 1) * 16 > this->bucketsCount * this->loadFactor) {
-			expandBuckets(context, this, this->bucketsCount << 1);
+			expandBuckets(mem, this, this->bucketsCount << 1);
 		}
 
 		pos = entry->keyHash % this->bucketsCount;
@@ -131,39 +130,39 @@ void *fy_hashMapPut(fy_context *context, fy_hashMap *this, fy_str *key,
 	}
 }
 
-void *fy_hashMapPutUtf8(fy_context *context, fy_hashMap *this,
-		const char *keyUtf8, void *value) {
+void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const char *keyUtf8,
+		void *value) {
 	fy_str *key;
 	void *ret;
 
 	key = fy_allocate(sizeof(fy_str));
-	fy_strInit(context, key, fy_utf8SizeS(keyUtf8, -1));
-	fy_strAppendUTF8(context, key, keyUtf8, -1);
+	fy_strInit(mem, key, fy_utf8SizeS(keyUtf8, -1));
+	fy_strAppendUTF8(mem, key, keyUtf8, -1);
 
-	ret = fy_hashMapPut(context, this, key, value);
+	ret = fy_hashMapPut(mem, this, key, value);
 
-	fy_strDestroy(context, key);
+	fy_strDestroy(mem, key);
 	fy_free(key);
 	return ret;
 }
 
-void* fy_hashMapGet(fy_context *context, fy_hashMap *this, fy_str *key) {
-	fy_hashMapEntry *entry = getBucket(context, this, key);
+void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key) {
+	fy_hashMapEntry *entry = getBucket(mem, this, key);
 	return entry == NULL ? NULL : entry->value;
 }
 
-void fy_hashMapDestroy(fy_context *context, fy_hashMap *this) {
+void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this) {
 	int i, imax;
 	fy_hashMapEntry *entry, *tmp;
 	for (i = 0, imax = this->bucketsCount; i < imax; i++) {
 		entry = this->buckets[i];
 		while (entry != NULL) {
-			fy_strDestroy(context, entry->key);
-			fy_vmFree(context, entry->key);
+			fy_strDestroy(mem, entry->key);
+			fy_mmFree(mem, entry->key);
 			tmp = entry;
 			entry = entry->next;
-			fy_vmFree(context, tmp);
+			fy_mmFree(mem, tmp);
 		}
 	}
-	fy_vmFree(context, this->buckets);
+	fy_mmFree(mem, this->buckets);
 }

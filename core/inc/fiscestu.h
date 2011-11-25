@@ -334,14 +334,7 @@ typedef struct fy_thread {
 
 } fy_thread;
 
-typedef struct fy_exception {
-	enum exceptionType {
-		exception_none = 0, exception_normal
-	/*, exception_critical // use fy_fault instead!*/
-	} exceptionType;
-	char exceptionName[64];
-	char exceptionDesc[64];
-} fy_exception;
+
 
 typedef enum fy_messageType {
 	message_continue = 0,
