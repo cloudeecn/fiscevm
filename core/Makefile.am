@@ -1,1 +1,1 @@
-SUBDIRS=inc src_util testutil src test
+SUBDIRS=src_util testutil src test
