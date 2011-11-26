@@ -224,8 +224,8 @@ static char *OP_NAME[] = { /**/
 "BREAKPOINT" /* 0xCA */};
 #endif
 
-static fy_int processThrowable(fy_context *context, fy_frame *frame, fy_int handle,
-		fy_int lpc, fy_exception *exception) {
+static fy_int processThrowable(fy_context *context, fy_frame *frame,
+		fy_int handle, fy_int lpc, fy_exception *exception) {
 	fy_class *throwableClass;
 	fy_class *handlerClass;
 	fy_int i, imax;
@@ -347,7 +347,8 @@ static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
 	}
 }
 
-void fy_threadMonitorEnter(fy_context *context, fy_thread *thread, fy_int handle) {
+void fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
+		fy_int handle) {
 	/*TODO*/
 }
 
@@ -446,10 +447,12 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		FY_SIMPLE_ERROR_HANDLE
 		frame = thread->frames + i;
 		method = frame->method;
-		str = fy_strCreateClone(context, method->owner->className);
+		str = fy_strCreateClone(context->memblocks, method->owner->className,
+				exception);
+		fy_exceptionCheckAndReturn(exception);
 		fy_strReplaceOne(str, '/', '.');
 		strHandle = fy_heapMakeString(context, str, exception);
-		fy_strRelease(context, str);
+		fy_strRelease(context->memblocks, str);
 		FY_SIMPLE_ERROR_HANDLE
 		fy_heapPutFieldHandle(context, itemHandle, declaringClassField,
 				strHandle, exception);
@@ -490,19 +493,33 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	/*The last line, so don't need error handle*/
 }
 
+#ifdef _FY_GOTO
+# define FY_FALLOUT_INVOKE goto label_fallout_invoke;
+# define FY_FALLOUT_NOINVOKE goto label_fallout_noinvoke;
+#else
+# define FY_FALLOUT_INVOKE fallout = fallout_invoke;
+# define FY_FALLOUT_NOINVOKE fallout = fallout_noinvoke;
+#endif
+
 #ifdef FY_STRICT_CHECK
 # define fy_checkPush(SIZE) { \
 	if(sp>=sb+size+(SIZE)){ \
-		fy_fault("Stack overflow! base=%d sp=%d localvars=%d",sb,sp,localCount); \
+		fy_fault(exception,NULL,"Stack overflow! base=%d sp=%d localvars=%d",sb,sp,localCount); \
+		FY_FALLOUT_NOINVOKE \
+		break; \
 	} \
 }
 
 # define fy_checkPop(SIZE,T) { \
 	if(sp<=sb+localCount+(SIZE)){ \
-		fy_fault("Stack underflow! base=%d sp=%d localvars=%d",sb,sp,localCount); \
+		fy_fault(exception,NULL,"Stack underflow! base=%d sp=%d localvars=%d",sb,sp,localCount); \
+		FY_FALLOUT_NOINVOKE \
+		break; \
 	} \
 	if(typeStack[sp-1]!=(T)){ \
-		fy_fault("Type mismatch, needs [%c] but got [%c]",(T),typeStack[sp-1]); \
+		fy_fault(exception,NULL,"Type mismatch, needs [%c] but got [%c]",(T),typeStack[sp-1]); \
+		FY_FALLOUT_NOINVOKE \
+		break; \
 	} \
 }
 
@@ -520,22 +537,30 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 
 # define fy_checkPutLocal(P,SIZE) { \
 	if((P)<0 || (P)+(SIZE)>=localCount) {\
-		fy_fault("Local var out of range %d/%d",(P),localCount);\
+		fy_fault(exception,NULL,"Local var out of range %d/%d",(P),localCount);\
+		FY_FALLOUT_NOINVOKE \
+		break; \
 	} \
 }
 
 # define fy_checkGetLocal(P,SIZE,T) { \
 	if((P)<0 || (P)+(SIZE)>=localCount) {\
-		fy_fault("Local var out of range %d/%d",(P),localCount);\
+		fy_fault(exception,NULL,"Local var out of range %d/%d",(P),localCount);\
+		FY_FALLOUT_NOINVOKE \
+		break; \
 	} \
 	if(typeStack[sb+(P)]!=(T)){\
-		fy_fault("Type mismatch, needs [%c] but got [%c]",(T),typeStack[sb+(P)]); \
+		fy_fault(exception,NULL,"Type mismatch, needs [%c] but got [%c]",(T),typeStack[sb+(P)]); \
+		FY_FALLOUT_NOINVOKE \
+		break; \
 	}\
 }
 
 # define fy_checkCall(COUNT) \
 	if (sp - (COUNT) - sb < localCount) { \
-		fy_fault("Buffer underflow! %d %d", sp - (COUNT) - sb, localCount); \
+		fy_fault(exception,NULL,"Buffer underflow! %d %d", sp - (COUNT) - sb, localCount); \
+		FY_FALLOUT_NOINVOKE \
+		break; \
 	}
 
 #else
@@ -688,7 +713,7 @@ static fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 }
 
 static fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
-		fy_method *invoke) {
+		fy_method *invoke, fy_exception *exception) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	fy_uint sb, sp;
 	if (frame == NULL) {
@@ -701,7 +726,8 @@ static fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
 		frame++;
 	}
 	if ((++(thread->frameCount)) >= MAX_FRAMES) {
-		fy_fault("FRAME OVERFLOW! %d", MAX_FRAMES);
+		fy_fault(exception, NULL, "FRAME OVERFLOW! %d", MAX_FRAMES);
+		return NULL;
 	}
 	frame->method = invoke;
 	frame->code = invoke->code;
@@ -751,8 +777,9 @@ static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz)
 }
 
 void fy_threadPushMethod(fy_context *context, fy_thread *thread,
-		fy_method *invoke, fy_frame **localFrame) {
-	fy_frame *frame = fy_threadPushFrame(context, thread, invoke);
+		fy_method *invoke, fy_frame **localFrame, fy_exception *exception) {
+	fy_frame *frame = fy_threadPushFrame(context, thread, invoke, exception);
+	fy_exceptionCheckAndReturn(exception);
 	if (localFrame != NULL) {
 		*localFrame = frame;
 	}
@@ -787,7 +814,8 @@ void fy_threadCreateWithMethod(fy_context *context, fy_thread *thread,
 		return;
 	}
 	thread->handle = threadHandle;
-	fy_threadPushFrame(context, thread, method);
+	fy_threadPushFrame(context, thread, method, exception);
+	fy_exceptionCheckAndReturn(exception);
 	clazz = fy_vmLookupClass(context, context->sStringArray, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
@@ -815,14 +843,6 @@ void fy_threadCreateWithData(fy_context *context, fy_thread *thread,
 #define fy_nextS2(CODE) fy_B2TOI(CODE[pc],CODE[pc+1]);pc+=2
 #define fy_nextS4(CODE) fy_B4TOI(CODE[pc],CODE[pc+1],CODE[pc+2],CODE[pc+3]);pc+=4
 
-#ifdef _FY_GOTO
-# define FY_FALLOUT_INVOKE goto label_fallout_invoke;
-# define FY_FALLOUT_NOINVOKE goto label_fallout_noinvoke;
-#else
-# define FY_FALLOUT_INVOKE fallout = fallout_invoke;
-# define FY_FALLOUT_NOINVOKE fallout = fallout_noinvoke;
-#endif
-
 /**
  * DON'T USE RETURN HERE!!!!
  */
@@ -842,6 +862,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 	fy_frame *frame = NULL;
 	fy_uint *stack = thread->stack;
 	fy_uint *typeStack = thread->typeStack;
+	fy_memblock *block = context->memblocks;
 	fy_exception *exception = &(message->body.exception);
 
 #ifndef _FY_LATE_DECLARATION
@@ -879,7 +900,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				method = fy_vmGetMethod(context,
 						context->sThrowablePrintStacktrace);
 				ASSERT( method != NULL);
-				frame = fy_threadPushFrame(context, thread, method);
+				frame = fy_threadPushFrame(context, thread, method, exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					break;
+				}
 				stack[frame->sb] = thread->currentThrowable;
 				typeStack[frame->sb] = FY_TYPE_HANDLE;
 				thread->currentThrowable = 0;
@@ -937,7 +962,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_localToFrame(frame);
 					clinitClazz->clinitThreadId = thread->threadId;
 					frame = fy_threadPushFrame(context, thread,
-							clinitClazz->clinit);
+							clinitClazz->clinit, exception);
+					if (exception->exceptionType != exception_none) {
+						FY_FALLOUT_NOINVOKE
+					}
 					continue;
 				} else {
 					thread->yield = TRUE;
@@ -1166,14 +1194,44 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
 				}
-				fy_strInit(context, &str1, 64);
+				fy_strInit(block, &str1, 64, exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
 				if (clazz1->type == obj) {
-					fy_strAppendUTF8(context, &str1, "[L", 3);
-					fy_strAppend(context, &str1, clazz1->className);
-					fy_strAppendUTF8(context, &str1, ";", 3);
+					fy_strAppendUTF8(block, &str1, "[L", 3, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
+					fy_strAppend(block, &str1, clazz1->className, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
+					fy_strAppendUTF8(block, &str1, ";", 3, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
 				} else if (clazz1->type == arr) {
-					fy_strAppendUTF8(context, &str1, "[", 3);
-					fy_strAppend(context, &str1, clazz1->className);
+					fy_strAppendUTF8(block, &str1, "[", 3, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
+					fy_strAppend(block, &str1, clazz1->className, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
 				}
 				clazz2 = fy_vmLookupClass(context, &str1, exception);
 				if (exception->exceptionType != exception_none) {
@@ -1181,7 +1239,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				fy_strDestroy(context, &str1);
+				fy_strDestroy(block, &str1);
 				fy_threadPushHandle(
 						fy_heapAllocateArray(context, clazz2, ivalue, exception));
 				if (exception->exceptionType != exception_none) {
@@ -1445,14 +1503,41 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						strcpy_s( exception->exceptionName,
 								sizeof(exception->exceptionName),
 								"java/lang/ClassCastException");
-						fy_strInit(context, &str1, 64);
-						fy_strAppendUTF8(context, &str1, "from ", 99);
-						fy_strAppend(context, &str1, clazz1->className);
-						fy_strAppendUTF8(context, &str1, "to ", 99);
-						fy_strAppend(context, &str1, clazz2->className);
+						fy_strInit(block, &str1, 64, exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							FY_FALLOUT_NOINVOKE
+							break;/*EXCEPTION_THROWN*/
+						}
+						fy_strAppendUTF8(block, &str1, "from ", 99, exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							FY_FALLOUT_NOINVOKE
+							break;/*EXCEPTION_THROWN*/
+						}
+						fy_strAppend(block, &str1, clazz1->className,
+								exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							FY_FALLOUT_NOINVOKE
+							break;/*EXCEPTION_THROWN*/
+						}
+						fy_strAppendUTF8(block, &str1, "to ", 99, exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							FY_FALLOUT_NOINVOKE
+							break;/*EXCEPTION_THROWN*/
+						}
+						fy_strAppend(block, &str1, clazz2->className,
+								exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							FY_FALLOUT_NOINVOKE
+							break;/*EXCEPTION_THROWN*/
+						}
 						fy_strSPrint(exception->exceptionDesc,
 								sizeof(exception->exceptionDesc), &str1);
-						fy_strDestroy(context, &str1);
+						fy_strDestroy(block, &str1);
 						FY_FALLOUT_NOINVOKE
 						break;
 					}
@@ -1970,7 +2055,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							fy_localToFrame(frame);
 							clinitClazz->clinitThreadId = thread->threadId;
 							frame = fy_threadPushFrame(context, thread,
-									clinitClazz->clinit);
+									clinitClazz->clinit, exception);
+							if (exception->exceptionType != exception_none) {
+								message->messageType = message_exception;
+								FY_FALLOUT_NOINVOKE
+								break;/*EXCEPTION_THROWN*/
+							}
 							FY_FALLOUT_INVOKE
 							break;
 						} else {
@@ -2440,7 +2530,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				mvalue = fy_vmLookupMethodVirtual(context, clazz1,
-						mvalue->fullName);
+						mvalue->fullName, exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;
+				}
 				if (mvalue == NULL) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
@@ -2479,7 +2574,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef _FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
-					nh = fy_hashMapGet(context, context->mapMUNameToNH,
+					nh = fy_hashMapGet(block, context->mapMUNameToNH,
 							mvalue->uniqueName);
 					if (nh == NULL) {
 						message->messageType = message_invoke_native;
@@ -2494,7 +2589,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						}
 					}
 				} else {
-					fy_threadPushMethod(context, thread, mvalue, &frame);
+					fy_threadPushMethod(context, thread, mvalue, &frame,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
 				}
 				FY_FALLOUT_INVOKE
 				break;
@@ -2518,7 +2619,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						&& fy_classIsSuperClassOf(context, clazz2, clazz1)
 						&& fy_strCmp(mvalue->name, context->sInit)) {
 					mvalue = fy_vmLookupMethodVirtual(context, clazz1->super,
-							mvalue->fullName);
+							mvalue->fullName, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;
+					}
 				}
 				if (mvalue == NULL) {
 					message->messageType = message_exception;
@@ -2571,7 +2677,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef _FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
-					nh = fy_hashMapGet(context, context->mapMUNameToNH,
+					nh = fy_hashMapGet(block, context->mapMUNameToNH,
 							mvalue->uniqueName);
 					if (nh == NULL) {
 						message->messageType = message_invoke_native;
@@ -2586,7 +2692,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						}
 					}
 				} else {
-					fy_threadPushMethod(context, thread, mvalue, &frame);
+					fy_threadPushMethod(context, thread, mvalue, &frame,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
 				}
 				FY_FALLOUT_INVOKE
 				break;
@@ -2624,7 +2736,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							fy_localToFrame(frame);
 							clinitClazz->clinitThreadId = thread->threadId;
 							frame = fy_threadPushFrame(context, thread,
-									clinitClazz->clinit);
+									clinitClazz->clinit, exception);
+							if (exception->exceptionType != exception_none) {
+								message->messageType = message_exception;
+								FY_FALLOUT_NOINVOKE
+								break;/*EXCEPTION_THROWN*/
+							}
 							FY_FALLOUT_INVOKE
 							break;
 						} else {
@@ -2642,7 +2759,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef _FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
-					nh = fy_hashMapGet(context, context->mapMUNameToNH,
+					nh = fy_hashMapGet(block, context->mapMUNameToNH,
 							mvalue->uniqueName);
 					if (nh == NULL) {
 						message->messageType = message_invoke_native;
@@ -2657,7 +2774,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						}
 					}
 				} else {
-					fy_threadPushMethod(context, thread, mvalue, &frame);
+					fy_threadPushMethod(context, thread, mvalue, &frame,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
 				}
 				FY_FALLOUT_INVOKE
 				break;
@@ -2690,7 +2813,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				clazz2 = fy_heapGetObject(context, stack[sp])->clazz;
 				mvalue = fy_vmLookupMethodVirtual(context, clazz2,
-						mvalue->fullName);
+						mvalue->fullName, exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;
+				}
 
 				if (mvalue == NULL) {
 					message->messageType = message_exception;
@@ -2731,7 +2859,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef _FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
-					nh = fy_hashMapGet(context, context->mapMUNameToNH,
+					nh = fy_hashMapGet(block, context->mapMUNameToNH,
 							mvalue->uniqueName);
 					if (nh == NULL) {
 						message->messageType = message_invoke_native;
@@ -2746,7 +2874,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						}
 					}
 				} else {
-					fy_threadPushMethod(context, thread, mvalue, &frame);
+					fy_threadPushMethod(context, thread, mvalue, &frame,
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
 				}
 				FY_FALLOUT_INVOKE
 				break;
@@ -3058,8 +3192,18 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				pc += ivalue3;
 				ivalue = fy_nextS4(code);/*db*/
 				ivalue2 = fy_nextS4(code);/*np*/
-				pivalue = fy_allocate(sizeof(fy_int) * ivalue2); /*match*/
-				pivalue2 = fy_allocate(sizeof(fy_int) * ivalue2); /*offset*/
+				pivalue = fy_allocate(sizeof(fy_int) * ivalue2, exception); /*match*/
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
+				pivalue2 = fy_allocate(sizeof(fy_int) * ivalue2, exception); /*offset*/
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
 				for (i = 0; i < ivalue2; i++) {
 					pivalue[i] = fy_nextS4(code);
 					pivalue2[i] = fy_nextS4(code)
@@ -3265,7 +3409,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				pivalue = fy_allocate(sizeof(int) * ivalue);
+				pivalue = fy_allocate(sizeof(int) * ivalue, exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
 				for (i = ivalue - 1; i >= 0; i--) {
 					fy_threadPopInt(pivalue[i]);
 				}
@@ -3299,7 +3448,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					char msg[256];
 #endif
 					fy_strSPrint(msg, 256, clazz1->className);
-					fy_fault("InstantiationErro %s", msg);
+					fy_fault(exception, NULL, "InstantiationErro %s", msg);
+					FY_FALLOUT_NOINVOKE
+					break;
 				}
 				{
 					clinitClazz = clinit(context, thread, clazz1);
@@ -3309,7 +3460,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							fy_localToFrame(frame);
 							clinitClazz->clinitThreadId = thread->threadId;
 							frame = fy_threadPushFrame(context, thread,
-									clinitClazz->clinit);
+									clinitClazz->clinit, exception);
+							if (exception->exceptionType != exception_none) {
+								message->messageType = message_exception;
+								FY_FALLOUT_NOINVOKE
+								break;/*EXCEPTION_THROWN*/
+							}
 							FY_FALLOUT_INVOKE
 							break;
 						} else {
@@ -3543,7 +3699,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							fy_localToFrame(frame);
 							clinitClazz->clinitThreadId = thread->threadId;
 							frame = fy_threadPushFrame(context, thread,
-									clinitClazz->clinit);
+									clinitClazz->clinit, exception);
+							if (exception->exceptionType != exception_none) {
+								message->messageType = message_exception;
+								FY_FALLOUT_NOINVOKE
+								break;/*EXCEPTION_THROWN*/
+							}
 							FY_FALLOUT_INVOKE
 							break;
 						} else {
@@ -3671,7 +3832,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				ivalue2 = fy_nextS4(code );/*lb*/
 				ivalue3 = fy_nextS4(code );/*hb*/
 				ivalue4 = ivalue3 - ivalue2 + 1;/*count*/
-				pivalue = fy_allocate(sizeof(fy_int) * ivalue4);
+				pivalue = fy_allocate(sizeof(fy_int) * ivalue4, exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
 				for (i = 0; i < ivalue4; i++) {
 					pivalue[i] = fy_nextS4(code)
 					;
@@ -3763,7 +3929,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				default: {
-					fy_fault("Unknown OPCode %d", ivalue4);
+					fy_fault(exception, NULL, "Unknown OPCode %d", ivalue4);
+					FY_FALLOUT_NOINVOKE
+					break;
 				}
 				}
 				break;
@@ -3816,9 +3984,13 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	fy_str *str1;
 	fy_uint ivalue, ivalue2;
 	fy_field *field;
-	str1 = fy_strCreateFromUTF8(context, toPrepare->exceptionName);
+	fy_memblock *block = context->memblocks;
+	str1 = fy_strCreateFromUTF8(block, toPrepare->exceptionName, exception);
+	if (exception->exceptionType != exception_none) {
+		return 0;
+	}
 	clazz1 = fy_vmLookupClass(context, str1, exception);
-	fy_strRelease(context, str1);
+	fy_strRelease(block, str1);
 	if (exception->exceptionType != exception_none) {
 		return 0;
 	}
@@ -3844,11 +4016,14 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 				context->sThrowableDetailMessage);
 		return 0;
 	}
-	str1 = fy_strCreateFromUTF8(context, toPrepare->exceptionDesc);
+	str1 = fy_strCreateFromUTF8(block, toPrepare->exceptionDesc, exception);
+	if (exception->exceptionType != exception_none) {
+		return 0;
+	}
 	ivalue2 = fy_heapMakeString(context, str1, exception);
 	if (exception->exceptionType != exception_none) {
 		return 0;
-	}fy_strRelease(context, str1);
+	}fy_strRelease(block, str1);
 	fy_heapPutFieldHandle(context, ivalue, field, ivalue2, exception);
 	if (exception->exceptionType != exception_none) {
 		return 0;

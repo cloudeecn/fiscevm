@@ -20,7 +20,7 @@
 /*****************public*********************/
 fy_ubyte fy_dataRead(fy_data *data) {
 	if (data->size < 1) {
-		fy_fault("Buffer overflow!");
+		fy_fault(NULL, NULL, "Buffer overflow!");
 	}
 	data->size--;
 	return *(data->data++);
@@ -30,7 +30,7 @@ fy_char fy_dataRead2(fy_data *data) {
 	int i;
 	fy_char ret = 0;
 	if (data->size < 2) {
-		fy_fault("Buffer overflow!");
+		fy_fault(NULL, NULL, "Buffer overflow!");
 	}
 	data->size -= 2;
 	for (i = 0; i < 2; i++) {
@@ -43,7 +43,7 @@ fy_uint fy_dataRead4(fy_data *data) {
 	int i;
 	fy_uint ret = 0;
 	if (data->size < 4) {
-		fy_fault("Buffer overflow!");
+		fy_fault(NULL, NULL, "Buffer overflow!");
 	}
 	data->size -= 4;
 	for (i = 0; i < 4; i++) {
@@ -56,7 +56,7 @@ fy_ulong fy_dataRead8(fy_data *data) {
 	int i;
 	fy_ulong ret = 0;
 	if (data->size < 8) {
-		fy_fault("Buffer overflow!");
+		fy_fault(NULL, NULL, "Buffer overflow!");
 	}
 	data->size -= 8;
 	for (i = 0; i < 8; i++) {
@@ -67,7 +67,7 @@ fy_ulong fy_dataRead8(fy_data *data) {
 
 void fy_dataSkip(fy_data *data, int size) {
 	if (data->size < size) {
-		fy_fault("Buffer overflow!");
+		fy_fault(NULL, NULL, "Buffer overflow!");
 	}
 	data->size -= size;
 	data->data += size;

@@ -23,7 +23,7 @@
 #include "../fisceprt.h"
 #include "../fiscestu.h"
 #include "../fiscedev.h"
-#include "Debug.h"
+#include "../fy_util/Debug.h"
 #include "ThreadManager.h"
 
 #define NOP  0x00

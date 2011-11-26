@@ -103,7 +103,7 @@ void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
 	if (time <= 0) {
 		thread->nextWakeTime = 0x7FFFFFFFFFFFFFFFLL;
 	} else {
-		thread->nextWakeTime = fy_portTimeMillSec() + time;
+		thread->nextWakeTime = fy_portTimeMillSec(context->port) + time;
 	}
 	thread->yield = TRUE;
 }
@@ -111,7 +111,6 @@ void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
 void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 		fy_boolean all, fy_exception *exception) {
 	fy_object *monitor;
-	fy_int i;
 	fy_thread * target;
 	fy_linkedListNode *node;
 

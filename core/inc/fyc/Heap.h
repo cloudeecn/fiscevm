@@ -19,8 +19,9 @@
 #define FY_HEAP_H_
 
 #include "../fisceprt.h"
+#include "../fy_util/Debug.h"
 #include "../fiscestu.h"
-#include "Debug.h"
+#include "VMContext.h"
 
 #ifdef	__cplusplus
 extern "C" {

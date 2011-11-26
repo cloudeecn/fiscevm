@@ -20,14 +20,13 @@
 
 #include "../fisceprt.h"
 #include "../fiscestu.h"
-#include "../fy_util/LinkedList.h"
+#include "../fy_util/LnkList.h"
 #include "../fy_util/MemMan.h"
 #include "../fy_util/HashMap.h"
 #include "Class.h"
 #include "ClassLoader.h"
 #include "Heap.h"
 #include "CoreHandlers.h"
-#include "VMPortable.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -38,35 +37,37 @@ void fy_vmContextDestroy(fy_context *context);
 
 void fy_vmBootup(fy_context *context, fy_char* bootStrapClass);
 
-
-void fy_vmRegisterField(fy_context *context, fy_field *field);
+void fy_vmRegisterField(fy_context *context, fy_field *field,
+		fy_exception *exception);
 fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
-		fy_str *name);
+		fy_str *name, fy_exception *exception);
 fy_field *fy_vmLookupFieldStatic(fy_context *context, fy_class *clazz,
-		fy_str *fieldName);
+		fy_str *fieldName, fy_exception *exception);
 fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 		ConstantFieldRef *fieldInfo, fy_exception *exception);
 
 fy_field *fy_vmGetField(fy_context *context, fy_str *uniqueName);
 
-void fy_vmRegisterMethod(fy_context *context, fy_method *method);
+void fy_vmRegisterMethod(fy_context *context, fy_method *method,
+		fy_exception *exception);
 fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
-		fy_str *name);
+		fy_str *name, fy_exception *exception);
 fy_method *fy_vmLookupMethodStatic(fy_context *context, fy_class *clazz,
-		fy_str *methodName);
+		fy_str *methodName, fy_exception *exception);
 fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 		ConstantMethodRef *methodInfo, fy_exception *exception);
 
 fy_method *fy_vmGetMethod(fy_context *context, fy_str *uniqueName);
 
-void fy_vmRegisterClass(fy_context *context, fy_class *clazz);
+void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
+		fy_exception *exception);
 fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
 		fy_exception *exception);
 fy_class *fy_vmLookupClassFromConstant(fy_context *context,
 		ConstantClass *classInfo, fy_exception *exception);
 
 void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
-		void *data, fy_nhFunction handler);
+		void *data, fy_nhFunction handler, fy_exception *exception);
 fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 		fy_exception *exception);
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,

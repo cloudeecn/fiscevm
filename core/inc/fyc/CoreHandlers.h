@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef FY_COREHANDLERS_H_
 #define FY_COREHANDLERS_H_
 
@@ -27,6 +25,6 @@
 #include "Thread.h"
 #include "Heap.h"
 
-void fy_coreRegisterCoreHandlers(fy_context *context);
+void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception);
 
 #endif /* FY_COREHANDLERS_H_ */

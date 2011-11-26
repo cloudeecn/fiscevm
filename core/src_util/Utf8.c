@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/Utf8.h"
+#include "fy_util/Utf8.h"
 
 fy_uint fy_utf8Size(fy_char unicode) {
 	if (unicode > 0x0800) {
@@ -62,7 +62,7 @@ fy_uint fy_utf8SizeS(const char *str, fy_int length) {
 
 fy_char fy_utf8Read(const char **from, fy_int *left) {
 	char x = *((*from)++);
-		char y;
+	char y;
 	char z;
 	(*left)--;
 
@@ -106,27 +106,27 @@ int fy_utf8Write(fy_char unicode, char **to, fy_int *left) {
 			return 0;
 		}
 		(*left) -= 3;
-		*((*to)++) = 0xE0/*0b11100000*/ + (unicode >> 12);
-		*((*to)++) = 0x80/*0b10000000*/ + ((unicode >> 6) & 0x3f/*0b111111*/);
-		*((*to)++) = 0x80/*0b10000000*/ + (unicode & 0x3f/* 0b111111*/);
+		*((*to)++) = 0xE0/*0b11100000*/+ (unicode >> 12);
+		*((*to)++) = 0x80/*0b10000000*/+ ((unicode >> 6) & 0x3f/*0b111111*/);
+		*((*to)++) = 0x80/*0b10000000*/+ (unicode & 0x3f/* 0b111111*/);
 		return 3;
 	case 2:
 		if (*left < 2) {
 			return 0;
 		}
 		(*left) -= 2;
-		*((*to)++) = 0xc0/*0b11000000*/ + (unicode >> 6);
-		*((*to)++) = 0x80/*0b10000000*/ + (unicode & 0x3f/*0b111111*/);
+		*((*to)++) = 0xc0/*0b11000000*/+ (unicode >> 6);
+		*((*to)++) = 0x80/*0b10000000*/+ (unicode & 0x3f/*0b111111*/);
 		return 2;
 	case 1:
 		if (*left < 1) {
 			return 0;
 		}
 		(*left) -= 1;
-		*((*to)++) = (char)unicode;
+		*((*to)++) = (char) unicode;
 		return 1;
 	default:
-		fy_fault("ILLEGAL!");
+		fy_fault(NULL, NULL, "ILLEGAL!");
 		return -1;
 	}
 }

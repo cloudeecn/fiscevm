@@ -32,17 +32,16 @@ static void SystemArrayCopy(struct fy_context *context,
 
 static void SystemTimeMS(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-	fy_nativeReturnLong(context, thread, fy_portTimeMillSec(context));
+	fy_nativeReturnLong(context, thread, fy_portTimeMillSec(context->port));
 }
 
 static void SystemTimeNS(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-	fy_nativeReturnLong(context, thread, fy_portTimeNanoSec(context));
+	fy_nativeReturnLong(context, thread, fy_portTimeNanoSec(context->port));
 }
 
-static void ObjectGetClass(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_exception *exception) {
+static void ObjectGetClass(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
 	fy_nativeReturnHandle(context, thread, clazz->classObjId);
 }
@@ -71,9 +70,8 @@ static void ThreadSetPriority(struct fy_context *context,
 	/*TODO implement thread manager first*/
 }
 
-static void ThreadIsAlive(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_exception *exception) {
+static void ThreadIsAlive(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	/*TODO implement thread manager first*/
 	fy_nativeReturnInt(context, thread, 0);
 }
@@ -86,11 +84,13 @@ static void ThreadStart(struct fy_context *context, struct fy_thread *thread,
 static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_str *str;
+	fy_memblock *block = context->memblocks;
 	fy_vmLookupClass(context, context->sString, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
-	str = fy_strCreate(context);
+	str = fy_strCreate(block, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_heapGetString(context, args[0], str, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
@@ -98,7 +98,7 @@ static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
 	printf("VMDebugOut: ");
 	fy_strPrint(str);
 	printf("\n");
-	fy_strRelease(context, str);
+	fy_strRelease(block, str);
 }
 
 static void VMDebugOutI(struct fy_context *context, struct fy_thread *thread,
@@ -147,6 +147,7 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 	fy_str *str;
 	fy_int handleRet;
 	fy_class *charArray;
+	fy_memblock *block = context->memblocks;
 	charArray = fy_vmLookupClass(context, context->sArrayChar, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_nativeReturnHandle(context, thread, 0);
@@ -158,17 +159,19 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 		return;
 	}
 
-	newArray = fy_allocate(len + 1);
+	newArray = fy_allocate(len + 1, exception);
+	fy_exceptionCheckAndReturn(exception);
 	memcpy(newArray, array + ofs, len);
 	newArray[len] = 0;
-	str = fy_strCreateFromUTF8(context, (char*) newArray);
+	str = fy_strCreateFromUTF8(block, (char*) newArray, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_free(newArray);
 
 	handleRet = fy_heapAllocateArray(context, charArray, maxi = str->length,
 			exception);
 	if (exception->exceptionType != exception_none) {
 		fy_nativeReturnHandle(context, thread, 0);
-		fy_strDestroy(context, str);
+		fy_strDestroy(block, str);
 		fy_free(str);
 		return;
 	}
@@ -176,12 +179,12 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 		fy_heapPutArrayChar(context, handleRet, i, str->content[i], exception);
 		if (exception->exceptionType != exception_none) {
 			fy_nativeReturnHandle(context, thread, 0);
-			fy_strDestroy(context, str);
+			fy_strDestroy(block, str);
 			fy_free(str);
 			return;
 		}
 	}
-	fy_strDestroy(context, str);
+	fy_strDestroy(block, str);
 	fy_free(str);
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
@@ -207,7 +210,8 @@ static void VMEncode(struct fy_context *context, struct fy_thread *thread,
 	}
 	left = len * 3 + 1;
 	olen = 0;
-	out = outTmp = fy_allocate(left);
+	out = outTmp = fy_allocate(left, exception);
+	fy_exceptionCheckAndReturn(exception);
 	for (i = 0; i < len; i++) {
 		ch = fy_heapGetArrayChar(context, handleSrc, i + ofs, exception);
 		if (exception->exceptionType != exception_none) {
@@ -240,23 +244,23 @@ static void VMEncode(struct fy_context *context, struct fy_thread *thread,
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
-static void VMGetDoubleRaw(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_exception *exception) {
+static void VMGetDoubleRaw(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_nativeReturnLong(context, thread,
 			((fy_long) args[0] << 32) | ((fy_uint) args[1]));
 }
 
-static void VMGetFloatRaw(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_exception *exception) {
+static void VMGetFloatRaw(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_nativeReturnInt(context, thread, args[0]);
 }
 
 static void VMStringToDouble(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	fy_str *str = fy_strCreate(context);
+	fy_memblock *block = context->memblocks;
+	fy_str *str = fy_strCreate(block, exception);
+	fy_exceptionCheckAndReturn(exception);
 	char ch[64];
 	fy_double value;
 	str = fy_heapGetString(context, args[0], str, exception);
@@ -268,15 +272,17 @@ static void VMStringToDouble(struct fy_context *context,
 static void VMDoubleToString(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
+	fy_memblock *block = context->memblocks;
 	fy_long lvalue = ((fy_ulong) args[0] << 32) | ((fy_uint) args[1]);
 	fy_double dvalue = fy_longToDouble(lvalue);
 	fy_int handleRet;
 	fy_str *str;
 	char ch[64];
 	sprintf_s(ch, sizeof(ch), "%f", dvalue);
-	str = fy_strCreateFromUTF8(context, ch);
+	str = fy_strCreateFromUTF8(block, ch, exception);
+	fy_exceptionCheckAndReturn(exception);
 	handleRet = fy_heapMakeString(context, str, exception);
-	fy_strRelease(context, str);
+	fy_strRelease(block, str);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
@@ -286,7 +292,9 @@ static void VMDoubleToString(struct fy_context *context,
 static void VMStringToFloat(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	fy_str *str = fy_strCreate(context);
+	fy_memblock *block = context->memblocks;
+	fy_str *str = fy_strCreate(block, exception);
+	fy_exceptionCheckAndReturn(exception);
 	char ch[64];
 	fy_double value;
 	str = fy_heapGetString(context, args[0], str, exception);
@@ -298,15 +306,17 @@ static void VMStringToFloat(struct fy_context *context,
 static void VMFloatToString(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
+	fy_memblock *block = context->memblocks;
 	fy_int value = args[0];
 	fy_float fvalue = fy_intToFloat(value);
 	fy_int handleRet;
 	fy_str *str;
 	char ch[64];
 	sprintf_s(ch, sizeof(ch), "%f", fvalue);
-	str = fy_strCreateFromUTF8(context, ch);
+	str = fy_strCreateFromUTF8(block, ch, exception);
+	fy_exceptionCheckAndReturn(exception);
 	handleRet = fy_heapMakeString(context, str, exception);
-	fy_strRelease(context, str);
+	fy_strRelease(block, str);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
@@ -334,90 +344,120 @@ static void classGetName(struct fy_context *context, struct fy_thread *thread,
 	fy_nativeReturnHandle(context, thread, handle);
 }
 
-void fy_coreRegisterCoreHandlers(fy_context *context) {
+void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(
 			context,
 			"java/lang/System.arraycopy.(L"FY_BASE_OBJECT";IL"FY_BASE_OBJECT";II)V",
-			NULL, SystemArrayCopy);
+			NULL, SystemArrayCopy, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			"java/lang/System.currentTimeMillis.()J", NULL, SystemTimeMS);
+			"java/lang/System.currentTimeMillis.()J", NULL, SystemTimeMS,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context, "java/lang/System.nanoTime.()J", NULL,
-			SystemTimeNS);
+			SystemTimeNS, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			""FY_BASE_OBJECT".getClass.()L"FY_BASE_CLASS";", NULL,
-			ObjectGetClass);
+			ObjectGetClass, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			""FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
-			ClassGetComponentType);
+			ClassGetComponentType, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			""FY_BASE_THREAD".currentThread.()L"FY_BASE_THREAD";", NULL,
-			ThreadCurrentThread);
+			ThreadCurrentThread, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".setPriority0.(I)V",
-			NULL, ThreadSetPriority);
+			NULL, ThreadSetPriority, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".isAlive.()Z", NULL,
-			ThreadIsAlive);
+			ThreadIsAlive, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".start0.()V", NULL,
-			ThreadStart);
+			ThreadStart, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(L"FY_BASE_STRING";)V",
-			NULL, VMDebugOut);
+			NULL, VMDebugOut, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(I)V", NULL,
-			VMDebugOutI);
+			VMDebugOutI, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(J)V", NULL,
-			VMDebugOutJ);
+			VMDebugOutJ, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(F)V", NULL,
-			VMDebugOutF);
+			VMDebugOutF, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(D)V", NULL,
-			VMDebugOutD);
+			VMDebugOutD, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.throwOut.(L"FY_BASE_THROWABLE";L"FY_BASE_STRING";)V",
-			NULL, VMThrowOut);
+			NULL, VMThrowOut, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.exit.(I)V", NULL, VMExit);
+			"com/cirnoworks/fisce/privat/FiScEVM.exit.(I)V", NULL, VMExit,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.decode.(L"FY_BASE_STRING";[BII)[C",
-			NULL, VMDecode);
+			NULL, VMDecode, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.encode.(L"FY_BASE_STRING";[CII)[B",
-			NULL, VMEncode);
+			NULL, VMEncode, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.getDoubleRaw.(D)J", NULL,
-			VMGetDoubleRaw);
+			VMGetDoubleRaw, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.getFloatRaw.(F)I", NULL,
-			VMGetFloatRaw);
+			VMGetFloatRaw, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.stringToDouble.(L"FY_BASE_STRING";)D",
-			NULL, VMStringToDouble);
+			NULL, VMStringToDouble, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.doubleToString.(D)L"FY_BASE_STRING";",
-			NULL, VMDoubleToString);
+			NULL, VMDoubleToString, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.stringToFloat.(L"FY_BASE_STRING";)F",
-			NULL, VMStringToFloat);
+			NULL, VMStringToFloat, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.floatToString.(F)L"FY_BASE_STRING";",
-			NULL, VMFloatToString);
+			NULL, VMFloatToString, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V",
-			NULL, SOSWrite);
+			NULL, SOSWrite, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_THROWABLE".fillInStackTrace0.()V", NULL,
-			throwableFillInStackTrace);
+			throwableFillInStackTrace, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".getName0.()L"FY_BASE_STRING";", NULL, classGetName);
+			FY_BASE_CLASS".getName0.()L"FY_BASE_STRING";", NULL, classGetName,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
 
 }

@@ -19,7 +19,6 @@
 #define FY_THREADMANAGER_H_
 
 #include "VMContext.h"
-#include "VMPortable.h"
 
 #endif /* FY_THREADMANAGER_H_ */
 

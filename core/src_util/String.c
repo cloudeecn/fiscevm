@@ -17,42 +17,42 @@
 
 #include "fy_util/String.h"
 
-fy_str *fy_strInit(fy_context *context, fy_str *_this, fy_int size) {
-	if (_this->content != NULL) {
-		fy_fault("duplicated initJavaString");
+_FY_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
+		fy_exception *exception) {
+	if (str->content != NULL) {
+		fy_fault(exception, NULL, "duplicated initJavaString");
+		return NULL;
 	}
-	_this->length = 0;
-	_this->maxLength = size;
-	_this->content = fy_vmAllocate(context, size << 1);
-	_this->hashed = FALSE;
-	return _this;
+	str->length = 0;
+	str->maxLength = size;
+	str->content = fy_mmAllocate(block, size << 1, exception);
+	str->hashed = FALSE;
+	return str;
 }
 
-fy_str *fy_strNew(fy_context *context, const char *utf8) {
-	fy_str *ret = fy_vmAllocate(context, sizeof(fy_str));
-	fy_strInit(context, ret, fy_utf8SizeS(utf8, -1));
-	fy_strAppendUTF8(context, ret, utf8, -1);
-	return ret;
-}
-
-void fy_strDestroy(fy_context *context, fy_str *string) {
-	fy_vmFree(context, string->content);
+_FY_EXPORT void fy_strDestroy(fy_memblock *block, fy_str *string) {
+	fy_mmFree(block, string->content);
 	string->length = 0;
 	string->maxLength = 0;
 
 }
 
-fy_str *fy_strCreateFromUTF8(fy_context *context, const char *utf8) {
+_FY_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block, const char *utf8,
+		fy_exception *exception) {
 	fy_str *ret;
 	size_t size;
 	size = fy_utf8SizeS(utf8, -1);
-	ret = fy_vmAllocate(context, sizeof(fy_str));
-	fy_strInit(context, ret, size);
-	fy_strAppendUTF8(context, ret, utf8, -1);
+	ret = fy_mmAllocate(block, sizeof(fy_str), exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	fy_strInit(block, ret, size, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	fy_strAppendUTF8(block, ret, utf8, -1, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
 	return ret;
 }
 
-static fy_str *fy_strEnsureSize(fy_context *context, fy_str *_this, fy_int size) {
+static fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this, fy_int size,
+		fy_exception *exception) {
 	int len;
 	fy_char *newContent;
 	if (_this->maxLength < size) {
@@ -61,38 +61,44 @@ static fy_str *fy_strEnsureSize(fy_context *context, fy_str *_this, fy_int size)
 		while (len < size) {
 			len <<= 1;
 		}
-		newContent = fy_vmAllocate(context, len * sizeof(fy_char));
+		newContent = fy_mmAllocate(block, len * sizeof(fy_char), exception);
+		fy_exceptionCheckAndReturn(exception)NULL;
 		memcpy(newContent, _this->content, _this->length << 1);
-		fy_vmFree(context, _this->content);
+		fy_mmFree(block, _this->content);
 		_this->content = newContent;
 		_this->maxLength = len;
 	}
 	return _this;
 }
 
-static fy_str *fy_strAppendPriv(fy_context *context, fy_str *_this,
-		fy_char *from, fy_int length) {
+static fy_str *fy_strAppendPriv(fy_memblock *block, fy_str *_this,
+		fy_char *from, fy_int length, fy_exception *exception) {
 
 	if (_this == NULL || from == NULL) {
-		fy_fault("NPT");
+		fy_fault(exception, NULL, "NPT");
+		return NULL;
 	}
-	fy_strEnsureSize(context, _this, _this->length + length);
+	fy_strEnsureSize(block, _this, _this->length + length, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
 	memcpy(_this->content + _this->length, from, length << 1);
 	_this->length += length;
 	_this->hashed = FALSE;
 	return _this;
 }
 
-fy_str *fy_strAppendChar(fy_context *context, fy_str *_this, fy_char ch) {
-	return fy_strAppendPriv(context, _this, &ch, 1);
+_FY_EXPORT fy_str *fy_strAppendChar(fy_memblock *block, fy_str *_this,
+		fy_char ch, fy_exception *exception) {
+	return fy_strAppendPriv(block, _this, &ch, 1, exception);
 }
 
-fy_str *fy_strAppend(fy_context *context, fy_str *_this, const fy_str *string) {
-	return fy_strAppendPriv(context, _this, string->content, string->length);
+_FY_EXPORT fy_str *fy_strAppend(fy_memblock *block, fy_str *_this,
+		const fy_str *string, fy_exception *exception) {
+	return fy_strAppendPriv(block, _this, string->content, string->length,
+			exception);
 }
 
-fy_str *fy_strAppendUTF8(fy_context *context, fy_str *_this, const char *utf8,
-		fy_int size) {
+_FY_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *block, fy_str *_this,
+		const char *utf8, fy_int size, fy_exception *exception) {
 	const char *inbuf = utf8;
 	fy_char outbuf;
 	fy_int sl = strlen(utf8);
@@ -101,20 +107,21 @@ fy_str *fy_strAppendUTF8(fy_context *context, fy_str *_this, const char *utf8,
 	}
 	while (size > 0) {
 		outbuf = fy_utf8Read(&inbuf, &size);
-		fy_strAppendPriv(context, _this, &outbuf, 1);
+		fy_strAppendPriv(block, _this, &outbuf, 1, exception);
+		fy_exceptionCheckAndReturn(exception)NULL;
 	}
 	return _this;
 }
 
-fy_str *fy_strSubstring(fy_context *context, fy_str *_this, fy_int begin,
-		fy_int end) {
+_FY_EXPORT fy_str *fy_strSubstring(fy_memblock *block, fy_str *_this,
+		fy_int begin, fy_int end) {
 	int size = end - begin;
 	int i;
 	if (_this == NULL) {
-		fy_fault("Null pointer exception.");
+		fy_fault(NULL, NULL, "Null pointer exception.");
 	}
 	if (begin < 0 || end < 0 || end >= _this->length || begin > end) {
-		fy_fault("Index out of bound exception");
+		fy_fault(NULL, NULL, "Index out of bound exception");
 	}
 	_this->length = size;
 	for (i = 0; i < size; i++) {
@@ -124,7 +131,7 @@ fy_str *fy_strSubstring(fy_context *context, fy_str *_this, fy_int begin,
 	return _this;
 }
 
-fy_uint fy_strUtf8Count(fy_str *str) {
+_FY_EXPORT fy_uint fy_strUtf8Count(fy_str *str) {
 	fy_uint size = 0;
 	int i, count;
 	count = str->length;
@@ -134,7 +141,7 @@ fy_uint fy_strUtf8Count(fy_str *str) {
 	return size;
 }
 
-int fy_strCmp(fy_str *left, fy_str *right) {
+_FY_EXPORT int fy_strCmp(fy_str *left, fy_str *right) {
 	int resultWhenEqual =
 			left->length == right->length ?
 					0 : (left->length > right->length ? 1 : -1);
@@ -152,7 +159,7 @@ int fy_strCmp(fy_str *left, fy_str *right) {
 	return resultWhenEqual;
 }
 
-fy_boolean fy_strEndsWith(fy_str *_this, fy_str *right) {
+_FY_EXPORT fy_boolean fy_strEndsWith(fy_str *_this, fy_str *right) {
 	int delta;
 	int i;
 	if (_this->length < right->length) {
@@ -171,7 +178,7 @@ void fy_strClear(fy_str *_this) {
 	_this->length = 0;
 }
 
-fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to) {
+_FY_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to) {
 	int i;
 	for (i = str->length - 1; i >= 0; i--) {
 		if (str->content[i] == from) {
@@ -182,7 +189,7 @@ fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to) {
 	return str;
 }
 
-char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) {
+_FY_EXPORT char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) {
 	int i, count;
 	fy_char unicode;
 	char *tmp;
@@ -204,10 +211,14 @@ char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) {
 	return target;
 }
 
-fy_str *fy_strCreateClone(fy_context *context, fy_str *from) {
-	fy_str *_this = fy_vmAllocate(context, sizeof(fy_str));
-	fy_strInit(context, _this, from->length);
-	fy_strAppend(context, _this, from);
+_FY_EXPORT fy_str *fy_strCreateClone(fy_memblock *block, fy_str *from,
+		fy_exception *exception) {
+	fy_str *_this = fy_mmAllocate(block, sizeof(fy_str), exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	fy_strInit(block, _this, from->length, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	fy_strAppend(block, _this, from, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
 	_this->hashed = TRUE;
 	_this->hashCode = from->hashCode;
 	return _this;
@@ -222,7 +233,7 @@ static fy_uint hash(fy_str *key) {
 	return ret;
 }
 
-fy_uint fy_strHash(fy_str *str) {
+_FY_EXPORT fy_uint fy_strHash(fy_str *str) {
 	if (str->hashed) {
 		return str->hashCode;
 	} else {

@@ -24,7 +24,7 @@ typedef struct fy_hashMapEntry {
 } fy_hashMapEntry;
 
 static void expandBuckets(fy_memblock *mem, fy_hashMap *this,
-		fy_uint targetSize) {
+		fy_uint targetSize, fy_exception *exception) {
 	int i, imax;
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
@@ -33,7 +33,9 @@ static void expandBuckets(fy_memblock *mem, fy_hashMap *this,
 	if (targetSize <= this->bucketsCount) {
 		return;
 	} else {
-		newEntries = fy_mmAllocate(mem, sizeof(fy_hashMapEntry*) * targetSize);
+		newEntries = fy_mmAllocate(mem, sizeof(fy_hashMapEntry*) * targetSize,
+				exception);
+		fy_exceptionCheckAndReturn(exception);
 		for (i = 0, imax = this->bucketsCount; i < imax; i++) {
 			if ((entry = this->buckets[i]) != NULL) {
 
@@ -57,7 +59,7 @@ static void expandBuckets(fy_memblock *mem, fy_hashMap *this,
 			}
 		}
 		fy_mmFree(mem, this->buckets);
-		this->buckets = newEntries;
+		this->buckets = (void**) newEntries;
 		this->bucketsCount = targetSize;
 	}
 
@@ -81,17 +83,19 @@ static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 }
 
 void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initSize,
-		fy_uint loadFactor) {
+		fy_uint loadFactor, fy_exception *exception) {
 	this->loadFactor = loadFactor;
 	this->bucketsCount = initSize;
-	this->buckets = fy_mmAllocate(mem, sizeof(fy_hashMapEntry*) * initSize);
+	this->buckets = fy_mmAllocate(mem, sizeof(fy_hashMapEntry*) * initSize,
+			exception);
 	this->size = 0;
 }
-void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this) {
-	fy_hashMapInit(mem, this, 16, 12);
+void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this,
+		fy_exception *exception) {
+	fy_hashMapInit(mem, this, 16, 12, exception);
 }
 void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
-		void *value) {
+		void *value, fy_exception *exception) {
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
 	fy_str *keyClone;
@@ -99,14 +103,17 @@ void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
 	void *ret = NULL;
 	entry = getBucket(mem, this, key);
 	if (entry == NULL) {
-		entry = fy_vmAllocate(mem, sizeof(fy_hashMapEntry));
-		keyClone = fy_strCreateClone(mem, key);
+		entry = fy_mmAllocate(mem, sizeof(fy_hashMapEntry), exception);
+		fy_exceptionCheckAndReturn(exception)NULL;
+		keyClone = fy_strCreateClone(mem, key, exception);
+		fy_exceptionCheckAndReturn(exception)NULL;
 		entry->key = keyClone;
 		entry->keyHash = fy_strHash(keyClone);
 		entry->value = value;
 
 		if ((this->size + 1) * 16 > this->bucketsCount * this->loadFactor) {
-			expandBuckets(mem, this, this->bucketsCount << 1);
+			expandBuckets(mem, this, this->bucketsCount << 1, exception);
+			fy_exceptionCheckAndReturn(exception)NULL;
 		}
 
 		pos = entry->keyHash % this->bucketsCount;
@@ -131,18 +138,22 @@ void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
 }
 
 void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const char *keyUtf8,
-		void *value) {
+		void *value, fy_exception *exception) {
 	fy_str *key;
 	void *ret;
 
-	key = fy_allocate(sizeof(fy_str));
-	fy_strInit(mem, key, fy_utf8SizeS(keyUtf8, -1));
-	fy_strAppendUTF8(mem, key, keyUtf8, -1);
+	key = fy_mmAllocate(mem, sizeof(fy_str), exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	fy_strInit(mem, key, fy_utf8SizeS(keyUtf8, -1), exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	fy_strAppendUTF8(mem, key, keyUtf8, -1, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
 
-	ret = fy_hashMapPut(mem, this, key, value);
+	ret = fy_hashMapPut(mem, this, key, value, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
 
 	fy_strDestroy(mem, key);
-	fy_free(key);
+	fy_mmFree(mem, key);
 	return ret;
 }
 

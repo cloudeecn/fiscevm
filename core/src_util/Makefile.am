@@ -2,7 +2,7 @@ lib_LIBRARIES=libfyutl.a
 libfyutl_a_SOURCES = \
 	Debug.c \
 	HashMap.c \
-	LinkedList.c \
+	LnkList.c \
 	MemMan.c \
 	Portable.c \
 	String.c \

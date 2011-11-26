@@ -5,7 +5,7 @@
  *      Author: cloudee
  */
 #include "fisceprt.h"
-#include "fy_util/LinkedList.h"
+#include "fy_util/LnkList.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
 #include "fy_util/HashMap.h"
@@ -62,6 +62,10 @@
 #define FY_ACC_SYNCHRONIZED 32
 #define FY_ACC_TRANSIENT 128
 #define FY_ACC_VOLATILE 64
+
+#define FY_SIZE_SHIFT_BYTE 0 /*1 bytes*/
+#define FY_SIZE_SHIFT_INT 2 /*4 bytes*/
+#define FY_SIZE_SHIFT_LONG 3 /*8 bytes*/
 
 #ifdef	__cplusplus
 extern "C" {
@@ -400,7 +404,8 @@ typedef struct fy_context {
 	struct fy_str *primitives[128];
 	struct fy_hashMap *mapPrimitivesRev;
 
-	fy_memblock *memblocks;
+	fy_memblock memblocks[1];
+	fy_port port[1];
 
 	int classesCount;
 	struct fy_class *classes[MAX_CLASSES];

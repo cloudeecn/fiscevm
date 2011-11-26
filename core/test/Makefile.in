@@ -46,7 +46,7 @@ CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_fiscetest_OBJECTS = Test.$(OBJEXT)
 fiscetest_OBJECTS = $(am_fiscetest_OBJECTS)
-fiscetest_DEPENDENCIES = ../src/libfisce.a
+fiscetest_DEPENDENCIES = ../src/libfisce.a ../src_util/libfyutl.a
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -150,7 +150,7 @@ top_srcdir = @top_srcdir@
 fiscetest_SOURCES = \
 	Test.c
 
-fiscetest_LDADD = ../src/libfisce.a -lcunit
+fiscetest_LDADD = ../src/libfisce.a ../src_util/libfyutl.a -lcunit
 all: all-am
 
 .SUFFIXES:

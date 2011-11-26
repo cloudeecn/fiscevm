@@ -5,6 +5,13 @@
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#include <sys/time.h>
+#include <errno.h>
+#endif
+#include <time.h>
 #include<memory.h>
 #include<stdlib.h>
 #include<stdio.h>
@@ -49,7 +56,18 @@ typedef struct fy_exception {
 	char exceptionName[64];
 	char exceptionDesc[64];
 } fy_exception;
-#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)->exceptionType!=exception_none) return
+#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)!=NULL&&(EXCEPTION)->exceptionType!=exception_none) return
+
+typedef struct fy_port {
+	fy_long initTimeInMillSec;
+#if defined(_WIN32)
+	LARGE_INTEGER lpFreq;
+	LARGE_INTEGER lpPerfCountBegin;
+	double perfIdv;
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+struct timeval tvBeginTime;
+#endif
+} fy_port;
 #ifdef _MSC_VER
 #else
 # define strcpy_s(T,TS,S) strncpy(T,S,TS)
@@ -119,10 +137,16 @@ _FY_EXPORT fy_float fy_intToFloat(fy_int value);
 _FY_EXPORT fy_boolean fy_isnand(fy_double d);
 _FY_EXPORT fy_boolean fy_isnanf(fy_float f);
 
-_FY_EXPORT void *fy_allocate(fy_uint size);
+_FY_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception);
 _FY_EXPORT void fy_free(void *target);
-_FY_EXPORT void fy_fault(char *msg, ...);
+_FY_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
+		const char *msg, ...);
 _FY_EXPORT long int fy_getAllocated();
+
+_FY_EXPORT void fy_portInit(fy_port *pd);
+_FY_EXPORT void fy_portDestroy(fy_port *pd);
+_FY_EXPORT fy_long fy_portTimeMillSec(fy_port *pd);
+_FY_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd);
 
 #ifdef	__cplusplus
 }

@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fy_util/LinkedList.h"
+#include "fy_util/LnkList.h"
 
 /*************private*****************/
 /*
@@ -41,12 +41,13 @@ void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
 	list->count = 0;
 }
 
-static void fy_linkedListReleaser(fy_memblock *block, fy_linkedListNode *node,fy_exception) {
+static void fy_linkedListReleaser(fy_memblock *block, fy_linkedListNode *node,
+		fy_exception *exception) {
 	fy_mmFree(block, node);
 }
 
 void fy_linkedListDestroy(fy_memblock *block, fy_linkedList *list) {
-	fy_linkedListTraverse(list, fy_linkedListReleaser);
+	fy_linkedListTraverse(block, list, fy_linkedListReleaser, NULL);
 	fy_mmFree(block, list->head);
 }
 
@@ -78,11 +79,12 @@ void* fy_linkedListRemoveNode(fy_memblock *block, fy_linkedList* list,
 }
 
 fy_linkedListNode* fy_linkedListAppend(fy_memblock *block, fy_linkedList* list,
-		void* content,fy_exception *exception) {
+		void* content, fy_exception *exception) {
 	struct fy_linkedListNode* node = fy_mmAllocate(block,
-			sizeof(struct fy_linkedListNode),exception);
+			sizeof(struct fy_linkedListNode), exception);
 	if (node == NULL) {
-		fy_fault("OUT OF MEMORY!!");
+		fy_fault(exception, NULL, "OUT OF MEMORY!!");
+		return NULL;
 	}
 
 	list->last->next = node;
@@ -114,7 +116,8 @@ void fy_linkedListTraverse(
 	}
 #ifdef _DEBUG
 	if (i != list->count) {
-		fy_fault("err: %d %d", i, list->count);
+		fy_fault(exception, NULL, "err: %d %d", i, list->count);
+		return;
 	}
 #endif
 }

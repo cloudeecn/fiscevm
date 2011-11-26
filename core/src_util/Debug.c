@@ -15,9 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/Debug.h"
+#include "fy_util/Debug.h"
 
-void fy_strPrint(fy_str *str) {
+_FY_EXPORT void fy_strPrint(fy_str *str) {
 	int i, count;
 	fy_char unicode;
 	char buf[4];
@@ -34,10 +34,10 @@ void fy_strPrint(fy_str *str) {
 	}
 }
 
-void varprintf(const char *format,...) {
+_FY_EXPORT void fy_varprintf(const char *format, ...) {
 	va_list arg_ptr;
 	va_start(arg_ptr, format);
-	vfprintf(stdout,format,arg_ptr);
+	vfprintf(stdout, format, arg_ptr);
 	va_end(arg_ptr);
 	printf("\n");
 	/*printf("%s:%d: %s\n",__FILE__ ,__LINE__,buf);*/

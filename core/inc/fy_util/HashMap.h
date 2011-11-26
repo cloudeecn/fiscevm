@@ -26,8 +26,6 @@
 extern "C" {
 #endif
 
-
-
 typedef struct fy_hashMap {
 	fy_char loadFactor;
 	fy_uint bucketsCount;
@@ -36,16 +34,14 @@ typedef struct fy_hashMap {
 } fy_hashMap;
 
 void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initSize,
-		fy_uint loadFactor);
-void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this);
+		fy_uint loadFactor, fy_exception *exception);
+void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this,
+		fy_exception *exception);
 void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
-		void *value);
-int fy_hashMapPutInt(fy_memblock *mem, fy_hashMap *this, fy_str *key,
-		int value);
-void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
-		const char *keyUtf8, void *value);
+		void *value, fy_exception *exception);
+void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const char *keyUtf8,
+		void *value, fy_exception *exception);
 void *fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key);
-int fy_hashMapGetInt(fy_memblock *mem, fy_hashMap *this, fy_str *key);
 void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this);
 #ifdef	__cplusplus
 }

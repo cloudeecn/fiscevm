@@ -7,17 +7,17 @@
 
 #include <stdio.h>
 #include <time.h>
-#include "fiscestu.h"
 #include "fisceprt.h"
 #include "fy_util/HashMap.h"
-#include "fy_util/LinkedList.h"
+#include "fy_util/LnkList.h"
 #include "fy_util/String.h"
 #include "fy_util/Utf8.h"
+#include "fy_util/Debug.h"
+#include "fiscestu.h"
 #include "fyc/VMContext.h"
 #include "fyc/Class.h"
 #include "fyc/Data.h"
 #include "fyc/ClassLoader.h"
-#include "fyc/Debug.h"
 #include "fyc/Thread.h"
 #include <assert.h>
 #include <time.h>
@@ -29,16 +29,26 @@
 #include "CUnit/Automated.h"
 
 static fy_context *context;
+static fy_memblock *block;
+static fy_exception *exception;
+
+#define TEST_EXCEPTION(EXCEPTION) if((EXCEPTION)->exceptionType!=exception_none) { \
+	printf("Exception %s: %s occored!",(EXCEPTION)->exceptionName,(EXCEPTION)->exceptionDesc); \
+	CU_FAIL("Exception occored!"); \
+	return; \
+}
 
 int test_init(void) {
-	fy_exception exception;
-	exception.exceptionType = exception_none;
-	context = fy_allocate(sizeof(fy_context));
-	fy_vmContextInit(context, &exception);
-	if (exception.exceptionType != exception_none) {
-		fy_fault("Exception in initialize: %s  || %s", exception.exceptionName,
-				exception.exceptionDesc);
+	exception = fy_allocate(sizeof(fy_exception), NULL);
+	context = fy_allocate(sizeof(fy_context), NULL);
+	fy_vmContextInit(context, exception);
+	if ((exception)->exceptionType != exception_none) {
+		printf("Exception %s: %s occored!", (exception)->exceptionName,
+				(exception)->exceptionDesc);
+		CU_FAIL("Exception occored!");
+		return 1;
 	}
+	block = context->memblocks;
 	return 0;
 }
 
@@ -46,6 +56,7 @@ int test_clean(void) {
 	printf("Release resources\n");
 	fy_vmContextDestroy(context);
 	fy_free(context);
+	fy_free(exception);
 	printf("ALL TEST DONE!!!MemLeak=%ld\n", fy_getAllocated());
 	return 0;
 }
@@ -87,80 +98,32 @@ void testPortable() {
 	CU_ASSERT_EQUAL(fy_B4TOI(0x12,0x34,0x56,0x78), 0x12345678);
 }
 
-static void *g_address;
-
-static void assertNoNode(fy_linkedListNode *node) {
-	CU_ASSERT_NOT_EQUAL(node->info, g_address);
-}
-
-void testMemManage() {
-	int i;
-	void *address[17];
-
-	for (i = 0; i < 17; i++) {
-		address[i] = fy_vmAllocate(context, 4096);
-		/*printf("%p\n", address[i]);*/
-	}
-
-	fy_vmFree(context, address[6]);
-	fy_vmFree(context, address[15]);
-	g_address = address[6] - sizeof(fy_linkedListNode*);
-	fy_linkedListTraverse(context->managedMemory, assertNoNode);
-	g_address = address[15] - sizeof(fy_linkedListNode*);
-	fy_linkedListTraverse(context->managedMemory, assertNoNode);
-}
-
-void testString() {
-	int i;
-	const char *cc = "ABC中文DEF\n";
-	const char *cc1 = "ABC中文DEF";
-	const char *cc2 = "ABC中文DEG";
-	printf("%s\n%d", cc, (int) strlen(cc));
-	fy_str *js = fy_vmAllocate(context, sizeof(fy_str));
-	fy_str *js1 = fy_vmAllocate(context, sizeof(fy_str));
-	fy_str *js2 = fy_vmAllocate(context, sizeof(fy_str));
-	fy_strInit(context, js, 1);
-	fy_strInit(context, js1, 1);
-	fy_strInit(context, js2, 1);
-	fy_strAppendUTF8(context, js, cc, 999);
-	fy_strAppendUTF8(context, js1, cc1, 999);
-	fy_strAppendUTF8(context, js2, cc2, 999);
-	for (i = 0; i < js->length; i++) {
-		printf("%d ", (fy_uint) js->content[i]);
-	}
-	printf("\n");
-	fy_strPrint(js);
-	CU_ASSERT(fy_strCmp(js,js)==0);
-	CU_ASSERT(fy_strCmp(js1,js)<0);
-	CU_ASSERT(fy_strCmp(js,js1)>0);
-	CU_ASSERT(fy_strCmp(js2,js)>0);
-	CU_ASSERT(fy_strCmp(js,js2)<0);
-	//	fy_strDestroy(context, js);
-	//	fy_vmFree(context,js);
-}
-
 void testClassLoader() {
-	fy_str *str = fy_vmAllocate(context, sizeof(fy_str));
-	fy_strInit(context, str, 128);
-	fy_strAppendUTF8(context, str, ""FY_BASE_STRING"", -1);
+
+	fy_str *str;
+	exception->exceptionType = exception_none;
+
+	str = fy_mmAllocate(block, sizeof(fy_str), exception);
+	TEST_EXCEPTION(exception);
+
+	fy_strInit(block, str, 128, exception);
+	TEST_EXCEPTION(exception);
+
+	fy_strAppendUTF8(block, str, ""FY_BASE_STRING"", -1, exception);
+	TEST_EXCEPTION(exception);
+
 	/*fy_class *classString = fy_clLoadclass(context, str);*/
-	fy_strDestroy(context, str);
-	fy_vmFree(context, str);
+	fy_strDestroy(block, str);
+	fy_mmFree(block, str);
 	printf("Test class loader finished.\n");
 }
 static fy_class *lookup(const char *name) {
-	fy_str *sName = fy_strCreateFromUTF8(context, name);
-	fy_exception exception;
+	fy_str *sName = fy_strCreateFromUTF8(block, name, exception);
+
 	fy_class *clazz;
-	exception.exceptionType = exception_none;
-	exception.exceptionName[0] = 0;
-	exception.exceptionDesc[0] = 0;
-	clazz = fy_vmLookupClass(context, sName, &exception);
-	fy_strRelease(context, sName);
-	if (exception.exceptionType != exception_none) {
-		fy_fault("Exception %s caught: %s", exception.exceptionName,
-				exception.exceptionDesc);
-	}
+	clazz = fy_vmLookupClass(context, sName, exception);
+
+	fy_strRelease(block, sName);
 	return clazz;
 }
 void testClassLoaderFull() {
@@ -172,17 +135,15 @@ void testClassLoaderFull() {
 	fy_class *clazz;
 	fy_class *clStr;
 	fy_class *clObj;
-	fy_exception exception;
-	exception.exceptionType = exception_none;
+	exception->exceptionType = exception_none;
 	while ((nm = names[i++]) != NULL) {
 		DLOG("###Full loading class %s\n", nm);
-		snm = fy_strCreateFromUTF8(context, nm);
-		clazz = fy_vmLookupClass(context, snm, &exception);
-		if (exception.exceptionType != exception_none) {
-			fy_fault("Exception in initialize: %s  || %s",
-					exception.exceptionName, exception.exceptionDesc);
-		}CU_ASSERT_NOT_EQUAL(clazz, NULL);
-		fy_strRelease(context, snm);
+		snm = fy_strCreateFromUTF8(block, nm, exception);
+		TEST_EXCEPTION(exception);
+		clazz = fy_vmLookupClass(context, snm, exception);
+		TEST_EXCEPTION(exception);
+		CU_ASSERT_NOT_EQUAL(clazz, NULL);
+		fy_strRelease(block, snm);
 	}
 	clStr = lookup(""FY_BASE_STRING"");
 	clObj = lookup(""FY_BASE_OBJECT"");
@@ -199,7 +160,9 @@ void testClassMethod() {
 	fy_method *method;
 	fy_str *sComplex;
 	int i;
-	sComplex = fy_strCreateFromUTF8(context, "complex");
+	exception->exceptionType = exception_none;
+	sComplex = fy_strCreateFromUTF8(block, "complex", exception);
+	TEST_EXCEPTION(exception);
 	lookup("com/cirnoworks/fisce/privat/StringUtils");
 
 	it = lookup("EXCLUDE/fisce/test/ITester");
@@ -237,36 +200,41 @@ void testHeap() {
 	fy_str *str;
 	fy_str *compare;
 	fy_int sHandle;
-	fy_exception exception;
-	exception.exceptionType = exception_none;
-	str = fy_strCreateFromUTF8(context, "咩哈哈哈ABCabc,|/");
-	compare = fy_strCreate(context);
+	exception->exceptionType = exception_none;
+	str = fy_strCreateFromUTF8(block, "咩哈哈哈ABCabc,|/", exception);
+	TEST_EXCEPTION(exception);
+	compare = fy_strCreate(block, exception);
+	TEST_EXCEPTION(exception);
 
-	sHandle = fy_heapLiteral(context, str, &exception);
+	sHandle = fy_heapLiteral(context, str, exception);
+	TEST_EXCEPTION(exception);
 	ASSERT(sHandle != 0);
-	ASSERT(exception.exceptionType == exception_none);
-	fy_heapGetString(context, sHandle, compare, &exception);
-	ASSERT(exception.exceptionType == exception_none);
+	fy_heapGetString(context, sHandle, compare, exception);
+	TEST_EXCEPTION(exception);
 	CU_ASSERT( fy_strCmp(str,compare)==0);
-	CU_ASSERT(sHandle == fy_heapLiteral(context, compare, &exception));
-	fy_strRelease(context, str);
-	fy_strRelease(context, compare);
+	CU_ASSERT(sHandle == fy_heapLiteral(context, compare, NULL));
+	fy_strRelease(block, str);
+	fy_strRelease(block, compare);
 }
 
 void testThread() {
 	fy_str *name;
 	fy_thread *thread;
 	fy_method *method;
-	fy_exception exception;
-	fy_class *clazz = lookup("EXCLUDE/fisce/test/Tester");
-	fy_class *clazzThread = lookup(FY_BASE_THREAD);
-	fy_field *fieldThreadPriority = fy_vmLookupFieldStatic(context, clazzThread,
-			fy_strCreateFromUTF8(context, ".priority.I"));
+	fy_class *clazz;
+	fy_class *clazzThread;
+	fy_field *fieldThreadPriority;
 	fy_int threadHandle;
 	fy_message message;
 	int i, count;
 
-	exception.exceptionType = exception_none;
+	exception->exceptionType = exception_none;
+	clazz = lookup("EXCLUDE/fisce/test/Tester");
+	clazzThread = lookup(FY_BASE_THREAD);
+	fieldThreadPriority = fy_vmLookupFieldStatic(context, clazzThread,
+			fy_strCreateFromUTF8(block, ".priority.I", exception), exception);
+	TEST_EXCEPTION(exception);
+
 	ASSERT(clazz != NULL);
 	ASSERT(clazzThread != NULL);
 	ASSERT(fieldThreadPriority != NULL);
@@ -279,22 +247,24 @@ void testThread() {
 	}
 #endif
 	method = NULL;
-	name = fy_strCreateFromUTF8(context,
-			"EXCLUDE/fisce/test/Tester.main.([L"FY_BASE_STRING";)V");
+	name = fy_strCreateFromUTF8(block,
+			"EXCLUDE/fisce/test/Tester.main.([L"FY_BASE_STRING";)V", exception);
+	TEST_EXCEPTION(exception);
 
-	thread = fy_vmAllocate(context, sizeof(fy_thread));
+	thread = fy_mmAllocate(block, sizeof(fy_thread), exception);
+	TEST_EXCEPTION(exception);
 	method = fy_vmGetMethod(context, name);
 	ASSERT(method != NULL);
 	fy_threadInit(context, thread);
 	thread->threadId = 1;
 	thread->priority = 5;
-	threadHandle = fy_heapAllocate(context, clazzThread, &exception);
-	ASSERT(exception.exceptionType == exception_none);
+	threadHandle = fy_heapAllocate(context, clazzThread, exception);
+	TEST_EXCEPTION(exception);
 	fy_heapPutFieldInt(context, threadHandle, fieldThreadPriority, 5,
-			&exception);
-	fy_threadCreateWithMethod(context, thread, threadHandle, method,
-			&exception);
-	ASSERT(exception.exceptionType == exception_none);
+			exception);
+	TEST_EXCEPTION(exception);
+	fy_threadCreateWithMethod(context, thread, threadHandle, method, exception);
+	TEST_EXCEPTION(exception);
 	fy_threadRun(context, thread, &message, 2147483647);
 
 	switch (message.messageType) {
@@ -321,64 +291,12 @@ void testThread() {
 	}CU_ASSERT_EQUAL(message.messageType, message_thread_dead);
 }
 
-void testHashMap() {
-	int blocks;
-	int i;
-	char buf[256];
-	//	char buf1[256];
-	fy_uint values[10000];
-	fy_uint *value;
-	fy_str *tmp;
-	fy_hashMap *hashMap = fy_vmAllocate(context, sizeof(fy_hashMap));
-	memset(buf, 0, 256);
-	blocks = fy_getAllocated();
-	fy_hashMapInit(context, hashMap, 16, 12);
-
-	fy_long t1, t2, t3, t4;
-
-	t1 = fy_portTimeMillSec(context);
-	for (i = 0; i < 10000; i++) {
-		sprintf_s(buf, 10, "%d", i);
-		tmp = fy_strNew(context, buf);
-		fy_hashMapPut(context, hashMap, tmp, values + i);
-		fy_strDestroy(context, tmp);
-		fy_vmFree(context, tmp);
-		values[i] = i * 3;
-	}
-
-	t2 = fy_portTimeMillSec(context);
-
-	CU_ASSERT_EQUAL(hashMap->size, 10000);
-	for (i = 0; i < 15000; i++) {
-		sprintf_s(buf, 10, "%d", i);
-		tmp = fy_strNew(context, buf);
-		value = fy_hashMapGet(context, hashMap, tmp);
-		if (i < 10000) {
-			CU_ASSERT_EQUAL(*value, values[i])
-		} else {
-			CU_ASSERT_EQUAL(value, NULL);
-		}
-		fy_strDestroy(context, tmp);
-		fy_vmFree(context, tmp);
-	}
-	t3 = fy_portTimeMillSec(context);
-	fy_hashMapDestroy(context, hashMap);
-	t4 = fy_portTimeMillSec(context);
-	printf("HashMap time %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d\n", (t2 - t1),
-			(t3 - t2), (t4 - t3));
-	CU_ASSERT_EQUAL(blocks, fy_getAllocated());
-	fy_vmFree(context, hashMap);
-}
-
 CU_TestInfo testcases[] = { { "platform related", testPortable }, //
-		{ "memory management", testMemManage }, //
-		{ "string", testString }, //
 //		{ "classloader", testClassLoader }, //
 		{ "classLoaderFull", testClassLoaderFull }, //
 		{ "classMethod", testClassMethod }, //
 		{ "heap", testHeap }, //
 		{ "thread", testThread }, //
-		{ "hashMap", testHashMap }, //
 		CU_TEST_INFO_NULL };
 
 CU_SuiteInfo suites[] = {

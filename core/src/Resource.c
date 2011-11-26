@@ -16,19 +16,23 @@
  */
 
 #include "fyc/Resource.h"
-fy_data *fy_resourceAllocateData(fy_context *context, const char *name) {
+fy_data *fy_resourceAllocateData(fy_context *context, const char *name,
+		fy_exception *exception) {
 	FILE *fp;
 	fy_data *data;
 	size_t length;
-	data = fy_vmAllocate(context, sizeof(fy_data));
+	data = fy_mmAllocate(context->memblocks, sizeof(fy_data), exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
 	fp = fopen(name, "rb");
 	if (fp == NULL) {
+		fy_fault(exception, NULL, "Can't get source %s", name);
 		return NULL;
 	}
 	fseek(fp, 0L, SEEK_END);
 	length = ftell(fp);
 	rewind(fp);
-	data->data = fy_vmAllocate(context, length);
+	data->data = fy_mmAllocate(context->memblocks, length, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
 	data->size = length;
 	fread(data->data, length, 1, fp);
 	fclose(fp);
@@ -36,6 +40,6 @@ fy_data *fy_resourceAllocateData(fy_context *context, const char *name) {
 }
 
 void fy_resourceReleaseData(fy_context *context, fy_data *data) {
-	fy_vmFree(context, data->data);
-	fy_vmFree(context, data);
+	fy_mmFree(context->memblocks, data->data);
+	fy_mmFree(context->memblocks, data);
 }

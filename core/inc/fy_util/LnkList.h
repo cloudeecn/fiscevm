@@ -20,7 +20,7 @@
 
 #include "../fisceprt.h"
 #include "MemMan.h"
-#include "Debug.h"
+#include "../fy_util/Debug.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -38,15 +38,22 @@ typedef struct fy_linkedList {
 	int count; /* count of the node except the head node */
 } fy_linkedList;
 
-void fy_linkedListInit(fy_linkedList* list);
-void fy_linkedListDestroy(fy_linkedList *list);
-void* fy_linkedListRemove(fy_linkedList* list, void* content);
+void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
+		fy_exception *exception);
+void fy_linkedListDestroy(fy_memblock *block, fy_linkedList *list);
+void* fy_linkedListRemove(fy_memblock *block, fy_linkedList* list,
+		void* content);
 
-void* fy_linkedListRemoveNode(fy_linkedList* list, fy_linkedListNode *node);
-fy_linkedListNode* fy_linkedListAppend(fy_linkedList* list, void* content);
+void* fy_linkedListRemoveNode(fy_memblock *block, fy_linkedList* list,
+		fy_linkedListNode *node);
+fy_linkedListNode* fy_linkedListAppend(fy_memblock *block, fy_linkedList* list,
+		void* content, fy_exception *exception);
 
-void fy_linkedListTraverse(fy_linkedList* list,
-		void(*fun)(struct fy_linkedListNode*));
+void fy_linkedListTraverse(
+		fy_memblock *block,
+		fy_linkedList* list,
+		void(*fun)(fy_memblock *block, struct fy_linkedListNode*,
+				fy_exception *exception), fy_exception *exception);
 
 #ifdef	__cplusplus
 }

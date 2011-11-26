@@ -19,8 +19,8 @@
 #include "../fisceprt.h"
 #include "../fiscestu.h"
 #include "../fy_util/String.h"
+#include "../fy_util/Debug.h"
 #include "VMContext.h"
-#include "Debug.h"
 #define CONSTANT_Class	 7
 #define CONSTANT_Fieldref	 9
 #define CONSTANT_Methodref	 10

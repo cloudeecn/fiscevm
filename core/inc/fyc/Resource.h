@@ -25,7 +25,8 @@
 extern "C" {
 #endif
 
-fy_data *fy_resourceAllocateData(fy_context *context, const char *name);
+fy_data *fy_resourceAllocateData(fy_context *context, const char *name,
+		fy_exception *exception);
 
 void fy_resourceReleaseData(fy_context *context, fy_data *data);
 

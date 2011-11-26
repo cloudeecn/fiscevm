@@ -16,15 +16,7 @@
  */
 
 #include "fisceprt.h"
-#include <stdio.h>
-#include <string.h>
-#if defined(_WIN32)
-#include <windows.h>
-#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
-#include <sys/time.h>
-#include <errno.h>
-#endif
-#include <time.h>
+
 /*
  char dying_message[4096];
  */
@@ -41,6 +33,7 @@ _FY_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception) {
 		memset(ret, 0, size);
 	} else {
 		fy_fault(exception, NULL, "Out of memory!");
+		return NULL;
 	}
 	return ret;
 }
@@ -125,21 +118,44 @@ _FY_EXPORT fy_boolean fy_isnanf(fy_float f) {
 	return f != f;
 }
 
-_FY_EXPORT void fy_sleep(fy_long ms, fy_long ns) {
+void fy_portInit(fy_port *data) {
+	data->initTimeInMillSec = (fy_long) time(NULL) * 1000;
 #if defined(_WIN32)
-	/*TODO Windows implement*/
+	QueryPerformanceFrequency(&(data->lpFreq));
+	QueryPerformanceCounter(&(data->lpPerfCountBegin));
+	data->perfIdv = 1000000000.0 / data->lpFreq.QuadPart;
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+	gettimeofday(&(data->tvBeginTime),NULL);
+#endif
+}
+void fy_portDestroy(fy_port *data) {
+	/*No code need yet*/
+}
+fy_long fy_portTimeMillSec(fy_port *pd) {
+#if defined(_WIN32)
+	fy_long timeDelta;
+	LARGE_INTEGER lPerfCount;
+	QueryPerformanceCounter(&lPerfCount);
+	timeDelta = lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart;
+	timeDelta = timeDelta * 1000 / pd->lpFreq.QuadPart;
+	return timeDelta + pd->initTimeInMillSec;
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
-	int ret;
-	tv.tv_sec = ms / 1000;
-	tv.tv_usec = ms % 1000 * 1000 + ns / 1000 % 1000;
-	ret = select(0, NULL, NULL, NULL, &tv);
-	if (ret == 0) {
-		return;
-	} else if (ret == EINTR) {
-		/*TODO ???*/
-	} else {
-		/*TODO ???*/
-	}
+	gettimeofday(&tv,NULL);
+	return ((fy_long)tv.tv_sec)*1000+((fy_long)tv.tv_usec)/1000;
 #endif
+	return 0;
+}
+fy_long fy_portTimeNanoSec(fy_port *pd) {
+#if defined(_WIN32)
+	LARGE_INTEGER lPerfCount;
+	QueryPerformanceCounter(&lPerfCount);
+	return (fy_long) ((lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart)
+			* pd->perfIdv);
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+	struct timeval tv;
+	gettimeofday(&tv,NULL);
+	return ((fy_long)tv.tv_sec)*1000000000+((fy_long)tv.tv_usec)*1000;
+#endif
+	return 0;
 }
