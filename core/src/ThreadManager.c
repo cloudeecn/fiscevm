@@ -30,7 +30,7 @@ static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
 }
 
 void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time) {
-	thread->nextWakeTime = fy_portTimeMillSec(context) + time;
+	thread->nextWakeTime = fy_portTimeMillSec(context->port) + time;
 }
 
 void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,

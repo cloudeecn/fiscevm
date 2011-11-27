@@ -14,15 +14,17 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _FY_FISCE_H
-#define _FY_FISCE_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+#ifndef FY_ARRLIST_H_
+#define FY_ARRLIST_H_
 
-#ifdef	__cplusplus
-}
-#endif
+#include "../fisceprt.h"
+#include "MemMan.h"
 
-#endif
+typedef struct fy_arrayList {
+	fy_int length;
+	fy_int maxLength;
+	void **data;
+} fy_arrayList;
+
+#endif /* ARRLIST_H_ */
