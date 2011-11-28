@@ -17,16 +17,98 @@
 
 #include "fyc/ThreadManager.h"
 
-static fy_thread *getThreadByHandle(fy_uint targetHandle,
+static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 		fy_exception *exception) {
 	//TODO
-	return NULL;
+	fy_object *obj = context->objects + targetHandle;
+	fy_uint threadId = obj->attachedId;
+	ASSERT(threadId>0 && threadId<MAX_THREADS);
+	return context->threads + obj->attachedId;
+}
+
+static fy_int monitorEnter(fy_context *context, fy_thread *thread,
+		fy_uint monitorId, fy_int times) {
+	fy_object *monitor = context->objects + monitorId;
+	fy_uint owner = monitor->monitorOwnerId;
+	fy_uint threadId = thread->threadId;
+	if (owner == threadId) {
+		monitor->monitorOwnerTimes += times;
+	} else if (owner <= 0) {
+		monitor->monitorOwnerId = threadId;
+		monitor->monitorOwnerTimes = times;
+	} else {
+		ASSERT(thread->waitForLockId==0);
+		thread->waitForLockId = monitorId;
+		thread->pendingLockCount = 1;
+		thread->yield = TRUE;
+	}
+	return times;
+}
+
+static fy_int monitorExit(fy_context *context, fy_thread *thread,
+		fy_uint monitorId, fy_int times, fy_exception *exception) {
+	fy_uint threadId = thread->threadId;
+	fy_object *monitor = context->objects + monitorId;
+	fy_uint owner = monitor->monitorOwnerId;
+	if (owner != threadId) {
+		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
+		return 0;
+	}
+	monitor->monitorOwnerTimes -= times;
+	if (monitor->monitorOwnerTimes == 0) {
+		monitor->monitorOwnerId = 0;
+		thread->yield = TRUE;
+	} else if (monitor->monitorOwnerTimes < 0) {
+		fy_fault(exception, NULL, "Too many monitors released!");
+		return 0;
+	}
+	return times;
 }
 
 static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
 		fy_uint monitorId, fy_exception *exception) {
-	//TODO;
-	return 0;
+	fy_uint threadId = thread->threadId;
+	fy_object *monitor = context->objects + monitorId;
+	fy_uint owner = monitor->monitorOwnerId;
+	if (owner != threadId) {
+		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
+		return 0;
+	}
+	return monitorExit(context, thread, monitorId, exception);
+}
+
+static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
+	fy_int h = context->nextThreadId;
+	fy_thread *target;
+	while ((target = context->threads + h)->inUse) {
+		h++;
+		if (h == MAX_THREADS) {
+			h = 1;
+		}
+		if (h == context->nextThreadId) {
+			fy_fault(exception, NULL, "Threads used up!");
+		}
+	}
+	context->nextThreadId = (h % (MAX_THREADS - 1)) + 1;
+	return h;
+}
+
+static void cleanupThread(fy_context *context, fy_thread *thread) {
+	fy_uint handle;
+	fy_object *obj;
+	thread->inUse = FALSE;
+	thread->waitForLockId = 0;
+	thread->waitForNotifyId = 0;
+	thread->nextWakeTime = 0;
+	thread->pendingLockCount = 0;
+	thread->destroyPending = FALSE;
+	for (handle = 1; handle < MAX_OBJECTS; handle++) {
+		obj = context->objects + handle;
+		if (obj->monitorOwnerId == thread->threadId) {
+			obj->monitorOwnerId = 0;
+			obj->monitorOwnerTimes = 0;
+		}
+	}
 }
 
 void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time) {
@@ -112,7 +194,7 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 		fy_boolean all, fy_exception *exception) {
 	fy_object *monitor;
 	fy_thread * target;
-	fy_linkedListNode *node;
+	int i;
 
 	ASSERT(thread->waitForNotifyId == 0);
 	monitor = context->objects + monitorId;
@@ -124,9 +206,8 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 		exception->exceptionDesc[0] = 0;
 		return;
 	}
-	node = context->threads.head;
-	while ((node = node->next) != NULL) {
-		target = node->info;
+	for (i = 1; i < MAX_THREADS; i++) {
+		target = context->threads + i;
 		if (target->waitForNotifyId == monitorId) {
 			target->waitForNotifyId = 0;
 			ASSERT(target->waitForLockId==0);
@@ -149,4 +230,42 @@ fy_boolean fy_tmIsAlive(fy_context *context, fy_uint threadHandle,
 
 void fy_tmDestroyThread(fy_thread *thread) {
 	thread->destroyPending = TRUE;
+}
+
+void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
+		fy_exception *exception) {
+	fy_method *method;
+	fy_uint threadId;
+	fy_thread *thread;
+	fy_class *threadClass;
+	fy_uint threadHandle;
+	fy_field *threadNameField;
+	fy_field *threadPriorityField;
+
+
+	if (context->status != FY_TM_STATE_NEW) {
+		fy_fault(exception, NULL, "Status is not new while booting! %d",
+				context->status);
+		return;
+	}
+	method = fy_vmLookupMethodStatic(context, clazz, context->sFMain,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	if (method == NULL) {
+		fy_fault(exception, FY_EXCEPTION_NO_METHOD, "Main method not found!");
+		return;
+	}
+
+	threadId = fetchNextThreadId(context, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	thread=context->threads+threadId;
+	threadClass=fy_vmLookupClass(context,context->sThread,exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	threadHandle=fy_heapAllocate(context,threadClass,exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	threadNameField=fy_vm
 }

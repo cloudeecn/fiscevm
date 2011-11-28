@@ -797,7 +797,7 @@ void fy_threadPushMethod(fy_context *context, fy_thread *thread,
 void fy_threadCreateWithMethod(fy_context *context, fy_thread *thread,
 		int threadHandle, fy_method *method, fy_exception *exception) {
 	fy_class *clazz;
-	if (!fy_strEndsWith(method->uniqueName, context->sMainPostfix)) {
+	if (!fy_strEndsWith(method->uniqueName, context->sFMain)) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
 				"java/lang/InternalError");
@@ -2642,7 +2642,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/NoSuchMethodError");
+							FY_EXCEPTION_NO_METHOD);
 					fy_strSPrint(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							mvalue->uniqueName);

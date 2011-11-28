@@ -56,8 +56,15 @@
 #define FY_BASE_THROWABLE "java/lang/Throwable"
 #define FY_BASE_THREAD "java/lang/Thread"
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
-#define FY_INIT "<init>"
-#define FY_CLINIT "<clinit>"
+#define FY_METHOD_INIT "<init>"
+#define FY_METHOD_CLINIT "<clinit>"
+#define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"
+#define FY_METHODF_PRIORITY ".priority.I"
+#define FY_METHODF_PRIORITY ".name.[C"
+
+
+#define FY_EXCEPTION_MONITOR "java/lang/IllegalMonitorStateException"
+#define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
 
 #define FY_ACC_ABSTRACT 1024
 #define FY_ACC_FINAL 16
@@ -76,6 +83,18 @@
 #define FY_SIZE_SHIFT_BYTE 0 /*1 bytes*/
 #define FY_SIZE_SHIFT_INT 2 /*4 bytes*/
 #define FY_SIZE_SHIFT_LONG 3 /*8 bytes*/
+
+#define FY_TM_STATE_NEW  0
+#define FY_TM_STATE_BOOT_PENDING  1
+/**
+ * In this state we are save to save,start etc.
+ */
+#define FY_TM_STATE_STOP  2
+#define FY_TM_STATE_RUN_PENDING  3
+#define FY_TM_STATE_RUNNING  4
+#define FY_TM_STATE_STOP_PENDING  5
+#define FY_TM_STATE_DEAD_PENDING  6
+#define FY_TM_STATE_DEAD  7
 
 #ifdef	__cplusplus
 extern "C" {
@@ -379,11 +398,14 @@ typedef struct fy_context {
 	fy_str *sLong;
 	fy_str *sDouble;
 	fy_str *sString;
+	fy_str *sThread;
 	fy_str *sStringArray;
-	fy_str *sMainPostfix;
 	fy_str *sThrowablePrintStacktrace;
 	fy_str *sInit;
 	fy_str *sClinit;
+	fy_str *sFMain;
+	fy_str *sFPriority;
+	fy_str *sFName;
 	fy_str *sStringValue;
 	fy_str *sStringOffset;
 	fy_str *sStringCount;
@@ -405,6 +427,7 @@ typedef struct fy_context {
 	fy_str *sStackTraceElementMethodName;
 	fy_str *sStackTraceElementFileName;
 	fy_str *sStackTraceElementLineNumber;
+
 
 	struct fy_class *TOP_THROWABLE;
 	struct fy_class *TOP_CLASS;
@@ -438,7 +461,8 @@ typedef struct fy_context {
 
 	/* #BEGIN THREAD MANAGER*/
 	int pricmds[10];
-	fy_linkedList threads;
+	fy_thread threads[MAX_THREADS];
+	fy_arrayList runningThreads[1];
 	int state;
 	struct fy_thread *workingThread;
 	fy_linkedList pendingThreads;
@@ -446,11 +470,7 @@ typedef struct fy_context {
 	fy_int nextThreadId;
 	fy_exception exitException;
 	fy_int exitCode;
-	/* #END THREAD MANAGER*/
-
-	/* #BEGIN PORTABLE*/
-	void *portableData;
-/* #END PORTABLE*/
+/* #END THREAD MANAGER*/
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,
