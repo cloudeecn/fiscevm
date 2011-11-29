@@ -44,4 +44,16 @@ void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *entry,
 	list->length = len;
 }
 
-fy_boolean fy_arrayListRemove(fy_memblock)
+void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
+		fy_exception *exception) {
+	if (pos < 0 || pos >= list->length) {
+		fy_fault(exception, NULL, "Index out of bound %d/%d", pos,
+				list->length);
+		return;
+	}
+	if (pos == list->length - 1) {
+		list->length--;
+	} else {
+		memmove(list->data + pos, list->data + pos + 1, list->length - pos - 1);
+	}
+}

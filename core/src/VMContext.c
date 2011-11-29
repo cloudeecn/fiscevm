@@ -92,7 +92,7 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_exceptionCheckAndReturn(exception);
 
 	context->sThread = fy_strCreateFromUTF8(block, FY_BASE_THREAD, exception);
-		fy_exceptionCheckAndReturn(exception);
+	fy_exceptionCheckAndReturn(exception);
 
 	context->sStringArray = fy_strCreateFromUTF8(block,
 			"[L"FY_BASE_THROWABLE";", exception);
@@ -112,7 +112,18 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	context->sClinit = fy_strCreateFromUTF8(block, FY_METHOD_CLINIT, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sFMain=fy_strCreateFromUTF8(block, FY_METHODF_MAIN, exception);
+	context->sFMain = fy_strCreateFromUTF8(block, FY_METHODF_MAIN, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	context->sFName = fy_strCreateFromUTF8(block, FY_FIELDF_NAME, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	context->sFPriority = fy_strCreateFromUTF8(block, FY_FIELDF_PRIORITY,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	context->sFDaemon = fy_strCreateFromUTF8(block, FY_FIELDF_DAEMON,
+			exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	context->sStringCount = fy_strCreateFromUTF8(block,
@@ -293,6 +304,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_coreRegisterCoreHandlers(context, exception);
 	fy_exceptionCheckAndReturn(exception);
+
+	context->state=FY_TM_STATE_RUN_PENDING;
 }
 
 static fy_class* getClass(fy_context *context, fy_str *name) {

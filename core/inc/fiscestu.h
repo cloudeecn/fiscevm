@@ -59,9 +59,9 @@
 #define FY_METHOD_INIT "<init>"
 #define FY_METHOD_CLINIT "<clinit>"
 #define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"
-#define FY_METHODF_PRIORITY ".priority.I"
-#define FY_METHODF_PRIORITY ".name.[C"
-
+#define FY_FIELDF_PRIORITY ".priority.I"
+#define FY_FIELDF_NAME ".name.[C"
+#define FY_FIELDF_DAEMON ".daemon.Z"
 
 #define FY_EXCEPTION_MONITOR "java/lang/IllegalMonitorStateException"
 #define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
@@ -87,7 +87,7 @@
 #define FY_TM_STATE_NEW  0
 #define FY_TM_STATE_BOOT_PENDING  1
 /**
- * In this state we are save to save,start etc.
+ *
  */
 #define FY_TM_STATE_STOP  2
 #define FY_TM_STATE_RUN_PENDING  3
@@ -370,7 +370,11 @@ typedef struct fy_thread {
 typedef enum fy_messageType {
 	message_continue = 0,
 	/*message_frameChange,*/
-	message_none, message_thread_dead, message_invoke_native, message_exception
+	message_none,
+	message_thread_dead,
+	message_invoke_native,
+	message_exception,
+	message_vm_dead
 } fy_messageType;
 
 typedef struct fy_message {
@@ -383,8 +387,6 @@ typedef struct fy_message {
 } fy_message;
 
 typedef struct fy_context {
-
-	int status;
 
 	fy_str *sTopClass;
 	fy_str *sClassClass;
@@ -406,6 +408,7 @@ typedef struct fy_context {
 	fy_str *sFMain;
 	fy_str *sFPriority;
 	fy_str *sFName;
+	fy_str *sFDaemon;
 	fy_str *sStringValue;
 	fy_str *sStringOffset;
 	fy_str *sStringCount;
@@ -427,7 +430,6 @@ typedef struct fy_context {
 	fy_str *sStackTraceElementMethodName;
 	fy_str *sStackTraceElementFileName;
 	fy_str *sStackTraceElementLineNumber;
-
 
 	struct fy_class *TOP_THROWABLE;
 	struct fy_class *TOP_CLASS;
@@ -463,14 +465,16 @@ typedef struct fy_context {
 	int pricmds[10];
 	fy_thread threads[MAX_THREADS];
 	fy_arrayList runningThreads[1];
+	int runningThreadPos;
+	int run;
 	int state;
-	struct fy_thread *workingThread;
 	fy_linkedList pendingThreads;
 	fy_long nextWakeUpTimeTotal;
 	fy_int nextThreadId;
 	fy_exception exitException;
 	fy_int exitCode;
 /* #END THREAD MANAGER*/
+
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,

@@ -357,7 +357,30 @@ void fy_threadMonitorExit(fy_context *context, fy_thread *thread, fy_int handle)
 }
 
 void fy_threadInit(fy_context *context, fy_thread *thread) {
+	thread->inUse = TRUE;
+	thread->waitForLockId = 0;
+	thread->waitForNotifyId = 0;
+	thread->nextWakeTime = 0;
+	thread->pendingLockCount = 0;
+	thread->destroyPending = FALSE;
+}
 
+void fy_threadDestroy(fy_context *context, fy_thread *thread) {
+	fy_uint handle;
+	fy_object *obj;
+	thread->inUse = FALSE;
+	thread->waitForLockId = 0;
+	thread->waitForNotifyId = 0;
+	thread->nextWakeTime = 0;
+	thread->pendingLockCount = 0;
+	thread->destroyPending = FALSE;
+	for (handle = 1; handle < MAX_OBJECTS; handle++) {
+		obj = context->objects + handle;
+		if (obj->monitorOwnerId == thread->threadId) {
+			obj->monitorOwnerId = 0;
+			obj->monitorOwnerTimes = 0;
+		}
+	}
 }
 
 void fy_threadFillException(fy_context *context, fy_thread *thread,

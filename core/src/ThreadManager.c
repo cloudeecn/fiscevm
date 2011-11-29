@@ -93,24 +93,6 @@ static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
 	return h;
 }
 
-static void cleanupThread(fy_context *context, fy_thread *thread) {
-	fy_uint handle;
-	fy_object *obj;
-	thread->inUse = FALSE;
-	thread->waitForLockId = 0;
-	thread->waitForNotifyId = 0;
-	thread->nextWakeTime = 0;
-	thread->pendingLockCount = 0;
-	thread->destroyPending = FALSE;
-	for (handle = 1; handle < MAX_OBJECTS; handle++) {
-		obj = context->objects + handle;
-		if (obj->monitorOwnerId == thread->threadId) {
-			obj->monitorOwnerId = 0;
-			obj->monitorOwnerTimes = 0;
-		}
-	}
-}
-
 void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time) {
 	thread->nextWakeTime = fy_portTimeMillSec(context->port) + time;
 }
@@ -238,16 +220,43 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	fy_uint threadId;
 	fy_thread *thread;
 	fy_class *threadClass;
+	fy_class *charArrayClass;
 	fy_uint threadHandle;
+	fy_uint threadNameHandle;
 	fy_field *threadNameField;
 	fy_field *threadPriorityField;
+	int i;
 
-
-	if (context->status != FY_TM_STATE_NEW) {
+	if (context->state != FY_TM_STATE_NEW) {
 		fy_fault(exception, NULL, "Status is not new while booting! %d",
-				context->status);
+				context->state);
 		return;
 	}
+
+	charArrayClass = fy_vmLookupClass(context, context->sArrayChar, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	threadNameHandle = fy_heapAllocateArray(context, charArrayClass,
+			clazz->className->length + 5, exception);
+	fy_exceptionCheckAndReturn(exception);
+	/*No exception will happen if the allocate is finished*/
+	fy_heapPutArrayChar(context, threadNameHandle, 0, 'M', exception);
+	fy_heapPutArrayChar(context, threadNameHandle, 1, 'a', exception);
+	fy_heapPutArrayChar(context, threadNameHandle, 2, 'i', exception);
+	fy_heapPutArrayChar(context, threadNameHandle, 3, 'n', exception);
+	fy_heapPutArrayChar(context, threadNameHandle, 4, '.', exception);
+	for (i = 0; i < clazz->className->length; i++) {
+		fy_heapPutArrayChar(context, threadNameHandle, i + 5,
+				clazz->className->content[i], exception);
+	}fy_exceptionCheckAndReturn(exception);
+
+	threadClass = fy_vmLookupClass(context, context->sThread, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	threadNameField = fy_vmLookupFieldStatic(context, threadClass,
+			context->sFName, exception);
+	fy_exceptionCheckAndReturn(exception);
+
 	method = fy_vmLookupMethodStatic(context, clazz, context->sFMain,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -260,12 +269,116 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	threadId = fetchNextThreadId(context, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	thread=context->threads+threadId;
-	threadClass=fy_vmLookupClass(context,context->sThread,exception);
+	thread = context->threads + threadId;
+
+	threadHandle = fy_heapAllocate(context, threadClass, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	threadHandle=fy_heapAllocate(context,threadClass,exception);
+	fy_heapPutFieldHandle(context, threadHandle, threadNameField,
+			threadNameHandle, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	threadNameField=fy_vm
+	fy_heapPutFieldInt(context, threadHandle, threadPriorityField, 5,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_threadInit(context, thread);
+	fy_threadCreateWithMethod(context, thread, threadHandle, method, exception);
+	fy_exceptionCheckAndReturn(exception);
+}
+
+void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
+		fy_exception *exception) {
+	fy_thread *thread;
+	fy_uint threadId;
+	fy_int priority;
+	fy_boolean daemon;
+	fy_class *threadClass;
+	fy_field *threadDaemonField;
+	fy_field *threadPriorityField;
+
+	if (context->state != FY_TM_STATE_RUNNING
+			&& context->state != FY_TM_STATE_STOP_PENDING) {
+		fy_fault(exception, NULL,
+				"Status is not RUNNING or STOP_PENDING while adding thread! %d",
+				context->state);
+		return;
+	}
+
+	threadClass = fy_vmLookupClass(context, context->sThread, exception);
+	fy_exceptionCheckAndReturn(exception);
+	threadDaemonField = fy_vmLookupFieldStatic(context, threadClass,
+			context->sFDaemon, exception);
+	fy_exceptionCheckAndReturn(exception);
+	threadPriorityField = fy_vmLookupFieldStatic(context, threadClass,
+			context->sFPriority, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	priority = fy_heapGetFieldInt(context, threadHandle, threadPriorityField,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+	if (priority == 0) {
+		priority = 5;
+	}
+
+	daemon = fy_heapGetFieldBoolean(context, threadHandle, threadDaemonField,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	threadId = fetchNextThreadId(context, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	thread = context->threads + threadId;
+	fy_threadInit(context, thread);
+	thread->priority = priority;
+	thread->daemon = daemon;
+	fy_threadCreateWithRun(context, thread, threadHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_arrayListAdd(context->memblocks, context->runningThreads, thread,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+}
+
+void fy_tmRun(fy_context *context, fy_message *message) {
+	fy_long nextGC;
+	fy_long nextGCForce;
+	fy_boolean stateLocal;
+	fy_arrayList const *running = context.runningThreads;
+
+#ifndef _FY_LATE_DECLARATION
+	fy_thread *thread;
+#endif
+
+	if (context->state != FY_TM_STATE_RUN_PENDING
+			|| context->state != FY_TM_STATE_RUNNING
+			|| context->state != FY_TM_STATE_STOP_PENDING) {
+		message->messageType = message_exception;
+		fy_fault(&(message->body.exception), NULL, "Illegal VM status %d",
+				context->state);
+		return;
+	}
+
+	while (1) {
+#ifdef _FY_LATE_DECLARATION
+		fy_thread *thread;
+#endif
+		stateLocal = context->state;
+		switch (stateLocal) {
+		case FY_TM_STATE_RUNNING:
+			if (running->length > 0) {
+				if (context->runningThreadPos < running->length) {
+					thread = running->data[context->runningThreadPos];
+					if (!thread->daemon) {
+						context->run = TRUE;
+					}
+
+				} else {
+
+				}
+			} else {
+				/*TODO dead*/
+			}
+		}
+	}
 }
