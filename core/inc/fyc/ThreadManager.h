@@ -20,5 +20,27 @@
 
 #include "VMContext.h"
 
+void fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
+		fy_uint monitorId);
+void fy_tmMonitorExit(fy_context *context, fy_thread *thread, fy_uint monitorId,
+		fy_exception *exception);
+void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time);
+void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
+		fy_exception *exception);
+fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
+		fy_boolean clear, fy_exception *exception);
+void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
+		fy_long time, fy_exception *exception);
+void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
+		fy_boolean all, fy_exception *exception);
+fy_boolean fy_tmIsAlive(fy_context *context, fy_uint threadHandle,
+		fy_exception *exception);
+void fy_tmDestroyThread(fy_thread *thread);
+void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
+		fy_exception *exception);
+void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
+		fy_exception *exception);
+void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception);
+
 #endif /* FY_THREADMANAGER_H_ */
 

@@ -263,6 +263,7 @@ void fy_threadMonitorEnter(fy_context *context, fy_thread *thread, fy_int handle
 void fy_threadMonitorExit(fy_context *context, fy_thread *thread, fy_int handle);
 
 void fy_threadInit(fy_context *context, fy_thread *thread);
+void fy_threadDestroy(fy_context *context, fy_thread *thread);
 
 fy_method *fy_threadGetCurrentMethod(fy_context *context, fy_thread *thread);
 

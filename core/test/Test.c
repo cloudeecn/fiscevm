@@ -33,7 +33,7 @@ static fy_memblock *block;
 static fy_exception *exception;
 
 #define TEST_EXCEPTION(EXCEPTION) if((EXCEPTION)->exceptionType!=exception_none) { \
-	printf("Exception %s: %s occored!",(EXCEPTION)->exceptionName,(EXCEPTION)->exceptionDesc); \
+	printf("Exception %s: %s occored!\n",(EXCEPTION)->exceptionName,(EXCEPTION)->exceptionDesc); \
 	CU_FAIL("Exception occored!"); \
 	return; \
 }
@@ -218,77 +218,45 @@ void testHeap() {
 }
 
 void testThread() {
-	fy_str *name;
-	fy_thread *thread;
-	fy_method *method;
 	fy_class *clazz;
-	fy_class *clazzThread;
-	fy_field *fieldThreadPriority;
-	fy_int threadHandle;
 	fy_message message;
-	int i, count;
+	fy_boolean dead = 0;
 
 	exception->exceptionType = exception_none;
 	clazz = lookup("EXCLUDE/fisce/test/Tester");
-	clazzThread = lookup(FY_BASE_THREAD);
-	fieldThreadPriority = fy_vmLookupFieldStatic(context, clazzThread,
-			fy_strCreateFromUTF8(block, ".priority.I", exception), exception);
+	fy_tmBootFromMain(context, clazz, exception);
 	TEST_EXCEPTION(exception);
+	while (!dead) {
+		fy_tmRun(context, &message, exception);
+		TEST_EXCEPTION(exception);
 
-	ASSERT(clazz != NULL);
-	ASSERT(clazzThread != NULL);
-	ASSERT(fieldThreadPriority != NULL);
-	count = clazz->methodCount;
-#ifdef _DEBUG
-	for (i = 0; i < count; i++) {
-		method = clazz->methods[i];
-		fy_strPrint(method->uniqueName);
-		printf("\n");
-	}
-#endif
-	method = NULL;
-	name = fy_strCreateFromUTF8(block,
-			"EXCLUDE/fisce/test/Tester.main.([L"FY_BASE_STRING";)V", exception);
-	TEST_EXCEPTION(exception);
-
-	thread = fy_mmAllocate(block, sizeof(fy_thread), exception);
-	TEST_EXCEPTION(exception);
-	method = fy_vmGetMethod(context, name);
-	ASSERT(method != NULL);
-	fy_threadInit(context, thread);
-	thread->threadId = 1;
-	thread->priority = 5;
-	threadHandle = fy_heapAllocate(context, clazzThread, exception);
-	TEST_EXCEPTION(exception);
-	fy_heapPutFieldInt(context, threadHandle, fieldThreadPriority, 5,
-			exception);
-	TEST_EXCEPTION(exception);
-	fy_threadCreateWithMethod(context, thread, threadHandle, method, exception);
-	TEST_EXCEPTION(exception);
-	fy_threadRun(context, thread, &message, 2147483647);
-
-	switch (message.messageType) {
-	case message_none:
-		printf("Stopped as yield or reached inst. limit");
-		break;
-	case message_invoke_native:
-		printf("Stopped at invoke native: ");
-		fy_strPrint(message.body.nativeMethod->uniqueName);
-		printf("\n");
-		break;
-	case message_thread_dead:
-		printf("Stopped as thread dead\n");
-		break;
-	case message_exception:
-		printf("Stopped at exception %s : %s\n",
-				message.body.exception.exceptionName,
-				message.body.exception.exceptionDesc);
-		break;
-	default:
-	case message_continue:
-		printf("Invalid message type %d\n", message.messageType);
-		break;
-	}CU_ASSERT_EQUAL(message.messageType, message_thread_dead);
+		switch (message.messageType) {
+		case message_invoke_native:
+			printf("Stopped at invoke native for thread %d: ",
+					message.thread->threadId);
+			fy_strPrint(message.body.nativeMethod->uniqueName);
+			printf("\n");
+			break;
+		case message_exception:
+			printf("Stopped at exception %s : %s\n",
+					message.body.exception.exceptionName,
+					message.body.exception.exceptionDesc);
+			break;
+		case message_sleep:
+			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
+			break;
+		case message_vm_dead:
+			printf("VM dead\n");
+			dead = 1;
+			break;
+		case message_none:
+		case message_continue:
+		case message_thread_dead:
+		default:
+			printf("Invalid message type %d\n", message.messageType);
+			break;
+		}
+	}CU_ASSERT_EQUAL(message.messageType, message_vm_dead);
 }
 
 CU_TestInfo testcases[] = { { "platform related", testPortable }, //

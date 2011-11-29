@@ -74,7 +74,8 @@ static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
 		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
 		return 0;
 	}
-	return monitorExit(context, thread, monitorId, exception);
+	return monitorExit(context, thread, monitorId, monitor->monitorOwnerTimes,
+			exception);
 }
 
 static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
@@ -93,6 +94,16 @@ static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
 	return h;
 }
 
+void fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
+		fy_uint monitorId) {
+	monitorEnter(context, thread, monitorId, 1);
+}
+
+void fy_tmMonitorExit(fy_context *context, fy_thread *thread, fy_uint monitorId,
+		fy_exception *exception) {
+	monitorExit(context, thread, monitorId, 1, exception);
+}
+
 void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time) {
 	thread->nextWakeTime = fy_portTimeMillSec(context->port) + time;
 }
@@ -108,7 +119,7 @@ void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
 			"java/lang/InterruptedException");
 	targetException.exceptionDesc[0] = 0;
 
-	target = getThreadByHandle(targetHandle, exception);
+	target = getThreadByHandle(context, targetHandle, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
@@ -133,7 +144,7 @@ fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
 	fy_thread *target;
 	fy_boolean ret;
 
-	target = getThreadByHandle(targetHandle, exception);
+	target = getThreadByHandle(context, targetHandle, exception);
 	if (exception->exceptionType != exception_none) {
 		return FALSE;
 	}
@@ -206,7 +217,7 @@ fy_boolean fy_tmIsAlive(fy_context *context, fy_uint threadHandle,
 		fy_exception *exception) {
 	fy_thread *target;
 
-	target = getThreadByHandle(threadHandle, exception);
+	target = getThreadByHandle(context, threadHandle, exception);
 	return target != NULL;
 }
 
@@ -257,6 +268,10 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 			context->sFName, exception);
 	fy_exceptionCheckAndReturn(exception);
 
+	threadPriorityField = fy_vmLookupFieldStatic(context, threadClass,
+			context->sFPriority, exception);
+	fy_exceptionCheckAndReturn(exception);
+
 	method = fy_vmLookupMethodStatic(context, clazz, context->sFMain,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -283,8 +298,14 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	fy_exceptionCheckAndReturn(exception);
 
 	fy_threadInit(context, thread);
+	thread->priority = 5;
 	fy_threadCreateWithMethod(context, thread, threadHandle, method, exception);
 	fy_exceptionCheckAndReturn(exception);
+
+	fy_arrayListAdd(context->memblocks, context->runningThreads, thread,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+	context->state = FY_TM_STATE_RUN_PENDING;
 }
 
 void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
@@ -340,45 +361,156 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 	fy_exceptionCheckAndReturn(exception);
 }
 
-void fy_tmRun(fy_context *context, fy_message *message) {
+void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception) {
+	/*exception means exception in thread manager
+	 * message means exception in thread*/
 	fy_long nextGC;
 	fy_long nextGCForce;
 	fy_boolean stateLocal;
-	fy_arrayList const *running = context.runningThreads;
+	fy_arrayList *running = context->runningThreads;
 
 #ifndef _FY_LATE_DECLARATION
 	fy_thread *thread;
+	fy_long nextWakeUpTime,now,sleepTime;
+	fy_uint lockId;
+	fy_object *lock;
 #endif
 
 	if (context->state != FY_TM_STATE_RUN_PENDING
-			|| context->state != FY_TM_STATE_RUNNING
-			|| context->state != FY_TM_STATE_STOP_PENDING) {
-		message->messageType = message_exception;
-		fy_fault(&(message->body.exception), NULL, "Illegal VM status %d",
+			&& context->state != FY_TM_STATE_RUNNING
+			&& context->state != FY_TM_STATE_STOP_PENDING) {
+		fy_fault(exception, NULL, "Illegal VM status %d $tmRun1",
 				context->state);
 		return;
 	}
-
+	context->state = FY_TM_STATE_RUNNING;
 	while (1) {
 #ifdef _FY_LATE_DECLARATION
 		fy_thread *thread;
 #endif
+		message->messageType = message_none;
 		stateLocal = context->state;
 		switch (stateLocal) {
-		case FY_TM_STATE_RUNNING:
+		case FY_TM_STATE_RUNNING: {
+#ifdef _FY_LATE_DECLARATION
+			fy_long nextWakeUpTime;
+			fy_uint lockId;
+			fy_object *lock;
+#endif
 			if (running->length > 0) {
 				if (context->runningThreadPos < running->length) {
 					thread = running->data[context->runningThreadPos];
+					if (thread->destroyPending) {
+						fy_threadDestroy(context, thread);
+						fy_arrayListRemove(context->memblocks, running,
+								context->runningThreadPos, exception);
+						if (exception->exceptionType != exception_none) {
+							return;
+						}
+						break;
+					}
 					if (!thread->daemon) {
 						context->run = TRUE;
 					}
-
+					nextWakeUpTime = thread->nextWakeTime;
+					if (nextWakeUpTime > fy_portTimeMillSec(context->port)) {
+						if (context->nextWakeUpTimeTotal > nextWakeUpTime) {
+							context->nextWakeUpTimeTotal = nextWakeUpTime;
+						}
+						break;
+					}
+					thread->nextWakeTime = 0;
+					context->nextWakeUpTimeTotal = 0;
+					lockId = thread->waitForLockId;
+					if (lockId > 0) {
+						lock = context->objects + lockId;
+						if (lock->monitorOwnerId <= 0) {
+							lock->monitorOwnerId = thread->threadId;
+							lock->monitorOwnerTimes = thread->pendingLockCount;
+							thread->waitForLockId = 0;
+						} else {
+							break;
+						}
+					}
+					fy_threadRun(context, thread, message,
+							context->pricmds[thread->priority]);
+					switch (message->messageType) {
+					case message_continue:
+					case message_vm_dead:
+					case message_sleep:
+						/*Illegal!*/
+						fy_fault(exception, NULL, "Illegal message type %d",
+								message->messageType);
+						return;
+					case message_none:
+						break;
+					case message_exception:
+						/*critical exception happened*/
+						message->thread = thread;
+						return;
+					case message_invoke_native:
+						/*send invoke native message*/
+						message->thread = thread;
+						return;
+					case message_thread_dead:
+						thread->destroyPending = TRUE;
+						break;
+					default:
+						/*Illegal*/
+						fy_fault(exception, NULL, "Illegal message type %d",
+								message->messageType);
+						return;
+					}
+					context->runningThreadPos++;
 				} else {
+					if (!context->run) {
+						context->state = FY_TM_STATE_DEAD;
+					} else {
 
+#ifdef _FY_LATE_DECLARATION
+						fy_long now, sleepTime;
+#endif
+						now = fy_portTimeMillSec(context->port);
+						sleepTime = context->nextWakeUpTimeTotal - now;
+						if ((sleepTime > 10 && now > nextGC)
+								|| now > nextGCForce) {
+							nextGC = now + 2000;
+							nextGCForce = nextGC + 10000;
+							/*TODO GC*/
+							now = fy_portTimeMillSec(context->port);
+							sleepTime = context->nextWakeUpTimeTotal - now;
+						}
+						context->nextWakeUpTimeTotal = 0x7fffffffffffffffLL;
+						context->runningThreadPos = 0;
+						context->run = FALSE;
+						if (sleepTime > 0) {
+							message->messageType = message_sleep;
+							message->body.sleepTime = sleepTime;
+							return;
+						}
+					}
 				}
 			} else {
-				/*TODO dead*/
+				context->state = FY_TM_STATE_DEAD;
 			}
+			break;
+		}
+		case FY_TM_STATE_STOP_PENDING: {
+			context->runningThreadPos = 0;
+			context->state = FY_TM_STATE_STOP;
+			break;
+		}
+		case FY_TM_STATE_DEAD_PENDING:
+			context->state = FY_TM_STATE_DEAD;
+			break;
+		case FY_TM_STATE_DEAD:
+			message->messageType = message_vm_dead;
+			return;
+		default:
+			fy_fault(exception, NULL, "Illegal vm state %d $tmRun2",
+					context->state);
+			return;
 		}
 	}
 }
+

@@ -55,7 +55,8 @@ _FY_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 		clazz = "fisce/lang/FatalError";
 	}
 	if (exception == NULL) {
-		printf("Fatal error happened %s\n", clazz);
+		puts("Fatal error happened\n");
+		puts(clazz);
 		va_start(arg_ptr, format);
 		vfprintf(stdout, format, arg_ptr);
 		va_end(arg_ptr);

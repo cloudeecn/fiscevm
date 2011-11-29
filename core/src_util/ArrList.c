@@ -20,19 +20,28 @@ void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, fy_int initCap,
 		fy_exception *exception) {
 	list->maxLength = initCap;
 	list->length = 0;
-	fy_mmAllocate(block, sizeof(void*) * initCap, exception);
+	list->data = fy_mmAllocate(block, sizeof(void*) * initCap, exception);
 	fy_exceptionCheckAndReturn(exception);
 }
 
 void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) {
 	fy_mmFree(block, list);
 	list->length = -1;
-	list->maxLength = -1
+	list->maxLength = -1;
 }
 
 static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 		fy_exception *exception) {
-
+	void **data;
+	if (list->maxLength < length) {
+		while (list->maxLength < length)
+			list->maxLength <<= 1;
+		data = fy_mmAllocate(block, list->maxLength * sizeof(void*), exception);
+		fy_exceptionCheckAndReturn(exception);
+		memcpy(data, list->data, list->length * sizeof(void*));
+		fy_mmFree(block, list->data);
+		list->data = data;
+	}
 }
 
 void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *entry,

@@ -19,6 +19,7 @@
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
 #include "fy_util/HashMap.h"
+#include "fy_util/ArrList.h"
 #ifndef FISCESTU_H_
 #define FISCESTU_H_
 
@@ -368,20 +369,22 @@ typedef struct fy_thread {
 } fy_thread;
 
 typedef enum fy_messageType {
-	message_continue = 0,
-	/*message_frameChange,*/
-	message_none,
-	message_thread_dead,
-	message_invoke_native,
-	message_exception,
-	message_vm_dead
+	message_continue = 0, /*In thread*/
+	message_none, /*Thread Only*/
+	message_thread_dead, /*Thread Only*/
+	message_invoke_native,/*Thread And TM pass thread*/
+	message_exception, /*Thread And TM pass thread*/
+	message_sleep, /*TM Only*/
+	message_vm_dead /*TM Only*/
 } fy_messageType;
 
 typedef struct fy_message {
 	fy_messageType messageType;
+	fy_thread *thread;
 	union {
 		fy_method *nativeMethod;
 		fy_exception exception;
+		fy_long sleepTime;
 	} body;
 
 } fy_message;

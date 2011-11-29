@@ -27,4 +27,12 @@ typedef struct fy_arrayList {
 	void **data;
 } fy_arrayList;
 
+void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, fy_int initCap,
+		fy_exception *exception);
+void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list);
+void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *entry,
+		fy_exception *exception);
+void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
+		fy_exception *exception);
+
 #endif /* ARRLIST_H_ */

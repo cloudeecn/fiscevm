@@ -46,12 +46,28 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	block = context->memblocks;
 	fy_portInit(context->port);
 
-	fy_linkedListInit(block, &(context->threads), exception);
-	fy_exceptionCheckAndReturn(exception);
-
 	for (i = 0; i < MAX_THREADS; i++) {
 		context->threads[i].threadId = i;
 	}
+	context->nextThreadId = 1;
+
+	fy_arrayListInit(context->memblocks, context->runningThreads, 16,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	context->state = FY_TM_STATE_NEW;
+
+	context->pricmds[0] = 1;
+	context->pricmds[1] = 100;
+	context->pricmds[2] = 200;
+	context->pricmds[3] = 500;
+	context->pricmds[4] = 700;
+	context->pricmds[5] = 1000;
+	context->pricmds[6] = 1400;
+	context->pricmds[7] = 1800;
+	context->pricmds[8] = 2500;
+	context->pricmds[9] = 3500;
+	context->pricmds[10] = 5000;
 
 	context->sBoolean = fy_strCreateFromUTF8(block, "boolean", exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -304,8 +320,6 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_coreRegisterCoreHandlers(context, exception);
 	fy_exceptionCheckAndReturn(exception);
-
-	context->state=FY_TM_STATE_RUN_PENDING;
 }
 
 static fy_class* getClass(fy_context *context, fy_str *name) {

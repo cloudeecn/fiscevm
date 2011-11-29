@@ -70,8 +70,8 @@ ARFLAGS = cru
 libfyutl_a_AR = $(AR) $(ARFLAGS)
 libfyutl_a_LIBADD =
 am_libfyutl_a_OBJECTS = Debug.$(OBJEXT) HashMap.$(OBJEXT) \
-	LnkList.$(OBJEXT) MemMan.$(OBJEXT) Portable.$(OBJEXT) \
-	String.$(OBJEXT) Utf8.$(OBJEXT)
+	ArrList.$(OBJEXT) LnkList.$(OBJEXT) MemMan.$(OBJEXT) \
+	Portable.$(OBJEXT) String.$(OBJEXT) Utf8.$(OBJEXT)
 libfyutl_a_OBJECTS = $(am_libfyutl_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -177,6 +177,7 @@ lib_LIBRARIES = libfyutl.a
 libfyutl_a_SOURCES = \
 	Debug.c \
 	HashMap.c \
+	ArrList.c \
 	LnkList.c \
 	MemMan.c \
 	Portable.c \
@@ -260,6 +261,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ArrList.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LnkList.Po@am__quote@
