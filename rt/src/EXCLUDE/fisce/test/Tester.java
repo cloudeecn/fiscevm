@@ -92,13 +92,11 @@ public class Tester extends Thread implements ITester {
 		int a = 0;
 		System.out.println("Start...");
 		Thread t1 = new Thread(new Profile("Thread1"));
-		Thread t2 = new Thread(new Profile("Thread2"));
 		t1.setPriority(Thread.MAX_PRIORITY);
 		new Tester().start();
-//		t1.start();
-//		t2.start();
+		t1.start();
 		try {
-			Thread.sleep(500);
+			Thread.sleep(2000);
 		} catch (Exception e) {
 		}
 		int[] ia = null;
