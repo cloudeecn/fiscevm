@@ -60,6 +60,7 @@
 #define FY_METHOD_INIT "<init>"
 #define FY_METHOD_CLINIT "<clinit>"
 #define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"
+#define FY_METHODF_RUN ".run.()V"
 #define FY_FIELDF_PRIORITY ".priority.I"
 #define FY_FIELDF_NAME ".name.[C"
 #define FY_FIELDF_DAEMON ".daemon.Z"
@@ -409,6 +410,7 @@ typedef struct fy_context {
 	fy_str *sInit;
 	fy_str *sClinit;
 	fy_str *sFMain;
+	fy_str *sFRun;
 	fy_str *sFPriority;
 	fy_str *sFName;
 	fy_str *sFDaemon;
@@ -465,7 +467,7 @@ typedef struct fy_context {
 	/* #END HEAP*/
 
 	/* #BEGIN THREAD MANAGER*/
-	int pricmds[10];
+	int pricmds[11];
 	fy_thread threads[MAX_THREADS];
 	fy_arrayList runningThreads[1];
 	int runningThreadPos;

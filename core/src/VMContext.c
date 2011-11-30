@@ -58,16 +58,16 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	context->state = FY_TM_STATE_NEW;
 
 	context->pricmds[0] = 1;
-	context->pricmds[1] = 100;
-	context->pricmds[2] = 200;
-	context->pricmds[3] = 500;
-	context->pricmds[4] = 700;
-	context->pricmds[5] = 1000;
-	context->pricmds[6] = 1400;
-	context->pricmds[7] = 1800;
-	context->pricmds[8] = 2500;
-	context->pricmds[9] = 3500;
-	context->pricmds[10] = 5000;
+	context->pricmds[1] = 500;
+	context->pricmds[2] = 1000;
+	context->pricmds[3] = 3200;
+	context->pricmds[4] = 4000;
+	context->pricmds[5] = 5000;
+	context->pricmds[6] = 6500;
+	context->pricmds[7] = 9000;
+	context->pricmds[8] = 12500;
+	context->pricmds[9] = 17500;
+	context->pricmds[10] = 25000;
 
 	context->sBoolean = fy_strCreateFromUTF8(block, "boolean", exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -129,6 +129,9 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_exceptionCheckAndReturn(exception);
 
 	context->sFMain = fy_strCreateFromUTF8(block, FY_METHODF_MAIN, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	context->sFRun = fy_strCreateFromUTF8(block, FY_METHODF_RUN, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	context->sFName = fy_strCreateFromUTF8(block, FY_FIELDF_NAME, exception);

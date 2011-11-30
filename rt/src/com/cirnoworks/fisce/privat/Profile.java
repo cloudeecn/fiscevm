@@ -15,6 +15,15 @@ public class Profile implements Runnable {
 	}
 
 	int j;
+	String name;
+
+	public Profile(String name) {
+		this.name = name;
+	}
+
+	public Profile() {
+		this("profiler");
+	}
 
 	public void run() {
 		long t0 = System.nanoTime();
@@ -30,8 +39,8 @@ public class Profile implements Runnable {
 				k += j;
 			}
 			long t3 = System.nanoTime();
-			System.out.println((t1 - t0) + "\t" + (t2 - t1) + "\t" + (t3 - t2)
-					+ "\t\t" + k);
+			System.out.println(name + ": " + (t1 - t0) + "\t" + (t2 - t1)
+					+ "\t" + (t3 - t2) + "\t\t" + k);
 		}
 	}
 }

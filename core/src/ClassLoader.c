@@ -529,7 +529,7 @@ static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data,
 	fy_char i, count, j, jcount, k, kcount, l, lcount;
 	fy_str *ATT_CODE = fy_strCreateFromUTF8(block, "Code", exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_str *ATT_LINENUM = fy_strCreateFromUTF8(block, "fy_lineNumber",
+	fy_str *ATT_LINENUM = fy_strCreateFromUTF8(block, "LineNumberTable",
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_str *ATT_SYNTH = fy_strCreateFromUTF8(block, "Synthetic", exception);

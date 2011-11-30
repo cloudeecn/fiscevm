@@ -4435,7 +4435,7 @@ done
 
 
 #params
-CFLAGS="$CFLAGS -fPIC -Wall"
+CFLAGS="$CFLAGS -Wall"
 
 
 ac_config_files="$ac_config_files Makefile src_util/Makefile testutil/Makefile src/Makefile test/Makefile"

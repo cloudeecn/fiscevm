@@ -40,10 +40,38 @@ static void SystemTimeNS(struct fy_context *context, struct fy_thread *thread,
 	fy_nativeReturnLong(context, thread, fy_portTimeNanoSec(context->port));
 }
 
+static void SystemIdentityHashCode(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_exception *exception) {
+	fy_nativeReturnInt(context, thread, args[0]);
+}
+
 static void ObjectGetClass(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
 	fy_nativeReturnHandle(context, thread, clazz->classObjId);
+}
+
+static void ObjectWait(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	fy_uint monitorId = args[0];
+	fy_uint high = args[1];
+	fy_uint low = args[2];
+	fy_long time = fy_I2TOL(high,low);
+	fy_tmWait(context, thread, monitorId, time, exception);
+}
+
+static void ObjectNotify(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	fy_uint monitorId = args[0];
+	fy_tmNotify(context, thread, monitorId, FALSE, exception);
+}
+
+static void ObjectNotifyAll(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_exception *exception) {
+	fy_uint monitorId = args[0];
+	fy_tmNotify(context, thread, monitorId, TRUE, exception);
 }
 
 static void ClassGetComponentType(struct fy_context *context,
@@ -67,18 +95,55 @@ static void ThreadCurrentThread(struct fy_context *context,
 static void ThreadSetPriority(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	/*TODO implement thread manager first*/
+	fy_thread *target;
+	fy_object *obj = context->objects + args[0];
+	target = context->threads + obj->attachedId;
+	target->priority = args[1];
 }
 
 static void ThreadIsAlive(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-	/*TODO implement thread manager first*/
-	fy_nativeReturnInt(context, thread, 0);
+	fy_thread *target;
+	fy_object *obj = context->objects + args[0];
+	fy_uint tid = obj->attachedId;
+	target = context->threads + obj->attachedId;
+
+	fy_nativeReturnInt(context, thread, target->inUse ? 1 : 0);
+}
+
+static void ThreadInterrupt(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_exception *exception) {
+	fy_thread *target;
+	fy_object *obj = context->objects + args[0];
+	target = context->threads + obj->attachedId;
+	fy_tmInterrupt(context, args[0], exception);
+}
+
+static void ThreadInterrupted(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_exception *exception) {
+	fy_thread *target;
+	fy_object *obj = context->objects + args[0];
+	fy_boolean ret;
+	target = context->threads + obj->attachedId;
+	ret = fy_tmIsInterrupted(context, args[0], args[1], exception);
+	fy_nativeReturnInt(context, thread, ret ? 1 : 0);
 }
 
 static void ThreadStart(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-	/*TODO implement thread manager first*/
+	fy_tmPushThread(context, args[0], exception);
+}
+
+static void ThreadSleep(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	fy_tmSleep(context, thread, fy_I2TOL(args[0],args[1]));
+}
+
+static void ThreadYield(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	thread->yield = TRUE;
 }
 
 static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
@@ -124,6 +189,7 @@ static void VMDebugOutD(struct fy_context *context, struct fy_thread *thread,
 static void VMThrowOut(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	/*TODO */
+	thread->currentThrowable = args[0];
 }
 
 static void VMExit(struct fy_context *context, struct fy_thread *thread,
@@ -358,6 +424,11 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			SystemTimeNS, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
+			"java/lang/System.identityHashCode.(Ljava/lang/Object;)I", NULL,
+			SystemIdentityHashCode, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context,
 			""FY_BASE_OBJECT".getClass.()L"FY_BASE_CLASS";", NULL,
 			ObjectGetClass, exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -365,6 +436,18 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			""FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
 			ClassGetComponentType, exception);
 	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_OBJECT".wait.(J)V", NULL,
+			ObjectWait, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_OBJECT".notify.()V", NULL,
+			ObjectNotify, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_OBJECT".notifyAll.()V", NULL,
+			ObjectNotifyAll, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	/*Thread*/
 	fy_vmRegisterNativeHandler(context,
 			""FY_BASE_THREAD".currentThread.()L"FY_BASE_THREAD";", NULL,
 			ThreadCurrentThread, exception);
@@ -378,6 +461,14 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".start0.()V", NULL,
 			ThreadStart, exception);
 	fy_exceptionCheckAndReturn(exception);
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".interrupt0.()V", NULL,
+			ThreadInterrupt, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".isInterrupted.()V", NULL,
+			ThreadInterrupted, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	/*FiScEVM*/
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(L"FY_BASE_STRING";)V",
@@ -458,6 +549,11 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_CLASS".getName0.()L"FY_BASE_STRING";", NULL, classGetName,
 			exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".sleep.(J)V", NULL,
+			ThreadSleep, exception);
+	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".yield.()V", NULL,
+			ThreadYield, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 }

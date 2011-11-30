@@ -23,7 +23,7 @@ static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 	fy_object *obj = context->objects + targetHandle;
 	fy_uint threadId = obj->attachedId;
 	ASSERT(threadId>0 && threadId<MAX_THREADS);
-	return context->threads + obj->attachedId;
+	return context->threads + threadId;
 }
 
 static fy_int monitorEnter(fy_context *context, fy_thread *thread,
@@ -106,6 +106,7 @@ void fy_tmMonitorExit(fy_context *context, fy_thread *thread, fy_uint monitorId,
 
 void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time) {
 	thread->nextWakeTime = fy_portTimeMillSec(context->port) + time;
+	thread->yield = TRUE;
 }
 
 void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
@@ -297,9 +298,8 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_threadInit(context, thread);
 	thread->priority = 5;
-	fy_threadCreateWithMethod(context, thread, threadHandle, method, exception);
+	fy_threadInitWithMethod(context, thread, threadHandle, method, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	fy_arrayListAdd(context->memblocks, context->runningThreads, thread,
@@ -350,10 +350,9 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 	fy_exceptionCheckAndReturn(exception);
 
 	thread = context->threads + threadId;
-	fy_threadInit(context, thread);
 	thread->priority = priority;
 	thread->daemon = daemon;
-	fy_threadCreateWithRun(context, thread, threadHandle, exception);
+	fy_threadInitWithRun(context, thread, threadHandle, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	fy_arrayListAdd(context->memblocks, context->runningThreads, thread,
@@ -364,8 +363,8 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception) {
 	/*exception means exception in thread manager
 	 * message means exception in thread*/
-	fy_long nextGC;
-	fy_long nextGCForce;
+	fy_long nextGC = fy_portTimeMillSec(context->port) + 5000;
+	fy_long nextGCForce = nextGC + 10000;
 	fy_boolean stateLocal;
 	fy_arrayList *running = context->runningThreads;
 
@@ -409,6 +408,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 						}
 						break;
 					}
+					context->runningThreadPos++;
 					if (!thread->daemon) {
 						context->run = TRUE;
 					}
@@ -461,7 +461,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 								message->messageType);
 						return;
 					}
-					context->runningThreadPos++;
+
 				} else {
 					if (!context->run) {
 						context->state = FY_TM_STATE_DEAD;
@@ -476,7 +476,8 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 								|| now > nextGCForce) {
 							nextGC = now + 2000;
 							nextGCForce = nextGC + 10000;
-							/*TODO GC*/
+							fy_heapGC(context, exception);
+							fy_exceptionCheckAndReturn(exception);
 							now = fy_portTimeMillSec(context->port);
 							sleepTime = context->nextWakeUpTimeTotal - now;
 						}

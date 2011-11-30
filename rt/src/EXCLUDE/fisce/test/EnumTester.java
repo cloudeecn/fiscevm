@@ -2,7 +2,7 @@ package EXCLUDE.fisce.test;
 
 import com.cirnoworks.fisce.privat.FiScEVM;
 
-public class EnumTester {
+public class EnumTester extends TestService {
 
 	/**
 	 * @param args
@@ -11,7 +11,7 @@ public class EnumTester {
 		try {
 			En en = En.value2;
 			if (en.eval(5, 5) > 0.1 || en.eval(5, 5) < -0.1) {
-				FiScEVM.throwOut(new RuntimeException("eval"));
+				fail("eval");
 			}
 			switch (en) {
 			case value2:
@@ -19,11 +19,11 @@ public class EnumTester {
 			case value1:
 			case value3:
 			default:
-				FiScEVM.throwOut(new RuntimeException("switch"));
+				fail("switch");
 			}
 			en = En.valueOf("value2");
 			if (en.eval(5, 5) > 0.1 || en.eval(5, 5) < -0.1) {
-				FiScEVM.throwOut(new RuntimeException("eval2"));
+				fail("eval2");
 			}
 			switch (en) {
 			case value2:
@@ -31,7 +31,7 @@ public class EnumTester {
 			case value1:
 			case value3:
 			default:
-				FiScEVM.throwOut(new RuntimeException("switch2"));
+				fail("switch2");
 			}
 		} catch (Throwable t) {
 			FiScEVM.throwOut(t);

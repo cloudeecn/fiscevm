@@ -54,6 +54,9 @@ _FY_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 	if (clazz == NULL) {
 		clazz = "fisce/lang/FatalError";
 	}
+	if (i == 0) {
+		i++;
+	}
 	if (exception == NULL) {
 		puts("Fatal error happened\n");
 		puts(clazz);
@@ -126,7 +129,7 @@ void fy_portInit(fy_port *data) {
 	QueryPerformanceCounter(&(data->lpPerfCountBegin));
 	data->perfIdv = 1000000000.0 / data->lpFreq.QuadPart;
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
-	gettimeofday(&(data->tvBeginTime),NULL);
+	gettimeofday(&(data->tvBeginTime), NULL);
 #endif
 }
 void fy_portDestroy(fy_port *data) {
@@ -142,8 +145,8 @@ fy_long fy_portTimeMillSec(fy_port *pd) {
 	return timeDelta + pd->initTimeInMillSec;
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
-	gettimeofday(&tv,NULL);
-	return ((fy_long)tv.tv_sec)*1000+((fy_long)tv.tv_usec)/1000;
+	gettimeofday(&tv, NULL);
+	return ((fy_long) tv.tv_sec) * 1000 + ((fy_long) tv.tv_usec) / 1000;
 #endif
 	return 0;
 }
@@ -155,8 +158,8 @@ fy_long fy_portTimeNanoSec(fy_port *pd) {
 			* pd->perfIdv);
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
 	struct timeval tv;
-	gettimeofday(&tv,NULL);
-	return ((fy_long)tv.tv_sec)*1000000000+((fy_long)tv.tv_usec)*1000;
+	gettimeofday(&tv, NULL);
+	return ((fy_long) tv.tv_sec) * 1000000000 + ((fy_long) tv.tv_usec) * 1000;
 #endif
 	return 0;
 }

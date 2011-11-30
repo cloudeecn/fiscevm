@@ -1,6 +1,6 @@
 package EXCLUDE.fisce.test;
 
-public class RunnerTester extends Thread {
+public class RunnerTester extends TestService implements Runnable {
 
 	/**
 	 * @param args
@@ -10,53 +10,62 @@ public class RunnerTester extends Thread {
 	private boolean started = false;
 
 	public static void main(String[] args) {
-		RunnerTester t = new RunnerTester();
-		// t.setPriority(10);
-		t.start();
-		synchronized (lock0) {
-			try {
-				while (!t.started) {
-					System.out.println("[WAIT]");
-					lock0.wait();
-					System.out.println("[WAIT OVER]");
+		try {
+			RunnerTester rt = new RunnerTester();
+			Thread t = new Thread(rt);
+			// t.setPriority(10);
+			t.start();
+			synchronized (lock0) {
+				try {
+					while (!rt.started) {
+						System.out.println("[WAIT]");
+						lock0.wait();
+						System.out.println("[WAIT OVER]");
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
-		}
 
-		for (int i = 0; i < 4; i++) {
-			synchronized (lock) {
-				System.out.println("[********]");
+			for (int i = 0; i < 4; i++) {
+				synchronized (lock) {
+					System.out.println("[********]");
+				}
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-			try {
-				Thread.sleep(200);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			t.interrupt();
+			return;
+		} catch (Exception e) {
+			fail(e.toString());
 		}
-		t.interrupt();
-		return;
 	}
 
 	public void run() {
-		Thread.yield();
-		synchronized (lock0) {
-			started = true;
-			System.out.println("[NOTIFY]");
-			lock0.notifyAll();
-			System.out.println("[NOTIFY OVER]");
-		}
-		int j = 0;
-		while (true) {
-			synchronized (lock) {
-				System.out.println("[########]");
+		try {
+			Thread.yield();
+			synchronized (lock0) {
+				started = true;
+				System.out.println("[NOTIFY]");
+				lock0.notifyAll();
+				System.out.println("[NOTIFY OVER]");
 			}
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				return;
+			int j = 0;
+			while (true) {
+				synchronized (lock) {
+					System.out.println("[########]");
+				}
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					return;
+				}
 			}
+		} catch (Exception e) {
+			fail(e.toString());
 		}
 	}
 

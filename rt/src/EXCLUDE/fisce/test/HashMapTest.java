@@ -24,7 +24,7 @@ import java.util.HashMap;
  * @author cloudee
  * 
  */
-public class HashMapTest {
+public class HashMapTest extends TestService {
 
 	public static void main(String[] args) {
 		try {
@@ -33,110 +33,88 @@ public class HashMapTest {
 				map.put(i, i * 2);
 			}
 			if (map.size() != 500) {
-				FiScEVM.throwOut(new RuntimeException("size is wrong! "
-						+ map.size()));
+				fail(("size is wrong! " + map.size()));
 			}
 			if (map.containsKey(null)) {
-				FiScEVM.throwOut(new RuntimeException(
-						"Null exists before add null! "));
+				fail(("Null exists before add null! "));
 			}
 			if (map.get(null) != null) {
-				FiScEVM.throwOut(new RuntimeException(
-						"get(null)!=null before add null! "));
+				fail(("get(null)!=null before add null! "));
 			}
 			map.put(null, -1);
 			if (map.size() != 501) {
-				FiScEVM.throwOut(new RuntimeException(
-						"size is wrong after add null! " + map.size()));
+				fail(("size is wrong after add null! " + map.size()));
 			}
 			if (!map.containsKey(null)) {
-				FiScEVM.throwOut(new RuntimeException(
-						"Null not exist after add null! "));
+				fail(("Null not exist after add null! "));
 			}
 			if (map.get(null) == null) {
-				FiScEVM.throwOut(new RuntimeException(
-						"get(null)==null after add null! "));
+				fail(("get(null)==null after add null! "));
 			}
 			map.remove(null);
 			if (map.size() != 500) {
-				FiScEVM.throwOut(new RuntimeException(
-						"size is wrong after add and remove null! "
-								+ map.size()));
+				fail(("size is wrong after add and remove null! " + map.size()));
 			}
 			if (map.containsKey(null)) {
-				FiScEVM.throwOut(new RuntimeException(
-						"Null exists after add and remove null! "));
+				fail(("Null exists after add and remove null! "));
 			}
 			if (map.get(null) != null) {
-				FiScEVM.throwOut(new RuntimeException(
-						"get(null)!=null after add and remove null! "));
+				fail(("get(null)!=null after add and remove null! "));
 			}
 			for (int i = 0; i < 500; i++) {
 				if (!map.containsKey(i)) {
-					FiScEVM.throwOut(new RuntimeException("key " + i
-							+ " not exist!"));
+					fail(("key " + i + " not exist!"));
 				}
 				int value = map.get(i);
 				if (value != i * 2) {
-					FiScEVM.throwOut(new RuntimeException("key " + i
-							+ "'s value is " + value));
+					fail(("key " + i + "'s value is " + value));
 				}
 			}
 			for (int i = 501; i < 600; i++) {
 				Integer key = new Integer(i);
 				if (map.containsKey(key)) {
-					FiScEVM.throwOut(new RuntimeException("key " + i
-							+ " should not exist!"));
+					fail(("key " + i + " should not exist!"));
 				}
 				if (map.get(key) != null) {
-					FiScEVM.throwOut(new RuntimeException("key " + i
-							+ " should be null!"));
+					fail(("key " + i + " should be null!"));
 				}
 			}
 			for (int i = 0; i < 500; i += 2) {
 				Integer key = new Integer(i);
 				Integer value = (Integer) map.remove(key);
 				if (value == null) {
-					FiScEVM.throwOut(new RuntimeException(
-							"remove error, remove exist non null should not return null"
-									+ key));
+					fail(("remove error, remove exist non null should not return null" + key));
 				}
 			}
 			if (map.size() != 250) {
-				FiScEVM.throwOut(new RuntimeException(
-						"size is wrong after remove 2500"));
+				fail(("size is wrong after remove 2500"));
 			}
 			for (int i = 501; i < 600; i++) {
 				Integer key = new Integer(i);
 				Integer value = (Integer) map.remove(key);
 				if (value != null) {
-					FiScEVM.throwOut(new RuntimeException(
-							"remove error, remove not exist should return null"
-									+ key));
+					fail(("remove error, remove not exist should return null" + key));
 				}
 			}
 			if (map.size() != 250) {
-				FiScEVM.throwOut(new RuntimeException(
-						"size is wrong after remove non exists"));
+				fail(("size is wrong after remove non exists"));
 			}
 			for (int i = 1; i < 500; i += 2) {
 				Integer key = new Integer(i);
 				if (!map.containsKey(key)) {
-					FiScEVM.throwOut(new RuntimeException("key " + i
-							+ " not exist2!"));
+					fail(("key " + i + " not exist2!"));
 				}
 				Integer value = (Integer) map.get(key);
 				if (value == null) {
-					FiScEVM.throwOut(new RuntimeException("remove error, get("
-							+ key + ") should not return null"));
+					fail(("remove error, get(" + key + ") should not return null"));
 				}
 				if (value.intValue() != i * 2) {
-					FiScEVM.throwOut(new RuntimeException("remove error, get("
-							+ key + ") with wrong value " + value));
+					fail(("remove error, get(" + key + ") with wrong value " + value));
 				}
 			}
 		} catch (Throwable t) {
-			FiScEVM.throwOut(t);
+			t.printStackTrace();
+			fail(t.toString());
 		}
 	}
 }

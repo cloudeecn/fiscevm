@@ -91,7 +91,16 @@ public class Tester extends Thread implements ITester {
 	static public void main(String[] args) {
 		int a = 0;
 		System.out.println("Start...");
-		new Profile().run();
+		Thread t1 = new Thread(new Profile("Thread1"));
+		Thread t2 = new Thread(new Profile("Thread2"));
+		t1.setPriority(Thread.MAX_PRIORITY);
+		new Tester().start();
+//		t1.start();
+//		t2.start();
+		try {
+			Thread.sleep(500);
+		} catch (Exception e) {
+		}
 		int[] ia = null;
 		if (a == 1) {
 			ia = new int[50];
@@ -109,12 +118,6 @@ public class Tester extends Thread implements ITester {
 		// FiScEVM.debugOut(Integer.toString(ib, 10));
 		// FiScEVM.debugOut(ib);
 
-		if (a == 0) {
-		}
-
-		if (a == 0) {
-			throw new NullPointerException();
-		}
 		int k = 1000000;
 		if (k > 100) {
 			k += 5;
@@ -148,6 +151,6 @@ public class Tester extends Thread implements ITester {
 		is1 = 5555;
 		System.out.println("" + is1 + " " + is2 + " " + fs1 + " " + fs2);
 		System.out.println("Hello world!");
-
+		throw new NullPointerException();
 	}
 }
