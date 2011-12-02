@@ -37,18 +37,25 @@ _FY_EXPORT void fy_strDestroy(fy_memblock *block, fy_str *string) {
 
 }
 
-_FY_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block, const char *utf8,
-		fy_exception *exception) {
-	fy_str *ret;
+_FY_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
+		const char *utf8, fy_exception *exception) {
 	size_t size;
 	size = fy_utf8SizeS(utf8, -1);
-	ret = fy_mmAllocate(block, sizeof(fy_str), exception);
+	fy_strInit(block, str, size, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_strAppendUTF8(block, str, utf8, -1, exception);
+	fy_exceptionCheckAndReturn(exception);
+}
+
+_FY_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block, const char *utf8,
+		fy_exception *exception) {
+	fy_str *str;
+
+	str = fy_mmAllocate(block, sizeof(fy_str), exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
-	fy_strInit(block, ret, size, exception);
+	fy_strInitWithUTF8(block, str, utf8, exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
-	fy_strAppendUTF8(block, ret, utf8, -1, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-	return ret;
+	return str;
 }
 
 static fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this, fy_int size,

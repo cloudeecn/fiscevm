@@ -35,6 +35,8 @@ typedef struct fy_str {
 } fy_str;
 #define fy_strCreate(BLOCK,EXCEPTION) fy_strInit((BLOCK),fy_mmAllocate((BLOCK),sizeof(fy_str),(EXCEPTION)),16,(EXCEPTION))
 #define fy_strRelease(BLOCK,STR) fy_strDestroy((BLOCK),(STR));fy_mmFree((BLOCK),(STR));
+_FY_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
+		const char *utf8, fy_exception *exception);
 _FY_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *mem, const char *utf8,
 		fy_exception *exception);
 _FY_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,

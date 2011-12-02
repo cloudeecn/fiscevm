@@ -58,159 +58,157 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	context->state = FY_TM_STATE_NEW;
 
 	context->pricmds[0] = 1;
-	context->pricmds[1] = 500;
-	context->pricmds[2] = 1000;
-	context->pricmds[3] = 3200;
-	context->pricmds[4] = 4000;
-	context->pricmds[5] = 5000;
-	context->pricmds[6] = 6500;
-	context->pricmds[7] = 9000;
-	context->pricmds[8] = 12500;
-	context->pricmds[9] = 17500;
-	context->pricmds[10] = 25000;
+	context->pricmds[1] = 125;
+	context->pricmds[2] = 250;
+	context->pricmds[3] = 500;
+	context->pricmds[4] = 1000;
+	context->pricmds[5] = 2000;
+	context->pricmds[6] = 4000;
+	context->pricmds[7] = 8000;
+	context->pricmds[8] = 16000;
+	context->pricmds[9] = 32000;
+	context->pricmds[10] = 64000;
 
-	context->sBoolean = fy_strCreateFromUTF8(block, "boolean", exception);
+	fy_strInitWithUTF8(block, context->sBoolean, "boolean", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sByte = fy_strCreateFromUTF8(block, "byte", exception);
+	fy_strInitWithUTF8(block, context->sByte, "byte", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sShort = fy_strCreateFromUTF8(block, "short", exception);
+	fy_strInitWithUTF8(block, context->sShort, "short", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sChar = fy_strCreateFromUTF8(block, "char", exception);
+	fy_strInitWithUTF8(block, context->sChar, "char", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sInt = fy_strCreateFromUTF8(block, "int", exception);
+	fy_strInitWithUTF8(block, context->sInt, "int", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sFloat = fy_strCreateFromUTF8(block, "float", exception);
+	fy_strInitWithUTF8(block, context->sFloat, "float", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sLong = fy_strCreateFromUTF8(block, "long", exception);
+	fy_strInitWithUTF8(block, context->sLong, "long", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sDouble = fy_strCreateFromUTF8(block, "double", exception);
+	fy_strInitWithUTF8(block, context->sDouble, "double", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sTopClass = fy_strCreateFromUTF8(block, FY_BASE_OBJECT, exception);
+	fy_strInitWithUTF8(block, context->sTopClass, FY_BASE_OBJECT, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sClassClass = fy_strCreateFromUTF8(block, FY_BASE_CLASS,
+	fy_strInitWithUTF8(block, context->sClassClass, FY_BASE_CLASS, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_strInitWithUTF8(block, context->sClassThrowable, FY_BASE_THROWABLE,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sClassThrowable = fy_strCreateFromUTF8(block, FY_BASE_THROWABLE,
+	fy_strInitWithUTF8(block, context->sString, FY_BASE_STRING, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_strInitWithUTF8(block, context->sThread, FY_BASE_THREAD, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_strInitWithUTF8(block, context->sStringArray, "[L"FY_BASE_THROWABLE";",
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sString = fy_strCreateFromUTF8(block, FY_BASE_STRING, exception);
-	fy_exceptionCheckAndReturn(exception);
-
-	context->sThread = fy_strCreateFromUTF8(block, FY_BASE_THREAD, exception);
-	fy_exceptionCheckAndReturn(exception);
-
-	context->sStringArray = fy_strCreateFromUTF8(block,
-			"[L"FY_BASE_THROWABLE";", exception);
-	fy_exceptionCheckAndReturn(exception);
-
-	context->sThrowablePrintStacktrace = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sThrowablePrintStacktrace,
 			FY_BASE_THROWABLE".printStackTrace.()V", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sThrowableDetailMessage = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sThrowableDetailMessage,
 			FY_BASE_THROWABLE".detailMessage.L"FY_BASE_STRING";", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sInit = fy_strCreateFromUTF8(block, FY_METHOD_INIT, exception);
+	fy_strInitWithUTF8(block, context->sInit, FY_METHOD_INIT, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sClinit = fy_strCreateFromUTF8(block, FY_METHOD_CLINIT, exception);
+	fy_strInitWithUTF8(block, context->sClinit, FY_METHOD_CLINIT, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sFMain = fy_strCreateFromUTF8(block, FY_METHODF_MAIN, exception);
+	fy_strInitWithUTF8(block, context->sFMain, FY_METHODF_MAIN, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sFRun = fy_strCreateFromUTF8(block, FY_METHODF_RUN, exception);
+	fy_strInitWithUTF8(block, context->sFRun, FY_METHODF_RUN, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sFName = fy_strCreateFromUTF8(block, FY_FIELDF_NAME, exception);
+	fy_strInitWithUTF8(block, context->sFName, FY_FIELDF_NAME, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sFPriority = fy_strCreateFromUTF8(block, FY_FIELDF_PRIORITY,
+	fy_strInitWithUTF8(block, context->sFPriority, FY_FIELDF_PRIORITY,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sFDaemon = fy_strCreateFromUTF8(block, FY_FIELDF_DAEMON,
+	fy_strInitWithUTF8(block, context->sFDaemon, FY_FIELDF_DAEMON, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_strInitWithUTF8(block, context->sStringCount, FY_BASE_STRING".count.I",
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sStringCount = fy_strCreateFromUTF8(block,
-			FY_BASE_STRING".count.I", exception);
+	fy_strInitWithUTF8(block, context->sStringValue, FY_BASE_STRING".value.[C",
+			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sStringValue = fy_strCreateFromUTF8(block,
-			FY_BASE_STRING".value.[C", exception);
+	fy_strInitWithUTF8(block, context->sStringOffset, FY_BASE_STRING".offset.I",
+			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sStringOffset = fy_strCreateFromUTF8(block,
-			FY_BASE_STRING".offset.I", exception);
-	fy_exceptionCheckAndReturn(exception);
-
-	context->sStackTraceElement = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sStackTraceElement,
 			FY_BASE_STACKTHREADELEMENT, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sStackTraceElementArray = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sStackTraceElementArray,
 			"[L"FY_BASE_STACKTHREADELEMENT";", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sStackTraceElementDeclaringClass = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sStackTraceElementDeclaringClass,
 			FY_BASE_STACKTHREADELEMENT".declaringClass.L"FY_BASE_STRING";",
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sStackTraceElementMethodName = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sStackTraceElementMethodName,
 			FY_BASE_STACKTHREADELEMENT".methodName.L"FY_BASE_STRING";",
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sStackTraceElementFileName = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sStackTraceElementFileName,
 			FY_BASE_STACKTHREADELEMENT".fileName.L"FY_BASE_STRING";",
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sStackTraceElementLineNumber = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sStackTraceElementLineNumber,
 			FY_BASE_STACKTHREADELEMENT".lineNumber.I", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sThrowableStackTrace = fy_strCreateFromUTF8(block,
+	fy_strInitWithUTF8(block, context->sThrowableStackTrace,
 			FY_BASE_THROWABLE".stackTrace.[L"FY_BASE_STACKTHREADELEMENT";",
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sArrayBoolean = fy_strCreateFromUTF8(block, "[Z", exception);
+	fy_strInitWithUTF8(block, context->sArrayBoolean, "[Z", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sArrayChar = fy_strCreateFromUTF8(block, "[C", exception);
+	fy_strInitWithUTF8(block, context->sArrayChar, "[C", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sArrayFloat = fy_strCreateFromUTF8(block, "[F", exception);
+	fy_strInitWithUTF8(block, context->sArrayFloat, "[F", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sArrayDouble = fy_strCreateFromUTF8(block, "[D", exception);
+	fy_strInitWithUTF8(block, context->sArrayDouble, "[D", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sArrayByte = fy_strCreateFromUTF8(block, "[B", exception);
+	fy_strInitWithUTF8(block, context->sArrayByte, "[B", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sArrayShort = fy_strCreateFromUTF8(block, "[S", exception);
+	fy_strInitWithUTF8(block, context->sArrayShort, "[S", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sArrayInteger = fy_strCreateFromUTF8(block, "[I", exception);
+	fy_strInitWithUTF8(block, context->sArrayInteger, "[I", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->sArrayLong = fy_strCreateFromUTF8(block, "[J", exception);
+	fy_strInitWithUTF8(block, context->sArrayLong, "[J", exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	context->primitives[FY_TYPE_BOOLEAN] = context->sBoolean;
@@ -222,9 +220,6 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	context->primitives[FY_TYPE_LONG] = context->sLong;
 	context->primitives[FY_TYPE_DOUBLE] = context->sDouble;
 
-	context->mapPrimitivesRev = fy_mmAllocate(block, sizeof(fy_hashMap),
-			exception);
-	fy_exceptionCheckAndReturn(exception);
 	fy_hashMapInit(block, context->mapPrimitivesRev, 13, 12, exception);
 	fy_exceptionCheckAndReturn(exception);
 
@@ -284,27 +279,15 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->mapClassNameToId = fy_mmAllocate(block, sizeof(fy_hashMap),
-			exception);
-	fy_exceptionCheckAndReturn(exception);
 	fy_hashMapInit(block, context->mapClassNameToId, 1024, 12, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->mapFieldNameToId = fy_mmAllocate(block, sizeof(fy_hashMap),
-			exception);
-	fy_exceptionCheckAndReturn(exception);
 	fy_hashMapInit(block, context->mapFieldNameToId, 1024, 12, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->mapMethodNameToId = fy_mmAllocate(block, sizeof(fy_hashMap),
-			exception);
-	fy_exceptionCheckAndReturn(exception);
 	fy_hashMapInit(block, context->mapMethodNameToId, 1024, 12, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->mapMUNameToNH = fy_mmAllocate(block, sizeof(fy_hashMap),
-			exception);
-	fy_exceptionCheckAndReturn(exception);
 	fy_hashMapInit(block, context->mapMUNameToNH, 1024, 12, exception);
 	fy_exceptionCheckAndReturn(exception);
 
@@ -316,8 +299,6 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->literals = fy_mmAllocate(block, sizeof(fy_hashMap), exception);
-	fy_exceptionCheckAndReturn(exception);
 	fy_hashMapInitSimple(block, context->literals, exception);
 	fy_exceptionCheckAndReturn(exception);
 

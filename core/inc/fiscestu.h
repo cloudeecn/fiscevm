@@ -377,7 +377,8 @@ typedef enum fy_messageType {
 	message_invoke_native,/*Thread And TM pass thread*/
 	message_exception, /*Thread And TM pass thread*/
 	message_sleep, /*TM Only*/
-	message_vm_dead /*TM Only*/
+	message_vm_dead
+/*TM Only*/
 } fy_messageType;
 
 typedef struct fy_message {
@@ -393,55 +394,55 @@ typedef struct fy_message {
 
 typedef struct fy_context {
 
-	fy_str *sTopClass;
-	fy_str *sClassClass;
-	fy_str *sClassThrowable;
-	fy_str *sBoolean;
-	fy_str *sByte;
-	fy_str *sShort;
-	fy_str *sChar;
-	fy_str *sInt;
-	fy_str *sFloat;
-	fy_str *sLong;
-	fy_str *sDouble;
-	fy_str *sString;
-	fy_str *sThread;
-	fy_str *sStringArray;
-	fy_str *sThrowablePrintStacktrace;
-	fy_str *sInit;
-	fy_str *sClinit;
-	fy_str *sFMain;
-	fy_str *sFRun;
-	fy_str *sFPriority;
-	fy_str *sFName;
-	fy_str *sFDaemon;
-	fy_str *sStringValue;
-	fy_str *sStringOffset;
-	fy_str *sStringCount;
+	fy_str sTopClass[1];
+	fy_str sClassClass[1];
+	fy_str sClassThrowable[1];
+	fy_str sBoolean[1];
+	fy_str sByte[1];
+	fy_str sShort[1];
+	fy_str sChar[1];
+	fy_str sInt[1];
+	fy_str sFloat[1];
+	fy_str sLong[1];
+	fy_str sDouble[1];
+	fy_str sString[1];
+	fy_str sThread[1];
+	fy_str sStringArray[1];
+	fy_str sThrowablePrintStacktrace[1];
+	fy_str sInit[1];
+	fy_str sClinit[1];
+	fy_str sFMain[1];
+	fy_str sFRun[1];
+	fy_str sFPriority[1];
+	fy_str sFName[1];
+	fy_str sFDaemon[1];
+	fy_str sStringValue[1];
+	fy_str sStringOffset[1];
+	fy_str sStringCount[1];
 
-	fy_str *sArrayBoolean;
-	fy_str *sArrayChar;
-	fy_str *sArrayFloat;
-	fy_str *sArrayDouble;
-	fy_str *sArrayByte;
-	fy_str *sArrayShort;
-	fy_str *sArrayInteger;
-	fy_str *sArrayLong;
+	fy_str sArrayBoolean[1];
+	fy_str sArrayChar[1];
+	fy_str sArrayFloat[1];
+	fy_str sArrayDouble[1];
+	fy_str sArrayByte[1];
+	fy_str sArrayShort[1];
+	fy_str sArrayInteger[1];
+	fy_str sArrayLong[1];
 
-	fy_str *sThrowableStackTrace;
-	fy_str *sThrowableDetailMessage;
-	fy_str *sStackTraceElement;
-	fy_str *sStackTraceElementArray;
-	fy_str *sStackTraceElementDeclaringClass;
-	fy_str *sStackTraceElementMethodName;
-	fy_str *sStackTraceElementFileName;
-	fy_str *sStackTraceElementLineNumber;
+	fy_str sThrowableStackTrace[1];
+	fy_str sThrowableDetailMessage[1];
+	fy_str sStackTraceElement[1];
+	fy_str sStackTraceElementArray[1];
+	fy_str sStackTraceElementDeclaringClass[1];
+	fy_str sStackTraceElementMethodName[1];
+	fy_str sStackTraceElementFileName[1];
+	fy_str sStackTraceElementLineNumber[1];
 
 	struct fy_class *TOP_THROWABLE;
 	struct fy_class *TOP_CLASS;
 
 	struct fy_str *primitives[128];
-	struct fy_hashMap *mapPrimitivesRev;
+	struct fy_hashMap mapPrimitivesRev[1];
 
 	fy_memblock memblocks[1];
 	fy_port port[1];
@@ -449,20 +450,20 @@ typedef struct fy_context {
 	int classesCount;
 	struct fy_class *classes[MAX_CLASSES];
 
-	struct fy_hashMap *mapClassNameToId;
+	struct fy_hashMap mapClassNameToId[1];
 
 	int methodsCount;
 	struct fy_method *methods[MAX_METHODS];
-	struct fy_hashMap *mapMethodNameToId;
+	struct fy_hashMap mapMethodNameToId[1];
 
 	int fieldsCount;
 	struct fy_field *fields[MAX_FIELDS];
-	struct fy_hashMap *mapFieldNameToId;
+	struct fy_hashMap mapFieldNameToId[1];
 
-	struct fy_hashMap *mapMUNameToNH;
+	struct fy_hashMap mapMUNameToNH[1];
 
 	/* #BEGIN HEAP*/
-	fy_hashMap *literals;
+	fy_hashMap literals[1];
 	int nextHandle;
 	fy_object objects[MAX_OBJECTS];
 	/* #END HEAP*/
