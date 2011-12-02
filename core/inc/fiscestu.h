@@ -57,6 +57,7 @@
 #define FY_BASE_THROWABLE "java/lang/Throwable"
 #define FY_BASE_THREAD "java/lang/Thread"
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
+#define FY_BASE_INVOCATION_TARGET_EXCEPTION "java/lang/InvocationTargetException"
 #define FY_METHOD_INIT "<init>"
 #define FY_METHOD_CLINIT "<clinit>"
 #define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"

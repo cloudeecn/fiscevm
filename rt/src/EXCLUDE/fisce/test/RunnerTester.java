@@ -61,11 +61,13 @@ public class RunnerTester extends TestService implements Runnable {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
+					e.printStackTrace();
 					return;
 				}
 			}
 		} catch (Exception e) {
 			fail(e.toString());
+			e.printStackTrace();
 		}
 	}
 

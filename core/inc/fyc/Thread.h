@@ -277,6 +277,9 @@ void fy_threadInitWithData(fy_context *context, fy_thread *thread,
 void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 		int threadHandle, fy_method *method, fy_exception *exception);
 
+void fy_threadPushMethod(fy_context *context, fy_thread *thread,
+		fy_method *invoke, fy_frame **localFrame, fy_exception *exception);
+
 void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		fy_int ops);
 

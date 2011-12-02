@@ -265,15 +265,15 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	threadClass = fy_vmLookupClass(context, context->sThread, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	threadNameField = fy_vmLookupFieldStatic(context, threadClass,
+	threadNameField = fy_vmLookupFieldVirtual(context, threadClass,
 			context->sFName, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	threadPriorityField = fy_vmLookupFieldStatic(context, threadClass,
+	threadPriorityField = fy_vmLookupFieldVirtual(context, threadClass,
 			context->sFPriority, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	method = fy_vmLookupMethodStatic(context, clazz, context->sFMain,
+	method = fy_vmLookupMethodVirtual(context, clazz, context->sFMain,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
@@ -328,10 +328,10 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 
 	threadClass = fy_vmLookupClass(context, context->sThread, exception);
 	fy_exceptionCheckAndReturn(exception);
-	threadDaemonField = fy_vmLookupFieldStatic(context, threadClass,
+	threadDaemonField = fy_vmLookupFieldVirtual(context, threadClass,
 			context->sFDaemon, exception);
 	fy_exceptionCheckAndReturn(exception);
-	threadPriorityField = fy_vmLookupFieldStatic(context, threadClass,
+	threadPriorityField = fy_vmLookupFieldVirtual(context, threadClass,
 			context->sFPriority, exception);
 	fy_exceptionCheckAndReturn(exception);
 

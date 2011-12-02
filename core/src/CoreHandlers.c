@@ -86,6 +86,77 @@ static void ClassGetComponentType(struct fy_context *context,
 	}
 }
 
+static void ClassInvokeMethod(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_exception *exception) {
+	fy_uint classHandle = args[0];
+	fy_uint methodNameHandle = args[1];
+	/*fy_boolean isStatic = args[2];*/
+	fy_uint paramsHandle = args[3];
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, classHandle,
+			exception);
+	fy_str methodName;
+	fy_exceptionCheckAndReturn(exception);
+	fy_method *method;
+	fy_byte *paramTypes;
+	fy_uint count, i;
+	fy_frame *currentFrame = thread->frames + (thread->frameCount - 1);
+	fy_uint sp = currentFrame->sp;
+
+	methodName.content = NULL;
+	fy_strInit(context->memblocks, &methodName, 64, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_strAppendUTF8(context->memblocks, &methodName, ".", 1, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, &methodName);
+		return;
+	}
+
+	fy_heapGetString(context, methodNameHandle, &methodName, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, &methodName);
+		return;
+	}
+
+	method = fy_vmLookupMethodVirtual(context, clazz, &methodName, exception);
+	fy_strDestroy(context->memblocks, &methodName);
+	fy_exceptionCheckAndReturn(exception);
+	if (method == NULL) {
+		fy_fault(exception, FY_BASE_INVOCATION_TARGET_EXCEPTION,
+				"Method not found!");
+		return;
+	}
+	if (method->returnType != FY_TYPE_HANDLE) {
+		fy_fault(exception, FY_BASE_INVOCATION_TARGET_EXCEPTION,
+				"Return type not Object!");
+		return;
+	}
+	paramTypes = method->paramTypes;
+	count = paramsHandle == 0 ?
+			0 : fy_heapArrayLength(context, paramsHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	if (count != method->paramCount) {
+		fy_fault(exception, FY_BASE_INVOCATION_TARGET_EXCEPTION,
+				"param count not match!");
+		return;
+	}
+	for (i = 0; i < count; i++) {
+		thread->stack[sp + i] = fy_heapGetArrayInt(context, paramsHandle, i,
+				exception);
+		fy_exceptionCheckAndReturn(exception);
+		thread->typeStack[sp + i] = FY_TYPE_HANDLE;
+		if (paramTypes[i] != FY_TYPE_HANDLE) {
+			fy_fault(exception, FY_BASE_INVOCATION_TARGET_EXCEPTION,
+					"param type not all handle");
+			break;
+		}
+	}
+	fy_threadPushMethod(context, thread, method, NULL, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+}
+
 static void ThreadCurrentThread(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
@@ -103,30 +174,20 @@ static void ThreadSetPriority(struct fy_context *context,
 
 static void ThreadIsAlive(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-	fy_thread *target;
-	fy_object *obj = context->objects + args[0];
-	fy_uint tid = obj->attachedId;
-	target = context->threads + obj->attachedId;
-
-	fy_nativeReturnInt(context, thread, target->inUse ? 1 : 0);
+	fy_nativeReturnInt(context, thread,
+			fy_tmIsAlive(context, args[0], exception) ? 1 : 0);
 }
 
 static void ThreadInterrupt(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	fy_thread *target;
-	fy_object *obj = context->objects + args[0];
-	target = context->threads + obj->attachedId;
 	fy_tmInterrupt(context, args[0], exception);
 }
 
 static void ThreadInterrupted(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	fy_thread *target;
-	fy_object *obj = context->objects + args[0];
 	fy_boolean ret;
-	target = context->threads + obj->attachedId;
 	ret = fy_tmIsInterrupted(context, args[0], args[1], exception);
 	fy_nativeReturnInt(context, thread, ret ? 1 : 0);
 }
@@ -410,7 +471,28 @@ static void classGetName(struct fy_context *context, struct fy_thread *thread,
 	fy_nativeReturnHandle(context, thread, handle);
 }
 
+static void classForName(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	fy_uint nameHandle = args[0];
+	fy_boolean initialize = args[1];
+	fy_str str;
+	fy_class *clazz;
+	str.content = NULL;
+	fy_strInit(context->memblocks, &str, 64, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_heapGetString(context, nameHandle, &str, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, &str);
+		return;
+	}
+	clazz = fy_vmLookupClass(context, &str, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_nativeReturnHandle(context, thread, clazz->classObjId);
+}
+
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
+	/*System*/
 	fy_vmRegisterNativeHandler(
 			context,
 			"java/lang/System.arraycopy.(L"FY_BASE_OBJECT";IL"FY_BASE_OBJECT";II)V",
@@ -428,15 +510,25 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			SystemIdentityHashCode, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_OBJECT".getClass.()L"FY_BASE_CLASS";", NULL,
-			ObjectGetClass, exception);
-	fy_exceptionCheckAndReturn(exception);
+	/*Class*/
 	fy_vmRegisterNativeHandler(context,
 			""FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
 			ClassGetComponentType, exception);
 	fy_exceptionCheckAndReturn(exception);
-
+	fy_vmRegisterNativeHandler(
+			context,
+			""FY_BASE_CLASS".invokeMethodHandleReturn0.(L"FY_BASE_STRING";Z[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
+			NULL, ClassInvokeMethod, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_vmRegisterNativeHandler(context,
+			""FY_BASE_CLASS".forName0.(L"FY_BASE_STRING";Z)L"FY_BASE_CLASS";",
+			NULL, classForName, exception);
+	fy_exceptionCheckAndReturn(exception);
+	/*Object*/
+	fy_vmRegisterNativeHandler(context,
+			""FY_BASE_OBJECT".getClass.()L"FY_BASE_CLASS";", NULL,
+			ObjectGetClass, exception);
+	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context, ""FY_BASE_OBJECT".wait.(J)V", NULL,
 			ObjectWait, exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -464,8 +556,8 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".interrupt0.()V", NULL,
 			ThreadInterrupt, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".isInterrupted.()V", NULL,
-			ThreadInterrupted, exception);
+	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".isInterrupted.()V",
+			NULL, ThreadInterrupted, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	/*FiScEVM*/

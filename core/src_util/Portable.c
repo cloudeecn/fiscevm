@@ -52,7 +52,7 @@ _FY_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 	va_list arg_ptr;
 	int i = 0;
 	if (clazz == NULL) {
-		clazz = "fisce/lang/FatalError";
+		clazz = "";
 	}
 	if (i == 0) {
 		i++;
@@ -75,7 +75,6 @@ _FY_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 		va_start(arg_ptr, format);
 		vsprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				format, arg_ptr);
-		vfprintf(stdout, format, arg_ptr);
 		va_end(arg_ptr);
 	}
 }

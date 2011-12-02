@@ -25,7 +25,6 @@ fy_data *fy_resourceAllocateData(fy_context *context, const char *name,
 	fy_exceptionCheckAndReturn(exception)NULL;
 	fp = fopen(name, "rb");
 	if (fp == NULL) {
-		fy_fault(exception, NULL, "Can't get source %s", name);
 		return NULL;
 	}
 	fseek(fp, 0L, SEEK_END);

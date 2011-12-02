@@ -27,6 +27,7 @@ static fy_exception *exception;
 
 static char msg[256];
 static FILE *fp;
+static char *customTest;
 static void fy_log(const char *format, ...) {
 	char lmsg[1024];
 	va_list va_ptr;
@@ -44,7 +45,7 @@ static void fy_log(const char *format, ...) {
 }
 
 int test_init(void) {
-	fp = fopen("Test.log", "w");
+	fp = fopen(customTest==NULL?"Test.log":"Test-custom.log", "w");
 	if (fp == NULL) {
 		printf("Open log file failed");
 		return 1;
@@ -334,24 +335,28 @@ void testThread2() {
 	hltest("EXCLUDE/fisce/test/RunnerTester");
 }
 
-void testEnum(){
+void testEnum() {
 	hltest("EXCLUDE/fisce/test/EnumTester");
 }
 
-void testException(){
+void testException() {
 	hltest("EXCLUDE/fisce/test/ExceptionTester");
 }
 
-void testForEach(){
+void testForEach() {
 	hltest("EXCLUDE/fisce/test/ForEachTest");
 }
 
-void testHashMap(){
+void testHashMap() {
 	hltest("EXCLUDE/fisce/test/HashMapTest");
 }
 
-void testStatic(){
+void testStatic() {
 	hltest("EXCLUDE/fisce/test/StaticTest");
+}
+
+void testCustom() {
+	hltest(customTest);
 }
 
 CU_TestInfo testcases[] = { { "allocate1", testAllocate1 }, //
@@ -373,8 +378,15 @@ CU_TestInfo testcases[] = { { "allocate1", testAllocate1 }, //
 		{ "HashMap", testHashMap }, //
 		CU_TEST_INFO_NULL };
 
+CU_TestInfo customCase[] = { { "custom", testCustom }, //
+		CU_TEST_INFO_NULL };
+
 CU_SuiteInfo suites[] = {
 		{ "Testing parts:", test_init, test_clean, testcases }, //
+		CU_SUITE_INFO_NULL };
+
+CU_SuiteInfo customSuits[] = { { "Testing parts:", test_init, test_clean,
+		customCase }, //
 		CU_SUITE_INFO_NULL };
 
 void AddTests(void) {
@@ -382,19 +394,26 @@ void AddTests(void) {
 	ASSERT(!CU_is_test_running());
 	/* shortcut regitry */
 
-	if (CUE_SUCCESS != CU_register_suites(suites)) {
+	if (CUE_SUCCESS
+			!= CU_register_suites(customTest == NULL ? suites : customSuits)) {
 		fprintf(stderr, "Register suites failed - %s ", CU_get_error_msg());
 		exit(-1);
 	}
 }
 
 int main(int argc, char *argv[]) {
+	if (argc > 1) {
+		printf("Testing %s:", argv[1]);
+		customTest = argv[1];
+	} else {
+		customTest = NULL;
+	}
 	if (CU_initialize_registry()) {
 		fprintf(stderr, " Initialization of Test Registry failed. ");
 		exit(-1);
 	} else {
 		AddTests();
-		CU_set_output_filename("Test-log");
+		CU_set_output_filename(customTest == NULL ? "Test" : "Test-custom");
 		CU_list_tests_to_file();
 		CU_automated_run_tests();
 		CU_cleanup_registry();

@@ -432,36 +432,6 @@ fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
 	return field;
 }
 
-fy_field *fy_vmLookupFieldStatic(fy_context *context, fy_class *clazz,
-		fy_str *fieldName, fy_exception *exception) {
-	/*TODO Maybe wrong!!! need to check*/
-	int *pFid;
-	fy_field *field = NULL;
-	fy_str *uniqueName;
-	fy_memblock *block = context->memblocks;
-
-	uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-	fy_strInit(block, uniqueName,
-			clazz->className->length + fieldName->length + 1, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-
-	fy_strAppend(block, uniqueName, clazz->className, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-	fy_strAppend(block, uniqueName, fieldName, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-	pFid = fy_hashMapGet(block, context->mapFieldNameToId, uniqueName);
-	if (pFid != NULL) {
-		field = context->fields[*pFid];
-		if (field->owner != clazz) {
-			field = NULL;
-		}
-	}
-	fy_strDestroy(block, uniqueName);
-	fy_mmFree(block, uniqueName);
-	return field;
-}
-
 int fy_vmGetMethodId(fy_context *context, fy_str *uniqueName,
 		fy_exception *exception) {
 	int *pMid;
@@ -537,33 +507,6 @@ fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 	}
 	fy_strDestroy(block, uniqueNameTmp);
 	fy_mmFree(block, uniqueNameTmp);
-	fy_strDestroy(block, uniqueName);
-	fy_mmFree(block, uniqueName);
-	return method;
-}
-
-fy_method *fy_vmLookupMethodStatic(fy_context *context, fy_class *clazz,
-		fy_str *methodName, fy_exception *exception) {
-	int *pMid;
-	fy_method *method = NULL;
-	fy_memblock *block = context->memblocks;
-	fy_str *uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-	fy_strInit(block, uniqueName,
-			clazz->className->length + methodName->length + 1, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-
-	fy_strAppend(block, uniqueName, clazz->className, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-	fy_strAppend(block, uniqueName, methodName, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
-	pMid = fy_hashMapGet(block, context->mapMethodNameToId, uniqueName);
-	if (pMid != NULL) {
-		method = context->methods[*pMid];
-		if (method->owner != clazz) {
-			method = NULL;
-		}
-	}
 	fy_strDestroy(block, uniqueName);
 	fy_mmFree(block, uniqueName);
 	return method;
@@ -666,7 +609,7 @@ fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}
-		field = fy_vmLookupFieldStatic(context, fieldInfo->clazz,
+		field = fy_vmLookupFieldVirtual(context, fieldInfo->clazz,
 				fieldInfo->nameType, exception);
 		fy_exceptionCheckAndReturn(exception)NULL;
 		if (field == NULL) {

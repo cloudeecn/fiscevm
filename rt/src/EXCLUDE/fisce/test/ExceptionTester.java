@@ -5,6 +5,8 @@ public class ExceptionTester extends TestService {
 	static public void main(String[] args) {
 		System.out.println("Phase 0");
 		boolean af = true, bf = true;
+		if (af)
+			args = null;
 		try {
 			try {
 				System.out.println("Phase 1");

@@ -41,8 +41,6 @@ void fy_vmRegisterField(fy_context *context, fy_field *field,
 		fy_exception *exception);
 fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
 		fy_str *name, fy_exception *exception);
-fy_field *fy_vmLookupFieldStatic(fy_context *context, fy_class *clazz,
-		fy_str *fieldName, fy_exception *exception);
 fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 		ConstantFieldRef *fieldInfo, fy_exception *exception);
 
@@ -52,8 +50,6 @@ void fy_vmRegisterMethod(fy_context *context, fy_method *method,
 		fy_exception *exception);
 fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 		fy_str *name, fy_exception *exception);
-fy_method *fy_vmLookupMethodStatic(fy_context *context, fy_class *clazz,
-		fy_str *methodName, fy_exception *exception);
 fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 		ConstantMethodRef *methodInfo, fy_exception *exception);
 
