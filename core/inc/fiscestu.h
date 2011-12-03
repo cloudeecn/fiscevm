@@ -29,7 +29,7 @@
 #define MAX_OBJECTS 131072
 #define MAX_THREADS 16
 #define EDEN_SIZE 65536
-#define COPY_SIZE 1048576
+#define COPY_SIZE 262144
 #define OLD_ENTRIES 16384
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
@@ -317,7 +317,10 @@ typedef struct fy_data {
 typedef struct fy_object {
 	fy_class *clazz;
 	fy_int length;
-	int sizeShift;
+	fy_int sizeShift;
+	enum {
+		eden = 0, young, old
+	} position;
 	fy_uint monitorOwnerId;
 	fy_int monitorOwnerTimes;
 	fy_uint attachedId;
@@ -464,8 +467,12 @@ typedef struct fy_context {
 
 	/* #BEGIN HEAP*/
 	fy_hashMap literals[1];
-	int nextHandle;
+	fy_uint nextHandle;
+	fy_uint inusedYoungId;
 	fy_object objects[MAX_OBJECTS];
+	fy_uint eden[EDEN_SIZE];
+	fy_uint young[COPY_SIZE * 2];
+	fy_uint old[OLD_ENTRIES];
 	/* #END HEAP*/
 
 	/* #BEGIN THREAD MANAGER*/
