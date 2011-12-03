@@ -28,8 +28,8 @@
 #define MAX_FIELDS 65536
 #define MAX_OBJECTS 131072
 #define MAX_THREADS 16
-#define EDEN_SIZE 65536
-#define COPY_SIZE 262144
+#define EDEN_SIZE 524288
+#define COPY_SIZE 131072
 #define OLD_ENTRIES 16384
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
@@ -82,10 +82,6 @@
 #define FY_ACC_SYNCHRONIZED 32
 #define FY_ACC_TRANSIENT 128
 #define FY_ACC_VOLATILE 64
-
-#define FY_SIZE_SHIFT_BYTE 0 /*1 bytes*/
-#define FY_SIZE_SHIFT_INT 2 /*4 bytes*/
-#define FY_SIZE_SHIFT_LONG 3 /*8 bytes*/
 
 #define FY_TM_STATE_NEW  0
 #define FY_TM_STATE_BOOT_PENDING  1
@@ -253,6 +249,10 @@ typedef struct fy_method {
 	fy_boolean clinit;
 } fy_method;
 
+typedef enum fy_arrayType {
+	fy_at_byte, fy_at_short, fy_at_int, fy_at_long
+} fy_arrayType;
+
 typedef struct fy_class {
 	/*        _u4 magic;
 	 //        _u2 minorVersion;
@@ -294,7 +294,7 @@ typedef struct fy_class {
 
 	union {
 		struct {
-			fy_char sizeShift;
+			fy_arrayType arrayType;
 			struct fy_class *contentClass;
 		} arr;
 		struct {
@@ -317,18 +317,21 @@ typedef struct fy_data {
 typedef struct fy_object {
 	fy_class *clazz;
 	fy_int length;
-	fy_int sizeShift;
 	enum {
 		eden = 0, young, old
 	} position;
 	fy_uint monitorOwnerId;
 	fy_int monitorOwnerTimes;
 	fy_uint attachedId;
-	union fy_object_data {
-		fy_long *ldata;
-		fy_int *idata;
-		fy_byte *bdata;
-	} data;
+	void *data;
+/*
+ union fy_object_data {
+ fy_ulong *ldata;
+ fy_uint *idata;
+ fy_ubyte *bdata;
+ fy_char *cdata;
+ } data;
+ */
 
 } fy_object;
 
@@ -470,8 +473,11 @@ typedef struct fy_context {
 	fy_uint nextHandle;
 	fy_uint inusedYoungId;
 	fy_object objects[MAX_OBJECTS];
+	fy_int posInEden;
 	fy_uint eden[EDEN_SIZE];
+	fy_int posInYong;
 	fy_uint young[COPY_SIZE * 2];
+	fy_int posInOld;
 	fy_uint old[OLD_ENTRIES];
 	/* #END HEAP*/
 

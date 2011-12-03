@@ -45,7 +45,7 @@ static void fy_log(const char *format, ...) {
 }
 
 int test_init(void) {
-	fp = fopen(customTest==NULL?"Test.log":"Test-custom.log", "w");
+	fp = fopen(customTest == NULL ? "Test.log" : "Test-custom.log", "w");
 	if (fp == NULL) {
 		printf("Open log file failed");
 		return 1;
@@ -219,6 +219,7 @@ void testHeap() {
 	fy_str *str;
 	fy_str *compare;
 	fy_int sHandle;
+	fy_object *obj;
 	exception->exceptionType = exception_none;
 	str = fy_strCreateFromUTF8(block, "咩哈哈哈ABCabc,|/", exception);
 	TEST_EXCEPTION(exception);
@@ -230,6 +231,7 @@ void testHeap() {
 	ASSERT(sHandle != 0);
 	fy_heapGetString(context, sHandle, compare, exception);
 	TEST_EXCEPTION(exception);
+	obj = context->objects + sHandle;
 	CU_ASSERT( fy_strCmp(str,compare)==0);
 	CU_ASSERT(sHandle == fy_heapLiteral(context, compare, NULL));
 	fy_strRelease(block, str);

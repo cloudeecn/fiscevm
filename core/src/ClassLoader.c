@@ -28,16 +28,27 @@ static int checkConstantBonud(fy_class *clazz, int idx, fy_exception *exception)
 #define checkConstantBonud(C,I,E) (I)
 #endif
 
-static int getSizeShiftForArray(fy_str *arrayName) {
+static fy_arrayType getSizeShiftForArray(fy_str *arrayName,
+		fy_exception *exception) {
 	switch (arrayName->content[1]) {
 	case FY_TYPE_BOOLEAN:
 	case FY_TYPE_BYTE:
-		return FY_SIZE_SHIFT_BYTE;
+		return fy_at_byte;
 	case FY_TYPE_DOUBLE:
 	case FY_TYPE_LONG:
-		return FY_SIZE_SHIFT_LONG;
+		return fy_at_long;
+	case FY_TYPE_CHAR:
+	case FY_TYPE_SHORT:
+		return fy_at_short;
+	case FY_TYPE_INT:
+	case FY_TYPE_FLOAT:
+	case FY_TYPE_HANDLE:
+	case FY_TYPE_ARRAY:
+		return fy_at_int;
 	default:
-		return FY_SIZE_SHIFT_INT;
+		fy_fault(exception, NULL, "Illegal array type: %c(%d)",
+				arrayName->content[1], arrayName->content[1]);
+		return 0;
 	}
 }
 
@@ -415,7 +426,7 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_data *data,
 	clazz->sizeRel = pos;
 	clazz->staticSize = staticPos;
 	if (staticPos > 0) {
-		clazz->staticArea = fy_mmAllocate(block, staticPos << FY_SIZE_SHIFT_INT,
+		clazz->staticArea = fy_mmAllocate(block, staticPos * sizeof(fy_int),
 				exception);
 		fy_exceptionCheckAndReturn(exception);
 	} else {
@@ -839,7 +850,8 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
 		clazz->className = fy_strCreateClone(block, name, exception);
 		fy_exceptionCheckAndReturn(exception)NULL;
-		clazz->ci.arr.sizeShift = getSizeShiftForArray(name);
+		clazz->ci.arr.arrayType = getSizeShiftForArray(name, exception);
+		fy_exceptionCheckAndReturn(exception)NULL;
 	} else if (fy_hashMapGet(block, context->mapPrimitivesRev, name) != NULL) {
 		clazz = fy_mmAllocate(block, sizeof(fy_class), exception);
 		fy_exceptionCheckAndReturn(exception)NULL;

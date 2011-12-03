@@ -1,0 +1,3 @@
+./configure --enable-debug --enable-verbose
+make clean all
+

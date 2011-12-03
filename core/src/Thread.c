@@ -712,7 +712,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 #define fy_frameToLocal(ptrFrame) { \
 	sp=ptrFrame->sp; \
 	pc=ptrFrame->pc; \
-	lpc=ptrFrame->pc; \
+	lpc=ptrFrame->lpc; \
 	sb=ptrFrame->sb; \
 	method = ptrFrame->method; \
 	code = method->code; \
@@ -1009,6 +1009,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifndef _FY_GOTO
 		fallout = fallout_none;
 #endif
+		lpc = pc;
 		if (method->clinit) {
 #ifdef _FY_LATE_DECLARATION
 			fy_class *clinitClazz;
@@ -1037,6 +1038,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				; opCount++) {
 			/*RUN_ONE_INST!!!!!*/
+			lpc = pc;
 			op = fy_nextU1(code);
 #ifdef _DEBUG
 #ifdef FY_VERBOSE
@@ -1065,6 +1067,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				break;
 			}
+			case FALOAD:
 			case IALOAD: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
@@ -1114,6 +1117,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				break;
 			}
+			case FASTORE:
 			case IASTORE: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
@@ -1515,14 +1519,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPushInt(ivalue);
 				break;
 			}
-			case FALOAD:
 			case CALOAD: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue3);
 				fy_threadPopHandle(ivalue2);
-				ivalue = fy_heapGetArrayInt(context, ivalue2, ivalue3,
+				ivalue = fy_heapGetArrayChar(context, ivalue2, ivalue3,
 						exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
@@ -1531,7 +1534,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}fy_threadPushInt(ivalue);
 				break;
 			}
-			case FASTORE:
 			case CASTORE: {
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
@@ -1539,7 +1541,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopInt(ivalue);
 				fy_threadPopInt(ivalue3);
 				fy_threadPopHandle(ivalue2);
-				fy_heapPutArrayInt(context, ivalue2, ivalue3, ivalue,
+				fy_heapPutArrayChar(context, ivalue2, ivalue3, ivalue,
 						exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
@@ -4039,7 +4041,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			}
-			lpc = pc;
+			/*lpc = pc;*/
 		}
 #ifdef _FY_GOTO
 		label_fallout_noinvoke:

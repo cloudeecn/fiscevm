@@ -321,22 +321,6 @@ static fy_class* getClass(fy_context *context, fy_str *name) {
 
 void fy_vmContextDestroy(fy_context *context) {
 	int i;
-
-	for (i = 0; i < MAX_OBJECTS; i++) {
-		if (context->objects[i].clazz != NULL) {
-			switch (context->objects[i].sizeShift) {
-			case FY_SIZE_SHIFT_BYTE:
-				fy_free(context->objects[i].data.bdata);
-				break;
-			case FY_SIZE_SHIFT_LONG:
-				fy_free(context->objects[i].data.ldata);
-				break;
-			default:
-				fy_free(context->objects[i].data.idata);
-				break;
-			}
-		}
-	}
 	fy_portDestroy(context->port);
 	fy_mmDestroy(context->memblocks);
 }

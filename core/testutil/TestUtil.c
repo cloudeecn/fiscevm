@@ -80,10 +80,14 @@ void testPortable() {
 			(fy_ulong)0x1234567822345678LL);
 	CU_ASSERT_EQUAL(fy_I2TOUL(0x92345678,0x9ABCDEF0),
 			(fy_ulong)0x923456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0xAB), 0x12AB);
-	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0x12), 0xAB12);
-	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0x12), 0x1212);
-	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0xAB), 0xABAB);
+	CU_ASSERT_EQUAL(fy_B2TOUI(0x12,0xAB), 0x12AB);
+	CU_ASSERT_EQUAL(fy_B2TOUI(0xAB,0x12), 0xAB12);
+	CU_ASSERT_EQUAL(fy_B2TOUI(0x12,0x12), 0x1212);
+	CU_ASSERT_EQUAL(fy_B2TOUI(0xAB,0xAB), 0xABAB);
+	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0xAB), (fy_short)0x12AB);
+	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0x12), (fy_short)0xAB12);
+	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0x12), (fy_short)0x1212);
+	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0xAB), (fy_short)0xABAB);
 	CU_ASSERT_EQUAL(fy_B4TOI(0x12,0xAB,0x34,0xCD), 0x12AB34CD);
 	CU_ASSERT_EQUAL(fy_B4TOI(0xAB,0x12,0xCD,0x34), 0xAB12CD34);
 	CU_ASSERT_EQUAL(fy_B4TOI(0xAB,0xCD,0x89,0xEF), 0xABCD89EF);
@@ -230,7 +234,7 @@ int main(int argc, char *argv[]) {
 		exit(-1);
 	} else {
 		AddTests();
-		CU_set_output_filename("Test.log");
+		CU_set_output_filename("TestUtil");
 		CU_list_tests_to_file();
 		CU_automated_run_tests();
 		CU_cleanup_registry();

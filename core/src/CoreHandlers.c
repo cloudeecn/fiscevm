@@ -486,6 +486,7 @@ static void classForName(struct fy_context *context, struct fy_thread *thread,
 		fy_strDestroy(context->memblocks, &str);
 		return;
 	}
+	fy_strReplaceOne(&str, '.', '/');
 	clazz = fy_vmLookupClass(context, &str, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_nativeReturnHandle(context, thread, clazz->classObjId);
