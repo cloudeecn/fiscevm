@@ -42,9 +42,9 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 	return handle;
 }
 
-static void allocateInEden(fy_context *context, fy_uint handle, fy_int size,
+static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 		fy_boolean gced, fy_exception *exception) {
-	fy_object *obj;
+	void *ret;
 	if (size + context->posInEden >= EDEN_SIZE) {
 		/*OOM, gc first*/
 		if (gced) {
@@ -54,35 +54,57 @@ static void allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 					"Out of memory! Memory overflow EDEN:%d/%d COPY:%d/%d OLD:%d/%d",
 					context->posInEden, EDEN_SIZE, context->posInYong,
 					COPY_SIZE, context->posInOld, OLD_ENTRIES);
-			return;
+			return NULL;
 		} else {
 			fy_heapGC(context, exception);
-			allocateInEden(context, handle, size, TRUE, exception);
-			return;
+			return allocateInEden(context, handle, size, TRUE, exception);
 		}
 	}
-	/*Here we have enough memory,process allocate in easy way*/
-	obj = context->objects + handle;
-	obj->data = context->eden + context->posInEden;
+	ret = context->eden + context->posInEden;
 	context->posInEden += size;
+	return ret;
 }
 
-static void allocateInOld(fy_context *context, fy_uint handle, fy_int size,
+static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
 		fy_boolean gced, fy_exception *exception) {
-
+	void *ret;
+	if (size + context->posInOld >= OLD_ENTRIES) {
+		/*OOM, gc first*/
+		if (gced) {
+			fy_fault(
+					exception,
+					NULL,
+					"Out of memory! Memory overflow EDEN:%d/%d COPY:%d/%d OLD:%d/%d",
+					context->posInEden, EDEN_SIZE, context->posInYong,
+					COPY_SIZE, context->posInOld, OLD_ENTRIES);
+			return NULL;
+		} else {
+			fy_heapGC(context, exception);
+			return allocateInOld(context, handle, size, TRUE, exception);
+		}
+	}
+	ret = context->old + context->posInOld;
+	context->posInOld += size;
+	return ret;
 }
 
-static int allocate(fy_context *context, fy_int size, fy_exception *exception) {
+static int allocate(fy_context *context, fy_int size, fy_class *clazz,
+		fy_int length, fy_exception *exception) {
 	int handle;
+	fy_object *obj;
 
 	handle = fetchNextHandle(context, FALSE, exception);
 	fy_exceptionCheckAndReturn(exception)0;
+	obj = fy_heapGetObject(context,handle);
 
 	if (size > (COPY_SIZE >> 1)) {
-		allocateInOld(context, handle, size, FALSE, exception);
+		obj->data = allocateInOld(context, handle, size, FALSE, exception);
 	} else {
-		allocateInEden(context, handle, size, FALSE, exception);
+		obj->data = allocateInEden(context, handle, size, FALSE, exception);
 	}
+	fy_exceptionCheckAndReturn(exception)0;
+	obj->length = length;
+	obj->clazz = clazz;
 	return handle;
 }
 
@@ -90,20 +112,13 @@ int fy_heapAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception) {
 	int length = clazz->sizeAbs;
 	int size = length;
-	int handle;
 
 	if (clazz->type != obj) {
 		fy_fault(exception, NULL, "Cannot instance Array without size");
 		return 0;
 	}
 
-	handle = allocate(context, size, exception);
-	if (exception->exceptionType != exception_none) {
-		return 0;
-	}
-	fy_heapGetObject(context, handle)->length = length;
-	fy_heapGetObject(context, handle)->clazz = clazz;
-	return handle;
+	return allocate(context, size, clazz, length, exception);
 }
 
 int fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
@@ -133,13 +148,7 @@ int fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
 		return 0;
 	}
 
-	handle = allocate(context, size, exception);
-	if (exception->exceptionType != exception_none) {
-		return 0;
-	}
-	fy_heapGetObject(context, handle)->length = length;
-	fy_heapGetObject(context, handle)->clazz = clazz;
-	return handle;
+	return allocate(context, size, clazz, length, exception);
 }
 
 fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle) {
