@@ -51,7 +51,12 @@ static void ObjectGetClass(struct fy_context *context, struct fy_thread *thread,
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
 	fy_nativeReturnHandle(context, thread, clazz->classObjId);
 }
-
+static void ObjectClone(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	fy_int ret = fy_heapClone(context, args[0], exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_nativeReturnHandle(context, thread, ret);
+}
 static void ObjectWait(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_uint monitorId = args[0];
@@ -525,7 +530,11 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			""FY_BASE_CLASS".forName0.(L"FY_BASE_STRING";Z)L"FY_BASE_CLASS";",
 			NULL, classForName, exception);
 	fy_exceptionCheckAndReturn(exception);
+
 	/*Object*/
+	fy_vmRegisterNativeHandler(context,
+			""FY_BASE_OBJECT".clone.()L"FY_BASE_OBJECT";", NULL, ObjectClone,
+			exception);
 	fy_vmRegisterNativeHandler(context,
 			""FY_BASE_OBJECT".getClass.()L"FY_BASE_CLASS";", NULL,
 			ObjectGetClass, exception);

@@ -68,6 +68,7 @@
 
 #define FY_EXCEPTION_MONITOR "java/lang/IllegalMonitorStateException"
 #define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
+#define FY_EXCEPTION_NPT "java/lang/NullPointerException"
 
 #define FY_ACC_ABSTRACT 1024
 #define FY_ACC_FINAL 16

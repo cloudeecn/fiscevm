@@ -40,10 +40,10 @@ int fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
 
 fy_int fy_heapArrayLength(fy_context *context, fy_int handle,
 		fy_exception *exception);
-void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos, fy_int dest,
-		fy_int destPos, fy_int len, fy_exception *exception);
-
-void fy_heapGC(fy_context *context,fy_exception *exception);
+void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
+		fy_int dest, fy_int destPos, fy_int len, fy_exception *exception);
+fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception);
+void fy_heapGC(fy_context *context, fy_exception *exception);
 
 fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 		fy_exception *exception);
@@ -51,8 +51,8 @@ fy_int fy_heapMakeString(fy_context *context, fy_str *target,
 		fy_exception *exception);
 fy_int fy_heapLiteral(fy_context *context, fy_str *str, fy_exception *exception);
 
-fy_boolean fy_heapGetArrayBoolean(fy_context *context, fy_int handle, fy_int index,
-		fy_exception *exception);
+fy_boolean fy_heapGetArrayBoolean(fy_context *context, fy_int handle,
+		fy_int index, fy_exception *exception);
 fy_int fy_heapGetArrayHandle(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception);
 fy_byte fy_heapGetArrayByte(fy_context *context, fy_int handle, fy_int index,
@@ -69,8 +69,8 @@ fy_long fy_heapGetArrayLong(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception);
 fy_float fy_heapGetArrayFloat(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception);
-fy_double fy_heapGetArrayDouble(fy_context *context, fy_int handle, fy_int index,
-		fy_exception *exception);
+fy_double fy_heapGetArrayDouble(fy_context *context, fy_int handle,
+		fy_int index, fy_exception *exception);
 
 void fy_heapPutArrayBoolean(fy_context *context, fy_int handle, fy_int index,
 		fy_boolean value, fy_exception *exception);
@@ -93,20 +93,20 @@ void fy_heapPutArrayDouble(fy_context *context, fy_int handle, fy_int index,
 
 fy_boolean fy_heapGetFieldBoolean(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception);
-fy_int fy_heapGetFieldHandle(fy_context *context, fy_int handle, fy_field *field,
-		fy_exception *exception);
+fy_int fy_heapGetFieldHandle(fy_context *context, fy_int handle,
+		fy_field *field, fy_exception *exception);
 fy_byte fy_heapGetFieldByte(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception);
-fy_short fy_heapGetFieldShort(fy_context *context, fy_int handle, fy_field *field,
-		fy_exception *exception);
+fy_short fy_heapGetFieldShort(fy_context *context, fy_int handle,
+		fy_field *field, fy_exception *exception);
 fy_char fy_heapGetFieldChar(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception);
 fy_int fy_heapGetFieldInt(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception);
 fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception);
-fy_float fy_heapGetFieldFloat(fy_context *context, fy_int handle, fy_field *field,
-		fy_exception *exception);
+fy_float fy_heapGetFieldFloat(fy_context *context, fy_int handle,
+		fy_field *field, fy_exception *exception);
 fy_double fy_heapGetFieldDouble(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception);
 

@@ -305,6 +305,46 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 	}
 }
 
+fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
+	fy_class *clazz;
+	fy_int size;
+	fy_int ret;
+	fy_object *sobj, *dobj;
+	if (src == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return 0;
+	}
+	sobj = fy_heapGetObject(context,src);
+	clazz = fy_heapGetClassOfObject(context, src);
+	if (clazz->type == obj) {
+		ret = fy_heapAllocate(context, clazz, exception);
+		fy_exceptionCheckAndReturn(exception)0;
+		dobj = fy_heapGetObject(context,ret);
+		memcpy(dobj->data, sobj->data, clazz->sizeAbs << 2);
+	} else if (clazz->type == arr) {
+		ret = fy_heapAllocateArray(context, clazz, sobj->length, exception);
+		fy_exceptionCheckAndReturn(exception)0;
+		switch (clazz->ci.arr.arrayType) {
+		case fy_at_byte:
+			memcpy(dobj->data, sobj->data, sobj->length);
+			break;
+		case fy_at_short:
+			memcpy(dobj->data, sobj->data, sobj->length << 1);
+			break;
+		case fy_at_int:
+			memcpy(dobj->data, sobj->data, sobj->length << 2);
+			break;
+		case fy_at_long:
+			memcpy(dobj->data, sobj->data, sobj->length << 3);
+			break;
+		}
+	} else {
+		fy_fault(exception, NULL, "Illegal object type for clone: %d",
+				clazz->type);
+	}
+	return ret;
+}
+
 #define CHECK_NPT(X) if (handle == 0) { \
 exception->exceptionType = exception_normal; \
 strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), "java/lang/NullPointerException"); \
