@@ -125,7 +125,6 @@ int fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
 		fy_exception *exception) {
 	fy_arrayType at = clazz->ci.arr.arrayType;
 	int size = length;
-	int handle;
 	if (clazz->type != arr) {
 		fy_fault(exception, NULL, "Cannot instance Array without size");
 		return 0;
@@ -307,7 +306,6 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 
 fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 	fy_class *clazz;
-	fy_int size;
 	fy_int ret;
 	fy_object *sobj, *dobj;
 	if (src == 0) {
@@ -324,6 +322,7 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 	} else if (clazz->type == arr) {
 		ret = fy_heapAllocateArray(context, clazz, sobj->length, exception);
 		fy_exceptionCheckAndReturn(exception)0;
+		dobj = fy_heapGetObject(context,ret);
 		switch (clazz->ci.arr.arrayType) {
 		case fy_at_byte:
 			memcpy(dobj->data, sobj->data, sobj->length);

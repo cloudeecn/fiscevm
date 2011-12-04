@@ -320,7 +320,6 @@ static fy_class* getClass(fy_context *context, fy_str *name) {
 }
 
 void fy_vmContextDestroy(fy_context *context) {
-	int i;
 	fy_portDestroy(context->port);
 	fy_mmDestroy(context->memblocks);
 }
