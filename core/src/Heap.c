@@ -756,6 +756,74 @@ void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 	field->owner->staticArea[field->posAbs + 1] = (fy_int) lvalue;
 }
 
+typedef struct fy_fill_literals_data {
+	fy_context *context;
+	fy_uint *makrs;
+	fy_exception *exception;
+} fy_fill_literals_data;
+
+static void setBit(fy_uint *marks, fy_uint pos) {
+	marks[pos >> 5] |= 1 << (pos & 31);
+}
+
+static void clearBit(fy_uint *marks, fy_uint pos) {
+	marks[pos >> 5] &= ~(fy_uint) (1 << (pos & 31));
+}
+
+static fy_boolean getBit(fy_uint *marks, fy_uint pos) {
+	return (marks[pos >> 5] >> (pos & 31)) & 1;
+}
+
+static void fillLiterals(fy_str *key, void *value, void *data) {
+	fy_fill_literals_data *ffld = (fy_fill_literals_data*) data;
+	fy_uint handle = &value;
+	setBit(ffld->makrs, handle);
+}
+
+static void fillInitialHandles(fy_context *context, fy_uint *marks,
+		fy_exception *exception) {
+	fy_uint i, imax, j, jmax;
+	fy_class *clazz;
+	fy_field *field;
+	fy_fill_literals_data ffld;
+
+	/*Classes*/
+	imax = context->classesCount;
+	for (i = 1; i <= imax; i++) {
+		/*Class object*/
+		clazz = context->classes + i;
+		setBit(marks, clazz->classObjId);
+
+		/*Class static area*/
+		jmax = clazz->staticSize;
+		for (j = 0; i < jmax; j++) {
+			field = clazz->fields[j];
+			if (field->descriptor->content[0] == FY_TYPE_HANDLE
+					|| field->descriptor->content[0] == FY_TYPE_ARRAY) {
+				setBit(marks, clazz->staticArea[j]);
+			}
+		}
+	}
+
+	/*Literals*/
+	ffld.context = context;
+	ffld.makrs = marks;
+	ffld.exception = exception;
+
+	fy_hashMapEachValue(context->memblocks, context->literals, fillLiterals,
+			&ffld);
+
+	/*Thread objects*/
+
+}
+
 void fy_heapGC(fy_context *context, fy_exception *exception) {
+	/*Init scan for all handles*/
+	fy_uint *marks;
+	fy_uint i;
+
+	marks = fy_allocate(MAX_OBJECTS / 8, exception);
+	fy_exceptionCheckAndReturn(exception);
+	/*Class handle*/
 
 }

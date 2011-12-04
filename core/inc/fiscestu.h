@@ -303,8 +303,6 @@ typedef struct fy_class {
 		} prm;
 	} ci;
 
-	fy_uint classNameHandle;
-
 	/*Need persist*/
 	fy_uint classObjId;
 	fy_int clinitThreadId;

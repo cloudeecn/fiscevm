@@ -43,6 +43,8 @@ void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const char *keyUtf8,
 		void *value, fy_exception *exception);
 void *fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key);
 void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this);
+void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
+		void(*fn)(fy_str *key, void *value, void *addition), void *addition);
 #ifdef	__cplusplus
 }
 #endif

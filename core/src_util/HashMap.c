@@ -162,6 +162,20 @@ void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key) {
 	return entry == NULL ? NULL : entry->value;
 }
 
+void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
+		void(*fn)(fy_str *key, void *value, void *addition), void *addition) {
+	fy_uint i, imax, j, jmax;
+	fy_hashMapEntry *entry;
+	imax = map->bucketsCount;
+	for (i = 0; i < imax; i++) {
+		entry = (fy_hashMapEntry*) (map->buckets[i]);
+		while (entry != NULL) {
+			fn(entry->key, entry->value, addition);
+			entry = entry->next;
+		}
+	}
+}
+
 void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this) {
 	int i, imax;
 	fy_hashMapEntry *entry, *tmp;

@@ -150,6 +150,18 @@ void testString() {
 	//	fy_vmFree(context,js);
 }
 
+typedef struct fy_test_map {
+	fy_uint count;
+	fy_uint *values;
+} fy_test_map;
+
+static void checkMapValue(fy_str *key, void *value, void *addition) {
+	fy_test_map *test = (fy_test_map*) addition;
+	fy_uint val = *(fy_uint*) value;
+	test->count++;
+	CU_ASSERT(val>=0 && val <30000);
+}
+
 void testHashMap() {
 	int blocks;
 	int i;
@@ -161,6 +173,7 @@ void testHashMap() {
 	fy_exception ex;
 	fy_exception *exception = &ex;
 	ex.exceptionType = exception_none;
+	fy_test_map add;
 	fy_hashMap *hashMap = fy_mmAllocate(block, sizeof(fy_hashMap), exception);
 	CHECK_EXCEPTION(exception);
 	memset(buf, 0, 256);
@@ -168,7 +181,10 @@ void testHashMap() {
 	fy_hashMapInit(block, hashMap, 16, 12, exception);
 	CHECK_EXCEPTION(exception);
 
-	fy_long t1, t2, t3, t4;
+	fy_long t1, t2, t3, t4, t5;
+
+	memset(&add, 0, sizeof(add));
+	add.values = values;
 
 	t1 = fy_portTimeMillSec(port);
 	for (i = 0; i < 10000; i++) {
@@ -183,6 +199,9 @@ void testHashMap() {
 	}
 
 	t2 = fy_portTimeMillSec(port);
+	fy_hashMapEachValue(block, hashMap, checkMapValue, &add);
+	CU_ASSERT_EQUAL_FATAL(add.count, 10000);
+	t3 = fy_portTimeMillSec(port);
 
 	CU_ASSERT_EQUAL(hashMap->size, 10000);
 	for (i = 0; i < 15000; i++) {
@@ -198,11 +217,12 @@ void testHashMap() {
 		fy_strDestroy(block, tmp);
 		fy_mmFree(block, tmp);
 	}
-	t3 = fy_portTimeMillSec(port);
-	fy_hashMapDestroy(block, hashMap);
 	t4 = fy_portTimeMillSec(port);
-	printf("HashMap time %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d\n",
-			(t2 - t1), (t3 - t2), (t4 - t3));
+	fy_hashMapDestroy(block, hashMap);
+	t5 = fy_portTimeMillSec(port);
+	printf(
+			"HashMap time %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d\n",
+			(t2 - t1), (t3 - t2), (t4 - t3), (t5 - t4));
 	CU_ASSERT_EQUAL(blocks, fy_getAllocated());
 	fy_mmFree(block, hashMap);
 }
