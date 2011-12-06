@@ -24,7 +24,7 @@
 typedef struct fy_arrayList {
 	fy_int length;
 	fy_int maxLength;
-	void **data;
+	fy_multiType *data;
 } fy_arrayList;
 
 void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, fy_int initCap,
@@ -34,5 +34,6 @@ void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *entry,
 		fy_exception *exception);
 void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
 		fy_exception *exception);
+
 
 #endif /* ARRLIST_H_ */

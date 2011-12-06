@@ -23,7 +23,7 @@ static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 	fy_object *obj = context->objects + targetHandle;
 	fy_uint threadId = obj->attachedId;
 	ASSERT(threadId>0 && threadId<MAX_THREADS);
-	return context->threads + threadId;
+	return context->threads[threadId];
 }
 
 static fy_int monitorEnter(fy_context *context, fy_thread *thread,
@@ -81,7 +81,7 @@ static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
 static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
 	fy_int h = context->nextThreadId;
 	fy_thread *target;
-	while ((target = context->threads + h)->inUse) {
+	while (target = context->threads[h]) {
 		h++;
 		if (h == MAX_THREADS) {
 			h = 1;
@@ -200,9 +200,9 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 		exception->exceptionDesc[0] = 0;
 		return;
 	}
-	for (i = 1; i < MAX_THREADS; i++) {
-		target = context->threads + i;
-		if (target->waitForNotifyId == monitorId) {
+	for (i = context->runningThreads->length - 1; i >= 0; i--) {
+		target = context->runningThreads->data->pValue;
+		if (target != NULL && target->waitForNotifyId == monitorId) {
 			target->waitForNotifyId = 0;
 			ASSERT(target->waitForLockId==0);
 			target->waitForLockId = monitorId;
@@ -285,7 +285,8 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	threadId = fetchNextThreadId(context, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	thread = context->threads + threadId;
+	thread = fy_mmAllocate(context->memblocks, sizeof(fy_thread), exception);
+	fy_exceptionCheckAndReturn(exception);
 
 	threadHandle = fy_heapAllocate(context, threadClass, exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -298,6 +299,8 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
+	thread->threadId = threadId;
+	context->threads[threadId] = thread;
 	thread->priority = 5;
 	fy_threadInitWithMethod(context, thread, threadHandle, method, exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -306,6 +309,8 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 	context->state = FY_TM_STATE_RUN_PENDING;
+	context->nextGCTime = fy_portTimeMillSec(context->port) + 500;
+	context->nextForceGCTime = context->nextGCTime + 1000;
 }
 
 void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
@@ -349,7 +354,10 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 	threadId = fetchNextThreadId(context, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	thread = context->threads + threadId;
+	thread = fy_mmAllocate(context->memblocks, sizeof(fy_thread), exception);
+	fy_exceptionCheckAndReturn(exception);
+	thread->threadId = threadId;
+	context->threads[threadId] = thread;
 	thread->priority = priority;
 	thread->daemon = daemon;
 	fy_threadInitWithRun(context, thread, threadHandle, exception);
@@ -363,8 +371,8 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception) {
 	/*exception means exception in thread manager
 	 * message means exception in thread*/
-	fy_long nextGC = fy_portTimeMillSec(context->port) + 5000;
-	fy_long nextGCForce = nextGC + 10000;
+//	fy_long nextGC = fy_portTimeMillSec(context->port) + 500;
+//	fy_long nextGCForce = nextGC + 1000;
 	fy_boolean stateLocal;
 	fy_arrayList *running = context->runningThreads;
 
@@ -398,14 +406,15 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 #endif
 			if (running->length > 0) {
 				if (context->runningThreadPos < running->length) {
-					thread = running->data[context->runningThreadPos];
+					thread = running->data[context->runningThreadPos].pValue;
 					if (thread->destroyPending) {
 						fy_threadDestroy(context, thread);
 						fy_arrayListRemove(context->memblocks, running,
 								context->runningThreadPos, exception);
-						if (exception->exceptionType != exception_none) {
-							return;
-						}
+						fy_exceptionCheckAndReturn(exception);
+
+						context->threads[thread->threadId] = NULL;
+						fy_mmFree(context->memblocks, thread);
 						break;
 					}
 					context->runningThreadPos++;
@@ -472,10 +481,11 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 #endif
 						now = fy_portTimeMillSec(context->port);
 						sleepTime = context->nextWakeUpTimeTotal - now;
-						if ((sleepTime > 10 && now > nextGC)
-								|| now > nextGCForce) {
-							nextGC = now + 2000;
-							nextGCForce = nextGC + 10000;
+						if ((sleepTime > 10 && now > context->nextGCTime)
+								|| now > context->nextForceGCTime) {
+							context->nextGCTime = now + 2000;
+							context->nextForceGCTime = context->nextGCTime
+									+ 10000;
 							fy_heapGC(context, exception);
 							fy_exceptionCheckAndReturn(exception);
 							now = fy_portTimeMillSec(context->port);

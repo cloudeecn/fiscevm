@@ -12,6 +12,7 @@
 #include "fy_util/LnkList.h"
 #include "fy_util/String.h"
 #include "fy_util/Utf8.h"
+#include "fy_util/Stack.h"
 #include <assert.h>
 #include <time.h>
 #ifdef HAVE_SYS_TIME_H
@@ -227,10 +228,52 @@ void testHashMap() {
 	fy_mmFree(block, hashMap);
 }
 
+void testStack() {
+	struct stackData {
+		int ivalue;
+		float fvalue;
+	};
+
+	struct stackData data, *data1;
+	int i;
+	fy_stack stack;
+	fy_exception ex;
+	fy_exception *exception = &ex;
+	fy_stackInit(block, &stack, sizeof(struct stackData), 1, exception);
+	CHECK_EXCEPTION(exception);
+	for (i = 0; i < 10; i++) {
+		data.ivalue = i;
+		data.fvalue = i * 1.1f;
+		fy_stackPush(block, &stack, &data, exception);
+		CHECK_EXCEPTION(exception);
+	}
+
+	for (i = 9; i >= 0; i--) {
+		data1 = fy_stackPop(block, &stack, NULL);
+		CU_ASSERT_EQUAL(data1->ivalue, i);
+	}
+
+	for (i = 0; i < 10; i++) {
+		data.ivalue = i;
+		data.fvalue = i * 1.1f;
+		fy_stackPush(block, &stack, &data, exception);
+		CHECK_EXCEPTION(exception);
+	}
+
+	for (i = 9; i >= 0; i--) {
+		data1 = fy_stackPop(block, &stack, &data);
+		CU_ASSERT_EQUAL(data.ivalue, i);
+	}
+
+	data1 = fy_stackPop(block, &stack, &data);
+	CU_ASSERT_EQUAL(data1, NULL);
+}
+
 CU_TestInfo testcases[] = { { "platform related", testPortable }, //
 		{ "memory management", testMemManage }, //
 		{ "string", testString }, //
 		{ "hashMap", testHashMap }, //
+		{ "stack", testStack }, //
 		CU_TEST_INFO_NULL };
 
 CU_SuiteInfo suites[] = {

@@ -350,7 +350,6 @@ typedef struct fy_frame {
 } fy_frame;
 
 typedef struct fy_thread {
-	fy_boolean inUse;
 	fy_boolean yield;
 
 	fy_uint handle;
@@ -478,11 +477,12 @@ typedef struct fy_context {
 	fy_uint young[COPY_SIZE * 2];
 	fy_int posInOld;
 	fy_uint old[OLD_ENTRIES];
+	fy_arrayList toFinalize[1];
 	/* #END HEAP*/
 
 	/* #BEGIN THREAD MANAGER*/
 	int pricmds[11];
-	fy_thread threads[MAX_THREADS];
+	fy_thread *threads[MAX_THREADS];
 	fy_arrayList runningThreads[1];
 	int runningThreadPos;
 	int run;
@@ -492,6 +492,8 @@ typedef struct fy_context {
 	fy_int nextThreadId;
 	fy_exception exitException;
 	fy_int exitCode;
+	fy_long nextGCTime;
+	fy_long nextForceGCTime;
 /* #END THREAD MANAGER*/
 
 } fy_context;

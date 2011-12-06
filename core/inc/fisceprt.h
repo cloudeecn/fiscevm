@@ -13,7 +13,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */#ifndef _FY_FISCEPRT_H
+ */
+#ifndef _FY_FISCEPRT_H
 #define _FY_FISCEPRT_H
 
 #include "fiscecon.h"
@@ -80,7 +81,7 @@ typedef struct fy_port {
 	LARGE_INTEGER lpPerfCountBegin;
 	double perfIdv;
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
-struct timeval tvBeginTime;
+	struct timeval tvBeginTime;
 #endif
 } fy_port;
 #ifdef _MSC_VER
@@ -162,6 +163,15 @@ _FY_EXPORT void fy_portInit(fy_port *pd);
 _FY_EXPORT void fy_portDestroy(fy_port *pd);
 _FY_EXPORT fy_long fy_portTimeMillSec(fy_port *pd);
 _FY_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd);
+
+/*Structs*/
+typedef struct fy_muiltType {
+	void *pValue;
+	fy_int iValue;
+	fy_float fValue;
+	fy_double dValue;
+	fy_long lValue;
+} fy_multiType;
 
 #ifdef	__cplusplus
 }

@@ -46,9 +46,6 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	block = context->memblocks;
 	fy_portInit(context->port);
 
-	for (i = 0; i < MAX_THREADS; i++) {
-		context->threads[i].threadId = i;
-	}
 	context->nextThreadId = 1;
 
 	fy_arrayListInit(context->memblocks, context->runningThreads, 16,
@@ -69,28 +66,28 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	context->pricmds[9] = 32000;
 	context->pricmds[10] = 64000;
 
-	fy_strInitWithUTF8(block, context->sBoolean, "boolean", exception);
+	fy_strInitWithUTF8(block, context->sBoolean, "<boolean>", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_strInitWithUTF8(block, context->sByte, "byte", exception);
+	fy_strInitWithUTF8(block, context->sByte, "<byte>", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_strInitWithUTF8(block, context->sShort, "short", exception);
+	fy_strInitWithUTF8(block, context->sShort, "<short>", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_strInitWithUTF8(block, context->sChar, "char", exception);
+	fy_strInitWithUTF8(block, context->sChar, "<char>", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_strInitWithUTF8(block, context->sInt, "int", exception);
+	fy_strInitWithUTF8(block, context->sInt, "<int>", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_strInitWithUTF8(block, context->sFloat, "float", exception);
+	fy_strInitWithUTF8(block, context->sFloat, "<float>", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_strInitWithUTF8(block, context->sLong, "long", exception);
+	fy_strInitWithUTF8(block, context->sLong, "<long>", exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_strInitWithUTF8(block, context->sDouble, "double", exception);
+	fy_strInitWithUTF8(block, context->sDouble, "<double>", exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	fy_strInitWithUTF8(block, context->sTopClass, FY_BASE_OBJECT, exception);
@@ -291,15 +288,18 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_hashMapInit(block, context->mapMUNameToNH, 1024, 12, exception);
 	fy_exceptionCheckAndReturn(exception);
 
+	fy_hashMapInitSimple(block, context->literals, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_arrayListInit(block, context->toFinalize, 32, exception);
+	fy_exceptionCheckAndReturn(exception);
+
 	context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	context->TOP_THROWABLE = fy_vmLookupClass(context, context->sClassThrowable,
 			exception);
-	fy_exceptionCheckAndReturn(exception);
-
-	fy_hashMapInitSimple(block, context->literals, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	fy_coreRegisterCoreHandlers(context, exception);

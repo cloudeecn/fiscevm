@@ -29,7 +29,7 @@ public class Profile implements Runnable {
 		long t0 = System.nanoTime();
 		int k = 0;
 		int i;
-		for (int u = 0; u < 20; u++) {
+		for (int u = 0; u < 200; u++) {
 			long t1 = System.nanoTime();
 			for (i = 0; i < 100000; i++) {
 				k += i;

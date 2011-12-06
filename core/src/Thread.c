@@ -364,7 +364,6 @@ void fy_threadDestroy(fy_context *context, fy_thread *thread) {
 	obj->attachedId = 0;
 	thread->handle = 0;
 
-	thread->inUse = FALSE;
 	thread->waitForLockId = 0;
 	thread->waitForNotifyId = 0;
 	thread->nextWakeTime = 0;
@@ -854,7 +853,6 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
-	thread->inUse = TRUE;
 }
 
 void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
@@ -881,7 +879,6 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	fy_exceptionCheckAndReturn(exception);
 	thread->stack[0] = handle;
 	thread->typeStack[0] = FY_TYPE_HANDLE;
-	thread->inUse = TRUE;
 }
 
 void fy_threadInitWithData(fy_context *context, fy_thread *thread,

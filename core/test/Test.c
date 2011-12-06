@@ -147,7 +147,7 @@ static fy_class *lookup(fy_context *context, const char *name,
 }
 void testClassLoaderFull() {
 	char *names[] = { ""FY_BASE_STRING"", "[[[L"FY_BASE_STRING";", "[[[I",
-			"int", "double", "java/lang/Double", "java/lang/Math", NULL };
+			"<int>", "<double>", "java/lang/Double", "java/lang/Math", NULL };
 	int i = 0;
 	char *nm;
 	fy_str *snm;
@@ -213,6 +213,7 @@ void testClassMethod() {
 	CU_ASSERT(fy_classCanCastTo(context,class6,class4));
 	CU_ASSERT(!fy_classCanCastTo(context,class6,class3));
 	CU_ASSERT(!fy_classCanCastTo(context,class6,class2));
+	CU_ASSERT_EQUAL(class3->ci.arr.contentClass, class1);
 }
 
 void testHeap() {
@@ -357,7 +358,7 @@ void testStatic() {
 	hltest("EXCLUDE/fisce/test/StaticTest");
 }
 
-void testProfile(){
+void testProfile() {
 	hltest("com/cirnoworks/fisce/privat/Profile");
 }
 

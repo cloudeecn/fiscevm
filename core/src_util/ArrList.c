@@ -20,7 +20,8 @@ void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, fy_int initCap,
 		fy_exception *exception) {
 	list->maxLength = initCap;
 	list->length = 0;
-	list->data = fy_mmAllocate(block, sizeof(void*) * initCap, exception);
+	list->data = fy_mmAllocate(block, sizeof(fy_multiType) * initCap,
+			exception);
 	fy_exceptionCheckAndReturn(exception);
 }
 
@@ -32,13 +33,14 @@ void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) {
 
 static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 		fy_exception *exception) {
-	void **data;
+	fy_multiType *data;
 	if (list->maxLength < length) {
 		while (list->maxLength < length)
 			list->maxLength <<= 1;
-		data = fy_mmAllocate(block, list->maxLength * sizeof(void*), exception);
+		data = fy_mmAllocate(block, list->maxLength * sizeof(fy_multiType),
+				exception);
 		fy_exceptionCheckAndReturn(exception);
-		memcpy(data, list->data, list->length * sizeof(void*));
+		memcpy(data, list->data, list->length * sizeof(fy_multiType));
 		fy_mmFree(block, list->data);
 		list->data = data;
 	}
@@ -49,7 +51,16 @@ void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *entry,
 	fy_int len = list->length + 1;
 	ensureCap(block, list, len, exception);
 	fy_exceptionCheckAndReturn(exception);
-	list->data[list->length] = entry;
+	list->data[list->length].pValue = entry;
+	list->length = len;
+}
+
+void fy_arrayListAddI(fy_memblock *block, fy_arrayList *list, void *entry,
+		fy_exception *exception) {
+	fy_int len = list->length + 1;
+	ensureCap(block, list, len, exception);
+	fy_exceptionCheckAndReturn(exception);
+	list->data[list->length].iValue = entry;
 	list->length = len;
 }
 
@@ -60,10 +71,9 @@ void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
 				list->length);
 		return;
 	}
-	if (pos == list->length - 1) {
-		list->length--;
-	} else {
+	if (pos < list->length - 1) {
 		memmove(list->data + pos, list->data + pos + 1,
-				sizeof(void*) * (list->length - pos - 1));
+				sizeof(fy_multiType) * (list->length - pos - 1));
 	}
+	list->length--;
 }

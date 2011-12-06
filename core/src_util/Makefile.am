@@ -7,4 +7,5 @@ libfyutl_a_SOURCES = \
 	MemMan.c \
 	Portable.c \
 	String.c \
+	Stack.c \
 	Utf8.c 

@@ -762,21 +762,25 @@ typedef struct fy_fill_literals_data {
 	fy_exception *exception;
 } fy_fill_literals_data;
 
+#define SHIFT 5
+#define MASK ((1<<SHIFT)-1)
+#define expandToInt(X) (((X)+MASK)>>SHIFT)
+
 static void setBit(fy_uint *marks, fy_uint pos) {
-	marks[pos >> 5] |= 1 << (pos & 31);
+	marks[pos >> SHIFT] |= 1 << (pos & MASK);
 }
 
 static void clearBit(fy_uint *marks, fy_uint pos) {
-	marks[pos >> 5] &= ~(fy_uint) (1 << (pos & 31));
+	marks[pos >> SHIFT] &= ~(fy_uint) (1 << (pos & MASK));
 }
 
 static fy_boolean getBit(fy_uint *marks, fy_uint pos) {
-	return (marks[pos >> 5] >> (pos & 31)) & 1;
+	return (marks[pos >> SHIFT] >> (pos & MASK)) & 1;
 }
 
 static void fillLiterals(fy_str *key, void *value, void *data) {
 	fy_fill_literals_data *ffld = (fy_fill_literals_data*) data;
-	fy_uint handle = &value;
+	fy_uint handle = *(fy_uint*) value;
 	setBit(ffld->makrs, handle);
 }
 
@@ -786,12 +790,13 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 	fy_class *clazz;
 	fy_field *field;
 	fy_fill_literals_data ffld;
+	fy_thread *thread;
 
 	/*Classes*/
 	imax = context->classesCount;
 	for (i = 1; i <= imax; i++) {
 		/*Class object*/
-		clazz = context->classes + i;
+		clazz = context->classes[i];
 		setBit(marks, clazz->classObjId);
 
 		/*Class static area*/
@@ -806,15 +811,86 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 	}
 
 	/*Literals*/
-	ffld.context = context;
-	ffld.makrs = marks;
-	ffld.exception = exception;
+	{
+		ffld.context = context;
+		ffld.makrs = marks;
+		ffld.exception = exception;
 
-	fy_hashMapEachValue(context->memblocks, context->literals, fillLiterals,
-			&ffld);
-
+		fy_hashMapEachValue(context->memblocks, context->literals, fillLiterals,
+				&ffld);
+	}
 	/*Thread objects*/
+	for (i = 1; i < MAX_THREADS; i++) {
+		thread = context->threads[i];
+		if (thread != NULL) {
+			setBit(marks, thread->handle);
+		}
+	}
 
+	imax = context->toFinalize->length;
+	for (i = 0; i < imax; i++) {
+		setBit(marks, context->toFinalize->data->iValue);
+	}
+}
+
+static void scanRef(fy_context *context, fy_uint *marks,
+		fy_exception *exception) {
+	fy_stack stack;
+	fy_object *object;
+	fy_field *field;
+	fy_uint handle1, handle2;
+	struct stackData {
+		fy_uint handle;
+		fy_uint fieldId;
+	} data;
+	fy_uint i, j;
+
+	fy_stackInit(context->memblocks, &stack, sizeof(struct stackData), 128,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	/*push initial handles*/
+	for (i = expandToInt(MAX_OBJECTS); i >= 0; i--) {
+		if (marks[i]) {
+			for (j = MASK; j >= 0; j--) {
+				if (marks[i] & (1 << j)) {
+					data.handle = (i << SHIFT) + j;
+					data.fieldId = 0;
+					fy_stackPush(context->memblocks, &stack, &data, exception);
+					fy_exceptionCheckAndReturn(exception);
+				}
+			}
+		}
+	}
+
+	while (fy_stackPop(context->memblocks, &stack, &data)) {
+		handle1 = data.handle;
+		object = context->objects + handle1;
+		if (object->clazz->type == arr) {
+			if (object->clazz->ci.arr.contentClass->type != prm) {
+				for (i = object->length - 1; i >= 0; i--) {
+					handle2 = fy_heapGetArrayHandle(context, handle1, i,
+							exception);
+					fy_exceptionCheckAndReturn(exception);
+					if (!getBit(marks, handle2)) {
+						setBit(marks, handle2);
+						data.handle = handle2;
+						data.fieldId = 0;
+						fy_stackPush(context->memblocks, &stack, &data,
+								exception);
+						fy_exceptionCheckAndReturn(exception);
+					}
+				}
+			}
+		} else if (object->clazz->type == obj) {
+			for (i = object->clazz->sizeAbs - 1; i >= 0; i--) {
+
+			}
+		} else {
+			fy_fault(exception, NULL, "Illegal object type for object %d.",
+					handle1);
+		}
+	}
 }
 
 void fy_heapGC(fy_context *context, fy_exception *exception) {
@@ -822,8 +898,10 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	fy_uint *marks;
 	fy_uint i;
 
-	marks = fy_allocate(MAX_OBJECTS / 8, exception);
+	marks = fy_allocate(expandToInt(MAX_OBJECTS) << SHIFT, exception);
 	fy_exceptionCheckAndReturn(exception);
 	/*Class handle*/
 
+	fillInitialHandles(context, marks, exception);
+	fy_exceptionCheckAndReturn(exception);
 }

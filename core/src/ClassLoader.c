@@ -863,6 +863,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(block,
 				context->mapPrimitivesRev, name);
 	} else {
+		/*TODO please use proper resource access method*/
 		fy_str *localName = fy_mmAllocate(block, sizeof(fy_str), exception);
 		fy_exceptionCheckAndReturn(exception)NULL;
 		fy_strInit(block, localName, name->length + 20, exception);

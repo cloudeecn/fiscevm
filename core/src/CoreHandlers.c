@@ -173,8 +173,10 @@ static void ThreadSetPriority(struct fy_context *context,
 		fy_exception *exception) {
 	fy_thread *target;
 	fy_object *obj = context->objects + args[0];
-	target = context->threads + obj->attachedId;
-	target->priority = args[1];
+	target = context->threads[obj->attachedId];
+	if (target != NULL) {
+		target->priority = args[1];
+	}
 }
 
 static void ThreadIsAlive(struct fy_context *context, struct fy_thread *thread,
