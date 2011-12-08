@@ -480,7 +480,11 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		fy_heapPutFieldHandle(context, itemHandle, methodNameField, strHandle,
 				exception);
 		FY_SIMPLE_ERROR_HANDLE
-		fy_heapPutFieldHandle(context, itemHandle, fileNameField, 0, exception);
+		strHandle = fy_heapMakeString(context, method->owner->sourceFile,
+				exception);
+		FY_SIMPLE_ERROR_HANDLE
+		fy_heapPutFieldHandle(context, itemHandle, fileNameField, strHandle,
+				exception);
 		FY_SIMPLE_ERROR_HANDLE
 
 		lineNumber = -1;

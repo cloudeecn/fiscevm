@@ -27,7 +27,7 @@
 #define MAX_METHODS 65536
 #define MAX_FIELDS 65536
 #define MAX_OBJECTS 131072
-#define MAX_THREADS 16
+#define MAX_THREADS 256
 #define EDEN_SIZE 524288
 #define COPY_SIZE 131072
 #define OLD_ENTRIES 16384
@@ -39,13 +39,14 @@
 #define FY_TYPE_CHAR  'C'
 #define FY_TYPE_DOUBLE  'D'
 #define FY_TYPE_FLOAT  'F'
-#define FY_TYPE_INT  'I'
 #define FY_TYPE_LONG  'J'
-#define FY_TYPE_HANDLE  'L'
 #define FY_TYPE_SHORT  'S'
 #define FY_TYPE_BOOLEAN  'Z'
 #define FY_TYPE_ARRAY  '['
-/*Below and FY_TYPE_INT/FY_TYPE_HANDLE are used by thread*/
+/*Below are shared by thread and context*/
+#define FY_TYPE_INT  'I'
+#define FY_TYPE_HANDLE  'L'
+/*Below are used only by thread*/
 #define FY_TYPE_WIDE  'W'
 #define FY_TYPE_RETURN  'R'
 #define FY_TYPE_WIDE2  '_'
@@ -86,9 +87,6 @@
 
 #define FY_TM_STATE_NEW  0
 #define FY_TM_STATE_BOOT_PENDING  1
-/**
- *
- */
 #define FY_TM_STATE_STOP  2
 #define FY_TM_STATE_RUN_PENDING  3
 #define FY_TM_STATE_RUNNING  4
@@ -279,6 +277,10 @@ typedef struct fy_class {
 	struct fy_class** interfaces;
 	fy_char fieldCount;
 	fy_field** fields;
+	/*BEGIN GC Only*/
+	fy_byte *fieldAbsType;
+	fy_field **fieldAbs;
+	/* END  GC Only*/
 	fy_char methodCount;
 	fy_method** methods;
 	fy_method* clinit;

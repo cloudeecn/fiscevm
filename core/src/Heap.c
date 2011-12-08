@@ -904,4 +904,6 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 
 	fillInitialHandles(context, marks, exception);
 	fy_exceptionCheckAndReturn(exception);
+
+	fy_free(marks);
 }

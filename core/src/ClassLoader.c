@@ -538,18 +538,19 @@ static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data,
 		fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	fy_char i, count, j, jcount, k, kcount, l, lcount;
-	fy_str *ATT_CODE = fy_strCreateFromUTF8(block, "Code", exception);
-	fy_exceptionCheckAndReturn(exception);
-	fy_str *ATT_LINENUM = fy_strCreateFromUTF8(block, "LineNumberTable",
-			exception);
-	fy_exceptionCheckAndReturn(exception);
-	fy_str *ATT_SYNTH = fy_strCreateFromUTF8(block, "Synthetic", exception);
-	fy_exceptionCheckAndReturn(exception);
+	fy_str *ATT_CODE, *ATT_LINENUM, *ATT_SYNTH;
 	fy_str *attrName;
 	fy_uint attrSize;
 	fy_str *attrNameCode;
 	fy_uint attrSizeCode;
 	fy_method *method;
+
+	ATT_CODE = fy_strCreateFromUTF8(block, "Code", exception);
+	fy_exceptionCheckAndReturn(exception);
+	ATT_LINENUM = fy_strCreateFromUTF8(block, "LineNumberTable", exception);
+	fy_exceptionCheckAndReturn(exception);
+	ATT_SYNTH = fy_strCreateFromUTF8(block, "Synthetic", exception);
+	fy_exceptionCheckAndReturn(exception);
 	clazz->methodCount = count = fy_dataRead2(data);
 	clazz->methods = fy_mmAllocate(block, sizeof(fy_method*) * count,
 			exception);
@@ -738,8 +739,9 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_data *data,
 }
 void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) {
 	fy_str *name;
-	fy_char i;
+	fy_uint i, pos;
 	fy_memblock *block = context->memblocks;
+	fy_field *field;
 	fy_str *FINALIZE = fy_strCreateFromUTF8(block, ".finalize.()V", exception);
 	fy_exceptionCheckAndReturn(exception);
 #ifdef _DEBUG
@@ -827,6 +829,31 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			for (i = 0; i < clazz->fieldCount; i++) {
 				clazz->fields[i]->posAbs = clazz->fields[i]->posRel;
 			}
+		}
+		/*Add data for gc*/
+		clazz->fieldAbs = fy_mmAllocate(block,
+				clazz->sizeAbs * sizeof(fy_field*), exception);
+		fy_exceptionCheckAndReturn(exception);
+		clazz->fieldAbsType = fy_mmAllocate(block,
+				clazz->sizeAbs * sizeof(fy_byte), exception);
+		fy_exceptionCheckAndReturn(exception);
+		for (i = 0; i < clazz->sizeAbs; i++) {
+			clazz->fieldAbsType[i] = FY_TYPE_UNKNOWN;
+		}
+		for (i = 0; i < clazz->fieldCount; i++) {
+			field = clazz->fields[i];
+			if (!(field->access_flags & FY_ACC_STATIC)) {
+				pos = field->posAbs;
+				ASSERT(pos<clazz->sizeAbs);
+				clazz->fieldAbsType[pos] = field->descriptor->content[0];
+				clazz->fieldAbs[pos] = field;
+			}
+		}
+		if (clazz->super && (i = clazz->super->sizeAbs) > 0) {
+			memcpy(clazz->fieldAbs, clazz->super->fieldAbs,
+					i * sizeof(fy_field*));
+			memcpy(clazz->fieldAbsType, clazz->super->fieldAbsType,
+					i * sizeof(fy_byte));
 		}
 		break;
 	case prm:

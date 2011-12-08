@@ -37,7 +37,6 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 */
 	fy_char *cc;
 	fy_memblock *block;
-	fy_uint i;
 
 	context->nextHandle = 1;
 

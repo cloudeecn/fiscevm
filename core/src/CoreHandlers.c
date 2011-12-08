@@ -298,8 +298,8 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 	memcpy(newArray, array + ofs, len);
 	newArray[len] = 0;
 	str = fy_strCreateFromUTF8(block, (char*) newArray, exception);
-	fy_exceptionCheckAndReturn(exception);
 	fy_free(newArray);
+	fy_exceptionCheckAndReturn(exception);
 
 	handleRet = fy_heapAllocateArray(context, charArray, maxi = str->length,
 			exception);

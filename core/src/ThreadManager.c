@@ -81,7 +81,7 @@ static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
 static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
 	fy_int h = context->nextThreadId;
 	fy_thread *target;
-	while (target = context->threads[h]) {
+	while ((target = context->threads[h]) != 0) {
 		h++;
 		if (h == MAX_THREADS) {
 			h = 1;
