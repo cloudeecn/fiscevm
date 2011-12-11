@@ -128,12 +128,12 @@ static void ClassInvokeMethod(struct fy_context *context,
 	fy_strDestroy(context->memblocks, &methodName);
 	fy_exceptionCheckAndReturn(exception);
 	if (method == NULL) {
-		fy_fault(exception, FY_BASE_INVOCATION_TARGET_EXCEPTION,
+		fy_fault(exception, FY_EXCEPTION_ITE,
 				"Method not found!");
 		return;
 	}
 	if (method->returnType != FY_TYPE_HANDLE) {
-		fy_fault(exception, FY_BASE_INVOCATION_TARGET_EXCEPTION,
+		fy_fault(exception, FY_EXCEPTION_ITE,
 				"Return type not Object!");
 		return;
 	}
@@ -142,7 +142,7 @@ static void ClassInvokeMethod(struct fy_context *context,
 			0 : fy_heapArrayLength(context, paramsHandle, exception);
 	fy_exceptionCheckAndReturn(exception);
 	if (count != method->paramCount) {
-		fy_fault(exception, FY_BASE_INVOCATION_TARGET_EXCEPTION,
+		fy_fault(exception, FY_EXCEPTION_ITE,
 				"param count not match!");
 		return;
 	}
@@ -152,7 +152,7 @@ static void ClassInvokeMethod(struct fy_context *context,
 		fy_exceptionCheckAndReturn(exception);
 		thread->typeStack[sp + i] = FY_TYPE_HANDLE;
 		if (paramTypes[i] != FY_TYPE_HANDLE) {
-			fy_fault(exception, FY_BASE_INVOCATION_TARGET_EXCEPTION,
+			fy_fault(exception, FY_EXCEPTION_ITE,
 					"param type not all handle");
 			break;
 		}

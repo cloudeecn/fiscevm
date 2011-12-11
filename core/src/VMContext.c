@@ -47,8 +47,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	context->nextThreadId = 1;
 
-	fy_arrayListInit(context->memblocks, context->runningThreads, 16,
-			exception);
+	fy_arrayListInit(context->memblocks, context->runningThreads,
+			sizeof(fy_thread*), 16, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	context->state = FY_TM_STATE_NEW;
@@ -290,7 +290,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_hashMapInitSimple(block, context->literals, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_arrayListInit(block, context->toFinalize, 32, exception);
+	fy_arrayListInit(block, context->toFinalize, sizeof(fy_uint), 32,
+			exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,

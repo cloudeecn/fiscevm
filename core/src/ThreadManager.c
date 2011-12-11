@@ -201,7 +201,8 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 		return;
 	}
 	for (i = context->runningThreads->length - 1; i >= 0; i--) {
-		target = context->runningThreads->data->pValue;
+		fy_arrayListGet(context->memblocks, context->runningThreads, i,
+				&target);
 		if (target != NULL && target->waitForNotifyId == monitorId) {
 			target->waitForNotifyId = 0;
 			ASSERT(target->waitForLockId==0);
@@ -305,7 +306,7 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	fy_threadInitWithMethod(context, thread, threadHandle, method, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_arrayListAdd(context->memblocks, context->runningThreads, thread,
+	fy_arrayListAdd(context->memblocks, context->runningThreads, &thread,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 	context->state = FY_TM_STATE_RUN_PENDING;
@@ -363,7 +364,7 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 	fy_threadInitWithRun(context, thread, threadHandle, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	fy_arrayListAdd(context->memblocks, context->runningThreads, thread,
+	fy_arrayListAdd(context->memblocks, context->runningThreads, &thread,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 }
@@ -406,7 +407,8 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 #endif
 			if (running->length > 0) {
 				if (context->runningThreadPos < running->length) {
-					thread = running->data[context->runningThreadPos].pValue;
+					fy_arrayListGet(context->memblocks, running,
+							context->runningThreadPos, &thread);
 					if (thread->destroyPending) {
 						fy_threadDestroy(context, thread);
 						fy_arrayListRemove(context->memblocks, running,

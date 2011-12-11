@@ -21,6 +21,7 @@
 #include "../fy_util/String.h"
 #include "../fy_util/Debug.h"
 #include "VMContext.h"
+
 #define CONSTANT_Class	 7
 #define CONSTANT_Fieldref	 9
 #define CONSTANT_Methodref	 10

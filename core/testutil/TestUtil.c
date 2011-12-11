@@ -12,7 +12,8 @@
 #include "fy_util/LnkList.h"
 #include "fy_util/String.h"
 #include "fy_util/Utf8.h"
-#include "fy_util/Stack.h"
+#include "fy_util/ArrList.h"
+#include "fy_util/BitSet.h"
 #include <assert.h>
 #include <time.h>
 #ifdef HAVE_SYS_TIME_H
@@ -101,6 +102,8 @@ void testMemManage() {
 
 	fy_exception ex;
 	fy_exception *exception = &ex;
+
+	printf("TestMemManage\n");
 	ex.exceptionType = exception_none;
 	for (i = 0; i < 17; i++) {
 		address[i] = fy_mmAllocate(block, 4096, exception);
@@ -119,6 +122,7 @@ void testString() {
 	const char *cc2 = "ABC中文DEG";
 	fy_exception ex;
 	fy_exception *exception = &ex;
+	printf("TestMemString\n");
 	ex.exceptionType = exception_none;
 	printf("%s\n%d", cc, (int) strlen(cc));
 	fy_str *js = fy_mmAllocate(block, sizeof(fy_str), exception);
@@ -176,6 +180,7 @@ void testHashMap() {
 	ex.exceptionType = exception_none;
 	fy_test_map add;
 	fy_hashMap *hashMap = fy_mmAllocate(block, sizeof(fy_hashMap), exception);
+	printf("TestHashMap\n");
 	CHECK_EXCEPTION(exception);
 	memset(buf, 0, 256);
 	blocks = fy_getAllocated();
@@ -228,7 +233,7 @@ void testHashMap() {
 	fy_mmFree(block, hashMap);
 }
 
-void testStack() {
+void testArrayList() {
 	struct stackData {
 		int ivalue;
 		float fvalue;
@@ -236,44 +241,53 @@ void testStack() {
 
 	struct stackData data, *data1;
 	int i;
-	fy_stack stack;
+	fy_arrayList stack;
 	fy_exception ex;
 	fy_exception *exception = &ex;
-	fy_stackInit(block, &stack, sizeof(struct stackData), 1, exception);
+	printf("TestArrayList\n");
+	fy_arrayListInit(block, &stack, sizeof(struct stackData), 1, exception);
 	CHECK_EXCEPTION(exception);
 	for (i = 0; i < 10; i++) {
 		data.ivalue = i;
 		data.fvalue = i * 1.1f;
-		fy_stackPush(block, &stack, &data, exception);
+		fy_arrayListAdd(block, &stack, &data, exception);
 		CHECK_EXCEPTION(exception);
 	}
 
+	for (i = 0; i < 10; i++) {
+		fy_arrayListGet(block, &stack, i, &data);
+		CHECK_EXCEPTION(exception);
+		CU_ASSERT_EQUAL(data.ivalue, i);
+		CU_ASSERT_EQUAL(data.fvalue, i*1.1f);
+	}
+
 	for (i = 9; i >= 0; i--) {
-		data1 = fy_stackPop(block, &stack, NULL);
+		data1 = fy_arrayListPop(block, &stack, NULL);
 		CU_ASSERT_EQUAL(data1->ivalue, i);
 	}
 
 	for (i = 0; i < 10; i++) {
 		data.ivalue = i;
 		data.fvalue = i * 1.1f;
-		fy_stackPush(block, &stack, &data, exception);
+		fy_arrayListAdd(block, &stack, &data, exception);
 		CHECK_EXCEPTION(exception);
 	}
 
 	for (i = 9; i >= 0; i--) {
-		data1 = fy_stackPop(block, &stack, &data);
+		data1 = fy_arrayListPop(block, &stack, &data);
 		CU_ASSERT_EQUAL(data.ivalue, i);
 	}
 
-	data1 = fy_stackPop(block, &stack, &data);
+	data1 = fy_arrayListPop(block, &stack, &data);
 	CU_ASSERT_EQUAL(data1, NULL);
+	fy_arrayListDestroy(block, &stack);
 }
 
 CU_TestInfo testcases[] = { { "platform related", testPortable }, //
 		{ "memory management", testMemManage }, //
 		{ "string", testString }, //
 		{ "hashMap", testHashMap }, //
-		{ "stack", testStack }, //
+		{ "arrayList", testArrayList }, //
 		CU_TEST_INFO_NULL };
 
 CU_SuiteInfo suites[] = {

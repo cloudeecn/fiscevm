@@ -16,52 +16,44 @@
  */
 #include "fy_util/ArrList.h"
 
-void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, fy_int initCap,
-		fy_exception *exception) {
+void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, size_t entrySize,
+		fy_int initCap, fy_exception *exception) {
 	list->maxLength = initCap;
 	list->length = 0;
-	list->data = fy_mmAllocate(block, sizeof(fy_multiType) * initCap,
-			exception);
+	list->entrySize = entrySize;
+	list->data = fy_mmAllocate(block, entrySize * initCap, exception);
 	fy_exceptionCheckAndReturn(exception);
 }
 
 void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) {
-	fy_mmFree(block, list);
+	fy_mmFree(block, list->data);
+	list->data = NULL;
 	list->length = -1;
 	list->maxLength = -1;
 }
 
 static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 		fy_exception *exception) {
-	fy_multiType *data;
+	void *data;
 	if (list->maxLength < length) {
 		while (list->maxLength < length)
 			list->maxLength <<= 1;
-		data = fy_mmAllocate(block, list->maxLength * sizeof(fy_multiType),
+		data = fy_mmAllocate(block, list->maxLength * list->entrySize,
 				exception);
 		fy_exceptionCheckAndReturn(exception);
-		memcpy(data, list->data, list->length * sizeof(fy_multiType));
+		memcpy(data, list->data, list->length * list->entrySize);
 		fy_mmFree(block, list->data);
 		list->data = data;
 	}
 }
 
-void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *entry,
+void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *data,
 		fy_exception *exception) {
-	fy_int len = list->length + 1;
-	ensureCap(block, list, len, exception);
+	ensureCap(block, list, list->length + 1, exception);
 	fy_exceptionCheckAndReturn(exception);
-	list->data[list->length].pValue = entry;
-	list->length = len;
-}
 
-void fy_arrayListAddI(fy_memblock *block, fy_arrayList *list, void *entry,
-		fy_exception *exception) {
-	fy_int len = list->length + 1;
-	ensureCap(block, list, len, exception);
-	fy_exceptionCheckAndReturn(exception);
-	list->data[list->length].iValue = entry;
-	list->length = len;
+	memcpy((fy_byte*) list->data + (list->length++) * list->entrySize, data,
+			list->entrySize);
 }
 
 void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
@@ -72,8 +64,32 @@ void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
 		return;
 	}
 	if (pos < list->length - 1) {
-		memmove(list->data + pos, list->data + pos + 1,
-				sizeof(fy_multiType) * (list->length - pos - 1));
+		memmove((fy_byte*) list->data + pos * list->entrySize,
+				(fy_byte*) list->data + (pos + 1) * list->entrySize,
+				list->entrySize * (list->length - pos - 1));
 	}
 	list->length--;
+}
+
+static void* get(fy_arrayList *list, fy_uint pos, void *storage) {
+	void *ret = (fy_byte*) list->data + pos * list->entrySize;
+	if (storage != NULL) {
+		memcpy(storage, ret, list->entrySize);
+		return storage;
+	}
+	return ret;
+}
+
+void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list, fy_uint pos,
+		void *storage) {
+	if (pos < 0 || pos >= list->length) {
+		return NULL;
+	}
+	return get(list, pos, storage);
+}
+void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list, void *storage) {
+	if (list->length == 0) {
+		return NULL;
+	}
+	return get(list, --list->length, storage);
 }

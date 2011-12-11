@@ -1,5 +1,5 @@
 /**
- *  Copyright 2010 Yuxuan Huang. All rights reserved.
+ *  Copyright 2010-2011 Yuxuan Huang. All rights reserved.
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,28 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FY_MEMMAN_H_
-#define FY_MEMMAN_H_
+#include "fy_util/BitSet.h"
 
-#include "../fisceprt.h"
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-typedef struct fy_memblock {
-	void *first;
-	void *last;
-	fy_int blocks;
-} fy_memblock;
-
-void fy_mmInit(fy_memblock *block, fy_exception *exception);
-void fy_mmDestroy(fy_memblock *block);
-
-void* fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception);
-void fy_mmFree(fy_memblock *block, void *address);
-
-#ifdef	__cplusplus
+void fy_bitSet(fy_uint *marks, fy_uint pos) {
+	marks[pos >> fy_bitSHIFT] |= 1 << (pos & fy_bitMASK);
 }
-#endif
-#endif /* MEMMAN_H_ */
+
+void fy_bitClear(fy_uint *marks, fy_uint pos) {
+	marks[pos >> fy_bitSHIFT] &= ~(fy_uint) (1 << (pos & fy_bitMASK));
+}
+
+fy_boolean fy_bitGet(fy_uint *marks, fy_uint pos) {
+	return (marks[pos >> fy_bitSHIFT] >> (pos & fy_bitMASK)) & 1;
+}
+

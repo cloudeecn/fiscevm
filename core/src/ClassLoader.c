@@ -831,29 +831,29 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			}
 		}
 		/*Add data for gc*/
+		clazz->fieldStatic = fy_mmAllocate(block,
+				clazz->staticSize * sizeof(fy_field*), exception);
+		fy_exceptionCheckAndReturn(exception);
+
 		clazz->fieldAbs = fy_mmAllocate(block,
 				clazz->sizeAbs * sizeof(fy_field*), exception);
 		fy_exceptionCheckAndReturn(exception);
-		clazz->fieldAbsType = fy_mmAllocate(block,
-				clazz->sizeAbs * sizeof(fy_byte), exception);
-		fy_exceptionCheckAndReturn(exception);
-		for (i = 0; i < clazz->sizeAbs; i++) {
-			clazz->fieldAbsType[i] = FY_TYPE_UNKNOWN;
-		}
+
 		for (i = 0; i < clazz->fieldCount; i++) {
 			field = clazz->fields[i];
-			if (!(field->access_flags & FY_ACC_STATIC)) {
+			if (field->access_flags & FY_ACC_STATIC) {
+				pos = field->posAbs;
+				ASSERT(pos<clazz->staticSize);
+				clazz->fieldStatic[pos] = field;
+			} else {
 				pos = field->posAbs;
 				ASSERT(pos<clazz->sizeAbs);
-				clazz->fieldAbsType[pos] = field->descriptor->content[0];
 				clazz->fieldAbs[pos] = field;
 			}
 		}
 		if (clazz->super && (i = clazz->super->sizeAbs) > 0) {
 			memcpy(clazz->fieldAbs, clazz->super->fieldAbs,
 					i * sizeof(fy_field*));
-			memcpy(clazz->fieldAbsType, clazz->super->fieldAbsType,
-					i * sizeof(fy_byte));
 		}
 		break;
 	case prm:

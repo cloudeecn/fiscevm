@@ -20,7 +20,7 @@
 
 #include "../fisceprt.h"
 #include "../fy_util/Debug.h"
-#include "../fy_util/Stack.h"
+#include "../fy_util/BitSet.h"
 #include "../fiscestu.h"
 #include "VMContext.h"
 

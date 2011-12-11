@@ -164,15 +164,6 @@ _FY_EXPORT void fy_portDestroy(fy_port *pd);
 _FY_EXPORT fy_long fy_portTimeMillSec(fy_port *pd);
 _FY_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd);
 
-/*Structs*/
-typedef struct fy_muiltType {
-	void *pValue;
-	fy_int iValue;
-	fy_float fValue;
-	fy_double dValue;
-	fy_long lValue;
-} fy_multiType;
-
 #ifdef	__cplusplus
 }
 #endif

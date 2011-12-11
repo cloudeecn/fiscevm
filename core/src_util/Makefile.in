@@ -71,7 +71,7 @@ libfyutl_a_AR = $(AR) $(ARFLAGS)
 libfyutl_a_LIBADD =
 am_libfyutl_a_OBJECTS = Debug.$(OBJEXT) HashMap.$(OBJEXT) \
 	ArrList.$(OBJEXT) LnkList.$(OBJEXT) MemMan.$(OBJEXT) \
-	Portable.$(OBJEXT) String.$(OBJEXT) Stack.$(OBJEXT) \
+	Portable.$(OBJEXT) String.$(OBJEXT) BitSet.$(OBJEXT) \
 	Utf8.$(OBJEXT)
 libfyutl_a_OBJECTS = $(am_libfyutl_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
@@ -183,7 +183,7 @@ libfyutl_a_SOURCES = \
 	MemMan.c \
 	Portable.c \
 	String.c \
-	Stack.c \
+	BitSet.c \
 	Utf8.c 
 
 all: all-am
@@ -264,12 +264,12 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ArrList.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BitSet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LnkList.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MemMan.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Portable.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Stack.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Utf8.Po@am__quote@
 

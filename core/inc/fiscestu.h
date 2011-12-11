@@ -33,6 +33,7 @@
 #define OLD_ENTRIES 16384
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
+#define MAX_GEN 16
 
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'
@@ -58,7 +59,6 @@
 #define FY_BASE_THROWABLE "java/lang/Throwable"
 #define FY_BASE_THREAD "java/lang/Thread"
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
-#define FY_BASE_INVOCATION_TARGET_EXCEPTION "java/lang/InvocationTargetException"
 #define FY_METHOD_INIT "<init>"
 #define FY_METHOD_CLINIT "<clinit>"
 #define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"
@@ -67,6 +67,7 @@
 #define FY_FIELDF_NAME ".name.[C"
 #define FY_FIELDF_DAEMON ".daemon.Z"
 
+#define FY_EXCEPTION_ITE "java/lang/InvocationTargetException"
 #define FY_EXCEPTION_MONITOR "java/lang/IllegalMonitorStateException"
 #define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
 #define FY_EXCEPTION_NPT "java/lang/NullPointerException"
@@ -278,7 +279,7 @@ typedef struct fy_class {
 	fy_char fieldCount;
 	fy_field** fields;
 	/*BEGIN GC Only*/
-	fy_byte *fieldAbsType;
+	fy_field **fieldStatic;
 	fy_field **fieldAbs;
 	/* END  GC Only*/
 	fy_char methodCount;
@@ -320,7 +321,9 @@ typedef struct fy_object {
 	fy_int length;
 	enum {
 		eden = 0, young, old
-	} position;
+	} position :2;
+	fy_boolean finalized :1;
+	fy_int gen :8;
 	fy_uint monitorOwnerId;
 	fy_int monitorOwnerTimes;
 	fy_uint attachedId;
@@ -471,11 +474,11 @@ typedef struct fy_context {
 	/* #BEGIN HEAP*/
 	fy_hashMap literals[1];
 	fy_uint nextHandle;
-	fy_uint inusedYoungId;
 	fy_object objects[MAX_OBJECTS];
 	fy_int posInEden;
 	fy_uint eden[EDEN_SIZE];
 	fy_int posInYong;
+	fy_uint youngId;
 	fy_uint young[COPY_SIZE * 2];
 	fy_int posInOld;
 	fy_uint old[OLD_ENTRIES];
