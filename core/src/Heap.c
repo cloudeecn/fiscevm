@@ -1016,7 +1016,6 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 		if (marks[i]) {
 			for (j = fy_bitMASK; j >= 0; j--) {
 				if (marks[i] & (1 << j)) {
-					printf("%d,%d=%d\n", i, j, (i << fy_bitSHIFT) + j);
 					handle = (i << fy_bitSHIFT) + j;
 					fy_arrayListAdd(context->memblocks, &from, &handle,
 							exception);
