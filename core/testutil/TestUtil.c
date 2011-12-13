@@ -26,7 +26,7 @@
 static fy_memblock *block;
 static fy_port *port;
 static void dumpException(fy_exception *exception) {
-	if (exception == NULL || exception->exceptionType != exception_none) {
+	if (exception == NULL || exception->exceptionType == exception_none) {
 		fy_fault(NULL, NULL, "!!!!!");
 	}
 	fy_fault(NULL, NULL, "Exception in initialize: %s  || %s",
@@ -244,6 +244,7 @@ void testArrayList() {
 	fy_arrayList stack;
 	fy_exception ex;
 	fy_exception *exception = &ex;
+	memset(exception, 0, sizeof(ex));
 	printf("TestArrayList\n");
 	fy_arrayListInit(block, &stack, sizeof(struct stackData), 1, exception);
 	CHECK_EXCEPTION(exception);
@@ -260,24 +261,20 @@ void testArrayList() {
 		CU_ASSERT_EQUAL(data.ivalue, i);
 		CU_ASSERT_EQUAL(data.fvalue, i*1.1f);
 	}
-
 	for (i = 9; i >= 0; i--) {
 		data1 = fy_arrayListPop(block, &stack, NULL);
 		CU_ASSERT_EQUAL(data1->ivalue, i);
 	}
-
 	for (i = 0; i < 10; i++) {
 		data.ivalue = i;
 		data.fvalue = i * 1.1f;
 		fy_arrayListAdd(block, &stack, &data, exception);
 		CHECK_EXCEPTION(exception);
 	}
-
 	for (i = 9; i >= 0; i--) {
 		data1 = fy_arrayListPop(block, &stack, &data);
 		CU_ASSERT_EQUAL(data.ivalue, i);
 	}
-
 	data1 = fy_arrayListPop(block, &stack, &data);
 	CU_ASSERT_EQUAL(data1, NULL);
 	fy_arrayListDestroy(block, &stack);
