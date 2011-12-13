@@ -51,8 +51,8 @@ static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 			fy_fault(
 					exception,
 					NULL,
-					"Out of memory! Memory overflow EDEN:%d/%d COPY:%d/%d OLD:%d/%d",
-					context->posInEden, EDEN_SIZE, context->posInYong,
+					"Out of memoryE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d",
+					size, context->posInEden, EDEN_SIZE, context->posInYong,
 					COPY_SIZE, context->posInOld, OLD_ENTRIES);
 			return NULL;
 		} else {
@@ -74,8 +74,8 @@ static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
 			fy_fault(
 					exception,
 					NULL,
-					"Out of memory! Memory overflow EDEN:%d/%d COPY:%d/%d OLD:%d/%d",
-					context->posInEden, EDEN_SIZE, context->posInYong,
+					"Out of memoryO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d",
+					size, context->posInEden, EDEN_SIZE, context->posInYong,
 					COPY_SIZE, context->posInOld, OLD_ENTRIES);
 			return NULL;
 		} else {
