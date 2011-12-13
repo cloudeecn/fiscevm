@@ -46,6 +46,8 @@ void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list, void *storage);
 void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
 		fy_exception *exception);
 
+void fy_arrayListClear(fy_memblock *block, fy_arrayList *list);
+
 #ifdef	__cplusplus
 }
 #endif

@@ -362,6 +362,10 @@ void testProfile() {
 	hltest("com/cirnoworks/fisce/privat/Profile");
 }
 
+void testGC() {
+	hltest("EXCLUDE/fisce/test/GCTest");
+}
+
 void testCustom() {
 	hltest(customTest);
 }
@@ -384,6 +388,7 @@ CU_TestInfo testcases[] = { { "allocate1", testAllocate1 }, //
 		{ "ForEach", testForEach }, //
 		{ "HashMap", testHashMap }, //
 		{ "Profile", testProfile }, //
+		{ "GC", testGC }, //
 		CU_TEST_INFO_NULL };
 
 CU_TestInfo customCase[] = { { "custom", testCustom }, //

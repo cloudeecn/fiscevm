@@ -129,12 +129,14 @@ void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
 	}
 	if (target->nextWakeTime > 0) {
 		ASSERT(target->currentThrowable == 0);
+		fy_heapBeginProtect(context);
 		exceptionHandle = fy_threadPrepareThrowable(context, target,
 				&targetException, exception);
 		if (exception->exceptionType != exception_none) {
 			return;;
 		}
 		target->currentThrowable = exceptionHandle;
+		fy_heapEndProtect(context);
 		target->nextWakeTime = 0;
 		target->interrupted = TRUE;
 	}

@@ -52,6 +52,10 @@ fy_int fy_heapMakeString(fy_context *context, fy_str *target,
 		fy_exception *exception);
 fy_int fy_heapLiteral(fy_context *context, fy_str *str, fy_exception *exception);
 
+void fy_heapBeginProtect(fy_context *context);
+
+void fy_heapEndProtect(fy_context *context);
+
 fy_boolean fy_heapGetArrayBoolean(fy_context *context, fy_int handle,
 		fy_int index, fy_exception *exception);
 fy_int fy_heapGetArrayHandle(fy_context *context, fy_int handle, fy_int index,

@@ -537,11 +537,13 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 		constantStringInfo =
 				((ConstantStringInfo*) (owner->constantPools[index]));
 		if (!constantStringInfo->derefed) {
+			fy_heapBeginProtect(context);
 			hvalue = fy_heapLiteral(context, constantStringInfo->ci.string,
 					exception);
 			if (exception->exceptionType != exception_none) {
 				return 0;
 			}
+			fy_heapEndProtect(context);
 			constantStringInfo->derefed = TRUE;
 			constantStringInfo->ci.handle = hvalue;
 		} else {
@@ -694,10 +696,15 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	arrayHandle = fy_heapAllocateArray(context, array, thread->frameCount,
 			exception);
 	FY_SIMPLE_ERROR_HANDLE
+	fy_heapPutFieldHandle(context, handle, throwableStackTraceElements,
+			arrayHandle, exception);
+	FY_SIMPLE_ERROR_HANDLE
 
 	t = 0;
 	for (i = thread->frameCount - 1; i >= 0; i--) {
 		itemHandle = fy_heapAllocate(context, clazz, exception);
+		FY_SIMPLE_ERROR_HANDLE
+		fy_heapPutArrayHandle(context, arrayHandle, t, itemHandle, exception);
 		FY_SIMPLE_ERROR_HANDLE
 		frame = thread->frames + i;
 		method = frame->method;
@@ -742,12 +749,9 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 				exception);
 		FY_SIMPLE_ERROR_HANDLE
 
-		fy_heapPutArrayHandle(context, arrayHandle, t, itemHandle, exception);
-		FY_SIMPLE_ERROR_HANDLE
 		t++;
 	}
-	fy_heapPutFieldHandle(context, handle, throwableStackTraceElements,
-			arrayHandle, exception);
+
 	/*The last line, so don't need error handle*/
 }
 
@@ -2897,8 +2901,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						message->messageType = message_invoke_native;
 						message->body.nativeMethod = mvalue;
 					} else {
+						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, exception);
+						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3001,8 +3007,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						message->messageType = message_invoke_native;
 						message->body.nativeMethod = mvalue;
 					} else {
+						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, exception);
+						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3085,8 +3093,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						message->messageType = message_invoke_native;
 						message->body.nativeMethod = mvalue;
 					} else {
+						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, exception);
+						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3110,7 +3120,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef _FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 				fy_class *clazz1, *clazz2;
-				fy_method *mvalue,*mvalue2;
+				fy_method *mvalue, *mvalue2;
 #endif
 				clazz1 = method->owner;
 				ivalue3 = fy_nextU2(code);/*m*/
@@ -3143,7 +3153,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 
 				if (mvalue2 == NULL) {
 					mvalue2 = fy_vmLookupMethodVirtual(context, clazz2,
-											mvalue->fullName, exception);
+							mvalue->fullName, exception);
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -3188,8 +3198,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						message->messageType = message_invoke_native;
 						message->body.nativeMethod = mvalue2;
 					} else {
+						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, exception);
+						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3753,6 +3765,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				for (i = ivalue - 1; i >= 0; i--) {
 					fy_threadPopInt(pivalue[i]);
 				}
+				fy_heapBeginProtect(context);
 				ivalue2 = threadmulitANewArray(context, clazz1, ivalue, pivalue,
 						exception);
 				if (exception->exceptionType != exception_none) {
@@ -3760,6 +3773,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}fy_threadPushHandle(ivalue2);
+				fy_heapEndProtect(context);
 				fy_free(pivalue);
 				break;
 			}
@@ -4311,8 +4325,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			exception->exceptionType = exception_none;
 			exception->exceptionName[0] = 0;
 			exception->exceptionDesc[0] = 0;
+			fy_heapBeginProtect(context);
 			thread->currentThrowable = fy_threadPrepareThrowable(context,
 					thread, &exceptionToPrepare, exception);
+			fy_heapEndProtect(context);
 			if (exception->exceptionType != exception_none) {
 				break;
 			}

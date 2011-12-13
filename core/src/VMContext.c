@@ -18,52 +18,8 @@
 #include "fyc/VMContext.h"
 
 /***********private***********/
-
-/************public***************/
-
-void fy_vmContextInit(fy_context *context, fy_exception *exception) {
-	/*
-	 fy_str *sBoolean;
-	 fy_str *sByte;
-	 fy_str *sShort;
-	 fy_str *sChar;
-	 fy_str *sInt;
-	 fy_str *sFloat;
-	 fy_str *sLong;
-	 fy_str *sDouble;
-
-	 fy_str *primitives[128];
-	 fy_hashMap *mapPrimitivesRev;
-	 */
-	fy_char *cc;
-	fy_memblock *block;
-
-	context->nextHandle = 1;
-
-	fy_mmInit(context->memblocks, exception);
-	fy_exceptionCheckAndReturn(exception);
-	block = context->memblocks;
-	fy_portInit(context->port);
-
-	context->nextThreadId = 1;
-
-	fy_arrayListInit(context->memblocks, context->runningThreads,
-			sizeof(fy_thread*), 16, exception);
-	fy_exceptionCheckAndReturn(exception);
-
-	context->state = FY_TM_STATE_NEW;
-
-	context->pricmds[0] = 1;
-	context->pricmds[1] = 125;
-	context->pricmds[2] = 250;
-	context->pricmds[3] = 500;
-	context->pricmds[4] = 1000;
-	context->pricmds[5] = 2000;
-	context->pricmds[6] = 4000;
-	context->pricmds[7] = 8000;
-	context->pricmds[8] = 16000;
-	context->pricmds[9] = 32000;
-	context->pricmds[10] = 64000;
+static initConstantStrings(fy_context *context, fy_exception *exception) {
+	fy_memblock *block = context->memblocks;
 
 	fy_strInitWithUTF8(block, context->sBoolean, "<boolean>", exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -206,6 +162,11 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_strInitWithUTF8(block, context->sArrayLong, "[J", exception);
 	fy_exceptionCheckAndReturn(exception);
+}
+
+static void initConstantPrimitives(fy_context *context, fy_exception *exception) {
+	fy_char *cc;
+	fy_memblock *block = context->memblocks;
 
 	context->primitives[FY_TYPE_BOOLEAN] = context->sBoolean;
 	context->primitives[FY_TYPE_BYTE] = context->sByte;
@@ -274,7 +235,10 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sDouble, cc,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
+}
 
+static void initStructClassloader(fy_context *context, fy_exception *exception) {
+	fy_memblock *block = context->memblocks;
 	fy_hashMapInit(block, context->mapClassNameToId, 1024, 12, exception);
 	fy_exceptionCheckAndReturn(exception);
 
@@ -286,12 +250,82 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_hashMapInit(block, context->mapMUNameToNH, 1024, 12, exception);
 	fy_exceptionCheckAndReturn(exception);
+}
+
+static void initThreadManager(fy_context *context, fy_exception *exception) {
+	context->nextThreadId = 1;
+
+	fy_arrayListInit(context->memblocks, context->runningThreads,
+			sizeof(fy_thread*), 16, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	context->state = FY_TM_STATE_NEW;
+
+	context->pricmds[0] = 1;
+	context->pricmds[1] = 125;
+	context->pricmds[2] = 250;
+	context->pricmds[3] = 500;
+	context->pricmds[4] = 1000;
+	context->pricmds[5] = 2000;
+	context->pricmds[6] = 4000;
+	context->pricmds[7] = 8000;
+	context->pricmds[8] = 16000;
+	context->pricmds[9] = 32000;
+	context->pricmds[10] = 64000;
+}
+
+static void initHeap(fy_context *context, fy_exception *exception) {
+	fy_memblock *block = context->memblocks;
+	context->nextHandle = 1;
 
 	fy_hashMapInitSimple(block, context->literals, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	fy_arrayListInit(block, context->toFinalize, sizeof(fy_uint), 32,
 			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_arrayListInit(block, context->protected, sizeof(fy_uint), 128,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+}
+/************public***************/
+
+void fy_vmContextInit(fy_context *context, fy_exception *exception) {
+	/*
+	 fy_str *sBoolean;
+	 fy_str *sByte;
+	 fy_str *sShort;
+	 fy_str *sChar;
+	 fy_str *sInt;
+	 fy_str *sFloat;
+	 fy_str *sLong;
+	 fy_str *sDouble;
+
+	 fy_str *primitives[128];
+	 fy_hashMap *mapPrimitivesRev;
+	 */
+
+	fy_memblock *block;
+
+	fy_mmInit(context->memblocks, exception);
+	fy_exceptionCheckAndReturn(exception);
+	block = context->memblocks;
+	fy_portInit(context->port);
+
+	initThreadManager(context, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	initConstantStrings(context, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	initConstantPrimitives(context, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	initStructClassloader(context, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	initHeap(context, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,

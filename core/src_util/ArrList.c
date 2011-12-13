@@ -93,3 +93,7 @@ void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list, void *storage) {
 	}
 	return get(list, --list->length, storage);
 }
+
+void fy_arrayListClear(fy_memblock *block, fy_arrayList *list) {
+	list->length = 0;
+}

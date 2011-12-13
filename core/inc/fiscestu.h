@@ -33,7 +33,7 @@
 #define OLD_ENTRIES 16384
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
-#define MAX_GEN 16
+#define MAX_GEN 4
 
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'
@@ -483,6 +483,8 @@ typedef struct fy_context {
 	fy_int posInOld;
 	fy_uint old[OLD_ENTRIES];
 	fy_arrayList toFinalize[1];
+	fy_boolean protectMode;
+	fy_arrayList protected[1];
 	/* #END HEAP*/
 
 	/* #BEGIN THREAD MANAGER*/

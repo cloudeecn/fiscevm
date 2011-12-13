@@ -106,6 +106,11 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	memset(obj->data, 0, size);
 	obj->length = length;
 	obj->clazz = clazz;
+	if (context->protectMode) {
+		fy_arrayListAdd(context->memblocks, context->protected, &handle,
+				exception);
+		fy_exceptionCheckAndReturn(exception)0;
+	}
 	return handle;
 }
 
@@ -125,6 +130,15 @@ int fy_heapAllocate(fy_context *context, fy_class *clazz,
 	}
 
 	return allocate(context, size, clazz, length, exception);
+}
+
+void fy_heapBeginProtect(fy_context *context) {
+	context->protectMode = TRUE;
+}
+
+void fy_heapEndProtect(fy_context *context) {
+	context->protectMode = FALSE;
+	fy_arrayListClear(context->memblocks, context->protected);
 }
 
 static fy_int getArraySizeFromLength(fy_class *clazz, fy_int length,
@@ -232,6 +246,7 @@ fy_int fy_heapMakeString(fy_context *context, fy_str *target,
 	offsetField = fy_vmGetField(context, context->sStringOffset);
 	/*No exception except NPT will be thrown, and NPT is processed before,so no need to check
 	 * exception.*/
+	/*GC Safe*/
 	ret = fy_heapAllocate(context,
 			fy_vmLookupClass(context, context->sString, exception), exception);
 	ASSERT(exception->exceptionType == exception_none);
@@ -834,6 +849,14 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 						context->toFinalize, i, NULL));
 	}
 
+	imax = context->protected->length;
+	for (i = 0; i < imax; i++) {
+		fy_bitSet(
+				marks,
+				*(fy_int*) fy_arrayListGet(context->memblocks,
+						context->protected, i, NULL));
+	}
+
 	/*clear NULL*/
 	fy_bitClear(marks, 0);
 }
@@ -950,6 +973,7 @@ static void moveToYoung(fy_context *context, fy_class *clazz, fy_object *object,
 		context->posInYong = pos + size;
 		object->position = young;
 		object->data = context->young + youngId * COPY_SIZE + pos;
+		object->gen++;
 	}
 }
 
@@ -986,15 +1010,17 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	fy_uint handle;
 	fy_int i, j;
 	fy_int youngId = context->youngId;
+	fy_long timeStamp;
 
 	printf(
-			"#FISCE GC BEFORE %d+%d+%d total %dbytes",
+			"#FISCE GC BEFORE %d+%d+%d total %dbytes\n",
 			context->posInEden,
 			context->posInYong,
 			context->posInOld,
 			(fy_int) ((context->posInEden + context->posInYong
 					+ context->posInOld) * sizeof(fy_uint)));
 
+	timeStamp = fy_portTimeMillSec(context->port);
 	marks = fy_allocate(fy_bitSizeToInt(MAX_OBJECTS) << fy_bitSHIFT, exception);
 	fy_exceptionCheckAndReturn(exception);
 
@@ -1086,12 +1112,13 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	}
 
 	printf(
-			"#FISCE GC AFTER %d+%d+%d total %dbytes",
+			"#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",
 			context->posInEden,
 			context->posInYong,
 			context->posInOld,
 			(fy_int) ((context->posInEden + context->posInYong
-					+ context->posInOld) * sizeof(fy_uint)));
+					+ context->posInOld) * sizeof(fy_uint)),
+			fy_portTimeMillSec(context->port) - timeStamp);
 
 	fy_free(marks);
 }
