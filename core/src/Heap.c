@@ -103,7 +103,7 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 		obj->data = allocateInEden(context, handle, size, FALSE, exception);
 	}
 	fy_exceptionCheckAndReturn(exception)0;
-	memset(obj->data, 0, size);
+	memset(obj->data, 0, size * sizeof(fy_uint));
 	obj->length = length;
 	obj->clazz = clazz;
 	if (context->protectMode) {

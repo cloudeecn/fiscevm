@@ -35,6 +35,9 @@
 #define MAX_FRAMES 256
 #define MAX_GEN 4
 
+#define FY_GC_IDV 1000
+#define FY_GC_FORCE_IDV 1
+
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'
 #define FY_TYPE_CHAR  'C'

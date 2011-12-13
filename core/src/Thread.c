@@ -1281,15 +1281,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			/*RUN_ONE_INST!!!!!*/
 			lpc = pc;
 			op = fy_nextU1(code);
-#ifdef _DEBUG
 #ifdef FY_VERBOSE
 #ifdef _FY_LATE_DECLARATION
 			char msg[256];
 #endif
 			fy_strSPrint(msg, 256, method->uniqueName);
-			DLOG("##%2d %6d/%6d %s %d %s SB=%d SP=%d\n", thread->threadId,
+			printf("##%2d %6d/%6d %s %d %s SB=%d SP=%d\n", thread->threadId,
 					opCount, ops, msg, lpc, OP_NAME[op], sb, sp);
-#endif
 #endif
 
 			switch (op) {
@@ -1422,6 +1420,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalInt(1, ivalue);
+#ifdef FY_VERBOSE
+				printf("%d\n", ivalue);
+#endif
 				fy_threadPushInt(ivalue);
 				break;
 			}
@@ -1611,6 +1612,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopHandle(ivalue);
 				ivalue2 = fy_heapArrayLength(context, ivalue, exception);
+#ifdef FY_VERBOSE
+				printf("%d\n", ivalue2);
+#endif
+				if (ivalue2 > 10000) {
+					fy_fault(NULL, NULL, "Got you!");
+				}
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -2314,6 +2321,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						FY_FALLOUT_NOINVOKE
 						break;
 					}fy_threadPushLong( lvalue);
+#ifdef FY_VERBOSE
+					printf("Long field:[");
+					fy_strPrint(field->uniqueName);
+					printf("] = %"FY_PRINT64"d\n", lvalue);
+#endif
 					break;
 				}
 				case 'L':
@@ -2328,6 +2340,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						FY_FALLOUT_NOINVOKE
 						break;
 					}fy_threadPushHandle(ivalue);
+#ifdef FY_VERBOSE
+					printf("Handle field:[");
+					fy_strPrint(field->uniqueName);
+					printf("] = %d\n", ivalue);
+#endif
 				}
 					break;
 				default: {
@@ -2341,6 +2358,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						FY_FALLOUT_NOINVOKE
 						break;
 					}fy_threadPushInt( ivalue);
+#ifdef FY_VERBOSE
+					printf("Integer field:[");
+					fy_strPrint(field->uniqueName);
+					printf("] = %d\n", ivalue);
+#endif
 					break;
 				}
 				}
@@ -2509,6 +2531,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
+#ifdef FY_VERBOSE
+				printf("%d+%d=%d\n", ivalue, ivalue2, ivalue + ivalue2);
+#endif
 				fy_threadPushInt(ivalue+ivalue2);
 				break;
 			}

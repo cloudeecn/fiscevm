@@ -312,8 +312,8 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 	context->state = FY_TM_STATE_RUN_PENDING;
-	context->nextGCTime = fy_portTimeMillSec(context->port) + 500;
-	context->nextForceGCTime = context->nextGCTime + 1000;
+	context->nextGCTime = fy_portTimeMillSec(context->port) + FY_GC_IDV;
+	context->nextForceGCTime = context->nextGCTime + FY_GC_FORCE_IDV;
 }
 
 void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
@@ -487,9 +487,9 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 						sleepTime = context->nextWakeUpTimeTotal - now;
 						if ((sleepTime > 10 && now > context->nextGCTime)
 								|| now > context->nextForceGCTime) {
-							context->nextGCTime = now + 2000;
+							context->nextGCTime = now + FY_GC_IDV;
 							context->nextForceGCTime = context->nextGCTime
-									+ 10000;
+									+ FY_GC_FORCE_IDV;
 							fy_heapGC(context, exception);
 							fy_exceptionCheckAndReturn(exception);
 							now = fy_portTimeMillSec(context->port);
