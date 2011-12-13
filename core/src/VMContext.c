@@ -18,7 +18,7 @@
 #include "fyc/VMContext.h"
 
 /***********private***********/
-static initConstantStrings(fy_context *context, fy_exception *exception) {
+static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 
 	fy_strInitWithUTF8(block, context->sBoolean, "<boolean>", exception);
@@ -306,11 +306,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 fy_hashMap *mapPrimitivesRev;
 	 */
 
-	fy_memblock *block;
-
 	fy_mmInit(context->memblocks, exception);
 	fy_exceptionCheckAndReturn(exception);
-	block = context->memblocks;
 	fy_portInit(context->port);
 
 	initThreadManager(context, exception);

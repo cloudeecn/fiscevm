@@ -4443,7 +4443,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *marks) {
 	fy_uint *typeStack = thread->typeStack;
 	fy_object *object;
 
-	imax = frame->sb + frame->size;
+	imax = frame->sb + frame->method->max_locals + frame->method->max_stack;
 	ASSERT(imax<=STACK_SIZE);
 	for (i = 0; i < imax; i++) {
 		if (typeStack[i] == FY_TYPE_HANDLE || typeStack[i] == FY_TYPE_ARRAY) {

@@ -172,8 +172,7 @@ void testClassLoaderFull() {
 }
 
 void testClassMethod() {
-	fy_class *it, *t, *tc, *class0, *class1, *class2, *class3, *class4, *class5,
-			*class6, *class7;
+	fy_class *t, *class0, *class1, *class2, *class3, *class4, *class5, *class6;
 	fy_method **methods;
 	fy_method *target = NULL;
 	fy_method *method;
@@ -184,9 +183,9 @@ void testClassMethod() {
 	TEST_EXCEPTION(exception);
 	lookup(context, "com/cirnoworks/fisce/privat/StringUtils", exception);
 
-	it = lookup(context, "EXCLUDE/fisce/test/ITester", exception);
+	lookup(context, "EXCLUDE/fisce/test/ITester", exception);
 	t = lookup(context, "EXCLUDE/fisce/test/Tester", exception);
-	tc = lookup(context, "EXCLUDE/fisce/test/TesterChild", exception);
+	lookup(context, "EXCLUDE/fisce/test/TesterChild", exception);
 
 	methods = t->methods;
 	for (i = 0; i < t->methodCount; i++) {
@@ -204,7 +203,7 @@ void testClassMethod() {
 	class4 = lookup(context, "[[L"FY_BASE_OBJECT";", exception);
 	class5 = lookup(context, "[[LEXCLUDE/fisce/test/ITester;", exception);
 	class6 = lookup(context, "[[LEXCLUDE/fisce/test/Tester;", exception);
-	class7 = lookup(context, "[[LEXCLUDE/fisce/test/TesterChild;", exception);
+	lookup(context, "[[LEXCLUDE/fisce/test/TesterChild;", exception);
 	CU_ASSERT(!fy_classCanCastTo(context,class1,class2));
 	CU_ASSERT(!fy_classCanCastTo(context,class1,class3));
 	CU_ASSERT(fy_classCanCastTo(context,class1,class0));
@@ -220,7 +219,6 @@ void testHeap() {
 	fy_str *str;
 	fy_str *compare;
 	fy_int sHandle;
-	fy_object *obj;
 	exception->exceptionType = exception_none;
 	str = fy_strCreateFromUTF8(block, "咩哈哈哈ABCabc,|/", exception);
 	TEST_EXCEPTION(exception);
@@ -232,7 +230,6 @@ void testHeap() {
 	ASSERT(sHandle != 0);
 	fy_heapGetString(context, sHandle, compare, exception);
 	TEST_EXCEPTION(exception);
-	obj = context->objects + sHandle;
 	CU_ASSERT( fy_strCmp(str,compare)==0);
 	CU_ASSERT(sHandle == fy_heapLiteral(context, compare, NULL));
 	fy_strRelease(block, str);
