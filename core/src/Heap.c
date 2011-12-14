@@ -944,28 +944,29 @@ static void compactOld(fy_context *context, fy_exception *exception) {
 	fy_fault(exception, NULL, "Not supportted yet!");
 }
 
-static void moveToOld(fy_context *context, fy_class *clazz, fy_object *object,
-		fy_int size, fy_exception *exception) {
+static void moveToOld(fy_context *context, fy_class *clazz, fy_uint handle,
+		fy_object *object, fy_int size, fy_exception *exception) {
 	fy_int pos = context->posInOld;
-	if (pos + size >= OLD_ENTRIES) {
+	if (pos + size + 1 >= OLD_ENTRIES) {
 		compactOld(context, exception);
 		pos = context->posInOld;
-		if (pos + size >= OLD_ENTRIES) {
+		if (pos + size + 1 >= OLD_ENTRIES) {
 			/*Really OOM*/
 			fy_fault(exception, NULL, "Old area full");
 		}
 	}
-	memcpy(context->old + pos, object->data, size * sizeof(fy_uint));
-	context->posInOld = pos + size;
+	context->old[pos] = handle;
+	memcpy(context->old + pos + 1, object->data, size * sizeof(fy_uint));
+	context->posInOld = pos + size + 1;
 	object->position = old;
-	object->data = context->old + pos;
+	object->data = context->old + pos + 1;
 }
-static void moveToYoung(fy_context *context, fy_class *clazz, fy_object *object,
-		fy_int size, fy_int youngId, fy_exception *exception) {
+static void moveToYoung(fy_context *context, fy_class *clazz, fy_uint handle,
+		fy_object *object, fy_int size, fy_int youngId, fy_exception *exception) {
 	fy_int pos = context->posInYong;
 	if (pos + size >= COPY_SIZE) {
 		/*move to old*/
-		moveToOld(context, clazz, object, size, exception);
+		moveToOld(context, clazz, handle, object, size, exception);
 	} else {
 		/*move to young*/
 		memcpy(context->young + youngId * COPY_SIZE + pos, object->data,
@@ -977,8 +978,8 @@ static void moveToYoung(fy_context *context, fy_class *clazz, fy_object *object,
 	}
 }
 
-static void move(fy_context *context, fy_class *clazz, fy_object *object,
-		fy_int youngId, fy_exception *exception) {
+static void move(fy_context *context, fy_class *clazz, fy_uint handle,
+		fy_object *object, fy_int youngId, fy_exception *exception) {
 	fy_int size;
 
 	switch (clazz->type) {
@@ -995,9 +996,9 @@ static void move(fy_context *context, fy_class *clazz, fy_object *object,
 	}
 
 	if (object->gen > MAX_GEN) {
-		moveToOld(context, clazz, object, size, exception);
+		moveToOld(context, clazz, handle, object, size, exception);
 	} else {
-		moveToYoung(context, clazz, object, size, youngId, exception);
+		moveToYoung(context, clazz, handle, object, size, youngId, exception);
 	}
 }
 
@@ -1095,7 +1096,7 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 				switch (object->position) {
 				case eden:
 				case young:
-					move(context, clazz, object, youngId, exception);
+					move(context, clazz, i, object, youngId, exception);
 					break;
 				case old:
 					break;

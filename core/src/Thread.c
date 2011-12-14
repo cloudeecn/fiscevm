@@ -4468,6 +4468,11 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *marks) {
 	fy_uint *typeStack = thread->typeStack;
 	fy_object *object;
 
+	if (frame == NULL) {
+		/*Thread already dead but not removed*/
+		return;
+	}
+
 	imax = frame->sb + frame->method->max_locals + frame->method->max_stack;
 	ASSERT(imax<=STACK_SIZE);
 	for (i = 0; i < imax; i++) {

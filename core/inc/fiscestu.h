@@ -37,6 +37,7 @@
 
 #define FY_GC_IDV 1000
 #define FY_GC_FORCE_IDV 1
+#define FY_GC_FORCE_FULL
 
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'

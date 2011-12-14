@@ -367,9 +367,10 @@ void testCustom() {
 	hltest(customTest);
 }
 
-CU_TestInfo testcases[] = { { "allocate1", testAllocate1 }, //
+CU_TestInfo testcases[] = { //
+		{ "allocate1", testAllocate1 }, //
 		{ "platform related", testPortable }, //
-//		{ "classloader", testClassLoader }, //
+		{ "classloader", testClassLoader }, //
 		{ "classLoaderFull", testClassLoaderFull }, //
 		{ "classMethod", testClassMethod }, //
 		{ "heap", testHeap }, //
