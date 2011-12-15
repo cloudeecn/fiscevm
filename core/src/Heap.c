@@ -114,11 +114,6 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	return handle;
 }
 
-static void release(fy_context *context, fy_uint handle) {
-	fy_object *object = fy_heapGetObject(context,handle);
-	memset(object, 0, sizeof(fy_object));
-}
-
 int fy_heapAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception) {
 	fy_int length = clazz->sizeAbs;
@@ -141,8 +136,7 @@ void fy_heapEndProtect(fy_context *context) {
 	fy_arrayListClear(context->memblocks, context->protected);
 }
 
-static fy_int getArraySizeFromLength(fy_class *clazz, fy_int length,
-		fy_exception *exception) {
+static fy_int getArraySizeFromLength(fy_class *clazz, fy_int length) {
 	switch (clazz->ci.arr.arrayType) {
 	case fy_at_long:
 		return length <<= 1;
@@ -154,8 +148,7 @@ static fy_int getArraySizeFromLength(fy_class *clazz, fy_int length,
 		return (length + 1) >> 1;
 		break;
 	default:
-		fy_fault(exception, NULL, "Illegal array type %d",
-				clazz->ci.arr.arrayType);
+		fy_fault(NULL, NULL, "Illegal array type %d", clazz->ci.arr.arrayType);
 		return 0;
 	}
 }
@@ -169,7 +162,7 @@ int fy_heapAllocateArray(fy_context *context, fy_class *clazz, fy_int length,
 		return 0;
 	}
 
-	size = getArraySizeFromLength(clazz, length, exception);
+	size = getArraySizeFromLength(clazz, length);
 
 	return allocate(context, size, clazz, length, exception);
 }
@@ -940,8 +933,44 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 	}
 }
 
+static fy_int getSizeFromObject(fy_context *context, fy_object *object) {
+	fy_class *clazz = object->clazz;
+	switch (clazz->type) {
+	case arr:
+		return getArraySizeFromLength(clazz, object->length);
+		break;
+	case obj:
+		return clazz->sizeAbs;
+		break;
+	default:
+		fy_fault(NULL, NULL, "Illegal class type %d in GC", clazz->type);
+		return 0;
+	}
+}
+
 static void compactOld(fy_context *context, fy_exception *exception) {
-	fy_fault(exception, NULL, "Not supportted yet!");
+	fy_uint i, imax;
+	fy_uint newPos = 0;
+	fy_uint handle;
+	fy_uint size;
+	fy_object *object;
+	imax = context->posInOld;
+	for (i = 0; i < imax; i++) {
+		handle = context->old[i];
+		if (handle > 0 && handle < MAX_OBJECTS) {
+			object = context->objects + handle;
+			if (object->clazz != NULL && object->data == context->old + i + 1) {
+				/*It's a real object*/
+				size = getSizeFromObject(context, object) + 1;
+				if (newPos != i) {
+					memmove(context->old + newPos, context->old + i,
+							size * sizeof(fy_uint));
+				}
+				newPos += size;
+			}
+		}
+	}
+	context->posInOld = newPos;
 }
 
 static void moveToOld(fy_context *context, fy_class *clazz, fy_uint handle,
@@ -982,24 +1011,21 @@ static void move(fy_context *context, fy_class *clazz, fy_uint handle,
 		fy_object *object, fy_int youngId, fy_exception *exception) {
 	fy_int size;
 
-	switch (clazz->type) {
-	case arr:
-		size = getArraySizeFromLength(clazz, object->length, exception);
-		fy_exceptionCheckAndReturn(exception);
-		break;
-	case obj:
-		size = clazz->sizeAbs;
-		break;
-	default:
-		fy_fault(exception, NULL, "Illegal class type %d in GC", clazz->type);
-		return;
-	}
+	size = getSizeFromObject(context, object);
 
 	if (object->gen > MAX_GEN) {
 		moveToOld(context, clazz, handle, object, size, exception);
 	} else {
 		moveToYoung(context, clazz, handle, object, size, youngId, exception);
 	}
+}
+
+static void release(fy_context *context, fy_uint handle) {
+	fy_object *object = fy_heapGetObject(context,handle);
+	if (object->position == old) {
+		context->oldReleasedSize += getSizeFromObject(context, object) + 1;
+	}
+	memset(object, 0, sizeof(fy_object));
 }
 
 void fy_heapGC(fy_context *context, fy_exception *exception) {
@@ -1111,7 +1137,15 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 			}
 		}
 	}
-
+#ifndef FY_GC_FORCE_FULL
+	if ((context->posInOld - context->oldReleasedSize) * 4
+			< context->posInOld) {
+#endif
+	compactOld(context, exception);
+	fy_exceptionCheckAndReturn(exception);
+#ifndef FY_GC_FORCE_FULL
+}
+#endif
 	printf(
 			"#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",
 			context->posInEden,

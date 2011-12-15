@@ -485,6 +485,7 @@ typedef struct fy_context {
 	fy_uint youngId;
 	fy_uint young[COPY_SIZE * 2];
 	fy_int posInOld;
+	fy_int oldReleasedSize;
 	fy_uint old[OLD_ENTRIES];
 	fy_arrayList toFinalize[1];
 	fy_boolean protectMode;
