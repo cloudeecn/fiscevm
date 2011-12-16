@@ -22,6 +22,9 @@ static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 	//TODO
 	fy_object *obj = context->objects + targetHandle;
 	fy_uint threadId = obj->attachedId;
+	if (threadId == 0) {
+		return NULL;
+	} //
 	ASSERT(threadId>0 && threadId<MAX_THREADS);
 	return context->threads[threadId];
 }
@@ -148,6 +151,9 @@ fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
 	fy_boolean ret;
 
 	target = getThreadByHandle(context, targetHandle, exception);
+	if (target == NULL) {
+		return 0;
+	}
 	if (exception->exceptionType != exception_none) {
 		return FALSE;
 	}
