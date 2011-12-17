@@ -363,31 +363,83 @@ void testGC() {
 	hltest("EXCLUDE/fisce/test/GCTest");
 }
 
+void testNative() {
+	char *classes[] = { "com/cirnoworks/fisce/privat/FiScEVM",
+			"com/cirnoworks/fisce/privat/ResourceInputStream",
+			"com/cirnoworks/fisce/privat/SystemInputStream",
+			"com/cirnoworks/fisce/privat/SystemOutputStream", "java/lang/Class",
+			"java/lang/Object", "java/lang/StackTraceElement",
+			"java/lang/String", "java/lang/System", "java/lang/Thread",
+			"java/lang/Throwable", "java/lang/Math", NULL };
+	int i = 0, j, jmax;
+	char *className;
+	char msg[512];
+	fy_class *clazz;
+	fy_method *method;
+	fy_context *context;
+	fy_exception ex;
+	fy_exception *exception = &ex;
+	fy_log("+++Scanning native methods+++\n");
+
+	exception->exceptionType = exception_none;
+	context = fy_allocate(sizeof(fy_context), exception);
+	TEST_EXCEPTION(exception);
+	fy_vmContextInit(context, exception);
+	TEST_EXCEPTION(exception);
+
+	while ((className = classes[i++]) != NULL) {
+		clazz = lookup(context, className, exception);
+		TEST_EXCEPTION(exception);
+
+		jmax = clazz->methodCount;
+		for (j = 0; j < jmax; j++) {
+			method = clazz->methods[j];
+			if (method->access_flags & FY_ACC_NATIVE) {
+				if (!fy_hashMapGet(context->memblocks, context->mapMUNameToNH,
+						method->uniqueName)) {
+					fy_strSPrint(msg, sizeof(msg), method->uniqueName);
+					fy_log("Handler not found: %s\n", msg);
+					CU_ASSERT(FALSE);
+				}
+			}
+		}
+	}
+
+	fy_vmContextDestroy(context);
+	fy_free(context);
+	fy_log("--------------------------------------------------------\n");
+}
+
 void testCustom() {
-	hltest(customTest);
+	if (strcmp(customTest, "NATIVE") == 0) {
+		testNative();
+	} else {
+		hltest(customTest);
+	}
 }
 
 CU_TestInfo testcases[] = { //
 		{ "allocate1", testAllocate1 }, //
-		{ "platform related", testPortable }, //
-		{ "classloader", testClassLoader }, //
-		{ "classLoaderFull", testClassLoaderFull }, //
-		{ "classMethod", testClassMethod }, //
-		{ "heap", testHeap }, //
-		{ "cleanup1", testCleanup1 }, //
-		{ "Arch", testArch }, //
-		{ "Static", testStatic }, //
-		{ "Smoke", testThread }, //
-		{ "Array", testArray }, //
-		{ "AutoBoxing", testAutoBoxing }, //
-		{ "Lock", testThread2 }, //
-		{ "Enum", testEnum }, //
-		{ "Exception", testException }, //
-		{ "ForEach", testForEach }, //
-		{ "HashMap", testHashMap }, //
-		{ "Profile", testProfile }, //
-		{ "GC", testGC }, //
-		CU_TEST_INFO_NULL };
+				{ "platform related", testPortable }, //
+				{ "classloader", testClassLoader }, //
+				{ "classLoaderFull", testClassLoaderFull }, //
+				{ "classMethod", testClassMethod }, //
+				{ "heap", testHeap }, //
+				{ "cleanup1", testCleanup1 }, //
+				{ "Arch", testArch }, //
+				{ "Static", testStatic }, //
+				{ "Smoke", testThread }, //
+				{ "Array", testArray }, //
+				{ "AutoBoxing", testAutoBoxing }, //
+				{ "Lock", testThread2 }, //
+				{ "Enum", testEnum }, //
+				{ "Exception", testException }, //
+				{ "ForEach", testForEach }, //
+				{ "HashMap", testHashMap }, //
+				{ "Profile", testProfile }, //
+				{ "GC", testGC }, //
+				{ "Native", testNative }, //
+				CU_TEST_INFO_NULL };
 
 CU_TestInfo customCase[] = { { "custom", testCustom }, //
 		CU_TEST_INFO_NULL };
