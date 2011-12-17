@@ -27,4 +27,6 @@
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception);
 
+void fy_coreRegisterMathHandlers(fy_context *context, fy_exception *exception);
+
 #endif /* FY_COREHANDLERS_H_ */

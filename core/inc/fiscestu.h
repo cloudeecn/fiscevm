@@ -62,6 +62,8 @@
 #define FY_BASE_CLASS "java/lang/Class"
 #define FY_BASE_THROWABLE "java/lang/Throwable"
 #define FY_BASE_THREAD "java/lang/Thread"
+#define FY_BASE_SYSTEM "java/lang/System"
+#define FY_BASE_MATH "java/lang/Math"
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
 #define FY_METHOD_INIT "<init>"
 #define FY_METHOD_CLINIT "<clinit>"
@@ -75,6 +77,7 @@
 #define FY_EXCEPTION_MONITOR "java/lang/IllegalMonitorStateException"
 #define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
 #define FY_EXCEPTION_NPT "java/lang/NullPointerException"
+#define FY_EXCEPTION_RT "java/lang/RuntimeException"
 
 #define FY_ACC_ABSTRACT 1024
 #define FY_ACC_FINAL 16

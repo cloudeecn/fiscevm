@@ -453,6 +453,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 					}
 					fy_threadRun(context, thread, message,
 							context->pricmds[thread->priority]);
+					fy_heapEndProtect(context);
 					switch (message->messageType) {
 					case message_continue:
 					case message_vm_dead:

@@ -3,6 +3,7 @@ libfisce_a_SOURCES = \
 	Class.c \
 	ClassLoader.c \
 	CoreHandlers.c \
+	MathHandlers.c \
 	Data.c \
 	Heap.c \
 	Resource.c \

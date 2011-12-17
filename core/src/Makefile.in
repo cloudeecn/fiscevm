@@ -70,9 +70,9 @@ ARFLAGS = cru
 libfisce_a_AR = $(AR) $(ARFLAGS)
 libfisce_a_LIBADD =
 am_libfisce_a_OBJECTS = Class.$(OBJEXT) ClassLoader.$(OBJEXT) \
-	CoreHandlers.$(OBJEXT) Data.$(OBJEXT) Heap.$(OBJEXT) \
-	Resource.$(OBJEXT) Thread.$(OBJEXT) ThreadManager.$(OBJEXT) \
-	VMContext.$(OBJEXT) ExpDev.$(OBJEXT)
+	CoreHandlers.$(OBJEXT) MathHandlers.$(OBJEXT) Data.$(OBJEXT) \
+	Heap.$(OBJEXT) Resource.$(OBJEXT) Thread.$(OBJEXT) \
+	ThreadManager.$(OBJEXT) VMContext.$(OBJEXT) ExpDev.$(OBJEXT)
 libfisce_a_OBJECTS = $(am_libfisce_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -179,6 +179,7 @@ libfisce_a_SOURCES = \
 	Class.c \
 	ClassLoader.c \
 	CoreHandlers.c \
+	MathHandlers.c \
 	Data.c \
 	Heap.c \
 	Resource.c \
@@ -270,6 +271,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ExpDev.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Heap.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MathHandlers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Resource.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Thread.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ThreadManager.Po@am__quote@
