@@ -1,5 +1,14 @@
-lib_LIBRARIES=libfisce.a
-libfisce_a_SOURCES = \
+lib_LTLIBRARIES=libfisce.la
+libfisce_la_SOURCES = \
+	Debug.c \
+	HashMap.c \
+	ArrList.c \
+	LnkList.c \
+	MemMan.c \
+	Portable.c \
+	String.c \
+	BitSet.c \
+	Utf8.c \
 	Class.c \
 	ClassLoader.c \
 	CoreHandlers.c \

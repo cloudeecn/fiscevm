@@ -47,12 +47,12 @@ else
 	ENABLE_LTO="FALSE"
 fi
 
-
+LT_INIT(win32-dll)
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[floor])
@@ -72,5 +72,5 @@ AC_CHECK_FUNCS([floor memset])
 CFLAGS="$CFLAGS -Wall"
 
 
-AC_CONFIG_FILES(Makefile src_util/Makefile testutil/Makefile src/Makefile  test/Makefile)
+AC_CONFIG_FILES(Makefile src/Makefile testutil/Makefile test/Makefile)
 AC_OUTPUT

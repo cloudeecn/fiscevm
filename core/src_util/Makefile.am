@@ -1,5 +1,5 @@
-lib_LIBRARIES=libfyutl.a
-libfyutl_a_SOURCES = \
+lib_LTLIBRARIES=libfyutl.la
+libfyutl_la_SOURCES = \
 	Debug.c \
 	HashMap.c \
 	ArrList.c \
