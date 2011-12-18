@@ -162,6 +162,10 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 
 	fy_strInitWithUTF8(block, context->sArrayLong, "[J", exception);
 	fy_exceptionCheckAndReturn(exception);
+
+	fy_strInitWithUTF8(block, context->sArrayObject, "[L"FY_BASE_OBJECT";",
+			exception);
+	fy_exceptionCheckAndReturn(exception);
 }
 
 static void initConstantPrimitives(fy_context *context, fy_exception *exception) {
@@ -325,15 +329,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	initHeap(context, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,
-			exception);
-	fy_exceptionCheckAndReturn(exception);
-
-	context->TOP_THROWABLE = fy_vmLookupClass(context, context->sClassThrowable,
-			exception);
-	fy_exceptionCheckAndReturn(exception);
-
 	fy_coreRegisterCoreHandlers(context, exception);
+	fy_coreRegisterMathHandlers(context, exception);
 	fy_exceptionCheckAndReturn(exception);
 }
 
@@ -677,7 +674,24 @@ fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 	return clazz;
 }
 
-void fy_vmBootup(fy_context *context, fy_char* bootStrapClass) {
+void fy_vmBootup(fy_context *context, const char* bootStrapClass,
+		fy_exception *exception) {
+	fy_str name;
+	fy_class *clazz;
+	context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
 
+	context->TOP_THROWABLE = fy_vmLookupClass(context, context->sClassThrowable,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+	name.content = NULL;
+	fy_strInitWithUTF8(context->memblocks, &name, bootStrapClass, exception);
+	fy_exceptionCheckAndReturn(exception);
+	clazz = fy_vmLookupClass(context, &name, exception);
+	fy_strDestroy(context->memblocks, &name);
+	fy_exceptionCheckAndReturn(exception);
+	fy_tmBootFromMain(context, clazz, exception);
+	fy_exceptionCheckAndReturn(exception);
 }
 

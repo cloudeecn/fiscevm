@@ -623,6 +623,27 @@ static void classGetInterfaces(struct fy_context *context,
 	fy_nativeReturnHandle(context, thread, ret);
 }
 
+static void finalizerGetFinalizee(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_exception *exception) {
+	fy_uint ret;
+	fy_int storage, i, len = context->toFinalize->length;
+
+	fy_class *clazz = fy_vmLookupClass(context, context->sArrayObject,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	ret = fy_heapAllocateArray(context, clazz, len, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	for (i = 0; i < len; i++) {
+		fy_arrayListGet(context->memblocks, context->toFinalize, i, &storage);
+		fy_heapPutArrayHandle(context, ret, i, storage, exception);
+		fy_exceptionCheckAndReturn(exception);
+	}
+	fy_nativeReturnHandle(context, thread, ret);
+}
+
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_STRING".intern.()L"FY_BASE_STRING";", NULL, StringIntern,
@@ -826,6 +847,11 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			ThreadSleep, exception);
 	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".yield.()V", NULL,
 			ThreadYield, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_FINALIZER".getFinalizee.()[L"FY_BASE_OBJECT";", NULL,
+			finalizerGetFinalizee, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 }

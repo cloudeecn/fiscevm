@@ -66,6 +66,9 @@ void testAllocate1() {
 	context = fy_allocate(sizeof(fy_context), NULL);
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
+
+	fy_vmBootup(context, "EXCLUDE/fisce/test/Tester", exception);
+	TEST_EXCEPTION(exception);
 	block = context->memblocks;
 }
 
@@ -271,10 +274,9 @@ static void hltest(char *name) {
 			testFail, exception);
 	TEST_EXCEPTION(exception);
 
-	clazz = lookup(context, name, exception);
+	fy_vmBootup(context, name, exception);
 	TEST_EXCEPTION(exception);
-	fy_tmBootFromMain(context, clazz, exception);
-	TEST_EXCEPTION(exception);
+
 	while (!dead) {
 		fy_tmRun(context, &message, exception);
 		TEST_EXCEPTION(exception);

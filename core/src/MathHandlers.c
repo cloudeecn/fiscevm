@@ -202,5 +202,112 @@ static void MathUlpf(struct fy_context *context, struct fy_thread *thread,
 }
 
 void fy_coreRegisterMathHandlers(fy_context *context, fy_exception *exception) {
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".acos.(D)D", NULL,
+			MathACos, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".asin.(D)D", NULL,
+			MathASin, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".atan.(D)D", NULL,
+			MathATan, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".atan2.(DD)D", NULL,
+			MathATan2, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".cbrt.(D)D", NULL,
+			MathCbrt, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".ceil.(D)D", NULL,
+			MathCeil, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".cos.(D)D", NULL, MathCos,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".cosh.(D)D", NULL,
+			MathCosh, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".exp.(D)D", NULL, MathExp,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".expm1.(D)D", NULL,
+			MathExpM1, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".floor.(D)D", NULL,
+			MathFloor, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".hypot.(DD)D", NULL,
+			MathHypot, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".IEEEremainder.(DD)D",
+			NULL, MathIEEERemainder, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".log.(D)D", NULL, MathLog,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".log10.(D)D", NULL,
+			MathLog10, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".log1p.(D)D", NULL,
+			MathLog1p, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".pow.(DD)D", NULL, MathPow,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".rint.(D)D", NULL,
+			MathRint, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".signum.(D)D", NULL,
+			MathSignum, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".signum.(F)F", NULL,
+			MathSignumf, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".sin.(D)D", NULL, MathSin,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".sinh.(D)D", NULL,
+			MathSinh, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".sqrt.(D)D", NULL,
+			MathSqrt, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".tan.(D)D", NULL, MathTan,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".tanh.(D)D", NULL,
+			MathTanh, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".ulp.(D)D", NULL, MathUlp,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	fy_vmRegisterNativeHandler(context, FY_BASE_MATH".ulp.(F)F", NULL, MathUlpf,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
 
 }
