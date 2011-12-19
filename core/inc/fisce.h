@@ -17,6 +17,11 @@
 #ifndef _FY_FISCE_H
 #define _FY_FISCE_H
 
+#include "fiscecon.h"
+#include "fisceprt.h"
+#include "fiscestu.h"
+#include "fiscedev.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
