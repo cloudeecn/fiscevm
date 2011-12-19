@@ -20,3 +20,4 @@ libfisce_la_SOURCES = \
 	ThreadManager.c \
 	VMContext.c \
 	ExpDev.c
+libfisce_la_LDFLAGS = -no-undefined

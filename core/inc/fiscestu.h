@@ -389,12 +389,12 @@ typedef struct fy_thread {
 
 typedef enum fy_messageType {
 	message_continue = 0, /*In thread*/
-	message_none, /*Thread Only*/
-	message_thread_dead, /*Thread Only*/
-	message_invoke_native,/*Thread And TM pass thread*/
-	message_exception, /*Thread And TM pass thread*/
-	message_sleep, /*TM Only*/
-	message_vm_dead
+	message_none = 1, /*Thread Only*/
+	message_thread_dead = 2, /*Thread Only*/
+	message_invoke_native = 3,/*Thread And TM pass thread*/
+	message_exception = 4, /*Thread And TM pass thread*/
+	message_sleep = 5, /*TM Only*/
+	message_vm_dead = 6
 /*TM Only*/
 } fy_messageType;
 

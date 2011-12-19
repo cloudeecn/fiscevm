@@ -91,7 +91,11 @@ typedef struct fy_port {
 # define vsprintf_s vsnprintf
 #endif
 #ifdef _MSC_VER
-# define _FY_EXPORT __declspec(dllexport)
+# ifdef _FY_BUILD_LIB
+#  define _FY_EXPORT __declspec(dllexport)
+# else
+#  define _FY_EXPORT __declspec(dllimport)
+# endif
 #elif defined(__GNUC__)
 # ifdef _WIN32
 #  define _FY_EXPORT __attribute__((externally_visible)) __attribute__((dllexport))

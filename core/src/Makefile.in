@@ -73,6 +73,9 @@ am_libfisce_la_OBJECTS = Debug.lo HashMap.lo ArrList.lo LnkList.lo \
 	ClassLoader.lo CoreHandlers.lo MathHandlers.lo Data.lo Heap.lo \
 	Resource.lo Thread.lo ThreadManager.lo VMContext.lo ExpDev.lo
 libfisce_la_OBJECTS = $(am_libfisce_la_OBJECTS)
+libfisce_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libfisce_la_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -228,6 +231,7 @@ libfisce_la_SOURCES = \
 	VMContext.c \
 	ExpDev.c
 
+libfisce_la_LDFLAGS = -no-undefined
 all: all-am
 
 .SUFFIXES:
@@ -294,7 +298,7 @@ clean-libLTLIBRARIES:
 	  rm -f "$${dir}/so_locations"; \
 	done
 libfisce.la: $(libfisce_la_OBJECTS) $(libfisce_la_DEPENDENCIES) 
-	$(LINK) -rpath $(libdir) $(libfisce_la_OBJECTS) $(libfisce_la_LIBADD) $(LIBS)
+	$(libfisce_la_LINK) -rpath $(libdir) $(libfisce_la_OBJECTS) $(libfisce_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
