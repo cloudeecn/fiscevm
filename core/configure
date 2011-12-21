@@ -12393,38 +12393,6 @@ fi
 
 
 
-ac_jni_file=`find $JAVA_HOME/../ -name "jni.h"`
-if test x"$ac_jni_file" != x; then
-ac_jni_dir=`$as_dirname -- "$ac_jni_file" ||
-$as_expr X"$ac_jni_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$ac_jni_file" : 'X\(//\)[^/]' \| \
-	 X"$ac_jni_file" : 'X\(//\)$' \| \
-	 X"$ac_jni_file" : 'X\(/\)' \| . 2>/dev/null ||
-$as_echo X"$ac_jni_file" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{
-	    s//\1/
-	    q
-	  }
-	  /^X\(\/\/\)[^/].*/{
-	    s//\1/
-	    q
-	  }
-	  /^X\(\/\/\)$/{
-	    s//\1/
-	    q
-	  }
-	  /^X\(\/\).*/{
-	    s//\1/
-	    q
-	  }
-	  s/.*/./; q'`
-
-ac_machdep=`echo $build_os | sed 's,[-0-9].*,,' | sed 's,cygwin,win32,'`
-
-CFLAGS="$CFLAGS -DHAVE_JNI_H -I$ac_jni_dir -I$ac_jni_dir/$ac_machdep"
-fi
-
-
 # Checks for libraries.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for floor in -lm" >&5
 $as_echo_n "checking for floor in -lm... " >&6; }

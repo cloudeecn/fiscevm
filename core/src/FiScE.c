@@ -14,28 +14,22 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _FY_FISCE_H
-#define _FY_FISCE_H
 
-#include "fiscecon.h"
-#include "fisceprt.h"
-#include "fiscestu.h"
-#include "fiscedev.h"
+#include "fisce.h"
+#include "fyc/VMContext.h"
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-_FY_EXPORT void fisceInitContext(fy_context *context, fy_exception *exception);
-
-_FY_EXPORT void fisceDestroyContext(fy_context *context);
-
-_FY_EXPORT void fisceBootFromMain(fy_context *context,const char *name, fy_exception *exception);
-
-_FY_EXPORT void fisceRun(fy_context *context,fy_message *message);
-
-#ifdef	__cplusplus
+_FY_EXPORT void fisceInitContext(fy_context *context, fy_exception *exception) {
+	fy_vmContextInit(context, exception);
 }
-#endif
 
-#endif
+_FY_EXPORT void fisceDestroyContext(fy_context *context) {
+	fy_vmContextDestroy(context);
+}
+void fisceBootFromMain(fy_context *context, const char *name,
+		fy_exception *exception) {
+	fy_vmBootup(context, name, exception);
+}
+
+void fisceRun(fy_context *context, fy_message *message, fy_exception *exception) {
+	fy_tmRun(context, message, exception);
+}

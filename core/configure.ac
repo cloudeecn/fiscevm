@@ -55,7 +55,6 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
-AX_PROG_JAVAH
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[floor])

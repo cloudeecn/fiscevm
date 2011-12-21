@@ -39,8 +39,7 @@ noinst_PROGRAMS = utiltest$(EXEEXT)
 subdir = testutil
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/javah.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -50,7 +49,7 @@ CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_utiltest_OBJECTS = TestUtil.$(OBJEXT)
 utiltest_OBJECTS = $(am_utiltest_OBJECTS)
-utiltest_DEPENDENCIES = ../src_util/libfyutl.a
+utiltest_DEPENDENCIES = ../src/libfisce.la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -190,7 +189,7 @@ top_srcdir = @top_srcdir@
 utiltest_SOURCES = \
 	TestUtil.c
 
-utiltest_LDADD = ../src_util/libfyutl.a -lcunit
+utiltest_LDADD = ../src/libfisce.la -lcunit
 all: all-am
 
 .SUFFIXES:
