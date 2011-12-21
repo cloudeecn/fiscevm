@@ -40,14 +40,16 @@
 									<listOptionValue builtIn="false" value="../incjni"/>
 									<listOptionValue builtIn="false" value="../incjni/linux"/>
 								</option>
+								<option id="gnu.c.compiler.option.misc.other.681816318" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.pic.438697834" name="Position Independent Code (-fPIC)" superClass="gnu.c.compiler.option.misc.pic" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1438185310" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.so.debug.1532065381" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.debug">
 								<option defaultValue="true" id="gnu.c.link.so.debug.option.shared.657293423" name="Shared (-shared)" superClass="gnu.c.link.so.debug.option.shared" valueType="boolean"/>
-								<option id="gnu.c.link.option.paths.563816032" superClass="gnu.c.link.option.paths" valueType="libPaths">
+								<option id="gnu.c.link.option.paths.563816032" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="../lib"/>
 								</option>
-								<option id="gnu.c.link.option.libs.541593127" superClass="gnu.c.link.option.libs" valueType="libs">
+								<option id="gnu.c.link.option.libs.541593127" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="fisce"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1734030873" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
