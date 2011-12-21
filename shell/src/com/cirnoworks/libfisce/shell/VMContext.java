@@ -22,18 +22,22 @@ public class VMContext implements Closeable {
 	}
 
 	public void bootFromClass(String name) {
-		bootFromClass0(name);
+		bootFromClass0(context, name);
 	}
 
 	public Message execute() {
-		return execute0();
+		return execute0(context);
 	}
 
-	private native Message execute0();
+	public void initContext() {
+		initContext0(context);
+	}
 
-	private native void initContext();
+	private native Message execute0(ByteBuffer context);
 
-	private native void bootFromClass0(String name);
+	private native void initContext0(ByteBuffer context);
+
+	private native void bootFromClass0(ByteBuffer context, String name);
 
 	private native int getSize();
 
