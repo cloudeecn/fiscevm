@@ -20,8 +20,6 @@ import java.io.PrintStream;
 
 public class Throwable {
 
-	private final boolean thrown = false;
-
 	private String detailMessage;
 
 	private Throwable cause = this;

@@ -284,7 +284,7 @@ static void hltest(char *name) {
 		switch (message.messageType) {
 		case message_invoke_native:
 			fy_strSPrint(msg, sizeof(msg),
-					message.body.nativeMethod->uniqueName);
+					message.body.call.method->uniqueName);
 			fy_log("Stopped at invoke native for thread %d: %s\n",
 					message.thread->threadId, msg);
 			CU_FAIL("Core native functions not implemented");

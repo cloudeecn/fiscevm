@@ -549,6 +549,54 @@ static void classNewInstanceA(struct fy_context *context,
 			fy_heapAllocateArray(context, clazz, args[1], exception));
 }
 
+static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	fy_fault(exception, FY_EXCEPTION_NO_METHOD, "Not supported yet");
+}
+
+static void vmNewArray(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	fy_class *clazz;
+	fy_str str;
+	fy_char *cc;
+	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	str.content = NULL;
+	fy_strInit(context->memblocks, &str, clazz->className->length + 3,
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+	switch (clazz->type) {
+	case obj:
+		fy_strAppendUTF8(context->memblocks, &str, "[L", 2, exception);
+		fy_strAppend(context->memblocks, &str, clazz->className, exception);
+		fy_strAppendChar(context->memblocks, &str, ';', exception);
+		break;
+	case arr:
+		fy_strAppendUTF8(context->memblocks, &str, "[", 1, exception);
+		fy_strAppend(context->memblocks, &str, clazz->className, exception);
+		break;
+	case prm:
+		fy_strAppendChar(context->memblocks, &str, '[', exception);
+		cc = fy_hashMapGet(context->memblocks, context->mapPrimitivesRev,
+				clazz->className);
+		fy_strAppendChar(context->memblocks, &str, *cc, exception);
+		break;
+	}
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, &str);
+		return;
+	}
+	clazz = fy_vmLookupClass(context, &str, exception);
+	fy_strDestroy(context->memblocks, &str);
+	fy_exceptionCheckAndReturn(exception);
+	if (clazz->type != arr) {
+		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
+	}
+	fy_nativeReturnHandle(context, thread,
+			fy_heapAllocateArray(context, clazz, args[1], exception));
+}
+
 static void classIsInstance(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
@@ -645,6 +693,21 @@ static void finalizerGetFinalizee(struct fy_context *context,
 }
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
+	/*vm*/
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_VM".newInstance0.(L"FY_BASE_CLASS";I)L"FY_BASE_OBJECT";",
+			NULL, classNewInstanceA, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_vmRegisterNativeHandler(
+			context,
+			FY_BASE_VM".newInstance0.(L"FY_BASE_CLASS";[L"FY_BASE_CLASS";[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
+			NULL, vmNewInstance, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_VM".newArray0.(L"FY_BASE_CLASS";I)L"FY_BASE_OBJECT";", NULL,
+			vmNewArray, exception);
+	fy_exceptionCheckAndReturn(exception);
+	/*String*/
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_STRING".intern.()L"FY_BASE_STRING";", NULL, StringIntern,
 			exception);
@@ -675,89 +738,85 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 
 	/*Class*/
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
+			FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
 			ClassGetComponentType, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
 			context,
-			""FY_BASE_CLASS".invokeMethodHandleReturn0.(L"FY_BASE_STRING";Z[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
+			FY_BASE_CLASS".invokeMethodHandleReturn0.(L"FY_BASE_STRING";Z[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
 			NULL, ClassInvokeMethod, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_CLASS".forName0.(L"FY_BASE_STRING";Z)L"FY_BASE_CLASS";",
+			FY_BASE_CLASS".forName0.(L"FY_BASE_STRING";Z)L"FY_BASE_CLASS";",
 			NULL, classForName, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_CLASS".newInstance0.()L"FY_BASE_OBJECT";", NULL,
+			FY_BASE_CLASS".newInstance0.()L"FY_BASE_OBJECT";", NULL,
 			classNewInstanceO, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_CLASS".newInstance0.(I)L"FY_BASE_OBJECT";", NULL,
-			classNewInstanceA, exception);
-	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_CLASS".isInstance.(L"FY_BASE_OBJECT";)Z", NULL,
+			FY_BASE_CLASS".isInstance.(L"FY_BASE_OBJECT";)Z", NULL,
 			classIsInstance, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_CLASS".isAssignableFrom.(L"FY_BASE_CLASS";)Z", NULL,
+			FY_BASE_CLASS".isAssignableFrom.(L"FY_BASE_CLASS";)Z", NULL,
 			classIsAssignableFrom, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_CLASS".isInterface.()Z", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isInterface.()Z", NULL,
 			classIsInterface, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_CLASS".isArray.()Z", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isArray.()Z", NULL,
 			classIsArray, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_CLASS".isPrimitive.()Z", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isPrimitive.()Z", NULL,
 			classIsPrimitive, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_CLASS".getSuperclass.()L"FY_BASE_CLASS";", NULL,
+			FY_BASE_CLASS".getSuperclass.()L"FY_BASE_CLASS";", NULL,
 			classGetSuperclass, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_CLASS".getInterfaces.()[L"FY_BASE_CLASS";", NULL,
+			FY_BASE_CLASS".getInterfaces.()[L"FY_BASE_CLASS";", NULL,
 			classGetInterfaces, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	/*Object*/
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_OBJECT".clone.()L"FY_BASE_OBJECT";", NULL, ObjectClone,
+			FY_BASE_OBJECT".clone.()L"FY_BASE_OBJECT";", NULL, ObjectClone,
 			exception);
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_OBJECT".getClass.()L"FY_BASE_CLASS";", NULL,
-			ObjectGetClass, exception);
+			FY_BASE_OBJECT".getClass.()L"FY_BASE_CLASS";", NULL, ObjectGetClass,
+			exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_OBJECT".wait.(J)V", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_OBJECT".wait.(J)V", NULL,
 			ObjectWait, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_OBJECT".notify.()V", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_OBJECT".notify.()V", NULL,
 			ObjectNotify, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_OBJECT".notifyAll.()V", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_OBJECT".notifyAll.()V", NULL,
 			ObjectNotifyAll, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	/*Thread*/
 	fy_vmRegisterNativeHandler(context,
-			""FY_BASE_THREAD".currentThread.()L"FY_BASE_THREAD";", NULL,
+			FY_BASE_THREAD".currentThread.()L"FY_BASE_THREAD";", NULL,
 			ThreadCurrentThread, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".setPriority0.(I)V",
+	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".setPriority0.(I)V",
 			NULL, ThreadSetPriority, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".isAlive.()Z", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".isAlive.()Z", NULL,
 			ThreadIsAlive, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".start0.()V", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".start0.()V", NULL,
 			ThreadStart, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".interrupt0.()V", NULL,
+	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".interrupt0.()V", NULL,
 			ThreadInterrupt, exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_vmRegisterNativeHandler(context, ""FY_BASE_THREAD".isInterrupted.(Z)Z",
+	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".isInterrupted.(Z)Z",
 			NULL, ThreadInterrupted, exception);
 	fy_exceptionCheckAndReturn(exception);
 

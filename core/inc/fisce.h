@@ -30,9 +30,11 @@ _FY_EXPORT void fisceInitContext(fy_context *context, fy_exception *exception);
 
 _FY_EXPORT void fisceDestroyContext(fy_context *context);
 
-_FY_EXPORT void fisceBootFromMain(fy_context *context,const char *name, fy_exception *exception);
+_FY_EXPORT void fisceBootFromMain(fy_context *context, const char *name,
+		fy_exception *exception);
 
-_FY_EXPORT void fisceRun(fy_context *context,fy_message *message);
+_FY_EXPORT void fisceRun(fy_context *context, fy_message *message,
+		fy_exception *exception);
 
 #ifdef	__cplusplus
 }

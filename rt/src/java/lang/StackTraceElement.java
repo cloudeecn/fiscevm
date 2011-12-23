@@ -53,7 +53,7 @@ public final class StackTraceElement {
 				+ (isNativeMethod() ? "(Native Method)" : (fileName != null
 						&& lineNumber >= 0 ? "(" + fileName + ":" + lineNumber
 						+ ")" : (fileName != null ? "(" + fileName + ")"
-						: "(Unknown Source: " + lineNumber + ")")));
+						: "(Unknown Source)")));
 	}
 
 	public boolean equals(Object obj) {

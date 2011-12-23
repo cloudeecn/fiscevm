@@ -1,4 +1,6 @@
 #!/bin/sh
+ln -s ../core/inc
+
 rm incjni
 JAVAH_PATH=`which javah`
 if test x$JAVAH_PATH = x; then

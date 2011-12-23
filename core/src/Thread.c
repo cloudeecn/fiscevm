@@ -2924,7 +2924,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							mvalue->uniqueName);
 					if (nh == NULL) {
 						message->messageType = message_invoke_native;
-						message->body.nativeMethod = mvalue;
+						message->body.call.method = mvalue;
+						message->body.call.paramCount = ivalue;
+						message->body.call.params = stack + sp;
 					} else {
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
@@ -3030,7 +3032,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							mvalue->uniqueName);
 					if (nh == NULL) {
 						message->messageType = message_invoke_native;
-						message->body.nativeMethod = mvalue;
+						message->body.call.method = mvalue;
+						message->body.call.paramCount = ivalue;
+						message->body.call.params = stack + sp;
 					} else {
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
@@ -3116,7 +3120,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							mvalue->uniqueName);
 					if (nh == NULL) {
 						message->messageType = message_invoke_native;
-						message->body.nativeMethod = mvalue;
+						message->body.call.method = mvalue;
+						message->body.call.paramCount = ivalue;
+						message->body.call.params = stack + sp;
 					} else {
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
@@ -3221,7 +3227,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							mvalue2->uniqueName);
 					if (nh == NULL) {
 						message->messageType = message_invoke_native;
-						message->body.nativeMethod = mvalue2;
+						message->body.call.method = mvalue2;
+						message->body.call.paramCount = ivalue;
+						message->body.call.params = stack + sp;
 					} else {
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,

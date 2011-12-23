@@ -19,6 +19,8 @@ package java.util;
 
 import java.io.IOException;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * {@code Collections} contains static methods which operate on
  * {@code Collection} classes.
@@ -1235,7 +1237,8 @@ public class Collections {
 				Iterator<Map.Entry<K, V>> it = iterator();
 				if (size > contents.length) {
 					try {
-						contents = (T[]) contents.getClass().newArray(size);
+						contents = (T[]) FiScEVM.newArray(contents.getClass(),
+								size);
 					} catch (Exception e) {
 						throw new Error(e);
 					}
@@ -3311,7 +3314,8 @@ public class Collections {
 				int thisSize = size();
 				if (array.length < thisSize) {
 					try {
-						array = (T[]) array.getClass().newArray(thisSize);
+						array = (T[]) FiScEVM.newArray(array.getClass(),
+								thisSize);
 					} catch (Exception e) {
 						throw new Error(e);
 					}

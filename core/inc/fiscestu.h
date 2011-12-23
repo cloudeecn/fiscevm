@@ -57,6 +57,7 @@
 #define FY_TYPE_WIDE2  '_'
 #define FY_TYPE_UNKNOWN  'X'
 
+#define FY_BASE_VM "com/cirnoworks/fisce/privat/FiScEVM"
 #define FY_BASE_STRING "java/lang/String"
 #define FY_BASE_OBJECT "java/lang/Object"
 #define FY_BASE_CLASS "java/lang/Class"
@@ -387,6 +388,12 @@ typedef struct fy_thread {
 
 } fy_thread;
 
+typedef struct fy_nativeCall{
+	fy_method *method;
+	fy_uint paramCount;
+	fy_uint *params;
+} fy_nativeCall;
+
 typedef enum fy_messageType {
 	message_continue = 0, /*In thread*/
 	message_none = 1, /*Thread Only*/
@@ -402,7 +409,7 @@ typedef struct fy_message {
 	fy_messageType messageType;
 	fy_thread *thread;
 	union {
-		fy_method *nativeMethod;
+		fy_nativeCall call;
 		fy_exception exception;
 		fy_long sleepTime;
 	} body;

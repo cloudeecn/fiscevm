@@ -1,13 +1,6 @@
 package com.cirnoworks.libfisce.shell;
 
-import com.cirnoworks.fisce.vm.IThread;
-
 public class Message {
-
-	public static final int message_continue = 0; // In thread
-	public static final int message_none = 1; // Thread Only
-	public static final int message_thread_dead = 2; // Thread Only
-
 	public static final int message_invoke_native = 3;// Thread And TM pass
 														// thread
 	public static final int message_exception = 4; // Thread And TM pass thread
@@ -17,9 +10,10 @@ public class Message {
 	private int messageType;
 	private int threadId;
 	private String nativeUniqueName;
+	private int[] params;
 	private String exceptionName;
 	private String exceptionDesc;
-	private long sleepTo;
+	private long sleepTime;
 
 	public int getMessageType() {
 		return messageType;
@@ -61,12 +55,20 @@ public class Message {
 		this.exceptionDesc = exceptionDesc;
 	}
 
-	public long getSleepTo() {
-		return sleepTo;
+	public int[] getParams() {
+		return params;
 	}
 
-	public void setSleepTo(long sleepTo) {
-		this.sleepTo = sleepTo;
+	public void setParams(int[] params) {
+		this.params = params;
+	}
+
+	public long getSleepTime() {
+		return sleepTime;
+	}
+
+	public void setSleepTime(long sleepTime) {
+		this.sleepTime = sleepTime;
 	}
 
 }

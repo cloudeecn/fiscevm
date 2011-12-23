@@ -139,12 +139,12 @@ public class Tester extends Thread implements ITester {
 				d = 0;
 				s += " World";
 			}
-			FiScEVM.debugOut(d2);
-			FiScEVM.debugOut(d);
-			FiScEVM.debugOut(i);
-			FiScEVM.debugOut(s);
-			FiScEVM.debugOut(System.currentTimeMillis());
-			FiScEVM.debugOut(System.nanoTime());
+//			FiScEVM.debugOut(d2);
+//			FiScEVM.debugOut(d);
+//			FiScEVM.debugOut(i);
+//			FiScEVM.debugOut(s);
+//			FiScEVM.debugOut(System.currentTimeMillis());
+//			FiScEVM.debugOut(System.nanoTime());
 
 			FiScEVM.debugOut("Hello world " + 123 + " "
 					+ (i + 12345678901234567l) + " " + 123.4f + " "

@@ -72,7 +72,8 @@ libfisce_la_LIBADD =
 am_libfisce_la_OBJECTS = Debug.lo HashMap.lo ArrList.lo LnkList.lo \
 	MemMan.lo Portable.lo String.lo BitSet.lo Utf8.lo Class.lo \
 	ClassLoader.lo CoreHandlers.lo MathHandlers.lo Data.lo Heap.lo \
-	Resource.lo Thread.lo ThreadManager.lo VMContext.lo ExpDev.lo
+	Resource.lo Thread.lo ThreadManager.lo VMContext.lo ExpDev.lo \
+	FiScE.lo
 libfisce_la_OBJECTS = $(am_libfisce_la_OBJECTS)
 libfisce_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -234,7 +235,8 @@ libfisce_la_SOURCES = \
 	Thread.c \
 	ThreadManager.c \
 	VMContext.c \
-	ExpDev.c
+	ExpDev.c \
+	FiScE.c
 
 libfisce_la_LDFLAGS = -no-undefined
 all: all-am
@@ -319,6 +321,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ExpDev.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FiScE.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Heap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LnkList.Plo@am__quote@

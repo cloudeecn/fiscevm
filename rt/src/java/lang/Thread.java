@@ -21,6 +21,7 @@ public class Thread implements Runnable {
 	private char name[];
 	private int priority;
 	private Thread threadQ;
+	private long eetop;
 
 	private boolean daemon = false;
 
