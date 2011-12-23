@@ -16,15 +16,15 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.JThread;
 
-public class ThreadYield extends NativeHandlerTemplate{
+public class ThreadYield extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException {
-		thread.setYield(true);
+	public void dealNative(int[] args, IThread thread) throws VMException {
+		((JThread) thread).setYield(true);
 	}
 
 	public String getUniqueName() {

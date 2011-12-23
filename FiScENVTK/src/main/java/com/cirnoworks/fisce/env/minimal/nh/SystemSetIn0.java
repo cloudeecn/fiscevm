@@ -16,17 +16,17 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
-import com.cirnoworks.fisce.vm.data.ClassField;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IField;
 
-public class SystemSetIn0 extends NativeHandlerTemplate{
+public class SystemSetIn0 extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException, VMCriticalException {
-		ClassField field = context
+	public void dealNative(int[] args, IThread thread) throws VMException,
+			VMCriticalException {
+		IField field = context
 				.getField("java/lang/System.in.Ljava/io/InputStream;");
 		context.getHeap().setStaticInt(field, args[0]);
 	}

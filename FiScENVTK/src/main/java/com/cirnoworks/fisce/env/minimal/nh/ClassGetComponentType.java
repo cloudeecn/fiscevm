@@ -16,23 +16,26 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 
-public class ClassGetComponentType extends NativeHandlerTemplate{
+public class ClassGetComponentType extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException, VMCriticalException {
-		AbstractClass ac = context.getClassForClassObjectHandle(args[0]);
+	public void dealNative(int[] args, IThread thread) throws VMException,
+			VMCriticalException {
+		AbstractClass ac = (AbstractClass) ((VMContext) context)
+				.getClassForClassObjectHandle(args[0]);
 		if (ac instanceof ClassArray) {
 			AbstractClass component = ((ClassArray) ac).getContentClass();
-			thread.pushHandle(context.getClassObjectHandleForClass(component));
+			thread.nativeReturnHandle(((VMContext) context)
+					.getClassObjectHandleForClass(component));
 		} else {
-			thread.pushHandle(0);
+			thread.nativeReturnHandle(0);
 		}
 	}
 

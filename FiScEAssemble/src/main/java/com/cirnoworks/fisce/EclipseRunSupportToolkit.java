@@ -20,54 +20,67 @@ import java.io.InputStream;
 
 import org.w3c.dom.Element;
 
-import com.cirnoworks.fisce.vm.IToolkit;
-import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
+import com.cirnoworks.fisce.intf.FiScEVM;
+import com.cirnoworks.fisce.intf.IToolkit;
+import com.cirnoworks.fisce.intf.VMCriticalException;
 
 /**
  * @author Cloudee
- *
+ * 
  */
-public class EclipseRunSupportToolkit implements IToolkit{
+public class EclipseRunSupportToolkit implements IToolkit {
 
-	/* (non-Javadoc)
-	 * @see com.cirnoworks.fisce.vm.IToolkit#setContext(com.cirnoworks.fisce.vm.VMContext)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.cirnoworks.fisce.vm.IToolkit#setContext(com.cirnoworks.fisce.vm.VMContext
+	 * )
 	 */
-	public void setContext(VMContext context) {
+	public void setContext(FiScEVM context) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.cirnoworks.fisce.vm.IToolkit#setupContext()
 	 */
 	public void setupContext() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	/* (non-Javadoc)
-	 * @see com.cirnoworks.fisce.vm.IToolkit#getResourceByClassName(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.cirnoworks.fisce.vm.IToolkit#getResourceByClassName(java.lang.String)
 	 */
 	public InputStream getResourceByClassName(String className) {
 		String path = "/classes/" + className + ".class";
 		return getClass().getResourceAsStream(path);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.cirnoworks.fisce.vm.IToolkit#saveData(org.w3c.dom.Element)
 	 */
 	public void saveData(Element data) throws VMCriticalException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.cirnoworks.fisce.vm.IToolkit#loadData(org.w3c.dom.Element)
 	 */
 	public void loadData(Element data) throws VMCriticalException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

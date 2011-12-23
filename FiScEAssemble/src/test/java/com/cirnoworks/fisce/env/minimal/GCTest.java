@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 
 import junit.framework.TestCase;
 
+import com.cirnoworks.fisce.vm.JHeap;
 import com.cirnoworks.fisce.vm.VMContext;
 
 public class GCTest extends TestCase {
@@ -26,7 +27,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 
-		((VMContext) context).getHeap().gc();
+		((JHeap) context.getHeap()).gc();
 		fos = new FileOutputStream("data0.xml");
 		context.saveData(fos);
 		fos.close();
@@ -38,7 +39,7 @@ public class GCTest extends TestCase {
 		fos = new FileOutputStream("data1.xml");
 		context.saveData(fos);
 		fos.close();
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("data2.xml");
 		context.saveData(fos);
 		fos.close();
@@ -68,7 +69,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("data0.xml");
 		context.saveData(fos);
 		fos.close();
@@ -80,7 +81,7 @@ public class GCTest extends TestCase {
 		fos = new FileOutputStream("data1.xml");
 		context.saveData(fos);
 		fos.close();
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("data2.xml");
 		context.saveData(fos);
 		fos.close();
@@ -111,7 +112,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("dataa0.xml");
 		context.saveData(fos);
 		fos.close();
@@ -123,7 +124,7 @@ public class GCTest extends TestCase {
 		fos = new FileOutputStream("dataa1.xml");
 		context.saveData(fos);
 		fos.close();
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("dataa2.xml");
 		context.saveData(fos);
 		fos.close();
@@ -154,7 +155,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("data0.xml");
 		context.saveData(fos);
 		fos.close();
@@ -166,7 +167,7 @@ public class GCTest extends TestCase {
 		fos = new FileOutputStream("data1.xml");
 		context.saveData(fos);
 		fos.close();
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("data2.xml");
 		context.saveData(fos);
 		fos.close();
@@ -197,7 +198,7 @@ public class GCTest extends TestCase {
 		context.saveData(fos);
 		fos.close();
 
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("data0.xml");
 		context.saveData(fos);
 		fos.close();
@@ -209,7 +210,7 @@ public class GCTest extends TestCase {
 		fos = new FileOutputStream("data1.xml");
 		context.saveData(fos);
 		fos.close();
-		((VMContext) context).getHeap().gc();
+		((JHeap) ((VMContext) context).getHeap()).gc();
 		fos = new FileOutputStream("data2.xml");
 		context.saveData(fos);
 		fos.close();

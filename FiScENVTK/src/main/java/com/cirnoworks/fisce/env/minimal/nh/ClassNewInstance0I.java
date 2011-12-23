@@ -16,10 +16,12 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.JThread;
+import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 
@@ -27,7 +29,7 @@ public class ClassNewInstance0I extends NativeHandlerTemplate {
 
 	public void dealNative(int[] args, IThread thread) throws VMException,
 			VMCriticalException {
-		AbstractClass clazz = context
+		AbstractClass clazz = ((VMContext) context)
 				.getClassForClassObjectHandle(args[0]/* this */);
 		int size = args[1];
 		if (!(clazz instanceof ClassArray)) {
@@ -35,11 +37,12 @@ public class ClassNewInstance0I extends NativeHandlerTemplate {
 					"class is not an array!");
 		}
 		int handle = context.getHeap().allocate((ClassArray) clazz, size);
-		thread.pushHandle(handle);
+		thread.nativeReturnHandle(handle);
 
 		/* object.<init>() */
-		thread.pushFrame(context.getMethod(clazz.getName() + ".<init>.()V"));
-		thread.putLocalHandle(0, handle);
+		((JThread) thread).pushFrame(((VMContext) context).getMethod(clazz
+				.getName() + ".<init>.()V"));
+		((JThread) thread).putLocalHandle(0, handle);
 	}
 
 	public String getUniqueName() {

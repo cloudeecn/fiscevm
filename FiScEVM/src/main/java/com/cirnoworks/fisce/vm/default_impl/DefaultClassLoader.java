@@ -24,12 +24,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.cirnoworks.fisce.intf.INativeHandler;
+import com.cirnoworks.fisce.intf.IToolkit;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.vm.IClassLoader;
-import com.cirnoworks.fisce.vm.INativeHandler;
-import com.cirnoworks.fisce.vm.IToolkit;
+import com.cirnoworks.fisce.vm.JHeap;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -314,7 +315,7 @@ public class DefaultClassLoader implements IClassLoader {
 					AbstractClass.ACC_NATIVE)) {
 				INativeHandler inh = context.getNativeHandler(method
 						.getUniqueName());
-				if(method.getUniqueName().startsWith("L")){
+				if (method.getUniqueName().startsWith("L")) {
 					System.out.println(method.getOwner());
 				}
 				if (inh == null) {
@@ -597,9 +598,8 @@ public class DefaultClassLoader implements IClassLoader {
 					ClassField field = fields[i];
 
 					if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) > 0) {
-						field.setAbsPos(context.getHeap().getClazzStaticPos(
-								clazz)
-								+ field.getPosition());
+						field.setAbsPos(((JHeap) context.getHeap())
+								.getClazzStaticPos(clazz) + field.getPosition());
 					} else {
 						field.setAbsPos(field.getPosition() + ofs);
 					}

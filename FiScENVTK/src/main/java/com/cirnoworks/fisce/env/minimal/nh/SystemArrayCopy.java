@@ -16,21 +16,21 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.JHeap;
 
-public class SystemArrayCopy extends NativeHandlerTemplate{
+public class SystemArrayCopy extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException {
+	public void dealNative(int[] args, IThread thread) throws VMException {
 		int srcHandle = args[0];
 		int srcOfs = args[1];
 		int dstHandle = args[2];
 		int dstOfs = args[3];
 		int count = args[4];
-		context.getHeap()
-				.arrayCopy(srcHandle, srcOfs, dstHandle, dstOfs, count);
+		((JHeap) context.getHeap()).arrayCopy(srcHandle, srcOfs, dstHandle,
+				dstOfs, count);
 	}
 
 	public String getUniqueName() {

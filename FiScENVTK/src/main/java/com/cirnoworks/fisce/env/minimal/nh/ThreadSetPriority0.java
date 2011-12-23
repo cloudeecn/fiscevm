@@ -16,17 +16,18 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.JThreadManager;
 
-public class ThreadSetPriority0 extends NativeHandlerTemplate{
+public class ThreadSetPriority0 extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException {
+	public void dealNative(int[] args, IThread thread) throws VMException {
 		int thisHandle = args[0];
 		int to = args[1];
-		context.getThreadManager().setPriority(thisHandle, to);
+		((JThreadManager) context.getThreadManager()).setPriority(thisHandle,
+				to);
 	}
 
 	public String getUniqueName() {

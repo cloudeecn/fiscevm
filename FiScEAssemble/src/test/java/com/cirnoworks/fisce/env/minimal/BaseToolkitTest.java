@@ -19,7 +19,7 @@ package com.cirnoworks.fisce.env.minimal;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
-import com.cirnoworks.fisce.vm.FiScEVM;
+import com.cirnoworks.fisce.intf.FiScEVM;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;

@@ -24,29 +24,33 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IClassArray;
+import com.cirnoworks.fisce.intf.idata.IClassBase;
+import com.cirnoworks.fisce.intf.idata.IField;
 import com.cirnoworks.fisce.util.Base64;
 import com.cirnoworks.fisce.util.BufferUtil;
 import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.IClassLoader;
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.JHeap;
+import com.cirnoworks.fisce.vm.JThread;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
 
-public final class ArrayHeap implements IHeap {
+public final class ArrayHeap implements JHeap {
 
 	// not persist
 	private VMContext context;
@@ -313,9 +317,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
 	 * data.ClassBase)
 	 */
-	public int allocate(ClassBase clazz) throws VMException,
+	public int allocate(IClassBase clazz) throws VMException,
 			VMCriticalException {
-		int[] obj = new int[clazz.getTotalSizeInHeap()];
+		int[] obj = new int[((ClassBase) clazz).getTotalSizeInHeap()];
 		return allocate(context.getClazzId(clazz), obj);
 	}
 
@@ -325,7 +329,7 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
 	 * data.ClassArray, int)
 	 */
-	public int allocate(ClassArray clazz, int length) throws VMException,
+	public int allocate(IClassArray clazz, int length) throws VMException,
 			VMCriticalException {
 		assert clazz.getName().startsWith("[");
 		char type = clazz.getName().charAt(1);
@@ -407,8 +411,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldBoolean(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public boolean getFieldBoolean(int handle, ClassField field)
+	public boolean getFieldBoolean(int handle, IField iField)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -422,7 +427,8 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldByte(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public byte getFieldByte(int handle, ClassField field) throws VMException {
+	public byte getFieldByte(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -436,7 +442,8 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldShort(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public short getFieldShort(int handle, ClassField field) throws VMException {
+	public short getFieldShort(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -450,7 +457,8 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldChar(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public char getFieldChar(int handle, ClassField field) throws VMException {
+	public char getFieldChar(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -464,7 +472,8 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldInt(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public int getFieldInt(int handle, ClassField field) throws VMException {
+	public int getFieldInt(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -478,7 +487,8 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldLong(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public long getFieldLong(int handle, ClassField field) throws VMException {
+	public long getFieldLong(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -493,7 +503,8 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldFloat(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public float getFieldFloat(int handle, ClassField field) throws VMException {
+	public float getFieldFloat(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -507,8 +518,8 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldDouble(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public double getFieldDouble(int handle, ClassField field)
-			throws VMException {
+	public double getFieldDouble(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -524,7 +535,8 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldHandle(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public int getFieldHandle(int handle, ClassField field) throws VMException {
+	public int getFieldHandle(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -553,8 +565,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldBoolean(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, boolean)
 	 */
-	public void putFieldBoolean(int handle, ClassField field, boolean value)
+	public void putFieldBoolean(int handle, IField iField, boolean value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -569,8 +582,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldByte(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, byte)
 	 */
-	public void putFieldByte(int handle, ClassField field, byte value)
+	public void putFieldByte(int handle, IField iField, byte value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -584,8 +598,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldShort(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, char)
 	 */
-	public void putFieldShort(int handle, ClassField field, short value)
+	public void putFieldShort(int handle, IField iField, short value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -599,8 +614,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldChar(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, char)
 	 */
-	public void putFieldChar(int handle, ClassField field, char value)
+	public void putFieldChar(int handle, IField iField, char value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -614,8 +630,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldInt(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, int)
 	 */
-	public void putFieldInt(int handle, ClassField field, int value)
+	public void putFieldInt(int handle, IField iField, int value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -629,8 +646,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldLong(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, long)
 	 */
-	public void putFieldLong(int handle, ClassField field, long value)
+	public void putFieldLong(int handle, IField iField, long value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -646,8 +664,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldFloat(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, float)
 	 */
-	public void putFieldFloat(int handle, ClassField field, float value)
+	public void putFieldFloat(int handle, IField iField, float value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -662,8 +681,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldDouble(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, double)
 	 */
-	public void putFieldDouble(int handle, ClassField field, double value)
+	public void putFieldDouble(int handle, IField iField, double value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -680,8 +700,9 @@ public final class ArrayHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldHandle(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, int)
 	 */
-	public void putFieldHandle(int handle, ClassField field, int value)
+	public void putFieldHandle(int handle, IField iField, int value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
@@ -1109,7 +1130,8 @@ public final class ArrayHeap implements IHeap {
 	 * Integer> classMap = new HashMap<String, Integer>(); // Class name ->
 	 * Class o
 	 */
-	public boolean getStaticBoolean(ClassField field) throws VMException {
+	public boolean getStaticBoolean(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1117,7 +1139,8 @@ public final class ArrayHeap implements IHeap {
 		return staticArea[field.getAbsPos()] > 0;
 	}
 
-	public byte getStaticByte(ClassField field) throws VMException {
+	public byte getStaticByte(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1125,7 +1148,8 @@ public final class ArrayHeap implements IHeap {
 		return (byte) staticArea[field.getAbsPos()];
 	}
 
-	public short getStaticShort(ClassField field) throws VMException {
+	public short getStaticShort(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1133,7 +1157,8 @@ public final class ArrayHeap implements IHeap {
 		return (short) staticArea[field.getAbsPos()];
 	}
 
-	public char getStaticChar(ClassField field) throws VMException {
+	public char getStaticChar(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1141,7 +1166,8 @@ public final class ArrayHeap implements IHeap {
 		return (char) staticArea[field.getAbsPos()];
 	}
 
-	public int getStaticInt(ClassField field) throws VMException {
+	public int getStaticInt(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1149,7 +1175,8 @@ public final class ArrayHeap implements IHeap {
 		return staticArea[field.getAbsPos()];
 	}
 
-	public long getStaticLong(ClassField field) throws VMException {
+	public long getStaticLong(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1158,7 +1185,8 @@ public final class ArrayHeap implements IHeap {
 				staticArea[field.getAbsPos() + 1]);
 	}
 
-	public float getStaticFloat(ClassField field) throws VMException {
+	public float getStaticFloat(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1167,7 +1195,8 @@ public final class ArrayHeap implements IHeap {
 		return Float.intBitsToFloat(ivalue);
 	}
 
-	public double getStaticDouble(ClassField field) throws VMException {
+	public double getStaticDouble(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1185,8 +1214,9 @@ public final class ArrayHeap implements IHeap {
 		return TypeUtil.intToLong(staticArea[pos], staticArea[pos + 1]);
 	}
 
-	public void setStaticBoolean(ClassField field, boolean value)
+	public void setStaticBoolean(IField iField, boolean value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1194,7 +1224,8 @@ public final class ArrayHeap implements IHeap {
 		staticArea[field.getAbsPos()] = value ? 1 : 0;
 	}
 
-	public void setStaticByte(ClassField field, byte value) throws VMException {
+	public void setStaticByte(IField iField, byte value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1202,8 +1233,8 @@ public final class ArrayHeap implements IHeap {
 		staticArea[field.getAbsPos()] = value;
 	}
 
-	public void setStaticShort(ClassField field, short value)
-			throws VMException {
+	public void setStaticShort(IField iField, short value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1211,7 +1242,8 @@ public final class ArrayHeap implements IHeap {
 		staticArea[field.getAbsPos()] = value;
 	}
 
-	public void setStaticChar(ClassField field, char value) throws VMException {
+	public void setStaticChar(IField iField, char value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1219,7 +1251,8 @@ public final class ArrayHeap implements IHeap {
 		staticArea[field.getAbsPos()] = value;
 	}
 
-	public void setStaticInt(ClassField field, int value) throws VMException {
+	public void setStaticInt(IField iField, int value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1227,7 +1260,8 @@ public final class ArrayHeap implements IHeap {
 		staticArea[field.getAbsPos()] = value;
 	}
 
-	public void setStaticLong(ClassField field, long lvalue) throws VMException {
+	public void setStaticLong(IField iField, long lvalue) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1236,8 +1270,8 @@ public final class ArrayHeap implements IHeap {
 		staticArea[field.getAbsPos() + 1] = TypeUtil.getLowInt(lvalue);
 	}
 
-	public void setStaticFloat(ClassField field, float value)
-			throws VMException {
+	public void setStaticFloat(IField iField, float value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1245,8 +1279,8 @@ public final class ArrayHeap implements IHeap {
 		staticArea[field.getAbsPos()] = Float.floatToRawIntBits(value);
 	}
 
-	public void setStaticDouble(ClassField field, double value)
-			throws VMException {
+	public void setStaticDouble(IField iField, double value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1318,17 +1352,17 @@ public final class ArrayHeap implements IHeap {
 
 	public void arrayCopy(int srcHandle, int srcOfs, int dstHandle, int dstOfs,
 			int count) throws VMException {
-		AbstractClass srcClass = context.getClass(srcHandle);
-		AbstractClass dstClass = context.getClass(dstHandle);
+		AbstractClass srcClass = (AbstractClass) context.getClass(srcHandle);
+		AbstractClass dstClass = (AbstractClass) context.getClass(dstHandle);
 		if (srcHandle == 0 || dstHandle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
 		assert isArray(srcHandle) && isArray(dstHandle);
-		//TODO more study in arrayCopy
-//		if (!srcClass.canCastTo(dstClass)) {
-//			throw new VMException("java/lang/ArrayStoreException",
-//					srcClass.getName() + "/" + dstClass.getName());
-//		}
+		// TODO more study in arrayCopy
+		// if (!srcClass.canCastTo(dstClass)) {
+		// throw new VMException("java/lang/ArrayStoreException",
+		// srcClass.getName() + "/" + dstClass.getName());
+		// }
 		System.arraycopy(objects[srcHandle], srcOfs, objects[dstHandle],
 				dstOfs, count);
 	}
@@ -1398,7 +1432,7 @@ public final class ArrayHeap implements IHeap {
 		}
 
 		for (IThread thread : context.getThreadManager().getThreads()) {
-			thread.fillUsedHandles(used);
+			((JThread) thread).fillUsedHandles(used);
 		}
 
 		for (Integer in : toFinalize) {
@@ -1427,7 +1461,7 @@ public final class ArrayHeap implements IHeap {
 			for (int handle : processing) {
 				if (!used.get(handle)) {
 					used.set(handle);
-					AbstractClass ac = context.getClass(handle);
+					AbstractClass ac = (AbstractClass) context.getClass(handle);
 					if (ac instanceof ClassBase) {
 						fields.clear();
 						ClassBase clazz = (ClassBase) ac;

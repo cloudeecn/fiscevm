@@ -16,12 +16,13 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
+import com.cirnoworks.fisce.intf.IHeap;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.vm.IClassLoader;
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.vm.JHeap;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 
 /**
@@ -47,11 +48,11 @@ public class FinalizerGetFinalizee extends NativeHandlerTemplate {
 	 */
 	public void dealNative(int[] args, IThread thread) throws VMException,
 			VMCriticalException {
-		int[] handles = heap.getToFinialize();
+		int[] handles = ((JHeap) heap).getToFinialize();
 		int len = handles.length;
 		int ret = heap.allocate(array, len);
 		heap.fillArrayInt(ret, 0, handles, 0, len);
-		thread.pushHandle(ret);
+		thread.nativeReturnHandle(ret);
 	}
 
 	/*

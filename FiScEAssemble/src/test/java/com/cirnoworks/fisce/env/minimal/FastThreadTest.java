@@ -2,7 +2,7 @@ package com.cirnoworks.fisce.env.minimal;
 
 import junit.framework.TestCase;
 
-import com.cirnoworks.fisce.vm.FiScEVM;
+import com.cirnoworks.fisce.intf.FiScEVM;
 
 public class FastThreadTest extends TestCase {
 	public void testRun() throws Exception {

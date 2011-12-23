@@ -16,18 +16,18 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.JThreadManager;
 
-public class ThreadSleep extends NativeHandlerTemplate{
+public class ThreadSleep extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException {
+	public void dealNative(int[] args, IThread thread) throws VMException {
 		int highValue = args[0];
 		int lowValue = args[1];
 		long value = (highValue << 32) + (lowValue & 0xffffffffl);
-		context.getThreadManager().sleep(thread, value);
+		((JThreadManager) context.getThreadManager()).sleep(thread, value);
 	}
 
 	public String getUniqueName() {

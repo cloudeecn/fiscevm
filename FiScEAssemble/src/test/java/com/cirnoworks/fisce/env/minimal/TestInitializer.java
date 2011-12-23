@@ -16,7 +16,7 @@
  */
 package com.cirnoworks.fisce.env.minimal;
 
-import com.cirnoworks.fisce.vm.NullConsole;
+import com.cirnoworks.fisce.intf.NullConsole;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.default_impl.ArrayHeap;
 import com.cirnoworks.fisce.vm.default_impl.ArrayThreadManager;

@@ -23,9 +23,10 @@ import java.util.HashMap;
 import org.w3c.dom.Element;
 
 import com.cirnoworks.fisce.env.minimal.nh.*;
-import com.cirnoworks.fisce.vm.IToolkit;
+import com.cirnoworks.fisce.intf.FiScEVM;
+import com.cirnoworks.fisce.intf.IToolkit;
+import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
 
 public class BaseToolkit implements IToolkit {
 
@@ -119,7 +120,7 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new MathSqrt());
 		context.registerNativeHandler(new MathTan());
 		context.registerNativeHandler(new MathTanh());
-		
+
 		context.registerNativeHandler(new StringUtilsDigit());
 		context.registerNativeHandler(new StringUtilsFormat());
 		context.registerNativeHandler(new StringUtilsGetDirectionality());
@@ -185,8 +186,8 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new ResourceInputStreamRead0b(this));
 	}
 
-	public void setContext(VMContext context) {
-		this.context = context;
+	public void setContext(FiScEVM context) {
+		this.context = (VMContext) context;
 	}
 
 	public void setProperty(String key, String value) {

@@ -16,14 +16,14 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IHeap;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IField;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
-import com.cirnoworks.fisce.vm.data.ClassField;
 import com.cirnoworks.fisce.vm.data.StackTraceElement;
 
 public class FiScEVMThrowOut extends NativeHandlerTemplate {
@@ -32,23 +32,23 @@ public class FiScEVMThrowOut extends NativeHandlerTemplate {
 			VMCriticalException {
 		int throwableHandle = args[0];
 		int msgHandle = args[1];
-		ClassField backtrace = context
+		IField backtrace = context
 				.getField("java/lang/Throwable.stackTrace.[Ljava/lang/StackTraceElement;");
 		assert backtrace != null;
 		ClassBase clazz = (ClassBase) context
 				.getClass("java/lang/StackTraceElement");
 		ClassArray array = (ClassArray) context
 				.getClass("[Ljava/lang/StackTraceElement;");
-		ClassField declaringClass = context
+		IField declaringClass = context
 				.getField("java/lang/StackTraceElement.declaringClass.Ljava/lang/String;");
 		assert declaringClass != null : clazz;
-		ClassField methodName = context
+		IField methodName = context
 				.getField("java/lang/StackTraceElement.methodName.Ljava/lang/String;");
 		assert methodName != null : clazz;
-		ClassField fileName = context
+		IField fileName = context
 				.getField("java/lang/StackTraceElement.fileName.Ljava/lang/String;");
 		assert fileName != null : clazz;
-		ClassField lineNumber = context
+		IField lineNumber = context
 				.getField("java/lang/StackTraceElement.lineNumber.I");
 		assert lineNumber != null : clazz;
 
@@ -71,8 +71,7 @@ public class FiScEVMThrowOut extends NativeHandlerTemplate {
 					fileName));
 			int ln = heap.getFieldInt(stackTraceHandle, lineNumber);
 			StackTraceElement ste = new StackTraceElement(cn, mn, fn, ln);
-			msgBuilder.append(cn + "." + mn + "(" + fn + ":" + ln
-					+ ") **\n");
+			msgBuilder.append(cn + "." + mn + "(" + fn + ":" + ln + ") **\n");
 			stes[i] = ste;
 		}
 		throw new VMCriticalException(msgBuilder.toString());

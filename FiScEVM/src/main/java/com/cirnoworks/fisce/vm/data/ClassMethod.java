@@ -19,9 +19,11 @@ package com.cirnoworks.fisce.vm.data;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import com.cirnoworks.fisce.vm.INativeHandler;
+
+import com.cirnoworks.fisce.intf.INativeHandler;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IMethod;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.attributes.Attribute;
 import com.cirnoworks.fisce.vm.data.attributes.ExceptionHandler;
 import com.cirnoworks.fisce.vm.data.attributes.LineNumber;
@@ -32,7 +34,7 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
  * 
  * @author yuxuanhuang
  */
-public final class ClassMethod implements IAttributesHolder {
+public final class ClassMethod implements IAttributesHolder, IMethod {
 	public static final byte TYPE_INT = 'I';
 	public static final byte TYPE_WIDE = 'W';
 	public static final byte TYPE_HANDLE = 'H';

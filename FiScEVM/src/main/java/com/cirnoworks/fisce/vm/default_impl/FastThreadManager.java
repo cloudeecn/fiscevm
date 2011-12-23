@@ -24,20 +24,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.util.Base64;
 import com.cirnoworks.fisce.util.DOMHelper;
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.IThreadManager;
+import com.cirnoworks.fisce.vm.JHeap;
+import com.cirnoworks.fisce.vm.JThreadManager;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
 import com.cirnoworks.fisce.vm.data.ClassMethod;
 
-public class FastThreadManager implements Runnable, IThreadManager {
+public class FastThreadManager implements Runnable, JThreadManager {
 	// constant
 	private static final int[] pricmds = new int[] { 1, 100, // 1
 			200, // 2
@@ -70,9 +70,9 @@ public class FastThreadManager implements Runnable, IThreadManager {
 	// thread id --> daemon
 	private boolean[] daemon = new boolean[MAX_THREADS];
 	// handle --> monitor owner id
-	private int[] monitorOwnerId = new int[IHeap.MAX_OBJECTS];
+	private int[] monitorOwnerId = new int[JHeap.MAX_OBJECTS];
 	// handle --> monitor owner times
-	private int[] monitorOwnerTimes = new int[IHeap.MAX_OBJECTS];
+	private int[] monitorOwnerTimes = new int[JHeap.MAX_OBJECTS];
 	//
 	// **************************
 	// no persist but need resume
@@ -81,7 +81,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 	// **************************
 	// no persist
 	private VMContext context;
-	private IHeap heap;
+	private JHeap heap;
 	private int state;
 	private final Object threadsLock = new Object();
 	private final Object stateLock = new Object();
@@ -104,7 +104,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 	public void sleep(IThread dt, long time) {
 		int threadId = ((FastThread) dt).getThreadId();
 		nextWakeUpTime[threadId] = System.currentTimeMillis() + time;
-		dt.setYield(true);
+		((FastThread) dt).setYield(true);
 	}
 
 	public void interrupt(int targetHandle) throws VMException,
@@ -156,7 +156,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 		} else {
 			nextWakeUpTime[tid] = System.currentTimeMillis() + time;
 		}
-		thread.setYield(true);
+		((FastThread) thread).setYield(true);
 	}
 
 	public void notify(IThread thread, int monitorId, boolean all)
@@ -194,14 +194,14 @@ public class FastThreadManager implements Runnable, IThreadManager {
 	}
 
 	public FastThreadManager() {
-		for (int i = 0; i < IHeap.MAX_OBJECTS; i++) {
+		for (int i = 0; i < JHeap.MAX_OBJECTS; i++) {
 			monitorOwnerId[i] = -1;
 		}
 	}
 
 	public void setContext(VMContext context) {
 		this.context = context;
-		heap = context.getHeap();
+		heap = (JHeap) context.getHeap();
 	}
 
 	private void monitorEnter(FastThread dt, int monitorId, int times) {
@@ -299,7 +299,7 @@ public class FastThreadManager implements Runnable, IThreadManager {
 		threadIds[tid] = false;
 		destroyPending[tid] = false;
 		interrupted[tid] = false;
-		for (int i = 0; i < IHeap.MAX_OBJECTS; i++) {
+		for (int i = 0; i < JHeap.MAX_OBJECTS; i++) {
 			if (monitorOwnerId[i] == tid) {
 				monitorOwnerId[i] = -1;
 				monitorOwnerTimes[i] = 0;
@@ -325,9 +325,8 @@ public class FastThreadManager implements Runnable, IThreadManager {
 		ClassMethod method = context.getMethod(clazz.getName()
 				+ ".main.([Ljava/lang/String;)V");
 		if (method == null) {
-			throw new VMException("java/lang/NoSuchMethodError", clazz
-					.getName()
-					+ ".main(String[] args)");
+			throw new VMException("java/lang/NoSuchMethodError",
+					clazz.getName() + ".main(String[] args)");
 		}
 		FastThread dt = new FastThread(context, this);
 		ClassBase threadClass = (ClassBase) context
@@ -644,12 +643,11 @@ public class FastThreadManager implements Runnable, IThreadManager {
 	public IThread[] getThreads() throws VMException {
 		synchronized (threadsLock) {
 			IThread[] rt = runningThreads.toArray(new IThread[runningThreads
-					.size()
-					+ pendingThreads.size()]);
+					.size() + pendingThreads.size()]);
 			IThread[] pt = pendingThreads.toArray(new IThread[pendingThreads
 					.size()]);
-			System.arraycopy(pt, 0, rt, runningThreads.size(), pendingThreads
-					.size());
+			System.arraycopy(pt, 0, rt, runningThreads.size(),
+					pendingThreads.size());
 			return rt;
 		}
 	}
@@ -735,36 +733,32 @@ public class FastThreadManager implements Runnable, IThreadManager {
 
 			int tid = dt.getThreadId();
 			thread.setAttribute("tid", String.valueOf(tid));
-			thread.setAttribute("waitForLockId", String
-					.valueOf(waitForLockId[tid]));
-			thread.setAttribute("waitForNotifyId", String
-					.valueOf(waitForNotifyId[tid]));
-			thread.setAttribute("pendingLockCount", String
-					.valueOf(pendingLockCount[tid]));
-			thread.setAttribute("nextWakeUpTime", String
-					.valueOf(nextWakeUpTime[tid]));
-			thread
-					.setAttribute("interrupted", String
-							.valueOf(interrupted[tid]));
-			thread.setAttribute("destroyPending", String
-					.valueOf(destroyPending[tid]));
+			thread.setAttribute("waitForLockId",
+					String.valueOf(waitForLockId[tid]));
+			thread.setAttribute("waitForNotifyId",
+					String.valueOf(waitForNotifyId[tid]));
+			thread.setAttribute("pendingLockCount",
+					String.valueOf(pendingLockCount[tid]));
+			thread.setAttribute("nextWakeUpTime",
+					String.valueOf(nextWakeUpTime[tid]));
+			thread.setAttribute("interrupted", String.valueOf(interrupted[tid]));
+			thread.setAttribute("destroyPending",
+					String.valueOf(destroyPending[tid]));
 			thread.setAttribute("daemon", String.valueOf(daemon[tid]));
 			threads.appendChild(thread);
 		}
 
-		// private int[] monitorOwnerId = new int[IHeap.MAX_OBJECTS];
+		// private int[] monitorOwnerId = new int[JHeap.MAX_OBJECTS];
 		// handle --> monitor owner times
-		// private int[] monitorOwnerTimes = new int[IHeap.MAX_OBJECTS];
+		// private int[] monitorOwnerTimes = new int[JHeap.MAX_OBJECTS];
 		Element monitors = document.createElement("monitors");
-		for (int i = 0; i < IHeap.MAX_OBJECTS; i++) {
+		for (int i = 0; i < JHeap.MAX_OBJECTS; i++) {
 			if (monitorOwnerId[i] >= 0) {
 				Element monitor = document.createElement("monitor");
 				monitor.setAttribute("handle", String.valueOf(i));
-				monitor
-						.setAttribute("owner", String
-								.valueOf(monitorOwnerId[i]));
-				monitor.setAttribute("times", String
-						.valueOf(monitorOwnerTimes[i]));
+				monitor.setAttribute("owner", String.valueOf(monitorOwnerId[i]));
+				monitor.setAttribute("times",
+						String.valueOf(monitorOwnerTimes[i]));
 				monitors.appendChild(monitor);
 
 			}

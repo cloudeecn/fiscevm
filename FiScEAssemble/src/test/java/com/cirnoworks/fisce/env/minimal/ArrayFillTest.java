@@ -5,13 +5,14 @@ import java.util.Random;
 
 import org.w3c.dom.Element;
 
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.IToolkit;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.FiScEVM;
+import com.cirnoworks.fisce.intf.IHeap;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.IToolkit;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 
 public class ArrayFillTest {
@@ -46,8 +47,8 @@ class ArrayFillToolkit implements IToolkit {
 
 	private VMContext context;
 
-	public void setContext(VMContext context) {
-		this.context = context;
+	public void setContext(FiScEVM context) {
+		this.context = (VMContext) context;
 	}
 
 	public void setupContext() {
@@ -76,10 +77,10 @@ class ArrayFillHandler extends NativeHandlerTemplate {
 		// args[0] -> arrayOpt
 		// args[1] -> arrayNormal
 		IHeap heap = context.getHeap();
-		ClassArray arrayOptClass = (ClassArray) context.getClazzById(heap
-				.getClass(args[0]));
-		ClassArray arrayNormalClass = (ClassArray) context.getClazzById(heap
-				.getClass(args[1]));
+		ClassArray arrayOptClass = (ClassArray) ((VMContext) context)
+				.getClazzById(heap.getClass(args[0]));
+		ClassArray arrayNormalClass = (ClassArray) ((VMContext) context)
+				.getClazzById(heap.getClass(args[1]));
 		assert arrayOptClass == arrayNormalClass : "type mismatch!";
 		int len = heap.getArrayLength(args[0]);
 		assert len == heap.getArrayLength(args[1]) : "length mismatch!";
@@ -178,8 +179,8 @@ class ArrayGetHandler extends NativeHandlerTemplate {
 		// args[0] -> arrayOpt
 		// args[1] -> arrayNormal
 		IHeap heap = context.getHeap();
-		ClassArray arrayClass = (ClassArray) context.getClazzById(heap
-				.getClass(args[0]));
+		ClassArray arrayClass = (ClassArray) ((VMContext) context)
+				.getClazzById(heap.getClass(args[0]));
 		int len = heap.getArrayLength(args[0]);
 		assert arrayClass instanceof ClassArray : "Type mismatch!";
 		char type = arrayClass.getName().charAt(1);

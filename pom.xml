@@ -8,11 +8,12 @@
 	<name>FiScE VM Build</name>
 	<url>http://fiscevm.googlecode.com</url>
 	<modules>
-		<module>../FiScENV</module>
-		<module>../FiScENVDist</module>
-		<module>../FiScEVM</module>
-		<module>../FiScENVTK</module>
-		<module>../FiScEAssemble</module>
+		<module>FiScEIntf</module>
+		<module>FiScENV</module>
+		<module>FiScENVDist</module>
+		<module>FiScEVM</module>
+		<module>FiScENVTK</module>
+		<module>FiScEAssemble</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

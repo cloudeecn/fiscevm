@@ -16,11 +16,13 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IHeap;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.JThread;
+import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassMethod;
 
@@ -28,7 +30,7 @@ import com.cirnoworks.fisce.vm.data.ClassMethod;
  * @author Cloudee
  * 
  */
-public class ClassInvokeMethod extends NativeHandlerTemplate{
+public class ClassInvokeMethod extends NativeHandlerTemplate {
 
 	/*
 	 * (non-Javadoc)
@@ -36,18 +38,19 @@ public class ClassInvokeMethod extends NativeHandlerTemplate{
 	 * @see com.cirnoworks.fisce.vm.INativeHandler#dealNative(int[],
 	 * com.cirnoworks.fisce.vm.VMContext, com.cirnoworks.fisce.vm.IThread)
 	 */
-	public void dealNative(int[] args, IThread thread)
-			throws VMException, VMCriticalException {
+	public void dealNative(int[] args, IThread thread) throws VMException,
+			VMCriticalException {
 		int classHandle = args[0];
 		int methodNameHandle = args[1];
 		int isStaticI = args[2];
 		int paramsHandle = args[3];
 		IHeap heap = context.getHeap();
-		AbstractClass clazz = context.getClassForClassObjectHandle(classHandle);
+		AbstractClass clazz = ((VMContext) context)
+				.getClassForClassObjectHandle(classHandle);
 		String methodName = heap.getString(methodNameHandle);
 		boolean isStatic = isStaticI > 0;
 		String uniqueName = clazz.getName() + "." + methodName;
-		ClassMethod invoke = context.getMethod(uniqueName);
+		ClassMethod invoke = ((VMContext) context).getMethod(uniqueName);
 		byte[] pt = invoke.getParamType();
 		int count = paramsHandle == 0 ? 0 : heap.getArrayLength(paramsHandle);
 		if (count != pt.length) {
@@ -59,7 +62,7 @@ public class ClassInvokeMethod extends NativeHandlerTemplate{
 			invokeArgs[i] = heap.getArrayInt(paramsHandle, i);
 		}
 
-		thread.pushMethod(invoke, isStatic, count, invokeArgs, pt);
+		((JThread) thread).pushMethod(invoke, isStatic, count, invokeArgs, pt);
 		// thread.pushMethod(invoke, isStatic, argsCount, args, types)
 	}
 

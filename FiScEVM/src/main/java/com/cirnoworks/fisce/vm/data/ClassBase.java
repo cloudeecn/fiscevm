@@ -16,6 +16,10 @@
  */
 package com.cirnoworks.fisce.vm.data;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import com.cirnoworks.fisce.intf.idata.IClassBase;
 import com.cirnoworks.fisce.vm.IClassLoader;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.attributes.Attribute;
@@ -23,15 +27,13 @@ import com.cirnoworks.fisce.vm.data.attributes.InnerClass;
 import com.cirnoworks.fisce.vm.data.constants.Constant;
 import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
 import com.cirnoworks.fisce.vm.data.constants.ConstantUTF8;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 /**
  * 
  * @author yuxuanhuang
  */
 public final class ClassBase extends AbstractClass implements IConstantHolder,
-		IAttributesHolder {
+		IAttributesHolder, IClassBase {
 
 	public ClassBase(VMContext context, IClassLoader loader) {
 		super(context, loader);

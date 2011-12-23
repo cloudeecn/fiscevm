@@ -16,16 +16,17 @@
  */
 package com.cirnoworks.fisce.vm.data;
 
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IClass;
 import com.cirnoworks.fisce.vm.IClassLoader;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
 
 /**
  * 
  * @author cloudee
  */
-public abstract class AbstractClass {
+public abstract class AbstractClass implements IClass {
 	/**
 	 * Declared abstract; may not be instantiated.
 	 */

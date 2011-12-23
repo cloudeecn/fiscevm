@@ -16,18 +16,20 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 
-public class ObjectGetClass extends NativeHandlerTemplate{
+public class ObjectGetClass extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException {
+	public void dealNative(int[] args, IThread thread) throws VMException {
 		int thisHandle = args[0];
-		AbstractClass clazz = context.getClass(thisHandle);
-		thread.pushHandle(context.getClassObjectHandleForClass(clazz));
+		AbstractClass clazz = (AbstractClass) ((VMContext) context)
+				.getClass(thisHandle);
+		thread.nativeReturnHandle(((VMContext) context)
+				.getClassObjectHandleForClass(clazz));
 	}
 
 	public String getUniqueName() {

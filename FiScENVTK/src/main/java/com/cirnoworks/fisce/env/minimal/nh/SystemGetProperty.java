@@ -17,10 +17,10 @@
 package com.cirnoworks.fisce.env.minimal.nh;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 
 public class SystemGetProperty extends NativeHandlerTemplate{
 
@@ -43,9 +43,9 @@ public class SystemGetProperty extends NativeHandlerTemplate{
 		}
 		value = toolkit.getProperty(key);
 		if (value == null) {
-			thread.pushHandle(0);
+			thread.nativeReturnHandle(0);
 		} else {
-			thread.pushHandle(context.getHeap().putString(value));
+			thread.nativeReturnHandle(context.getHeap().putString(value));
 		}
 	}
 

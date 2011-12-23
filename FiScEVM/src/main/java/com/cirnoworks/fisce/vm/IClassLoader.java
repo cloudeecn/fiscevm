@@ -16,6 +16,8 @@
  */
 package com.cirnoworks.fisce.vm;
 
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 
 /**

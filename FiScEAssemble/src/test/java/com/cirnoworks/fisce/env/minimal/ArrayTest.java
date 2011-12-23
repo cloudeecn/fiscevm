@@ -17,7 +17,7 @@
 
 package com.cirnoworks.fisce.env.minimal;
 
-import com.cirnoworks.fisce.vm.FiScEVM;
+import com.cirnoworks.fisce.intf.FiScEVM;
 
 /**
  * @author cloudee

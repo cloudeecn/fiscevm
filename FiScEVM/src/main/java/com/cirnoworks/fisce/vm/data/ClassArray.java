@@ -16,6 +16,7 @@
  */
 package com.cirnoworks.fisce.vm.data;
 
+import com.cirnoworks.fisce.intf.idata.IClassArray;
 import com.cirnoworks.fisce.vm.IClassLoader;
 import com.cirnoworks.fisce.vm.VMContext;
 
@@ -23,7 +24,7 @@ import com.cirnoworks.fisce.vm.VMContext;
  * 
  * @author cloudee
  */
-public final class ClassArray extends AbstractClass {
+public final class ClassArray extends AbstractClass implements IClassArray {
 
 	private AbstractClass contentClass;
 	// private char pType;

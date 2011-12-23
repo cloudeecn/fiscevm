@@ -26,6 +26,12 @@
 		</plugins>
 	</build>
 	<dependencies>
+                <dependency>
+                        <groupId>com.cirnoworks.FiScE</groupId>
+                        <artifactId>FiScEIntf</artifactId>
+                        <version>${fiscevm.version}</version>
+                </dependency>
+	
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

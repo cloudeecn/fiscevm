@@ -16,18 +16,20 @@
  */
 package com.cirnoworks.fisce.vm.data;
 
-import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMException;
-import com.cirnoworks.fisce.vm.data.attributes.Attribute;
-import com.cirnoworks.fisce.vm.data.constants.Constant;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IField;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.data.attributes.Attribute;
+import com.cirnoworks.fisce.vm.data.constants.Constant;
 
 /**
  * 
  * @author cloudee
  */
-public final class ClassField implements IAttributesHolder {
+public final class ClassField implements IAttributesHolder, IField {
 
 	/**
 	 * Position in heap memory of this class. filled in the load phase 1. After

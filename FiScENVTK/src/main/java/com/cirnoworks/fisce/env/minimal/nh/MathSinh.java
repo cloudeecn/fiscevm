@@ -16,11 +16,11 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.util.TypeUtil;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 
 /**
  * @author Cloudee
@@ -38,7 +38,7 @@ public class MathSinh extends NativeHandlerTemplate {
 			VMCriticalException {
 		double param1 = Double.longBitsToDouble(TypeUtil.intToLong(args[0],
 				args[1]));
-		thread.pushDouble(Math.sinh(param1));
+		thread.nativeReturnWide(Double.doubleToRawLongBits(Math.sinh(param1)));
 	}
 
 	/*

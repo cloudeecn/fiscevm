@@ -3,8 +3,8 @@ package com.cirnoworks.fisce;
 import java.util.HashSet;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.IThreadManager;
+import com.cirnoworks.fisce.vm.JHeap;
+import com.cirnoworks.fisce.vm.JThreadManager;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.default_impl.ArrayHeap;
 import com.cirnoworks.fisce.vm.default_impl.ArrayThreadManager;
@@ -39,8 +39,8 @@ public class FMS {
 
 			return;
 		}
-		IHeap heap;
-		IThreadManager threadManager;
+		JHeap heap;
+		JThreadManager threadManager;
 		if (params.contains("Harray")) {
 			heap = new ArrayHeap();
 		} else {

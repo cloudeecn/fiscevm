@@ -17,10 +17,11 @@
 
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.VMContext;
 
 /**
  * @author cloudee
@@ -37,7 +38,7 @@ public class FiScEVMDebugOut extends NativeHandlerTemplate {
 	public void dealNative(int[] args, IThread thread) throws VMException,
 			VMCriticalException {
 		String out = context.getHeap().getString(args[0]);
-		context.getConsole().debug(out);
+		((VMContext) context).getConsole().debug(out);
 		System.out.println(out);
 	}
 

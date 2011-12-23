@@ -34,6 +34,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.cirnoworks.fisce.intf.FiScEVM;
+import com.cirnoworks.fisce.intf.IDebugConsole;
+import com.cirnoworks.fisce.intf.IHeap;
+import com.cirnoworks.fisce.intf.INativeHandler;
+import com.cirnoworks.fisce.intf.IStateListener;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.IThreadManager;
+import com.cirnoworks.fisce.intf.IToolkit;
+import com.cirnoworks.fisce.intf.SaveDataPostProcesser;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IClass;
+import com.cirnoworks.fisce.intf.idata.IClassBase;
+import com.cirnoworks.fisce.intf.idata.IField;
 import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -173,7 +187,7 @@ public class VMContext implements FiScEVM {
 			threadManager.loadData(tmElement);
 		} catch (Exception e) {
 			if (e instanceof VMCriticalException) {
-				throw (VMCriticalException)e;
+				throw (VMCriticalException) e;
 			} else {
 				throw new VMCriticalException(e);
 			}
@@ -317,19 +331,19 @@ public class VMContext implements FiScEVM {
 		statusListeners.add(isl);
 	}
 
-	public void setThreadManager(IThreadManager threadManager) {
+	public void setThreadManager(JThreadManager threadManager) {
 		this.threadManager = threadManager;
 	}
 
 	public void setHeap(IHeap heap) {
-		this.heap = heap;
+		this.heap = (JHeap) heap;
 	}
 
 	public void setConsole(IDebugConsole console) {
 		this.console = console;
 	}
 
-	public void setThrower(IThrower thrower) {
+	public void setThrower(JThrower thrower) {
 		this.thrower = thrower;
 	}
 
@@ -343,7 +357,7 @@ public class VMContext implements FiScEVM {
 	 */
 	private IClassLoader classLoader;
 	private IDebugConsole console;
-	private IThrower thrower;
+	private JThrower thrower;
 	private List<IStateListener> statusListeners = new ArrayList<IStateListener>();
 	private HashMap<String, INativeHandler> nativeHandlers = new HashMap<String, INativeHandler>();
 
@@ -351,8 +365,8 @@ public class VMContext implements FiScEVM {
 	 * ***********************
 	 * Data need to be persisted:
 	 */
-	private IHeap heap;
-	private IThreadManager threadManager;
+	private JHeap heap;
+	private JThreadManager threadManager;
 	private ArrayList<IToolkit> toolkits = new ArrayList<IToolkit>();
 
 	// Method unique name --> method id
@@ -494,16 +508,19 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通过类直接找到类的ClassId，如果类还没有被加载，则返回Null
+	 * 
 	 * @param clazz
 	 * @return
 	 */
-	public final Integer getClazzId(AbstractClass clazz) {
+	public final Integer getClazzId(IClass clazz) {
 		return classMap.get(clazz.getName());
 	}
 
 	/**
 	 * 直接通过ClassId来取得类
-	 * @param cid ClassId
+	 * 
+	 * @param cid
+	 *            ClassId
 	 * @return 类
 	 */
 	public final AbstractClass getClazzById(int cid) {
@@ -512,7 +529,9 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 获取正在进行某个类的clinit的线程id
-	 * @param clazz 类
+	 * 
+	 * @param clazz
+	 *            类
 	 * @return 正在进行这个类的clinit的线程ID，如果返回CLINIT_FINISHED的话，表示clinit已经执行完成
 	 */
 	public final int getClinitThreadId(ClassBase clazz) {
@@ -523,8 +542,11 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通告虚拟机，开始进行某个类的clinit
-	 * @param clazz 开始进行clinit的类
-	 * @param thread 运行clinit的线程
+	 * 
+	 * @param clazz
+	 *            开始进行clinit的类
+	 * @param thread
+	 *            运行clinit的线程
 	 */
 	public final void setClinited(ClassBase clazz, IThread thread) {
 		Integer cid = getClazzId(clazz);
@@ -534,7 +556,9 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通告虚拟机，Class的clinit已经完成。主要由Thread实现类调用。
-	 * @param clazz Class对象，必须是对应类（不是数组）的
+	 * 
+	 * @param clazz
+	 *            Class对象，必须是对应类（不是数组）的
 	 */
 	public final void finishClinited(ClassBase clazz) {
 		Integer cid = getClazzId(clazz);
@@ -544,10 +568,14 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 取得类的AbstractClass对象，如果该类还没有载入，则载入
-	 * @param name 类名，包名之间的分隔符用 "/" 比如 "java/lang/Object"
+	 * 
+	 * @param name
+	 *            类名，包名之间的分隔符用 "/" 比如 "java/lang/Object"
 	 * @return 该类的AbstractClass对象
-	 * @throws VMException 出现虚拟机内部可以处理的异常
-	 * @throws VMCriticalException 出现导致虚拟机崩溃的异常
+	 * @throws VMException
+	 *             出现虚拟机内部可以处理的异常
+	 * @throws VMCriticalException
+	 *             出现导致虚拟机崩溃的异常
 	 */
 	public synchronized AbstractClass getClass(String name) throws VMException,
 			VMCriticalException {
@@ -568,7 +596,7 @@ public class VMContext implements FiScEVM {
 		return ret;
 	}
 
-	public synchronized AbstractClass getClass(int handle) throws VMException {
+	public synchronized IClass getClass(int handle) throws VMException {
 		if (handle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
@@ -677,8 +705,58 @@ public class VMContext implements FiScEVM {
 		}
 	}
 
-	public IThrower getThrower() {
+	public JThrower getThrower() {
 		return thrower;
+	}
+
+	public String getString(int nameHandle) throws VMException,
+			VMCriticalException {
+		return heap.getString(nameHandle);
+	}
+
+	public boolean[] getArrayBoolean(int arrayHandle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public byte[] getArrayByte(int arrayHandle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public short[] getArrayShort(int arrayHandle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public char[] getArrayChar(int arrayHandle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public int[] getArrayInt(int arrayHandle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public long[] getArrayLong(int arrayHandle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public float[] getArrayFloat(int arrayHandle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public double[] getArrayDouble(int arrayHandle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IField lookupFieldVirtual(IClassBase clazz, String string) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

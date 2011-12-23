@@ -19,7 +19,7 @@ package com.cirnoworks.fisce.env.minimal;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.cirnoworks.fisce.vm.IDebugConsole;
+import com.cirnoworks.fisce.intf.IDebugConsole;
 
 public final class Log4JConsole implements IDebugConsole {
 	private static final Logger LOG = Logger.getLogger(Log4JConsole.class);

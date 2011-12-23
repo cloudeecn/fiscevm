@@ -28,28 +28,32 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IClassArray;
+import com.cirnoworks.fisce.intf.idata.IClassBase;
+import com.cirnoworks.fisce.intf.idata.IField;
 import com.cirnoworks.fisce.util.Base64;
 import com.cirnoworks.fisce.util.BufferUtil;
 import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.IClassLoader;
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.JHeap;
+import com.cirnoworks.fisce.vm.JThread;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
 
-public final class DefaultHeap implements IHeap {
+public final class DefaultHeap implements JHeap {
 
 	// not persist
 	private VMContext context;
@@ -70,7 +74,7 @@ public final class DefaultHeap implements IHeap {
 	private BitSet finalized = new BitSet(MAX_OBJECTS);
 	// no presist
 	private int handleCount;
-	//temp var for loading
+	// temp var for loading
 	private int[] literalHandles;
 
 	{
@@ -230,10 +234,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
 	 * data.ClassBase)
 	 */
-	public int allocate(ClassBase clazz) throws VMException,
+	public int allocate(IClassBase clazz) throws VMException,
 			VMCriticalException {
-		ByteBuffer obj = BufferUtil
-				.createBuffer(clazz.getTotalSizeInHeap() * 4);
+		ByteBuffer obj = BufferUtil.createBuffer(((ClassBase) clazz)
+				.getTotalSizeInHeap() * 4);
 		return allocate(context.getClazzId(clazz), obj);
 	}
 
@@ -243,10 +247,10 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#allocate(com.cirnoworks.fisce.vm.
 	 * data.ClassArray, int)
 	 */
-	public int allocate(ClassArray clazz, int length) throws VMException,
+	public int allocate(IClassArray clazz, int length) throws VMException,
 			VMCriticalException {
 		assert clazz.getName().startsWith("[");
-		int size = length << clazz.getSizeShift();
+		int size = length << ((ClassArray) clazz).getSizeShift();
 		ByteBuffer obj = BufferUtil.createBuffer(size);
 		return allocate(context.getClazzId(clazz), obj);
 	}
@@ -275,8 +279,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldBoolean(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public boolean getFieldBoolean(int handle, ClassField field)
+	public boolean getFieldBoolean(int handle, IField iField)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		return getObj(handle, field).getInt(field.getAbsPos() << 2) > 0;
 	}
 
@@ -286,7 +291,8 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldByte(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public byte getFieldByte(int handle, ClassField field) throws VMException {
+	public byte getFieldByte(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		return (byte) getObj(handle, field).getInt(field.getAbsPos() << 2);
 	}
 
@@ -296,7 +302,8 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldShort(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public short getFieldShort(int handle, ClassField field) throws VMException {
+	public short getFieldShort(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		return (short) getObj(handle, field).getInt(field.getAbsPos() << 2);
 	}
 
@@ -306,7 +313,8 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldChar(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public char getFieldChar(int handle, ClassField field) throws VMException {
+	public char getFieldChar(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		return (char) getObj(handle, field).getInt(field.getAbsPos() << 2);
 	}
 
@@ -316,7 +324,8 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldInt(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public int getFieldInt(int handle, ClassField field) throws VMException {
+	public int getFieldInt(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		return getObj(handle, field).getInt(field.getAbsPos() << 2);
 	}
 
@@ -326,7 +335,8 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldLong(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public long getFieldLong(int handle, ClassField field) throws VMException {
+	public long getFieldLong(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		return getObj(handle, field).getLong(field.getAbsPos() << 2);
 	}
 
@@ -336,7 +346,8 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldFloat(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public float getFieldFloat(int handle, ClassField field) throws VMException {
+	public float getFieldFloat(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		return getObj(handle, field).getFloat(field.getAbsPos() << 2);
 	}
 
@@ -346,8 +357,8 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldDouble(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public double getFieldDouble(int handle, ClassField field)
-			throws VMException {
+	public double getFieldDouble(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		return getObj(handle, field).getDouble(field.getAbsPos() << 2);
 	}
 
@@ -357,7 +368,8 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#getFieldHandle(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField)
 	 */
-	public int getFieldHandle(int handle, ClassField field) throws VMException {
+	public int getFieldHandle(int handle, IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		return getObj(handle, field).getInt(field.getAbsPos() << 2);
 	}
 
@@ -381,8 +393,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldBoolean(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, boolean)
 	 */
-	public void putFieldBoolean(int handle, ClassField field, boolean value)
+	public void putFieldBoolean(int handle, IField iField, boolean value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		getObj(handle, field).putInt(field.getAbsPos() << 2, value ? 1 : 0);
 	}
 
@@ -392,8 +405,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldByte(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, byte)
 	 */
-	public void putFieldByte(int handle, ClassField field, byte value)
+	public void putFieldByte(int handle, IField iField, byte value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
 	}
 
@@ -403,8 +417,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldShort(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, char)
 	 */
-	public void putFieldShort(int handle, ClassField field, short value)
+	public void putFieldShort(int handle, IField iField, short value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
 	}
 
@@ -414,8 +429,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldChar(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, char)
 	 */
-	public void putFieldChar(int handle, ClassField field, char value)
+	public void putFieldChar(int handle, IField iField, char value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
 	}
 
@@ -425,8 +441,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldInt(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, int)
 	 */
-	public void putFieldInt(int handle, ClassField field, int value)
+	public void putFieldInt(int handle, IField iField, int value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		// context.println(handle + " " + field.getPosition() + " "
 		// + field.getAbsPos());
 		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
@@ -438,8 +455,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldLong(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, long)
 	 */
-	public void putFieldLong(int handle, ClassField field, long value)
+	public void putFieldLong(int handle, IField iField, long value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		getObj(handle, field).putLong(field.getAbsPos() << 2, value);
 	}
 
@@ -449,8 +467,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldFloat(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, float)
 	 */
-	public void putFieldFloat(int handle, ClassField field, float value)
+	public void putFieldFloat(int handle, IField iField, float value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		assert validate(handle, field);
 		getObj(handle, field).putFloat(field.getAbsPos() << 2, value);
 	}
@@ -461,8 +480,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldDouble(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, double)
 	 */
-	public void putFieldDouble(int handle, ClassField field, double value)
+	public void putFieldDouble(int handle, IField iField, double value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		getObj(handle, field).putDouble(field.getAbsPos() << 2, value);
 	}
 
@@ -472,8 +492,9 @@ public final class DefaultHeap implements IHeap {
 	 * @see com.cirnoworks.fisce.vm.IHeap#setFieldHandle(int,
 	 * com.cirnoworks.fisce.vm.data.ClassField, int)
 	 */
-	public void putFieldHandle(int handle, ClassField field, int value)
+	public void putFieldHandle(int handle, IField iField, int value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		getObj(handle, field).putInt(field.getAbsPos() << 2, value);
 	}
 
@@ -891,7 +912,8 @@ public final class DefaultHeap implements IHeap {
 	 * Integer> classMap = new HashMap<String, Integer>(); // Class name ->
 	 * Class o
 	 */
-	public boolean getStaticBoolean(ClassField field) throws VMException {
+	public boolean getStaticBoolean(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -899,7 +921,8 @@ public final class DefaultHeap implements IHeap {
 		return staticArea.getInt(field.getAbsPos() << 2) > 0;
 	}
 
-	public byte getStaticByte(ClassField field) throws VMException {
+	public byte getStaticByte(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -907,7 +930,8 @@ public final class DefaultHeap implements IHeap {
 		return (byte) staticArea.getInt(field.getAbsPos() << 2);
 	}
 
-	public short getStaticShort(ClassField field) throws VMException {
+	public short getStaticShort(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -915,7 +939,8 @@ public final class DefaultHeap implements IHeap {
 		return (short) staticArea.getInt(field.getAbsPos() << 2);
 	}
 
-	public char getStaticChar(ClassField field) throws VMException {
+	public char getStaticChar(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -923,7 +948,8 @@ public final class DefaultHeap implements IHeap {
 		return (char) staticArea.getInt(field.getAbsPos() << 2);
 	}
 
-	public int getStaticInt(ClassField field) throws VMException {
+	public int getStaticInt(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -931,7 +957,8 @@ public final class DefaultHeap implements IHeap {
 		return staticArea.getInt(field.getAbsPos() << 2);
 	}
 
-	public long getStaticLong(ClassField field) throws VMException {
+	public long getStaticLong(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -939,7 +966,8 @@ public final class DefaultHeap implements IHeap {
 		return staticArea.getLong(field.getAbsPos() << 2);
 	}
 
-	public float getStaticFloat(ClassField field) throws VMException {
+	public float getStaticFloat(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -947,7 +975,8 @@ public final class DefaultHeap implements IHeap {
 		return staticArea.getFloat(field.getAbsPos() << 2);
 	}
 
-	public double getStaticDouble(ClassField field) throws VMException {
+	public double getStaticDouble(IField iField) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -963,8 +992,9 @@ public final class DefaultHeap implements IHeap {
 		return staticArea.getLong(pos << 2);
 	}
 
-	public void setStaticBoolean(ClassField field, boolean value)
+	public void setStaticBoolean(IField iField, boolean value)
 			throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -972,7 +1002,8 @@ public final class DefaultHeap implements IHeap {
 		staticArea.putInt(field.getAbsPos() << 2, value ? 1 : 0);
 	}
 
-	public void setStaticByte(ClassField field, byte value) throws VMException {
+	public void setStaticByte(IField iField, byte value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -980,8 +1011,8 @@ public final class DefaultHeap implements IHeap {
 		staticArea.putInt(field.getAbsPos() << 2, value);
 	}
 
-	public void setStaticShort(ClassField field, short value)
-			throws VMException {
+	public void setStaticShort(IField iField, short value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -989,7 +1020,8 @@ public final class DefaultHeap implements IHeap {
 		staticArea.putInt(field.getAbsPos() << 2, value);
 	}
 
-	public void setStaticChar(ClassField field, char value) throws VMException {
+	public void setStaticChar(IField iField, char value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -997,7 +1029,8 @@ public final class DefaultHeap implements IHeap {
 		staticArea.putInt(field.getAbsPos() << 2, value);
 	}
 
-	public void setStaticInt(ClassField field, int value) throws VMException {
+	public void setStaticInt(IField iField, int value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1005,7 +1038,8 @@ public final class DefaultHeap implements IHeap {
 		staticArea.putInt(field.getAbsPos() << 2, value);
 	}
 
-	public void setStaticLong(ClassField field, long value) throws VMException {
+	public void setStaticLong(IField iField, long value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1013,8 +1047,8 @@ public final class DefaultHeap implements IHeap {
 		staticArea.putLong(field.getAbsPos() << 2, value);
 	}
 
-	public void setStaticFloat(ClassField field, float value)
-			throws VMException {
+	public void setStaticFloat(IField iField, float value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1022,8 +1056,8 @@ public final class DefaultHeap implements IHeap {
 		staticArea.putFloat(field.getAbsPos() << 2, value);
 	}
 
-	public void setStaticDouble(ClassField field, double value)
-			throws VMException {
+	public void setStaticDouble(IField iField, double value) throws VMException {
+		ClassField field = (ClassField) iField;
 		if ((field.getAccessFlags() & AbstractClass.ACC_STATIC) == 0) {
 			throw new VMException("java/lang/IncompatibleClassChangeError",
 					"get/set static field is not static!");
@@ -1092,16 +1126,16 @@ public final class DefaultHeap implements IHeap {
 
 	public void arrayCopy(int srcHandle, int srcOfs, int dstHandle, int dstOfs,
 			int count) throws VMException {
-		AbstractClass srcClass = context.getClass(srcHandle);
-		AbstractClass dstClass = context.getClass(dstHandle);
+		AbstractClass srcClass = (AbstractClass) context.getClass(srcHandle);
+		AbstractClass dstClass = (AbstractClass) context.getClass(dstHandle);
 		if (srcHandle == 0 || dstHandle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}
 		assert isArray(srcHandle) && isArray(dstHandle);
-		//TODO more study in arrayCopy
-//		if (!srcClass.canCastTo(dstClass)) {
-//			throw new VMException("java/lang/ArrayStoreException", "");
-//		}
+		// TODO more study in arrayCopy
+		// if (!srcClass.canCastTo(dstClass)) {
+		// throw new VMException("java/lang/ArrayStoreException", "");
+		// }
 		int sizeShift = ((ClassArray) srcClass).getSizeShift();
 		/*
 		 * ByteBuffer srcbb = getArrayObj(srcHandle, srcOfs + count); ByteBuffer
@@ -1193,7 +1227,7 @@ public final class DefaultHeap implements IHeap {
 		}
 
 		for (IThread thread : context.getThreadManager().getThreads()) {
-			thread.fillUsedHandles(used);
+			((JThread) thread).fillUsedHandles(used);
 		}
 
 		for (Integer in : toFinalize) {
@@ -1222,7 +1256,7 @@ public final class DefaultHeap implements IHeap {
 			for (int handle : processing) {
 				if (!used.get(handle)) {
 					used.set(handle);
-					AbstractClass ac = context.getClass(handle);
+					AbstractClass ac = (AbstractClass) context.getClass(handle);
 					if (ac instanceof ClassBase) {
 						fields.clear();
 						ClassBase clazz = (ClassBase) ac;
@@ -1327,10 +1361,10 @@ public final class DefaultHeap implements IHeap {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			NodeList lis = ((Element) data.getElementsByTagName("literals")
 					.item(0)).getElementsByTagName("literal");
-			literalHandles=new int[lis.getLength()];
+			literalHandles = new int[lis.getLength()];
 			for (int i = 0, max = lis.getLength(); i < max; i++) {
 				Element li = (Element) lis.item(i);
-				literalHandles[i]=Integer.valueOf(li.getAttribute("handle"));
+				literalHandles[i] = Integer.valueOf(li.getAttribute("handle"));
 			}
 
 			Element statics = (Element) data.getElementsByTagName("statics")
@@ -1403,7 +1437,7 @@ public final class DefaultHeap implements IHeap {
 		}
 		literalHandles = null;
 	}
-	
+
 	public void saveData(Element data) {
 
 		// private HashMap<String, Integer> literals = new HashMap<String,
@@ -1416,7 +1450,7 @@ public final class DefaultHeap implements IHeap {
 			li.appendChild(lit);
 
 			lit.setAttribute("handle", ls.getValue().toString());
-//			DOMHelper.setTextContent(lit, ls.getKey());
+			// DOMHelper.setTextContent(lit, ls.getKey());
 		}
 
 		// private ByteBuffer staticArea = BufferUtil.createBuffer(MAX_STATIC);

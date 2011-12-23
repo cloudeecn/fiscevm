@@ -16,10 +16,10 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 
 /**
  * @author Cloudee
@@ -35,7 +35,7 @@ public class FloatIntBitsToFloat extends NativeHandlerTemplate {
 	 */
 	public void dealNative(int[] args, IThread thread) throws VMException,
 			VMCriticalException {
-		thread.pushInt(args[0]);
+		thread.nativeReturnInt(args[0]);
 	}
 
 	/*

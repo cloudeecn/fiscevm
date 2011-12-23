@@ -20,10 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 
 public class ResourceInputStreamRead0a extends NativeHandlerTemplate{
 	private static final int POS_BUF_SIZE = 4096;
@@ -59,7 +59,7 @@ public class ResourceInputStreamRead0a extends NativeHandlerTemplate{
 				throw new VMException("java/io/IOException",
 						"resource not found:" + name);
 			}
-			thread.pushInt(is.read());
+			thread.nativeReturnInt(is.read());
 		} catch (IOException e) {
 			throw new VMException("java/io/IOException", String.valueOf(e
 					.getMessage()));

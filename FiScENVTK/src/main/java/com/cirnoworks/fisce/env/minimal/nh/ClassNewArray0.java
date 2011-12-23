@@ -16,10 +16,12 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.JThread;
+import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -28,7 +30,7 @@ import com.cirnoworks.fisce.vm.data.ClassMethod;
 public class ClassNewArray0 extends NativeHandlerTemplate {
 	public void dealNative(int[] args, IThread thread) throws VMException,
 			VMCriticalException {
-		AbstractClass clazz = context
+		AbstractClass clazz = ((VMContext) context)
 				.getClassForClassObjectHandle(args[0]/* this */);
 		int size = args[1];
 		ClassArray cArray;
@@ -39,17 +41,18 @@ public class ClassNewArray0 extends NativeHandlerTemplate {
 			cArray = (ClassArray) context.getClass("[" + clazz.getName());
 		}
 		int handle = context.getHeap().allocate(cArray, size);
-		thread.pushHandle(handle);
+		thread.nativeReturnHandle(handle);
 
 		/* object.<init>() */
-		ClassMethod method = context.getMethod(/*cArray.getName() +*/ "java/lang/Object.<init>.()V");
+		ClassMethod method = ((VMContext) context)
+				.getMethod(/* cArray.getName() + */"java/lang/Object.<init>.()V");
 		if (method == null) {
 			throw new VMException("java/lang/NoSuchMethodException",
 					"Cannot find initial method " + cArray.getName()
-							+ ".<init>.()V*"+cArray.getContentClass());
+							+ ".<init>.()V*" + cArray.getContentClass());
 		}
-		thread.pushFrame(method);
-		thread.putLocalHandle(0, handle);
+		((JThread) thread).pushFrame(method);
+		((JThread) thread).putLocalHandle(0, handle);
 	}
 
 	public String getUniqueName() {

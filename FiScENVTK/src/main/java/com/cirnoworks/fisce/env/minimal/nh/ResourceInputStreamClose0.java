@@ -19,10 +19,10 @@ package com.cirnoworks.fisce.env.minimal.nh;
 import java.io.IOException;
 
 import com.cirnoworks.fisce.env.minimal.BaseToolkit;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 
 public class ResourceInputStreamClose0 extends NativeHandlerTemplate{
 

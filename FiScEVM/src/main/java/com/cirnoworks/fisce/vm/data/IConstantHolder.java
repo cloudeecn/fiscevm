@@ -16,7 +16,7 @@
  */
 package com.cirnoworks.fisce.vm.data;
 
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.VMException;
 
 /**
  *

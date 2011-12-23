@@ -16,10 +16,10 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 
 public class FiScEVMDoubleToString extends NativeHandlerTemplate{
 
@@ -28,7 +28,7 @@ public class FiScEVMDoubleToString extends NativeHandlerTemplate{
 		double d = Double
 				.longBitsToDouble(args[0] << 32 + (args[1] & 0xffffffffl));
 		String ret = String.valueOf(d);
-		thread.pushHandle(context.getHeap().putString(ret));
+		thread.nativeReturnHandle(context.getHeap().putString(ret));
 	}
 
 	public String getUniqueName() {

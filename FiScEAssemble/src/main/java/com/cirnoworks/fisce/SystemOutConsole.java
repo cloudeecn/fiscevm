@@ -1,6 +1,6 @@
 package com.cirnoworks.fisce;
 
-import com.cirnoworks.fisce.vm.IDebugConsole;
+import com.cirnoworks.fisce.intf.IDebugConsole;
 
 public class SystemOutConsole implements IDebugConsole {
 

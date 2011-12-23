@@ -16,28 +16,33 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 
-public class ClassGetInterfaces extends NativeHandlerTemplate{
+public class ClassGetInterfaces extends NativeHandlerTemplate {
 
-	public void dealNative(int[] args, IThread thread)
-			throws VMException, VMCriticalException {
-		AbstractClass ac = context.getClassForClassObjectHandle(args[0]);
+	public void dealNative(int[] args, IThread thread) throws VMException,
+			VMCriticalException {
+		AbstractClass ac = ((VMContext) context)
+				.getClassForClassObjectHandle(args[0]);
 		ClassBase[] interfaces = ac.getInterfaces();
 		int retHandle = context.getHeap().allocate(
 				(ClassArray) context.getClass("[Ljava/lang/Class;"),
 				interfaces.length);
 		for (int i = 0, max = interfaces.length; i < max; i++) {
-			context.getHeap().putArrayHandle(retHandle, i,
-					context.getClassObjectHandleForClass(interfaces[i]));
+			context.getHeap().putArrayHandle(
+					retHandle,
+					i,
+					((VMContext) context)
+							.getClassObjectHandleForClass(interfaces[i]));
 		}
-		thread.pushHandle(retHandle);
+		thread.nativeReturnHandle(retHandle);
 	}
 
 	public String getUniqueName() {

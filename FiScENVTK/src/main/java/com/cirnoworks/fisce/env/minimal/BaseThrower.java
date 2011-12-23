@@ -18,17 +18,18 @@ package com.cirnoworks.fisce.env.minimal;
 
 import java.util.List;
 
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.IThrower;
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.vm.JThrower;
+import com.cirnoworks.fisce.vm.JThread;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
 import com.cirnoworks.fisce.vm.data.StackTraceElement;
 
-public class BaseThrower implements IThrower {
+public class BaseThrower implements JThrower {
 	private VMContext context;
 	private BaseToolkit toolkit;
 
@@ -53,7 +54,7 @@ public class BaseThrower implements IThrower {
 
 	public void fillInStackTrace(VMContext context, IThread thread,
 			int throwableHandle) throws VMException, VMCriticalException {
-		List<StackTraceElement> stes = thread.dumpStackTrace(null);
+		List<StackTraceElement> stes = ((JThread) thread).dumpStackTrace(null);
 
 		/**
 		 * String declaringClass, methodName, fileName;<br />

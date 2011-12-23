@@ -16,11 +16,11 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
+import com.cirnoworks.fisce.intf.IThread;
+import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.util.TypeUtil;
-import com.cirnoworks.fisce.vm.IThread;
-import com.cirnoworks.fisce.vm.NativeHandlerTemplate;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 
 /**
  * @author Cloudee
@@ -40,7 +40,8 @@ public class MathAtan2 extends NativeHandlerTemplate {
 				args[1]));
 		double param2 = Double.longBitsToDouble(TypeUtil.intToLong(args[2],
 				args[3]));
-		thread.pushDouble(Math.atan2(param1, param2));
+		thread.nativeReturnWide(Double.doubleToRawLongBits(Math.atan2(param1,
+				param2)));
 	}
 
 	/*

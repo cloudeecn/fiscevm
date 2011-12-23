@@ -21,13 +21,14 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IMethod;
 import com.cirnoworks.fisce.util.BufferUtil;
 import com.cirnoworks.fisce.util.TypeUtil;
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.JHeap;
+import com.cirnoworks.fisce.vm.JThread;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -79,7 +80,7 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantString;
  * @author cloudee
  * 
  */
-public final class FastThread implements IThread {
+public final class FastThread implements JThread {
 
 	public static final int CMD_BREAK = 1;
 	public static final int CMD_GOON = 2;
@@ -104,7 +105,7 @@ public final class FastThread implements IThread {
 	private static final int dPC = -40;
 	private final VMContext context;
 	private final FastThreadManager manager;
-	private final IHeap heap;
+	private final JHeap heap;
 	private byte[] code;
 	private ClassMethod method;
 	private ClassBase owner;
@@ -193,7 +194,7 @@ public final class FastThread implements IThread {
 		if (handle != 0) {
 
 			try {
-				AbstractClass clazz = context.getClass(handle);
+				AbstractClass clazz = (AbstractClass) context.getClass(handle);
 				if (!context.getClass("java/lang/Throwable").isSuperClassOf(
 						clazz)) {
 					throw new VMException("java/lang/VirtualMachineError",
@@ -345,7 +346,7 @@ public final class FastThread implements IThread {
 	public FastThread(VMContext context, FastThreadManager manager) {
 		this.context = context;
 		this.manager = manager;
-		heap = context.getHeap();
+		heap = (JHeap) context.getHeap();
 	}
 
 	public void create(int threadHandle, ClassMethod method)
@@ -369,7 +370,7 @@ public final class FastThread implements IThread {
 	}
 
 	public void create(int handle) throws VMException, VMCriticalException {
-		AbstractClass clazz = context.getClass(handle);
+		AbstractClass clazz = (AbstractClass) context.getClass(handle);
 		if (!clazz.canCastTo(context.getClass("java/lang/Thread"))) {
 			throw new VMCriticalException(
 					"The create(int) is used to start a java/lang/Thread!\n"
@@ -429,7 +430,8 @@ public final class FastThread implements IThread {
 						AbstractClass.ACC_STATIC));
 	}
 
-	public void pushFrame(ClassMethod mt) {
+	public void pushFrame(IMethod imt) {
+		ClassMethod mt = (ClassMethod) imt;
 		int ltsize = mt.getMaxLocals();
 		int stsize = mt.getMaxStack();
 		int lsize = mt.getMaxLocals() * 4;
@@ -481,8 +483,9 @@ public final class FastThread implements IThread {
 		}
 	}
 
-	public void pushMethod(ClassMethod invoke, boolean isStatic, int argsCount,
+	public void pushMethod(IMethod imt, boolean isStatic, int argsCount,
 			int[] args, byte[] types) {
+		ClassMethod invoke = (ClassMethod) imt;
 		pushFrame(invoke);
 		for (int i = 0; i < argsCount; i++) {
 			putLocalType(i, args[i], types[i]);
@@ -629,7 +632,8 @@ public final class FastThread implements IThread {
 						ClassArray ca = (ClassArray) context.getClass(aref);
 						AbstractClass content = ca.getContentClass();
 						if (value != 0
-								&& !context.getClass(value).canCastTo(content)) {
+								&& !((AbstractClass) context.getClass(value))
+										.canCastTo(content)) {
 							throw new VMException(
 									"java/lang/ArrayStoreException",
 									"Data type not compatable!");
@@ -918,7 +922,8 @@ public final class FastThread implements IThread {
 							pushHandle(handle);
 							break;
 						}
-						AbstractClass clazzS = context.getClass(handle);
+						AbstractClass clazzS = (AbstractClass) context
+								.getClass(handle);
 						AbstractClass clazzT = getClassFromConstant(m);
 						if (clazzS.canCastTo(clazzT)) {
 							pushHandle(handle);
@@ -1602,7 +1607,8 @@ public final class FastThread implements IThread {
 						byte ib2 = code[pc++];
 						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 						int handle = popHandle();
-						AbstractClass clazz = context.getClass(handle);
+						AbstractClass clazz = (AbstractClass) context
+								.getClass(handle);
 						AbstractClass castto = getClassFromConstant(m);
 						pushInt(clazz.canCastTo(castto) ? 1 : 0);
 						break;
@@ -1619,7 +1625,8 @@ public final class FastThread implements IThread {
 							types[i] = tc.type;
 						}
 						int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-						AbstractClass clazz = context.getClass(args[0]);
+						AbstractClass clazz = (AbstractClass) context
+								.getClass(args[0]);
 						ClassMethod lookup = getInterfaceMethodFromConstant(m);
 						if (!clazz.canCastTo(lookup.getOwner())) {
 							throw new VMException(
@@ -1627,7 +1634,7 @@ public final class FastThread implements IThread {
 									"");
 						}
 						ClassMethod invoke = context.lookupMethodVirtual(
-								context.getClass(args[0]),
+								(AbstractClass) context.getClass(args[0]),
 								lookup.getMethodName());
 						if (invoke == null) {
 							throw new VMException(
@@ -1745,7 +1752,7 @@ public final class FastThread implements IThread {
 							types[i] = tc.type;
 						}
 						ClassMethod invoke = context.lookupMethodVirtual(
-								context.getClass(args[0]),
+								(AbstractClass) context.getClass(args[0]),
 								lookup.getMethodName());
 						if (invoke == null) {
 							throw new VMException(
@@ -2648,7 +2655,7 @@ public final class FastThread implements IThread {
 	public void pushType(int value, byte type) {
 		assert sr < sc : "Stack overflow!" + sr + ">=" + sc;
 		assert type != ClassMethod.TYPE_HANDLE
-				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
+				|| (!(value < 0 || value > JHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		frames.put(stb + sr, type);
 		frames.putInt(sb + (sr << 2), value);
@@ -2667,7 +2674,7 @@ public final class FastThread implements IThread {
 
 	public void pushHandle(int handle) {
 		assert sr < sc : "Stack overflow!" + sr + ">=" + sc;
-		assert !(handle < 0 || handle > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
+		assert !(handle < 0 || handle > JHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ handle;
 		frames.put(stb + sr, ClassMethod.TYPE_HANDLE);
 		frames.putInt(sb + (sr << 2), handle);
@@ -2772,8 +2779,8 @@ public final class FastThread implements IThread {
 		int pos = lb + (index << 2);
 
 		assert index < lc : "Local var overflow!" + pos + ">" + (lc - 1);
-		assert !(value < 0 || value > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
-				+ value + " " + IHeap.MAX_OBJECTS;
+		assert !(value < 0 || value > JHeap.MAX_OBJECTS) : "Put a invalid handle!"
+				+ value + " " + JHeap.MAX_OBJECTS;
 		frames.put(ltb + index, ClassMethod.TYPE_HANDLE);
 		frames.putInt(pos, value);
 	}
@@ -2789,7 +2796,7 @@ public final class FastThread implements IThread {
 		int pos = lb + (index << 2);
 		assert index < lc : "Local var overflow!" + pos + ">" + (lc - 1);
 		assert type != ClassMethod.TYPE_HANDLE
-				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
+				|| (!(value < 0 || value > JHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		frames.put(ltb + index, type);
 		frames.putInt(pos, value);
@@ -2994,4 +3001,17 @@ public final class FastThread implements IThread {
 		}
 		setFP(fpbak);
 	}
+
+	public void nativeReturnHandle(int handle) {
+		pushHandle(handle);
+	}
+
+	public void nativeReturnInt(int value) {
+		pushInt(value);
+	}
+
+	public void nativeReturnWide(long value) {
+		pushLong(value);
+	}
+
 }

@@ -23,13 +23,14 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import com.cirnoworks.fisce.intf.VMCriticalException;
+import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.intf.idata.IMethod;
 import com.cirnoworks.fisce.util.BufferUtil;
 import com.cirnoworks.fisce.util.TypeUtil;
-import com.cirnoworks.fisce.vm.IHeap;
-import com.cirnoworks.fisce.vm.IThread;
+import com.cirnoworks.fisce.vm.JHeap;
+import com.cirnoworks.fisce.vm.JThread;
 import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.VMCriticalException;
-import com.cirnoworks.fisce.vm.VMException;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -80,7 +81,7 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantString;
  * @author cloudee
  * 
  */
-public final class ArrayThread implements IThread {
+public final class ArrayThread implements JThread {
 
 	public static final int CMD_BREAK = 1;
 	public static final int CMD_GOON = 2;
@@ -106,7 +107,7 @@ public final class ArrayThread implements IThread {
 	private static final int dPC = -40;
 	private final VMContext context;
 	private final ArrayThreadManager manager;
-	private final IHeap heap;
+	private final JHeap heap;
 	private byte[] code;
 	private ClassMethod method;
 	// private Frame currentFrame;
@@ -294,7 +295,7 @@ public final class ArrayThread implements IThread {
 		if (handle != 0) {
 
 			try {
-				AbstractClass clazz = context.getClass(handle);
+				AbstractClass clazz = (AbstractClass) context.getClass(handle);
 				if (!context.getClass("java/lang/Throwable").isSuperClassOf(
 						clazz)) {
 					throw new VMException("java/lang/VirtualMachineError",
@@ -344,7 +345,7 @@ public final class ArrayThread implements IThread {
 	public ArrayThread(VMContext context, ArrayThreadManager manager) {
 		this.context = context;
 		this.manager = manager;
-		heap = context.getHeap();
+		heap = (JHeap) context.getHeap();
 	}
 
 	public void create(int threadHandle, ClassMethod method)
@@ -367,7 +368,7 @@ public final class ArrayThread implements IThread {
 	}
 
 	public void create(int handle) throws VMException, VMCriticalException {
-		AbstractClass clazz = context.getClass(handle);
+		AbstractClass clazz = (AbstractClass) context.getClass(handle);
 		if (!clazz.canCastTo(context.getClass("java/lang/Thread"))) {
 			throw new VMCriticalException(
 					"The create(int) is used to start a java/lang/Thread!\n"
@@ -453,8 +454,9 @@ public final class ArrayThread implements IThread {
 						AbstractClass.ACC_STATIC));
 	}
 
-	public void pushFrame(ClassMethod mt) {
+	public void pushFrame(IMethod imt) {
 		saveFromCache();
+		ClassMethod mt = (ClassMethod) imt;
 		Frame frame = new Frame();
 		frame.localVars = new int[mt.getMaxLocals()];
 		frame.localVarTypes = new byte[mt.getMaxLocals()];
@@ -483,8 +485,9 @@ public final class ArrayThread implements IThread {
 		}
 	}
 
-	public void pushMethod(ClassMethod invoke, boolean isStatic, int argsCount,
+	public void pushMethod(IMethod imt, boolean isStatic, int argsCount,
 			int[] args, byte[] types) {
+		ClassMethod invoke = (ClassMethod) imt;
 		pushFrame(invoke);
 		for (int i = 0; i < argsCount; i++) {
 			putLocalType(i, args[i], types[i]);
@@ -699,7 +702,9 @@ public final class ArrayThread implements IThread {
 
 				ClassArray ca = (ClassArray) context.getClass(aref);
 				AbstractClass content = ca.getContentClass();
-				if (value != 0 && !context.getClass(value).canCastTo(content)) {
+				if (value != 0
+						&& !((AbstractClass) context.getClass(value))
+								.canCastTo(content)) {
 					throw new VMException("java/lang/ArrayStoreException",
 							"Data type not compatable!");
 				}
@@ -946,7 +951,7 @@ public final class ArrayThread implements IThread {
 					pushHandle(handle);
 					break;
 				}
-				AbstractClass clazzS = context.getClass(handle);
+				AbstractClass clazzS = (AbstractClass) context.getClass(handle);
 				AbstractClass clazzT = getClassFromConstant(m);
 				if (clazzS.canCastTo(clazzT)) {
 					pushHandle(handle);
@@ -1545,7 +1550,7 @@ public final class ArrayThread implements IThread {
 				byte ib2 = code[this.pc++];
 				int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
 				int handle = popHandle();
-				AbstractClass clazz = context.getClass(handle);
+				AbstractClass clazz = (AbstractClass) context.getClass(handle);
 				AbstractClass castto = getClassFromConstant(m);
 				pushInt(clazz.canCastTo(castto) ? 1 : 0);
 				break;
@@ -1922,8 +1927,8 @@ public final class ArrayThread implements IThread {
 		}
 		return;
 	}
-	
-	public void opIINC(){
+
+	public void opIINC() {
 		int index = code[this.pc++] & 0xff;
 		int value = code[this.pc++];
 		this.localVars[index] += value;
@@ -2139,13 +2144,13 @@ public final class ArrayThread implements IThread {
 			types[i] = tc.type;
 		}
 		int m = TypeUtil.bytesToUnsignedInt(ib1, ib2);
-		AbstractClass clazz = context.getClass(args[0]);
+		AbstractClass clazz = (AbstractClass) context.getClass(args[0]);
 		ClassMethod lookup = getInterfaceMethodFromConstant(m);
 		if (!clazz.canCastTo(lookup.getOwner())) {
 			throw new VMException("java/lang/IncompatibleClassChangeError", "");
 		}
 		ClassMethod invoke = context.lookupMethodVirtual(
-				context.getClass(args[0]), lookup.getMethodName());
+				(AbstractClass) context.getClass(args[0]), lookup.getMethodName());
 		if (invoke == null) {
 			throw new VMException("java/lang/AbstractMethodError", "");
 		}
@@ -2215,9 +2220,9 @@ public final class ArrayThread implements IThread {
 			args[i] = popType(tc);
 			types[i] = tc.type;
 		}
-		assert heap.isHandleValid(args[0]) : "invalid 'this' handle";
+		assert ((JHeap) heap).isHandleValid(args[0]) : "invalid 'this' handle";
 		ClassMethod invoke = context.lookupMethodVirtual(
-				context.getClass(args[0]), lookup.getMethodName());
+				(AbstractClass) context.getClass(args[0]), lookup.getMethodName());
 		if (invoke == null) {
 			throw new VMException("java/lang/AbstractMethodError", "");
 		}
@@ -2754,7 +2759,7 @@ public final class ArrayThread implements IThread {
 		this.opStacks[tmp] = value;
 		this.opStackTypes[tmp] = type;
 		assert type != ClassMethod.TYPE_HANDLE
-				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
+				|| (!(value < 0 || value > JHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 	}
 
@@ -2768,7 +2773,7 @@ public final class ArrayThread implements IThread {
 	}
 
 	public void pushHandle(int handle) {
-		assert !(handle < 0 || handle > IHeap.MAX_OBJECTS) : "Put a invalid handle!"
+		assert !(handle < 0 || handle > JHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ handle;
 		int tmp = this.sp++;
 		this.opStackTypes[tmp] = ClassMethod.TYPE_HANDLE;
@@ -2877,7 +2882,7 @@ public final class ArrayThread implements IThread {
 
 	public void putLocalType(int index, int value, byte type) {
 		assert type != ClassMethod.TYPE_HANDLE
-				|| (!(value < 0 || value > IHeap.MAX_OBJECTS)) : "Put a invalid handle!"
+				|| (!(value < 0 || value > JHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		this.localVarTypes[index] = type;
 		this.localVars[index] = value;
@@ -2952,63 +2957,6 @@ public final class ArrayThread implements IThread {
 		return context.getMethodById(this.methodId);
 	}
 
-	public List<StackTraceElement> dumpStackTrace(List<StackTraceElement> list)
-			throws VMException, VMCriticalException {
-		if (list == null) {
-			list = new ArrayList<StackTraceElement>();
-		}
-		saveFromCache();
-		assert context.getConsole().debug(
-				"######## DUMP STACK TRACE BEGIN #########");
-		StackTraceElement ste;
-		for (int ii = frames.size() - 1; ii >= 0; ii--) {
-			Frame frame = frames.get(ii);
-
-			ClassMethod mt = context.getMethodById(frame.methodId);
-			ClassBase clazz = mt.getOwner();
-			LineNumber[] lnt = mt.getLineNumberTable();
-			AttributeSourceFile source = (AttributeSourceFile) Attribute
-					.getAttributeByName(clazz, "SourceFile");
-
-			String declaringClass = clazz.getName().replaceAll("/", ".");
-			String methodName = mt.getName();
-			String fileName = null;
-			int lineNumber = -1;
-			if (source != null) {
-				fileName = source.sourceFile;
-			}
-			if (AbstractClass.hasFlag(clazz.getAccessFlags(),
-					AbstractClass.ACC_NATIVE)) {
-				lineNumber = -2;
-			} else {
-				int lpc = frame.lpc;
-				if (lnt != null) {
-					for (int i = 0, max = lnt.length; i < max; i++) {
-						LineNumber ln = lnt[i];
-						if (lpc >= ln.startPc) {
-							lineNumber = ln.lineNumber;
-							// break;
-						} else {
-							break;
-						}
-					}
-				}
-			}
-			ste = new StackTraceElement(declaringClass, methodName, fileName,
-					lineNumber);
-			assert context.getConsole().debug(ste.toString());
-			if (clazz.canCastTo(context.getClass("java/lang/Throwable"))
-					&& (methodName.equals("<init>") || methodName
-							.equals("fillInStackTrace"))) {
-				continue;
-			}
-			list.add(ste);
-		}
-		assert context.getConsole().debug(
-				"######## DUMP STACK TRACE END   #########");
-		return list;
-	}
-
 	public void fillUsedHandles(BitSet tofill) {
 		// int fpbak = getFP();
 		assert heap.isHandleValid(getThreadHandle());
@@ -3067,4 +3015,77 @@ public final class ArrayThread implements IThread {
 			}
 		}
 	}
+
+	public void nativeReturnHandle(int handle) {
+		pushHandle(handle);
+
+	}
+
+	public void nativeReturnInt(int value) {
+		pushInt(value);
+
+	}
+
+	public void nativeReturnWide(long value) {
+		pushLong(value);
+	}
+
+	public List<com.cirnoworks.fisce.vm.data.StackTraceElement> dumpStackTrace(
+			List<com.cirnoworks.fisce.vm.data.StackTraceElement> list)
+			throws VMException, VMCriticalException {
+		if (list == null) {
+			list = new ArrayList<com.cirnoworks.fisce.vm.data.StackTraceElement>();
+		}
+		saveFromCache();
+		assert context.getConsole().debug(
+				"######## DUMP STACK TRACE BEGIN #########");
+		StackTraceElement ste;
+		for (int ii = frames.size() - 1; ii >= 0; ii--) {
+			Frame frame = frames.get(ii);
+
+			ClassMethod mt = context.getMethodById(frame.methodId);
+			ClassBase clazz = mt.getOwner();
+			LineNumber[] lnt = mt.getLineNumberTable();
+			AttributeSourceFile source = (AttributeSourceFile) Attribute
+					.getAttributeByName(clazz, "SourceFile");
+
+			String declaringClass = clazz.getName().replaceAll("/", ".");
+			String methodName = mt.getName();
+			String fileName = null;
+			int lineNumber = -1;
+			if (source != null) {
+				fileName = source.sourceFile;
+			}
+			if (AbstractClass.hasFlag(clazz.getAccessFlags(),
+					AbstractClass.ACC_NATIVE)) {
+				lineNumber = -2;
+			} else {
+				int lpc = frame.lpc;
+				if (lnt != null) {
+					for (int i = 0, max = lnt.length; i < max; i++) {
+						LineNumber ln = lnt[i];
+						if (lpc >= ln.startPc) {
+							lineNumber = ln.lineNumber;
+							// break;
+						} else {
+							break;
+						}
+					}
+				}
+			}
+			ste = new StackTraceElement(declaringClass, methodName, fileName,
+					lineNumber);
+			assert context.getConsole().debug(ste.toString());
+			if (clazz.canCastTo(context.getClass("java/lang/Throwable"))
+					&& (methodName.equals("<init>") || methodName
+							.equals("fillInStackTrace"))) {
+				continue;
+			}
+			list.add(ste);
+		}
+		assert context.getConsole().debug(
+				"######## DUMP STACK TRACE END   #########");
+		return list;
+	}
+
 }

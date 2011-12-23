@@ -2,8 +2,8 @@ package com.cirnoworks.fisce.env.minimal;
 
 import junit.framework.TestCase;
 
-import com.cirnoworks.fisce.vm.FiScEVM;
-import com.cirnoworks.fisce.vm.NullConsole;
+import com.cirnoworks.fisce.intf.FiScEVM;
+import com.cirnoworks.fisce.intf.NullConsole;
 
 public class BenchmarkTest extends TestCase {
 
