@@ -662,7 +662,7 @@ public class VMContext implements FiScEVM {
 		return ret;
 	}
 
-	public ClassField lookupFieldVirtual(ClassBase clazz, String fieldName) {
+	public ClassField lookupFieldVirtual(IClassBase clazz, String fieldName) {
 		String uniqueName = clazz.getName() + "." + fieldName;
 		while (clazz != null) {
 			Integer fid = getFieldId(clazz.getName() + "." + fieldName);
@@ -759,9 +759,5 @@ public class VMContext implements FiScEVM {
 		return null;
 	}
 
-	public IField lookupFieldVirtual(IClassBase clazz, String string) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }
