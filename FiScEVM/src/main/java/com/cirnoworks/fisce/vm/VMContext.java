@@ -694,8 +694,13 @@ public class VMContext implements FiScEVM {
 	}
 
 	public void onStateChange(int state) {
-		for (IStateListener listener : statusListeners) {
-			listener.onStateChange(state);
+		switch (state) {
+		case JThreadManager.STATE_DEAD:
+			for (IStateListener listener : statusListeners) {
+				listener.onVMDead();
+			}
+			break;
+		default:
 		}
 	}
 
