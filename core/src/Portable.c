@@ -127,7 +127,7 @@ _FY_EXPORT fy_boolean fy_isnanf(fy_float f) {
 	return f != f;
 }
 
-void fy_portInit(fy_port *data) {
+_FY_EXPORT void fy_portInit(fy_port *data) {
 	data->initTimeInMillSec = (fy_long) time(NULL) * 1000;
 #if defined(_WIN32)
 	QueryPerformanceFrequency(&(data->lpFreq));
@@ -137,10 +137,10 @@ void fy_portInit(fy_port *data) {
 	gettimeofday(&(data->tvBeginTime), NULL);
 #endif
 }
-void fy_portDestroy(fy_port *data) {
+_FY_EXPORT void fy_portDestroy(fy_port *data) {
 	/*No code need yet*/
 }
-fy_long fy_portTimeMillSec(fy_port *pd) {
+_FY_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
 #if defined(_WIN32)
 	fy_long timeDelta;
 	LARGE_INTEGER lPerfCount;
@@ -155,7 +155,7 @@ fy_long fy_portTimeMillSec(fy_port *pd) {
 #endif
 	return 0;
 }
-fy_long fy_portTimeNanoSec(fy_port *pd) {
+_FY_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd) {
 #if defined(_WIN32)
 	LARGE_INTEGER lPerfCount;
 	QueryPerformanceCounter(&lPerfCount);

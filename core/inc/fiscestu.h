@@ -35,8 +35,8 @@
 #define MAX_FRAMES 256
 #define MAX_GEN 4
 
-#define FY_GC_IDV 1000
-#define FY_GC_FORCE_IDV 1
+#define FY_GC_IDV 10000
+#define FY_GC_FORCE_IDV 30000
 #define FY_GC_FORCE_FULL
 
 /*Bellow are used by context*/
@@ -189,6 +189,7 @@ typedef struct ConstantUtf8Info {
 } ConstantUtf8Info;
 
 typedef struct fy_field {
+	fy_uint field_id;
 	fy_char access_flags;
 
 	fy_char name_index;
@@ -225,6 +226,7 @@ typedef struct fy_exceptionHandler {
 } fy_exceptionHandler;
 
 typedef struct fy_method {
+	fy_int method_id;
 	fy_char access_flags;
 
 	fy_str* name;
@@ -254,7 +256,6 @@ typedef struct fy_method {
 	fy_byte *paramTypes;
 	fy_byte returnType;
 
-	fy_int method_id;
 	fy_boolean clinit;
 } fy_method;
 

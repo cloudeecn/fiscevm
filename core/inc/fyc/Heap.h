@@ -28,11 +28,11 @@
 extern "C" {
 #endif
 
-void fy_heapRelease(fy_context *context, fy_uint handle);
+#define fy_heapGetObject(CONTEXT,HANDLE) ((CONTEXT)->objects+(HANDLE))
+
+
 int fy_heapAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception);
-
-#define fy_heapGetObject(CONTEXT,HANDLE) ((CONTEXT)->objects+(HANDLE))
 
 fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle);
 

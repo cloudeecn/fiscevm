@@ -360,7 +360,7 @@ void fy_vmRegisterField(fy_context *context, fy_field *field,
 	if (pFid == NULL) {
 		pFid = fy_mmAllocate(block, sizeof(int), exception);
 		fy_exceptionCheckAndReturn(exception);
-		*pFid = context->fieldsCount++;
+		field->field_id = *pFid = context->fieldsCount++;
 		fy_hashMapPut(block, context->mapFieldNameToId, field->uniqueName, pFid,
 				exception);
 		fy_exceptionCheckAndReturn(exception);
