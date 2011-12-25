@@ -180,4 +180,12 @@ public interface JThreadManager extends IThreadManager {
 	 */
 	void exit(int exitCode);
 
+	/**
+	 * 返回包含所有线程的数组
+	 * 
+	 * @return 包含所有线程的数组
+	 * @throws VMException
+	 */
+	IThread[] getThreads() throws VMException;
+
 }

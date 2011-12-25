@@ -19,7 +19,7 @@ package com.cirnoworks.fisce.intf;
 /**
  * 发生了会导致虚拟机坏掉的异常
  */
-public class VMCriticalException extends Exception {
+public class VMCriticalException extends RuntimeException {
 
 	public VMCriticalException(String arg0, Throwable arg1) {
 		super(arg0, arg1);

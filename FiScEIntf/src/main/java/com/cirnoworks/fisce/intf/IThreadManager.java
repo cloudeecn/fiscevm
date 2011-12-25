@@ -23,13 +23,7 @@ import com.cirnoworks.fisce.intf.idata.IClassBase;
 
 public interface IThreadManager {
 
-	/**
-	 * 返回包含所有线程的数组
-	 * 
-	 * @return 包含所有线程的数组
-	 * @throws VMException
-	 */
-	IThread[] getThreads() throws VMException;
+
 
 	// IThread getThread(int threadHandle);
 

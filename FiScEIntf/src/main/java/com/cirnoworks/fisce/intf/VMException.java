@@ -19,7 +19,7 @@ package com.cirnoworks.fisce.intf;
 /**
  * 发生了可以抛给虚拟机内部处理的异常
  */
-public class VMException extends Exception {
+public class VMException extends RuntimeException {
 
 	/**
 	 * 

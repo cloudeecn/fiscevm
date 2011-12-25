@@ -566,17 +566,7 @@ public class VMContext implements FiScEVM {
 		classClinitThreadId[cid] = CLINIT_FINISHED;
 	}
 
-	/**
-	 * 取得类的AbstractClass对象，如果该类还没有载入，则载入
-	 * 
-	 * @param name
-	 *            类名，包名之间的分隔符用 "/" 比如 "java/lang/Object"
-	 * @return 该类的AbstractClass对象
-	 * @throws VMException
-	 *             出现虚拟机内部可以处理的异常
-	 * @throws VMCriticalException
-	 *             出现导致虚拟机崩溃的异常
-	 */
+
 	public synchronized AbstractClass getClass(String name) throws VMException,
 			VMCriticalException {
 		AbstractClass ret = getClazz(name);

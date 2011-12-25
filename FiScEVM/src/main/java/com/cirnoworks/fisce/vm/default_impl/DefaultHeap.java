@@ -47,6 +47,7 @@ import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.IClassLoader;
 import com.cirnoworks.fisce.vm.JHeap;
 import com.cirnoworks.fisce.vm.JThread;
+import com.cirnoworks.fisce.vm.JThreadManager;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassArray;
@@ -1226,7 +1227,8 @@ public final class DefaultHeap implements JHeap {
 			// pending.add(slh);
 		}
 
-		for (IThread thread : context.getThreadManager().getThreads()) {
+		for (IThread thread : ((JThreadManager) context.getThreadManager())
+				.getThreads()) {
 			((JThread) thread).fillUsedHandles(used);
 		}
 

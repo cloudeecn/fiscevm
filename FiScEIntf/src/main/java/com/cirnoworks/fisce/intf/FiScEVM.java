@@ -126,7 +126,7 @@ public interface FiScEVM {
 	 * @param console
 	 *            控制台输出
 	 */
-	void setConsole(IDebugConsole console); 
+	void setConsole(IDebugConsole console);
 
 	void registerNativeHandler(INativeHandler inh);
 
@@ -134,13 +134,48 @@ public interface FiScEVM {
 
 	IThreadManager getThreadManager();
 
-	IClass getClass(String string) throws VMException, VMCriticalException;
+	/**
+	 * 取得类的AbstractClass对象，如果该类还没有载入，则载入
+	 * 
+	 * @param name
+	 *            类名，包名之间的分隔符用 "/" 比如 "java/lang/Object"
+	 * @return 该类的AbstractClass对象
+	 * @throws VMException
+	 *             出现虚拟机内部可以处理的异常
+	 * @throws VMCriticalException
+	 *             出现导致虚拟机崩溃的异常
+	 */
+	IClass getClass(String name) throws VMException, VMCriticalException;
 
-	IField getField(String string) throws VMException, VMCriticalException;
+	/**
+	 * Get field by unique name
+	 * 
+	 * @param string
+	 *            unique name
+	 * @return field
+	 * @throws VMException
+	 * @throws VMCriticalException
+	 */
+	IField getField(String uniqueId) throws VMException, VMCriticalException;
 
-	IField lookupFieldVirtual(IClassBase clazz, String string)
+	/**
+	 * Lookup field by class and signature
+	 * 
+	 * @param clazz
+	 * @param string
+	 * @return
+	 * @throws VMException
+	 * @throws VMCriticalException
+	 */
+	IField lookupFieldVirtual(IClassBase clazz, String name)
 			throws VMException, VMCriticalException;
 
+	/**
+	 * Get class by classId
+	 * @param i
+	 * @return
+	 * @throws VMException
+	 */
 	IClass getClass(int i) throws VMException;
 
 }
