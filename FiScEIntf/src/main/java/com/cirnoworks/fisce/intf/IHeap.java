@@ -559,10 +559,6 @@ public interface IHeap {
 
 	public double getStaticDouble(IField field) throws VMException;
 
-	public int getStaticAbs(int pos) throws VMException;
-
-	public long getStaticAbsWide(int pos) throws VMException;
-
 	public void setStaticBoolean(IField field, boolean value)
 			throws VMException;
 
@@ -580,9 +576,7 @@ public interface IHeap {
 
 	public void setStaticDouble(IField field, double value) throws VMException;
 
-	public void setStaticAbs(int pos, int value) throws VMException;
 
-	public void setStaticAbsWide(int pos, long value) throws VMException;
 
 	/**
 	 * 取字符串常量对象的句柄 <br />

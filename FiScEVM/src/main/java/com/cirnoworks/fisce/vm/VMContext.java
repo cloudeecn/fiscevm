@@ -47,7 +47,6 @@ import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IClass;
 import com.cirnoworks.fisce.intf.idata.IClassBase;
-import com.cirnoworks.fisce.intf.idata.IField;
 import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -566,7 +565,6 @@ public class VMContext implements FiScEVM {
 		classClinitThreadId[cid] = CLINIT_FINISHED;
 	}
 
-
 	public synchronized AbstractClass getClass(String name) throws VMException,
 			VMCriticalException {
 		AbstractClass ret = getClazz(name);
@@ -708,46 +706,5 @@ public class VMContext implements FiScEVM {
 			VMCriticalException {
 		return heap.getString(nameHandle);
 	}
-
-	public boolean[] getArrayBoolean(int arrayHandle) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public byte[] getArrayByte(int arrayHandle) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public short[] getArrayShort(int arrayHandle) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public char[] getArrayChar(int arrayHandle) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public int[] getArrayInt(int arrayHandle) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public long[] getArrayLong(int arrayHandle) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public float[] getArrayFloat(int arrayHandle) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public double[] getArrayDouble(int arrayHandle) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 }

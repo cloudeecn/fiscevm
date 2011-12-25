@@ -125,4 +125,12 @@ public interface JHeap extends IHeap {
 
 	void putFieldAbsWide(int handle, int pos, long value)
 			throws VMCriticalException, VMException;
+	
+	public int getStaticAbs(int pos) throws VMException;
+
+	public long getStaticAbsWide(int pos) throws VMException;
+
+	public void setStaticAbs(int pos, int value) throws VMException;
+
+	public void setStaticAbsWide(int pos, long value) throws VMException;
 }
