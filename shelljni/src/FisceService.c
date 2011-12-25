@@ -162,6 +162,7 @@ static void jstrToFyStr(JNIEnv *env, jstring str, fy_str *fstr) {
 	fy_int len = (*env)->GetStringLength(env, str);
 	fstr->length = len;
 	fstr->maxLength = len;
+	fstr->hashed = FALSE;
 	fstr->content = (*env)->GetStringChars(env, str, NULL);
 }
 
@@ -219,6 +220,9 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldByUniqueNam
 	GENERIC_HEADER
 
 	jstrToFyStr(env, name, &str);
+	printf("Lookup in native ");
+	fy_strPrint(&str);
+	printf("\n");
 	field = fy_nativeGetField(context, &str);
 	releaseStrJstr(env, name, &str);
 	if (field == NULL) {

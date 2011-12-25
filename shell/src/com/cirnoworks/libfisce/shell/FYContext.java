@@ -229,21 +229,30 @@ public class FYContext implements Runnable, FiScEVM {
 	@Override
 	public IClass getClass(String name) throws VMException, VMCriticalException {
 		int id = FisceService.getClassByName(context, name);
+		if (id < 0) {
+			throw new VMCriticalException("Can't find class " + name);
+		}
 		return getClassById(id);
 	}
 
 	@Override
 	public IField getField(String name) throws VMException, VMCriticalException {
-		int fieldId = FisceService.getFieldByUniqueName(context, name);
-		return getFieldById(fieldId);
+		int id = FisceService.getFieldByUniqueName(context, name);
+		if (id < 0) {
+			throw new VMCriticalException("Can't find field " + name);
+		}
+		return getFieldById(id);
 	}
 
 	@Override
 	public IField lookupFieldVirtual(IClassBase clazz, String name)
 			throws VMException, VMCriticalException {
-		int fieldId = FisceService.lookupField(context,
-				((FYClass) clazz).getId(), name);
-		return getFieldById(fieldId);
+		int id = FisceService.lookupField(context, ((FYClass) clazz).getId(),
+				"." + name);
+		if (id < 0) {
+			throw new VMCriticalException("Can't find field " + name);
+		}
+		return getFieldById(id);
 	}
 
 	@Override
