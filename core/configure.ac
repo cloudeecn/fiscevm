@@ -4,6 +4,7 @@
 AC_INIT(libfisce, 0.50, cloudeecn@gmail.com)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE()
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([inc/fiscecon.h])
 AC_CONFIG_SRCDIR(src/VMContext.c)
 CFLAGS="$CFLAGS -D_FY_BUILD_LIB"
