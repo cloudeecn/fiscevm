@@ -30,14 +30,14 @@
 #define MAX_THREADS 256
 #define EDEN_SIZE 524288
 #define COPY_SIZE 131072
-#define OLD_ENTRIES 131072
+#define OLD_ENTRIES 262144
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
 #define MAX_GEN 4
 
 #define FY_GC_IDV 10000
 #define FY_GC_FORCE_IDV 30000
-#define FY_GC_FORCE_FULL
+/* #define FY_GC_FORCE_FULL */
 
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'
@@ -389,7 +389,7 @@ typedef struct fy_thread {
 
 } fy_thread;
 
-typedef struct fy_nativeCall{
+typedef struct fy_nativeCall {
 	fy_method *method;
 	fy_uint paramCount;
 	fy_uint *params;
