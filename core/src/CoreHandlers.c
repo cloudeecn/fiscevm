@@ -552,9 +552,6 @@ static void classNewInstanceO(struct fy_context *context,
 	thread->stack[sp] = handle;
 	thread->typeStack[sp] = FY_TYPE_HANDLE;
 	fy_threadPushMethod(context, thread, invoke, NULL, exception);
-
-	/*TODO*/
-
 }
 
 /*Make an array of array class for example Object[]->Object[]*/
@@ -573,8 +570,106 @@ static void classNewInstanceA(struct fy_context *context,
 
 static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-	/*TODO*/
-	fy_fault(exception, FY_EXCEPTION_NO_METHOD, "Not supported yet");
+	fy_class *clazz;
+	fy_frame *currentFrame = thread->frames + thread->frameCount - 1;
+	fy_method *invoke;
+	fy_str str;
+	fy_uint sp;
+	fy_uint handle;
+	fy_uint paramsArray = args[2];
+	fy_uint paramsClassArray = args[1];
+	fy_uint paramClassHandle;
+	fy_int len, i;
+	fy_class *paramClass;
+	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	fy_exceptionCheckAndReturn(exception);
+	if (clazz->type != obj) {
+		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
+		return;
+	}
+	len = fy_heapArrayLength(context, paramsArray, exception);
+	fy_exceptionCheckAndReturn(exception);
+
+	handle = fy_heapAllocate(context, clazz, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_nativeReturnHandle(context, thread, handle);
+	sp = currentFrame->sp;
+	str.content = NULL;
+	fy_strInitWithUTF8(context->memblocks, &str, "."FY_METHOD_INIT".(",
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		paramClassHandle = fy_heapGetArrayHandle(context, paramsClassArray, i,
+				exception);
+		if (exception->exceptionType != exception_none) {
+			fy_strDestroy(context->memblocks, &str);
+			return;
+		}
+		paramClass = fy_vmGetClassFromClassObject(context, paramClassHandle,
+				exception);
+		if (exception->exceptionType != exception_none) {
+			fy_strDestroy(context->memblocks, &str);
+			return;
+		}
+		switch (paramClass->type) {
+		case obj:
+			fy_strAppendUTF8(context->memblocks, &str, "L", 1, exception);
+			if (exception->exceptionType != exception_none) {
+				fy_strDestroy(context->memblocks, &str);
+				return;
+			}
+			fy_strAppend(context->memblocks, &str, paramClass->className,
+					exception);
+			if (exception->exceptionType != exception_none) {
+				fy_strDestroy(context->memblocks, &str);
+				return;
+			}
+			fy_strAppendUTF8(context->memblocks, &str, ";", 1, exception);
+			if (exception->exceptionType != exception_none) {
+				fy_strDestroy(context->memblocks, &str);
+				return;
+			}
+			break;
+		case arr:
+			fy_strAppend(context->memblocks, &str, paramClass->className,
+					exception);
+			if (exception->exceptionType != exception_none) {
+				fy_strDestroy(context->memblocks, &str);
+				return;
+			}
+			break;
+		case prm:
+			fy_strAppendChar(context->memblocks, &str, paramClass->ci.prm.pType,
+					exception);
+			if (exception->exceptionType != exception_none) {
+				fy_strDestroy(context->memblocks, &str);
+				return;
+			}
+			break;
+		default:
+			fy_fault(exception, NULL, "Invalid class type %d",
+					paramClass->type);
+			break;
+		}
+	}
+	fy_strAppendUTF8(context->memblocks, &str, ")V", 2, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, &str);
+		return;
+	}
+	invoke = fy_vmLookupMethodVirtual(context, clazz, &str, exception);
+	fy_strDestroy(context->memblocks, &str);
+	fy_exceptionCheckAndReturn(exception);
+	thread->stack[sp] = handle;
+	thread->typeStack[sp] = FY_TYPE_HANDLE;
+	for (i = 0; i < len; i++) {
+		paramClassHandle = fy_heapGetArrayHandle(context, paramsArray, i,
+				exception);
+		fy_exceptionCheckAndReturn(exception);
+		thread->stack[sp + i + 1] = paramClassHandle;
+		thread->typeStack[sp + i + 1] = FY_TYPE_HANDLE;
+	}
+	fy_threadPushMethod(context, thread, invoke, NULL, exception);
 }
 
 /*Make an array of any class for example Object->Object[]*/
