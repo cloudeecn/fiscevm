@@ -4025,10 +4025,20 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				case 'J':
 					fy_heapPutFieldLong(context, ivalue2, field, lvalue,
 							exception);
+#ifdef FY_VERBOSE
+					printf("Long field:[");
+					fy_strPrint(field->uniqueName);
+					printf("] = %"FY_PRINT64"d\n", lvalue);
+#endif
 					break;
 				default:
 					fy_heapPutFieldInt(context, ivalue2, field, ivalue,
 							exception);
+#ifdef FY_VERBOSE
+					printf("Field:[");
+					fy_strPrint(field->uniqueName);
+					printf("] = %d\n", ivalue);
+#endif
 					break;
 				}
 				if (exception->exceptionType != exception_none) {

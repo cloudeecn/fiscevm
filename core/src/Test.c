@@ -365,6 +365,10 @@ void testGC() {
 	hltest("EXCLUDE/fisce/test/GCTest");
 }
 
+void testComplex() {
+	hltest("EXCLUDE/fisce/test/ComplexClassLayout");
+}
+
 void testNative() {
 	char *classes[] = { "com/cirnoworks/fisce/privat/FiScEVM",
 			"com/cirnoworks/fisce/privat/ResourceInputStream",
@@ -440,6 +444,7 @@ CU_TestInfo testcases[] = { //
 				{ "HashMap", testHashMap }, //
 				{ "Profile", testProfile }, //
 				{ "GC", testGC }, //
+				{ "ComplexClassStructor", testComplex }, //
 				{ "Native", testNative }, //
 				CU_TEST_INFO_NULL };
 

@@ -527,15 +527,37 @@ static void classNewInstanceO(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_class *clazz;
+	fy_frame *currentFrame = thread->frames + thread->frameCount - 1;
+	fy_method *invoke;
+	fy_str str;
+	fy_uint sp;
+	fy_uint handle;
 	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	fy_exceptionCheckAndReturn(exception);
 	if (clazz->type != obj) {
 		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
+		return;
 	}
-	fy_nativeReturnHandle(context, thread,
-			fy_heapAllocate(context, clazz, exception));
+	handle = fy_heapAllocate(context, clazz, exception);
+	fy_exceptionCheckAndReturn(exception);
+	fy_nativeReturnHandle(context, thread, handle);
+	sp = currentFrame->sp;
+	str.content = NULL;
+	fy_strInitWithUTF8(context->memblocks, &str, "."FY_METHOD_INIT".()V",
+			exception);
+	fy_exceptionCheckAndReturn(exception);
+	invoke = fy_vmLookupMethodVirtual(context, clazz, &str, exception);
+	fy_strDestroy(context->memblocks, &str);
+	fy_exceptionCheckAndReturn(exception);
+	thread->stack[sp] = handle;
+	thread->typeStack[sp] = FY_TYPE_HANDLE;
+	fy_threadPushMethod(context, thread, invoke, NULL, exception);
+
+	/*TODO*/
+
 }
 
+/*Make an array of array class for example Object[]->Object[]*/
 static void classNewInstanceA(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
@@ -555,6 +577,7 @@ static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 	fy_fault(exception, FY_EXCEPTION_NO_METHOD, "Not supported yet");
 }
 
+/*Make an array of any class for example Object->Object[]*/
 static void vmNewArray(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_class *clazz;
@@ -705,8 +728,8 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			NULL, vmNewInstance, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			FY_BASE_VM".newArray0.(L"FY_BASE_CLASS";I)[L"FY_BASE_OBJECT";", NULL,
-			vmNewArray, exception);
+			FY_BASE_VM".newArray0.(L"FY_BASE_CLASS";I)[L"FY_BASE_OBJECT";",
+			NULL, vmNewArray, exception);
 	fy_exceptionCheckAndReturn(exception);
 	/*String*/
 	fy_vmRegisterNativeHandler(context,
