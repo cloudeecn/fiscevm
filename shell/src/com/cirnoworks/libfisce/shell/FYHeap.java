@@ -283,7 +283,8 @@ public class FYHeap implements IHeap {
 	@Override
 	public void fillArrayBoolean(int handle, int dstPos, boolean[] src,
 			int srcPos, int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
+		//TODO
+		throw new VMCriticalException("Method not implemented");
 
 	}
 
@@ -291,105 +292,105 @@ public class FYHeap implements IHeap {
 	public void fillArrayByte(int handle, int dstPos, byte[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void fillArrayShort(int handle, int dstPos, short[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void fillArrayChar(int handle, int dstPos, char[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void fillArrayInt(int handle, int dstPos, int[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void fillArrayLong(int handle, int dstPos, long[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void fillArrayFloat(int handle, int dstPos, float[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void fillArrayDouble(int handle, int dstPos, double[] src,
 			int srcPos, int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void getArrayBoolean(boolean[] dst, int dstPos, int handle,
 			int srcPos, int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void getArrayByte(byte[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void getArrayShort(short[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void getArrayChar(char[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void getArrayInt(int[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void getArrayLong(long[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void getArrayFloat(float[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
 	public void getArrayDouble(double[] dst, int dstPos, int handle,
 			int srcPos, int len) throws VMException, VMCriticalException {
 		// TODO Auto-generated method stub
-
+		throw new VMCriticalException("Method not implemented");
 	}
 
 	@Override
