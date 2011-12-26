@@ -1,5 +1,4 @@
-lib_LTLIBRARIES=libfisce.la
-libfisce_la_SOURCES = \
+FYSOURCES = \
 	Debug.c \
 	HashMap.c \
 	ArrList.c \
@@ -21,4 +20,16 @@ libfisce_la_SOURCES = \
 	VMContext.c \
 	ExpDev.c \
 	FiScE.c
+lib_LTLIBRARIES=libfisce.la
+libfisce_la_SOURCES = $(FYSOURCES)
+libfisce_la_CFLAGS = $(AM_CFLAGS)
 libfisce_la_LDFLAGS = -no-undefined
+
+noinst_PROGRAMS = utiltest fiscetest
+utiltest_SOURCES = $(FYSOURCES) \
+	TestUtil.c
+utiltest_LDADD  = -lcunit
+
+fiscetest_SOURCES = $(FYSOURCES) \
+	Test.c
+fiscetest_LDADD  = -lcunit

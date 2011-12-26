@@ -551,6 +551,7 @@ static void classNewInstanceA(struct fy_context *context,
 
 static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	/*TODO*/
 	fy_fault(exception, FY_EXCEPTION_NO_METHOD, "Not supported yet");
 }
 
@@ -695,7 +696,7 @@ static void finalizerGetFinalizee(struct fy_context *context,
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	/*vm*/
 	fy_vmRegisterNativeHandler(context,
-			FY_BASE_VM".newInstance0.(L"FY_BASE_CLASS";I)L"FY_BASE_OBJECT";",
+			FY_BASE_VM".newInstance0.(L"FY_BASE_CLASS";I)[L"FY_BASE_OBJECT";",
 			NULL, classNewInstanceA, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(
@@ -704,7 +705,7 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			NULL, vmNewInstance, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_vmRegisterNativeHandler(context,
-			FY_BASE_VM".newArray0.(L"FY_BASE_CLASS";I)L"FY_BASE_OBJECT";", NULL,
+			FY_BASE_VM".newArray0.(L"FY_BASE_CLASS";I)[L"FY_BASE_OBJECT";", NULL,
 			vmNewArray, exception);
 	fy_exceptionCheckAndReturn(exception);
 	/*String*/
