@@ -16,8 +16,8 @@
  */
 #include "fy_util/ArrList.h"
 
-void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, size_t entrySize,
-		fy_int initCap, fy_exception *exception) {
+_FY_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list,
+		size_t entrySize, fy_int initCap, fy_exception *exception) {
 	list->maxLength = initCap;
 	list->length = 0;
 	list->entrySize = entrySize;
@@ -25,7 +25,7 @@ void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, size_t entrySize,
 	fy_exceptionCheckAndReturn(exception);
 }
 
-void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) {
+_FY_EXPORT void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) {
 	fy_mmFree(block, list->data);
 	list->data = NULL;
 	list->length = -1;
@@ -47,8 +47,8 @@ static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 	}
 }
 
-void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *data,
-		fy_exception *exception) {
+_FY_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list,
+		void *data, fy_exception *exception) {
 	ensureCap(block, list, list->length + 1, exception);
 	fy_exceptionCheckAndReturn(exception);
 
@@ -56,8 +56,8 @@ void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *data,
 			list->entrySize);
 }
 
-void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
-		fy_exception *exception) {
+_FY_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list,
+		fy_int pos, fy_exception *exception) {
 	if (pos < 0 || pos >= list->length) {
 		fy_fault(exception, NULL, "Index out of bound %d/%d", pos,
 				list->length);
@@ -80,20 +80,21 @@ static void* get(fy_arrayList *list, fy_uint pos, void *storage) {
 	return ret;
 }
 
-void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list, fy_uint pos,
-		void *storage) {
+_FY_EXPORT void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list,
+		fy_uint pos, void *storage) {
 	if (pos < 0 || pos >= list->length) {
 		return NULL;
 	}
 	return get(list, pos, storage);
 }
-void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list, void *storage) {
+_FY_EXPORT void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list,
+		void *storage) {
 	if (list->length == 0) {
 		return NULL;
 	}
 	return get(list, --list->length, storage);
 }
 
-void fy_arrayListClear(fy_memblock *block, fy_arrayList *list) {
+_FY_EXPORT void fy_arrayListClear(fy_memblock *block, fy_arrayList *list) {
 	list->length = 0;
 }

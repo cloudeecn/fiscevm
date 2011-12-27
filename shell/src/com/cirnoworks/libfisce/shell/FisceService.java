@@ -216,4 +216,58 @@ public final class FisceService {
 
 	public static native void setStaticDouble(ByteBuffer context, int fieldId,
 			double value);
+
+	public static native void fillArrayBoolean(ByteBuffer context, int handle,
+			int dstPos, boolean[] src, int srcPos, int len);
+
+	public static native void fillArrayByte(ByteBuffer context, int handle,
+			int dstPos, byte[] src, int srcPos, int len);
+
+	public static native void fillArrayChar(ByteBuffer context, int handle,
+			int dstPos, char[] src, int srcPos, int len);
+
+	public static native void fillArrayShort(ByteBuffer context, int handle,
+			int dstPos, short[] src, int srcPos, int len);
+
+	public static native void fillArrayInt(ByteBuffer context, int handle,
+			int dstPos, int[] src, int srcPos, int len);
+
+	public static native void fillArrayHandle(ByteBuffer context, int handle,
+			int dstPos, int[] src, int srcPos, int len);
+
+	public static native void fillArrayFloat(ByteBuffer context, int handle,
+			int dstPos, float[] src, int srcPos, int len);
+
+	public static native void fillArrayLong(ByteBuffer context, int handle,
+			int dstPos, long[] src, int srcPos, int len);
+
+	public static native void fillArrayDouble(ByteBuffer context, int handle,
+			int dstPos, double[] src, int srcPos, int len);
+
+	public static native void fetchArrayBoolean(ByteBuffer context,
+			boolean[] dst, int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayByte(ByteBuffer context, byte[] dst,
+			int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayChar(ByteBuffer context, char[] dst,
+			int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayShort(ByteBuffer context, short[] dst,
+			int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayInt(ByteBuffer context, int[] dst,
+			int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayHandle(ByteBuffer context, int[] dst,
+			int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayFloat(ByteBuffer context, float[] dst,
+			int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayLong(ByteBuffer context, long[] dst,
+			int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayDouble(ByteBuffer context,
+			double[] dst, int dstPos, int srcHandle, int srcPos, int len);
 }

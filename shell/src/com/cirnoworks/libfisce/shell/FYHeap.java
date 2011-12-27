@@ -283,114 +283,162 @@ public class FYHeap implements IHeap {
 	@Override
 	public void fillArrayBoolean(int handle, int dstPos, boolean[] src,
 			int srcPos, int len) throws VMException, VMCriticalException {
-		//TODO
-		throw new VMCriticalException("Method not implemented");
+		if (src.length < srcPos + len) {
+			throw new IndexOutOfBoundsException(srcPos + " " + len);
+		}
+		FisceService.fillArrayBoolean(context.getContext(), handle, dstPos,
+				src, srcPos, len);
 
 	}
 
 	@Override
 	public void fillArrayByte(int handle, int dstPos, byte[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (src.length < srcPos + len) {
+			throw new IndexOutOfBoundsException(srcPos + " " + len);
+		}
+		FisceService.fillArrayByte(context.getContext(), handle, dstPos, src,
+				srcPos, len);
 	}
 
 	@Override
 	public void fillArrayShort(int handle, int dstPos, short[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (src.length < srcPos + len) {
+			throw new IndexOutOfBoundsException(srcPos + " " + len);
+		}
+		FisceService.fillArrayShort(context.getContext(), handle, dstPos, src,
+				srcPos, len);
 	}
 
 	@Override
 	public void fillArrayChar(int handle, int dstPos, char[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (src.length < srcPos + len) {
+			throw new IndexOutOfBoundsException(srcPos + " " + len);
+		}
+		FisceService.fillArrayChar(context.getContext(), handle, dstPos, src,
+				srcPos, len);
 	}
 
 	@Override
 	public void fillArrayInt(int handle, int dstPos, int[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (src.length < srcPos + len) {
+			throw new IndexOutOfBoundsException(srcPos + " " + len);
+		}
+		FisceService.fillArrayInt(context.getContext(), handle, dstPos, src,
+				srcPos, len);
 	}
 
 	@Override
 	public void fillArrayLong(int handle, int dstPos, long[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (src.length < srcPos + len) {
+			throw new IndexOutOfBoundsException(srcPos + " " + len);
+		}
+		FisceService.fillArrayLong(context.getContext(), handle, dstPos, src,
+				srcPos, len);
 	}
 
 	@Override
 	public void fillArrayFloat(int handle, int dstPos, float[] src, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (src.length < srcPos + len) {
+			throw new IndexOutOfBoundsException(srcPos + " " + len);
+		}
+		FisceService.fillArrayFloat(context.getContext(), handle, dstPos, src,
+				srcPos, len);
 	}
 
 	@Override
 	public void fillArrayDouble(int handle, int dstPos, double[] src,
 			int srcPos, int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (src.length < srcPos + len) {
+			throw new IndexOutOfBoundsException(srcPos + " " + len);
+		}
+		FisceService.fillArrayDouble(context.getContext(), handle, dstPos, src,
+				srcPos, len);
 	}
 
 	@Override
 	public void getArrayBoolean(boolean[] dst, int dstPos, int handle,
 			int srcPos, int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (dst.length < dstPos + len) {
+			throw new IndexOutOfBoundsException(dstPos + " " + len);
+		}
+		FisceService.fetchArrayBoolean(context.getContext(), dst, dstPos,
+				handle, srcPos, len);
 	}
 
 	@Override
 	public void getArrayByte(byte[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (dst.length < dstPos + len) {
+			throw new IndexOutOfBoundsException(dstPos + " " + len);
+		}
+		FisceService.fetchArrayByte(context.getContext(), dst, dstPos, handle,
+				srcPos, len);
 	}
 
 	@Override
 	public void getArrayShort(short[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (dst.length < dstPos + len) {
+			throw new IndexOutOfBoundsException(dstPos + " " + len);
+		}
+		FisceService.fetchArrayShort(context.getContext(), dst, dstPos, handle,
+				srcPos, len);
 	}
 
 	@Override
 	public void getArrayChar(char[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (dst.length < dstPos + len) {
+			throw new IndexOutOfBoundsException(dstPos + " " + len);
+		}
+		FisceService.fetchArrayChar(context.getContext(), dst, dstPos, handle,
+				srcPos, len);
 	}
 
 	@Override
 	public void getArrayInt(int[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (dst.length < dstPos + len) {
+			throw new IndexOutOfBoundsException(dstPos + " " + len);
+		}
+		FisceService.fetchArrayInt(context.getContext(), dst, dstPos, handle,
+				srcPos, len);
 	}
 
 	@Override
 	public void getArrayLong(long[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (dst.length < dstPos + len) {
+			throw new IndexOutOfBoundsException(dstPos + " " + len);
+		}
+		FisceService.fetchArrayLong(context.getContext(), dst, dstPos, handle,
+				srcPos, len);
 	}
 
 	@Override
 	public void getArrayFloat(float[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (dst.length < dstPos + len) {
+			throw new IndexOutOfBoundsException(dstPos + " " + len);
+		}
+		FisceService.fetchArrayFloat(context.getContext(), dst, dstPos, handle,
+				srcPos, len);
 	}
 
 	@Override
 	public void getArrayDouble(double[] dst, int dstPos, int handle,
 			int srcPos, int len) throws VMException, VMCriticalException {
-		// TODO Auto-generated method stub
-		throw new VMCriticalException("Method not implemented");
+		if (dst.length < dstPos + len) {
+			throw new IndexOutOfBoundsException(dstPos + " " + len);
+		}
+		FisceService.fetchArrayDouble(context.getContext(), dst, dstPos,
+				handle, srcPos, len);
 	}
 
 	@Override

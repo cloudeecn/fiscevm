@@ -80,6 +80,8 @@
 #define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
 #define FY_EXCEPTION_NPT "java/lang/NullPointerException"
 #define FY_EXCEPTION_RT "java/lang/RuntimeException"
+#define FY_EXCEPTION_IOOB "java/lang/IndexOutOfBoundException"
+#define FY_EXCEPTION_STORE "java/lang/ArrayStoreException"
 
 #define FY_ACC_ABSTRACT 1024
 #define FY_ACC_FINAL 16

@@ -146,10 +146,10 @@ JNIEXPORT jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getThread
 /*
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    pushVMException
- * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;Ljava/lang/String;)V
+ * Signature: (Ljava/nio/ByteBuffer;ILjava/lang/String;Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_pushVMException
-  (JNIEnv *, jclass, jobject, jstring, jstring);
+  (JNIEnv *, jclass, jobject, jint, jstring, jstring);
 
 /*
  * Class:     com_cirnoworks_libfisce_shell_FisceService
@@ -646,6 +646,150 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStatic
  */
 JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticDouble
   (JNIEnv *, jclass, jobject, jint, jdouble);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayBoolean
+ * Signature: (Ljava/nio/ByteBuffer;II[ZII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayBoolean
+  (JNIEnv *, jclass, jobject, jint, jint, jbooleanArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayByte
+ * Signature: (Ljava/nio/ByteBuffer;II[BII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayByte
+  (JNIEnv *, jclass, jobject, jint, jint, jbyteArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayChar
+ * Signature: (Ljava/nio/ByteBuffer;II[CII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayChar
+  (JNIEnv *, jclass, jobject, jint, jint, jcharArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayShort
+ * Signature: (Ljava/nio/ByteBuffer;II[SII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayShort
+  (JNIEnv *, jclass, jobject, jint, jint, jshortArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayInt
+ * Signature: (Ljava/nio/ByteBuffer;II[III)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayInt
+  (JNIEnv *, jclass, jobject, jint, jint, jintArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayHandle
+ * Signature: (Ljava/nio/ByteBuffer;II[III)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayHandle
+  (JNIEnv *, jclass, jobject, jint, jint, jintArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayFloat
+ * Signature: (Ljava/nio/ByteBuffer;II[FII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayFloat
+  (JNIEnv *, jclass, jobject, jint, jint, jfloatArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayLong
+ * Signature: (Ljava/nio/ByteBuffer;II[JII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayLong
+  (JNIEnv *, jclass, jobject, jint, jint, jlongArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayDouble
+ * Signature: (Ljava/nio/ByteBuffer;II[DII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayDouble
+  (JNIEnv *, jclass, jobject, jint, jint, jdoubleArray, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayBoolean
+ * Signature: (Ljava/nio/ByteBuffer;[ZIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayBoolean
+  (JNIEnv *, jclass, jobject, jbooleanArray, jint, jint, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayByte
+ * Signature: (Ljava/nio/ByteBuffer;[BIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayByte
+  (JNIEnv *, jclass, jobject, jbyteArray, jint, jint, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayChar
+ * Signature: (Ljava/nio/ByteBuffer;[CIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayChar
+  (JNIEnv *, jclass, jobject, jcharArray, jint, jint, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayShort
+ * Signature: (Ljava/nio/ByteBuffer;[SIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayShort
+  (JNIEnv *, jclass, jobject, jshortArray, jint, jint, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayInt
+ * Signature: (Ljava/nio/ByteBuffer;[IIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayInt
+  (JNIEnv *, jclass, jobject, jintArray, jint, jint, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayHandle
+ * Signature: (Ljava/nio/ByteBuffer;[IIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayHandle
+  (JNIEnv *, jclass, jobject, jintArray, jint, jint, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayFloat
+ * Signature: (Ljava/nio/ByteBuffer;[FIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayFloat
+  (JNIEnv *, jclass, jobject, jfloatArray, jint, jint, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayLong
+ * Signature: (Ljava/nio/ByteBuffer;[JIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayLong
+  (JNIEnv *, jclass, jobject, jlongArray, jint, jint, jint, jint);
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayDouble
+ * Signature: (Ljava/nio/ByteBuffer;[DIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayDouble
+  (JNIEnv *, jclass, jobject, jdoubleArray, jint, jint, jint, jint);
 
 #ifdef __cplusplus
 }

@@ -36,9 +36,8 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.so.debug.option.optimization.level.353996734" name="Optimization Level" superClass="gnu.c.compiler.so.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.so.debug.option.debugging.level.1047657313" name="Debug Level" superClass="gnu.c.compiler.so.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1898431576" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../inc"/>
-									<listOptionValue builtIn="false" value="../incjni"/>
-									<listOptionValue builtIn="false" value="../incjni/linux"/>
+									<listOptionValue builtIn="false" value="../include"/>
+									<listOptionValue builtIn="false" value="../include/linux"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.681816318" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0" valueType="string"/>
 								<option id="gnu.c.compiler.option.misc.pic.438697834" name="Position Independent Code (-fPIC)" superClass="gnu.c.compiler.option.misc.pic" value="true" valueType="boolean"/>
@@ -52,7 +51,7 @@
 								<option id="gnu.c.link.option.libs.541593127" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="fisce"/>
 								</option>
-								<option id="gnu.c.link.option.ldflags.197438197" superClass="gnu.c.link.option.ldflags" value="-Wl,--no-undefined" valueType="string"/>
+								<option id="gnu.c.link.option.ldflags.197438197" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-Wl,--no-undefined" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1734030873" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -144,5 +143,7 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/fyjni"/>
+	</storageModule>
 </cproject>

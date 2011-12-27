@@ -277,28 +277,26 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 	fy_object *sObject, *dObject;
 	fy_class *sClass, *dClass;
 	if (src == 0 || dest == 0) {
-		exception->exceptionType = exception_normal;
-		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/ArrayStoreException");
+		fy_fault(exception, FY_EXCEPTION_STORE, "%s is null",
+				src == 0 ? dest == 0 ? "both" : "src":"dest");
+		return;
 	}
 	sObject = fy_heapGetObject(context, src);
 	dObject = fy_heapGetObject(context, dest);
 	if (srcPos < 0 || destPos < 0 || len < 0 || (srcPos + len > sObject->length)
 			|| (destPos + len > dObject->length)) {
-		exception->exceptionType = exception_normal;
-		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/ArrayIndexOutOfBoundException");
-		exception->exceptionDesc[0] = 0;
+		fy_fault(exception, FY_EXCEPTION_IOOB, "0");
 		return;
 	}
 	sClass = sObject->clazz;
 	dClass = dObject->clazz;
 	if (sClass->type != arr || dClass->type != arr
-			|| !fy_classCanCastTo(context, sClass, dClass)) {
-		exception->exceptionType = exception_normal;
-		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/ArrayStoreException");
-		exception->exceptionDesc[0] = 0;
+	/*TODO still need more study...
+	 * || !fy_classCanCastTo(context, sClass, dClass)
+	 * @see also void com.cirnoworks.fisce.vm.default_impl.ArrayHeap.arrayCopy
+	 * (int srcHandle, int srcOfs, int dstHandle, int dstOfs, int count) throws VMException
+	 * */) {
+		fy_fault(exception, FY_EXCEPTION_STORE, "class cast");
 		return;
 	}
 
@@ -1141,10 +1139,10 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	if ((context->posInOld - context->oldReleasedSize) * 4
 			< context->posInOld) {
 #endif
-	compactOld(context, exception);
-	fy_exceptionCheckAndReturn(exception);
+		compactOld(context, exception);
+		fy_exceptionCheckAndReturn(exception);
 #ifndef FY_GC_FORCE_FULL
-}
+	}
 #endif
 	printf(
 			"#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",

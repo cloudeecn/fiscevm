@@ -181,7 +181,7 @@ _FY_EXPORT fy_boolean fy_strEndsWith(fy_str *_this, fy_str *right) {
 	}
 	return TRUE;
 }
-void fy_strClear(fy_str *_this) {
+_FY_EXPORT void fy_strClear(fy_str *_this) {
 	_this->length = 0;
 }
 

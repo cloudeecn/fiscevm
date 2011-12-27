@@ -22,14 +22,14 @@ typedef struct fy_memblockNode {
 	_FY_VLS(fy_byte,data);
 } fy_memblockNode;
 
-void fy_mmInit(fy_memblock *block, fy_exception *exception) {
+_FY_EXPORT void fy_mmInit(fy_memblock *block, fy_exception *exception) {
 	block->last = block->first = fy_allocate(sizeof(fy_memblockNode),
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 	block->blocks = 0;
 }
 
-void fy_mmDestroy(fy_memblock *block) {
+_FY_EXPORT void fy_mmDestroy(fy_memblock *block) {
 	fy_memblockNode *node, *next;
 #ifdef _DEBUG
 	printf("Releasing %d managed memory blocks\n", block->blocks);
@@ -42,7 +42,7 @@ void fy_mmDestroy(fy_memblock *block) {
 	} while (node != NULL);
 }
 
-void *fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception) {
+_FY_EXPORT void *fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception) {
 	fy_memblockNode *node = fy_allocate(sizeof(fy_memblockNode) + size,
 			exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
@@ -53,7 +53,7 @@ void *fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception) {
 	return node->data;
 }
 
-void fy_mmFree(fy_memblock *block, void *address) {
+_FY_EXPORT void fy_mmFree(fy_memblock *block, void *address) {
 
 	fy_memblockNode *base = (fy_memblockNode *) ((fy_byte*) address
 			- (int) ((fy_memblockNode*) 0)->data);

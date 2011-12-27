@@ -1,8 +1,8 @@
 #include "com_cirnoworks_libfisce_shell_FisceService.h"
-#include "../inc/fisce.h"
-#include "../inc/fisceprt.h"
-#include "../inc/fiscestu.h"
-#include "../inc/fiscedev.h"
+#include "fisce.h"
+#include "fisceprt.h"
+#include "fiscestu.h"
+#include "fiscedev.h"
 
 #define GENERIC_HEADER \
 	fy_exception ex; \
@@ -1552,4 +1552,525 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStatic
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
 	}
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayBoolean
+ * Signature: (Ljava/nio/ByteBuffer;II[ZII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayBoolean(
+		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
+		jbooleanArray src, jint srcPos, jint len) {/* */
+	fy_ubyte *value;
+	int i;
+	jboolean *booleans;
+	GENERIC_HEADER
+	if (dstHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, dstHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+
+	value = (fy_ubyte*) fy_nativeGetArrayBytes(context, dstHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	booleans = fy_allocate(len * sizeof(jboolean), exception);
+	fy_exceptionCheckAndReturn(exception);
+	(*env)->GetBooleanArrayRegion(env, src, srcPos, len, booleans);
+	for (i = 0; i < len; i++) {
+		value[i + dstPos] = booleans[i];
+	}
+	fy_free(booleans);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayByte
+ * Signature: (Ljava/nio/ByteBuffer;II[BII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayByte(
+		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
+		jbyteArray src, jint srcPos, jint len) {/* */
+	fy_byte *value;
+	int i;
+	jbyte *bytes;
+	GENERIC_HEADER
+	if (dstHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, dstHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+
+	value = (fy_byte*) fy_nativeGetArrayBytes(context, dstHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	bytes = fy_allocate(len * sizeof(jbyte), exception);
+	fy_exceptionCheckAndReturn(exception);
+	(*env)->GetByteArrayRegion(env, src, srcPos, len, bytes);
+	for (i = 0; i < len; i++) {
+		value[i + dstPos] = bytes[i];
+	}
+	fy_free(bytes);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayChar
+ * Signature: (Ljava/nio/ByteBuffer;II[CII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayChar(
+		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
+		jcharArray src, jint srcPos, jint len) {/**/
+	fy_char *value;
+	int i;
+	jchar *chars;
+	GENERIC_HEADER
+	if (dstHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, dstHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+
+	value = (fy_char*) fy_nativeGetArrayBytes(context, dstHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	chars = fy_allocate(len * sizeof(jchar), exception);
+	fy_exceptionCheckAndReturn(exception);
+	(*env)->GetCharArrayRegion(env, src, srcPos, len, chars);
+	for (i = 0; i < len; i++) {
+		value[i + dstPos] = chars[i];
+	}
+	fy_free(chars);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayShort
+ * Signature: (Ljava/nio/ByteBuffer;II[SII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayShort(
+		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
+		jshortArray src, jint srcPos, jint len) {/**/
+	fy_short *value;
+	int i;
+	jshort *shorts;
+	GENERIC_HEADER
+	if (dstHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, dstHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+
+	value = (fy_short*) fy_nativeGetArrayBytes(context, dstHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	shorts = fy_allocate(len * sizeof(jshort), exception);
+	fy_exceptionCheckAndReturn(exception);
+	(*env)->GetShortArrayRegion(env, src, srcPos, len, shorts);
+	for (i = 0; i < len; i++) {
+		value[i + dstPos] = shorts[i];
+	}
+	fy_free(shorts);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayInt
+ * Signature: (Ljava/nio/ByteBuffer;II[III)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayInt(
+		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
+		jintArray src, jint srcPos, jint len) {/**/
+	fy_int *value;
+	int i;
+	jint *ints;
+	GENERIC_HEADER
+	if (dstHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, dstHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+
+	value = (fy_int*) fy_nativeGetArrayBytes(context, dstHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	ints = fy_allocate(len * sizeof(jint), exception);
+	fy_exceptionCheckAndReturn(exception);
+	(*env)->GetIntArrayRegion(env, src, srcPos, len, ints);
+	for (i = 0; i < len; i++) {
+		value[i + dstPos] = ints[i];
+	}
+	fy_free(ints);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayFloat
+ * Signature: (Ljava/nio/ByteBuffer;II[FII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayFloat(
+		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
+		jfloatArray src, jint srcPos, jint len) {/**/
+	fy_float *value;
+	int i;
+	jfloat *floats;
+	GENERIC_HEADER
+	if (dstHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, dstHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+
+	value = (fy_float*) fy_nativeGetArrayBytes(context, dstHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	floats = fy_allocate(len * sizeof(jfloat), exception);
+	fy_exceptionCheckAndReturn(exception);
+	(*env)->GetFloatArrayRegion(env, src, srcPos, len, floats);
+	for (i = 0; i < len; i++) {
+		value[i + dstPos] = floats[i];
+	}
+	fy_free(floats);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayLong
+ * Signature: (Ljava/nio/ByteBuffer;II[JII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayLong(
+		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
+		jlongArray src, jint srcPos, jint len) {/**/
+	fy_long *value;
+	int i;
+	jlong *longs;
+	GENERIC_HEADER
+	if (dstHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, dstHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+
+	value = (fy_long*) fy_nativeGetArrayBytes(context, dstHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	longs = fy_allocate(len * sizeof(jlong), exception);
+	fy_exceptionCheckAndReturn(exception);
+	(*env)->GetLongArrayRegion(env, src, srcPos, len, longs);
+	for (i = 0; i < len; i++) {
+		value[i + dstPos] = longs[i];
+	}
+	fy_free(longs);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fillArrayDouble
+ * Signature: (Ljava/nio/ByteBuffer;II[DII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayDouble(
+		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
+		jdoubleArray src, jint srcPos, jint len) {/**/
+	fy_double *value;
+	int i;
+	jdouble *doubles;
+	GENERIC_HEADER
+	if (dstHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, dstHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+
+	value = (fy_double*) fy_nativeGetArrayBytes(context, dstHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	doubles = fy_allocate(len * sizeof(jdouble), exception);
+	fy_exceptionCheckAndReturn(exception);
+	(*env)->GetDoubleArrayRegion(env, src, srcPos, len, doubles);
+	for (i = 0; i < len; i++) {
+		value[i + dstPos] = doubles[i];
+	}
+	fy_free(doubles);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayBoolean
+ * Signature: (Ljava/nio/ByteBuffer;[ZIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayBoolean(
+		JNIEnv *env, jclass self, jobject buf, jbooleanArray dst, jint dstPos,
+		jint srcHandle, jint srcPos, jint len) {/**/
+	fy_ubyte *value;
+	int i;
+	jboolean *booleans;
+	GENERIC_HEADER
+	if (srcHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+	value = (fy_ubyte*) fy_nativeGetArrayBytes(context, srcHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	booleans = fy_allocate(len * sizeof(jboolean), exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		booleans[i] = value[i + srcPos];
+	}
+	(*env)->SetBooleanArrayRegion(env, dst, dstPos, len, booleans);
+	fy_free(booleans);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayByte
+ * Signature: (Ljava/nio/ByteBuffer;[BIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayByte(
+		JNIEnv *env, jclass self, jobject buf, jbyteArray dst, jint dstPos,
+		jint srcHandle, jint srcPos, jint len) {/**/
+	fy_byte *value;
+	int i;
+	jbyte *bytes;
+	GENERIC_HEADER
+	if (srcHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+	value = (fy_byte*) fy_nativeGetArrayBytes(context, srcHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	bytes = fy_allocate(len * sizeof(jbyte), exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		bytes[i] = value[i + srcPos];
+	}
+	(*env)->SetByteArrayRegion(env, dst, dstPos, len, bytes);
+	fy_free(bytes);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayChar
+ * Signature: (Ljava/nio/ByteBuffer;[CIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayChar(
+		JNIEnv *env, jclass self, jobject buf, jcharArray dst, jint dstPos,
+		jint srcHandle, jint srcPos, jint len) {/**/
+	fy_char *value;
+	int i;
+	jchar *chars;
+	GENERIC_HEADER
+	if (srcHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+	value = (fy_char*) fy_nativeGetArrayBytes(context, srcHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	chars = fy_allocate(len * sizeof(jchar), exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		chars[i] = value[i + srcPos];
+	}
+	(*env)->SetCharArrayRegion(env, dst, dstPos, len, chars);
+	fy_free(chars);
+
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayShort
+ * Signature: (Ljava/nio/ByteBuffer;[SIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayShort(
+		JNIEnv *env, jclass self, jobject buf, jshortArray dst, jint dstPos,
+		jint srcHandle, jint srcPos, jint len) {/**/
+	fy_short *value;
+	int i;
+	jshort *shorts;
+	GENERIC_HEADER
+	if (srcHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+	value = (fy_short*) fy_nativeGetArrayBytes(context, srcHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	shorts = fy_allocate(len * sizeof(jshort), exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		shorts[i] = value[i + srcPos];
+	}
+	(*env)->SetShortArrayRegion(env, dst, dstPos, len, shorts);
+	fy_free(shorts);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayInt
+ * Signature: (Ljava/nio/ByteBuffer;[IIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayInt(
+		JNIEnv *env, jclass self, jobject buf, jintArray dst, jint dstPos,
+		jint srcHandle, jint srcPos, jint len) {/**/
+	fy_int *value;
+	int i;
+	jint *ints;
+	GENERIC_HEADER
+	if (srcHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+	value = (fy_int*) fy_nativeGetArrayBytes(context, srcHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	ints = fy_allocate(len * sizeof(jint), exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		ints[i] = value[i + srcPos];
+	}
+	(*env)->SetIntArrayRegion(env, dst, dstPos, len, ints);
+	fy_free(ints);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayFloat
+ * Signature: (Ljava/nio/ByteBuffer;[FIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayFloat(
+		JNIEnv *env, jclass self, jobject buf, jfloatArray dst, jint dstPos,
+		jint srcHandle, jint srcPos, jint len) {/**/
+	fy_float *value;
+	int i;
+	jfloat *floats;
+	GENERIC_HEADER
+	if (srcHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+	value = (fy_float*) fy_nativeGetArrayBytes(context, srcHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	floats = fy_allocate(len * sizeof(jfloat), exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		floats[i] = value[i + srcPos];
+	}
+	(*env)->SetFloatArrayRegion(env, dst, dstPos, len, floats);
+	fy_free(floats);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayLong
+ * Signature: (Ljava/nio/ByteBuffer;[JIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayLong(
+		JNIEnv *env, jclass self, jobject buf, jlongArray dst, jint dstPos,
+		jint srcHandle, jint srcPos, jint len) {/**/
+	fy_long *value;
+	int i;
+	jlong *longs;
+	GENERIC_HEADER
+	if (srcHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+	value = (fy_long*) fy_nativeGetArrayBytes(context, srcHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	longs = fy_allocate(len * sizeof(jlong), exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		longs[i] = value[i + srcPos];
+	}
+	(*env)->SetLongArrayRegion(env, dst, dstPos, len, longs);
+	fy_free(longs);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayDouble
+ * Signature: (Ljava/nio/ByteBuffer;[DIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayDouble(
+		JNIEnv *env, jclass self, jobject buf, jdoubleArray dst, jint dstPos,
+		jint srcHandle, jint srcPos, jint len) {/**/
+	fy_double *value;
+	int i;
+	jdouble *doubles;
+	GENERIC_HEADER
+	if (srcHandle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len + dstPos
+			|| len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}fy_exceptionCheckAndReturn(exception);
+	value = (fy_double*) fy_nativeGetArrayBytes(context, srcHandle, exception);
+	fy_exceptionCheckAndReturn(exception);
+	doubles = fy_allocate(len * sizeof(jdouble), exception);
+	fy_exceptionCheckAndReturn(exception);
+	for (i = 0; i < len; i++) {
+		doubles[i] = value[i + srcPos];
+	}
+	(*env)->SetDoubleArrayRegion(env, dst, dstPos, len, doubles);
+	fy_free(doubles);
 }

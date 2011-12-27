@@ -31,7 +31,7 @@
  */
 /*************public****************/
 
-void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
+_FY_EXPORT void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
 		fy_exception *exception) {
 	struct fy_linkedListNode* node = fy_mmAllocate(block,
 			sizeof(struct fy_linkedListNode), exception);
@@ -46,12 +46,12 @@ static void fy_linkedListReleaser(fy_memblock *block, fy_linkedListNode *node,
 	fy_mmFree(block, node);
 }
 
-void fy_linkedListDestroy(fy_memblock *block, fy_linkedList *list) {
+_FY_EXPORT void fy_linkedListDestroy(fy_memblock *block, fy_linkedList *list) {
 	fy_linkedListTraverse(block, list, fy_linkedListReleaser, NULL);
 	fy_mmFree(block, list->head);
 }
 
-void* fy_linkedListRemove(fy_memblock *block, fy_linkedList* list,
+_FY_EXPORT void* fy_linkedListRemove(fy_memblock *block, fy_linkedList* list,
 		void* content) {
 	struct fy_linkedListNode* node = list->head;
 	while (node->next != NULL) {
@@ -63,8 +63,8 @@ void* fy_linkedListRemove(fy_memblock *block, fy_linkedList* list,
 	return NULL;
 }
 
-void* fy_linkedListRemoveNode(fy_memblock *block, fy_linkedList* list,
-		fy_linkedListNode *node) {
+_FY_EXPORT void* fy_linkedListRemoveNode(fy_memblock *block,
+		fy_linkedList* list, fy_linkedListNode *node) {
 	void *ret;
 	node->prev->next = node->next;
 	if (node == list->last) {
@@ -78,8 +78,8 @@ void* fy_linkedListRemoveNode(fy_memblock *block, fy_linkedList* list,
 	return ret;
 }
 
-fy_linkedListNode* fy_linkedListAppend(fy_memblock *block, fy_linkedList* list,
-		void* content, fy_exception *exception) {
+_FY_EXPORT fy_linkedListNode* fy_linkedListAppend(fy_memblock *block,
+		fy_linkedList* list, void* content, fy_exception *exception) {
 	struct fy_linkedListNode* node = fy_mmAllocate(block,
 			sizeof(struct fy_linkedListNode), exception);
 	if (node == NULL) {
@@ -96,7 +96,7 @@ fy_linkedListNode* fy_linkedListAppend(fy_memblock *block, fy_linkedList* list,
 	return node;
 }
 
-void fy_linkedListTraverse(
+_FY_EXPORT void fy_linkedListTraverse(
 		fy_memblock *block,
 		fy_linkedList* list,
 		void(*fun)(fy_memblock *block, struct fy_linkedListNode* node,
