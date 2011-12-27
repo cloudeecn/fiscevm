@@ -79,6 +79,7 @@
 #define FY_EXCEPTION_MONITOR "java/lang/IllegalMonitorStateException"
 #define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
 #define FY_EXCEPTION_NPT "java/lang/NullPointerException"
+#define FY_EXCEPTION_IO "java/lang/IOException"
 #define FY_EXCEPTION_RT "java/lang/RuntimeException"
 #define FY_EXCEPTION_IOOB "java/lang/IndexOutOfBoundException"
 #define FY_EXCEPTION_STORE "java/lang/ArrayStoreException"
@@ -323,11 +324,6 @@ typedef struct fy_class {
 	fy_int clinitThreadId;
 } fy_class;
 
-typedef struct fy_data {
-	int size;
-	char *data;
-} fy_data;
-
 typedef struct fy_object {
 	fy_class *clazz;
 	fy_int length;
@@ -521,8 +517,13 @@ typedef struct fy_context {
 	fy_int exitCode;
 	fy_long nextGCTime;
 	fy_long nextForceGCTime;
-/* #END THREAD MANAGER*/
+	/* #END THREAD MANAGER*/
 
+	/*INPUTSTREAM*/
+	void* (*isOpen)(fy_context *context, const char *name,
+			fy_exception *exception);
+	fy_int (*isRead)(fy_context *context, void *is, fy_exception *exception);
+	void (*isClose)(fy_context *context, void *is, fy_exception *exception);
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,

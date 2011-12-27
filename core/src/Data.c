@@ -18,17 +18,23 @@
 #include "fyc/Data.h"
 
 /*****************public*********************/
-fy_ubyte fy_dataRead(fy_data *data) {
-	if (data->size < 1) {
-		fy_fault(NULL, NULL, "Buffer overflow!");
+fy_ubyte fy_dataRead(fy_context *context, void *is, fy_exception *exception) {
+	fy_int ret = context->isRead(context, is, exception);
+	fy_exceptionCheckAndReturn(exception)0;
+	if (ret < 0) {
+		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+		return 0;
 	}
-	data->size--;
-	return *(data->data++);
+	return ret;
 }
 
-fy_char fy_dataRead2(fy_data *data) {
+fy_char fy_dataRead2(fy_context *context, void *is, fy_exception *exception) {
 	int i;
 	fy_char ret = 0;
+	fy_int value;
+	for(i=0;i<2;i++){
+
+	}
 	if (data->size < 2) {
 		fy_fault(NULL, NULL, "Buffer overflow!");
 	}
@@ -39,7 +45,7 @@ fy_char fy_dataRead2(fy_data *data) {
 	return ret;
 }
 
-fy_uint fy_dataRead4(fy_data *data) {
+fy_uint fy_dataRead4(fy_context *context, void *is, fy_exception *exception) {
 	int i;
 	fy_uint ret = 0;
 	if (data->size < 4) {
@@ -52,7 +58,7 @@ fy_uint fy_dataRead4(fy_data *data) {
 	return ret;
 }
 
-fy_ulong fy_dataRead8(fy_data *data) {
+fy_ulong fy_dataRead8(fy_context *context, void *is, fy_exception *exception) {
 	int i;
 	fy_ulong ret = 0;
 	if (data->size < 8) {
@@ -65,7 +71,8 @@ fy_ulong fy_dataRead8(fy_data *data) {
 	return ret;
 }
 
-void fy_dataSkip(fy_data *data, int size) {
+void fy_dataSkip(fy_context *context, void *is, int size,
+		fy_exception *exception) {
 	if (data->size < size) {
 		fy_fault(NULL, NULL, "Buffer overflow!");
 	}

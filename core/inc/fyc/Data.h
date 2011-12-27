@@ -25,13 +25,12 @@
 extern "C" {
 #endif
 
-fy_ubyte fy_dataRead(fy_data *data);
-fy_char fy_dataRead2(fy_data *data);
-fy_uint fy_dataRead4(fy_data *data);
-fy_ulong fy_dataRead8(fy_data *data);
-float fy_dataReadf(fy_data *data);
-double fy_dataReadd(fy_data *data);
-void fy_dataSkip(fy_data *data, int size);
+fy_ubyte fy_dataRead(fy_context *context, void *is, fy_exception *exception);
+fy_char fy_dataRead2(fy_context *context, void *is, fy_exception *exception);
+fy_uint fy_dataRead4(fy_context *context, void *is, fy_exception *exception);
+fy_ulong fy_dataRead8(fy_context *context, void *is, fy_exception *exception);
+void fy_dataSkip(fy_context *context, void *is, int size,
+		fy_exception *exception);
 
 #ifdef	__cplusplus
 }
