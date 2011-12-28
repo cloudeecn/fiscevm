@@ -47,7 +47,7 @@ public class FYContext implements Runnable, FiScEVM {
 	private final AtomicBoolean runningCurrent = new AtomicBoolean(false);
 
 	static {
-		System.loadLibrary("fisce");
+//		System.loadLibrary("libfisce-0");
 		System.loadLibrary("fyjni");
 	}
 
@@ -97,7 +97,7 @@ public class FYContext implements Runnable, FiScEVM {
 	public static void main(String[] args) {
 		FYContext context = new FYContext();
 		context.bootFromClass("com/cirnoworks/fisce/privat/Profile");
-
+		context.start();
 	}
 
 	public ByteBuffer getContext() {

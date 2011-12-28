@@ -94,7 +94,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 		obj = (*env)->NewIntArray(env, len);
 		CHECK_JNI_EXCEPTION;
 		(*env)->SetIntArrayRegion(env, obj, 0, len,
-				(fy_int*) message->body.call.params);
+				(jint*) message->body.call.params);
 		CHECK_JNI_EXCEPTION;
 		(*env)->SetObjectField(env, ret, params, obj);
 		CHECK_JNI_EXCEPTION;
