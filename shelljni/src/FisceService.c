@@ -248,6 +248,8 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		JNIEnv *env, jclass self, jobject buf) {
 	INIT_HEADER
 
+	setvbuf(stdout, NULL, _IOLBF, 1024);
+
 	ex.exceptionType = exception_none;
 	memset(context, 0, sizeof(fy_context));
 	fisceInitContext(context, exception);
@@ -267,6 +269,16 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 	context->inputStream.isRead = isRead;
 	context->inputStream.isReadBlock = isReadBlock;
 	context->inputStream.isSkip = isSkip;
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    destroyContext
+ * Signature: (Ljava/nio/ByteBuffer;)V
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_destroyContext(
+		JNIEnv *env, jclass self, jobject buf) {
+	GENERIC_HEADER
+	fisceDestroyContext(context);
 }
 
 JNIEXPORT
@@ -305,8 +317,7 @@ static void releaseStrJstr(JNIEnv *env, jstring str, fy_str *fstr) {
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getClassByName
  * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint
 JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassByName(
 		JNIEnv *env, jclass self, jobject buf, jstring name) {
@@ -329,8 +340,7 @@ JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassByName(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    validClassId
  * Signature: (Ljava/nio/ByteBuffer;I)Z
- */
-JNIEXPORT
+ */JNIEXPORT
 jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_validClassId(
 		JNIEnv *env, jclass self, jobject buf, jint classId) {
 	return classId > 0 && classId < MAX_CLASSES;
@@ -340,8 +350,7 @@ jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_validClassId(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldByUniqueName
  * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldByUniqueName(
 		JNIEnv *env, jclass self, jobject buf, jstring name) {
 	fy_str str;
@@ -366,8 +375,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldByUniqueNam
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    lookupField
  * Signature: (Ljava/nio/ByteBuffer;ILjava/lang/String;)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_lookupField(
 		JNIEnv *env, jclass self, jobject buf, jint classId, jstring name) {
 	fy_str str;
@@ -394,8 +402,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_lookupField(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getMethodByUniqueName
  * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getMethodByUniqueName(
 		JNIEnv *env, jclass self, jobject buf, jstring name) {
 	fy_str str;
@@ -417,8 +424,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getMethodByUniqueNa
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    lookupMethod
  * Signature: (Ljava/nio/ByteBuffer;ILjava/lang/String;)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_lookupMethod(
 		JNIEnv *env, jclass self, jobject buf, jint classId, jstring name) {
 	fy_str str;
@@ -445,8 +451,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_lookupMethod(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getClassName
  * Signature: (Ljava/nio/ByteBuffer;I)Ljava/lang/String;
- */
-JNIEXPORT
+ */JNIEXPORT
 jstring JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassName(
 		JNIEnv *env, jclass self, jobject buf, jint classId) {
 	fy_class *clazz;
@@ -462,8 +467,7 @@ jstring JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassName(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getClassSuper
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassSuper(
 		JNIEnv *env, jclass self, jobject buf, jint classId) {
 	fy_class *clazz;
@@ -481,8 +485,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassSuper(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldOwner
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldOwner(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {
 	GENERIC_HEADER
@@ -495,8 +498,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldOwner(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    threadReturnHandle
  * Signature: (Ljava/nio/ByteBuffer;II)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnHandle(
 		JNIEnv *env, jclass self, jobject buf, jint threadId, jint value) {
 	fy_thread *thread;
@@ -509,8 +511,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    threadReturnInt
  * Signature: (Ljava/nio/ByteBuffer;II)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnInt(
 		JNIEnv *env, jclass self, jobject buf, jint threadId, jint value) {
 	fy_thread *thread;
@@ -523,8 +524,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnInt(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    threadReturnWide
  * Signature: (Ljava/nio/ByteBuffer;IJ)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnWide(
 		JNIEnv *env, jclass self, jobject buf, jint threadId, jlong value) {
 	fy_thread *thread;
@@ -537,8 +537,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnWide(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getThreadHandle
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getThreadHandle(
 		JNIEnv *env, jclass self, jobject buf, jint threadId) {
 	fy_thread *thread;
@@ -551,8 +550,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getThreadHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    pushVMException
  * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_pushVMException(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_pushVMException(
 		JNIEnv *env, jclass self, jobject buf, jint threadId, jstring name,
 		jstring desc) {
 	fy_exception toPrepare;
@@ -575,8 +573,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_pushVMExc
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    allocateObject
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_allocateObject(
 		JNIEnv *env, jclass self, jobject buf, jint classId) {
 	fy_class *clazz;
@@ -595,8 +592,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_allocateObject(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    allocateArray
  * Signature: (Ljava/nio/ByteBuffer;II)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_allocateArray(
 		JNIEnv *env, jclass self, jobject buf, jint classId, jint len) {
 	fy_class *clazz;
@@ -615,8 +611,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_allocateArray(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    clone
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_clone(JNIEnv *env,
 		jclass self, jobject buf, jint handle) {
 	jint ret;
@@ -633,8 +628,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_clone(JNIEnv *env,
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getLiteral
  * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getLiteral(
 		JNIEnv *env, jclass self, jobject buf, jstring content) {
 	jint ret;
@@ -654,8 +648,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getLiteral(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    putString
  * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_putString(
 		JNIEnv *env, jclass self, jobject buf, jstring content) {
 	jint ret;
@@ -675,8 +668,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_putString(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getString
  * Signature: (Ljava/nio/ByteBuffer;I)Ljava/lang/String;
- */
-JNIEXPORT
+ */JNIEXPORT
 jstring JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getString(
 		JNIEnv *env, jclass self, jobject buf, jint handle) {
 	fy_str str;
@@ -703,8 +695,7 @@ jstring JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getString(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getClassOfHandle
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassOfHandle(
 		JNIEnv *env, jclass self, jobject buf, jint handle) {
 	GENERIC_HEADER
@@ -715,8 +706,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassOfHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayLength
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayLength(
 		JNIEnv *env, jclass self, jobject buf, jint handle) {
 	GENERIC_HEADER
@@ -727,8 +717,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayLength(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldBoolean
  * Signature: (Ljava/nio/ByteBuffer;II)Z
- */
-JNIEXPORT
+ */JNIEXPORT
 jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldBoolean(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {
 	jboolean ret;
@@ -747,8 +736,7 @@ jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldBoolean
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldByte
  * Signature: (Ljava/nio/ByteBuffer;II)B
- */
-JNIEXPORT
+ */JNIEXPORT
 jbyte JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldByte(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {/* */
 	jbyte ret;
@@ -767,8 +755,7 @@ jbyte JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldByte(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldChar
  * Signature: (Ljava/nio/ByteBuffer;II)C
- */
-JNIEXPORT
+ */JNIEXPORT
 jchar JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldChar(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {/* */
 	jchar ret;
@@ -787,8 +774,7 @@ jchar JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldChar(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldShort
  * Signature: (Ljava/nio/ByteBuffer;II)S
- */
-JNIEXPORT
+ */JNIEXPORT
 jshort JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldShort(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {/* */
 	jshort ret;
@@ -807,8 +793,7 @@ jshort JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldShort(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldHandle
  * Signature: (Ljava/nio/ByteBuffer;II)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldHandle(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {/* */
 	jint ret;
@@ -827,8 +812,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldInt
  * Signature: (Ljava/nio/ByteBuffer;II)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldInt(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {/* */
 	jint ret;
@@ -847,8 +831,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldInt(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldFloat
  * Signature: (Ljava/nio/ByteBuffer;II)F
- */
-JNIEXPORT
+ */JNIEXPORT
 jfloat JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldFloat(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {/* */
 	jfloat ret;
@@ -867,8 +850,7 @@ jfloat JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldFloat(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldLong
  * Signature: (Ljava/nio/ByteBuffer;II)J
- */
-JNIEXPORT
+ */JNIEXPORT
 jlong JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldLong(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {/* */
 	jlong ret;
@@ -887,8 +869,7 @@ jlong JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldLong(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getFieldDouble
  * Signature: (Ljava/nio/ByteBuffer;II)D
- */
-JNIEXPORT
+ */JNIEXPORT
 jdouble JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldDouble(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId) {/* */
 	jdouble ret;
@@ -907,8 +888,7 @@ jdouble JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldDouble(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldBoolean
  * Signature: (Ljava/nio/ByteBuffer;IIZ)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldBoolean(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jboolean value) {/* */
@@ -924,8 +904,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldBoolean(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldByte
  * Signature: (Ljava/nio/ByteBuffer;IIB)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldByte(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jbyte value) {/* */
@@ -941,8 +920,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldByte(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldChar
  * Signature: (Ljava/nio/ByteBuffer;IIC)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldChar(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jchar value) {/* */
@@ -958,8 +936,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldChar(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldShort
  * Signature: (Ljava/nio/ByteBuffer;IIS)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldShort(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jshort value) {/* */
@@ -975,8 +952,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldShort(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldHandle
  * Signature: (Ljava/nio/ByteBuffer;III)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldHandle(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jint value) {/* */
@@ -992,8 +968,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldInt
  * Signature: (Ljava/nio/ByteBuffer;III)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldInt(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jint value) {/* */
@@ -1009,8 +984,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldInt(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldFloat
  * Signature: (Ljava/nio/ByteBuffer;IIF)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldFloat(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jfloat value) {/* */
@@ -1026,8 +1000,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldFloat(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldLong
  * Signature: (Ljava/nio/ByteBuffer;IIJ)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldLong(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jlong value) {/* */
@@ -1043,8 +1016,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldLong(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setFieldDouble
  * Signature: (Ljava/nio/ByteBuffer;IID)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldDouble(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint fieldId,
 		jdouble value) {/* */
@@ -1060,8 +1032,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setFieldDouble(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayBoolean
  * Signature: (Ljava/nio/ByteBuffer;II)Z
- */
-JNIEXPORT
+ */JNIEXPORT
 jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayBoolean(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jboolean ret;
@@ -1079,8 +1050,7 @@ jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayBoolean
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayByte
  * Signature: (Ljava/nio/ByteBuffer;II)B
- */
-JNIEXPORT
+ */JNIEXPORT
 jbyte JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayByte(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jbyte ret;
@@ -1098,8 +1068,7 @@ jbyte JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayByte(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayChar
  * Signature: (Ljava/nio/ByteBuffer;II)C
- */
-JNIEXPORT
+ */JNIEXPORT
 jchar JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayChar(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jchar ret;
@@ -1117,8 +1086,7 @@ jchar JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayChar(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayShort
  * Signature: (Ljava/nio/ByteBuffer;II)S
- */
-JNIEXPORT
+ */JNIEXPORT
 jshort JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayShort(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jshort ret;
@@ -1136,8 +1104,7 @@ jshort JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayShort(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayHandle
  * Signature: (Ljava/nio/ByteBuffer;II)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayHandle(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jint ret;
@@ -1155,8 +1122,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayInt
  * Signature: (Ljava/nio/ByteBuffer;II)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayInt(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jint ret;
@@ -1174,8 +1140,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayInt(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayFloat
  * Signature: (Ljava/nio/ByteBuffer;II)F
- */
-JNIEXPORT
+ */JNIEXPORT
 jfloat JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayFloat(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jfloat ret;
@@ -1193,8 +1158,7 @@ jfloat JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayFloat(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayLong
  * Signature: (Ljava/nio/ByteBuffer;II)J
- */
-JNIEXPORT
+ */JNIEXPORT
 jlong JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayLong(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jlong ret;
@@ -1212,8 +1176,7 @@ jlong JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayLong(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getArrayDouble
  * Signature: (Ljava/nio/ByteBuffer;II)D
- */
-JNIEXPORT
+ */JNIEXPORT
 jdouble JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayDouble(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index) {/* */
 	jdouble ret;
@@ -1231,8 +1194,7 @@ jdouble JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayDouble(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayBoolean
  * Signature: (Ljava/nio/ByteBuffer;IIZ)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayBoolean(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jboolean value) {/* */
@@ -1247,8 +1209,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayBoolean(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayByte
  * Signature: (Ljava/nio/ByteBuffer;IIB)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayByte(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jbyte value) {/* */
@@ -1263,8 +1224,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayByte(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayChar
  * Signature: (Ljava/nio/ByteBuffer;IIC)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayChar(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jchar value) {/* */
@@ -1279,8 +1239,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayChar(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayShort
  * Signature: (Ljava/nio/ByteBuffer;IIS)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayShort(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jshort value) {/* */
@@ -1295,8 +1254,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayShort(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayHandle
  * Signature: (Ljava/nio/ByteBuffer;III)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayHandle(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jint value) {/* */
@@ -1311,8 +1269,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayInt
  * Signature: (Ljava/nio/ByteBuffer;III)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayInt(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jint value) {/* */
@@ -1327,8 +1284,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayInt(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayFloat
  * Signature: (Ljava/nio/ByteBuffer;IIF)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayFloat(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jfloat value) {/* */
@@ -1343,8 +1299,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayFloat(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayLong
  * Signature: (Ljava/nio/ByteBuffer;IIJ)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayLong(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jlong value) {/* */
@@ -1359,8 +1314,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayLong(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setArrayDouble
  * Signature: (Ljava/nio/ByteBuffer;IID)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayDouble(
 		JNIEnv *env, jclass self, jobject buf, jint handle, jint index,
 		jdouble value) {/* */
@@ -1375,8 +1329,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setArrayDouble(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticBoolean
  * Signature: (Ljava/nio/ByteBuffer;I)Z
- */
-JNIEXPORT
+ */JNIEXPORT
 jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticBoolean(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jboolean ret;
@@ -1395,8 +1348,7 @@ jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticBoolea
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticByte
  * Signature: (Ljava/nio/ByteBuffer;I)B
- */
-JNIEXPORT
+ */JNIEXPORT
 jbyte JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticByte(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jbyte ret;
@@ -1414,8 +1366,7 @@ jbyte JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticByte(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticChar
  * Signature: (Ljava/nio/ByteBuffer;I)C
- */
-JNIEXPORT
+ */JNIEXPORT
 jchar JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticChar(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jchar ret;
@@ -1433,8 +1384,7 @@ jchar JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticChar(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticShort
  * Signature: (Ljava/nio/ByteBuffer;I)S
- */
-JNIEXPORT
+ */JNIEXPORT
 jshort JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticShort(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jshort ret;
@@ -1452,8 +1402,7 @@ jshort JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticShort(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticHandle
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticHandle(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jint ret;
@@ -1472,8 +1421,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticInt
  * Signature: (Ljava/nio/ByteBuffer;I)I
- */
-JNIEXPORT
+ */JNIEXPORT
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticInt(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jint ret;
@@ -1491,8 +1439,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticInt(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticFloat
  * Signature: (Ljava/nio/ByteBuffer;I)F
- */
-JNIEXPORT
+ */JNIEXPORT
 jfloat JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticFloat(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jfloat ret;
@@ -1510,8 +1457,7 @@ jfloat JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticFloat(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticLong
  * Signature: (Ljava/nio/ByteBuffer;I)J
- */
-JNIEXPORT
+ */JNIEXPORT
 jlong JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticLong(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jlong ret;
@@ -1529,8 +1475,7 @@ jlong JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticLong(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getStaticDouble
  * Signature: (Ljava/nio/ByteBuffer;I)D
- */
-JNIEXPORT
+ */JNIEXPORT
 jdouble JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticDouble(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId) {/* */
 	jdouble ret;
@@ -1549,8 +1494,7 @@ jdouble JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStaticDouble(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticBoolean
  * Signature: (Ljava/nio/ByteBuffer;IZ)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticBoolean(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jboolean value) {/* */
 	GENERIC_HEADER
@@ -1565,8 +1509,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticBoolean(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticByte
  * Signature: (Ljava/nio/ByteBuffer;IB)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticByte(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jbyte value) {/* */
 	GENERIC_HEADER
@@ -1580,8 +1523,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticByte(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticChar
  * Signature: (Ljava/nio/ByteBuffer;IC)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticChar(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jchar value) {/* */
 	GENERIC_HEADER
@@ -1595,8 +1537,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticChar(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticShort
  * Signature: (Ljava/nio/ByteBuffer;IS)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticShort(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jshort value) {/* */
 	GENERIC_HEADER
@@ -1611,8 +1552,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticShort(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticHandle
  * Signature: (Ljava/nio/ByteBuffer;II)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticHandle(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jint value) {/* */
 	GENERIC_HEADER
@@ -1627,8 +1567,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticHandle(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticInt
  * Signature: (Ljava/nio/ByteBuffer;II)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticInt(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jint value) {/* */
 	GENERIC_HEADER
@@ -1642,8 +1581,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticInt(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticFloat
  * Signature: (Ljava/nio/ByteBuffer;IF)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticFloat(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jfloat value) {/* */
 	GENERIC_HEADER
@@ -1658,8 +1596,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticFloat(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticLong
  * Signature: (Ljava/nio/ByteBuffer;IJ)V
- */
-JNIEXPORT
+ */JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jlong value) {/* */
 	GENERIC_HEADER
@@ -1673,8 +1610,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    setStaticDouble
  * Signature: (Ljava/nio/ByteBuffer;ID)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticDouble(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticDouble(
 		JNIEnv *env, jclass self, jobject buf, jint fieldId, jdouble value) {/* */
 	GENERIC_HEADER
 	fy_nativePutStaticDouble(context, context->fields[fieldId], value,
@@ -1688,8 +1624,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStatic
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fillArrayBoolean
  * Signature: (Ljava/nio/ByteBuffer;II[ZII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayBoolean(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayBoolean(
 		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
 		jbooleanArray src, jint srcPos, jint len) {/* */
 	fy_ubyte *value;
@@ -1721,8 +1656,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArray
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fillArrayByte
  * Signature: (Ljava/nio/ByteBuffer;II[BII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayByte(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayByte(
 		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
 		jbyteArray src, jint srcPos, jint len) {/* */
 	fy_byte *value;
@@ -1754,8 +1688,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArray
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fillArrayChar
  * Signature: (Ljava/nio/ByteBuffer;II[CII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayChar(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayChar(
 		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
 		jcharArray src, jint srcPos, jint len) {/**/
 	fy_char *value;
@@ -1787,8 +1720,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArray
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fillArrayShort
  * Signature: (Ljava/nio/ByteBuffer;II[SII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayShort(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayShort(
 		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
 		jshortArray src, jint srcPos, jint len) {/**/
 	fy_short *value;
@@ -1820,8 +1752,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArray
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fillArrayInt
  * Signature: (Ljava/nio/ByteBuffer;II[III)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayInt(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayInt(
 		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
 		jintArray src, jint srcPos, jint len) {/**/
 	fy_int *value;
@@ -1853,8 +1784,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArray
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fillArrayFloat
  * Signature: (Ljava/nio/ByteBuffer;II[FII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayFloat(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayFloat(
 		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
 		jfloatArray src, jint srcPos, jint len) {/**/
 	fy_float *value;
@@ -1886,8 +1816,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArray
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fillArrayLong
  * Signature: (Ljava/nio/ByteBuffer;II[JII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayLong(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayLong(
 		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
 		jlongArray src, jint srcPos, jint len) {/**/
 	fy_long *value;
@@ -1919,8 +1848,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArray
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fillArrayDouble
  * Signature: (Ljava/nio/ByteBuffer;II[DII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayDouble(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArrayDouble(
 		JNIEnv *env, jclass self, jobject buf, jint dstHandle, jint dstPos,
 		jdoubleArray src, jint srcPos, jint len) {/**/
 	fy_double *value;
@@ -1952,8 +1880,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fillArray
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayBoolean
  * Signature: (Ljava/nio/ByteBuffer;[ZIIII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayBoolean(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayBoolean(
 		JNIEnv *env, jclass self, jobject buf, jbooleanArray dst, jint dstPos,
 		jint srcHandle, jint srcPos, jint len) {/**/
 	fy_ubyte *value;
@@ -1984,8 +1911,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArra
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayByte
  * Signature: (Ljava/nio/ByteBuffer;[BIIII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayByte(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayByte(
 		JNIEnv *env, jclass self, jobject buf, jbyteArray dst, jint dstPos,
 		jint srcHandle, jint srcPos, jint len) {/**/
 	fy_byte *value;
@@ -2016,8 +1942,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArra
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayChar
  * Signature: (Ljava/nio/ByteBuffer;[CIIII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayChar(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayChar(
 		JNIEnv *env, jclass self, jobject buf, jcharArray dst, jint dstPos,
 		jint srcHandle, jint srcPos, jint len) {/**/
 	fy_char *value;
@@ -2049,8 +1974,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArra
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayShort
  * Signature: (Ljava/nio/ByteBuffer;[SIIII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayShort(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayShort(
 		JNIEnv *env, jclass self, jobject buf, jshortArray dst, jint dstPos,
 		jint srcHandle, jint srcPos, jint len) {/**/
 	fy_short *value;
@@ -2081,8 +2005,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArra
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayInt
  * Signature: (Ljava/nio/ByteBuffer;[IIIII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayInt(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayInt(
 		JNIEnv *env, jclass self, jobject buf, jintArray dst, jint dstPos,
 		jint srcHandle, jint srcPos, jint len) {/**/
 	fy_int *value;
@@ -2113,8 +2036,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArra
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayFloat
  * Signature: (Ljava/nio/ByteBuffer;[FIIII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayFloat(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayFloat(
 		JNIEnv *env, jclass self, jobject buf, jfloatArray dst, jint dstPos,
 		jint srcHandle, jint srcPos, jint len) {/**/
 	fy_float *value;
@@ -2145,8 +2067,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArra
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayLong
  * Signature: (Ljava/nio/ByteBuffer;[JIIII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayLong(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayLong(
 		JNIEnv *env, jclass self, jobject buf, jlongArray dst, jint dstPos,
 		jint srcHandle, jint srcPos, jint len) {/**/
 	fy_long *value;
@@ -2177,8 +2098,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArra
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayDouble
  * Signature: (Ljava/nio/ByteBuffer;[DIIII)V
- */
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayDouble(
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayDouble(
 		JNIEnv *env, jclass self, jobject buf, jdoubleArray dst, jint dstPos,
 		jint srcHandle, jint srcPos, jint len) {/**/
 	fy_double *value;

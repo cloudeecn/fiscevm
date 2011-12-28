@@ -791,6 +791,14 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArra
 JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayDouble
   (JNIEnv *, jclass, jobject, jdoubleArray, jint, jint, jint, jint);
 
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    destroyContext
+ * Signature: (Ljava/nio/ByteBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_destroyContext
+  (JNIEnv *, jclass, jobject);
+
 #ifdef __cplusplus
 }
 #endif
