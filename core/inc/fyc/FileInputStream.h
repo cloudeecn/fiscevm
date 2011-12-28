@@ -1,6 +1,6 @@
 /**
- *  Copyright 2010 Yuxuan Huang. All rights reserved.
- *  
+ *  Copyright 2010-2011 Yuxuan Huang. All rights reserved.
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -14,15 +14,12 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package java.io;
 
-public class IOException extends Exception {
+#ifndef FILEINPUTSTREAM_H_
+#define FILEINPUTSTREAM_H_
 
-	public IOException() {
-		super(); 
-	}
+#include "../fiscestu.h"
 
-	public IOException(String s) {
-		super(s);
-	}
-}
+void fy_fisInitInputStream(fy_inputStream *is);
+
+#endif /* FILEINPUTSTREAM_H_ */

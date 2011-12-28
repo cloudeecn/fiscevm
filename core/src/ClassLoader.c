@@ -64,12 +64,13 @@ static int getSizeFromDescriptor(fy_str *descriptor) {
 }
 #endif
 
-static void fillConstantContent(fy_memblock *block, fy_class *ret,
-		fy_data *data, fy_exception *exception) {
+static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
+		fy_exception *exception) {
 	int i, imax, j;
 	int cpSkip;
 	int tag;
-	void* tmp;
+	void *tmp, *dataBuffer;
+	fy_memblock *block = context->memblocks;
 	ConstantClass* tmpConstantClass;
 	ConstantFieldRef* tmpConstantFieldRef;
 	ConstantMethodRef* tmpConstantMethodRef;
@@ -81,7 +82,8 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 	void **constantPools;
 	fy_ubyte *constantTypes;
 
-	ret->constantPoolCount = fy_dataRead2(data);
+	ret->constantPoolCount = fy_dataRead2(context, is, exception);
+
 	/*read constantPool*/
 	ret->constantTypes = constantTypes = fy_mmAllocate(block,
 			sizeof(fy_ubyte) * (ret->constantPoolCount + 1), exception);
@@ -89,10 +91,10 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 	ret->constantPools = constantPools = fy_mmAllocate(block,
 			sizeof(void*) * (ret->constantPoolCount + 1), exception);
 	fy_exceptionCheckAndReturn(exception);
-	fy_exceptionCheckAndReturn(exception);
 	/*Phase 1*/
 	for (i = 1, imax = ret->constantPoolCount; i < imax; i++) {
-		tag = fy_dataRead(data);
+		tag = fy_dataRead(context, is, exception);
+		fy_exceptionCheckAndReturn(exception);
 		constantTypes[i] = tag;
 		cpSkip = 0;
 		switch (tag) {
@@ -101,7 +103,7 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 					exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmpConstantClass->ci.name_index = checkConstantBonud(ret,
-					fy_dataRead2(data), exception);
+					fy_dataRead2(context, is, exception), exception);
 			fy_exceptionCheckAndReturn(exception);
 
 			tmp = tmpConstantClass;
@@ -111,10 +113,10 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 					exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmpConstantFieldRef->class_index = checkConstantBonud(ret,
-					fy_dataRead2(data), exception);
+					fy_dataRead2(context, is, exception), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmpConstantFieldRef->name_type_index = checkConstantBonud(ret,
-					fy_dataRead2(data), exception);
+					fy_dataRead2(context, is, exception), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmp = tmpConstantFieldRef;
 			break;
@@ -124,10 +126,10 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 					sizeof(ConstantMethodRef), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmpConstantMethodRef->class_index = checkConstantBonud(ret,
-					fy_dataRead2(data), exception);
+					fy_dataRead2(context, is, exception), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmpConstantMethodRef->name_type_index = checkConstantBonud(ret,
-					fy_dataRead2(data), exception);
+					fy_dataRead2(context, is, exception), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmp = tmpConstantMethodRef;
 			break;
@@ -136,7 +138,7 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 					sizeof(ConstantStringInfo), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmpConstantStringInfo->ci.string_index = checkConstantBonud(ret,
-					fy_dataRead2(data), exception);
+					fy_dataRead2(context, is, exception), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmp = tmpConstantStringInfo;
 			break;
@@ -145,7 +147,9 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 			tmpConstantIntegerFloatInfo = fy_mmAllocate(block,
 					sizeof(ConstantIntegerFloatInfo), exception);
 			fy_exceptionCheckAndReturn(exception);
-			tmpConstantIntegerFloatInfo->value = fy_dataRead4(data);
+			tmpConstantIntegerFloatInfo->value = fy_dataRead4(context, is,
+					exception);
+			fy_exceptionCheckAndReturn(exception);
 			tmp = tmpConstantIntegerFloatInfo;
 			break;
 		case CONSTANT_Double:
@@ -154,7 +158,9 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 			tmpConstantLongDoubleInfo = fy_mmAllocate(block,
 					sizeof(ConstantLongDoubleInfo), exception);
 			fy_exceptionCheckAndReturn(exception);
-			tmpConstantLongDoubleInfo->value = fy_dataRead8(data);
+			tmpConstantLongDoubleInfo->value = fy_dataRead8(context, is,
+					exception);
+			fy_exceptionCheckAndReturn(exception);
 			tmp = tmpConstantLongDoubleInfo;
 			break;
 		case CONSTANT_NameAndType:
@@ -162,10 +168,10 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 					sizeof(ConstantNameAndTypeInfo), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmpConstantNameAndTypeInfo->name_index = checkConstantBonud(ret,
-					fy_dataRead2(data), exception);
+					fy_dataRead2(context, is, exception), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmpConstantNameAndTypeInfo->descriptor_index = checkConstantBonud(
-					ret, fy_dataRead2(data), exception);
+					ret, fy_dataRead2(context, is, exception), exception);
 			fy_exceptionCheckAndReturn(exception);
 			tmp = tmpConstantNameAndTypeInfo;
 			break;
@@ -173,17 +179,25 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 			tmpConstantUtf8Info = fy_mmAllocate(block, sizeof(ConstantUtf8Info),
 					exception);
 			fy_exceptionCheckAndReturn(exception);
-			j = fy_dataRead2(data);
+			j = fy_dataRead2(context, is, exception);
+			fy_exceptionCheckAndReturn(exception);
 			tmpConstantUtf8Info->string = fy_mmAllocate(block, sizeof(fy_str),
 					exception);
 			fy_exceptionCheckAndReturn(exception);
-			fy_strInit(block, tmpConstantUtf8Info->string,
-					fy_utf8SizeS(data->data, j), exception);
+			fy_strInit(block, tmpConstantUtf8Info->string, j * 3, exception);
 			fy_exceptionCheckAndReturn(exception);
-			fy_strAppendUTF8(block, tmpConstantUtf8Info->string, data->data, j,
+			dataBuffer = fy_allocate(j, exception);
+			fy_exceptionCheckAndReturn(exception);
+			context->inputStream.isReadBlock(context, is, dataBuffer, j,
 					exception);
+			if (exception->exceptionType != exception_none) {
+				fy_free(dataBuffer);
+				return;
+			}
+			fy_strAppendUTF8(block, tmpConstantUtf8Info->string, dataBuffer, j,
+					exception);
+			fy_free(dataBuffer);
 			fy_exceptionCheckAndReturn(exception);
-			fy_dataSkip(data, j);
 			tmp = tmpConstantUtf8Info;
 			break;
 		default:
@@ -323,23 +337,25 @@ static void fillConstantContent(fy_memblock *block, fy_class *ret,
 	}
 }
 
-static void loadInterfaces(fy_context *context, fy_class *clazz, fy_data *data,
+static void loadInterfaces(fy_context *context, fy_class *clazz, void *is,
 		fy_exception *exception) {
 	int i, count;
 	fy_memblock *block = context->memblocks;
-	clazz->interfacesCount = count = fy_dataRead2(data);
+	clazz->interfacesCount = count = fy_dataRead2(context, is, exception);
+	fy_exceptionCheckAndReturn(exception);
 	clazz->interfaces = fy_mmAllocate(block, sizeof(fy_class*) * count,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
 	for (i = 0; i < count; i++) {
-		clazz->interfaces[i] = fy_vmLookupClassFromConstant(context,
-				(ConstantClass*) clazz->constantPools[fy_dataRead2(data)],
-				exception);
+		clazz->interfaces[i] = fy_vmLookupClassFromConstant(
+				context,
+				(ConstantClass*) clazz->constantPools[fy_dataRead2(context, is,
+						exception)], exception);
 		fy_exceptionCheckAndReturn(exception);
 	}
 }
 
-static void loadFields(fy_context *context, fy_class *clazz, fy_data *data,
+static void loadFields(fy_context *context, fy_class *clazz, void *is,
 		fy_exception *exception) {
 	int i, count, j, countj;
 	int length;
@@ -358,18 +374,23 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_data *data,
 	fy_strAppendUTF8(block, strConstantValue, "ConstantValue", 13, exception);
 	fy_exceptionCheckAndReturn(exception);
 
-	clazz->fieldCount = count = fy_dataRead2(data);
+	clazz->fieldCount = count = fy_dataRead2(context, is, exception);
+	fy_exceptionCheckAndReturn(exception);
 	clazz->fields = fy_mmAllocate(block, sizeof(fy_field*) * count, exception);
 	fy_exceptionCheckAndReturn(exception);
 	for (i = 0; i < count; i++) {
 		field = fy_mmAllocate(block, sizeof(fy_field), exception);
 		fy_exceptionCheckAndReturn(exception);
 		field->owner = clazz;
-		field->access_flags = fy_dataRead2(data);
+		field->access_flags = fy_dataRead2(context, is, exception);
+		fy_exceptionCheckAndReturn(exception);
 		field->name = ((ConstantUtf8Info*) clazz->constantPools[fy_dataRead2(
-				data)])->string;
+				context, is, exception)])->string;
+		fy_exceptionCheckAndReturn(exception);
 		field->descriptor =
-				((ConstantUtf8Info*) clazz->constantPools[fy_dataRead2(data)])->string;
+				((ConstantUtf8Info*) clazz->constantPools[fy_dataRead2(context,
+						is, exception)])->string;
+		fy_exceptionCheckAndReturn(exception);
 		field->fullName = fy_mmAllocate(block, sizeof(fy_str), exception);
 		fy_exceptionCheckAndReturn(exception);
 		fy_strInit(block, field->fullName, 16, exception);
@@ -407,16 +428,21 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_data *data,
 			field->posRel = pos;
 			pos += length;
 		}
-		countj = fy_dataRead2(data);
+		countj = fy_dataRead2(context, is, exception);
+		fy_exceptionCheckAndReturn(exception);
 		for (j = 0; j < countj; j++) {
 			attrName = fy_clGetConstantString(context, clazz,
-					fy_dataRead2(data));
-			attrSize = fy_dataRead4(data);
+					fy_dataRead2(context, is, exception));
+			fy_exceptionCheckAndReturn(exception);
+			attrSize = fy_dataRead4(context, is, exception);
+			fy_exceptionCheckAndReturn(exception);
 			if (fy_strCmp(strConstantValue, attrName) == 0) {
 				/*TODO*/
-				fy_dataRead2(data);
+				fy_dataRead2(context, is, exception);
+				fy_exceptionCheckAndReturn(exception);
 			} else {
-				fy_dataSkip(data, attrSize);
+				fy_dataSkip(context, is, attrSize, exception);
+				fy_exceptionCheckAndReturn(exception);
 			}
 		}
 		fy_vmRegisterField(context, field, exception);
@@ -534,7 +560,7 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	fy_free(temp);
 }
 
-static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data,
+static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 		fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	fy_char i, count, j, jcount, k, kcount, l, lcount;
@@ -551,7 +577,8 @@ static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data,
 	fy_exceptionCheckAndReturn(exception);
 	ATT_SYNTH = fy_strCreateFromUTF8(block, "Synthetic", exception);
 	fy_exceptionCheckAndReturn(exception);
-	clazz->methodCount = count = fy_dataRead2(data);
+	clazz->methodCount = count = fy_dataRead2(context, is, exception);
+	fy_exceptionCheckAndReturn(exception);
 	clazz->methods = fy_mmAllocate(block, sizeof(fy_method*) * count,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
@@ -562,15 +589,18 @@ static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data,
 		method = fy_mmAllocate(block, sizeof(fy_method), exception);
 		fy_exceptionCheckAndReturn(exception);
 		method->owner = clazz;
-		method->access_flags = fy_dataRead2(data);
+		method->access_flags = fy_dataRead2(context, is, exception);
+		fy_exceptionCheckAndReturn(exception);
 		method->name = fy_clGetConstantString(context, clazz,
-				fy_dataRead2(data));
+				fy_dataRead2(context, is, exception));
+		fy_exceptionCheckAndReturn(exception);
 		if (fy_strCmp(method->name, context->sClinit) == 0) {
 			method->clinit = TRUE;
 			clazz->clinit = method;
 		}
 		method->descriptor = fy_clGetConstantString(context, clazz,
-				fy_dataRead2(data));
+				fy_dataRead2(context, is, exception));
+		fy_exceptionCheckAndReturn(exception);
 		method->fullName = fy_mmAllocate(block, sizeof(fy_str), exception);
 		fy_exceptionCheckAndReturn(exception);
 		fy_strInit(block, method->fullName,
@@ -597,58 +627,85 @@ static void loadMethods(fy_context *context, fy_class *clazz, fy_data *data,
 		fy_exceptionCheckAndReturn(exception);
 		fy_strAppend(block, method->uniqueName, method->fullName, exception);
 		fy_exceptionCheckAndReturn(exception);
-		jcount = fy_dataRead2(data);
+		jcount = fy_dataRead2(context, is, exception);
+		fy_exceptionCheckAndReturn(exception);
 		for (j = 0; j < jcount; j++) {
 			attrName = fy_clGetConstantString(context, clazz,
-					fy_dataRead2(data));
-			attrSize = fy_dataRead4(data);
+					fy_dataRead2(context, is, exception));
+			fy_exceptionCheckAndReturn(exception);
+			attrSize = fy_dataRead4(context, is, exception);
+			fy_exceptionCheckAndReturn(exception);
 			if (fy_strCmp(ATT_CODE, attrName) == 0) {
-				method->max_stack = fy_dataRead2(data);
-				method->max_locals = fy_dataRead2(data);
-				method->codeLength = fy_dataRead4(data);
+				method->max_stack = fy_dataRead2(context, is, exception);
+				fy_exceptionCheckAndReturn(exception);
+				method->max_locals = fy_dataRead2(context, is, exception);
+				fy_exceptionCheckAndReturn(exception);
+				method->codeLength = fy_dataRead4(context, is, exception);
+				fy_exceptionCheckAndReturn(exception);
 				method->code = fy_mmAllocate(block, method->codeLength,
 						exception);
 				fy_exceptionCheckAndReturn(exception);
-				memcpy(method->code, data->data, method->codeLength);
-				fy_dataSkip(data, method->codeLength);
-				kcount = fy_dataRead2(data);
+				if (context->inputStream.isReadBlock(context, is, method->code,
+						method->codeLength, exception) != method->codeLength) {
+					fy_fault(exception, NULL,
+							"IOException in loading method code..");
+					return;
+				}
+
+				kcount = fy_dataRead2(context, is, exception);
+				fy_exceptionCheckAndReturn(exception);
 				method->exception_table_length = kcount;
 				method->exception_table = fy_mmAllocate(block,
 						sizeof(fy_exceptionHandler) * kcount, exception);
 				fy_exceptionCheckAndReturn(exception);
 				for (k = 0; k < kcount; k++) {
-					method->exception_table[k].start_pc = fy_dataRead2(data);
-					method->exception_table[k].end_pc = fy_dataRead2(data);
-					method->exception_table[k].handler_pc = fy_dataRead2(data);
+					method->exception_table[k].start_pc = fy_dataRead2(context,
+							is, exception);
+					fy_exceptionCheckAndReturn(exception);
+					method->exception_table[k].end_pc = fy_dataRead2(context,
+							is, exception);
+					fy_exceptionCheckAndReturn(exception);
+					method->exception_table[k].handler_pc = fy_dataRead2(
+							context, is, exception);
+					fy_exceptionCheckAndReturn(exception);
 					method->exception_table[k].ci.constantClass =
 							(ConstantClass*) clazz->constantPools[fy_dataRead2(
-									data)];
+									context, is, exception)];
+					fy_exceptionCheckAndReturn(exception);
 				}
-				kcount = fy_dataRead2(data);
+				kcount = fy_dataRead2(context, is, exception);
+				fy_exceptionCheckAndReturn(exception);
 				for (k = 0; k < kcount; k++) {
 					attrNameCode = fy_clGetConstantString(context, clazz,
-							fy_dataRead2(data));
-					attrSizeCode = fy_dataRead4(data);
+							fy_dataRead2(context, is, exception));
+					fy_exceptionCheckAndReturn(exception);
+					attrSizeCode = fy_dataRead4(context, is, exception);
+					fy_exceptionCheckAndReturn(exception);
 					if (fy_strCmp(ATT_LINENUM, attrNameCode) == 0) {
-						lcount = fy_dataRead2(data);
+						lcount = fy_dataRead2(context, is, exception);
+						fy_exceptionCheckAndReturn(exception);
 						method->line_number_table = fy_mmAllocate(block,
 								sizeof(fy_lineNumber) * lcount, exception);
 						fy_exceptionCheckAndReturn(exception);
 						method->line_number_table_length = lcount;
 						for (l = 0; l < lcount; l++) {
 							method->line_number_table[l].start_pc =
-									fy_dataRead2(data);
+									fy_dataRead2(context, is, exception);
+							fy_exceptionCheckAndReturn(exception);
 							method->line_number_table[l].line_number =
-									fy_dataRead2(data);
+									fy_dataRead2(context, is, exception);
+							fy_exceptionCheckAndReturn(exception);
 						}
 					} else {
-						fy_dataSkip(data, attrSizeCode);
+						fy_dataSkip(context, is, attrSizeCode, exception);
+						fy_exceptionCheckAndReturn(exception);
 					}
 				}
 			} else if (fy_strCmp(ATT_SYNTH, attrName) == 0) {
 				method->synthetic = 1;
 			} else {
-				fy_dataSkip(data, attrSize);
+				fy_dataSkip(context, is, attrSize, exception);
+				fy_exceptionCheckAndReturn(exception);
 			}
 		}
 		countParams(context, method->descriptor, method, exception);
@@ -667,12 +724,12 @@ fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
 	return ((ConstantUtf8Info*) clazz->constantPools[idx])->string;
 }
 
-fy_data *fy_clOpenResource(fy_context *context, fy_str *name,
+void *fy_clOpenResource(fy_context *context, fy_str *name,
 		fy_exception *exception) {
 	int i, max;
 	int size = 0;
 	char *cname;
-	fy_data *ret;
+	void *ret;
 
 	for (i = 0, max = name->length; i < max; i++) {
 		size += fy_utf8Size(name->content[i]);
@@ -680,17 +737,13 @@ fy_data *fy_clOpenResource(fy_context *context, fy_str *name,
 	cname = fy_allocate(size + 1, exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
 	fy_strSPrint(cname, size + 1, name);
-	ret = fy_resourceAllocateData(context, cname, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
+	ret = context->inputStream.isOpen(context, cname, exception);
 	fy_free(cname);
+	fy_exceptionCheckAndReturn(exception)NULL;
 	return ret;
 }
 
-void fy_clCloseResource(fy_context *context, fy_data *data) {
-	fy_resourceReleaseData(context, data);
-}
-
-static fy_class *fy_clLoadclassPriv(fy_context *context, fy_data *data,
+static fy_class *fy_clLoadclassPriv(fy_context *context, void *is,
 		fy_exception *exception) {
 	fy_char i, icount;
 	fy_str *attrName;
@@ -702,38 +755,44 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_data *data,
 	fy_class *clazz = fy_mmAllocate(block, sizeof(fy_class), exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
 	clazz->type = obj;
-	fy_dataSkip(data, 8);
-	fillConstantContent(block, clazz, data, exception);
+	fy_dataSkip(context, is, 8, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	fillConstantContent(context, clazz, is, exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
 	clazz->constantPools[0] = NULL;
-	clazz->accessFlags = fy_dataRead2(data);
-	clazz->thisClass = (clazz->constantPools)[fy_dataRead2(data)];
+	clazz->accessFlags = fy_dataRead2(context, is, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	clazz->thisClass = (clazz->constantPools)[fy_dataRead2(context, is,
+			exception)];
+	fy_exceptionCheckAndReturn(exception)NULL;
 	clazz->className = clazz->thisClass->ci.className;
-	clazz->superClass = clazz->constantPools[fy_dataRead2(data)];
-	loadInterfaces(context, clazz, data, exception);
+	clazz->superClass = clazz->constantPools[fy_dataRead2(context, is,
+			exception)];
 	fy_exceptionCheckAndReturn(exception)NULL;
-	loadFields(context, clazz, data, exception);
+	loadInterfaces(context, clazz, is, exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
-	loadMethods(context, clazz, data, exception);
+	loadFields(context, clazz, is, exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
-	icount = fy_dataRead2(data);
+	loadMethods(context, clazz, is, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
+	icount = fy_dataRead2(context, is, exception);
+	fy_exceptionCheckAndReturn(exception)NULL;
 	for (i = 0; i < icount; i++) {
-		attrName = fy_clGetConstantString(context, clazz, fy_dataRead2(data));
-		attrSize = fy_dataRead4(data);
+		attrName = fy_clGetConstantString(context, clazz,
+				fy_dataRead2(context, is, exception));
+		fy_exceptionCheckAndReturn(exception)NULL;
+		attrSize = fy_dataRead4(context, is, exception);
+		fy_exceptionCheckAndReturn(exception)NULL;
 		if (fy_strCmp(ATTR_SOURCE_FILE, attrName) == 0) {
 			clazz->sourceFile = fy_clGetConstantString(context, clazz,
-					fy_dataRead2(data));
+					fy_dataRead2(context, is, exception));
+			fy_exceptionCheckAndReturn(exception)NULL;
 		} else {
-			fy_dataSkip(data, attrSize);
+			fy_dataSkip(context, is, attrSize, exception);
+			fy_exceptionCheckAndReturn(exception)NULL;
 		}
 	}
 
-#ifdef _DEBUG
-	if (data->size > 0) {
-		fy_strPrint(clazz->className);
-		fy_fault(exception, NULL, "Still %d bytes unread!", data->size);
-	}
-#endif
 	clazz->phase = 1;
 	return clazz;
 }
@@ -865,10 +924,12 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		fy_exception *exception) {
 
-	fy_data *data;
-	fy_data tmpData;
+	void *is;
 	fy_class *clazz;
 	fy_memblock *block = context->memblocks;
+
+	fy_strPrint(name);
+	printf("\n");
 
 	if (name->content[0] == FY_TYPE_ARRAY) {
 		clazz = fy_mmAllocate(block, sizeof(fy_class), exception);
@@ -890,21 +951,9 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(block,
 				context->mapPrimitivesRev, name);
 	} else {
-		/*TODO please use proper resource access method*/
-		fy_str *localName = fy_mmAllocate(block, sizeof(fy_str), exception);
+		is = fy_clOpenResource(context, name, exception);
 		fy_exceptionCheckAndReturn(exception)NULL;
-		fy_strInit(block, localName, name->length + 20, exception);
-		fy_exceptionCheckAndReturn(exception)NULL;
-		fy_strAppendUTF8(block, localName, "../rt/bin/", -1, exception);
-		fy_exceptionCheckAndReturn(exception)NULL;
-		fy_strAppend(block, localName, name, exception);
-		fy_exceptionCheckAndReturn(exception)NULL;
-		fy_strAppendUTF8(block, localName, ".class", 6, exception);
-		fy_exceptionCheckAndReturn(exception)NULL;
-
-		data = fy_clOpenResource(context, localName, exception);
-		fy_exceptionCheckAndReturn(exception)NULL;
-		if (data == NULL) {
+		if (is == NULL) {
 			exception->exceptionType = exception_normal;
 			sprintf_s(exception->exceptionName,
 					sizeof(exception->exceptionName),
@@ -914,13 +963,10 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 			return NULL;
 		}
 
-		tmpData = *data;
-
-		clazz = fy_clLoadclassPriv(context, &tmpData, exception);
+		clazz = fy_clLoadclassPriv(context, is, exception);
+		context->inputStream.isClose(context, is);
 		fy_exceptionCheckAndReturn(exception)NULL;
-		fy_clCloseResource(context, data);
-		fy_strDestroy(block, localName);
-		fy_mmFree(block, localName);
+
 	}
 	return clazz;
 }

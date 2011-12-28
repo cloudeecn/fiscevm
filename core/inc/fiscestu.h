@@ -79,7 +79,7 @@
 #define FY_EXCEPTION_MONITOR "java/lang/IllegalMonitorStateException"
 #define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
 #define FY_EXCEPTION_NPT "java/lang/NullPointerException"
-#define FY_EXCEPTION_IO "java/lang/IOException"
+#define FY_EXCEPTION_IO "java/io/IOException"
 #define FY_EXCEPTION_RT "java/lang/RuntimeException"
 #define FY_EXCEPTION_IOOB "java/lang/IndexOutOfBoundException"
 #define FY_EXCEPTION_STORE "java/lang/ArrayStoreException"
@@ -414,8 +414,19 @@ typedef struct fy_message {
 	} body;
 
 } fy_message;
+struct fy_context;
+
+typedef struct fy_inputStream {
+	void* (*isOpen)(struct fy_context *context,const char *name, fy_exception *exception);
+	fy_int (*isRead)(struct fy_context *context,void *is, fy_exception *exception);
+	fy_int (*isReadBlock)(struct fy_context *context,void *is, void *target, fy_int size,
+			fy_exception *exception);
+	fy_int (*isSkip)(struct fy_context *context,void *is, fy_int size, fy_exception *exception);
+	void (*isClose)(struct fy_context *context,void *is);
+} fy_inputStream;
 
 typedef struct fy_context {
+	void *additionalData;
 
 	fy_str sTopClass[1];
 	fy_str sClassClass[1];
@@ -520,10 +531,7 @@ typedef struct fy_context {
 	/* #END THREAD MANAGER*/
 
 	/*INPUTSTREAM*/
-	void* (*isOpen)(fy_context *context, const char *name,
-			fy_exception *exception);
-	fy_int (*isRead)(fy_context *context, void *is, fy_exception *exception);
-	void (*isClose)(fy_context *context, void *is, fy_exception *exception);
+	fy_inputStream inputStream;
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,

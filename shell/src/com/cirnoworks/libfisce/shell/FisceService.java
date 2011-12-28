@@ -1,11 +1,38 @@
 package com.cirnoworks.libfisce.shell;
 
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.IdentityHashMap;
+import java.util.Map;
+
+import com.cirnoworks.fisce.intf.IToolkit;
 
 public final class FisceService {
+	private static Map<ByteBuffer, FYContext> contextMap = new IdentityHashMap<ByteBuffer, FYContext>();
+
+	public static void initContext(FYContext jcontext) {
+		ByteBuffer context = jcontext.getContext();
+		if (context == null) {
+			throw new NullPointerException();
+		}
+		if (contextMap.containsKey(context)) {
+			throw new RuntimeException("Duplcated initialize context");
+		}
+		contextMap.put(context, jcontext);
+		initContext(context);
+	}
+
+	public static void destroyContext(FYContext jcontext) {
+		ByteBuffer context = jcontext.getContext();
+		if (contextMap.containsKey(context)) {
+			destroyContext(context);
+		}
+		contextMap.remove(context);
+	}
+
 	public static native void execute(ByteBuffer context, Message message);
 
-	public static native void initContext(ByteBuffer context);
+	private static native void initContext(ByteBuffer context);
 
 	public static native void bootFromClass(ByteBuffer context, String name);
 
@@ -270,4 +297,18 @@ public final class FisceService {
 
 	public static native void fetchArrayDouble(ByteBuffer context,
 			double[] dst, int dstPos, int srcHandle, int srcPos, int len);
+
+	private static native void destroyContext(ByteBuffer context);
+
+	public static InputStream getInputStream(ByteBuffer context, String name) {
+		FYContext jcontext = contextMap.get(context);
+		InputStream is = null;
+		for (IToolkit toolkit : jcontext.getToolkits()) {
+			is = toolkit.getResourceByClassName(name);
+			if (is != null) {
+				break;
+			}
+		}
+		return is;
+	}
 }

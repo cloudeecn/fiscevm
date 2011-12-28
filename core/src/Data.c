@@ -19,7 +19,7 @@
 
 /*****************public*********************/
 fy_ubyte fy_dataRead(fy_context *context, void *is, fy_exception *exception) {
-	fy_int ret = context->isRead(context, is, exception);
+	fy_int ret = context->inputStream.isRead(context, is, exception);
 	fy_exceptionCheckAndReturn(exception)0;
 	if (ret < 0) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
@@ -32,15 +32,14 @@ fy_char fy_dataRead2(fy_context *context, void *is, fy_exception *exception) {
 	int i;
 	fy_char ret = 0;
 	fy_int value;
-	for(i=0;i<2;i++){
-
-	}
-	if (data->size < 2) {
-		fy_fault(NULL, NULL, "Buffer overflow!");
-	}
-	data->size -= 2;
 	for (i = 0; i < 2; i++) {
-		ret = (ret << 8) + (unsigned char) *(data->data++);
+		value = context->inputStream.isRead(context, is, exception);
+		fy_exceptionCheckAndReturn(exception)0;
+		if (value < 0) {
+			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+			return 0;
+		}
+		ret = (ret << 8) + value;
 	}
 	return ret;
 }
@@ -48,12 +47,15 @@ fy_char fy_dataRead2(fy_context *context, void *is, fy_exception *exception) {
 fy_uint fy_dataRead4(fy_context *context, void *is, fy_exception *exception) {
 	int i;
 	fy_uint ret = 0;
-	if (data->size < 4) {
-		fy_fault(NULL, NULL, "Buffer overflow!");
-	}
-	data->size -= 4;
+	fy_int value;
 	for (i = 0; i < 4; i++) {
-		ret = (ret << 8) + (unsigned char) *(data->data++);
+		value = context->inputStream.isRead(context, is, exception);
+		fy_exceptionCheckAndReturn(exception)0;
+		if (value < 0) {
+			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+			return 0;
+		}
+		ret = (ret << 8) + value;
 	}
 	return ret;
 }
@@ -61,22 +63,25 @@ fy_uint fy_dataRead4(fy_context *context, void *is, fy_exception *exception) {
 fy_ulong fy_dataRead8(fy_context *context, void *is, fy_exception *exception) {
 	int i;
 	fy_ulong ret = 0;
-	if (data->size < 8) {
-		fy_fault(NULL, NULL, "Buffer overflow!");
-	}
-	data->size -= 8;
+	fy_int value;
 	for (i = 0; i < 8; i++) {
-		ret = (ret << 8) + (unsigned char) *(data->data++);
+		value = context->inputStream.isRead(context, is, exception);
+		fy_exceptionCheckAndReturn(exception)0;
+		if (value < 0) {
+			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+			return 0;
+		}
+		ret = (ret << 8) + value;
 	}
 	return ret;
 }
 
 void fy_dataSkip(fy_context *context, void *is, int size,
 		fy_exception *exception) {
-	if (data->size < size) {
-		fy_fault(NULL, NULL, "Buffer overflow!");
+	fy_int value = context->inputStream.isSkip(context, is, size, exception);
+	if (value != size) {
+		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+		return;
 	}
-	data->size -= size;
-	data->data += size;
 }
 

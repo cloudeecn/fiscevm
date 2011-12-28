@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,7 +88,7 @@ public class FYContext implements Runnable, FiScEVM {
 	}
 
 	private void initContext() {
-		FisceService.initContext(context);
+		FisceService.initContext(this);
 	}
 
 	public Message getMessage() {
@@ -316,6 +317,10 @@ public class FYContext implements Runnable, FiScEVM {
 		} finally {
 			runningCurrent.set(false);
 			System.out.println("over");
+			FisceService.destroyContext(this);
+			for (IStateListener listener : stateListeners) {
+				listener.onVMDead();
+			}
 		}
 	}
 
@@ -324,5 +329,10 @@ public class FYContext implements Runnable, FiScEVM {
 		for (IStateListener listener : stateListeners) {
 			listener.onException(e);
 		}
+	}
+
+	@Override
+	public Collection<IToolkit> getToolkits() {
+		return toolkits;
 	}
 }

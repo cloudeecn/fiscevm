@@ -16,6 +16,7 @@
  */
 
 #include "fyc/VMContext.h"
+#include "fyc/FileInputStream.h"
 
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
@@ -310,6 +311,7 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 fy_hashMap *mapPrimitivesRev;
 	 */
 
+	fy_fisInitInputStream(&(context->inputStream));
 	fy_mmInit(context->memblocks, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_portInit(context->port);

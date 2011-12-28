@@ -4,11 +4,23 @@
 #include "fiscestu.h"
 #include "fiscedev.h"
 
+typedef struct fy_contextData {
+	JNIEnv *env;
+	jobject buf;
+} fy_contextData;
+
+#define INIT_HEADER \
+fy_exception ex; \
+fy_exception *exception = &ex; \
+fy_context *context = (*env)->GetDirectBufferAddress(env, buf); \
+fy_contextData *cdata; \
+cdata = context->additionalData; \
+ex.exceptionType=exception_none; \
+
 #define GENERIC_HEADER \
-	fy_exception ex; \
-	fy_exception *exception = &ex; \
-	fy_context *context = (*env)->GetDirectBufferAddress(env, buf); \
-	ex.exceptionType=exception_none;
+	INIT_HEADER \
+	cdata->env=env; \
+	cdata->buf=buf;
 
 static void fillException(JNIEnv *env, fy_exception *exception) {
 	jclass vmException;
@@ -31,6 +43,111 @@ static void fillException(JNIEnv *env, fy_exception *exception) {
 }
 
 #define CHECK_JNI_EXCEPTION if((*env)->ExceptionOccurred(env)) return
+
+struct fy_javais {
+
+};
+
+static void* isOpen(fy_context *context, const char *name,
+		fy_exception *exception) {
+	fy_contextData *cdata = context->additionalData;
+	jobject buf = cdata->buf;
+	jobject is;
+	JNIEnv *env = cdata->env;
+	jclass clazz = (*env)->FindClass(env,
+			"com/cirnoworks/libfisce/shell/FisceService");
+	jmethodID method = (*env)->GetStaticMethodID(env, clazz, "getInputStream",
+			"(Ljava/nio/ByteBuffer;Ljava/lang/String;)Ljava/io/InputStream;");
+	jstring jname = (*env)->NewStringUTF(env, name);
+	if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+		return NULL;
+	}
+	is = (*env)->CallStaticObjectMethod(env, clazz, method, buf, jname);
+	if (is == NULL) {
+		return NULL;
+	} else {
+		return (*env)->NewGlobalRef(env, is);
+	}
+}
+
+static fy_int isRead(fy_context *context, void *is, fy_exception *exception) {
+	fy_contextData *cdata = context->additionalData;
+	JNIEnv *env = cdata->env;
+	jobject jis = is;
+	jclass clazz = (*env)->FindClass(env, "java/io/InputStream");
+	jint ret;
+	jmethodID method = (*env)->GetMethodID(env, clazz, "read", "()I");
+	if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+		return -1;
+	}
+	ret = (*env)->CallIntMethod(env, jis, method);
+	if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+		return -1;
+	}
+	return ret;
+}
+
+static fy_int isReadBlock(fy_context *context, void *is, void *target,
+		fy_int size, fy_exception *exception) {
+	fy_contextData *cdata = context->additionalData;
+	JNIEnv *env = cdata->env;
+	jarray byteBuf;
+	jobject jis = is;
+	jint ret;
+	jclass clazz = (*env)->FindClass(env, "java/io/InputStream");
+	jmethodID method = (*env)->GetMethodID(env, clazz, "read", "([BII)I");
+	byteBuf = (*env)->NewByteArray(env, size);
+	ret = (*env)->CallIntMethod(env, jis, method, byteBuf, 0, size);
+	if (target != NULL)
+		(*env)->GetByteArrayRegion(env, byteBuf, 0, ret, target);
+	if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+		return -1;
+	}
+	return ret;
+}
+
+static fy_int isSkip(fy_context *context, void *is, fy_int size,
+		fy_exception *exception) {
+	return isReadBlock(context, is, NULL, size, exception);
+#if 0
+	fy_contextData *cdata = context->additionalData;
+	JNIEnv *env = cdata->env;
+	jobject jis = is;
+	jclass clazz = (*env)->FindClass(env, "java/io/InputStream");
+	jmethodID method = (*env)->GetMethodID(env, clazz, "skip", "(J)J");
+	jint ret;
+	if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+		return -1;
+	}
+	ret = (fy_int) (*env)->CallLongMethod(env, jis, method, size);
+	if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+		return -1;
+	}
+	return ret;
+#endif
+}
+
+static void isClose(fy_context *context, void *is) {
+	fy_contextData *cdata = context->additionalData;
+	JNIEnv *env = cdata->env;
+	jobject jis = is;
+	jclass clazz = (*env)->FindClass(env, "java/io/InputStream");
+	jmethodID method = (*env)->GetMethodID(env, clazz, "close", "()V");
+	if ((*env)->ExceptionOccurred(env)) {
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+		}
+	}
+	(*env)->CallVoidMethod(env, jis, method);
+	(*env)->ExceptionClear(env);
+	(*env)->DeleteGlobalRef(env, jis);
+}
 
 JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 		JNIEnv *env, jclass self, jobject buf, jobject ret) {
@@ -129,14 +246,27 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		JNIEnv *env, jclass self, jobject buf) {
-	GENERIC_HEADER
+	INIT_HEADER
 
 	ex.exceptionType = exception_none;
 	memset(context, 0, sizeof(fy_context));
 	fisceInitContext(context, exception);
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
+		return;
 	}
+	cdata = fy_mmAllocate(context->memblocks, sizeof(fy_contextData),
+			exception);
+	if (exception->exceptionType != exception_none) {
+		fillException(env, exception);
+		return;
+	}
+	context->additionalData = cdata;
+	context->inputStream.isClose = isClose;
+	context->inputStream.isOpen = isOpen;
+	context->inputStream.isRead = isRead;
+	context->inputStream.isReadBlock = isReadBlock;
+	context->inputStream.isSkip = isSkip;
 }
 
 JNIEXPORT
