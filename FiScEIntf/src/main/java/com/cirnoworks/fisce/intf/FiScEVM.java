@@ -19,6 +19,7 @@ package com.cirnoworks.fisce.intf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 
 import org.w3c.dom.Element;
 
@@ -172,10 +173,17 @@ public interface FiScEVM {
 
 	/**
 	 * Get class by classId
+	 * 
 	 * @param i
 	 * @return
 	 * @throws VMException
 	 */
 	IClass getClass(int i) throws VMException;
+
+	/**
+	 * 
+	 * @return
+	 */
+	Collection<IToolkit> getToolkits();
 
 }
