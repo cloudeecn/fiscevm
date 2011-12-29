@@ -28,8 +28,8 @@
 #define MAX_FIELDS 65536
 #define MAX_OBJECTS 131072
 #define MAX_THREADS 256
-#define EDEN_SIZE 524288
-#define COPY_SIZE 262144
+#define EDEN_SIZE 131072
+#define COPY_SIZE 16384
 #define OLD_ENTRIES 524288
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
@@ -37,7 +37,7 @@
 
 #define FY_GC_IDV 10000
 #define FY_GC_FORCE_IDV 30000
-/* #define FY_GC_FORCE_FULL */
+#define FY_GC_FORCE_FULL
 
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'
