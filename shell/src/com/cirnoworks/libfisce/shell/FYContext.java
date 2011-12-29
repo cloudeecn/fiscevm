@@ -48,8 +48,20 @@ public class FYContext implements Runnable, FiScEVM {
 	private final AtomicBoolean runningCurrent = new AtomicBoolean(false);
 
 	static {
-		System.loadLibrary("fisce");
-		System.loadLibrary("fyjni");
+		Error saved = null;
+		try {
+			System.loadLibrary("fisce");
+		} catch (Error e) {
+			saved = e;
+		}
+		try {
+			System.loadLibrary("fyjni");
+		} catch (Error e2) {
+			if (saved != null) {
+				saved.printStackTrace();
+			}
+			throw e2;
+		}
 	}
 
 	public FYContext() {

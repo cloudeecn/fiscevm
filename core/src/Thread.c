@@ -3070,6 +3070,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				mvalue = fy_vmLookupMethodFromConstant(context,
 						(ConstantMethodRef*) (clazz1->constantPools[ivalue3]),
 						exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
 				clazz2 = mvalue->owner;
 				if ((mvalue->access_flags & FY_ACC_STATIC) == 0) {
 					message->messageType = message_exception;

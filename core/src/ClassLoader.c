@@ -188,8 +188,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			fy_exceptionCheckAndReturn(exception);
 			dataBuffer = fy_allocate(j, exception);
 			fy_exceptionCheckAndReturn(exception);
-			context->inputStream.isReadBlock(context, is, dataBuffer, j,
-					exception);
+			fy_dataReadBlock(context, is, dataBuffer, j, exception);
 			if (exception->exceptionType != exception_none) {
 				fy_free(dataBuffer);
 				return;
@@ -645,12 +644,9 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 				method->code = fy_mmAllocate(block, method->codeLength,
 						exception);
 				fy_exceptionCheckAndReturn(exception);
-				if (context->inputStream.isReadBlock(context, is, method->code,
-						method->codeLength, exception) != method->codeLength) {
-					fy_fault(exception, NULL,
-							"IOException in loading method code..");
-					return;
-				}
+				fy_dataReadBlock(context, is, method->code, method->codeLength,
+						exception);
+				fy_exceptionCheckAndReturn(exception);
 
 				kcount = fy_dataRead2(context, is, exception);
 				fy_exceptionCheckAndReturn(exception);

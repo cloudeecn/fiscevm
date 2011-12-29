@@ -75,7 +75,20 @@ fy_ulong fy_dataRead8(fy_context *context, void *is, fy_exception *exception) {
 	}
 	return ret;
 }
-
+void fy_dataReadBlock(fy_context *context, _FY_RESTRICT void *is,
+		_FY_RESTRICT void *buffer, fy_int size, fy_exception *exception) {
+	fy_int read;
+	fy_int pos = 0;
+	while ((read = context->inputStream.isReadBlock(context, is,
+			(byte*) buffer + pos, size, exception)) > 0 && size > 0) {
+		size -= read;
+		pos += read;
+	}
+	if (size != 0) {
+		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+		return;
+	}
+}
 void fy_dataSkip(fy_context *context, void *is, int size,
 		fy_exception *exception) {
 	fy_int value = context->inputStream.isSkip(context, is, size, exception);
