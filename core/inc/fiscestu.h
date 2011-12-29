@@ -33,11 +33,7 @@
 #define OLD_ENTRIES 524288
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
-#define MAX_GEN 4
 
-#define FY_GC_IDV 10000
-#define FY_GC_FORCE_IDV 30000
-#define FY_GC_FORCE_FULL
 
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'

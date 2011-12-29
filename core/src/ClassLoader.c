@@ -924,8 +924,10 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	fy_class *clazz;
 	fy_memblock *block = context->memblocks;
 
+#if 0
 	fy_strPrint(name);
 	printf("\n");
+#endif
 
 	if (name->content[0] == FY_TYPE_ARRAY) {
 		clazz = fy_mmAllocate(block, sizeof(fy_class), exception);

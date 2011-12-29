@@ -16,6 +16,7 @@
  */
 
 #include "fyc/Heap.h"
+#include "fyc/NConfig.h"
 
 static int fetchNextHandle(fy_context *context, fy_boolean gced,
 		fy_exception *exception) {
@@ -34,6 +35,7 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 				fy_fault(exception, NULL, "Out of memory! Handle overflow");
 				return 0;
 			} else {
+				DLOG("Call GC due to handle full\n");
 				fy_heapGC(context, exception);
 				return fetchNextHandle(context, TRUE, exception);
 			}
@@ -56,6 +58,7 @@ static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 					COPY_SIZE, context->posInOld, OLD_ENTRIES);
 			return NULL;
 		} else {
+			DLOG("Call GC due to eden full");
 			fy_heapGC(context, exception);
 			return allocateInEden(context, handle, size, TRUE, exception);
 		}
@@ -79,6 +82,7 @@ static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
 					COPY_SIZE, context->posInOld, OLD_ENTRIES);
 			return NULL;
 		} else {
+			DLOG("Call GC due to old full");
 			fy_heapGC(context, exception);
 			return allocateInOld(context, handle, size, TRUE, exception);
 		}
@@ -963,8 +967,10 @@ static void compactOld(fy_context *context, fy_exception *exception) {
 				if (newPos != i) {
 					memmove(context->old + newPos, context->old + i,
 							size * sizeof(fy_uint));
+					object->data = context->old + newPos + 1;
 				}
 				newPos += size;
+				i += size - 1;
 			}
 		}
 	}
@@ -1139,10 +1145,10 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	if ((context->posInOld - context->oldReleasedSize) * 4
 			< context->posInOld) {
 #endif
-		compactOld(context, exception);
-		fy_exceptionCheckAndReturn(exception);
+	compactOld(context, exception);
+	fy_exceptionCheckAndReturn(exception);
 #ifndef FY_GC_FORCE_FULL
-	}
+}
 #endif
 	printf(
 			"#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",

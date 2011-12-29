@@ -1,5 +1,5 @@
 /**
- *  Copyright 2010-2011 Yuxuan Huang. All rights reserved.
+ *  Copyright 2010 Yuxuan Huang. All rights reserved.
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,34 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FY_DEBUG_H_
-#define FY_DEBUG_H_
+#ifndef NCONFIG_H_
+#define NCONFIG_H_
 
-#include "../fisceprt.h"
-#include "String.h"
+#define MAX_GEN 6
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+#define FY_GC_IDV 10000
+#define FY_GC_FORCE_IDV 10000
+/*#define FY_GC_FORCE_FULL*/
 
-_FY_EXPORT void fy_strPrint(fy_str *str);
-
-#ifdef _DEBUG
-
-#define ASSERT(TEST) {if(!(TEST)) fy_fault(NULL,NULL,"ASSERTION ERROR IN %s:%d", __FILE__,__LINE__);}
-_FY_EXPORT void fy_varprintf(const char *format, ...);
-#define   DLOG   \
-        printf( "%s(%s:%d):D: ",__FUNCTION__,   __FILE__,   __LINE__); \
-        fy_varprintf
-#else
-
-#define ASSERT(TEST)
-#define DLOG(fmt, args...)
-
-#endif
-
-#ifdef	__cplusplus
-}
-#endif
-
-#endif /* FY_DEBUG_H_ */
+#endif /* NCONFIG_H_ */

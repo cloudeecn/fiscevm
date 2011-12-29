@@ -543,7 +543,6 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 			if (exception->exceptionType != exception_none) {
 				return 0;
 			}
-			fy_heapEndProtect(context);
 			constantStringInfo->derefed = TRUE;
 			constantStringInfo->ci.handle = hvalue;
 		} else {
@@ -2931,7 +2930,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, exception);
-						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3039,7 +3037,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, exception);
-						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3132,7 +3129,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, exception);
-						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3239,7 +3235,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, exception);
-						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3811,7 +3806,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}fy_threadPushHandle(ivalue2);
-				fy_heapEndProtect(context);
 				fy_free(pivalue);
 				break;
 			}
@@ -4376,7 +4370,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			fy_heapBeginProtect(context);
 			thread->currentThrowable = fy_threadPrepareThrowable(context,
 					thread, &exceptionToPrepare, exception);
-			fy_heapEndProtect(context);
 			if (exception->exceptionType != exception_none) {
 				break;
 			}

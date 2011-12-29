@@ -248,7 +248,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		JNIEnv *env, jclass self, jobject buf) {
 	INIT_HEADER
 
-	setvbuf(stdout, NULL, _IOLBF, 1024);
+	setvbuf(stdout, NULL, _IONBF, 1024);
 
 	ex.exceptionType = exception_none;
 	memset(context, 0, sizeof(fy_context));
