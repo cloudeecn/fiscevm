@@ -80,7 +80,7 @@ void fy_dataReadBlock(fy_context *context, _FY_RESTRICT void *is,
 	fy_int read;
 	fy_int pos = 0;
 	while ((read = context->inputStream.isReadBlock(context, is,
-			(byte*) buffer + pos, size, exception)) > 0 && size > 0) {
+			(fy_byte*) buffer + pos, size, exception)) > 0 && size > 0) {
 		size -= read;
 		pos += read;
 	}
