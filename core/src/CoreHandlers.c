@@ -808,6 +808,7 @@ static void finalizerGetFinalizee(struct fy_context *context,
 		fy_heapPutArrayHandle(context, ret, i, storage, exception);
 		fy_exceptionCheckAndReturn(exception);
 	}
+	fy_arrayListClear(context->memblocks, context->toFinalize);
 	fy_nativeReturnHandle(context, thread, ret);
 }
 
