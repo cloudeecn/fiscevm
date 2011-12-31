@@ -1,1 +1,1 @@
-./configure --prefix=$PWD/../shelljni $@
+./configure --prefix=$PWD/.. $@
