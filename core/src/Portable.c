@@ -25,7 +25,7 @@ static long int blocks = 0;
 #ifdef __GNUC__
 __attribute__((malloc))
 #endif
-_FY_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception) {
+FY_ATTR_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception) {
 	void *ret;
 	blocks++;
 	ret = malloc(size);
@@ -38,16 +38,16 @@ _FY_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception) {
 	return ret;
 }
 
-_FY_EXPORT void fy_free(void *target) {
+FY_ATTR_EXPORT void fy_free(void *target) {
 	blocks--;
 	free(target);
 }
 
-_FY_EXPORT long int fy_getAllocated() {
+FY_ATTR_EXPORT long int fy_getAllocated() {
 	return blocks;
 }
 
-_FY_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
+FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 		const char *format, ...) {
 	va_list arg_ptr;
 	int i = 0;
@@ -99,35 +99,35 @@ union fy_itof {
 	fy_int i;
 };
 
-_FY_EXPORT fy_long fy_doubleToLong(fy_double value) {
+FY_ATTR_EXPORT fy_long fy_doubleToLong(fy_double value) {
 	union fy_dtol d;
 	d.d = value;
 	return d.l;
 }
-_FY_EXPORT fy_double fy_longToDouble(fy_long value) {
+FY_ATTR_EXPORT fy_double fy_longToDouble(fy_long value) {
 	union fy_dtol d;
 	d.l = value;
 	return d.d;
 }
-_FY_EXPORT fy_int fy_floatToInt(fy_float value) {
+FY_ATTR_EXPORT fy_int fy_floatToInt(fy_float value) {
 	union fy_itof d;
 	d.f = value;
 	return d.i;
 }
-_FY_EXPORT fy_float fy_intToFloat(fy_int value) {
+FY_ATTR_EXPORT fy_float fy_intToFloat(fy_int value) {
 	union fy_itof d;
 	d.i = value;
 	return d.f;
 }
 
-_FY_EXPORT fy_boolean fy_isnand(fy_double d) {
+FY_ATTR_EXPORT fy_boolean fy_isnand(fy_double d) {
 	return d != d;
 }
-_FY_EXPORT fy_boolean fy_isnanf(fy_float f) {
+FY_ATTR_EXPORT fy_boolean fy_isnanf(fy_float f) {
 	return f != f;
 }
 
-_FY_EXPORT void fy_portInit(fy_port *data) {
+FY_ATTR_EXPORT void fy_portInit(fy_port *data) {
 	data->initTimeInMillSec = (fy_long) time(NULL) * 1000;
 #if defined(_WIN32)
 	QueryPerformanceFrequency(&(data->lpFreq));
@@ -137,10 +137,10 @@ _FY_EXPORT void fy_portInit(fy_port *data) {
 	gettimeofday(&(data->tvBeginTime), NULL);
 #endif
 }
-_FY_EXPORT void fy_portDestroy(fy_port *data) {
+FY_ATTR_EXPORT void fy_portDestroy(fy_port *data) {
 	/*No code need yet*/
 }
-_FY_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
+FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
 #if defined(_WIN32)
 	fy_long timeDelta;
 	LARGE_INTEGER lPerfCount;
@@ -155,7 +155,7 @@ _FY_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
 #endif
 	return 0;
 }
-_FY_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd) {
+FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd) {
 #if defined(_WIN32)
 	LARGE_INTEGER lPerfCount;
 	QueryPerformanceCounter(&lPerfCount);

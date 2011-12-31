@@ -25,12 +25,12 @@
 extern "C" {
 #endif
 
-_FY_EXPORT void fy_strPrint(fy_str *str);
+FY_ATTR_EXPORT void fy_strPrint(fy_str *str);
 
 #ifdef _DEBUG
 
 #define ASSERT(TEST) {if(!(TEST)) fy_fault(NULL,NULL,"ASSERTION ERROR IN %s:%d", __FILE__,__LINE__);}
-_FY_EXPORT void fy_varprintf(const char *format, ...);
+FY_ATTR_EXPORT void fy_varprintf(const char *format, ...);
 #define   DLOG   \
         printf( "%s(%s:%d):D: ",__FUNCTION__,   __FILE__,   __LINE__); \
         fy_varprintf

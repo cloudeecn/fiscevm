@@ -82,7 +82,7 @@ static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 	return NULL;
 }
 
-_FY_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initSize,
+FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initSize,
 		fy_uint loadFactor, fy_exception *exception) {
 	this->loadFactor = loadFactor;
 	this->bucketsCount = initSize;
@@ -90,11 +90,11 @@ _FY_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initS
 			exception);
 	this->size = 0;
 }
-_FY_EXPORT void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this,
+FY_ATTR_EXPORT void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this,
 		fy_exception *exception) {
 	fy_hashMapInit(mem, this, 16, 12, exception);
 }
-_FY_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
+FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
 		void *value, fy_exception *exception) {
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
@@ -137,7 +137,7 @@ _FY_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
 	}
 }
 
-_FY_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const char *keyUtf8,
+FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const char *keyUtf8,
 		void *value, fy_exception *exception) {
 	fy_str *key;
 	void *ret;
@@ -157,12 +157,12 @@ _FY_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const cha
 	return ret;
 }
 
-_FY_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key) {
+FY_ATTR_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key) {
 	fy_hashMapEntry *entry = getBucket(mem, this, key);
 	return entry == NULL ? NULL : entry->value;
 }
 
-_FY_EXPORT void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
+FY_ATTR_EXPORT void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
 		void(*fn)(fy_str *key, void *value, void *addition), void *addition) {
 	fy_uint i, imax, j, jmax;
 	fy_hashMapEntry *entry;
@@ -176,7 +176,7 @@ _FY_EXPORT void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
 	}
 }
 
-_FY_EXPORT void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this) {
+FY_ATTR_EXPORT void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this) {
 	int i, imax;
 	fy_hashMapEntry *entry, *tmp;
 	for (i = 0, imax = this->bucketsCount; i < imax; i++) {

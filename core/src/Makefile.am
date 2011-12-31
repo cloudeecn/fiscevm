@@ -1,5 +1,23 @@
-FYSOURCES = \
-	Debug.c \
+
+include_HEADERS= \
+	../inc/fisce.h \
+	../inc/fiscecon.h \
+	../inc/fiscedev.h \
+	../inc/fisceprt.h \
+	../inc/fiscestu.h
+	
+fyincdir = @includedir@/fy_util
+fyinc_HEADERS = \
+	../inc/fy_util/LnkList.h \
+	../inc/fy_util/MemMan.h \
+	../inc/fy_util/String.h \
+	../inc/fy_util/HashMap.h \
+	../inc/fy_util/ArrList.h \
+	../inc/fy_util/Debug.h \
+	../inc/fy_util/Utf8.h
+
+lib_LTLIBRARIES=libfisce.la
+libfisce_la_SOURCES = Debug.c \
 	HashMap.c \
 	ArrList.c \
 	LnkList.c \
@@ -21,33 +39,17 @@ FYSOURCES = \
 	FiScE.c \
 	FileInputStream.c
 
-include_HEADERS= \
-	../inc/fisce.h \
-	../inc/fiscecon.h \
-	../inc/fiscedev.h \
-	../inc/fisceprt.h \
-	../inc/fiscestu.h
-	
-fyincdir = @includedir@/fy_util
-fyinc_HEADERS = \
-	../inc/fy_util/LnkList.h \
-	../inc/fy_util/MemMan.h \
-	../inc/fy_util/String.h \
-	../inc/fy_util/HashMap.h \
-	../inc/fy_util/ArrList.h \
-	../inc/fy_util/Debug.h \
-	../inc/fy_util/Utf8.h
-
-lib_LTLIBRARIES=libfisce.la
-libfisce_la_SOURCES = $(FYSOURCES)
-libfisce_la_CFLAGS = $(AM_CFLAGS)
-libfisce_la_LDFLAGS = -no-undefined
+libfisce_la_CFLAGS = -DFY_EXPORT
+libfisce_la_LDFLAGS = -fwhole-program -no-undefined 
 
 noinst_PROGRAMS = utiltest fiscetest
-utiltest_SOURCES = $(FYSOURCES) \
-	TestUtil.c
-utiltest_LDADD  = -lcunit
 
-fiscetest_SOURCES = $(FYSOURCES) \
-	Test.c
-fiscetest_LDADD  = -lcunit
+utiltest_SOURCES = TestUtil.c
+utiltest_LDFLAGS = -fwhole-program -static
+utiltest_CFLAGS = -DFY_STATIC
+utiltest_LDADD  = libfisce.la -lcunit
+
+fiscetest_SOURCES = Test.c
+fiscetest_LDFLAGS = -fwhole-program -static
+fiscetest_CFLAGS = -DFY_STATIC
+fiscetest_LDADD  = libfisce.la -lcunit

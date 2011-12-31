@@ -863,7 +863,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 	fy_int i;
 	fy_uint handle;
 
-#ifndef _FY_LATE_DECLARATION
+#ifndef FY_LATE_DECLARATION
 	fy_uint handle1, handle2;
 	fy_class *clazz;
 	fy_field *field;
@@ -871,7 +871,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 #endif
 
 	while (fy_arrayListPop(context->memblocks, from, &handle)) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 		fy_class *clazz;
 		fy_uint handle2;
 		fy_field *field;

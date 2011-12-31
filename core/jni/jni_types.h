@@ -49,7 +49,11 @@
  */
 #if defined (_WIN32) || defined (__WIN32__) || defined (WIN32)
 
-#define JNIEXPORT __declspec(dllexport)
+#if defined(__GNUC__)
+# define JNIEXPORT __declspec(dllexport) __attribute__((externally_visible))
+#else
+# define JNIEXPORT __declspec(dllexport)
+#endif
 #define JNIIMPORT __declspec(dllimport)
 #define JNICALL __stdcall
 
@@ -57,7 +61,11 @@ typedef signed __int64 jlong;
 
 #else
 
-#define JNIEXPORT
+#if defined(__GNUC__)
+# define JNIEXPORT __attribute__((externally_visible))
+#else
+# define JNIEXPORT
+#endif
 #define JNIIMPORT
 #define JNICALL
 

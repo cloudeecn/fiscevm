@@ -81,7 +81,7 @@ typedef struct fy_port {
 	LARGE_INTEGER lpPerfCountBegin;
 	double perfIdv;
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
-	struct timeval tvBeginTime;
+struct timeval tvBeginTime;
 #endif
 } fy_port;
 #ifdef _MSC_VER
@@ -90,44 +90,61 @@ typedef struct fy_port {
 # define sprintf_s snprintf
 # define vsprintf_s vsnprintf
 #endif
-#ifdef _MSC_VER
-# ifdef _FY_BUILD_LIB
-#  define _FY_EXPORT __declspec(dllexport)
-# else
-#  define _FY_EXPORT __declspec(dllimport)
+
+#if defined(_WIN32)
+# if defined(__GNUC__)
+#  if defined(FY_EXPORT) && defined(DLL_EXPORT)
+#   define FY_ATTR_EXPORT __attribute__((externally_visible)) __attribute__((dllexport))
+#  elif defined(FY_EXPORT) && !defined(DLL_EXPORT)
+#   define FY_ATTR_EXPORT __attribute__((externally_visible))
+#  elif !defined(FY_EXPORT) && defined(FY_STATIC)
+#    define FY_ATTR_EXPORT
+#  else
+#    define FY_ATTR_EXPORT __attribute__((dllimport))
+#  endif
+# elif defined(_MSC_VER)
+#  if defined(DLL_EXPORT)
+#   define FY_ATTR_EXPORT __declspec(dllexport)
+#  else
+#   ifdef FY_STATIC
+#    define FY_ATTR_EXPORT
+#   else
+#    define FY_ATTR_EXPORT __attribute__((dllimport))
+#   endif
+#  endif
 # endif
 #elif defined(__GNUC__)
-# ifdef _WIN32
-#  define _FY_EXPORT __attribute__((externally_visible)) __attribute__((dllexport))
+# if defined(FY_EXPORT)
+#  define FY_ATTR_EXPORT __attribute__((externally_visible))
 # else
-#  define _FY_EXPORT __attribute__((externally_visible))
+#  define FY_ATTR_EXPORT
 # endif
 #else
-# define _FY_EXPORT
+# define FY_ATTR_EXPORT
 #endif
 #if __STDC_VERSION__ >= 199901L
 # define _C99
-# define _FY_RESTRICT restrict
+# define FY_ATTR_RESTRICT restrict
 #else
-# define _FY_RESTRICT
+# define FY_ATTR_RESTRICT
 #endif
 #if defined(_C99) || defined(__GNUC__)
-# define _FY_LATE_DECLARATION
+# define FY_LATE_DECLARATION
 #endif
 #if defined(_C99)
-# define _FY_VLS(TYPE,X) TYPE X[]
+# define FY_VLS(TYPE,X) TYPE X[]
 #elif defined(__GNUC__)
-# define _FY_VLS(TYPE,X) TYPE X[0]
+# define FY_VLS(TYPE,X) TYPE X[0]
 #else
-# define _FY_VLS(TYPE,X) TYPE X[1]
+# define FY_VLS(TYPE,X) TYPE X[1]
 #endif
 #if 1
-#define _FY_GOTO
+#define FY_GOTO
 #endif
 #if 1
-#define _FY_FASTCALL __fastcall
+#define FY_FASTCALL __fastcall
 #else
-#define _FY_FASTCALL
+#define FY_FASTCALL
 #endif
 #ifdef _DEBUG
 #define FY_STRICT_CHECK
@@ -150,23 +167,23 @@ typedef struct fy_port {
 #define fy_B4TOI(B1,B2,B3,B4) ((((fy_uint)(B1))<<24)+(((fy_uint)(B2))<<16)+(((fy_uint)(B3))<<8)+((fy_uint)(B4)))
 #define fy_HOFL(L) ((fy_int)(L>>32))
 #define fy_LOFL(L) ((fy_int)(L))
-_FY_EXPORT fy_long fy_doubleToLong(fy_double value);
-_FY_EXPORT fy_double fy_longToDouble(fy_long value);
-_FY_EXPORT fy_int fy_floatToInt(fy_float value);
-_FY_EXPORT fy_float fy_intToFloat(fy_int value);
-_FY_EXPORT fy_boolean fy_isnand(fy_double d);
-_FY_EXPORT fy_boolean fy_isnanf(fy_float f);
+FY_ATTR_EXPORT fy_long fy_doubleToLong(fy_double value);
+FY_ATTR_EXPORT fy_double fy_longToDouble(fy_long value);
+FY_ATTR_EXPORT fy_int fy_floatToInt(fy_float value);
+FY_ATTR_EXPORT fy_float fy_intToFloat(fy_int value);
+FY_ATTR_EXPORT fy_boolean fy_isnand(fy_double d);
+FY_ATTR_EXPORT fy_boolean fy_isnanf(fy_float f);
 
-_FY_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception);
-_FY_EXPORT void fy_free(void *target);
-_FY_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
+FY_ATTR_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception);
+FY_ATTR_EXPORT void fy_free(void *target);
+FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 		const char *msg, ...);
-_FY_EXPORT long int fy_getAllocated();
+FY_ATTR_EXPORT long int fy_getAllocated();
 
-_FY_EXPORT void fy_portInit(fy_port *pd);
-_FY_EXPORT void fy_portDestroy(fy_port *pd);
-_FY_EXPORT fy_long fy_portTimeMillSec(fy_port *pd);
-_FY_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd);
+FY_ATTR_EXPORT void fy_portInit(fy_port *pd);
+FY_ATTR_EXPORT void fy_portDestroy(fy_port *pd);
+FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd);
+FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd);
 
 #ifdef	__cplusplus
 }

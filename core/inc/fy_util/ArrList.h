@@ -30,23 +30,23 @@ typedef struct fy_arrayList {
 	size_t entrySize;
 	void *data;
 } fy_arrayList;
-_FY_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, size_t entrySize,
+FY_ATTR_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, size_t entrySize,
 		fy_int initCap, fy_exception *exception);
 
-_FY_EXPORT void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list);
+FY_ATTR_EXPORT void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list);
 
-_FY_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *data,
+FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *data,
 		fy_exception *exception);
 
-_FY_EXPORT void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list, fy_uint pos,
+FY_ATTR_EXPORT void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list, fy_uint pos,
 		void *storage);
 
-_FY_EXPORT void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list, void *storage);
+FY_ATTR_EXPORT void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list, void *storage);
 
-_FY_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
+FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
 		fy_exception *exception);
 
-_FY_EXPORT void fy_arrayListClear(fy_memblock *block, fy_arrayList *list);
+FY_ATTR_EXPORT void fy_arrayListClear(fy_memblock *block, fy_arrayList *list);
 
 #ifdef	__cplusplus
 }

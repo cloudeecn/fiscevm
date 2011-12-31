@@ -17,7 +17,7 @@
 
 #include "fy_util/Debug.h"
 
-_FY_EXPORT void fy_strPrint(fy_str *str) {
+FY_ATTR_EXPORT void fy_strPrint(fy_str *str) {
 	int i, count;
 	fy_char unicode;
 	char buf[4];
@@ -34,7 +34,7 @@ _FY_EXPORT void fy_strPrint(fy_str *str) {
 	}
 }
 
-_FY_EXPORT void fy_varprintf(const char *format, ...) {
+FY_ATTR_EXPORT void fy_varprintf(const char *format, ...) {
 	va_list arg_ptr;
 	va_start(arg_ptr, format);
 	vfprintf(stdout, format, arg_ptr);

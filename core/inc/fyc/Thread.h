@@ -58,8 +58,8 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		fy_uint handle, fy_exception *exception);
 
 fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
-		_FY_RESTRICT fy_exception *toPrepare,
-		_FY_RESTRICT fy_exception *exception);
+		FY_ATTR_RESTRICT fy_exception *toPrepare,
+		FY_ATTR_RESTRICT fy_exception *exception);
 
 void fy_threadReturnInt(fy_context *context, fy_thread *thread, fy_int value);
 

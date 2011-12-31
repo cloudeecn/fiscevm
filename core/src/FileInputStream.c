@@ -27,7 +27,7 @@ static void* isOpen(struct fy_context *context, const char *name,
 	if (exception->exceptionType != exception_none) {
 		return NULL;
 	}
-	fy_strAppendUTF8(block, &localName, "../rt/bin/", -1, exception);
+	fy_strAppendUTF8(block, &localName, "runtime/", -1, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_strDestroy(block, &localName);
 		return NULL;

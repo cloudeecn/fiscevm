@@ -385,7 +385,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 	fy_boolean stateLocal;
 	fy_arrayList *running = context->runningThreads;
 
-#ifndef _FY_LATE_DECLARATION
+#ifndef FY_LATE_DECLARATION
 	fy_thread *thread;
 	fy_long nextWakeUpTime,now,sleepTime;
 	fy_uint lockId;
@@ -401,14 +401,14 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 	}
 	context->state = FY_TM_STATE_RUNNING;
 	while (1) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 		fy_thread *thread;
 #endif
 		message->messageType = message_none;
 		stateLocal = context->state;
 		switch (stateLocal) {
 		case FY_TM_STATE_RUNNING: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 			fy_long nextWakeUpTime;
 			fy_uint lockId;
 			fy_object *lock;
@@ -488,7 +488,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 						context->state = FY_TM_STATE_DEAD;
 					} else {
 
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 						fy_long now, sleepTime;
 #endif
 						now = fy_portTimeMillSec(context->port);

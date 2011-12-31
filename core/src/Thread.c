@@ -754,7 +754,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	/*The last line, so don't need error handle*/
 }
 
-#ifdef _FY_GOTO
+#ifdef FY_GOTO
 # define FY_FALLOUT_INVOKE goto label_fallout_invoke;
 # define FY_FALLOUT_NOINVOKE goto label_fallout_noinvoke;
 #else
@@ -1141,7 +1141,7 @@ void fy_threadInitWithData(fy_context *context, fy_thread *thread,
 void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		fy_int ops) {
 	fy_uint sb, sp, pc, lpc, opCount, op;
-#ifndef _FY_GOTO
+#ifndef FY_GOTO
 	enum FallOut {
 		fallout_none, fallout_invoke, fallout_noinvoke
 	}fallout;
@@ -1157,7 +1157,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 	fy_memblock *block = context->memblocks;
 	fy_exception *exception = &(message->body.exception);
 
-#ifndef _FY_LATE_DECLARATION
+#ifndef FY_LATE_DECLARATION
 	fy_uint ivalue, ivalue2, ivalue3, ivalue4;
 	int i;
 	fy_ulong lvalue, lvalue2;
@@ -1209,7 +1209,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		/**/
 		fy_frameToLocal(frame);
 		if (thread->currentThrowable) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 			fy_uint ivalue;
 #endif
 			ivalue = processThrowable(context, frame, thread->currentThrowable,
@@ -1246,12 +1246,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 			}
 		}
-#ifndef _FY_GOTO
+#ifndef FY_GOTO
 		fallout = fallout_none;
 #endif
 		lpc = pc;
 		if (method->clinit) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 			fy_class *clinitClazz;
 #endif
 			clinitClazz = clinit(context, thread, method->owner->super);
@@ -1273,7 +1273,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		}
 
 		for (; opCount < ops
-#ifndef _FY_GOTO
+#ifndef FY_GOTO
 				&& fallout == fallout_none
 #endif
 				; opCount++) {
@@ -1281,7 +1281,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			lpc = pc;
 			op = fy_nextU1(code);
 #ifdef FY_VERBOSE
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 			char msg[256];
 #endif
 			fy_strSPrint(msg, 256, method->uniqueName);
@@ -1291,7 +1291,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 
 			switch (op) {
 			case AALOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1307,7 +1307,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case FALOAD:
 			case IALOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1322,7 +1322,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case AASTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 				fy_class *clazz1, *clazz2;
 #endif
@@ -1357,7 +1357,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case FASTORE:
 			case IASTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1379,7 +1379,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 
 			case ILOAD:
 			case FLOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				ivalue = fy_nextU1(code);
@@ -1388,7 +1388,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ALOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				ivalue = fy_nextU1(code);
@@ -1398,7 +1398,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ILOAD_0:
 			case FLOAD_0: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalInt(0, ivalue);
@@ -1406,7 +1406,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ALOAD_0: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalHandle(0, ivalue);
@@ -1415,7 +1415,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ILOAD_1:
 			case FLOAD_1: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalInt(1, ivalue);
@@ -1426,7 +1426,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ALOAD_1: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalHandle(1, ivalue);
@@ -1435,7 +1435,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ILOAD_2:
 			case FLOAD_2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalInt(2, ivalue);
@@ -1443,7 +1443,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ALOAD_2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalHandle(2, ivalue);
@@ -1452,7 +1452,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ILOAD_3:
 			case FLOAD_3: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalInt(3, ivalue);
@@ -1460,7 +1460,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ALOAD_3: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadGetLocalHandle(3, ivalue);
@@ -1468,7 +1468,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ANEWARRAY: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ch1, ivalue;
 				fy_class *clazz1, *clazz2;
 				fy_str str1;
@@ -1553,7 +1553,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case IRETURN:
 			case FRETURN: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1580,7 +1580,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ARETURN: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopHandle(ivalue);
@@ -1606,7 +1606,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ARRAYLENGTH: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopHandle(ivalue);
@@ -1628,7 +1628,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ISTORE:
 			case FSTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				ivalue = fy_nextU1(code);
@@ -1637,7 +1637,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ASTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 				fy_uint type;
 #endif
@@ -1648,7 +1648,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ISTORE_0:
 			case FSTORE_0: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1656,7 +1656,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ASTORE_0: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_uint type;
 #endif
@@ -1666,7 +1666,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ISTORE_1:
 			case FSTORE_1: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1674,7 +1674,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ASTORE_1: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_uint type;
 #endif
@@ -1684,7 +1684,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ISTORE_2:
 			case FSTORE_2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1692,7 +1692,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ASTORE_2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_uint type;
 #endif
@@ -1702,7 +1702,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ISTORE_3:
 			case FSTORE_3: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1710,7 +1710,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ASTORE_3: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_uint type;
 #endif
@@ -1719,7 +1719,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ATHROW: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopHandle(ivalue);
@@ -1728,7 +1728,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case BALOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue3);
@@ -1743,7 +1743,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case BASTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1759,7 +1759,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case BIPUSH: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				ivalue = fy_nextS1(code);
@@ -1767,7 +1767,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case CALOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue3);
@@ -1782,7 +1782,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case CASTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue);
@@ -1798,7 +1798,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case CHECKCAST: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 				fy_class *clazz1, *clazz2;
 				fy_str str1;
@@ -1863,7 +1863,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case D2F: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -1872,7 +1872,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case D2I: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -1880,7 +1880,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case D2L: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -1889,7 +1889,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DADD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
 				fy_ulong lvalue;
 #endif
@@ -1901,7 +1901,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LALOAD:
 			case DALOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 				fy_uint ivalue2, ivalue3;
 #endif
@@ -1918,7 +1918,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LASTORE:
 			case DASTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 				fy_uint ivalue2, ivalue3;
 #endif
@@ -1935,7 +1935,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DCMPG: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
 #endif
 				fy_threadPopDouble(dvalue2);
@@ -1950,7 +1950,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DCMPL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
 #endif
 				fy_threadPopDouble(dvalue2);
@@ -1973,7 +1973,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DDIV: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
 				fy_ulong lvalue;
 #endif
@@ -1984,7 +1984,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DMUL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
 				fy_ulong lvalue;
 #endif
@@ -1995,7 +1995,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DNEG: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue;
 				fy_ulong lvalue;
 #endif
@@ -2005,7 +2005,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DREM: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
 				fy_ulong lvalue;
 #endif
@@ -2023,7 +2023,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DRETURN: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue;
 #endif
 				fy_threadPopDouble(dvalue);
@@ -2047,7 +2047,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DSUB: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_double dvalue, dvalue2;
 				fy_ulong lvalue;
 #endif
@@ -2058,7 +2058,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DUP: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_uint type;
 #endif
@@ -2068,7 +2068,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DUP_X1: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 				fy_uint type, type2;
 #endif
@@ -2081,7 +2081,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DUP_X2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 				fy_uint type, type2, type3;
 #endif
@@ -2096,7 +2096,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DUP2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 				fy_uint type, type2;
 #endif
@@ -2110,7 +2110,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DUP2_X1: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 				fy_uint type, type2, type3;
 #endif
@@ -2126,7 +2126,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case DUP2_X2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3, ivalue4;
 				fy_uint type, type2, type3, type4;
 #endif
@@ -2144,7 +2144,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case F2D: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_float fvalue;
 				fy_ulong lvalue;
 #endif
@@ -2154,7 +2154,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case F2I: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -2163,7 +2163,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case F2L: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_ulong lvalue;
 #endif
@@ -2173,7 +2173,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case FADD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue);
@@ -2184,7 +2184,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case FCMPG: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_float fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
@@ -2198,7 +2198,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case FCMPL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_float fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
@@ -2224,7 +2224,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case FDIV: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_float fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
@@ -2233,7 +2233,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case FMUL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_float fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
@@ -2242,7 +2242,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case FNEG: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_float fvalue;
 #endif
 				fy_threadPopFloat(fvalue);
@@ -2250,7 +2250,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case FREM: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_float fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
@@ -2264,7 +2264,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case FSUB: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_float fvalue, fvalue2;
 #endif
 				fy_threadPopFloat(fvalue2);
@@ -2273,7 +2273,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case GETFIELD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3, ivalue2;
 				fy_field *field;
 				fy_uint type;
@@ -2291,7 +2291,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				if (field->access_flags & FY_ACC_STATIC) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
 					message->messageType = message_exception;
@@ -2310,7 +2310,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				switch (type) {
 				case 'D':
 				case 'J': {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_ulong lvalue;
 #endif
 					lvalue = fy_heapGetFieldLong(context, ivalue2, field,
@@ -2329,7 +2329,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				case 'L':
 				case '[': {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					ivalue = fy_heapGetFieldHandle(context, ivalue2, field,
@@ -2347,7 +2347,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 					break;
 				default: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					ivalue = fy_heapGetFieldInt(context, ivalue2, field,
@@ -2368,7 +2368,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case GETSTATIC: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3;
 				fy_uint type;
 				fy_field *field;
@@ -2416,7 +2416,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				switch (type) {
 				case 'D':
 				case 'J': {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_ulong lvalue;
 #endif
 					lvalue = fy_heapGetStaticLong(context, field, exception);
@@ -2430,7 +2430,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				case 'L':
 				case '[': {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue2;
 #endif
 					ivalue2 = fy_heapGetStaticInt(context, field, exception);
@@ -2443,7 +2443,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				default: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					ivalue = fy_heapGetStaticInt(context, field, exception);
@@ -2459,7 +2459,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case GOTO: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				ivalue = fy_nextS2(code);
@@ -2467,7 +2467,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case GOTO_W: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				ivalue = fy_nextS4(code);
@@ -2475,7 +2475,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case I2B: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -2484,7 +2484,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case I2C: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -2493,7 +2493,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case I2D: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_long lvalue;
 #endif
@@ -2509,7 +2509,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case I2L: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_long lvalue;
 #endif
@@ -2525,7 +2525,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IADD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -2537,7 +2537,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IAND: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -2574,7 +2574,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IDIV: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -2595,7 +2595,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IF_ICMPEQ: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2607,7 +2607,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IF_ACMPEQ: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2619,7 +2619,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IF_ICMPNE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2631,7 +2631,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IF_ACMPNE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2643,7 +2643,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IF_ICMPLT: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2655,7 +2655,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IF_ICMPLE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2667,7 +2667,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IF_ICMPGT: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2679,7 +2679,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IF_ICMPGE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2692,7 +2692,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 
 			case IFEQ: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2703,7 +2703,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IFNULL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2715,7 +2715,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 
 			case IFNE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2726,7 +2726,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IFNONNULL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2738,7 +2738,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 
 			case IFLT: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2749,7 +2749,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IFLE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2760,7 +2760,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IFGT: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2771,7 +2771,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IFGE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextS2(code);
@@ -2782,7 +2782,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IINC: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextU1(code);
@@ -2792,7 +2792,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IMUL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue);
@@ -2801,7 +2801,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case INEG: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -2809,7 +2809,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case INSTANCEOF: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue2, ivalue3;
 				fy_class *clazz1, *clazz2;
 #endif
@@ -2830,7 +2830,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case INVOKEINTERFACE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 				fy_class *clazz1;
 				fy_method *mvalue;
@@ -2916,7 +2916,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}fy_localToFrame(frame);
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
 					nh = fy_hashMapGet(block, context->mapMUNameToNH,
@@ -2950,7 +2950,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case INVOKESPECIAL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 				fy_class *clazz1, *clazz2;
 				fy_method *mvalue;
@@ -3023,7 +3023,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}fy_localToFrame(frame);
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
 					nh = fy_hashMapGet(block, context->mapMUNameToNH,
@@ -3057,7 +3057,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case INVOKESTATIC: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 				fy_class *clazz1, *clazz2, *clinitClazz;
 				fy_method *mvalue;
@@ -3115,7 +3115,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				sp -= ivalue;
 				fy_localToFrame(frame);
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
 					nh = fy_hashMapGet(block, context->mapMUNameToNH,
@@ -3149,7 +3149,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case INVOKEVIRTUAL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 				fy_class *clazz1, *clazz2;
 				fy_method *mvalue, *mvalue2;
@@ -3221,7 +3221,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}fy_localToFrame(frame);
 				if (mvalue2->access_flags & FY_ACC_NATIVE) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_nh *nh;
 #endif
 					nh = fy_hashMapGet(block, context->mapMUNameToNH,
@@ -3255,7 +3255,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IOR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -3265,7 +3265,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IREM: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -3287,7 +3287,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ISHL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -3296,7 +3296,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ISHR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -3305,7 +3305,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case ISUB: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -3315,7 +3315,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IUSHR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -3324,7 +3324,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case IXOR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue2);
@@ -3333,7 +3333,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case JSR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				ivalue = fy_nextS2(code);
@@ -3342,7 +3342,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case JSR_W: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				ivalue = fy_nextS4(code);
@@ -3351,7 +3351,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case L2D: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3360,7 +3360,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case L2F: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 				fy_uint ivalue;
 #endif
@@ -3370,7 +3370,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case L2I: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3378,7 +3378,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LADD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3388,7 +3388,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LAND: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3398,7 +3398,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LCMP: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3416,7 +3416,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LDC: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3, ivalue;
 				fy_uint type;
 #endif
@@ -3435,7 +3435,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LDC_W: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3, ivalue;
 				fy_uint type;
 #endif
@@ -3450,7 +3450,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LDC2_W: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3;
 				fy_ulong lvalue;
 #endif
@@ -3464,7 +3464,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LDIV: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3487,7 +3487,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DLOAD:
 			case LLOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 				fy_uint ivalue;
 #endif
@@ -3498,7 +3498,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DLOAD_0:
 			case LLOAD_0: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(0, lvalue);
@@ -3507,7 +3507,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DLOAD_1:
 			case LLOAD_1: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(1, lvalue);
@@ -3516,7 +3516,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DLOAD_2:
 			case LLOAD_2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(2, lvalue);
@@ -3525,7 +3525,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DLOAD_3:
 			case LLOAD_3: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(3, lvalue);
@@ -3533,7 +3533,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LMUL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3543,7 +3543,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LNEG: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3551,7 +3551,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LOOKUPSWITCH: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 				fy_int *pivalue, *pivalue2;
 				fy_uint i;
@@ -3594,7 +3594,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LOR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3604,7 +3604,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LREM: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3627,7 +3627,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LRETURN: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3652,7 +3652,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LSHL: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_ulong lvalue;
 #endif
@@ -3663,7 +3663,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LSHR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 				fy_ulong lvalue;
 #endif
@@ -3674,7 +3674,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LUSHR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 				fy_uint ivalue;
 #endif
@@ -3686,7 +3686,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DSTORE:
 			case LSTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 				fy_uint ivalue;
 #endif
@@ -3697,7 +3697,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DSTORE_0:
 			case LSTORE_0: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3706,7 +3706,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DSTORE_1:
 			case LSTORE_1: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3715,7 +3715,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DSTORE_2:
 			case LSTORE_2: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3724,7 +3724,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case DSTORE_3:
 			case LSTORE_3: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3732,7 +3732,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LSUB: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3742,7 +3742,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case LXOR: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue, lvalue2;
 #endif
 				fy_threadPopLong(lvalue2);
@@ -3752,7 +3752,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case MONITORENTER: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopHandle(ivalue);
@@ -3760,7 +3760,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case MONITOREXIT: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				fy_threadPopHandle(ivalue);
@@ -3773,7 +3773,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case MULTIANEWARRAY: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 				fy_int *pivalue;
 				fy_class *clazz1;
@@ -3810,7 +3810,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case NEW: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3, ivalue;
 				fy_class *clazz1, *clinitClazz;
 #endif
@@ -3825,7 +3825,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				if (clazz1->accessFlags
 						& (FY_ACC_INTERFACE | FY_ACC_ABSTRACT)) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
 					fy_strSPrint(msg, 256, clazz1->className);
@@ -3866,7 +3866,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case NEWARRAY: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3, ivalue2;
 				fy_uint type;
 				fy_str *pstr1;
@@ -3954,7 +3954,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case PUTFIELD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue = 0, ivalue2, ivalue3;
 				fy_ulong lvalue = 0;
 				fy_uint type;
@@ -3985,7 +3985,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_threadPopInt(ivalue);
 				}fy_threadPopHandle(ivalue2);
 				if (field->access_flags & FY_ACC_STATIC) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
 					message->messageType = message_exception;
@@ -4003,7 +4003,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 
 				if ((field->access_flags & FY_ACC_FINAL)
 						&& method->owner != field->owner) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
 					message->messageType = message_exception;
@@ -4048,7 +4048,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case PUTSTATIC: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3;
 				fy_uint type;
 				fy_field *field;
@@ -4067,7 +4067,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				if ((field->access_flags & FY_ACC_FINAL)
 						&& (field->owner != method->owner)) {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
 					message->messageType = message_exception;
@@ -4111,7 +4111,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				switch (type) {
 				case 'D':
 				case 'J': {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_ulong lvalue;
 #endif
 					fy_threadPopLong(lvalue);
@@ -4120,7 +4120,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				case 'L':
 				case '[': {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					fy_threadPopInt(ivalue)
@@ -4128,7 +4128,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				default: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					fy_threadPopInt(ivalue)
@@ -4139,7 +4139,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case RET: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 #endif
 				ivalue3 = fy_nextU1(code);
@@ -4170,7 +4170,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case SALOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue3);
@@ -4185,7 +4185,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case SASTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
 #endif
 				fy_threadPopInt(ivalue);
@@ -4201,7 +4201,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case SIPUSH: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
 				ivalue = fy_nextS2(code);
@@ -4209,7 +4209,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case SWAP: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
 				fy_uint type, type2;
 #endif
@@ -4220,7 +4220,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case TABLESWITCH: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3, ivalue4;
 				fy_uint i;
 				fy_int *pivalue;
@@ -4251,7 +4251,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case WIDE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 				fy_uint ivalue3, ivalue4;
 #endif
 				ivalue4 = fy_nextU1(code);
@@ -4259,7 +4259,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				switch (ivalue4) {
 				case FLOAD:
 				case ILOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					fy_threadGetLocalInt(ivalue3, ivalue);
@@ -4267,7 +4267,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				case ALOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					fy_threadGetLocalHandle(ivalue3, ivalue);
@@ -4276,7 +4276,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				case DLOAD:
 				case LLOAD: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_ulong lvalue;
 #endif
 					fy_threadGetLocalLong(ivalue3, lvalue);
@@ -4285,7 +4285,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				case FSTORE:
 				case ISTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					fy_threadPopInt(ivalue);
@@ -4293,7 +4293,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				case ASTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 					fy_uint type;
 #endif
@@ -4303,7 +4303,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				case DSTORE:
 				case LSTORE: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_ulong lvalue;
 #endif
 					fy_threadPopLong(lvalue);
@@ -4311,7 +4311,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				case RET: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					fy_threadGetLocalReturn( ivalue3, ivalue);
@@ -4319,7 +4319,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				case IINC: {
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
 					ivalue = fy_nextS2(code);
@@ -4338,13 +4338,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			/*lpc = pc;*/
 		}
-#ifdef _FY_GOTO
+#ifdef FY_GOTO
 		label_fallout_noinvoke:
 #else
 		if (fallout != fallout_invoke) {
 #endif
 		fy_localToFrame(frame);
-#ifdef _FY_GOTO
+#ifdef FY_GOTO
 		label_fallout_invoke:
 #else
 	}
@@ -4357,7 +4357,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		}
 		if (message->messageType == message_exception) {
 			//send the exception to the VM caller for PI handle.
-#ifdef _FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
 			fy_exception exceptionToPrepare;
 #endif
 			if (exception->exceptionName[0] == 0) {
@@ -4385,8 +4385,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 }
 
 fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
-		_FY_RESTRICT fy_exception *toPrepare,
-		_FY_RESTRICT fy_exception *exception) {
+		FY_ATTR_RESTRICT fy_exception *toPrepare,
+		FY_ATTR_RESTRICT fy_exception *exception) {
 	fy_class *clazz1;
 	fy_str *str1;
 	fy_uint ivalue, ivalue2;
