@@ -13,7 +13,7 @@ public class FYField implements IField {
 		this.id = id;
 	}
 
-	@Override
+	
 	public IClass getOwner() {
 		return context.getClassById(FisceService.getFieldOwner(
 				context.getContext(), id));

@@ -117,39 +117,39 @@ public class FYContext implements Runnable, FiScEVM {
 		return context;
 	}
 
-	@Override
+	
 	public Element getSaveData(InputStream is) throws VMCriticalException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+	
 	public void bootFromData(InputStream is) throws VMCriticalException,
 			IOException {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+	
 	public void saveData(OutputStream os) throws VMCriticalException,
 			IOException {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+	
 	public void saveData(OutputStream os, SaveDataPostProcesser postProcesser)
 			throws VMCriticalException, IOException {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+	
 	public void requestStop() {
 		runningSet.set(false);
 	}
 
-	@Override
+	
 	public int waitTillStopped(long waitTime) throws InterruptedException {
 		long time = System.currentTimeMillis() + waitTime;
 		while (System.currentTimeMillis() < time) {
@@ -161,29 +161,29 @@ public class FYContext implements Runnable, FiScEVM {
 		return 0;
 	}
 
-	@Override
+	
 	public void start() throws VMException {
 		runningSet.set(true);
 		runningCurrent.set(true);
 		new Thread(this).start();
 	}
 
-	@Override
+	
 	public void addStateListener(IStateListener isl) {
 		this.stateListeners.add(isl);
 	}
 
-	@Override
+	
 	public void addToolkit(IToolkit toolkit) {
 		this.toolkits.add(toolkit);
 	}
 
-	@Override
+	
 	public void setConsole(IDebugConsole console) {
 
 	}
 
-	@Override
+	
 	public void registerNativeHandler(INativeHandler inh) {
 		if (handlers.containsKey(inh.getUniqueName())) {
 			throw new VMCriticalException("Dupcated native handler "
@@ -193,12 +193,12 @@ public class FYContext implements Runnable, FiScEVM {
 		}
 	}
 
-	@Override
+	
 	public IHeap getHeap() {
 		return heap;
 	}
 
-	@Override
+	
 	public IThreadManager getThreadManager() {
 		return threadManager;
 	}
@@ -239,7 +239,7 @@ public class FYContext implements Runnable, FiScEVM {
 		return ret;
 	}
 
-	@Override
+	
 	public IClass getClass(String name) throws VMException, VMCriticalException {
 		int id = FisceService.getClassByName(context, name);
 		if (id < 0) {
@@ -248,7 +248,7 @@ public class FYContext implements Runnable, FiScEVM {
 		return getClassById(id);
 	}
 
-	@Override
+	
 	public IField getField(String name) throws VMException, VMCriticalException {
 		int id = FisceService.getFieldByUniqueName(context, name);
 		if (id < 0) {
@@ -257,7 +257,7 @@ public class FYContext implements Runnable, FiScEVM {
 		return getFieldById(id);
 	}
 
-	@Override
+	
 	public IField lookupFieldVirtual(IClassBase clazz, String name)
 			throws VMException, VMCriticalException {
 		int id = FisceService.lookupField(context, ((FYClass) clazz).getId(),
@@ -268,7 +268,7 @@ public class FYContext implements Runnable, FiScEVM {
 		return getFieldById(id);
 	}
 
-	@Override
+	
 	public IClass getClass(int i) throws VMException {
 		if (FisceService.validClassId(context, i)) {
 			return getClassById(i);
@@ -277,7 +277,7 @@ public class FYContext implements Runnable, FiScEVM {
 		}
 	}
 
-	@Override
+	
 	public void run() {
 		runningCurrent.set(true);
 		try {
@@ -343,7 +343,7 @@ public class FYContext implements Runnable, FiScEVM {
 		}
 	}
 
-	@Override
+	
 	public Collection<IToolkit> getToolkits() {
 		return toolkits;
 	}

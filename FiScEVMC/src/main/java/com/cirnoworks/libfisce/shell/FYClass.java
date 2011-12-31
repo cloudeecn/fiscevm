@@ -15,12 +15,12 @@ public class FYClass implements IClass, IClassBase, IClassArray {
 		this.id = id;
 	}
 
-	@Override
+	
 	public String getName() {
 		return FisceService.getClassName(context.getContext(), id);
 	}
 
-	@Override
+	
 	public IClassBase getSuperClass() {
 		int superId = FisceService.getClassSuper(context.getContext(), id);
 		return context.getClassById(superId);

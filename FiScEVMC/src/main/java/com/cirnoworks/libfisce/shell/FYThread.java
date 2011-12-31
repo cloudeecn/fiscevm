@@ -13,28 +13,28 @@ public class FYThread implements IThread {
 		this.id = id;
 	}
 
-	@Override
+	
 	public void nativeReturnHandle(int handle) {
 		FisceService.threadReturnHandle(context.getContext(), id, handle);
 
 	}
 
-	@Override
+	
 	public void nativeReturnInt(int value) {
 		FisceService.threadReturnInt(context.getContext(), id, value);
 	}
 
-	@Override
+	
 	public void nativeReturnWide(long value) {
 		FisceService.threadReturnWide(context.getContext(), id, value);
 	}
 
-	@Override
+	
 	public int getThreadHandle() {
 		return FisceService.getThreadHandle(context.getContext(), id);
 	}
 
-	@Override
+	
 	public int getThreadId() {
 		return id;
 	}
