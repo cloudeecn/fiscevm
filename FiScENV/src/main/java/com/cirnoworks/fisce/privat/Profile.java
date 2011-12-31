@@ -8,19 +8,28 @@ package com.cirnoworks.fisce.privat;
  * 
  * @author yuxuanhuang
  */
-public class Profile extends Thread {
+public class Profile implements Runnable {
 
 	public static void main(String[] args) {
-		new Profile().start();
+		new Thread(new Profile()).start();
 	}
 
 	int j;
+	String name;
+
+	public Profile(String name) {
+		this.name = name;
+	}
+
+	public Profile() {
+		this("profiler");
+	}
 
 	public void run() {
 		long t0 = System.nanoTime();
 		int k = 0;
 		int i;
-		while (true) {
+		for (int u = 0; u < 20; u++) {
 			long t1 = System.nanoTime();
 			for (i = 0; i < 100000; i++) {
 				k += i;
@@ -30,8 +39,13 @@ public class Profile extends Thread {
 				k += j;
 			}
 			long t3 = System.nanoTime();
-			System.out.println((t1 - t0) + "\t" + (t2 - t1) + "\t" + (t3 - t2)
-					+ "\t\t" + k);
+			System.out.println(name + ": " + (t1 - t0) + "\t" + (t2 - t1)
+					+ "\t" + (t3 - t2) + "\t\t" + k);
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

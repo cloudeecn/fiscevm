@@ -1351,7 +1351,14 @@ public final class String implements Comparable<String>, CharSequence {
 	 *         the characters in this string.
 	 */
 	public String toLowerCase() {
-		return StringUtils.toLowerCase(this);
+		char[] chs = new char[count];
+		int pos = 0;
+		for (int i = offset, max = offset + count; i < max; i++) {
+			pos++;
+			char c = value[i];
+			chs[pos] = (c >= 'A' && c <= 'Z') ? (char) (c - 'A' + 'a') : c;
+		}
+		return new String(0, count, chs);
 	}
 
 	/**
@@ -1372,7 +1379,14 @@ public final class String implements Comparable<String>, CharSequence {
 	 *         the characters in this string.
 	 */
 	public String toUpperCase() {
-		return StringUtils.toUpperCase(this);
+		char[] chs = new char[count];
+		int pos = 0;
+		for (int i = offset, max = offset + count; i < max; i++) {
+			pos++;
+			char c = value[i];
+			chs[pos] = (c >= 'a' && c <= 'z') ? (char) (c - 'a' + 'A') : c;
+		}
+		return new String(0, count, chs);
 	}
 
 	/**
@@ -1805,6 +1819,7 @@ public final class String implements Comparable<String>, CharSequence {
 	 * @see java.util.Formatter
 	 * @since 1.5
 	 */
+	/*
 	public static String format(String format, Object... args) {
 		String[] sargs = new String[args.length];
 		for (int i = 0, max = args.length; i < max; i++) {
@@ -1812,6 +1827,7 @@ public final class String implements Comparable<String>, CharSequence {
 		}
 		return StringUtils.format(format, sargs);
 	}
+	*/
 
 	/*
 	 * An implementation of a String.indexOf that is supposed to perform

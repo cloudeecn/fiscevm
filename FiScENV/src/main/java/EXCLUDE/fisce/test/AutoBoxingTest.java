@@ -22,7 +22,7 @@ import com.cirnoworks.fisce.privat.FiScEVM;
  * @author Cloudee
  * 
  */
-public class AutoBoxingTest {
+public class AutoBoxingTest extends TestService {
 
 	/**
 	 * @param args
@@ -42,44 +42,44 @@ public class AutoBoxingTest {
 			Float f = 3.555f;
 			Double d = 5.666;
 			if (z != z.booleanValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (b != b.byteValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (s0 != s0.intValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (s1 != s1.intValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (c0 != c0.charValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (c1 != c1.charValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (i0 != i0.intValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (i1 != i1.intValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (l0 != l0.longValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (l1 != l1.longValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (f != f.floatValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 			if (d != d.doubleValue()) {
-				FiScEVM.throwOut(new RuntimeException());
+				fail("");
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
-			FiScEVM.throwOut(e);
+			fail(e.toString());
 		}
 	}
 

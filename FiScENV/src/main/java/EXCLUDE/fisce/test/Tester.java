@@ -5,6 +5,8 @@
 
 package EXCLUDE.fisce.test;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+import com.cirnoworks.fisce.privat.Profile;
 
 /**
  * 
@@ -20,6 +22,7 @@ public class Tester extends Thread implements ITester {
 	public final int f2 = 5;
 	public static final int fs1;
 	public static final int fs2 = 7;
+	int j;
 
 	static {
 		fs1 = 6;
@@ -86,16 +89,78 @@ public class Tester extends Thread implements ITester {
 	}
 
 	static public void main(String[] args) {
-		System.out.println("mie" + is2);
-		// Tester t = new Tester();
-		// System.out.println("i2=" + t.i2);
-		System.out.println("Hello " + System.currentTimeMillis() + "world");
-		System.out.println("5*3=" + 5 * 3 + "\n" + "5.0*3.3=" + 5.0f * 3.3 + "\n"
-				+ "77*65=" + 77 * 65 + "\n");
-		is1 = 5555;
-		System.out.println("" + is1);
-		System.out.println("Hello world!");
-	}
+		try {
+			new String();
+			new Integer(1);
+			int a = 0;
+			int b = 1234987123;
+			String sb = Integer.toString(b);
+			FiScEVM.debugOut(sb);
+			if (a == 0) {
+				return;
+			}
+			Thread t1 = new Thread(new Profile("Thread1"));
+			t1.setPriority(Thread.MAX_PRIORITY);
+			new Tester().start();
+			t1.start();
+			try {
+				Thread.sleep(2000);
+			} catch (Exception e) {
+			}
+			int[] ia = null;
+			if (a == 1) {
+				ia = new int[50];
+			}
+			System.out.println(ia.length);
+			// int a = 0;
+			// int ib = 11111;
+			// if (a == 0) {
+			// ib *= 11111;
+			// ib *= 11111;
+			// ib *= 11111;
+			// }
+			// String sb = "b=" + ib;
+			// FiScEVM.debugOut(sb);
+			// FiScEVM.debugOut(Integer.toString(ib, 10));
+			// FiScEVM.debugOut(ib);
 
-	
+			int k = 1000000;
+			if (k > 100) {
+				k += 5;
+			}
+
+			int i = 5;
+			double d = 1.1;
+			double d2 = 0;
+			String s = "Hello";
+			for (i = 1; i < 2; i++) {
+				i++;
+				d2 = d * 1.1;
+				d = 0;
+				s += " World";
+			}
+//			FiScEVM.debugOut(d2);
+//			FiScEVM.debugOut(d);
+//			FiScEVM.debugOut(i);
+//			FiScEVM.debugOut(s);
+//			FiScEVM.debugOut(System.currentTimeMillis());
+//			FiScEVM.debugOut(System.nanoTime());
+
+			FiScEVM.debugOut("Hello world " + 123 + " "
+					+ (i + 12345678901234567l) + " " + 123.4f + " "
+					+ (123.4d + i) + "  我们来试试中文！");
+			FiScEVM.debugOut("" + 0.0 / d + " " + 1.0 / d + " " + -1.0 / d);
+			System.out.println("Hello " + 111 + "world");
+			System.out.println("5*3=" + 5 * 3 + "\n" + "5.0*3.3=" + 5.0f * 3.3
+					+ "\n" + "77*65=" + 77 * 65 + "\n");
+			is1 = 5555;
+			is2 = 6;
+			is1 = 5555;
+			System.out.println("" + is1 + " " + is2 + " " + fs1 + " " + fs2);
+			System.out.println("Hello world!");
+			throw new NullPointerException();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

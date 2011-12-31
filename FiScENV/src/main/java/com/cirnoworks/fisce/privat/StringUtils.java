@@ -20,37 +20,45 @@ package com.cirnoworks.fisce.privat;
  * @author Cloudee
  * 
  */
-public class StringUtils {
+public final class StringUtils {
 
-	public static native String toUpperCase(String from);
-
-	public static native String toLowerCase(String from);
-
-	public static native String format(String format, String... args);
+	public static String format(String format, String... args) {
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * @param codePoint
 	 * @return
 	 */
-	public static native int toUpperCase(int codePoint);
+	public static int toUpperCase(int codePoint) {
+		return (codePoint >= 'a' && codePoint <= 'z') ? codePoint - 'a' + 'A'
+				: codePoint;
+	}
 
 	/**
 	 * @param codePoint
 	 * @return
 	 */
-	public static native int toTitleCase(int codePoint);
+	public static int toTitleCase(int codePoint) {
+		return toUpperCase(codePoint);
+	}
 
 	/**
 	 * @param codePoint
 	 * @return
 	 */
-	public static native int toLowerCase(int codePoint);
+	public static int toLowerCase(int codePoint) {
+		return (codePoint >= 'A' && codePoint <= 'Z') ? codePoint - 'A' + 'a'
+				: codePoint;
+	}
 
 	/**
 	 * @param codePoint
 	 * @return
 	 */
-	public static native boolean isWhitespace(int codePoint);
+	public static boolean isWhitespace(int codePoint) {
+		return codePoint == ' ' || codePoint == '\t' || codePoint == '　';
+	}
 
 	/**
 	 * @param codePoint

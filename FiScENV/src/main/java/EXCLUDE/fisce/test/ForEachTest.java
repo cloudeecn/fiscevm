@@ -16,15 +16,13 @@
  */
 package EXCLUDE.fisce.test;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
-
 import fisce.util.SimpleList;
 
 /**
  * @author Cloudee
  * 
  */
-public class ForEachTest {
+public class ForEachTest extends TestService {
 
 	/**
 	 * @param args
@@ -41,7 +39,7 @@ public class ForEachTest {
 				RuntimeException e = new RuntimeException(i + " " + in + " "
 						+ input[i] + " " + sl.get(i));
 				e.printStackTrace();
-				FiScEVM.throwOut(e);
+				fail("for each");
 			}
 			i++;
 		}
