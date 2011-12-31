@@ -53,7 +53,7 @@ static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 			fy_fault(
 					exception,
 					NULL,
-					"Out of memoryE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d",
+					"Out of memoryE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 					size, context->posInEden, EDEN_SIZE, context->posInYong,
 					COPY_SIZE, context->posInOld, OLD_ENTRIES);
 			return NULL;
@@ -77,7 +77,7 @@ static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
 			fy_fault(
 					exception,
 					NULL,
-					"Out of memoryO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d",
+					"Out of memoryO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 					size, context->posInEden, EDEN_SIZE, context->posInYong,
 					COPY_SIZE, context->posInOld, OLD_ENTRIES);
 			return NULL;
@@ -589,7 +589,10 @@ fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)ASSERT(validate(context,handle,field));
-
+#ifdef FY_VERBOSE
+	printf("high=%ud\nlow=%ud\n", ((fy_int*) obj->data)[field->posAbs],
+			((fy_int*) obj->data)[field->posAbs + 1]);
+#endif
 	return fy_I2TOL((((fy_int*)obj->data)[field->posAbs]),(((fy_int*)obj->data)[field->posAbs+1]));
 }
 fy_float fy_heapGetFieldFloat(fy_context *context, fy_int handle,
@@ -654,9 +657,12 @@ void fy_heapPutFieldLong(fy_context *context, fy_int handle, fy_field *field,
 		fy_long value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()ASSERT(validate(context,handle,field));
-
-	((fy_int*) obj->data)[field->posAbs] = (fy_int) (value >> 32);
-	((fy_int*) obj->data)[field->posAbs + 1] = (fy_int) value;
+#ifdef FY_VERBOSE
+	printf("value=%"FY_PRINT64"d\nhigh=%ud\nlow=%ud\n", value, fy_HOFL(value),
+			fy_LOFL(value));
+#endif
+	((fy_int*) obj->data)[field->posAbs] = fy_HOFL(value);
+	((fy_int*) obj->data)[field->posAbs + 1] = fy_LOFL(value);
 }
 void fy_heapPutFieldFloat(fy_context *context, fy_int handle, fy_field *field,
 		fy_float value, fy_exception *exception) {
@@ -672,8 +678,8 @@ void fy_heapPutFieldDouble(fy_context *context, fy_int handle, fy_field *field,
 	CHECK_NPT()ASSERT(validate(context,handle,field));
 
 	longValue = fy_doubleToLong(value);
-	((fy_int*) obj->data)[field->posAbs] = (fy_int) (longValue >> 32);
-	((fy_int*) obj->data)[field->posAbs + 1] = (fy_int) longValue;
+	((fy_int*) obj->data)[field->posAbs] = fy_HOFL(longValue);
+	((fy_int*) obj->data)[field->posAbs + 1] = fy_LOFL(longValue);
 }
 
 fy_boolean fy_heapGetStaticBoolean(fy_context *context, fy_field *field,
@@ -709,8 +715,8 @@ fy_int fy_heapGetStaticInt(fy_context *context, fy_field *field,
 fy_long fy_heapGetStaticLong(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
-	return ((fy_long) field->owner->staticArea[field->posAbs] << 32)
-			| ((fy_long) field->owner->staticArea[field->posAbs + 1]);
+	return fy_I2TOL(field->owner->staticArea[field->posAbs],
+			field->owner->staticArea[field->posAbs + 1]);
 }
 fy_float fy_heapGetStaticFloat(fy_context *context, fy_field *field,
 		fy_exception *exception) {
@@ -721,8 +727,8 @@ fy_double fy_heapGetStaticDouble(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	fy_long lvalue;
 	CHECK_STATIC(0)
-	lvalue = ((fy_long) field->owner->staticArea[field->posAbs] << 32)
-			| ((fy_long) field->owner->staticArea[field->posAbs + 1]);
+	lvalue = fy_I2TOL(field->owner->staticArea[field->posAbs],
+			field->owner->staticArea[field->posAbs + 1]);
 	return fy_longToDouble(lvalue);
 }
 
@@ -759,8 +765,8 @@ void fy_heapPutStaticInt(fy_context *context, fy_field *field, fy_int value,
 void fy_heapPutStaticLong(fy_context *context, fy_field *field, fy_long value,
 		fy_exception *exception) {
 	CHECK_STATIC()
-	field->owner->staticArea[field->posAbs] = (fy_int) (value >> 32);
-	field->owner->staticArea[field->posAbs + 1] = (fy_int) value;
+	field->owner->staticArea[field->posAbs] = fy_HOFL(value);
+	field->owner->staticArea[field->posAbs + 1] = fy_LOFL( value);
 }
 void fy_heapPutStaticFloat(fy_context *context, fy_field *field, fy_float value,
 		fy_exception *exception) {
@@ -772,8 +778,8 @@ void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 	fy_long lvalue;
 	CHECK_STATIC()
 	lvalue = fy_doubleToLong(value);
-	field->owner->staticArea[field->posAbs] = (fy_int) (lvalue >> 32);
-	field->owner->staticArea[field->posAbs + 1] = (fy_int) lvalue;
+	field->owner->staticArea[field->posAbs] = fy_HOFL(lvalue);
+	field->owner->staticArea[field->posAbs + 1] = fy_LOFL(lvalue);
 }
 
 typedef struct fy_fill_literals_data {
@@ -1145,10 +1151,10 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	if ((context->posInOld - context->oldReleasedSize) * 4
 			< context->posInOld) {
 #endif
-	compactOld(context, exception);
-	fy_exceptionCheckAndReturn(exception);
+		compactOld(context, exception);
+		fy_exceptionCheckAndReturn(exception);
 #ifndef FY_GC_FORCE_FULL
-}
+	}
 #endif
 	printf(
 			"#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",

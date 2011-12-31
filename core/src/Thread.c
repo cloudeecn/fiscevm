@@ -894,7 +894,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 
 #define fy_threadPopLong(O) { \
 	fy_checkPop(1,typeStack[sp-1]) \
-	O = stack[--sp]; \
+	O = (fy_ulong)stack[--sp]; \
 	O += ((fy_ulong)stack[--sp])<<32; \
 }
 
@@ -3383,6 +3383,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
+#ifdef FY_VERBOSE
+				printf("%"FY_PRINT64"d+%"FY_PRINT64"d=%"FY_PRINT64"d\n", lvalue,
+						lvalue2, lvalue + lvalue2);
+#endif
 				lvalue += lvalue2;
 				fy_threadPushLong(lvalue);
 				break;
@@ -3493,6 +3497,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				ivalue = fy_nextU1(code);
 				fy_threadGetLocalLong(ivalue, lvalue);
+#ifdef FY_VERBOSE
+				printf("LOCAL[%d]=%"FY_PRINT64"d\n", ivalue, lvalue);
+#endif
 				fy_threadPushLong(lvalue);
 				break;
 			}
@@ -3502,6 +3509,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(0, lvalue);
+#ifdef FY_VERBOSE
+				printf("LOCAL[0]=%"FY_PRINT64"d\n", lvalue);
+#endif
 				fy_threadPushLong(lvalue);
 				break;
 			}
@@ -3511,6 +3521,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(1, lvalue);
+#ifdef FY_VERBOSE
+				printf("LOCAL[1]=%"FY_PRINT64"d\n", lvalue);
+#endif
 				fy_threadPushLong(lvalue);
 				break;
 			}
@@ -3520,6 +3533,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(2, lvalue);
+#ifdef FY_VERBOSE
+				printf("LOCAL[2]=%"FY_PRINT64"d\n", lvalue);
+#endif
 				fy_threadPushLong(lvalue);
 				break;
 			}
@@ -3529,6 +3545,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_ulong lvalue;
 #endif
 				fy_threadGetLocalLong(3, lvalue);
+#ifdef FY_VERBOSE
+				printf("LOCAL[3]=%"FY_PRINT64"d\n", lvalue);
+#endif
 				fy_threadPushLong(lvalue);
 				break;
 			}
@@ -3692,6 +3711,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				ivalue = fy_nextU1(code);
 				fy_threadPopLong(lvalue);
+#ifdef FY_VERBOSE
+				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, ivalue);
+#endif
 				fy_threadPutLocalLong(ivalue, lvalue);
 				break;
 			}
@@ -3701,6 +3723,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
+#ifdef FY_VERBOSE
+				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 0);
+#endif
 				fy_threadPutLocalLong(0, lvalue);
 				break;
 			}
@@ -3710,6 +3735,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
+#ifdef FY_VERBOSE
+				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 1);
+#endif
 				fy_threadPutLocalLong(1, lvalue);
 				break;
 			}
@@ -3719,6 +3747,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
+#ifdef FY_VERBOSE
+				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 2);
+#endif
 				fy_threadPutLocalLong(2, lvalue);
 				break;
 			}
@@ -3728,6 +3759,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_ulong lvalue;
 #endif
 				fy_threadPopLong(lvalue);
+#ifdef FY_VERBOSE
+				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 3);
+#endif
 				fy_threadPutLocalLong(3, lvalue);
 				break;
 			}
@@ -3737,6 +3771,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
+#ifdef FY_VERBOSE
+				printf("%"FY_PRINT64"d-%"FY_PRINT64"d=%"FY_PRINT64"d\n", lvalue,
+						lvalue2, lvalue - lvalue2);
+#endif
 				lvalue -= lvalue2;
 				fy_threadPushLong(lvalue);
 				break;

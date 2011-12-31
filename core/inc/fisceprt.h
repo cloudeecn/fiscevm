@@ -90,7 +90,6 @@ struct timeval tvBeginTime;
 # define sprintf_s snprintf
 # define vsprintf_s vsnprintf
 #endif
-
 #if defined(_WIN32)
 # if defined(__GNUC__)
 #  if defined(FY_EXPORT) && defined(DLL_EXPORT)
@@ -160,11 +159,11 @@ struct timeval tvBeginTime;
 #else
 # define FY_PRINT64 "ll"
 #endif
-#define fy_I2TOL(I1,I2) ((fy_long)(((fy_ulong)(I1)<<32) + ((fy_ulong)(I2))))
-#define fy_I2TOUL(I1,I2) ((fy_ulong)(((fy_ulong)(I1)<<32) + ((fy_ulong)(I2))))
-#define fy_B2TOUI(B1,B2) ((((fy_uint)(B1))<<8)+((fy_uint)(B2)))
-#define fy_B2TOI(B1,B2) ((fy_short)((((fy_uint)(B1))<<8)+((fy_uint)(B2))))
-#define fy_B4TOI(B1,B2,B3,B4) ((((fy_uint)(B1))<<24)+(((fy_uint)(B2))<<16)+(((fy_uint)(B3))<<8)+((fy_uint)(B4)))
+#define fy_I2TOL(I1,I2) ((fy_long)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
+#define fy_I2TOUL(I1,I2) ((fy_ulong)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
+#define fy_B2TOUI(B1,B2) ((((fy_uint)(fy_ubyte)(B1))<<8)|((fy_uint)(fy_ubyte)(B2)))
+#define fy_B2TOI(B1,B2) ((fy_short)((((fy_uint)(fy_ubyte)(B1))<<8)|((fy_uint)(fy_ubyte)(B2))))
+#define fy_B4TOI(B1,B2,B3,B4) ((((fy_uint)(fy_ubyte)(B1))<<24)|(((fy_uint)(fy_ubyte)(B2))<<16)|(((fy_uint)(fy_ubyte)(B3))<<8)|((fy_uint)(fy_ubyte)(B4)))
 #define fy_HOFL(L) ((fy_int)(L>>32))
 #define fy_LOFL(L) ((fy_int)(L))
 FY_ATTR_EXPORT fy_long fy_doubleToLong(fy_double value);
