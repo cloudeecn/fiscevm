@@ -31,7 +31,22 @@
                         <artifactId>FiScEIntf</artifactId>
                         <version>${fiscevm.version}</version>
                 </dependency>
-	
+
+                <dependency>
+                        <groupId>com.cirnoworks.FiScE</groupId>
+                        <artifactId>FiScENVDist</artifactId>
+                        <classifier>standalone</classifier>
+                        <version>${fiscevm.version}</version>
+                </dependency>
+
+                <dependency>
+                        <groupId>com.cirnoworks.FiScE</groupId>
+                        <artifactId>FiScENVDist</artifactId>
+                        <classifier>test</classifier>
+                        <version>${fiscevm.version}</version>
+                        <scope>test</scope>
+                </dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
