@@ -13,6 +13,7 @@
 		<module>FiScENVDist</module>
 		<module>FiScEVM</module>
 		<module>FiScENVTK</module>
+		<module>FiScEVMC</module>	
 		<module>FiScEAssemble</module>
 	</modules>
 	<properties>

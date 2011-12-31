@@ -71,6 +71,12 @@
 			<classifier>test</classifier>
 			<scope>test</scope>
 		</dependency>
+	
+		<dependency>
+                        <groupId>com.cirnoworks.FiScE</groupId>
+                        <artifactId>FiScEVMC</artifactId>
+                        <version>${fiscevm.version}</version>
+                </dependency>
 	</dependencies>
 </project>
 
