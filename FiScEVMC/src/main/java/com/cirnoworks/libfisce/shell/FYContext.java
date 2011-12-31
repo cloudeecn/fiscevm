@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,19 +49,30 @@ public class FYContext implements Runnable, FiScEVM {
 	private final AtomicBoolean runningCurrent = new AtomicBoolean(false);
 
 	static {
-		Error saved = null;
-		try {
-			System.loadLibrary("fisce");
-		} catch (Error e) {
-			saved = e;
-		}
-		try {
-			System.loadLibrary("fyjni");
-		} catch (Error e2) {
-			if (saved != null) {
-				saved.printStackTrace();
+		ArrayList<Throwable> errors = new ArrayList<Throwable>();
+		boolean succeed = false;
+		if (!succeed) {
+			try {
+				System.loadLibrary("fisce");
+				System.loadLibrary("fyjni");
+				succeed = true;
+			} catch (UnsatisfiedLinkError e) {
+				errors.add(e);
 			}
-			throw e2;
+		}
+		if (!succeed) {
+			try {
+				System.loadLibrary("libfyjni-0");
+				succeed = true;
+			} catch (UnsatisfiedLinkError e) {
+				errors.add(e);
+			}
+		}
+
+		if (!succeed) {
+			for (Throwable e : errors) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -117,39 +129,33 @@ public class FYContext implements Runnable, FiScEVM {
 		return context;
 	}
 
-	
 	public Element getSaveData(InputStream is) throws VMCriticalException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	
 	public void bootFromData(InputStream is) throws VMCriticalException,
 			IOException {
 		// TODO Auto-generated method stub
 
 	}
 
-	
 	public void saveData(OutputStream os) throws VMCriticalException,
 			IOException {
 		// TODO Auto-generated method stub
 
 	}
 
-	
 	public void saveData(OutputStream os, SaveDataPostProcesser postProcesser)
 			throws VMCriticalException, IOException {
 		// TODO Auto-generated method stub
 
 	}
 
-	
 	public void requestStop() {
 		runningSet.set(false);
 	}
 
-	
 	public int waitTillStopped(long waitTime) throws InterruptedException {
 		long time = System.currentTimeMillis() + waitTime;
 		while (System.currentTimeMillis() < time) {
@@ -161,29 +167,24 @@ public class FYContext implements Runnable, FiScEVM {
 		return 0;
 	}
 
-	
 	public void start() throws VMException {
 		runningSet.set(true);
 		runningCurrent.set(true);
 		new Thread(this).start();
 	}
 
-	
 	public void addStateListener(IStateListener isl) {
 		this.stateListeners.add(isl);
 	}
 
-	
 	public void addToolkit(IToolkit toolkit) {
 		this.toolkits.add(toolkit);
 	}
 
-	
 	public void setConsole(IDebugConsole console) {
 
 	}
 
-	
 	public void registerNativeHandler(INativeHandler inh) {
 		if (handlers.containsKey(inh.getUniqueName())) {
 			throw new VMCriticalException("Dupcated native handler "
@@ -193,12 +194,10 @@ public class FYContext implements Runnable, FiScEVM {
 		}
 	}
 
-	
 	public IHeap getHeap() {
 		return heap;
 	}
 
-	
 	public IThreadManager getThreadManager() {
 		return threadManager;
 	}
@@ -239,7 +238,6 @@ public class FYContext implements Runnable, FiScEVM {
 		return ret;
 	}
 
-	
 	public IClass getClass(String name) throws VMException, VMCriticalException {
 		int id = FisceService.getClassByName(context, name);
 		if (id < 0) {
@@ -248,7 +246,6 @@ public class FYContext implements Runnable, FiScEVM {
 		return getClassById(id);
 	}
 
-	
 	public IField getField(String name) throws VMException, VMCriticalException {
 		int id = FisceService.getFieldByUniqueName(context, name);
 		if (id < 0) {
@@ -257,7 +254,6 @@ public class FYContext implements Runnable, FiScEVM {
 		return getFieldById(id);
 	}
 
-	
 	public IField lookupFieldVirtual(IClassBase clazz, String name)
 			throws VMException, VMCriticalException {
 		int id = FisceService.lookupField(context, ((FYClass) clazz).getId(),
@@ -268,7 +264,6 @@ public class FYContext implements Runnable, FiScEVM {
 		return getFieldById(id);
 	}
 
-	
 	public IClass getClass(int i) throws VMException {
 		if (FisceService.validClassId(context, i)) {
 			return getClassById(i);
@@ -277,7 +272,6 @@ public class FYContext implements Runnable, FiScEVM {
 		}
 	}
 
-	
 	public void run() {
 		runningCurrent.set(true);
 		try {
@@ -343,7 +337,6 @@ public class FYContext implements Runnable, FiScEVM {
 		}
 	}
 
-	
 	public Collection<IToolkit> getToolkits() {
 		return toolkits;
 	}
