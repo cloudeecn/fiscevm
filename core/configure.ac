@@ -58,7 +58,7 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 ]])],[fy_is_win32=true],[fy_is_win32=false])
 AC_LANG_POP()
 
-if test x$fy_is_win32 ; then
+if test x$fy_is_win32 = xtrue ; then
 	echo "++++++++++ Adding win32 dll flags."
 else
 	echo "---------- Disabling win32 dll flags."
