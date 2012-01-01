@@ -60,6 +60,8 @@
 #define FY_BASE_THROWABLE "java/lang/Throwable"
 #define FY_BASE_THREAD "java/lang/Thread"
 #define FY_BASE_SYSTEM "java/lang/System"
+#define FY_BASE_FLOAT "java/lang/Float"
+#define FY_BASE_DOUBLE "java/lang/Double"
 #define FY_BASE_MATH "java/lang/Math"
 #define FY_BASE_FINALIZER "java/lang/Finalizer"
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"

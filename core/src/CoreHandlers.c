@@ -46,6 +46,12 @@ static void StringIntern(struct fy_context *context, struct fy_thread *thread,
 	fy_nativeReturnHandle(context, thread, ret);
 }
 
+static void floatIntBitsToFloat(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_exception *exception) {
+	fy_nativeReturnInt(context, thread, args[0]);
+}
+
 static void SystemArrayCopy(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
@@ -813,6 +819,9 @@ static void finalizerGetFinalizee(struct fy_context *context,
 }
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
+	/*float java/lang/Float.intBitsToFloat.(I)F*/
+	fy_vmRegisterNativeHandler(context, FY_BASE_FLOAT".intBitsToFloat.(I)F",
+			NULL, floatIntBitsToFloat, exception);
 	/*vm*/
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_VM".newInstance0.(L"FY_BASE_CLASS";I)[L"FY_BASE_OBJECT";",
