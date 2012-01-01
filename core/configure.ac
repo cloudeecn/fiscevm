@@ -49,6 +49,22 @@ else
 	ENABLE_LTO="FALSE"
 fi
 
+AC_MSG_CHECKING([is win32])
+AC_LANG_PUSH(C)
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#if !defined (_WIN32) && !defined (__WIN32__) && !defined (WIN32)
+# error "not win32"
+#endif
+]])],[fy_is_win32=true],[fy_is_win32=false])
+AC_LANG_POP()
+
+if test x$fy_is_win32 ; then
+	echo "++++++++++ Adding win32 dll flags."
+else
+	echo "---------- Disabling win32 dll flags."
+fi
+AM_CONDITIONAL([FY_IS_WIN32],[test x$fy_is_win32 = xtrue])
+
 LT_INIT(win32-dll)
 # Checks for programs.
 AC_PROG_CC

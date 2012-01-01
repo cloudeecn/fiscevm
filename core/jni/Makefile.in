@@ -215,7 +215,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libfyjni.la
 libfyjni_la_SOURCES = FisceService.c
-libfyjni_la_LDFLAGS = -fwhole-program -no-undefined -Wl,--kill-at
+@FY_IS_WIN32_FALSE@libfyjni_la_LDFLAGS = -fwhole-program -no-undefined
+@FY_IS_WIN32_TRUE@libfyjni_la_LDFLAGS = -fwhole-program -no-undefined -Wl,--kill-at
 libfyjni_la_LIBADD = ../src/libfisce.la
 all: all-am
 
