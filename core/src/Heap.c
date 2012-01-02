@@ -1099,18 +1099,28 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 		return;
 	}
 
+	fy_arrayListClear(context->memblocks, &from);
 	for (i = 1; i < MAX_OBJECTS; i++) {
 		object = fy_heapGetObject(context,i);
 		clazz = object->clazz;
-		if (clazz != NULL && !fy_bitGet(marks, i) && object->clazz->needFinalize
-				&& !object->finalized) {
+		if (clazz != NULL && !fy_bitGet(marks, i) && clazz->needFinalize
+				&& object->finalizeStatus == not_finalized) {
+//			printf("ADD %d need finalize\n", i);
 			fy_bitSet(marks, i);
+			fy_arrayListAdd(context->memblocks, context->toFinalize, &i,
+					exception);
+			if (exception->exceptionType != exception_none) {
+				fy_free(marks);
+				fy_arrayListDestroy(context->memblocks, &from);
+				return;
+			}
 			fy_arrayListAdd(context->memblocks, &from, &i, exception);
 			if (exception->exceptionType != exception_none) {
 				fy_free(marks);
 				fy_arrayListDestroy(context->memblocks, &from);
 				return;
 			}
+			object->finalizeStatus = in_finalize_array;
 		}
 	}
 
@@ -1151,10 +1161,10 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	if ((context->posInOld - context->oldReleasedSize) * 4
 			< context->posInOld) {
 #endif
-		compactOld(context, exception);
-		fy_exceptionCheckAndReturn(exception);
+	compactOld(context, exception);
+	fy_exceptionCheckAndReturn(exception);
 #ifndef FY_GC_FORCE_FULL
-	}
+}
 #endif
 	printf(
 			"#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",

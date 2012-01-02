@@ -801,18 +801,24 @@ static void finalizerGetFinalizee(struct fy_context *context,
 		fy_exception *exception) {
 	fy_uint ret;
 	fy_int storage, i, len = context->toFinalize->length;
+	fy_object *object;
 
 	fy_class *clazz = fy_vmLookupClass(context, context->sArrayObject,
 			exception);
 	fy_exceptionCheckAndReturn(exception);
+
+//	printf("#Finalizer %d objects need finalize\n", len);
 
 	ret = fy_heapAllocateArray(context, clazz, len, exception);
 	fy_exceptionCheckAndReturn(exception);
 
 	for (i = 0; i < len; i++) {
 		fy_arrayListGet(context->memblocks, context->toFinalize, i, &storage);
+//		printf("GET %d need finalize\n", storage);
 		fy_heapPutArrayHandle(context, ret, i, storage, exception);
 		fy_exceptionCheckAndReturn(exception);
+		object = fy_heapGetObject(context,storage);
+		object->finalizeStatus = finalized;
 	}
 	fy_arrayListClear(context->memblocks, context->toFinalize);
 	fy_nativeReturnHandle(context, thread, ret);

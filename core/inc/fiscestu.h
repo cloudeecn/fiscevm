@@ -34,7 +34,6 @@
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
 
-
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'
 #define FY_TYPE_CHAR  'C'
@@ -328,7 +327,9 @@ typedef struct fy_object {
 	enum {
 		eden = 0, young, old
 	} position :2;
-	fy_boolean finalized :1;
+	enum {
+		not_finalized, in_finalize_array, finalized
+	} finalizeStatus :2;
 	fy_int gen :8;
 	fy_uint monitorOwnerId;
 	fy_int monitorOwnerTimes;
@@ -415,12 +416,15 @@ typedef struct fy_message {
 struct fy_context;
 
 typedef struct fy_inputStream {
-	void* (*isOpen)(struct fy_context *context,const char *name, fy_exception *exception);
-	fy_int (*isRead)(struct fy_context *context,void *is, fy_exception *exception);
-	fy_int (*isReadBlock)(struct fy_context *context,void *is, void *target, fy_int size,
+	void* (*isOpen)(struct fy_context *context, const char *name,
 			fy_exception *exception);
-	fy_int (*isSkip)(struct fy_context *context,void *is, fy_int size, fy_exception *exception);
-	void (*isClose)(struct fy_context *context,void *is);
+	fy_int (*isRead)(struct fy_context *context, void *is,
+			fy_exception *exception);
+	fy_int (*isReadBlock)(struct fy_context *context, void *is, void *target,
+			fy_int size, fy_exception *exception);
+	fy_int (*isSkip)(struct fy_context *context, void *is, fy_int size,
+			fy_exception *exception);
+	void (*isClose)(struct fy_context *context, void *is);
 } fy_inputStream;
 
 typedef struct fy_context {
