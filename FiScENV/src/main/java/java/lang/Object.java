@@ -16,12 +16,14 @@
  */
 package java.lang;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 
 public class Object {
 
 	static {
 		new Finalizer().start();
-		//FiScEVM.throwOut(new RuntimeException());
+//		FiScEVM.throwOut(new RuntimeException());
 	}
 
 	public final native Class<? extends Object> getClass();

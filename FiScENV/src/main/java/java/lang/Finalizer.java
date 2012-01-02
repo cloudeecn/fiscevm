@@ -32,19 +32,20 @@ public final class Finalizer extends Thread {
 	public void run() {
 		try {
 			while (true) {
+				// FiScEVM.debugOut("Finalizer!");
 				Object[] finalizee = getFinalizee();
 				if (finalizee.length > 0) {
-					// FiScEVM.debugOut("#FINALIZER "
-					// + System.identityHashCode(Thread.currentThread())
-					// + ":" + System.identityHashCode(finalizee) + ": "
-					// + finalizee.length + " objects to finalize...");
+//					FiScEVM.debugOut("#FINALIZER "
+//							+ System.identityHashCode(Thread.currentThread())
+//							+ ":" + System.identityHashCode(finalizee) + ": "
+//							+ finalizee.length + " objects to finalize...");
 					for (int i = 0, max = finalizee.length; i < max; i++) {
 						Object o = finalizee[i];
 						try {
-							/*
-							 * FiScEVM.debugOut("FINALIZE " +
-							 * System.identityHashCode(o));
-							 */
+
+//							FiScEVM.debugOut("FINALIZE "
+//									+ System.identityHashCode(o));
+
 							o.finalize();
 							// markFinalized(o);
 						} catch (java.lang.Throwable e) {
@@ -52,9 +53,9 @@ public final class Finalizer extends Thread {
 						}
 						finalizee[i] = null;
 					}
+//					FiScEVM.debugOut("#FINALIZER:" + finalizee.length
+//							+ " objects finalized.");
 					finalizee = null;
-					// FiScEVM.debugOut("#FINALIZER:" + finalizee.length
-					// + " objects finalized.");
 				}
 				try {
 					Thread.sleep(100);
@@ -63,6 +64,7 @@ public final class Finalizer extends Thread {
 				}
 			}
 		} catch (Throwable t) {
+			t.printStackTrace();
 			FiScEVM.throwOut(t);
 		}
 	}
