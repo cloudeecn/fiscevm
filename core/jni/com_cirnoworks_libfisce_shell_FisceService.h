@@ -13,7 +13,7 @@ extern "C" {
  * Signature: (Ljava/nio/ByteBuffer;Lcom/cirnoworks/libfisce/shell/Message;)V
  */
 JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
-		JNIEnv *, jclass, jobject, jobject);
+		JNIEnv *, jclass, jobject, jobject,jintArray);
 
 /*
  * Class:     com_cirnoworks_libfisce_shell_FisceService

@@ -224,7 +224,7 @@ typedef struct fy_exceptionHandler {
 
 	classInfo ci;
 } fy_exceptionHandler;
-
+struct fy_nh;
 typedef struct fy_method {
 	fy_int method_id;
 	fy_char access_flags;
@@ -244,8 +244,10 @@ typedef struct fy_method {
 	fy_char max_locals;
 
 	fy_uint codeLength;
-	fy_ubyte *code;
-
+	union {
+		fy_ubyte *code;
+		struct fy_nh *nh;
+	};
 	fy_char exception_table_length;
 	struct fy_exceptionHandler *exception_table;
 

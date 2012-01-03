@@ -7,6 +7,7 @@
 typedef struct fy_contextData {
 	JNIEnv *env;
 	jobject buf;
+	fy_hashMap nativeCache[1];
 } fy_contextData;
 
 #define INIT_HEADER \
@@ -43,10 +44,6 @@ static void fillException(JNIEnv *env, fy_exception *exception) {
 }
 
 #define CHECK_JNI_EXCEPTION if((*env)->ExceptionOccurred(env)) return
-
-struct fy_javais {
-
-};
 
 static void* isOpen(fy_context *context, const char *name,
 		fy_exception *exception) {
@@ -148,100 +145,14 @@ static void isClose(fy_context *context, void *is) {
 	(*env)->ExceptionClear(env);
 	(*env)->DeleteGlobalRef(env, jis);
 }
+static jclass messageClass = NULL;
 
-JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
-		JNIEnv *env, jclass self, jobject buf, jobject ret) {
-	fy_message _msg;
-	fy_message *message = &_msg;
-	jclass messageClass;
-
-	jfieldID messageType;
-	jfieldID threadId;
-	jfieldID nativeUniqueName;
-	jfieldID exceptionName;
-	jfieldID exceptionDesc;
-	jfieldID params;
-	jfieldID sleepTime;
-
-	jobject obj;
-	int len;
-
-	GENERIC_HEADER
-
-	messageClass = (*env)->FindClass(env,
-			"com/cirnoworks/libfisce/shell/Message");
-
-	messageType = (*env)->GetFieldID(env, messageClass, "messageType", "I");
-	threadId = (*env)->GetFieldID(env, messageClass, "threadId", "I");
-	nativeUniqueName = (*env)->GetFieldID(env, messageClass, "nativeUniqueName",
-			"Ljava/lang/String;");
-	exceptionName = (*env)->GetFieldID(env, messageClass, "exceptionName",
-			"Ljava/lang/String;");
-	exceptionDesc = (*env)->GetFieldID(env, messageClass, "exceptionDesc",
-			"Ljava/lang/String;");
-	params = (*env)->GetFieldID(env, messageClass, "params", "[I");
-	sleepTime = (*env)->GetFieldID(env, messageClass, "sleepTime", "J");
-	/*
-	 private int messageType;
-	 private int threadId;
-	 private String nativeUniqueName;
-	 private String exceptionName;
-	 private String exceptionDesc;
-	 private long sleepTo;
-	 */CHECK_JNI_EXCEPTION;
-	message->messageType = message_none;
-	message->body.exception.exceptionType = exception_none;
-	fisceRun(context, message, exception);
-	if (exception->exceptionType != exception_none) {
-		fillException(env, exception);
-		return;
-	}
-
-	(*env)->SetIntField(env, ret, messageType, message->messageType);
-
-	switch (message->messageType) {
-	case message_invoke_native:
-		obj = (*env)->NewString(env,
-				message->body.call.method->uniqueName->content,
-				message->body.call.method->uniqueName->length);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetObjectField(env, ret, nativeUniqueName, obj);
-		CHECK_JNI_EXCEPTION;
-		len = message->body.call.paramCount;
-		obj = (*env)->NewIntArray(env, len);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetIntArrayRegion(env, obj, 0, len,
-				(jint*) message->body.call.params);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetObjectField(env, ret, params, obj);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetIntField(env, ret, threadId, message->thread->threadId);
-		break;
-	case message_exception:
-		obj = (*env)->NewStringUTF(env, message->body.exception.exceptionName);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetObjectField(env, ret, exceptionName, obj);
-		CHECK_JNI_EXCEPTION;
-		obj = (*env)->NewStringUTF(env, message->body.exception.exceptionDesc);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetObjectField(env, ret, exceptionDesc, obj);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetIntField(env, ret, threadId, message->thread->threadId);
-		break;
-	case message_sleep:
-		(*env)->SetIntField(env, ret, sleepTime, message->body.sleepTime);
-		break;
-	case message_vm_dead:
-		break;
-	default:
-		exception->exceptionType = exception_normal;
-		exception->exceptionName[0] = 0;
-		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
-				"Illegal message type %d", message->messageType);
-		fillException(env, exception);
-		break;
-	}
-}
+static jfieldID messageTypeField;
+static jfieldID threadIdField;
+static jfieldID nativeUniqueNameField;
+static jfieldID exceptionNameField;
+static jfieldID exceptionDescField;
+static jfieldID sleepTimeField;
 
 JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
@@ -249,6 +160,23 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 	INIT_HEADER
 
 	setvbuf(stdout, NULL, _IONBF, 1024);
+	if (messageClass == NULL) {
+		messageClass = (*env)->FindClass(env,
+				"com/cirnoworks/libfisce/shell/Message");
+
+		messageTypeField = (*env)->GetFieldID(env, messageClass, "messageType",
+				"I");
+		threadIdField = (*env)->GetFieldID(env, messageClass, "threadId", "I");
+
+		nativeUniqueNameField = (*env)->GetFieldID(env, messageClass,
+				"nativeUniqueName", "Ljava/lang/String;");
+		exceptionNameField = (*env)->GetFieldID(env, messageClass,
+				"exceptionName", "Ljava/lang/String;");
+		exceptionDescField = (*env)->GetFieldID(env, messageClass,
+				"exceptionDesc", "Ljava/lang/String;");
+		sleepTimeField = (*env)->GetFieldID(env, messageClass, "sleepTime",
+				"J");
+	}
 
 	ex.exceptionType = exception_none;
 	memset(context, 0, sizeof(fy_context));
@@ -263,12 +191,99 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		fillException(env, exception);
 		return;
 	}
+	fy_hashMapInit(context->memblocks, cdata->nativeCache, 67, 6, exception);
+	if (exception->exceptionType != exception_none) {
+		fillException(env, exception);
+		return;
+	}
 	context->additionalData = cdata;
 	context->inputStream.isClose = isClose;
 	context->inputStream.isOpen = isOpen;
 	context->inputStream.isRead = isRead;
 	context->inputStream.isReadBlock = isReadBlock;
 	context->inputStream.isSkip = isSkip;
+}
+
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
+		JNIEnv *env, jclass self, jobject buf, jobject ret, jintArray params) {
+	fy_message _msg;
+	fy_message *message = &_msg;
+
+#ifndef FY_LATE_DECLARATION
+
+#endif
+	jobject obj;
+	int len;
+
+	GENERIC_HEADER
+
+	message->messageType = message_none;
+	message->body.exception.exceptionType = exception_none;
+	fisceRun(context, message, exception);
+	if (exception->exceptionType != exception_none) {
+		fillException(env, exception);
+		return;
+	}
+
+	(*env)->SetIntField(env, ret, messageTypeField, message->messageType);
+
+	switch (message->messageType) {
+	case message_invoke_native: {
+		obj = fy_hashMapGet(context->memblocks, cdata->nativeCache,
+				message->body.call.method->uniqueName);
+		if (obj == NULL) {
+			obj = (*env)->NewString(env,
+					message->body.call.method->uniqueName->content,
+					message->body.call.method->uniqueName->length);
+			CHECK_JNI_EXCEPTION;
+			obj = (*env)->NewGlobalRef(env, obj);
+			fy_hashMapPut(context->memblocks, cdata->nativeCache,
+					message->body.call.method->uniqueName, obj, exception);
+			if (exception->exceptionType != exception_none) {
+				fillException(env, exception);
+				return;
+			}
+		}
+		(*env)->SetObjectField(env, ret, nativeUniqueNameField, obj);
+
+		len = message->body.call.paramCount;
+		(*env)->SetIntArrayRegion(env, params, 0, len,
+				(jint*) message->body.call.params);
+
+		(*env)->SetIntField(env, ret, threadIdField, message->thread->threadId);
+		break;
+	}
+	case message_exception: {
+
+		obj = (*env)->NewStringUTF(env, message->body.exception.exceptionName);
+		CHECK_JNI_EXCEPTION;
+		(*env)->SetObjectField(env, ret, exceptionNameField, obj);
+		obj = (*env)->NewStringUTF(env, message->body.exception.exceptionDesc);
+		CHECK_JNI_EXCEPTION;
+		(*env)->SetObjectField(env, ret, exceptionDescField, obj);
+		(*env)->SetIntField(env, ret, threadIdField, message->thread->threadId);
+		break;
+	}
+	case message_sleep: {
+
+		(*env)->SetIntField(env, ret, sleepTimeField, message->body.sleepTime);
+		break;
+	}
+	case message_vm_dead:
+		break;
+	default:
+		exception->exceptionType = exception_normal;
+		exception->exceptionName[0] = 0;
+		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				"Illegal message type %d", message->messageType);
+		fillException(env, exception);
+		break;
+	}
+}
+
+static void destroyNativeCache(fy_str *key, void *value, void *addition) {
+	JNIEnv *env = addition;
+	(*env)->DeleteGlobalRef(env, value);
 }
 
 /*
@@ -278,6 +293,10 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
  */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_destroyContext(
 		JNIEnv *env, jclass self, jobject buf) {
 	GENERIC_HEADER
+
+	fy_hashMapEachValue(context->memblocks, cdata->nativeCache,
+			destroyNativeCache, env);
+
 	fisceDestroyContext(context);
 }
 

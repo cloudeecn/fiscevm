@@ -453,6 +453,9 @@ static char *OP_NAME[] = { /**/
 "BREAKPOINT" /* 0xCA */};
 #endif
 
+static fy_nh _NO_HANDLER;
+static fy_nh *NO_HANDLER = &_NO_HANDLER;
+
 static fy_int processThrowable(fy_context *context, fy_frame *frame,
 		fy_int handle, fy_int lpc, fy_exception *exception) {
 	fy_class *throwableClass;
@@ -2917,11 +2920,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}fy_localToFrame(frame);
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
-					fy_nh *nh;
+					fy_nh *nh = mvalue->nh;
 #endif
-					nh = fy_hashMapGet(block, context->mapMUNameToNH,
-							mvalue->uniqueName);
 					if (nh == NULL) {
+						nh = fy_hashMapGet(block, context->mapMUNameToNH,
+								mvalue->uniqueName);
+						nh = mvalue->nh = (nh == NULL ? NO_HANDLER : nh);
+					}
+					if (nh == NO_HANDLER) {
 						message->messageType = message_invoke_native;
 						message->body.call.method = mvalue;
 						message->body.call.paramCount = ivalue;
@@ -3024,11 +3030,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}fy_localToFrame(frame);
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
-					fy_nh *nh;
+					fy_nh *nh = mvalue->nh;
 #endif
-					nh = fy_hashMapGet(block, context->mapMUNameToNH,
-							mvalue->uniqueName);
 					if (nh == NULL) {
+						nh = fy_hashMapGet(block, context->mapMUNameToNH,
+								mvalue->uniqueName);
+						nh = mvalue->nh = (nh == NULL ? NO_HANDLER : nh);
+					}
+					if (nh == NO_HANDLER) {
 						message->messageType = message_invoke_native;
 						message->body.call.method = mvalue;
 						message->body.call.paramCount = ivalue;
@@ -3116,11 +3125,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_localToFrame(frame);
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
-					fy_nh *nh;
+					fy_nh *nh = mvalue->nh;
 #endif
-					nh = fy_hashMapGet(block, context->mapMUNameToNH,
-							mvalue->uniqueName);
 					if (nh == NULL) {
+						nh = fy_hashMapGet(block, context->mapMUNameToNH,
+								mvalue->uniqueName);
+						nh = mvalue->nh = (nh == NULL ? NO_HANDLER : nh);
+					}
+					if (nh == NO_HANDLER) {
 						message->messageType = message_invoke_native;
 						message->body.call.method = mvalue;
 						message->body.call.paramCount = ivalue;
@@ -3222,11 +3234,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}fy_localToFrame(frame);
 				if (mvalue2->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
-					fy_nh *nh;
+					fy_nh *nh = mvalue2->nh;
 #endif
-					nh = fy_hashMapGet(block, context->mapMUNameToNH,
-							mvalue2->uniqueName);
 					if (nh == NULL) {
+						nh = fy_hashMapGet(block, context->mapMUNameToNH,
+								mvalue2->uniqueName);
+						nh = mvalue2->nh = (nh == NULL ? NO_HANDLER : nh);
+					}
+					if (nh == NO_HANDLER) {
 						message->messageType = message_invoke_native;
 						message->body.call.method = mvalue2;
 						message->body.call.paramCount = ivalue;
