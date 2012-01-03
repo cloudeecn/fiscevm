@@ -30,7 +30,8 @@ public final class FisceService {
 		contextMap.remove(context);
 	}
 
-	public static native void execute(ByteBuffer context, Message message);
+	public static native void execute(ByteBuffer context, Message message,
+			int[] params);
 
 	private static native void initContext(ByteBuffer context);
 
@@ -306,8 +307,7 @@ public final class FisceService {
 		for (IToolkit toolkit : jcontext.getToolkits()) {
 			is = toolkit.getResourceByClassName(name);
 			if (is != null) {
-				System.out.println(name + "  "
-						+ toolkit.getClass());
+				System.out.println(name + "  " + toolkit.getClass());
 				break;
 			}
 		}

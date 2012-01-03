@@ -106,8 +106,8 @@ public class FYContext implements Runnable, FiScEVM {
 		FisceService.bootFromClass(context, name);
 	}
 
-	private Message execute() {
-		FisceService.execute(context, message);
+	private Message execute(int[] params) {
+		FisceService.execute(context, message, params);
 		return message;
 	}
 
@@ -273,24 +273,21 @@ public class FYContext implements Runnable, FiScEVM {
 	}
 
 	public void run() {
+		int[] params = new int[256];
 		runningCurrent.set(true);
 		try {
 			all: while (runningSet.get()) {
-				Message msg = execute();
+				Message msg = execute(params);
 				switch (msg.getMessageType()) {
 				case Message.message_invoke_native:
 					INativeHandler nh = handlers.get(msg.getNativeUniqueName());
 					if (nh != null) {
-						nh.dealNative(msg.getParams(),
-								getThreadById(msg.getThreadId()));
+						nh.dealNative(params, getThreadById(msg.getThreadId()));
 					} else {
 						try {
 							throw (new VMCriticalException(
 									"Stopped at invoke native "
 											+ msg.getNativeUniqueName()
-											+ " with " + msg.getParams().length
-											+ " params."
-											+ Arrays.toString(msg.getParams())
 											+ " at thread " + msg.getThreadId()));
 						} catch (VMCriticalException e) {
 							onException(e);
@@ -313,7 +310,9 @@ public class FYContext implements Runnable, FiScEVM {
 					break all;
 				case Message.message_sleep:
 					try {
-						Thread.sleep(msg.getSleepTime());
+						if (msg.getSleepTime() > 0) {
+							Thread.sleep(msg.getSleepTime());
+						}
 					} catch (InterruptedException ie) {
 						ie.printStackTrace();
 					}

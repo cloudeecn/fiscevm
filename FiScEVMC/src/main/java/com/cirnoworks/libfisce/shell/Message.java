@@ -10,7 +10,6 @@ public class Message {
 	private int messageType;
 	private int threadId;
 	private String nativeUniqueName;
-	private int[] params;
 	private String exceptionName;
 	private String exceptionDesc;
 	private long sleepTime;
@@ -53,14 +52,6 @@ public class Message {
 
 	public void setExceptionDesc(String exceptionDesc) {
 		this.exceptionDesc = exceptionDesc;
-	}
-
-	public int[] getParams() {
-		return params;
-	}
-
-	public void setParams(int[] params) {
-		this.params = params;
 	}
 
 	public long getSleepTime() {
