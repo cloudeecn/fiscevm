@@ -2917,6 +2917,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}fy_localToFrame(frame);
+#ifdef FY_VERBOSE
+				fy_strPrint(mvalue->uniqueName);
+				printf("\n");
+#endif
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
 					fy_nh *nh = mvalue->nh;
@@ -3027,6 +3031,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}fy_localToFrame(frame);
+#ifdef FY_VERBOSE
+				fy_strPrint(mvalue->uniqueName);
+				printf("\n");
+#endif
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
 					fy_nh *nh = mvalue->nh;
@@ -3122,6 +3130,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_checkCall(ivalue);
 				sp -= ivalue;
 				fy_localToFrame(frame);
+#ifdef FY_VERBOSE
+				fy_strPrint(mvalue->uniqueName);
+				printf("\n");
+#endif
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
 					fy_nh *nh = mvalue->nh;
@@ -3163,14 +3175,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
 				fy_class *clazz1, *clazz2;
-				fy_method *mvalue, *mvalue2;
+				fy_method *mvalue2, *mvalue;
 #endif
 				clazz1 = method->owner;
 				ivalue3 = fy_nextU2(code);/*m*/
-				mvalue = fy_vmLookupMethodFromConstant(context,
+				mvalue2 = fy_vmLookupMethodFromConstant(context,
 						(ConstantMethodRef*) (clazz1->constantPools[ivalue3]),
 						exception);
-				ivalue = mvalue->paramCount + 1;
+				ivalue = mvalue2->paramCount + 1;
 				fy_checkCall(ivalue);
 				sp -= ivalue;
 				ASSERT(typeStack[sp]==FY_TYPE_HANDLE);
@@ -3185,17 +3197,17 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				clazz2 = fy_heapGetObject(context, stack[sp])->clazz;
-				mvalue2 = fy_vmLookupMethodVirtual(context, clazz2,
-						mvalue->fullName, exception);
+				mvalue = fy_vmLookupMethodVirtual(context, clazz2,
+						mvalue2->fullName, exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
 
-				if (mvalue2 == NULL) {
-					mvalue2 = fy_vmLookupMethodVirtual(context, clazz2,
-							mvalue->fullName, exception);
+				if (mvalue == NULL) {
+					mvalue = fy_vmLookupMethodVirtual(context, clazz2,
+							mvalue2->fullName, exception);
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -3206,7 +3218,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (mvalue2->access_flags & FY_ACC_STATIC) {
+				if (mvalue->access_flags & FY_ACC_STATIC) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -3214,11 +3226,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							FY_EXCEPTION_INCOMPAT_CHANGE);
 					fy_strSPrint(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
-							mvalue2->uniqueName);
+							mvalue->uniqueName);
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if ((mvalue2->access_flags & FY_ACC_ABSTRACT)) {
+				if ((mvalue->access_flags & FY_ACC_ABSTRACT)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -3226,22 +3238,26 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							FY_EXCEPTION_ABSTRACT);
 					fy_strSPrint(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
-							mvalue2->uniqueName);
+							mvalue->uniqueName);
 					FY_FALLOUT_NOINVOKE
 					break;
 				}fy_localToFrame(frame);
-				if (mvalue2->access_flags & FY_ACC_NATIVE) {
+#ifdef FY_VERBOSE
+				fy_strPrint(mvalue->uniqueName);
+				printf("\n");
+#endif
+				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
-					fy_nh *nh = mvalue2->nh;
+					fy_nh *nh = mvalue->nh;
 #endif
 					if (nh == NULL) {
 						nh = fy_hashMapGet(block, context->mapMUNameToNH,
-								mvalue2->uniqueName);
-						nh = mvalue2->nh = (nh == NULL ? NO_HANDLER : nh);
+								mvalue->uniqueName);
+						nh = mvalue->nh = (nh == NULL ? NO_HANDLER : nh);
 					}
 					if (nh == NO_HANDLER) {
 						message->messageType = message_invoke_native;
-						message->body.call.method = mvalue2;
+						message->body.call.method = mvalue;
 						message->body.call.paramCount = ivalue;
 						message->body.call.params = stack + sp;
 					} else {
@@ -3256,7 +3272,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						frame = fy_threadCurrentFrame(context, thread);
 					}
 				} else {
-					fy_threadPushMethod(context, thread, mvalue2, &frame,
+					fy_threadPushMethod(context, thread, mvalue, &frame,
 							exception);
 					if (exception->exceptionType != exception_none) {
 						message->messageType = message_exception;
@@ -4399,13 +4415,16 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #else
 	}
 #endif
-		/*The only exit point, from here, the frame is always valid*/
-		if (thread->yield) {
-			thread->yield = FALSE;
-			message->messageType = message_none;
+
+		if (message->messageType == message_continue) {
+			if (thread->yield) {
+				thread->yield = FALSE;
+				message->messageType = message_none;
+				break;
+			}
+		} else if (message->messageType == message_invoke_native) {
 			break;
-		}
-		if (message->messageType == message_exception) {
+		} else if (message->messageType == message_exception) {
 			//send the exception to the VM caller for PI handle.
 #ifdef FY_LATE_DECLARATION
 			fy_exception exceptionToPrepare;
@@ -4424,9 +4443,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			message->messageType = message_continue;
-		}
-		if (message->messageType != message_continue) {
+		} else if (message->messageType == message_thread_dead) {
 			break;
+		} else {
+			fy_fault(NULL, NULL, "Fault! Invalid message type %d\n",
+					message->messageType);
 		}
 	}
 	if (message->messageType == message_continue) {

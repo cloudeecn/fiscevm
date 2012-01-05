@@ -80,7 +80,7 @@ void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT void *is,
 	fy_int read;
 	fy_int pos = 0;
 	while ((read = context->inputStream.isReadBlock(context, is,
-			(fy_byte*) buffer + pos, size, exception)) > 0 && size > 0) {
+			(fy_byte*) buffer + pos, size, exception)) >= 0 && size > 0) {
 		size -= read;
 		pos += read;
 	}
@@ -91,8 +91,12 @@ void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT void *is,
 }
 void fy_dataSkip(fy_context *context, void *is, int size,
 		fy_exception *exception) {
-	fy_int value = context->inputStream.isSkip(context, is, size, exception);
-	if (value != size) {
+	fy_int read;
+	while ((read = context->inputStream.isSkip(context, is, size, exception))
+			>= 0 && size > 0) {
+		size -= read;
+	}
+	if (size != 0) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
 		return;
 	}
