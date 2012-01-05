@@ -307,7 +307,6 @@ public final class FisceService {
 		for (IToolkit toolkit : jcontext.getToolkits()) {
 			is = toolkit.getResourceByClassName(name);
 			if (is != null) {
-				System.out.println(name + "  " + toolkit.getClass());
 				break;
 			}
 		}
