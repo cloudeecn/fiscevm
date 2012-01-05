@@ -137,9 +137,7 @@ static void isClose(fy_context *context, void *is) {
 	jclass clazz = (*env)->FindClass(env, "java/io/InputStream");
 	jmethodID method = (*env)->GetMethodID(env, clazz, "close", "()V");
 	if ((*env)->ExceptionOccurred(env)) {
-		if ((*env)->ExceptionOccurred(env)) {
-			(*env)->ExceptionDescribe(env);
-		}
+		(*env)->ExceptionDescribe(env);
 	}
 	(*env)->CallVoidMethod(env, jis, method);
 	(*env)->ExceptionClear(env);

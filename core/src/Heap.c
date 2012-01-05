@@ -184,7 +184,7 @@ fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 	if (handle == 0) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/NullPointerException");
+				FY_EXCEPTION_NPT);
 		exception->exceptionDesc[0] = 0;
 		return target;
 	}
@@ -204,7 +204,7 @@ fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 	if (cah == 0) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/NullPointerException");
+				FY_EXCEPTION_NPT);
 		exception->exceptionDesc[0] = 0;
 		return target;
 	}
@@ -366,14 +366,14 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 
 #define CHECK_NPT(X) if (handle == 0) { \
 exception->exceptionType = exception_normal; \
-strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), "java/lang/NullPointerException"); \
+strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_NPT); \
 exception->exceptionDesc[0] = 0; \
 return X; \
 }else ASSERT(obj->clazz!=NULL);
 
 #define CHECK_IOOB(X) if (index < 0 || index >= obj->length) {\
 exception->exceptionType = exception_normal;\
-strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), "java/lang/IndexOutOfBoundException");\
+strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_IOOB);\
 sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),\
 		"%I32d / %I32d", index, obj->length);\
 return X;\
@@ -381,7 +381,7 @@ return X;\
 
 #define CHECK_STATIC(X) if((field->access_flags & FY_ACC_STATIC)==0){\
 		exception->exceptionType=exception_normal;\
-		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName),"java/lang/IncompatibleClassChangeError");\
+		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName),FY_EXCEPTION_INCOMPAT_CHANGE);\
 		strcpy_s(exception->exceptionDesc,sizeof(exception->exceptionDesc),"get/set static field is not static!");\
 		return X;\
 	}
@@ -1161,10 +1161,10 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	if ((context->posInOld - context->oldReleasedSize) * 4
 			< context->posInOld) {
 #endif
-	compactOld(context, exception);
-	fy_exceptionCheckAndReturn(exception);
+		compactOld(context, exception);
+		fy_exceptionCheckAndReturn(exception);
 #ifndef FY_GC_FORCE_FULL
-}
+	}
 #endif
 	printf(
 			"#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",

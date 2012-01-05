@@ -572,7 +572,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 	if (inputClass != classClass) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/VirtualMachineError");
+				FY_EXCEPTION_VM);
 		strcpy_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"Get class ID for non-class object");
 		return NULL;

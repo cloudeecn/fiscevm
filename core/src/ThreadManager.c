@@ -120,8 +120,7 @@ void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
 	fy_exception targetException;
 	targetException.exceptionType = exception_none;
 	sprintf_s(targetException.exceptionName,
-			sizeof(targetException.exceptionName),
-			"java/lang/InterruptedException");
+			sizeof(targetException.exceptionName), FY_EXCEPTION_INTR);
 	targetException.exceptionDesc[0] = 0;
 
 	target = getThreadByHandle(context, targetHandle, exception);
@@ -174,7 +173,7 @@ void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
 	if (monitor->monitorOwnerId != thread->threadId) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/IllegalMonitorStateException");
+				FY_EXCEPTION_IMSE);
 		exception->exceptionDesc[0] = 0;
 		return;
 	}
@@ -204,7 +203,7 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 	if (monitor->monitorOwnerId != thread->threadId) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/IllegalMonitorStateException");
+				FY_EXCEPTION_IMSE);
 		exception->exceptionDesc[0] = 0;
 		return;
 	}

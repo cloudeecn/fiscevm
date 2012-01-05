@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "fisceprt.h"
+#include "fisceclz.h"
 #include "fy_util/LnkList.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
@@ -52,18 +53,7 @@
 #define FY_TYPE_WIDE2  '_'
 #define FY_TYPE_UNKNOWN  'X'
 
-#define FY_BASE_VM "com/cirnoworks/fisce/privat/FiScEVM"
-#define FY_BASE_STRING "java/lang/String"
-#define FY_BASE_OBJECT "java/lang/Object"
-#define FY_BASE_CLASS "java/lang/Class"
-#define FY_BASE_THROWABLE "java/lang/Throwable"
-#define FY_BASE_THREAD "java/lang/Thread"
-#define FY_BASE_SYSTEM "java/lang/System"
-#define FY_BASE_FLOAT "java/lang/Float"
-#define FY_BASE_DOUBLE "java/lang/Double"
-#define FY_BASE_MATH "java/lang/Math"
-#define FY_BASE_FINALIZER "java/lang/Finalizer"
-#define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
+
 #define FY_METHOD_INIT "<init>"
 #define FY_METHOD_CLINIT "<clinit>"
 #define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"
@@ -71,15 +61,6 @@
 #define FY_FIELDF_PRIORITY ".priority.I"
 #define FY_FIELDF_NAME ".name.[C"
 #define FY_FIELDF_DAEMON ".daemon.Z"
-
-#define FY_EXCEPTION_ITE "java/lang/InvocationTargetException"
-#define FY_EXCEPTION_MONITOR "java/lang/IllegalMonitorStateException"
-#define FY_EXCEPTION_NO_METHOD "java/lang/NoSuchMethodError"
-#define FY_EXCEPTION_NPT "java/lang/NullPointerException"
-#define FY_EXCEPTION_IO "java/io/IOException"
-#define FY_EXCEPTION_RT "java/lang/RuntimeException"
-#define FY_EXCEPTION_IOOB "java/lang/IndexOutOfBoundException"
-#define FY_EXCEPTION_STORE "java/lang/ArrayStoreException"
 
 #define FY_ACC_ABSTRACT 1024
 #define FY_ACC_FINAL 16

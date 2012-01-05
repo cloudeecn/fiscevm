@@ -150,7 +150,7 @@ static fy_class *lookup(fy_context *context, const char *name,
 }
 void testClassLoaderFull() {
 	char *names[] = { ""FY_BASE_STRING"", "[[[L"FY_BASE_STRING";", "[[[I",
-			"<int>", "<double>", "java/lang/Double", "java/lang/Math", NULL };
+			"<int>", "<double>", FY_BASE_DOUBLE, FY_BASE_MATH, NULL };
 	int i = 0;
 	char *nm;
 	fy_str *snm;
@@ -169,7 +169,7 @@ void testClassLoaderFull() {
 	}
 	clStr = lookup(context, FY_BASE_STRING, exception);
 	clObj = lookup(context, FY_BASE_OBJECT, exception);
-	clazz = lookup(context, "java/lang/Integer", exception);
+	clazz = lookup(context, FY_BASE_INT, exception);
 	CU_ASSERT(fy_classCanCastTo(context,clStr,clObj));
 	CU_ASSERT_FALSE(fy_classCanCastTo(context,clStr,clazz));
 }
@@ -270,7 +270,7 @@ static void hltest(char *name) {
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
 	fy_vmRegisterNativeHandler(context,
-			"EXCLUDE/fisce/test/TestService.fail.(Ljava/lang/String;)V", NULL,
+			"EXCLUDE/fisce/test/TestService.fail.(L"FY_BASE_STRING";)V", NULL,
 			testFail, exception);
 	TEST_EXCEPTION(exception);
 
@@ -373,10 +373,10 @@ void testNative() {
 	char *classes[] = { "com/cirnoworks/fisce/privat/FiScEVM",
 			"com/cirnoworks/fisce/privat/ResourceInputStream",
 			"com/cirnoworks/fisce/privat/SystemInputStream",
-			"com/cirnoworks/fisce/privat/SystemOutputStream", "java/lang/Class",
-			"java/lang/Object", "java/lang/StackTraceElement",
-			"java/lang/String", "java/lang/System", "java/lang/Thread",
-			"java/lang/Throwable", "java/lang/Math", NULL };
+			"com/cirnoworks/fisce/privat/SystemOutputStream", FY_BASE_CLASS,
+			FY_BASE_OBJECT, FY_BASE_STACKTHREADELEMENT, FY_BASE_STRING,
+			FY_BASE_SYSTEM, FY_BASE_THREAD, FY_BASE_THROWABLE, FY_BASE_MATH,
+			NULL };
 	int i = 0, j, jmax;
 	char *className;
 	char msg[512];

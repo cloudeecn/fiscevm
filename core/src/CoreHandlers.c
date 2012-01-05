@@ -825,7 +825,6 @@ static void finalizerGetFinalizee(struct fy_context *context,
 }
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
-	/*float java/lang/Float.intBitsToFloat.(I)F*/
 	fy_vmRegisterNativeHandler(context, FY_BASE_FLOAT".intBitsToFloat.(I)F",
 			NULL, floatIntBitsToFloat, exception);
 	/*vm*/

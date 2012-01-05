@@ -563,7 +563,7 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 	default:
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/VirtualMachineError");
+				FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"LDC type wrong! %I32d,%d", index, owner->constantTypes[index]);
 		return 0;
@@ -579,7 +579,7 @@ static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
 	default:
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/VirtualMachineError");
+				FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"LDC2 type wrong! %I32d,%d", index,
 				owner->constantTypes[index]);
@@ -641,7 +641,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	if (throwableStackTraceElements == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/VirtualMachineError");
+				FY_EXCEPTION_VM);
 		strcpy_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"Can't find nessessery sThrowableStackTrace");
 		return;
@@ -658,7 +658,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	if (declaringClassField == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/VirtualMachineError");
+				FY_EXCEPTION_VM);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sStackTraceElementDeclaringClass);
 		return;
@@ -669,7 +669,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	if (methodNameField == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/VirtualMachineError");
+				FY_EXCEPTION_VM);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sStackTraceElementMethodName);
 		return;
@@ -679,7 +679,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	if (fileNameField == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/VirtualMachineError");
+				FY_EXCEPTION_VM);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sStackTraceElementFileName);
 		return;
@@ -690,7 +690,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	if (lineNumberField == NULL) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/VirtualMachineError");
+				FY_EXCEPTION_VM);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sStackTraceElementLineNumber);
 		return;
@@ -1072,7 +1072,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	if (!fy_strEndsWith(method->uniqueName, context->sFMain)) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/InternalError");
+				FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"The boot method must be static void main(String[])");
 		return;
@@ -1080,7 +1080,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	if ((method->access_flags & FY_ACC_STATIC) == 0) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/InternalError");
+				FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"The first method of a thread must have no return value.");
 		return;
@@ -1111,7 +1111,7 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	fy_exceptionCheckAndReturn(exception);
 	if (!fy_classCanCastTo(context, handleClass, threadClass)) {
 		fy_fault(exception, NULL,
-				"The create(int) is used to start a java/lang/Thread!");
+				"The create(int) is used to start a "FY_BASE_THREAD"!");
 		return;
 	}
 	runner = fy_vmLookupMethodVirtual(context, handleClass, context->sFRun,
@@ -1341,7 +1341,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s(exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/ArrayStoreException");
+							FY_EXCEPTION_STORE);
 					strcpy_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							"Data type not compatable!");
@@ -1483,7 +1483,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IndexOutOfBoundException");
+							FY_EXCEPTION_IOOB);
 					sprintf_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "%d<0", ivalue);
 					FY_FALLOUT_NOINVOKE
@@ -1823,7 +1823,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						exception->exceptionType = exception_normal;
 						strcpy_s( exception->exceptionName,
 								sizeof(exception->exceptionName),
-								"java/lang/ClassCastException");
+								FY_EXCEPTION_CAST);
 						fy_strInit(block, &str1, 64, exception);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
@@ -2301,7 +2301,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
+							FY_EXCEPTION_INCOMPAT_CHANGE);
 					fy_strSPrint(msg, 256, field->uniqueName);
 					sprintf_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
@@ -2586,7 +2586,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/ArithmeticException");
+							FY_EXCEPTION_ARITHMETIC);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							"Divided by zero!");
@@ -2848,8 +2848,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/NullPointerException");
+							sizeof(exception->exceptionName), FY_EXCEPTION_NPT);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "");
 					FY_FALLOUT_NOINVOKE
@@ -2871,7 +2870,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
+							FY_EXCEPTION_INCOMPAT_CHANGE);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "");
 					FY_FALLOUT_NOINVOKE
@@ -2889,7 +2888,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
+							FY_EXCEPTION_ABSTRACT);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "");
 					FY_FALLOUT_NOINVOKE
@@ -2900,7 +2899,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IllegalAccessError");
+							FY_EXCEPTION_ACCESS);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "");
 					FY_FALLOUT_NOINVOKE
@@ -2912,7 +2911,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
+							FY_EXCEPTION_ABSTRACT);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "");
 					FY_FALLOUT_NOINVOKE
@@ -2986,7 +2985,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
+							FY_EXCEPTION_ABSTRACT);
 					exception->exceptionDesc[0] = 0;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3009,7 +3008,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
+							FY_EXCEPTION_INCOMPAT_CHANGE);
 					fy_strSPrint(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							mvalue->uniqueName);
@@ -3021,7 +3020,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
+							FY_EXCEPTION_ABSTRACT);
 					fy_strSPrint(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							mvalue->uniqueName);
@@ -3087,7 +3086,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
+							FY_EXCEPTION_INCOMPAT_CHANGE);
 					fy_strSPrint(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							mvalue->uniqueName);
@@ -3179,8 +3178,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/NullPointerException");
+							sizeof(exception->exceptionName), FY_EXCEPTION_NPT);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "");
 					FY_FALLOUT_NOINVOKE
@@ -3202,7 +3200,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
+							FY_EXCEPTION_ABSTRACT);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "");
 					FY_FALLOUT_NOINVOKE
@@ -3213,7 +3211,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
+							FY_EXCEPTION_INCOMPAT_CHANGE);
 					fy_strSPrint(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							mvalue2->uniqueName);
@@ -3225,7 +3223,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/AbstractMethodError");
+							FY_EXCEPTION_ABSTRACT);
 					fy_strSPrint(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							mvalue2->uniqueName);
@@ -3290,7 +3288,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/ArithmeticException");
+							FY_EXCEPTION_ARITHMETIC);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							"Divided by zero!");
@@ -3493,7 +3491,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/ArithmeticException");
+							FY_EXCEPTION_ARITHMETIC);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							"Divided by zero!");
@@ -3649,7 +3647,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/ArithmeticException");
+							FY_EXCEPTION_ARITHMETIC);
 					strcpy_s( exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							"Divided by zero!");
@@ -3932,7 +3930,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/NegativeArraySizeException");
+							FY_EXCEPTION_NASE);
 					sprintf_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "%d", ivalue3);
 					FY_FALLOUT_NOINVOKE
@@ -3968,8 +3966,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							"java/lang/VirtualMachineError");
+							sizeof(exception->exceptionName), FY_EXCEPTION_VM);
 					sprintf_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
 							"Unknown array type in NEWARRAY type=%d", type);
@@ -4045,7 +4042,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IncompatibleClassChangeError");
+							FY_EXCEPTION_INCOMPAT_CHANGE);
 					fy_strSPrint(msg, 256, field->uniqueName);
 					sprintf_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
@@ -4063,7 +4060,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IllegalAccessError");
+							FY_EXCEPTION_ACCESS);
 					fy_strSPrint(msg, 256, field->uniqueName);
 					sprintf_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
@@ -4127,7 +4124,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							"java/lang/IllegalAccessError");
+							FY_EXCEPTION_ACCESS);
 					fy_strSPrint(msg, sizeof(msg), field->uniqueName);
 					sprintf_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc),
@@ -4458,7 +4455,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	if (!fy_classCanCastTo(context, clazz1, context->TOP_THROWABLE)) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/ClassCastException");
+				FY_EXCEPTION_CAST);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				clazz1->className);
 		return 0;
@@ -4471,7 +4468,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	if (field == NULL) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-				"java/lang/ClassNotFoundException");
+				FY_EXCEPTION_CLASSNOTFOUND);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sThrowableDetailMessage);
 		return 0;

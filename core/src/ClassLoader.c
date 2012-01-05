@@ -955,7 +955,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 			exception->exceptionType = exception_normal;
 			sprintf_s(exception->exceptionName,
 					sizeof(exception->exceptionName),
-					"java/lang/ClassNotFoundException");
+					FY_EXCEPTION_CLASSNOTFOUND);
 			fy_strSPrint(exception->exceptionDesc,
 					sizeof(exception->exceptionDesc), name);
 			return NULL;
