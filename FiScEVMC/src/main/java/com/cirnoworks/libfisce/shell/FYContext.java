@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -317,8 +316,13 @@ public class FYContext implements Runnable, FiScEVM {
 						ie.printStackTrace();
 					}
 					break;
+				default:
+					throw new RuntimeException("Illegal message type: "
+							+ msg.getMessageType());
 				}
 			}
+		} catch (Throwable e) {
+			onException(e);
 		} finally {
 			runningCurrent.set(false);
 			System.out.println("over");
