@@ -376,9 +376,6 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldByUniqueNam
 	GENERIC_HEADER
 
 	jstrToFyStr(env, name, &str);
-	printf("Lookup in native ");
-	fy_strPrint(&str);
-	printf("\n");
 	field = fy_nativeGetField(context, &str);
 	releaseStrJstr(env, name, &str);
 	if (field == NULL) {
