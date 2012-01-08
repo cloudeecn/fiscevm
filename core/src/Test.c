@@ -369,6 +369,14 @@ void testComplex() {
 	hltest("EXCLUDE/fisce/test/ComplexClassLayout");
 }
 
+void testTableSwitch() {
+	hltest("EXCLUDE/fisce/test/SwitchTest");
+}
+
+void testLookupSwitch() {
+	hltest("EXCLUDE/fisce/test/SwitchTest2");
+}
+
 void testNative() {
 	char *classes[] = { "com/cirnoworks/fisce/privat/FiScEVM",
 			"com/cirnoworks/fisce/privat/ResourceInputStream",
@@ -445,6 +453,8 @@ CU_TestInfo testcases[] = { //
 				{ "Profile", testProfile }, //
 				{ "GC", testGC }, //
 				{ "ComplexClassStructor", testComplex }, //
+				{ "TableSwitch", testTableSwitch }, //
+				{ "LookupSwitch", testLookupSwitch }, //
 				{ "Native", testNative }, //
 				CU_TEST_INFO_NULL };
 

@@ -18,7 +18,7 @@ if test x"$fy_do_debug" = xyes ; then
 	ENABLE_DEBUG="TRUE"
 else
 	echo "---------- Disabling debug mode compilation."
-	CFLAGS="$CFLAGS -O3"
+	CFLAGS="$CFLAGS -O3 -fomit-frame-pointer"
 	ENABLE_DEBUG="FALSE"
 fi
 
@@ -48,6 +48,32 @@ else
 	echo "---------- Disabling link time optimization."
 	ENABLE_LTO="FALSE"
 fi
+
+AC_ARG_ENABLE(sse2,
+  [AS_HELP_STRING([--enable-sse2],
+  [enable use sse2 instructions [default=no]])],
+  [fy_do_sse2=$enableval],
+  [fy_do_sse2="no"])
+if test x"$fy_do_sse2" = xyes ; then
+	echo "++++++++++ Enabling sse2."
+	CFLAGS="$CFLAGS -msse2"
+else
+	echo "---------- Disabling sse2."
+fi
+
+AC_ARG_ENABLE(sse3,
+  [AS_HELP_STRING([--enable-sse3],
+  [enable use sse3 instructions [default=no]])],
+  [fy_do_sse3=$enableval],
+  [fy_do_sse3="no"])
+if test x"$fy_do_sse3" = xyes ; then
+	echo "++++++++++ Enabling sse3."
+	CFLAGS="$CFLAGS -msse3"
+else
+	echo "---------- Disabling sse3."
+fi
+
+CFLAGS="$CFLAGS -pipe"
 
 AC_MSG_CHECKING([is win32])
 AC_LANG_PUSH(C)

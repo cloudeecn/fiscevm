@@ -4307,7 +4307,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					pivalue[i] = fy_nextS4(code)
 					;
 				}fy_threadPopInt(ivalue4);
-				if (ivalue4 < ivalue2 || ivalue4 > ivalue3) {
+				if ((fy_int)ivalue4 < (fy_int)ivalue2 || (fy_int)ivalue4 > (fy_int)ivalue3) {
 					ivalue4 = ivalue;
 				} else {
 					ivalue4 = pivalue[ivalue4 - ivalue2];
