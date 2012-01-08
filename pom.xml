@@ -4,9 +4,52 @@
 	<groupId>com.cirnoworks.FiScE</groupId>
 	<artifactId>FiScEVMBuild</artifactId>
 	<packaging>pom</packaging>
-	<version>1</version>
+	<version>1.0.0-SNAPSHOT</version>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<fiscevm.version>1.0.0-SNAPSHOT</fiscevm.version>
+		<!-- *Versions: *nighty:Latest-SNAPSHOT *last-release:0.9.1 -->
+	</properties>
 	<name>FiScE VM Build</name>
 	<url>http://fiscevm.googlecode.com</url>
+	<scm>
+    <connection>scm:svn:http://fiscevm.googlecode.com/svn</connection>
+    <developerConnection>scm:svn:https://fiscevm.googlecode.com/svn</developerConnection>
+    <tag>HEAD</tag>
+    <url>http://fiscevm.googlecode.com/svn</url>
+  </scm>
+	<distributionManagement>
+    <repository>
+      <id>cirnoworks</id>
+      <name>Cirnoworks Repository</name>
+      <url>http://repo.cirnoworks.com/nexus/content/repositories/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>cirnoworks</id>
+      <name>Cirnoworks Snapshots</name>
+      <url>http://repo.cirnoworks.com/nexus/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <repositories>
+    <repository>
+    	<!--
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+      -->
+      <id>cirnoworks</id>
+      <name>Codehaus Snapshots</name>
+      <url>http://repo.cirnoworks.com/nexus/content/groups/public/</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
 	<modules>
 		<module>FiScEIntf</module>
 		<module>FiScENV</module>
@@ -16,11 +59,7 @@
 		<module>FiScEVMC</module>	
 		<module>FiScEAssemble</module>
 	</modules>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<fiscevm.version>Latest-SNAPSHOT</fiscevm.version>
-		<!-- *Versions: *nighty:Latest-SNAPSHOT *last-release:0.9.1 -->
-	</properties>
+
 
 	<build>
 		<plugins>
