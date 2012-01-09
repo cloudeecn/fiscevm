@@ -195,11 +195,11 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		return;
 	}
 	context->additionalData = cdata;
-	context->inputStream.isClose = isClose;
-	context->inputStream.isOpen = isOpen;
-	context->inputStream.isRead = isRead;
-	context->inputStream.isReadBlock = isReadBlock;
-	context->inputStream.isSkip = isSkip;
+	context->isClose = isClose;
+	context->isOpen = isOpen;
+	context->isRead = isRead;
+	context->isReadBlock = isReadBlock;
+	context->isSkip = isSkip;
 }
 
 JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(

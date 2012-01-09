@@ -53,7 +53,6 @@
 #define FY_TYPE_WIDE2  '_'
 #define FY_TYPE_UNKNOWN  'X'
 
-
 #define FY_METHOD_INIT "<init>"
 #define FY_METHOD_CLINIT "<clinit>"
 #define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"
@@ -398,18 +397,6 @@ typedef struct fy_message {
 } fy_message;
 struct fy_context;
 
-typedef struct fy_inputStream {
-	void* (*isOpen)(struct fy_context *context, const char *name,
-			fy_exception *exception);
-	fy_int (*isRead)(struct fy_context *context, void *is,
-			fy_exception *exception);
-	fy_int (*isReadBlock)(struct fy_context *context, void *is, void *target,
-			fy_int size, fy_exception *exception);
-	fy_int (*isSkip)(struct fy_context *context, void *is, fy_int size,
-			fy_exception *exception);
-	void (*isClose)(struct fy_context *context, void *is);
-} fy_inputStream;
-
 typedef struct fy_context {
 	void *additionalData;
 
@@ -515,8 +502,56 @@ typedef struct fy_context {
 	fy_long nextForceGCTime;
 	/* #END THREAD MANAGER*/
 
+	/*Service Function Table*/
 	/*INPUTSTREAM*/
-	fy_inputStream inputStream;
+	void* (*isOpen)(struct fy_context *context, const char *name,
+			fy_exception *exception);
+	fy_int (*isRead)(struct fy_context *context, void *is,
+			fy_exception *exception);
+	fy_int (*isReadBlock)(struct fy_context *context, void *is, void *target,
+			fy_int size, fy_exception *exception);
+	fy_int (*isSkip)(struct fy_context *context, void *is, fy_int size,
+			fy_exception *exception);
+	void (*isClose)(struct fy_context *context, void *is);
+	/*Status Saver*/
+	void (*callForSave)(struct fy_context *context, fy_exception *exception);
+	void (*saveBegin)(struct fy_context *context, fy_exception *exception);
+	void (*savePrepareClass)(struct fy_context *context, fy_uint nextClassId,
+			fy_uint classCount, fy_exception *exception);
+	void (*saveClass)(struct fy_context *context, fy_uint classId,
+			fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
+			fy_uint *staticArea, fy_exception *exception);
+	void (*saveEndClass)(struct fy_context *context, fy_exception *exception);
+	void (*savePrepareMethod)(struct fy_context *context, fy_uint nextMethodId,
+			fy_uint methodCount, fy_exception *exception);
+	void (*saveMethod)(struct fy_context *context, fy_uint methodId,
+			fy_uint handle, fy_str *uniqueName, fy_exception *exception);
+	void (*savePrepareField)(struct fy_context *context, fy_uint nextFieldId,
+			fy_uint fieldCount, fy_exception *exception);
+	void (*saveField)(struct fy_context *context, fy_uint fieldId,
+			fy_uint handle, fy_str *uniqueName, fy_exception *exception);
+	void (*savePrepareObjects)(struct fy_context *context, fy_uint nextHandle,
+			fy_uint objectCount, fy_exception *exception);
+	void (*saveObject)(struct fy_context *context, fy_uint handle,
+			fy_uint classId, fy_int type, fy_int posInHeap, fy_int gen,
+			fy_int finalizeStatus, fy_uint monitorOwner, fy_uint monitorCount,
+			fy_uint attachedId, fy_uint dataSize, fy_uint data,
+			fy_exception *exception);
+	void (*saveLiterals)(struct fy_context *context, fy_uint count,
+			fy_uint *handles, fy_exception *exception);
+	void (*saveFinalizes)(struct fy_context *context, fy_uint count,
+			fy_uint *handles, fy_exception *exception);
+	void (*savePrepareThreads)(struct fy_context *context, fy_uint threadsCount,
+			fy_exception *exception);
+	void (*saveThread)(struct fy_context *context, fy_uint threadId,
+			fy_uint daemon, fy_uint destroyPending, fy_uint interrupted,
+			fy_long nextWakeupTime, fy_uint pendingLockCount,
+			fy_uint waitForLockId, fy_uint waitForNotifyId, fy_uint frameCount,
+			fy_exception *exception);
+	void (*saveFrame)(struct fy_context *context, fy_uint methodId, fy_uint sb,
+			fy_uint sp, fy_uint pc, fy_uint lpc, fy_exception *exception);
+	void (*saveStack)(struct fy_context *context, fy_uint stackSize,
+			fy_uint *stack, fy_uint *typeStack, fy_exception *exception);
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,

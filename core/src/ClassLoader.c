@@ -733,7 +733,7 @@ void *fy_clOpenResource(fy_context *context, fy_str *name,
 	cname = fy_allocate(size + 1, exception);
 	fy_exceptionCheckAndReturn(exception)NULL;
 	fy_strSPrint(cname, size + 1, name);
-	ret = context->inputStream.isOpen(context, cname, exception);
+	ret = context->isOpen(context, cname, exception);
 	fy_free(cname);
 	fy_exceptionCheckAndReturn(exception)NULL;
 	return ret;
@@ -962,7 +962,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		}
 
 		clazz = fy_clLoadclassPriv(context, is, exception);
-		context->inputStream.isClose(context, is);
+		context->isClose(context, is);
 		fy_exceptionCheckAndReturn(exception)NULL;
 
 	}

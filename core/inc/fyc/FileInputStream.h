@@ -20,6 +20,6 @@
 
 #include "../fiscestu.h"
 
-void fy_fisInitInputStream(fy_inputStream *is);
+void fy_fisInitInputStream(fy_context *context);
 
 #endif /* FILEINPUTSTREAM_H_ */

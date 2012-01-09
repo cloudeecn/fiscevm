@@ -311,7 +311,7 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 fy_hashMap *mapPrimitivesRev;
 	 */
 
-	fy_fisInitInputStream(&(context->inputStream));
+	fy_fisInitInputStream(context);
 	fy_mmInit(context->memblocks, exception);
 	fy_exceptionCheckAndReturn(exception);
 	fy_portInit(context->port);

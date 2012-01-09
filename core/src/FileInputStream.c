@@ -78,10 +78,10 @@ static void isClose(struct fy_context *context, void *is) {
 	fclose(is);
 }
 
-void fy_fisInitInputStream(fy_inputStream *is) {
-	is->isClose = isClose;
-	is->isOpen = isOpen;
-	is->isRead = isRead;
-	is->isReadBlock = isReadBlock;
-	is->isSkip = isSkip;
+void fy_fisInitInputStream(fy_context *context) {
+	context->isClose = isClose;
+	context->isOpen = isOpen;
+	context->isRead = isRead;
+	context->isReadBlock = isReadBlock;
+	context->isSkip = isSkip;
 }
