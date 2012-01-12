@@ -520,10 +520,10 @@ typedef struct fy_context {
 			fy_exception *exception);
 	void (*saveClass)(struct fy_context *context, fy_uint classId,
 			fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
-			fy_uint *staticArea, fy_exception *exception);
+			fy_int *staticArea, fy_exception *exception);
 	void (*saveEndClass)(struct fy_context *context, fy_exception *exception);
-	void (*savePrepareMethod)(struct fy_context *context, fy_uint nextMethodId,
-			fy_uint methodCount, fy_exception *exception);
+	void (*savePrepareMethod)(struct fy_context *context, fy_uint methodCount,
+			fy_exception *exception);
 	void (*saveMethod)(struct fy_context *context, fy_uint methodId,
 			fy_uint handle, fy_str *uniqueName, fy_exception *exception);
 	void (*savePrepareField)(struct fy_context *context, fy_uint fieldCount,
@@ -546,7 +546,8 @@ typedef struct fy_context {
 	void (*saveThread)(struct fy_context *context, fy_uint threadId,
 			fy_uint daemon, fy_uint destroyPending, fy_uint interrupted,
 			fy_long nextWakeupTime, fy_uint pendingLockCount,
-			fy_uint waitForLockId, fy_uint waitForNotifyId, fy_uint frameCount,
+			fy_uint waitForLockId, fy_uint waitForNotifyId, fy_uint stackSize,
+			fy_uint *stack, fy_uint *typeStack, fy_uint frameCount,
 			fy_exception *exception);
 	void (*saveFrame)(struct fy_context *context, fy_uint methodId, fy_uint sb,
 			fy_uint sp, fy_uint pc, fy_uint lpc, fy_exception *exception);

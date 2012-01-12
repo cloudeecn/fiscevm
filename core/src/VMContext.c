@@ -696,12 +696,22 @@ void fy_vmBootup(fy_context *context, const char* bootStrapClass,
 	FYEH();
 }
 
+static void fillValues(fy_str *key, void *value, void *addition) {
+	**(int**) addition = *(int*) value;
+	(*(int**) addition)++;
+}
+
 void fy_vmSave(fy_context *context, fy_exception *exception) {
-	int i, imax, count;
+	fy_uint i, imax, count, j, jmax;
 	fy_class *clazz;
 	fy_method *method;
 	fy_field *field;
 	fy_object *object;
+	fy_uint *handles;
+	fy_uint *temp;
+	fy_uint threadId;
+	fy_thread *thread;
+	fy_frame *frame;
 	/*Header*/
 	context->saveBegin(context, exception);
 	FYEH();
@@ -731,7 +741,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	FYEH();
 	for (i = 1; i <= imax; i++) {
 		field = context->fields[i];
-		context->saveField(context, i, 0/*TODO*/, field->uniqueName);
+		context->saveField(context, i, 0/*TODO*/, field->uniqueName, exception);
 		FYEH();
 	}/**/
 	/*Objects*/
@@ -750,6 +760,39 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 					object->attachedId, object->length, object->data,
 					exception);
 			count++;
+		}
+	}
+	handles = fy_allocate(context->literals->size * sizeof(fy_uint), exception);
+	FYEH();
+	temp = handles;
+	fy_hashMapEachValue(context->memblocks, context->literals, fillValues,
+			&temp);
+	context->saveLiterals(context, context->literals->size, handles, exception);
+	fy_free(handles);
+	FYEH();
+	context->saveFinalizes(context, context->toFinalize->length,
+			context->toFinalize->data, exception);
+	FYEH();
+	context->savePrepareThreads(context, imax = context->runningThreads->length,
+			exception);
+	FYEH();
+	for (i = 0; i < imax; i++) {
+		fy_arrayListGet(context->memblocks, context->runningThreads, i,
+				&threadId);
+		thread = context->threads[threadId];
+		jmax = thread->frameCount;
+		context->saveThread(context, threadId, thread->daemon,
+				thread->destroyPending, thread->interrupted,
+				thread->nextWakeTime, thread->pendingLockCount,
+				thread->waitForLockId, thread->waitForNotifyId,
+				thread->frames[jmax - 1].sp, thread->stack, thread->typeStack,
+				jmax, exception);
+		FYEH();
+		for (j = 0; j < jmax; j++) {
+			frame = thread->frames[j];
+			context->saveFrame(context, frame->methodId, frame->sb, frame->sp,
+					frame->pc, frame->lpc, exception);
+			FYEH();
 		}
 	}
 }

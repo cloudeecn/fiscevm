@@ -34,6 +34,8 @@ void fy_vmContextDestroy(fy_context *context);
 void fy_vmBootup(fy_context *context, const char* bootStrapClass,
 		fy_exception *exception);
 
+void fy_vmSave(fy_context *context, fy_exception *exception);
+
 void fy_vmRegisterField(fy_context *context, fy_field *field,
 		fy_exception *exception);
 fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
