@@ -712,7 +712,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		method = frame->method;
 		str = fy_strCreateClone(context->memblocks, method->owner->className,
 				exception);
-		fy_exceptionCheckAndReturn(exception);
+		FYEH();
 		fy_strReplaceOne(str, '/', '.');
 		strHandle = fy_heapMakeString(context, str, exception);
 		fy_strRelease(context->memblocks, str);
@@ -1050,7 +1050,7 @@ static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz)
 void fy_threadPushMethod(fy_context *context, fy_thread *thread,
 		fy_method *invoke, fy_frame **localFrame, fy_exception *exception) {
 	fy_frame *frame = fy_threadPushFrame(context, thread, invoke, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	if (localFrame != NULL) {
 		*localFrame = frame;
 	}
@@ -1088,7 +1088,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	thread->handle = threadHandle;
 	obj->attachedId = thread->threadId;
 	fy_threadPushFrame(context, thread, method, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	clazz = fy_vmLookupClass(context, context->sStringArray, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
@@ -1108,7 +1108,7 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 			exception);
 	fy_object *obj;
 	fy_method *runner;
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	if (!fy_classCanCastTo(context, handleClass, threadClass)) {
 		fy_fault(exception, NULL,
 				"The create(int) is used to start a "FY_BASE_THREAD"!");
@@ -1116,13 +1116,13 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	}
 	runner = fy_vmLookupMethodVirtual(context, handleClass, context->sFRun,
 			exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	obj = context->objects + handle;
 	thread->handle = handle;
 	obj->attachedId = thread->threadId;
 	fy_threadPushFrame(context, thread, runner, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	thread->stack[0] = handle;
 	thread->typeStack[0] = FY_TYPE_HANDLE;
 }

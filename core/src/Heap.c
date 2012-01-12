@@ -98,7 +98,7 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	fy_object *obj;
 
 	handle = fetchNextHandle(context, FALSE, exception);
-	fy_exceptionCheckAndReturn(exception)0;
+	FYEH()0;
 	obj = fy_heapGetObject(context,handle);
 
 	if (size > (COPY_SIZE >> 1)) {
@@ -106,14 +106,14 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	} else {
 		obj->data = allocateInEden(context, handle, size, FALSE, exception);
 	}
-	fy_exceptionCheckAndReturn(exception)0;
+	FYEH()0;
 	memset(obj->data, 0, size * sizeof(fy_uint));
 	obj->length = length;
 	obj->clazz = clazz;
 	if (context->protectMode) {
 		fy_arrayListAdd(context->memblocks, context->protected, &handle,
 				exception);
-		fy_exceptionCheckAndReturn(exception)0;
+		FYEH()0;
 	}
 	return handle;
 }
@@ -264,14 +264,14 @@ fy_int fy_heapLiteral(fy_context *context, fy_str *str, fy_exception *exception)
 	pInt = fy_hashMapGet(block, context->literals, str);
 	if (pInt == NULL) {
 		pInt = fy_mmAllocate(block, sizeof(fy_int), exception);
-		fy_exceptionCheckAndReturn(exception) 0;
+		FYEH() 0;
 		*pInt = fy_heapMakeString(context, str, exception);
 		if (exception->exceptionType != exception_none) {
 			fy_mmFree(block, pInt);
 			return 0;
 		}
 		fy_hashMapPut(block, context->literals, str, pInt, exception);
-		fy_exceptionCheckAndReturn(exception) 0;
+		FYEH() 0;
 	}
 	return *pInt;
 }
@@ -336,12 +336,12 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 	clazz = fy_heapGetClassOfObject(context, src);
 	if (clazz->type == obj) {
 		ret = fy_heapAllocate(context, clazz, exception);
-		fy_exceptionCheckAndReturn(exception)0;
+		FYEH()0;
 		dobj = fy_heapGetObject(context,ret);
 		memcpy(dobj->data, sobj->data, clazz->sizeAbs << 2);
 	} else if (clazz->type == arr) {
 		ret = fy_heapAllocateArray(context, clazz, sobj->length, exception);
-		fy_exceptionCheckAndReturn(exception)0;
+		FYEH()0;
 		dobj = fy_heapGetObject(context,ret);
 		switch (clazz->ci.arr.arrayType) {
 		case fy_at_byte:
@@ -893,7 +893,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 				for (i = object->length - 1; i >= 0; i--) {
 					handle2 = fy_heapGetArrayHandle(context, handle, i,
 							exception);
-					fy_exceptionCheckAndReturn(exception);
+					FYEH();
 					if (handle2 == 0) {
 						continue;
 					}/**/
@@ -903,7 +903,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 						fy_bitSet(marks, handle2);
 						fy_arrayListAdd(context->memblocks, from, &handle2,
 								exception);
-						fy_exceptionCheckAndReturn(exception);
+						FYEH();
 					}
 				}
 			}
@@ -918,7 +918,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 				if (fieldType == FY_TYPE_HANDLE || fieldType == FY_TYPE_ARRAY) {
 					handle2 = fy_heapGetFieldHandle(context, handle,
 							clazz->fieldAbs[i], exception);
-					fy_exceptionCheckAndReturn(exception);
+					FYEH();
 					if (handle2 == 0) {
 						continue;
 					}/**/
@@ -928,7 +928,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 						fy_bitSet(marks, handle2);
 						fy_arrayListAdd(context->memblocks, from, &handle2,
 								exception);
-						fy_exceptionCheckAndReturn(exception);
+						FYEH();
 					}
 				}
 			}
@@ -1059,7 +1059,7 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 
 	timeStamp = fy_portTimeMillSec(context->port);
 	marks = fy_allocate(fy_bitSizeToInt(MAX_OBJECTS) << fy_bitSHIFT, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	fillInitialHandles(context, marks, exception);
 	if (exception->exceptionType != exception_none) {
@@ -1162,7 +1162,7 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 			< context->posInOld) {
 #endif
 		compactOld(context, exception);
-		fy_exceptionCheckAndReturn(exception);
+		FYEH();
 #ifndef FY_GC_FORCE_FULL
 	}
 #endif

@@ -25,7 +25,7 @@ typedef struct fy_memblockNode {
 FY_ATTR_EXPORT void fy_mmInit(fy_memblock *block, fy_exception *exception) {
 	block->last = block->first = fy_allocate(sizeof(fy_memblockNode),
 			exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	block->blocks = 0;
 }
 
@@ -45,7 +45,7 @@ FY_ATTR_EXPORT void fy_mmDestroy(fy_memblock *block) {
 FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception) {
 	fy_memblockNode *node = fy_allocate(sizeof(fy_memblockNode) + size,
 			exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
+	FYEH()NULL;
 	((fy_memblockNode*) block->last)->next = node;
 	node->prev = block->last;
 	block->last = node;

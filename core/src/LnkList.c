@@ -35,7 +35,7 @@ FY_ATTR_EXPORT void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
 		fy_exception *exception) {
 	struct fy_linkedListNode* node = fy_mmAllocate(block,
 			sizeof(struct fy_linkedListNode), exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	list->head = node;
 	list->last = node;
 	list->count = 0;
@@ -112,7 +112,7 @@ FY_ATTR_EXPORT void fy_linkedListTraverse(
 #endif
 		next = node->next;
 		fun(block, node, exception);
-		fy_exceptionCheckAndReturn(exception);
+		FYEH();
 	}
 #ifdef _DEBUG
 	if (i != list->count) {

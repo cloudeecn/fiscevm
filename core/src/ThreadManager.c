@@ -254,11 +254,11 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	}
 
 	charArrayClass = fy_vmLookupClass(context, context->sArrayChar, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	threadNameHandle = fy_heapAllocateArray(context, charArrayClass,
 			clazz->className->length + 5, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	/*No exception will happen if the allocate is finished*/
 	fy_heapPutArrayChar(context, threadNameHandle, 0, 'M', exception);
 	fy_heapPutArrayChar(context, threadNameHandle, 1, 'a', exception);
@@ -268,22 +268,22 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	for (i = 0; i < clazz->className->length; i++) {
 		fy_heapPutArrayChar(context, threadNameHandle, i + 5,
 				clazz->className->content[i], exception);
-	}fy_exceptionCheckAndReturn(exception);
+	}FYEH();
 
 	threadClass = fy_vmLookupClass(context, context->sThread, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	threadNameField = fy_vmLookupFieldVirtual(context, threadClass,
 			context->sFName, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	threadPriorityField = fy_vmLookupFieldVirtual(context, threadClass,
 			context->sFPriority, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	method = fy_vmLookupMethodVirtual(context, clazz, context->sFMain,
 			exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_NO_METHOD, "Main method not found!");
@@ -291,31 +291,31 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	}
 
 	threadId = fetchNextThreadId(context, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	thread = fy_mmAllocate(context->memblocks, sizeof(fy_thread), exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	threadHandle = fy_heapAllocate(context, threadClass, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	fy_heapPutFieldHandle(context, threadHandle, threadNameField,
 			threadNameHandle, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	fy_heapPutFieldInt(context, threadHandle, threadPriorityField, 5,
 			exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	thread->threadId = threadId;
 	context->threads[threadId] = thread;
 	thread->priority = 5;
 	fy_threadInitWithMethod(context, thread, threadHandle, method, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	fy_arrayListAdd(context->memblocks, context->runningThreads, &thread,
 			exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	context->state = FY_TM_STATE_RUN_PENDING;
 	context->nextGCTime = fy_portTimeMillSec(context->port) + FY_GC_IDV;
 	context->nextForceGCTime = context->nextGCTime + FY_GC_FORCE_IDV;
@@ -340,40 +340,40 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 	}
 
 	threadClass = fy_vmLookupClass(context, context->sThread, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	threadDaemonField = fy_vmLookupFieldVirtual(context, threadClass,
 			context->sFDaemon, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	threadPriorityField = fy_vmLookupFieldVirtual(context, threadClass,
 			context->sFPriority, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	priority = fy_heapGetFieldInt(context, threadHandle, threadPriorityField,
 			exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	if (priority == 0) {
 		priority = 5;
 	}
 
 	daemon = fy_heapGetFieldBoolean(context, threadHandle, threadDaemonField,
 			exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	threadId = fetchNextThreadId(context, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	thread = fy_mmAllocate(context->memblocks, sizeof(fy_thread), exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	thread->threadId = threadId;
 	context->threads[threadId] = thread;
 	thread->priority = priority;
 	thread->daemon = daemon;
 	fy_threadInitWithRun(context, thread, threadHandle, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	fy_arrayListAdd(context->memblocks, context->runningThreads, &thread,
 			exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 }
 
 void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception) {
@@ -420,7 +420,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 						fy_threadDestroy(context, thread);
 						fy_arrayListRemove(context->memblocks, running,
 								context->runningThreadPos, exception);
-						fy_exceptionCheckAndReturn(exception);
+						FYEH();
 
 						context->threads[thread->threadId] = NULL;
 						fy_mmFree(context->memblocks, thread);
@@ -499,7 +499,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 									+ FY_GC_FORCE_IDV;
 							DLOG("Call GC due to time out");
 							fy_heapGC(context, exception);
-							fy_exceptionCheckAndReturn(exception);
+							FYEH();
 							now = fy_portTimeMillSec(context->port);
 							sleepTime = context->nextWakeUpTimeTotal - now;
 						}

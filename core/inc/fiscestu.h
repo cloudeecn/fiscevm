@@ -516,8 +516,8 @@ typedef struct fy_context {
 	/*Status Saver*/
 	void (*callForSave)(struct fy_context *context, fy_exception *exception);
 	void (*saveBegin)(struct fy_context *context, fy_exception *exception);
-	void (*savePrepareClass)(struct fy_context *context, fy_uint nextClassId,
-			fy_uint classCount, fy_exception *exception);
+	void (*savePrepareClass)(struct fy_context *context, fy_uint classCount,
+			fy_exception *exception);
 	void (*saveClass)(struct fy_context *context, fy_uint classId,
 			fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
 			fy_uint *staticArea, fy_exception *exception);
@@ -526,16 +526,16 @@ typedef struct fy_context {
 			fy_uint methodCount, fy_exception *exception);
 	void (*saveMethod)(struct fy_context *context, fy_uint methodId,
 			fy_uint handle, fy_str *uniqueName, fy_exception *exception);
-	void (*savePrepareField)(struct fy_context *context, fy_uint nextFieldId,
-			fy_uint fieldCount, fy_exception *exception);
+	void (*savePrepareField)(struct fy_context *context, fy_uint fieldCount,
+			fy_exception *exception);
 	void (*saveField)(struct fy_context *context, fy_uint fieldId,
 			fy_uint handle, fy_str *uniqueName, fy_exception *exception);
 	void (*savePrepareObjects)(struct fy_context *context, fy_uint nextHandle,
 			fy_uint objectCount, fy_exception *exception);
 	void (*saveObject)(struct fy_context *context, fy_uint handle,
-			fy_uint classId, fy_int type, fy_int posInHeap, fy_int gen,
+			fy_uint classId, fy_int posInHeap, fy_int gen,
 			fy_int finalizeStatus, fy_uint monitorOwner, fy_uint monitorCount,
-			fy_uint attachedId, fy_uint dataSize, fy_uint data,
+			fy_uint attachedId, fy_uint length, fy_uint data,
 			fy_exception *exception);
 	void (*saveLiterals)(struct fy_context *context, fy_uint count,
 			fy_uint *handles, fy_exception *exception);

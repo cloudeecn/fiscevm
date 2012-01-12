@@ -20,7 +20,7 @@
 /*****************public*********************/
 fy_ubyte fy_dataRead(fy_context *context, void *is, fy_exception *exception) {
 	fy_int ret = context->isRead(context, is, exception);
-	fy_exceptionCheckAndReturn(exception)0;
+	FYEH()0;
 	if (ret < 0) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
 		return 0;
@@ -34,7 +34,7 @@ fy_char fy_dataRead2(fy_context *context, void *is, fy_exception *exception) {
 	fy_int value;
 	for (i = 0; i < 2; i++) {
 		value = context->isRead(context, is, exception);
-		fy_exceptionCheckAndReturn(exception)0;
+		FYEH()0;
 		if (value < 0) {
 			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
 			return 0;
@@ -50,7 +50,7 @@ fy_uint fy_dataRead4(fy_context *context, void *is, fy_exception *exception) {
 	fy_int value;
 	for (i = 0; i < 4; i++) {
 		value = context->isRead(context, is, exception);
-		fy_exceptionCheckAndReturn(exception)0;
+		FYEH()0;
 		if (value < 0) {
 			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
 			return 0;
@@ -66,7 +66,7 @@ fy_ulong fy_dataRead8(fy_context *context, void *is, fy_exception *exception) {
 	fy_int value;
 	for (i = 0; i < 8; i++) {
 		value = context->isRead(context, is, exception);
-		fy_exceptionCheckAndReturn(exception)0;
+		FYEH()0;
 		if (value < 0) {
 			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
 			return 0;

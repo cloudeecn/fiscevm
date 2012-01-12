@@ -143,7 +143,7 @@ static fy_class *lookup(fy_context *context, const char *name,
 		fy_exception *exception) {
 	fy_str *sName = fy_strCreateFromUTF8(context->memblocks, name, exception);
 	fy_class *clazz;
-	fy_exceptionCheckAndReturn(exception)NULL;
+	FYEH()NULL;
 	clazz = fy_vmLookupClass(context, sName, exception);
 	fy_strRelease(context->memblocks, sName);
 	return clazz;

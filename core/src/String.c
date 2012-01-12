@@ -42,9 +42,9 @@ FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 	size_t size;
 	size = fy_utf8SizeS(utf8, -1);
 	fy_strInit(block, str, size, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 	fy_strAppendUTF8(block, str, utf8, -1, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block, const char *utf8,
@@ -52,9 +52,9 @@ FY_ATTR_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block, const char *utf8
 	fy_str *str;
 
 	str = fy_mmAllocate(block, sizeof(fy_str), exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
+	FYEH()NULL;
 	fy_strInitWithUTF8(block, str, utf8, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
+	FYEH()NULL;
 	return str;
 }
 
@@ -69,7 +69,7 @@ static fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this, fy_int size,
 			len <<= 1;
 		}
 		newContent = fy_mmAllocate(block, len * sizeof(fy_char), exception);
-		fy_exceptionCheckAndReturn(exception)NULL;
+		FYEH()NULL;
 		memcpy(newContent, _this->content, _this->length << 1);
 		fy_mmFree(block, _this->content);
 		_this->content = newContent;
@@ -86,7 +86,7 @@ static fy_str *fy_strAppendPriv(fy_memblock *block, fy_str *_this,
 		return NULL;
 	}
 	fy_strEnsureSize(block, _this, _this->length + length, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
+	FYEH()NULL;
 	memcpy(_this->content + _this->length, from, length << 1);
 	_this->length += length;
 	_this->hashed = FALSE;
@@ -115,7 +115,7 @@ FY_ATTR_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *block, fy_str *_this,
 	while (size > 0) {
 		outbuf = fy_utf8Read(&inbuf, &size);
 		fy_strAppendPriv(block, _this, &outbuf, 1, exception);
-		fy_exceptionCheckAndReturn(exception)NULL;
+		FYEH()NULL;
 	}
 	return _this;
 }
@@ -221,11 +221,11 @@ FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) 
 FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *block, fy_str *from,
 		fy_exception *exception) {
 	fy_str *_this = fy_mmAllocate(block, sizeof(fy_str), exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
+	FYEH()NULL;
 	fy_strInit(block, _this, from->length, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
+	FYEH()NULL;
 	fy_strAppend(block, _this, from, exception);
-	fy_exceptionCheckAndReturn(exception)NULL;
+	FYEH()NULL;
 	_this->hashed = TRUE;
 	_this->hashCode = from->hashCode;
 	return _this;

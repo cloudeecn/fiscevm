@@ -22,7 +22,7 @@ FY_ATTR_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list,
 	list->length = 0;
 	list->entrySize = entrySize;
 	list->data = fy_mmAllocate(block, entrySize * initCap, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 }
 
 FY_ATTR_EXPORT void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) {
@@ -40,7 +40,7 @@ static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 			list->maxLength <<= 1;
 		data = fy_mmAllocate(block, list->maxLength * list->entrySize,
 				exception);
-		fy_exceptionCheckAndReturn(exception);
+		FYEH();
 		memcpy(data, list->data, list->length * list->entrySize);
 		fy_mmFree(block, list->data);
 		list->data = data;
@@ -50,7 +50,7 @@ static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list,
 		void *data, fy_exception *exception) {
 	ensureCap(block, list, list->length + 1, exception);
-	fy_exceptionCheckAndReturn(exception);
+	FYEH();
 
 	memcpy((fy_byte*) list->data + (list->length++) * list->entrySize, data,
 			list->entrySize);
