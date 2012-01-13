@@ -535,7 +535,7 @@ typedef struct fy_context {
 	void (*saveObject)(struct fy_context *context, fy_uint handle,
 			fy_uint classId, fy_int posInHeap, fy_int gen,
 			fy_int finalizeStatus, fy_uint monitorOwner, fy_uint monitorCount,
-			fy_uint attachedId, fy_uint length, fy_uint data,
+			fy_uint attachedId, fy_uint length, fy_uint *data,
 			fy_exception *exception);
 	void (*saveLiterals)(struct fy_context *context, fy_uint count,
 			fy_uint *handles, fy_exception *exception);

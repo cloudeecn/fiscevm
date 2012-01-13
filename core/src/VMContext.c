@@ -789,7 +789,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 				jmax, exception);
 		FYEH();
 		for (j = 0; j < jmax; j++) {
-			frame = thread->frames[j];
+			frame = thread->frames + j;
 			context->saveFrame(context, frame->methodId, frame->sb, frame->sp,
 					frame->pc, frame->lpc, exception);
 			FYEH();
