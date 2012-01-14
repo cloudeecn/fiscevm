@@ -37,7 +37,8 @@ libfisce_la_SOURCES = Debug.c \
 	VMContext.c \
 	ExpDev.c \
 	FiScE.c \
-	FileInputStream.c
+	FileInputStream.c \
+	BinarySaver.c
 
 libfisce_la_CFLAGS = -DFY_EXPORT
 libfisce_la_LDFLAGS = -fwhole-program -no-undefined 
