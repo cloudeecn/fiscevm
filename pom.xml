@@ -20,12 +20,12 @@
   </scm>
 	<distributionManagement>
     <repository>
-      <id>cirnoworks</id>
+      <id>cw-release</id>
       <name>Cirnoworks Repository</name>
       <url>http://repo.cirnoworks.com/nexus/content/repositories/releases/</url>
     </repository>
     <snapshotRepository>
-      <id>cirnoworks</id>
+      <id>cw-snapshot</id>
       <name>Cirnoworks Snapshots</name>
       <url>http://repo.cirnoworks.com/nexus/content/repositories/snapshots/</url>
     </snapshotRepository>
