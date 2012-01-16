@@ -3,7 +3,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>FiScENVDist</artifactId>
 	<name>FiScE Minimal Environment Dist</name>
-	<version>${project.version}</version>
 	<packaging>jar</packaging>
 
 	<parent>
