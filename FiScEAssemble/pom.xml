@@ -54,29 +54,29 @@
 		<dependency>
 			<groupId>com.cirnoworks.FiScE</groupId>
 			<artifactId>FiScENVTK</artifactId>
-			<version>${fiscevm.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.cirnoworks.FiScE</groupId>
 			<artifactId>FiScENVDist</artifactId>
-			<version>${fiscevm.version}</version>
 			<classifier>standalone</classifier>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.cirnoworks.FiScE</groupId>
 			<artifactId>FiScENVDist</artifactId>
-			<version>${fiscevm.version}</version>
 			<classifier>test</classifier>
+			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-	
+
 		<dependency>
-                        <groupId>com.cirnoworks.FiScE</groupId>
-                        <artifactId>FiScEVMC</artifactId>
-                        <version>${fiscevm.version}</version>
-                </dependency>
+			<groupId>com.cirnoworks.FiScE</groupId>
+			<artifactId>FiScEVMC</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>
 

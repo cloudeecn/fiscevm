@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>FiScEVMC</artifactId>
-	<version>${fiscevm.version}</version>
+	<version>${project.version}</version>
 	<name>FiScE Virtual Machine C bridge</name>
 	<url>http://fiscevm.googlecode.com</url>
 	<parent>
@@ -14,6 +14,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -26,26 +27,26 @@
 		</plugins>
 	</build>
 	<dependencies>
-                <dependency>
-                        <groupId>com.cirnoworks.FiScE</groupId>
-                        <artifactId>FiScEIntf</artifactId>
-                        <version>${fiscevm.version}</version>
-                </dependency>
+		<dependency>
+			<groupId>com.cirnoworks.FiScE</groupId>
+			<artifactId>FiScEIntf</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-                <dependency>
-                        <groupId>com.cirnoworks.FiScE</groupId>
-                        <artifactId>FiScENVDist</artifactId>
-                        <classifier>standalone</classifier>
-                        <version>${fiscevm.version}</version>
-                </dependency>
+		<dependency>
+			<groupId>com.cirnoworks.FiScE</groupId>
+			<artifactId>FiScENVDist</artifactId>
+			<classifier>standalone</classifier>
+			<version>${project.version}</version>
+		</dependency>
 
-                <dependency>
-                        <groupId>com.cirnoworks.FiScE</groupId>
-                        <artifactId>FiScENVDist</artifactId>
-                        <classifier>test</classifier>
-                        <version>${fiscevm.version}</version>
-                        <scope>test</scope>
-                </dependency>
+		<dependency>
+			<groupId>com.cirnoworks.FiScE</groupId>
+			<artifactId>FiScENVDist</artifactId>
+			<classifier>test</classifier>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
