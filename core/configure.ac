@@ -102,14 +102,6 @@ AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[floor])
-AC_CHECK_LIB([cunit],[CU_initialize_registry],
-  [fy_cunit=true],[fy_cunit=false])
-if test x$fy_cunit = xtrue ; then
-	echo "++++++++++ Generating test program."
-else
-	echo "---------- Disabling test program."
-fi
-AM_CONDITIONAL([FY_HAS_CUNIT],[test x$fy_cunit = xtrue])
 
 # Checks for header files.
 AC_CHECK_HEADERS([math.h float.h memory.h stdlib.h string.h sys/time.h unistd.h])

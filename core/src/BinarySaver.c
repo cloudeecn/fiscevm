@@ -17,36 +17,191 @@
 #include "fyc/BinarySaver.h"
 #include <stdio.h>
 
+#if 0
+Binary save data format, all data in little endian
+int F15CE001
+int F15CE002
+int classCount
+{
+	int F15CE003
+	int classid
+	int handle
+	int clinited
+	int nameLength
+	int[] name
+	int staticSize
+	int[] staticArea
+}
+int F15CE004
+int nextMethodId
+int methodCount
+{
+	int F15CE005
+	int methodId
+	int handle
+	int nameLength
+	int[] name
+}
+int F15CE006
+int nextFieldId
+int fieldCount
+{
+	int F15CE007
+	int fieldId
+	int handle
+	int nameLength
+	int[] name
+}
+int F15CE009
+int nextHandle
+int objectCount
+{
+	int F15CE00A
+	int handle
+	int classId
+	int type
+	int posInHeap
+	int gen
+	int finalizeStatus
+	int monitorOwner
+	int mouitorCount
+	int attachedId
+	int dataSize(obj)/Length(arr)
+	int[] data
+}
+int F15CE008
+int literalCount
+int[] literalHandles
+int F15CE00B
+int finalizeCount
+int[] handles
+int F15CE00C
+int threadCount
+{
+	int F15CE00D
+	int threadId
+	int daemon
+	int destroyPending
+	int interrupted
+	int nextWakeUpTime
+	int pendingLockCount
+	int waitForLockId
+	int waitForNotifyId
+	int stackSize
+	int[] stack
+	int[] typeStack
+	int frameCount
+	{
+		int F15CE00E
+		int methodId
+		int sb
+		int sp
+		int pc
+		int lpc
+	}
+}
+#endif
+
+static void writeInt(FILE *fp, fy_uint value, fy_exception *exception) {
+	int i;
+	for (i = 4; i > 0; i--) {
+		if (fputc(value, fp) == EOF) {
+			fy_fault(exception, FY_EXCEPTION_IO, "Can't write to save.dat");
+			return;
+		}
+		value >>= 8;
+	}
+}
+
+static void writeChar(FILE *fp, fy_char value, fy_exception *exception) {
+	int i;
+	for (i = 2; i > 0; i--) {
+		if (fputc(value, fp) == EOF) {
+			fy_fault(exception, FY_EXCEPTION_IO, "Can't write to save.dat");
+			return;
+		}
+		value >>= 8;
+	}
+}
+
 static void callForSave(struct fy_context *context, fy_exception *exception) {/*TODO*/
 }
 static void* saveBegin(struct fy_context *context, fy_exception *exception) {/*TODO*/
-	return NULL;
+	FILE *fp = fopen("save.dat", "w");
+	if (fp == NULL) {
+		fy_fault(exception, FY_EXCEPTION_IO, "Can't open save.dat for save.");
+		return NULL;
+	}
+	writeInt(fp, 0x11BF15CE, exception);
+	FYEH()NULL;
+	return fp;
 }
 static void savePrepareClass(struct fy_context *context, void *saver,
-		fy_uint classCount, fy_exception *exception) {/*TODO*/
+		fy_uint classCount, fy_exception *exception) {
+	FILE *fp = saver;
+	writeInt(fp, 0xF15CE002, exception);
+	writeInt(fp, classCount, exception);
+
 }
 static void saveClass(struct fy_context *context, void *saver, fy_uint classId,
 		fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
-		fy_int *staticArea, fy_exception *exception) {/*TODO*/
+		fy_int *staticArea, fy_exception *exception) {
+	FILE *fp = saver;
+	fy_int i, imax;
+	writeInt(fp, 0xF15CE003, exception);
+	writeInt(fp, classId, exception);
+	writeInt(fp, handle, exception);
+	writeInt(fp, clinited, exception);
+	writeInt(fp, imax = name->length, exception);
+	for (i = 0; i < imax; i++) {
+		wirteChar(fp, name->content[i], exception);
+	}
+	writeInt(fp, imax = staticSize, exception);
+	for (i = 0; i < imax; i++) {
+		writeInt(fp, staticArea[i], exception);
+	}
 }
 static void saveEndClass(struct fy_context *context, void *saver,
-		fy_exception *exception) {/*TODO*/
+		fy_exception *exception) {
+	/*NONEED*/
 }
 static void savePrepareMethod(struct fy_context *context, void *saver,
-		fy_uint methodCount, fy_exception *exception) {/*TODO*/
+		fy_uint methodCount, fy_exception *exception) {
+	FILE *fp = saver;
+	writeInt(fp, 0xF15CE004, exception);
+	writeInt(fp, methodCount, exception);
 }
 static void saveMethod(struct fy_context *context, void *saver,
 		fy_uint methodId, fy_uint handle, fy_str *uniqueName,
-		fy_exception *exception) {/*TODO*/
+		fy_exception *exception) {
+	fy_int i, imax;
+	FILE *fp = saver;
+	writeInt(fp, 0xF15CE005, exception);
+	writeInt(fp, methodId, exception);
+	writeInt(fp, handle, exception);
+	writeInt(fp, imax = uniqueName->length, exception);
+	for (i = 0; i < imax; i++) {
+		writeInt(fp, uniqueName->content[i], exception);
+	}
 }
 static void saveEndMethod(struct fy_context *context, void *saver,
-		fy_exception *exception) {/*TODO*/
+		fy_exception *exception) {
+	/*NONEED*/
 }
 static void savePrepareField(struct fy_context *context, void *saver,
 		fy_uint fieldCount, fy_exception *exception) {/*TODO*/
 }
 static void saveField(struct fy_context *context, void *saver, fy_uint fieldId,
-		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {/*TODO*/
+		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {
+	fy_int i, imax;
+	FILE *fp = saver;
+	writeInt(fp, 0xF15CE006, exception);
+	writeInt(fp, fieldId, exception);
+	writeInt(fp, handle, exception);
+	writeInt(fp, imax = uniqueName->length, exception);
+	for (i = 0; i < imax; i++) {
+		writeInt(fp, uniqueName->content[i], exception);
+	}
 }
 static void saveEndField(struct fy_context *context, void *saver,
 		fy_exception *exception) {/*TODO*/

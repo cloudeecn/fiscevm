@@ -42,16 +42,14 @@ libfisce_la_SOURCES = Debug.c \
 
 libfisce_la_CFLAGS = -DFY_EXPORT
 libfisce_la_LDFLAGS = -fwhole-program -no-undefined 
-if FY_HAS_CUNIT
 noinst_PROGRAMS = utiltest fiscetest
 
 utiltest_SOURCES = TestUtil.c
 utiltest_LDFLAGS = -fwhole-program -static
 utiltest_CFLAGS = -DFY_STATIC
-utiltest_LDADD  = libfisce.la -lcunit
+utiltest_LDADD  = libfisce.la
 
 fiscetest_SOURCES = Test.c
 fiscetest_LDFLAGS = -fwhole-program -static
 fiscetest_CFLAGS = -DFY_STATIC
-fiscetest_LDADD  = libfisce.la -lcunit
-endif
+fiscetest_LDADD  = libfisce.la

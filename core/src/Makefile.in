@@ -296,11 +296,11 @@ libfisce_la_LDFLAGS = -fwhole-program -no-undefined
 utiltest_SOURCES = TestUtil.c
 utiltest_LDFLAGS = -fwhole-program -static
 utiltest_CFLAGS = -DFY_STATIC
-utiltest_LDADD = libfisce.la -lcunit
+utiltest_LDADD = libfisce.la
 fiscetest_SOURCES = Test.c
 fiscetest_LDFLAGS = -fwhole-program -static
 fiscetest_CFLAGS = -DFY_STATIC
-fiscetest_LDADD = libfisce.la -lcunit
+fiscetest_LDADD = libfisce.la
 all: all-am
 
 .SUFFIXES:

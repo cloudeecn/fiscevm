@@ -20,8 +20,18 @@
 #include <sys/time.h>
 #endif
 
-#include "CUnit/CUnit.h"
-#include "CUnit/Automated.h"
+typedef struct FY_TEST_FUN {
+	char *name;
+	void (*fun)();
+} FY_TEST_FUN;
+#define FY_ASSERT(value) \
+  { if(!(value)){failCount++;sprintf_s(fy_unit_msg,sizeof(fy_unit_msg),"%"FY_PRINT64"d %s(%d): ASSERTION FAILED ["#value"]\n",failCount,__FILE__,__LINE__);fprintf(stderr,"%s",fy_unit_msg); fprintf(fails,"%s",fy_unit_msg);}}
+#define FY_ASSERT_FATAL(value) \
+  { if(!(value)){failCount++;sprintf_s(fy_unit_msg,sizeof(fy_unit_msg),"%"FY_PRINT64"d %s(%d): ASSERTION FAILED ["#value"]\n",failCount,__FILE__,__LINE__);fprintf(stderr,"%s",fy_unit_msg); fprintf(fails,"%s",fy_unit_msg);return;}}
+
+static FILE *fails;
+static fy_ulong failCount;
+static char fy_unit_msg[1024];
 
 static fy_memblock *block;
 static fy_port *port;
@@ -56,52 +66,48 @@ int test_clean(void) {
 }
 
 void testPortable() {
-	CU_ASSERT_EQUAL(sizeof(fy_ubyte), 1);
-	CU_ASSERT_EQUAL(sizeof(fy_char), 2);
-	CU_ASSERT_EQUAL(sizeof(fy_uint), 4);
-	CU_ASSERT_EQUAL(sizeof(fy_ulong), 8);
-	CU_ASSERT_EQUAL(sizeof(fy_byte), 1);
-	CU_ASSERT_EQUAL(sizeof(fy_short), 2);
-	CU_ASSERT_EQUAL(sizeof(fy_int), 4);
-	CU_ASSERT_EQUAL(sizeof(fy_long), 8);
-	CU_ASSERT_EQUAL(sizeof(fy_float), 4);
-	CU_ASSERT_EQUAL(sizeof(fy_double), 8);
-	CU_ASSERT_EQUAL(fy_I2TOL(0x12345678,0x9ABCDEF0),
-			(fy_long)0x123456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_I2TOL(0x9ABCDEF0,0x12345678),
-			(fy_long)0x9ABCDEF012345678LL);
-	CU_ASSERT_EQUAL(fy_I2TOL(0x12345678,0x22345678),
-			(fy_long)0x1234567822345678LL);
-	CU_ASSERT_EQUAL(fy_I2TOL(0x92345678,0x9ABCDEF0),
-			(fy_long)0x923456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_I2TOUL(0x12345678,0x9ABCDEF0),
-			(fy_ulong)0x123456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_I2TOUL(0x9ABCDEF0,0x12345678),
-			(fy_ulong)0x9ABCDEF012345678LL);
-	CU_ASSERT_EQUAL(fy_I2TOUL(0x12345678,0x22345678),
-			(fy_ulong)0x1234567822345678LL);
-	CU_ASSERT_EQUAL(fy_I2TOUL(0x92345678,0x9ABCDEF0),
-			(fy_ulong)0x923456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_HOFL(0x123456789ABCDEF0LL), 0x12345678);
-	CU_ASSERT_EQUAL(fy_LOFL(0x123456789ABCDEF0LL), 0x9ABCDEF0);
-	CU_ASSERT_EQUAL(fy_HOFL(0x9ABCDEF012345678LL), 0x9ABCDEF0);
-	CU_ASSERT_EQUAL(fy_LOFL(0x9ABCDEF012345678LL), 0x12345678);
-	CU_ASSERT_EQUAL(fy_HOFL(0x1234567822345678LL), 0x12345678);
-	CU_ASSERT_EQUAL(fy_LOFL(0x1234567822345678LL), 0x22345678);
-	CU_ASSERT_EQUAL(fy_HOFL(0x9ABCDEF08ABCDEF0LL), 0x9ABCDEF0);
-	CU_ASSERT_EQUAL(fy_LOFL(0x9ABCDEF08ABCDEF0LL), 0x8ABCDEF0);
-	CU_ASSERT_EQUAL(fy_B2TOUI(0x12,0xAB), 0x12AB);
-	CU_ASSERT_EQUAL(fy_B2TOUI(0xAB,0x12), 0xAB12);
-	CU_ASSERT_EQUAL(fy_B2TOUI(0x12,0x12), 0x1212);
-	CU_ASSERT_EQUAL(fy_B2TOUI(0xAB,0xAB), 0xABAB);
-	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0xAB), (fy_short)0x12AB);
-	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0x12), (fy_short)0xAB12);
-	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0x12), (fy_short)0x1212);
-	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0xAB), (fy_short)0xABAB);
-	CU_ASSERT_EQUAL(fy_B4TOI(0x12,0xAB,0x34,0xCD), 0x12AB34CD);
-	CU_ASSERT_EQUAL(fy_B4TOI(0xAB,0x12,0xCD,0x34), 0xAB12CD34);
-	CU_ASSERT_EQUAL(fy_B4TOI(0xAB,0xCD,0x89,0xEF), 0xABCD89EF);
-	CU_ASSERT_EQUAL(fy_B4TOI(0x12,0x34,0x56,0x78), 0x12345678);
+	FY_ASSERT(sizeof(fy_ubyte)== 1);
+	FY_ASSERT(sizeof(fy_char)== 2);
+	FY_ASSERT(sizeof(fy_uint)== 4);
+	FY_ASSERT(sizeof(fy_ulong)== 8);
+	FY_ASSERT(sizeof(fy_byte)== 1);
+	FY_ASSERT(sizeof(fy_short)== 2);
+	FY_ASSERT(sizeof(fy_int)== 4);
+	FY_ASSERT(sizeof(fy_long)== 8);
+	FY_ASSERT(sizeof(fy_float)== 4);
+	FY_ASSERT(sizeof(fy_double)== 8);
+	FY_ASSERT(fy_I2TOL(0x12345678,0x9ABCDEF0)== (fy_long) 0x123456789ABCDEF0LL);
+	FY_ASSERT(fy_I2TOL(0x9ABCDEF0,0x12345678)== (fy_long) 0x9ABCDEF012345678LL);
+	FY_ASSERT(fy_I2TOL(0x12345678,0x22345678)== (fy_long) 0x1234567822345678LL);
+	FY_ASSERT(fy_I2TOL(0x92345678,0x9ABCDEF0)== (fy_long) 0x923456789ABCDEF0LL);
+	FY_ASSERT(
+			fy_I2TOUL(0x12345678,0x9ABCDEF0)== (fy_ulong) 0x123456789ABCDEF0LL);
+	FY_ASSERT(
+			fy_I2TOUL(0x9ABCDEF0,0x12345678)== (fy_ulong) 0x9ABCDEF012345678LL);
+	FY_ASSERT(
+			fy_I2TOUL(0x12345678,0x22345678)== (fy_ulong) 0x1234567822345678LL);
+	FY_ASSERT(
+			fy_I2TOUL(0x92345678,0x9ABCDEF0)== (fy_ulong) 0x923456789ABCDEF0LL);
+	FY_ASSERT(fy_HOFL(0x123456789ABCDEF0LL)== 0x12345678);
+	FY_ASSERT(fy_LOFL(0x123456789ABCDEF0LL)== 0x9ABCDEF0);
+	FY_ASSERT(fy_HOFL(0x9ABCDEF012345678LL)== 0x9ABCDEF0);
+	FY_ASSERT(fy_LOFL(0x9ABCDEF012345678LL)== 0x12345678);
+	FY_ASSERT(fy_HOFL(0x1234567822345678LL)== 0x12345678);
+	FY_ASSERT(fy_LOFL(0x1234567822345678LL)== 0x22345678);
+	FY_ASSERT(fy_HOFL(0x9ABCDEF08ABCDEF0LL)== 0x9ABCDEF0);
+	FY_ASSERT(fy_LOFL(0x9ABCDEF08ABCDEF0LL)== 0x8ABCDEF0);
+	FY_ASSERT(fy_B2TOUI(0x12,0xAB)== 0x12AB);
+	FY_ASSERT(fy_B2TOUI(0xAB,0x12)== 0xAB12);
+	FY_ASSERT(fy_B2TOUI(0x12,0x12)== 0x1212);
+	FY_ASSERT(fy_B2TOUI(0xAB,0xAB)== 0xABAB);
+	FY_ASSERT(fy_B2TOI(0x12,0xAB)== (fy_short) 0x12AB);
+	FY_ASSERT(fy_B2TOI(0xAB,0x12)== (fy_short) 0xAB12);
+	FY_ASSERT(fy_B2TOI(0x12,0x12)== (fy_short) 0x1212);
+	FY_ASSERT(fy_B2TOI(0xAB,0xAB)== (fy_short) 0xABAB);
+	FY_ASSERT(fy_B4TOI(0x12,0xAB,0x34,0xCD)== 0x12AB34CD);
+	FY_ASSERT(fy_B4TOI(0xAB,0x12,0xCD,0x34)== 0xAB12CD34);
+	FY_ASSERT(fy_B4TOI(0xAB,0xCD,0x89,0xEF)== 0xABCD89EF);
+	FY_ASSERT(fy_B4TOI(0x12,0x34,0x56,0x78)== 0x12345678);
 }
 
 void testMemManage() {
@@ -154,13 +160,11 @@ void testString() {
 	}
 	printf("\n");
 	fy_strPrint(js);
-	CU_ASSERT(fy_strCmp(js,js)==0);
-	CU_ASSERT(fy_strCmp(js1,js)<0);
-	CU_ASSERT(fy_strCmp(js,js1)>0);
-	CU_ASSERT(fy_strCmp(js2,js)>0);
-	CU_ASSERT(fy_strCmp(js,js2)<0);
-	//	fy_strDestroy(context, js);
-	//	fy_vmFree(context,js);
+	FY_ASSERT(fy_strCmp(js,js)==0);
+	FY_ASSERT(fy_strCmp(js1,js)<0);
+	FY_ASSERT(fy_strCmp(js,js1)>0);
+	FY_ASSERT(fy_strCmp(js2,js)>0);
+	FY_ASSERT(fy_strCmp(js,js2)<0);
 }
 
 typedef struct fy_test_map {
@@ -172,7 +176,7 @@ static void checkMapValue(fy_str *key, void *value, void *addition) {
 	fy_test_map *test = (fy_test_map*) addition;
 	fy_uint val = *(fy_uint*) value;
 	test->count++;
-	CU_ASSERT(val>=0 && val <30000);
+	FY_ASSERT(val>=0 && val <30000);
 }
 
 void testHashMap() {
@@ -214,19 +218,18 @@ void testHashMap() {
 
 	t2 = fy_portTimeMillSec(port);
 	fy_hashMapEachValue(block, hashMap, checkMapValue, &add);
-	CU_ASSERT_EQUAL_FATAL(add.count, 10000);
+	FY_ASSERT_FATAL(add.count == 10000);
 	t3 = fy_portTimeMillSec(port);
-
-	CU_ASSERT_EQUAL(hashMap->size, 10000);
+	FY_ASSERT(hashMap->size == 10000);
 	for (i = 0; i < 15000; i++) {
 		sprintf_s(buf, 10, "%d", i);
 		tmp = fy_strCreateFromUTF8(block, buf, exception);
 		CHECK_EXCEPTION(exception);
 		value = fy_hashMapGet(block, hashMap, tmp);
 		if (i < 10000) {
-			CU_ASSERT_EQUAL(*value, values[i])
+			FY_ASSERT(*value == values[i])
 		} else {
-			CU_ASSERT_EQUAL(value, NULL);
+			FY_ASSERT(value == NULL);
 		}
 		fy_strDestroy(block, tmp);
 		fy_mmFree(block, tmp);
@@ -237,7 +240,7 @@ void testHashMap() {
 	printf(
 			"HashMap time %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d\n",
 			(t2 - t1), (t3 - t2), (t4 - t3), (t5 - t4));
-	CU_ASSERT_EQUAL(blocks, fy_getAllocated());
+	FY_ASSERT(blocks == fy_getAllocated());
 	fy_mmFree(block, hashMap);
 }
 
@@ -266,12 +269,12 @@ void testArrayList() {
 	for (i = 0; i < 10; i++) {
 		fy_arrayListGet(block, &stack, i, &data);
 		CHECK_EXCEPTION(exception);
-		CU_ASSERT_EQUAL(data.ivalue, i);
-		CU_ASSERT_EQUAL(data.fvalue, i*1.1f);
+		FY_ASSERT(data.ivalue == i);
+		FY_ASSERT(data.fvalue == i * 1.1f);
 	}
 	for (i = 9; i >= 0; i--) {
 		data1 = fy_arrayListPop(block, &stack, NULL);
-		CU_ASSERT_EQUAL(data1->ivalue, i);
+		FY_ASSERT(data1->ivalue == i);
 	}
 	for (i = 0; i < 10; i++) {
 		data.ivalue = i;
@@ -281,45 +284,46 @@ void testArrayList() {
 	}
 	for (i = 9; i >= 0; i--) {
 		data1 = fy_arrayListPop(block, &stack, &data);
-		CU_ASSERT_EQUAL(data.ivalue, i);
+		FY_ASSERT(data.ivalue == i);
 	}
 	data1 = fy_arrayListPop(block, &stack, &data);
-	CU_ASSERT_EQUAL(data1, NULL);
+	FY_ASSERT(data1 == NULL);
 	fy_arrayListDestroy(block, &stack);
 }
 
-CU_TestInfo testcases[] = { { "platform related", testPortable }, //
+FY_TEST_FUN testcases[] = { { "platform related", testPortable }, //
 		{ "memory management", testMemManage }, //
 		{ "string", testString }, //
 		{ "hashMap", testHashMap }, //
 		{ "arrayList", testArrayList }, //
-		CU_TEST_INFO_NULL };
-
-CU_SuiteInfo suites[] = {
-		{ "Testing parts:", test_init, test_clean, testcases }, //
-		CU_SUITE_INFO_NULL };
-
-void AddTests(void) {
-	assert(NULL != CU_get_registry());
-	assert(!CU_is_test_running());
-	/* shortcut regitry */
-
-	if (CUE_SUCCESS != CU_register_suites(suites)) {
-		fprintf(stderr, "Register suites failed - %s ", CU_get_error_msg());
-		exit(-1);
-	}
-}
+		{ NULL, NULL } };
 
 int main(int argc, char *argv[]) {
-	if (CU_initialize_registry()) {
-		fprintf(stderr, " Initialization of Test Registry failed. ");
-		exit(-1);
-	} else {
-		AddTests();
-		CU_set_output_filename("TestUtil");
-		CU_list_tests_to_file();
-		CU_automated_run_tests();
-		CU_cleanup_registry();
+	int i = 0;
+	FY_TEST_FUN *tf;
+	char *name;
+	void (*fun)();
+	fails = fopen("util.fail.log", "w");
+	if (fails == NULL) {
+		fprintf(stderr, "Can't open util.fail.log for write!\n");
+		return 1;
 	}
-	return 0;
+	failCount = 0;
+	test_init();
+	while (1) {
+		tf = testcases + i;
+		name = tf->name;
+		fun = tf->fun;
+		if (name == NULL)
+			break;
+		printf("Testing %s\n", name);
+		fun();
+		i++;
+	}
+	test_clean();
+	fclose(fails);
+	if (failCount) {
+		printf("Test FAILED! %"FY_PRINT64"d\n", failCount);
+	}
+	return failCount > 0;
 }

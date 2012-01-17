@@ -18,8 +18,18 @@
 #include "fyc/ClassLoader.h"
 #include "fyc/Thread.h"
 
-#include "CUnit/CUnit.h"
-#include "CUnit/Automated.h"
+typedef struct FY_TEST_FUN {
+	char *name;
+	void (*fun)();
+} FY_TEST_FUN;
+#define FY_ASSERT(value) \
+  { if(!(value)){failCount++;sprintf_s(fy_unit_msg,sizeof(fy_unit_msg),"%"FY_PRINT64"d %s(%d): ASSERTION FAILED ["#value"]\n",failCount,__FILE__,__LINE__);fprintf(stderr,"%s",fy_unit_msg); fprintf(fails,"%s",fy_unit_msg);}}
+#define FY_ASSERT_FATAL(value) \
+  { if(!(value)){failCount++;sprintf_s(fy_unit_msg,sizeof(fy_unit_msg),"%"FY_PRINT64"d %s(%d): ASSERTION FAILED ["#value"]\n",failCount,__FILE__,__LINE__);fprintf(stderr,"%s",fy_unit_msg); fprintf(fails,"%s",fy_unit_msg);return;}}
+
+static FILE *fails;
+static fy_ulong failCount;
+static char fy_unit_msg[1024];
 
 static fy_context *context;
 static fy_memblock *block;
@@ -27,7 +37,6 @@ static fy_exception *exception;
 
 static char msg[256];
 static FILE *fp;
-static char *customTest;
 static void fy_log(const char *format, ...) {
 	char lmsg[1024];
 	va_list va_ptr;
@@ -40,28 +49,11 @@ static void fy_log(const char *format, ...) {
 
 #define TEST_EXCEPTION(EXCEPTION) if((EXCEPTION)->exceptionType!=exception_none) { \
 	fy_log("Exception %s: %s occored!\n",(EXCEPTION)->exceptionName,(EXCEPTION)->exceptionDesc); \
-	CU_FAIL("Critical exception in global"); \
+	FY_ASSERT("Critical exception in global"==NULL); \
 	return; \
 }
 
-int test_init(void) {
-	fp = fopen(customTest == NULL ? "Test.log" : "Test-custom.log", "w");
-	if (fp == NULL) {
-		printf("Open log file failed");
-		return 1;
-	} else {
-		fy_log("Test begin\n");
-		return 0;
-	}
-}
-
-int test_clean(void) {
-	fy_log("ALL TEST DONE!!!MemLeak=%ld\n", fy_getAllocated());
-	fclose(fp);
-	return 0;
-}
-
-void testAllocate1() {
+static void testAllocate1() {
 	exception = fy_allocate(sizeof(fy_exception), NULL);
 	context = fy_allocate(sizeof(fy_context), NULL);
 	fy_vmContextInit(context, exception);
@@ -72,55 +64,14 @@ void testAllocate1() {
 	block = context->memblocks;
 }
 
-void testCleanup1() {
+static void testCleanup1() {
 	fy_log("Release resources\n");
 	fy_vmContextDestroy(context);
 	fy_free(context);
 	fy_free(exception);
 }
 
-void testPortable() {
-	CU_ASSERT_EQUAL(sizeof(fy_ubyte), 1);
-	CU_ASSERT_EQUAL(sizeof(fy_char), 2);
-	CU_ASSERT_EQUAL(sizeof(fy_uint), 4);
-	CU_ASSERT_EQUAL(sizeof(fy_ulong), 8);
-	CU_ASSERT_EQUAL(sizeof(fy_byte), 1);
-	CU_ASSERT_EQUAL(sizeof(fy_short), 2);
-	CU_ASSERT_EQUAL(sizeof(fy_int), 4);
-	CU_ASSERT_EQUAL(sizeof(fy_long), 8);
-	CU_ASSERT_EQUAL(sizeof(fy_float), 4);
-	CU_ASSERT_EQUAL(sizeof(fy_double), 8);
-	CU_ASSERT_EQUAL(fy_I2TOL(0x12345678,0x9ABCDEF0),
-			(fy_long)0x123456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_I2TOL(0x9ABCDEF0,0x12345678),
-			(fy_long)0x9ABCDEF012345678LL);
-	CU_ASSERT_EQUAL(fy_I2TOL(0x12345678,0x22345678),
-			(fy_long)0x1234567822345678LL);
-	CU_ASSERT_EQUAL(fy_I2TOL(0x92345678,0x9ABCDEF0),
-			(fy_long)0x923456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_I2TOUL(0x12345678,0x9ABCDEF0),
-			(fy_ulong)0x123456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_I2TOUL(0x9ABCDEF0,0x12345678),
-			(fy_ulong)0x9ABCDEF012345678LL);
-	CU_ASSERT_EQUAL(fy_I2TOUL(0x12345678,0x22345678),
-			(fy_ulong)0x1234567822345678LL);
-	CU_ASSERT_EQUAL(fy_I2TOUL(0x92345678,0x9ABCDEF0),
-			(fy_ulong)0x923456789ABCDEF0LL);
-	CU_ASSERT_EQUAL(fy_B2TOUI(0x12,0xAB), 0x12AB);
-	CU_ASSERT_EQUAL(fy_B2TOUI(0xAB,0x12), 0xAB12);
-	CU_ASSERT_EQUAL(fy_B2TOUI(0x12,0x12), 0x1212);
-	CU_ASSERT_EQUAL(fy_B2TOUI(0xAB,0xAB), 0xABAB);
-	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0xAB), (fy_short)0x12AB);
-	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0x12), (fy_short)0xAB12);
-	CU_ASSERT_EQUAL(fy_B2TOI(0x12,0x12), (fy_short)0x1212);
-	CU_ASSERT_EQUAL(fy_B2TOI(0xAB,0xAB), (fy_short)0xABAB);
-	CU_ASSERT_EQUAL(fy_B4TOI(0x12,0xAB,0x34,0xCD), 0x12AB34CD);
-	CU_ASSERT_EQUAL(fy_B4TOI(0xAB,0x12,0xCD,0x34), 0xAB12CD34);
-	CU_ASSERT_EQUAL(fy_B4TOI(0xAB,0xCD,0x89,0xEF), 0xABCD89EF);
-	CU_ASSERT_EQUAL(fy_B4TOI(0x12,0x34,0x56,0x78), 0x12345678);
-}
-
-void testClassLoader() {
+static void testClassLoader() {
 
 	fy_str *str;
 	exception->exceptionType = exception_none;
@@ -164,14 +115,14 @@ void testClassLoaderFull() {
 		TEST_EXCEPTION(exception);
 		clazz = fy_vmLookupClass(context, snm, exception);
 		TEST_EXCEPTION(exception);
-		CU_ASSERT_NOT_EQUAL(clazz, NULL);
+		FY_ASSERT(clazz!= NULL);
 		fy_strRelease(block, snm);
 	}
 	clStr = lookup(context, FY_BASE_STRING, exception);
 	clObj = lookup(context, FY_BASE_OBJECT, exception);
 	clazz = lookup(context, FY_BASE_INT, exception);
-	CU_ASSERT(fy_classCanCastTo(context,clStr,clObj));
-	CU_ASSERT_FALSE(fy_classCanCastTo(context,clStr,clazz));
+	FY_ASSERT(fy_classCanCastTo(context, clStr, clObj));
+	FY_ASSERT(!fy_classCanCastTo(context, clStr, clazz));
 }
 
 void testClassMethod() {
@@ -197,8 +148,8 @@ void testClassMethod() {
 			target = method;
 			break;
 		}
-	}CU_ASSERT_NOT_EQUAL(target, NULL);
-	CU_ASSERT_EQUAL(target->paramCount, 8);
+	}FY_ASSERT(target!= NULL);
+	FY_ASSERT(target->paramCount == 8);
 	class0 = lookup(context, ""FY_BASE_OBJECT"", exception);
 	class1 = lookup(context, "[[B", exception);
 	class2 = lookup(context, "[[C", exception);
@@ -207,15 +158,15 @@ void testClassMethod() {
 	class5 = lookup(context, "[[LEXCLUDE/fisce/test/ITester;", exception);
 	class6 = lookup(context, "[[LEXCLUDE/fisce/test/Tester;", exception);
 	lookup(context, "[[LEXCLUDE/fisce/test/TesterChild;", exception);
-	CU_ASSERT(!fy_classCanCastTo(context,class1,class2));
-	CU_ASSERT(!fy_classCanCastTo(context,class1,class3));
-	CU_ASSERT(fy_classCanCastTo(context,class1,class0));
-	CU_ASSERT(fy_classCanCastTo(context,class3,class4));
-	CU_ASSERT(fy_classCanCastTo(context,class6,class5));
-	CU_ASSERT(fy_classCanCastTo(context,class6,class4));
-	CU_ASSERT(!fy_classCanCastTo(context,class6,class3));
-	CU_ASSERT(!fy_classCanCastTo(context,class6,class2));
-	CU_ASSERT_EQUAL(class3->ci.arr.contentClass, class1);
+	FY_ASSERT(!fy_classCanCastTo(context, class1, class2));
+	FY_ASSERT(!fy_classCanCastTo(context, class1, class3));
+	FY_ASSERT(fy_classCanCastTo(context, class1, class0));
+	FY_ASSERT(fy_classCanCastTo(context, class3, class4));
+	FY_ASSERT(fy_classCanCastTo(context, class6, class5));
+	FY_ASSERT(fy_classCanCastTo(context, class6, class4));
+	FY_ASSERT(!fy_classCanCastTo(context, class6, class3));
+	FY_ASSERT(!fy_classCanCastTo(context, class6, class2));
+	FY_ASSERT(class3->ci.arr.contentClass == class1);
 }
 
 void testHeap() {
@@ -233,8 +184,8 @@ void testHeap() {
 	ASSERT(sHandle != 0);
 	fy_heapGetString(context, sHandle, compare, exception);
 	TEST_EXCEPTION(exception);
-	CU_ASSERT( fy_strCmp(str,compare)==0);
-	CU_ASSERT(sHandle == fy_heapLiteral(context, compare, NULL));
+	FY_ASSERT(fy_strCmp(str, compare) == 0);
+	FY_ASSERT(sHandle == fy_heapLiteral(context, compare, NULL));
 	fy_strRelease(block, str);
 	fy_strRelease(block, compare);
 }
@@ -251,7 +202,7 @@ static void testFail(struct fy_context *context, struct fy_thread *thread,
 	fy_strSPrint(msg, sizeof(msg), &str);
 	fy_strDestroy(context->memblocks, &str);
 	fy_log("FAIL: %s\n", msg);
-	CU_FAIL("Test fail in high level test.");
+	FY_ASSERT("Test fail in high level test."==NULL);
 
 }
 static void hltest(char *name) {
@@ -287,7 +238,7 @@ static void hltest(char *name) {
 					message.body.call.method->uniqueName);
 			fy_log("Stopped at invoke native for thread %d: %s\n",
 					message.thread->threadId, msg);
-			CU_FAIL("Core native functions not implemented");
+			FY_ASSERT("Core native functions not implemented"==NULL);
 			dead = 1;
 			break;
 		case message_exception:
@@ -295,7 +246,7 @@ static void hltest(char *name) {
 					message.thread->threadId,
 					message.body.exception.exceptionName,
 					message.body.exception.exceptionDesc);
-			CU_FAIL("Critical exception in thread");
+			FY_ASSERT("Critical exception in thread"==NULL);
 			dead = 1;
 			break;
 		case message_sleep:
@@ -312,7 +263,8 @@ static void hltest(char *name) {
 			fy_log("Invalid message type %d\n", message.messageType);
 			break;
 		}
-	}CU_ASSERT_EQUAL(message.messageType, message_vm_dead);
+	}
+	FY_ASSERT(message.messageType == message_vm_dead);
 	fy_vmContextDestroy(context);
 	fy_free(context);
 	fy_log("--------------------------------------------------------\n");
@@ -413,7 +365,7 @@ void testNative() {
 						method->uniqueName)) {
 					fy_strSPrint(msg, sizeof(msg), method->uniqueName);
 					fy_log("Handler not found: %s\n", msg);
-					CU_ASSERT(FALSE);
+					FY_ASSERT(FALSE);
 				}
 			}
 		}
@@ -424,7 +376,7 @@ void testNative() {
 	fy_log("--------------------------------------------------------\n");
 }
 
-void testCustom() {
+void testCustom(char *customTest) {
 	if (strcmp(customTest, "NATIVE") == 0) {
 		testNative();
 	} else {
@@ -432,9 +384,8 @@ void testCustom() {
 	}
 }
 
-CU_TestInfo testcases[] = { //
+FY_TEST_FUN testcases[] = { //
 		{ "allocate1", testAllocate1 }, //
-				{ "platform related", testPortable }, //
 				{ "classloader", testClassLoader }, //
 				{ "classLoaderFull", testClassLoaderFull }, //
 				{ "classMethod", testClassMethod }, //
@@ -456,47 +407,55 @@ CU_TestInfo testcases[] = { //
 				{ "TableSwitch", testTableSwitch }, //
 				{ "LookupSwitch", testLookupSwitch }, //
 				{ "Native", testNative }, //
-				CU_TEST_INFO_NULL };
-
-CU_TestInfo customCase[] = { { "custom", testCustom }, //
-		CU_TEST_INFO_NULL };
-
-CU_SuiteInfo suites[] = {
-		{ "Testing parts:", test_init, test_clean, testcases }, //
-		CU_SUITE_INFO_NULL };
-
-CU_SuiteInfo customSuits[] = { { "Testing parts:", test_init, test_clean,
-		customCase }, //
-		CU_SUITE_INFO_NULL };
-
-void AddTests(void) {
-	ASSERT(NULL != CU_get_registry());
-	ASSERT(!CU_is_test_running());
-	/* shortcut regitry */
-
-	if (CUE_SUCCESS
-			!= CU_register_suites(customTest == NULL ? suites : customSuits)) {
-		fprintf(stderr, "Register suites failed - %s ", CU_get_error_msg());
-		exit(-1);
-	}
-}
-
+				{ NULL, NULL } };
 int main(int argc, char *argv[]) {
+	int i = 0;
+	FY_TEST_FUN *tf;
+	char *name;
+	void (*fun)();
+	char *customTest;
+	char *fn;
 	if (argc > 1) {
 		printf("Testing %s:", argv[1]);
 		customTest = argv[1];
+		fn = "test.custom.fail.log";
 	} else {
 		customTest = NULL;
+		fn = "test.fail.log";
 	}
-	if (CU_initialize_registry()) {
-		fprintf(stderr, " Initialization of Test Registry failed. ");
-		exit(-1);
+	fails = fopen(fn, "w");
+	if (fails == NULL) {
+		fprintf(stderr, "Can't open %s for write!\n", fn);
+		return 1;
+	}
+	failCount = 0;
+	fp = fopen(customTest == NULL ? "Test.log" : "Test-custom.log", "w");
+	if (fp == NULL) {
+		printf("Open log file failed");
+		return 1;
 	} else {
-		AddTests();
-		CU_set_output_filename(customTest == NULL ? "Test" : "Test-custom");
-		CU_list_tests_to_file();
-		CU_automated_run_tests();
-		CU_cleanup_registry();
+		fy_log("Test begin\n");
 	}
-	return 0;
+	if (customTest) {
+		printf("Testing %s\n", customTest);
+		testCustom(customTest);
+	} else {
+		while (1) {
+			tf = testcases + i;
+			name = tf->name;
+			fun = tf->fun;
+			if (name == NULL)
+				break;
+			printf("Testing %s\n", name);
+			fun();
+			i++;
+		}
+	}
+	fy_log("ALL TEST DONE!!!MemLeak=%ld\n", fy_getAllocated());
+	fclose(fp);
+	fclose(fails);
+	if (failCount) {
+		printf("Test FAILED! %"FY_PRINT64"d\n", failCount);
+	}
+	return failCount > 0;
 }
