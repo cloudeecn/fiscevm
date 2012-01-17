@@ -406,7 +406,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "ComplexClassStructor", testComplex }, //
 				{ "TableSwitch", testTableSwitch }, //
 				{ "LookupSwitch", testLookupSwitch }, //
-				{ "Native", testNative }, //
+				//{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {
 	int i = 0;
