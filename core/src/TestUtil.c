@@ -252,6 +252,7 @@ void testArrayList() {
 
 	struct stackData data, *data1;
 	int i;
+	float fs[10];
 	fy_arrayList stack;
 	fy_exception ex;
 	fy_exception *exception = &ex;
@@ -261,7 +262,7 @@ void testArrayList() {
 	CHECK_EXCEPTION(exception);
 	for (i = 0; i < 10; i++) {
 		data.ivalue = i;
-		data.fvalue = i * 1.1f;
+		data.fvalue = fs[i] = i * 1.1f;
 		fy_arrayListAdd(block, &stack, &data, exception);
 		CHECK_EXCEPTION(exception);
 	}
@@ -270,7 +271,7 @@ void testArrayList() {
 		fy_arrayListGet(block, &stack, i, &data);
 		CHECK_EXCEPTION(exception);
 		FY_ASSERT(data.ivalue == i);
-		FY_ASSERT(data.fvalue == i * 1.1f);
+		FY_ASSERT(data.fvalue == fs[i]);
 	}
 	for (i = 9; i >= 0; i--) {
 		data1 = fy_arrayListPop(block, &stack, NULL);
@@ -278,13 +279,14 @@ void testArrayList() {
 	}
 	for (i = 0; i < 10; i++) {
 		data.ivalue = i;
-		data.fvalue = i * 1.1f;
+		data.fvalue = fs[i] = i * 1.1f;
 		fy_arrayListAdd(block, &stack, &data, exception);
 		CHECK_EXCEPTION(exception);
 	}
 	for (i = 9; i >= 0; i--) {
 		data1 = fy_arrayListPop(block, &stack, &data);
 		FY_ASSERT(data.ivalue == i);
+		FY_ASSERT(data.fvalue == fs[i]);
 	}
 	data1 = fy_arrayListPop(block, &stack, &data);
 	FY_ASSERT(data1 == NULL);
