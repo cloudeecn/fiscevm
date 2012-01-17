@@ -154,7 +154,7 @@ static void saveClass(struct fy_context *context, void *saver, fy_uint classId,
 	writeInt(fp, clinited, exception);
 	writeInt(fp, imax = name->length, exception);
 	for (i = 0; i < imax; i++) {
-		wirteChar(fp, name->content[i], exception);
+		writeChar(fp, name->content[i], exception);
 	}
 	writeInt(fp, imax = staticSize, exception);
 	for (i = 0; i < imax; i++) {
