@@ -312,6 +312,7 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 */
 
 	fy_fisInitInputStream(context);
+	fy_bsRegisterBinarySaver(context);
 	fy_mmInit(context->memblocks, exception);
 	FYEH();
 	fy_portInit(context->port);
@@ -709,7 +710,6 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	fy_object *object;
 	fy_uint *handles;
 	fy_uint *temp;
-	fy_uint threadId;
 	fy_thread *thread;
 	fy_frame *frame;
 	void *saver;
@@ -734,7 +734,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	context->savePrepareMethod(context, saver, imax = context->methodsCount,
 			exception);
 	FYEH();
-	for (i = 1; i <= imax; i++) {
+	for (i = 1; i < imax; i++) {
 		method = context->methods[i];
 		context->saveMethod(context, saver, i, 0/*TODO*/, method->uniqueName,
 				exception);
@@ -746,7 +746,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	context->savePrepareField(context, saver, imax = context->fieldsCount,
 			exception);
 	FYEH();
-	for (i = 1; i <= imax; i++) {
+	for (i = 1; i < imax; i++) {
 		field = context->fields[i];
 		context->saveField(context, saver, i, 0/*TODO*/, field->uniqueName,
 				exception);
@@ -766,11 +766,22 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	FYEH();
 	for (i = 1; i < MAX_OBJECTS; i++) {
 		if ((object = fy_heapGetObject(context,i))->clazz != NULL) {
-			context->saveObject(context, saver, i, object->clazz->classId,
-					object->position, object->gen, object->finalizeStatus,
-					object->monitorOwnerId, object->monitorOwnerTimes,
-					object->attachedId, object->length, object->data,
-					exception);
+			context->saveObject(
+					context,
+					saver,
+					i,
+					object->clazz->classId,
+					object->position,
+					object->gen,
+					object->finalizeStatus,
+					object->monitorOwnerId,
+					object->monitorOwnerTimes,
+					object->attachedId,
+					object->length,
+					object->clazz->type == arr ?
+							fy_heapGetArraySizeFromLength(object->clazz,
+									object->length) :
+							object->clazz->sizeAbs, object->data, exception);
 			count++;
 		}
 	}/**/
@@ -794,18 +805,16 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	FYEH();
 	for (i = 0; i < imax; i++) {
 		fy_arrayListGet(context->memblocks, context->runningThreads, i,
-				&threadId);
-		thread = context->threads[threadId];
+				&thread);
 		jmax = thread->frameCount;
-		context->saveThread(context, saver, threadId, thread->daemon,
+		context->saveThread(context, saver, thread->threadId, thread->daemon,
 				thread->destroyPending, thread->interrupted,
 				thread->nextWakeTime, thread->pendingLockCount,
 				thread->waitForLockId, thread->waitForNotifyId,
 				thread->frames[jmax - 1].sp, thread->stack, thread->typeStack,
-				jmax, exception);
-		FYEH();
-		context->savePrepareFrame(context, saver, thread->frameCount,
 				exception);
+		FYEH();
+		context->savePrepareFrame(context, saver, jmax, exception);
 		FYEH();
 		for (j = 0; j < jmax; j++) {
 			frame = thread->frames + j;

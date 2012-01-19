@@ -541,8 +541,8 @@ typedef struct fy_context {
 	void (*saveObject)(struct fy_context *context, void *saver, fy_uint handle,
 			fy_uint classId, fy_int posInHeap, fy_int gen,
 			fy_int finalizeStatus, fy_uint monitorOwner, fy_uint monitorCount,
-			fy_uint attachedId, fy_uint length, fy_uint *data,
-			fy_exception *exception);
+			fy_uint attachedId, fy_uint length, fy_uint dataLength,
+			fy_uint *data, fy_exception *exception);
 	void (*saveEndObject)(struct fy_context *context, void *saver,
 			fy_exception *exception);
 	void (*saveLiterals)(struct fy_context *context, void *saver, fy_uint count,
@@ -556,7 +556,7 @@ typedef struct fy_context {
 			fy_uint interrupted, fy_long nextWakeupTime,
 			fy_uint pendingLockCount, fy_uint waitForLockId,
 			fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
-			fy_uint *typeStack, fy_uint frameCount, fy_exception *exception);
+			fy_uint *typeStack, fy_exception *exception);
 	void (*savePrepareFrame)(struct fy_context *context, void *saver,
 			fy_uint count, fy_exception *exception);
 	void (*saveFrame)(struct fy_context *context, void *saver, fy_uint methodId,

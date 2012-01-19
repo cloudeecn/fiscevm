@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "fyc/BinarySaver.h"
+#include "fyc/Heap.h"
 #include <stdio.h>
 
 #if 0
@@ -124,7 +125,8 @@ static void writeChar(FILE *fp, fy_char value, fy_exception *exception) {
 	}
 }
 
-static void callForSave(struct fy_context *context, fy_exception *exception) {/*TODO*/
+static void callForSave(struct fy_context *context, fy_exception *exception) {
+	fy_vmSave(context, exception);
 }
 static void* saveBegin(struct fy_context *context, fy_exception *exception) {/*TODO*/
 	FILE *fp = fopen("save.dat", "w");
@@ -181,7 +183,7 @@ static void saveMethod(struct fy_context *context, void *saver,
 	writeInt(fp, handle, exception);
 	writeInt(fp, imax = uniqueName->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeInt(fp, uniqueName->content[i], exception);
+		writeChar(fp, uniqueName->content[i], exception);
 	}
 }
 static void saveEndMethod(struct fy_context *context, void *saver,
@@ -189,18 +191,21 @@ static void saveEndMethod(struct fy_context *context, void *saver,
 	/*NONEED*/
 }
 static void savePrepareField(struct fy_context *context, void *saver,
-		fy_uint fieldCount, fy_exception *exception) {/*TODO*/
+		fy_uint fieldCount, fy_exception *exception) {
+	FILE *fp = saver;
+	writeInt(fp, 0xF15CE006, exception);
+	writeInt(fp, fieldCount, exception);
 }
 static void saveField(struct fy_context *context, void *saver, fy_uint fieldId,
 		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {
 	fy_int i, imax;
 	FILE *fp = saver;
-	writeInt(fp, 0xF15CE006, exception);
+	writeInt(fp, 0xF15CE007, exception);
 	writeInt(fp, fieldId, exception);
 	writeInt(fp, handle, exception);
 	writeInt(fp, imax = uniqueName->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeInt(fp, uniqueName->content[i], exception);
+		writeChar(fp, uniqueName->content[i], exception);
 	}
 }
 static void saveEndField(struct fy_context *context, void *saver,
@@ -208,49 +213,115 @@ static void saveEndField(struct fy_context *context, void *saver,
 }
 static void savePrepareObjects(struct fy_context *context, void *saver,
 		fy_uint nextHandle, fy_uint objectCount, fy_exception *exception) {/*TODO*/
+	FILE *fp = saver;
+	writeInt(fp, 0xF15CE009, exception);
+	writeInt(fp, nextHandle, exception);
+	writeInt(fp, objectCount, exception);
 }
 static void saveObject(struct fy_context *context, void *saver, fy_uint handle,
 		fy_uint classId, fy_int posInHeap, fy_int gen, fy_int finalizeStatus,
 		fy_uint monitorOwner, fy_uint monitorCount, fy_uint attachedId,
-		fy_uint length, fy_uint *data, fy_exception *exception) {/*TODO*/
+		fy_uint length, fy_uint dataSize, fy_uint *data,
+		fy_exception *exception) {
+	FILE *fp = saver;
+	fy_uint i;
+	writeInt(fp, 0xF15CE00A, exception);
+	writeInt(fp, handle, exception);
+	writeInt(fp, classId, exception);
+	writeInt(fp, posInHeap, exception);
+	writeInt(fp, gen, exception);
+	writeInt(fp, finalizeStatus, exception);
+	writeInt(fp, monitorOwner, exception);
+	writeInt(fp, monitorCount, exception);
+	writeInt(fp, attachedId, exception);
+	writeInt(fp, length, exception);
+	writeInt(fp, dataSize, exception);
+	for (i = 0; i < dataSize; i++) {
+		writeInt(fp, data[i], exception);
+	}
+
 }
 static void saveEndObject(struct fy_context *context, void *saver,
-		fy_exception *exception) {/*TODO*/
+		fy_exception *exception) {/*NONEED*/
 }
 static void saveLiterals(struct fy_context *context, void *saver, fy_uint count,
-		fy_uint *handles, fy_exception *exception) {/*TODO*/
+		fy_uint *handles, fy_exception *exception) {
+	FILE *fp = saver;
+	int i;
+	writeInt(fp, 0xF15CE008, exception);
+	writeInt(fp, count, exception);
+	for (i = 0; i < count; i++) {
+		writeInt(fp, handles[i], exception);
+	}
 }
 static void saveFinalizes(struct fy_context *context, void *saver,
-		fy_uint count, fy_uint *handles, fy_exception *exception) {/*TODO*/
+		fy_uint count, fy_uint *handles, fy_exception *exception) {
+	FILE *fp = saver;
+	int i;
+	writeInt(fp, 0xF15CE00B, exception);
+	writeInt(fp, count, exception);
+	for (i = 0; i < count; i++) {
+		writeInt(fp, handles[i], exception);
+	}
 }
 static void savePrepareThreads(struct fy_context *context, void *saver,
-		fy_uint threadsCount, fy_exception *exception) {/*TODO*/
+		fy_uint threadsCount, fy_exception *exception) {
+	FILE *fp = saver;
+	writeInt(fp, 0xF15CE00C, exception);
+	writeInt(fp, threadsCount, exception);
 }
 static void saveThread(struct fy_context *context, void *saver,
 		fy_uint threadId, fy_uint daemon, fy_uint destroyPending,
 		fy_uint interrupted, fy_long nextWakeupTime, fy_uint pendingLockCount,
 		fy_uint waitForLockId, fy_uint waitForNotifyId, fy_uint stackSize,
-		fy_uint *stack, fy_uint *typeStack, fy_uint frameCount,
-		fy_exception *exception) {/*TODO*/
+		fy_uint *stack, fy_uint *typeStack, fy_exception *exception) {
+	FILE *fp = saver;
+	int i;
+	writeInt(fp, 0xF15CE00D, exception);
+	writeInt(fp, threadId, exception);
+	writeInt(fp, daemon, exception);
+	writeInt(fp, destroyPending, exception);
+	writeInt(fp, interrupted, exception);
+	writeInt(fp, nextWakeupTime, exception);
+	writeInt(fp, pendingLockCount, exception);
+	writeInt(fp, waitForLockId, exception);
+	writeInt(fp, waitForNotifyId, exception);
+	writeInt(fp, stackSize, exception);
+	for (i = 0; i < stackSize; i++) {
+		writeInt(fp, stack[i], exception);
+	}
+	for (i = 0; i < stackSize; i++) {
+		writeInt(fp, typeStack[i], exception);
+	}
 }
 static void savePrepareFrame(struct fy_context *context, void *saver,
-		fy_uint count, fy_exception *exception) {/*TODO*/
+		fy_uint count, fy_exception *exception) {
+	FILE *fp = saver;
+	writeInt(fp, count, exception);
 }
 static void saveFrame(struct fy_context *context, void *saver, fy_uint methodId,
 		fy_uint sb, fy_uint sp, fy_uint pc, fy_uint lpc,
-		fy_exception *exception) {/*TODO*/
+		fy_exception *exception) {
+	FILE *fp = saver;
+	writeInt(fp, 0xf15ce00e, exception);
+	writeInt(fp, methodId, exception);
+	writeInt(fp, sb, exception);
+	writeInt(fp, sp, exception);
+	writeInt(fp, pc, exception);
+	writeInt(fp, lpc, exception);
 }
 static void saveEndFrame(struct fy_context *context, void *saver,
-		fy_exception *exception) {/*TODO*/
+		fy_exception *exception) {
 }
 static void saveEndThread(struct fy_context *context, void *saver,
-		fy_exception *exception) {/*TODO*/
+		fy_exception *exception) {
 }
 static void saveEnd(struct fy_context *context, void *saver,
-		fy_exception *exception) {/*TODO*/
+		fy_exception *exception) {
+	fclose(saver);
 }
 
-void registerBinarySaver(fy_context *context) {
+void fy_bsRegisterBinarySaver(fy_context *context) {
 	context->callForSave = callForSave;
 	context->saveBegin = saveBegin;
 	context->savePrepareClass = savePrepareClass;

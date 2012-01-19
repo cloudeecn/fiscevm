@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
-Archiver-Version: Plexus Archiver
-Created-By: Apache Maven
-Built-By: Cloudee
-Build-Jdk: 1.7.0_02
+Built-By: cloudee
+Build-Jdk: 1.6.0_30
+Created-By: Maven Integration for Eclipse
 

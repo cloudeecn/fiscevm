@@ -305,6 +305,7 @@ int main(int argc, char *argv[]) {
 	FY_TEST_FUN *tf;
 	char *name;
 	void (*fun)();
+	setvbuf(stdout, NULL, _IONBF, 1024);
 	fails = fopen("util.fail.log", "w");
 	if (fails == NULL) {
 		fprintf(stderr, "Can't open util.fail.log for write!\n");

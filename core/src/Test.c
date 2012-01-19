@@ -263,8 +263,7 @@ static void hltest(char *name) {
 			fy_log("Invalid message type %d\n", message.messageType);
 			break;
 		}
-	}
-	FY_ASSERT(message.messageType == message_vm_dead);
+	}FY_ASSERT(message.messageType == message_vm_dead);
 	fy_vmContextDestroy(context);
 	fy_free(context);
 	fy_log("--------------------------------------------------------\n");
@@ -327,6 +326,10 @@ void testTableSwitch() {
 
 void testLookupSwitch() {
 	hltest("EXCLUDE/fisce/test/SwitchTest2");
+}
+
+void testSave() {
+	hltest("EXCLUDE/fisce/test/SaveTest");
 }
 
 void testNative() {
@@ -406,6 +409,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "ComplexClassStructor", testComplex }, //
 				{ "TableSwitch", testTableSwitch }, //
 				{ "LookupSwitch", testLookupSwitch }, //
+				{ "Save", testSave }, //
 				//{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {
@@ -415,6 +419,7 @@ int main(int argc, char *argv[]) {
 	void (*fun)();
 	char *customTest;
 	char *fn;
+	setvbuf(stdout, NULL, _IONBF, 1024);
 	if (argc > 1) {
 		printf("Testing %s:", argv[1]);
 		customTest = argv[1];

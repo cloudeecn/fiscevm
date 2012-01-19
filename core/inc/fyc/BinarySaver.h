@@ -20,7 +20,6 @@
 
 #include "../fiscestu.h"
 
-
-void registerBinarySaver(fy_context *contest);
+void fy_bsRegisterBinarySaver(fy_context *context);
 
 #endif /* BINARYSAVER_H_ */

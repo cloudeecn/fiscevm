@@ -18,6 +18,11 @@
 #include "fyc/CoreHandlers.h"
 #include "fiscedev.h"
 
+static void FiScEVMSave(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+	context->callForSave(context, exception);
+}
+
 static void SystemGC(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 
@@ -955,6 +960,9 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	/*FiScEVM*/
+	fy_vmRegisterNativeHandler(context,
+			"com/cirnoworks/fisce/privat/FiScEVM.save.()V", NULL, FiScEVMSave,
+			exception);
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(L"FY_BASE_STRING";)V",

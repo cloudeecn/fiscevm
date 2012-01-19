@@ -140,7 +140,7 @@ void fy_heapEndProtect(fy_context *context) {
 	fy_arrayListClear(context->memblocks, context->protected);
 }
 
-static fy_int getArraySizeFromLength(fy_class *clazz, fy_int length) {
+fy_int fy_heapGetArraySizeFromLength(fy_class *clazz, fy_int length) {
 	switch (clazz->ci.arr.arrayType) {
 	case fy_at_long:
 		return length <<= 1;
@@ -166,7 +166,7 @@ int fy_heapAllocateArray(fy_context *context, fy_class *clazz, fy_int length,
 		return 0;
 	}
 
-	size = getArraySizeFromLength(clazz, length);
+	size = fy_heapGetArraySizeFromLength(clazz, length);
 
 	return allocate(context, size, clazz, length, exception);
 }
@@ -945,7 +945,7 @@ static fy_int getSizeFromObject(fy_context *context, fy_object *object) {
 	fy_class *clazz = object->clazz;
 	switch (clazz->type) {
 	case arr:
-		return getArraySizeFromLength(clazz, object->length);
+		return fy_heapGetArraySizeFromLength(clazz, object->length);
 		break;
 	case obj:
 		return clazz->sizeAbs;

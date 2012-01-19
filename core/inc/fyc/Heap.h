@@ -36,6 +36,8 @@ int fy_heapAllocate(fy_context *context, fy_class *clazz,
 
 fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle);
 
+fy_int fy_heapGetArraySizeFromLength(fy_class *clazz, fy_int length);
+
 int fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
 		fy_exception *exception);
 
