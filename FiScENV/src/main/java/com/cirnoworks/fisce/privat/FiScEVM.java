@@ -99,4 +99,6 @@ public class FiScEVM {
 
 	private static native Object[] newInstance0(Class<?> clazz, int size)
 			throws InstantiationException, IllegalAccessException;
+
+	public static native void save();
 }
