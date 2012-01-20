@@ -446,29 +446,29 @@ typedef struct fy_context {
 	fy_str sStackTraceElementFileName[1];
 	fy_str sStackTraceElementLineNumber[1];
 
-	struct fy_class *TOP_THROWABLE;
-	struct fy_class *TOP_CLASS;
+	fy_class *TOP_THROWABLE;
+	fy_class *TOP_CLASS;
 
-	struct fy_str *primitives[128];
-	struct fy_hashMap mapPrimitivesRev[1];
+	fy_str *primitives[128];
+	fy_hashMap mapPrimitivesRev[1];
 
 	fy_memblock memblocks[1];
 	fy_port port[1];
 
 	int classesCount;
-	struct fy_class *classes[MAX_CLASSES];
+	fy_class *classes[MAX_CLASSES];
 
-	struct fy_hashMap mapClassNameToId[1];
+	fy_hashMap mapClassNameToId[1];
 
 	int methodsCount;
-	struct fy_method *methods[MAX_METHODS];
-	struct fy_hashMap mapMethodNameToId[1];
+	fy_method *methods[MAX_METHODS];
+	fy_hashMap mapMethodNameToId[1];
 
 	int fieldsCount;
-	struct fy_field *fields[MAX_FIELDS];
-	struct fy_hashMap mapFieldNameToId[1];
+	fy_field *fields[MAX_FIELDS];
+	fy_hashMap mapFieldNameToId[1];
 
-	struct fy_hashMap mapMUNameToNH[1];
+	fy_hashMap mapMUNameToNH[1];
 
 	/* #BEGIN HEAP*/
 	fy_hashMap literals[1];

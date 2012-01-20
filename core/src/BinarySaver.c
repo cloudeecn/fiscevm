@@ -20,7 +20,7 @@
 
 #if 0
 Binary save data format, all data in little endian
-int F15CE001
+int 11BF15CE
 int F15CE002
 int classCount
 {
@@ -29,7 +29,7 @@ int classCount
 	int handle
 	int clinited
 	int nameLength
-	int[] name
+	char[] name
 	int staticSize
 	int[] staticArea
 }
@@ -41,7 +41,7 @@ int methodCount
 	int methodId
 	int handle
 	int nameLength
-	int[] name
+	char[] name
 }
 int F15CE006
 int nextFieldId
@@ -51,7 +51,7 @@ int fieldCount
 	int fieldId
 	int handle
 	int nameLength
-	int[] name
+	char[] name
 }
 int F15CE009
 int nextHandle
@@ -320,7 +320,49 @@ static void saveEnd(struct fy_context *context, void *saver,
 		fy_exception *exception) {
 	fclose(saver);
 }
+#if 0
+static fy_uint readInt(FILE *fp, fy_exception *exception) {
+	int i, read;
+	fy_uint ret = 0;
+	for (i = 0; i < 4; i++) {
+		read = fgetc(fp);
+		if (read == EOF) {
+			fy_fault(exception, FY_EXCEPTION_IO, "IO exception when reading");
+		}
+		ret += read << (i << 3);/*read<<(1*8)*/
+	}
+	return ret;
+}
 
+static fy_char readChar(FILE *fp, fy_exception *exception) {
+	int i, read;
+	fy_char ret = 0;
+	for (i = 0; i < 2; i++) {
+		read = fgetc(fp);
+		if (read == EOF) {
+			fy_fault(exception, FY_EXCEPTION_IO, "IO exception when reading");
+		}
+		ret += read << (i << 3);/*read<<(1*8)*/
+	}
+	return ret;
+}
+
+#define FY_ASSERTF(VALUE) if(readInt(fp,exception)!=VALUE){FYEH();fy_fault(exception,FY_EXCEPTION_IO,"Data mismatch");return;}
+
+static void loadData(struct fy_context *context, fy_exception exception) {
+	FILE fp = fopen("save.dat", "r");
+	void *loader;
+	if (fp == NULL) {
+		fy_fault(exception, FY_EXCEPTION_IO, "Can't open save.dat for read.");
+		return;
+	}
+	FY_ASSERTF(0x11BF15CE);
+	fy_loadBegin(context,exception);
+	FY_ASSERTF(0xF15CE002);
+
+	fclose("save.dat");
+}
+#endif
 void fy_bsRegisterBinarySaver(fy_context *context) {
 	context->callForSave = callForSave;
 	context->saveBegin = saveBegin;

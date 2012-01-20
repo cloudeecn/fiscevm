@@ -16,6 +16,7 @@
  */
 
 #include "fyc/DataLoader.h"
+#include "fyc/VMContext.h"
 typedef struct ClassTemp {
 	fy_str name[1];
 	fy_uint handle;
@@ -213,7 +214,7 @@ void fy_loadLiterals(struct fy_context *context, void *loader_, fy_uint count,
 	str->content = NULL;
 	fy_strInit(context->memblocks, str, 256, exception);
 	for (i = 0; i < count; i++) {
-		str.length = 0;
+		str->length = 0;
 		handle = handles[i];
 		fy_heapGetString(context, handle, str, exception);
 		pInt = fy_mmAllocate(context->memblocks, sizeof(fy_uint), exception);
@@ -266,7 +267,7 @@ void fy_loadFrame(struct fy_context *context, void *loader_, fy_thread *thread,
 		fy_exception *exception) {
 	fy_frame *frame = thread->frames + (thread->frameCount++);
 	frame->methodId = methodId;
-	frame->method = context->methods + methodId;
+	frame->method = context->methods[methodId];
 	frame->code = frame->method->code;
 	frame->sb = sb;
 	frame->sp = sp;
