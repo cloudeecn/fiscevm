@@ -93,18 +93,25 @@ static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
 }
 
 static int allocate(fy_context *context, fy_int size, fy_class *clazz,
-		fy_int length, fy_exception *exception) {
+		fy_int length, fy_uint toHandle, enum fy_heapPos pos,
+		fy_exception *exception) {
 	int handle;
 	fy_object *obj;
 
-	handle = fetchNextHandle(context, FALSE, exception);
+	handle =
+			toHandle == 0 ?
+					fetchNextHandle(context, FALSE, exception) : toHandle;
 	FYEH()0;
 	obj = fy_heapGetObject(context,handle);
 
-	if (size > (COPY_SIZE >> 1)) {
-		obj->data = allocateInOld(context, handle, size, FALSE, exception);
+	if (pos == automatic) {
+		if (size > (COPY_SIZE >> 1)) {
+			obj->data = allocateInOld(context, handle, size, FALSE, exception);
+		} else {
+			obj->data = allocateInEden(context, handle, size, FALSE, exception);
+		}
 	} else {
-		obj->data = allocateInEden(context, handle, size, FALSE, exception);
+
 	}
 	FYEH()0;
 	memset(obj->data, 0, size * sizeof(fy_uint));
@@ -118,7 +125,18 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	return handle;
 }
 
-int fy_heapAllocate(fy_context *context, fy_class *clazz,
+fy_uint fy_heapAllocateDirect(fy_context *context, fy_int size, fy_class *clazz,
+		fy_int length, fy_uint toHandle, enum fy_heapPos pos,
+		fy_exception *exception) {
+	fy_object *obj = fy_heapGetObject(context,toHandle);
+	if (obj->clazz != NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+				"Handle %d already allocated.", toHandle);
+	}
+	return allocate(context, size, clazz, length, toHandle, pos, exception);
+}
+
+fy_uint fy_heapAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception) {
 	fy_int length = clazz->sizeAbs;
 	fy_int size = length;
@@ -128,7 +146,7 @@ int fy_heapAllocate(fy_context *context, fy_class *clazz,
 		return 0;
 	}
 
-	return allocate(context, size, clazz, length, exception);
+	return allocate(context, size, clazz, length, 0, automatic, exception);
 }
 
 void fy_heapBeginProtect(fy_context *context) {
@@ -157,8 +175,8 @@ fy_int fy_heapGetArraySizeFromLength(fy_class *clazz, fy_int length) {
 	}
 }
 
-int fy_heapAllocateArray(fy_context *context, fy_class *clazz, fy_int length,
-		fy_exception *exception) {
+fy_uint fy_heapAllocateArray(fy_context *context, fy_class *clazz,
+		fy_int length, fy_exception *exception) {
 	fy_int size;
 
 	if (clazz->type != arr) {
@@ -168,7 +186,7 @@ int fy_heapAllocateArray(fy_context *context, fy_class *clazz, fy_int length,
 
 	size = fy_heapGetArraySizeFromLength(clazz, length);
 
-	return allocate(context, size, clazz, length, exception);
+	return allocate(context, size, clazz, length, 0, automatic, exception);
 }
 
 fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle) {

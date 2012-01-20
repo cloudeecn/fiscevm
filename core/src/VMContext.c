@@ -530,11 +530,11 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 	clazz->classId = *pCid;
 }
 
-/*Likes com.cirnoworks.fisce.vm.VMContext.getClass(String name)*/
-fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
+fy_class *fy_vmLoadClass(fy_context *context, fy_str *name, fy_uint handle,
 		fy_exception *exception) {
 	fy_class *clazz;
 	fy_class *clazz2;
+	fy_uint *pCid;
 	clazz = getClass(context, name);
 	if (clazz == NULL) {
 		clazz = fy_clLoadclass(context, name, exception);
@@ -551,13 +551,23 @@ fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}
-		clazz->classObjId = fy_heapAllocate(context, clazz2, exception);
-		if (exception->exceptionType != exception_none) {
-			return NULL;
+		if (handle == 0) {
+			clazz->classObjId = fy_heapAllocate(context, clazz2, exception);
+			if (exception->exceptionType != exception_none) {
+				return NULL;
+			}
+			context->objects[clazz->classObjId].attachedId = clazz->classId;
+		} else {
+			clazz->classObjId = handle;
 		}
-		context->objects[clazz->classObjId].attachedId = clazz->classId;
 	}
 	return clazz;
+}
+
+/*Likes com.cirnoworks.fisce.vm.VMContext.getClass(String name)*/
+fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
+		fy_exception *exception) {
+	return fy_vmLoadClass(context, name, 0, exception);
 }
 
 fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
@@ -734,7 +744,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	context->savePrepareMethod(context, saver, imax = context->methodsCount,
 			exception);
 	FYEH();
-	for (i = 1; i < imax; i++) {
+	for (i = 0; i < imax; i++) {
 		method = context->methods[i];
 		context->saveMethod(context, saver, i, 0/*TODO*/, method->uniqueName,
 				exception);
@@ -746,7 +756,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	context->savePrepareField(context, saver, imax = context->fieldsCount,
 			exception);
 	FYEH();
-	for (i = 1; i < imax; i++) {
+	for (i = 0; i < imax; i++) {
 		field = context->fields[i];
 		context->saveField(context, saver, i, 0/*TODO*/, field->uniqueName,
 				exception);

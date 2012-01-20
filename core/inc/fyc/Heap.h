@@ -30,15 +30,18 @@ extern "C" {
 
 #define fy_heapGetObject(CONTEXT,HANDLE) ((CONTEXT)->objects+(HANDLE))
 
+fy_uint fy_heapAllocateDirect(fy_context *context, fy_int size, fy_class *clazz,
+		fy_int length, fy_uint toHandle, enum fy_heapPos pos,
+		fy_exception *exception);
 
-int fy_heapAllocate(fy_context *context, fy_class *clazz,
+fy_uint fy_heapAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception);
 
 fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle);
 
 fy_int fy_heapGetArraySizeFromLength(fy_class *clazz, fy_int length);
 
-int fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
+fy_uint fy_heapAllocateArray(fy_context *context, fy_class *clazz, int length,
 		fy_exception *exception);
 
 fy_int fy_heapArrayLength(fy_context *context, fy_int handle,

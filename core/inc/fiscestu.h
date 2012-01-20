@@ -302,13 +302,13 @@ typedef struct fy_class {
 	fy_uint classObjId;
 	fy_int clinitThreadId;
 } fy_class;
-
+enum fy_heapPos {
+	automatic = 0, eden = 1, young = 2, old = 3
+};
 typedef struct fy_object {
 	fy_class *clazz;
 	fy_int length;
-	enum {
-		eden = 0, young, old
-	} position :2;
+	enum fy_heapPos position :2;
 	enum {
 		not_finalized, in_finalize_array, finalized
 	} finalizeStatus :2;
@@ -399,6 +399,7 @@ struct fy_context;
 
 typedef struct fy_context {
 	void *additionalData;
+	fy_boolean loading;
 
 	fy_str sTopClass[1];
 	fy_str sClassClass[1];
@@ -568,6 +569,7 @@ typedef struct fy_context {
 			fy_exception *exception);
 	void (*saveEnd)(struct fy_context *context, void *saver,
 			fy_exception *exception);
+
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,

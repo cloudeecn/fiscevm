@@ -56,6 +56,8 @@ fy_method *fy_vmGetMethod(fy_context *context, fy_str *uniqueName);
 
 void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 		fy_exception *exception);
+fy_class *fy_vmLoadClass(fy_context *context, fy_str *name, fy_uint handle,
+		fy_exception *exception);
 fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
 		fy_exception *exception);
 fy_class *fy_vmLookupClassFromConstant(fy_context *context,
