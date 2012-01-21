@@ -163,6 +163,7 @@ public class BaseToolkit implements IToolkit {
 
 		context.registerNativeHandler(new ThrowableFillInStackTrace0());
 
+		context.registerNativeHandler(new FiScEVMSave());
 		context.registerNativeHandler(new FiScEVMDecode());
 		context.registerNativeHandler(new FiScEVMEncode());
 		context.registerNativeHandler(new FiScEVMThrowOut());
