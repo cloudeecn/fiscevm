@@ -80,14 +80,14 @@ void fy_loadEndClass(struct fy_context *context, void *loader_,
 }
 void fy_loadPrepareMethod(struct fy_context *context, void *loader_,
 		fy_uint methodCount, fy_exception *exception) {
-	Loader *loader = loader;
+	Loader *loader = loader_;
 	loader->methodCount = methodCount;
 	loader->methodTemp = fy_mmAllocate(context->memblocks,
 			methodCount * sizeof(MethodTemp), exception);
 }
 void fy_loadMethod(struct fy_context *context, void *loader_, fy_uint methodId,
 		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {
-	Loader *loader = loader;
+	Loader *loader = loader_;
 	MethodTemp *mt = loader->methodTemp + methodId;
 	fy_uint *pMid = fy_mmAllocate(context->memblocks, sizeof(fy_uint),
 			exception);
@@ -102,14 +102,14 @@ void fy_loadEndMethod(struct fy_context *context, void *loader_,
 }
 void fy_loadPrepareField(struct fy_context *context, void *loader_,
 		fy_uint fieldCount, fy_exception *exception) {
-	Loader *loader = loader;
+	Loader *loader = loader_;
 	loader->fieldCount = fieldCount;
 	loader->fieldTemp = fy_mmAllocate(context->memblocks,
 			fieldCount * sizeof(MethodTemp), exception);
 }
 void fy_loadField(struct fy_context *context, void *loader_, fy_uint fieldId,
 		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {
-	Loader *loader = loader;
+	Loader *loader = loader_;
 	FieldTemp *ft = loader->fieldTemp + fieldId;
 	fy_uint *pFid = fy_mmAllocate(context->memblocks, sizeof(fy_uint),
 			exception);
@@ -237,10 +237,11 @@ void fy_loadPrepareThreads(struct fy_context *context, void *loader_,
 		fy_uint threadsCount, fy_exception *exception) {
 }
 fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
-		fy_uint threadId, fy_uint daemon, fy_uint destroyPending,
-		fy_uint interrupted, fy_long nextWakeupTime, fy_uint pendingLockCount,
-		fy_uint waitForLockId, fy_uint waitForNotifyId, fy_uint stackSize,
-		fy_uint *stack, fy_uint *typeStack, fy_exception *exception) {
+		fy_uint threadId, fy_int priority, fy_uint daemon,
+		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
+		fy_uint pendingLockCount, fy_uint waitForLockId,
+		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
+		fy_uint *typeStack, fy_exception *exception) {
 	fy_thread *thread = context->threads[threadId] = fy_mmAllocate(
 			context->memblocks, sizeof(fy_thread), exception);
 	FYEH()NULL;
@@ -248,6 +249,7 @@ fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
 			exception);
 	FYEH()NULL;
 	thread->threadId = threadId;
+	thread->priority = priority;
 	thread->daemon = daemon;
 	thread->destroyPending = destroyPending;
 	thread->interrupted = interrupted;

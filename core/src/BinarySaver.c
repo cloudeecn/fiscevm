@@ -16,6 +16,7 @@
  */
 #include "fyc/BinarySaver.h"
 #include "fyc/Heap.h"
+#include "fyc/DataLoader.h"
 #include <stdio.h>
 
 #if 0
@@ -34,7 +35,6 @@ int classCount
 	int[] staticArea
 }
 int F15CE004
-int nextMethodId
 int methodCount
 {
 	int F15CE005
@@ -44,7 +44,6 @@ int methodCount
 	char[] name
 }
 int F15CE006
-int nextFieldId
 int fieldCount
 {
 	int F15CE007
@@ -60,14 +59,14 @@ int objectCount
 	int F15CE00A
 	int handle
 	int classId
-	int type
 	int posInHeap
 	int gen
 	int finalizeStatus
 	int monitorOwner
 	int mouitorCount
 	int attachedId
-	int dataSize(obj)/Length(arr)
+	int len
+	int dataSize
 	int[] data
 }
 int F15CE008
@@ -81,16 +80,19 @@ int threadCount
 {
 	int F15CE00D
 	int threadId
+	int priority
 	int daemon
 	int destroyPending
 	int interrupted
-	int nextWakeUpTime
+	int nextWakeUpTimeLow
+	int nextWakeUpTimeHigh
 	int pendingLockCount
 	int waitForLockId
 	int waitForNotifyId
 	int stackSize
 	int[] stack
 	int[] typeStack
+
 	int frameCount
 	{
 		int F15CE00E
@@ -129,7 +131,7 @@ static void callForSave(struct fy_context *context, fy_exception *exception) {
 	fy_vmSave(context, exception);
 }
 static void* saveBegin(struct fy_context *context, fy_exception *exception) {/*TODO*/
-	FILE *fp = fopen("save.dat", "w");
+	FILE *fp = fopen("save.dat", "wb");
 	if (fp == NULL) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Can't open save.dat for save.");
 		return NULL;
@@ -271,18 +273,21 @@ static void savePrepareThreads(struct fy_context *context, void *saver,
 	writeInt(fp, threadsCount, exception);
 }
 static void saveThread(struct fy_context *context, void *saver,
-		fy_uint threadId, fy_uint daemon, fy_uint destroyPending,
-		fy_uint interrupted, fy_long nextWakeupTime, fy_uint pendingLockCount,
-		fy_uint waitForLockId, fy_uint waitForNotifyId, fy_uint stackSize,
-		fy_uint *stack, fy_uint *typeStack, fy_exception *exception) {
+		fy_uint threadId, fy_int priority, fy_uint daemon,
+		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
+		fy_uint pendingLockCount, fy_uint waitForLockId,
+		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
+		fy_uint *typeStack, fy_exception *exception) {
 	FILE *fp = saver;
 	int i;
 	writeInt(fp, 0xF15CE00D, exception);
 	writeInt(fp, threadId, exception);
+	writeInt(fp, priority, exception);
 	writeInt(fp, daemon, exception);
 	writeInt(fp, destroyPending, exception);
 	writeInt(fp, interrupted, exception);
-	writeInt(fp, nextWakeupTime, exception);
+	writeInt(fp, fy_LOFL(nextWakeupTime), exception);
+	writeInt(fp, fy_HOFL(nextWakeupTime), exception);
 	writeInt(fp, pendingLockCount, exception);
 	writeInt(fp, waitForLockId, exception);
 	writeInt(fp, waitForNotifyId, exception);
@@ -326,7 +331,15 @@ static fy_uint readInt(FILE *fp, fy_exception *exception) {
 	for (i = 0; i < 4; i++) {
 		read = fgetc(fp);
 		if (read == EOF) {
-			fy_fault(exception, FY_EXCEPTION_IO, "IO exception when reading");
+			if (ferror(fp)) {
+				fy_fault(exception, FY_EXCEPTION_IO,
+						"IO exception when reading %d", ferror(fp));
+			} else if (feof(fp)) {
+				fy_fault(exception, FY_EXCEPTION_IO, "File end when reading");
+			} else {
+				fy_fault(exception, FY_EXCEPTION_IO,
+						"Unknown error when reading");
+			}
 		}
 		ret += read << (i << 3);/*read<<(1*8)*/
 	}
@@ -346,27 +359,305 @@ static fy_char readChar(FILE *fp, fy_exception *exception) {
 	return ret;
 }
 
+static void readIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
+		fy_int **buf, fy_int size, fy_exception *exception) {
+	int i;
+	fy_uint read;
+	if (*bufsize == 0) {
+		*bufsize = 1024;
+		*buf = fy_mmAllocate(context->memblocks, *bufsize * sizeof(fy_int),
+				exception);
+		FYEH();
+	}
+	if (*bufsize < size) {
+		while (*bufsize < size) {
+			*bufsize *= 2;
+		}
+		fy_mmFree(context->memblocks, buf);
+		fy_mmAllocate(context->memblocks, *bufsize * sizeof(fy_int), exception);
+		FYEH();
+	}
+	for (i = 0; i < size; i++) {
+		read = readInt(fp, exception);
+		FYEH();
+		(*buf)[i] = read;
+		FYEH();
+	}
+}
+
+static void readString(fy_context *context, FILE *fp, fy_str *str, fy_int size,
+		fy_exception *exception) {
+	int i;
+	fy_char read;
+	fy_strEnsureSize(context->memblocks, str, size + str->length, exception);
+	for (i = 0; i < size; i++) {
+		read = readChar(fp, exception);
+		FYEH();
+		fy_strAppendChar(context->memblocks, str, read, exception);
+		FYEH();
+	}
+}
+
 #define FY_ASSERTF(VALUE) if(readInt(fp,exception)!=VALUE){FYEH();fy_fault(exception,FY_EXCEPTION_IO,"Data mismatch");return;}
 
-static void loadData(struct fy_context *context, fy_exception exception) {
-	FILE fp = fopen("save.dat", "r");
+static void loadData(struct fy_context *context, fy_exception *exception) {
+	FILE *fp = fopen("save.dat", "rb");
 	void *loader;
-	fy_uint i;
+	fy_uint i, j;
 	fy_uint classCount;
+	fy_str strbuf[1];
+	fy_int intbufSize = 0;
+	fy_int *intbuf;
+	fy_int intbufSize2 = 0;
+	fy_int *intbuf2;
+
+	fy_uint nameSize;
+	fy_uint id;
+	fy_uint handle;
+
+	fy_uint clinited;
+	fy_uint staticSize;
+	fy_uint *staticArea;
+
+	fy_uint methodCount;
+	fy_uint fieldCount;
+
+	fy_uint nextHandle;
+	fy_uint objectCount;
+
+	fy_uint classId;
+	fy_int posInHeap;
+	fy_int gen;
+	fy_int finalizeStatus;
+	fy_int monitorOwner;
+	fy_int monitorCount;
+	fy_int attachedId;
+	fy_int len;
+	fy_int dataSize;
+
+	fy_int literalCount;
+
+	fy_int finalizeCount;
+
+	fy_int threadCount;
+
+	fy_int daemon;
+	fy_int priority;
+	fy_int destroyPending;
+	fy_int interrupted;
+	fy_int nextWakeUpTimeL;
+	fy_int nextWakeUpTimeH;
+	fy_int pendingLockCount;
+	fy_int waitForLockId;
+	fy_int waitForNotifyId;
+	fy_int stackSize;
+
+	fy_int frameCount;
+	fy_int methodId;
+	fy_int sb;
+	fy_int sp;
+	fy_int pc;
+	fy_int lpc;
+
+	fy_thread *thread;
+
 	if (fp == NULL) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Can't open save.dat for read.");
 		return;
-	}
-	FY_ASSERTF(0x11BF15CE);
-	fy_loadBegin(context,exception);
+	}FY_ASSERTF(0x11BF15CE);
+	loader = fy_loadBegin(context, exception);
 	FY_ASSERTF(0xF15CE002);
-	classCount=readInt(fp,exception);
+	classCount = readInt(fp, exception);
 	FYEH();
-	for(i=1;i<=classCount;i++){
+	fy_loadPrepareClass(context, loader, classCount, exception);
+	strbuf->content = NULL;
+	fy_strInit(context->memblocks, strbuf, 1024, exception);
+	for (i = 1; i <= classCount; i++) {
+		FY_ASSERTF(0xF15CE003);
+		id = readInt(fp, exception);
+		FYEH();
+		handle = readInt(fp, exception);
+		FYEH();
+		clinited = readInt(fp, exception);
+		FYEH();
+		nameSize = readInt(fp, exception);
+		FYEH();
+		fy_strClear(strbuf);
+		strbuf->length = 0;
+		readString(context, fp, strbuf, nameSize, exception);
+		FYEH();
+		staticSize = readInt(fp, exception);
+		readIntBlock(context, fp, &intbufSize, &intbuf, staticSize, exception);
+		fy_loadClass(context, loader, id, handle, clinited, strbuf, staticSize,
+				intbuf, exception);
+	}
+	fy_loadEndClass(context, loader, exception);
 
+	FY_ASSERTF(0xF15CE004);
+	methodCount = readInt(fp, exception);
+	FYEH();
+	fy_loadPrepareMethod(context, loader, methodCount, exception);
+	for (i = 0; i < methodCount; i++) {
+		FY_ASSERTF(0xF15CE005);
+		id = readInt(fp, exception);
+		FYEH();
+		handle = readInt(fp, exception);
+		FYEH();
+		nameSize = readInt(fp, exception);
+		FYEH();
+		fy_strClear(strbuf);
+		readString(context, fp, strbuf, nameSize, exception);
+		FYEH();
+		fy_loadMethod(context, loader, id, handle, strbuf, exception);
+	}
+	fy_loadEndMethod(context, loader, exception);
+
+	FY_ASSERTF(0xF15CE006);
+	fieldCount = readInt(fp, exception);
+	FYEH();
+	fy_loadPrepareField(context, loader, fieldCount, exception);
+	for (i = 0; i < fieldCount; i++) {
+		FY_ASSERTF(0xF15CE007);
+		id = readInt(fp, exception);
+		FYEH();
+		handle = readInt(fp, exception);
+		FYEH();
+		nameSize = readInt(fp, exception);
+		FYEH();
+		fy_strClear(strbuf);
+		readString(context, fp, strbuf, nameSize, exception);
+		FYEH();
+		fy_loadField(context, loader, id, handle, strbuf, exception);
+	}
+	fy_loadEndField(context, loader, exception);
+
+	FY_ASSERTF(0xF15CE009);
+	nextHandle = readInt(fp, exception);
+	FYEH();
+	objectCount = readInt(fp, exception);
+	FYEH();
+	fy_loadPrepareObjects(context, loader, nextHandle, objectCount, exception);
+	FYEH();
+	for (i = 0; i < objectCount; i++) {
+		FY_ASSERTF(0xF15CE00A);
+		handle = readInt(fp, exception);
+		FYEH();
+		classId = readInt(fp, exception);
+		FYEH();
+		posInHeap = readInt(fp, exception);
+		FYEH();
+		gen = readInt(fp, exception);
+		FYEH();
+		finalizeStatus = readInt(fp, exception);
+		FYEH();
+		monitorOwner = readInt(fp, exception);
+		FYEH();
+		monitorCount = readInt(fp, exception);
+		FYEH();
+		attachedId = readInt(fp, exception);
+		FYEH();
+		len = readInt(fp, exception);
+		FYEH();
+		dataSize = readInt(fp, exception);
+		FYEH();
+		readIntBlock(context, fp, &intbufSize, &intbuf, dataSize, exception);
+		FYEH();
+		fy_loadObject(context, loader, handle, classId, posInHeap, gen,
+				finalizeStatus, monitorOwner, monitorCount, attachedId, len,
+				dataSize, intbuf, exception);
+		FYEH();
+	}
+	fy_loadEndObject(context, loader, exception);
+
+	FY_ASSERTF(0xF15CE008);
+	literalCount = readInt(fp, exception);
+	readIntBlock(context, fp, &intbufSize, &intbuf, literalCount, exception);
+	FYEH();
+	fy_loadLiterals(context, loader, literalCount, intbuf, exception);
+	FYEH();
+
+	FY_ASSERTF(0xF15CE00B);
+	finalizeCount = readInt(fp, exception);
+	readIntBlock(context, fp, &intbufSize, &intbuf, finalizeCount, exception);
+	FYEH();
+	fy_loadFinalizes(context, loader, finalizeCount, intbuf, exception);
+	FYEH();
+
+	FY_ASSERTF(0xF15CE00C);
+	threadCount = readInt(fp, exception);
+	FYEH();
+	fy_loadPrepareThreads(context, loader, threadCount, exception);
+	for (i = 0; i < threadCount; i++) {
+		FY_ASSERTF(0xF15CE00D);
+		id = readInt(fp, exception);
+		FYEH();
+		priority = readInt(fp, exception);
+		FYEH();
+		daemon = readInt(fp, exception);
+		FYEH();
+		destroyPending = readInt(fp, exception);
+		FYEH();
+		interrupted = readInt(fp, exception);
+		FYEH();
+		nextWakeUpTimeL = readInt(fp, exception);
+		FYEH();
+		nextWakeUpTimeH = readInt(fp, exception);
+		FYEH();
+		pendingLockCount = readInt(fp, exception);
+		FYEH();
+		waitForLockId = readInt(fp, exception);
+		FYEH();
+		waitForNotifyId = readInt(fp, exception);
+		FYEH();
+		stackSize = readInt(fp, exception);
+		FYEH();
+		readIntBlock(context, fp, &intbufSize, &intbuf, stackSize, exception);
+		FYEH();
+		readIntBlock(context, fp, &intbufSize2, &intbuf2, stackSize, exception);
+		FYEH();
+		thread = fy_loadThread(context, loader, id, priority, daemon,
+				destroyPending, interrupted,
+				fy_I2TOL(nextWakeUpTimeH,nextWakeUpTimeL), pendingLockCount,
+				waitForLockId, waitForNotifyId, stackSize, intbuf, intbuf2,
+				exception);
+		FYEH();
+		frameCount = readInt(fp, exception);
+		FYEH();
+		fy_loadPrepareFrame(context, loader, thread, frameCount, exception);
+		FYEH();
+		for (j = 0; j < frameCount; j++) {
+			FY_ASSERTF(0xF15CE00E);
+			methodId = readInt(fp, exception);
+			FYEH();
+			sb = readInt(fp, exception);
+			FYEH();
+			sp = readInt(fp, exception);
+			FYEH();
+			pc = readInt(fp, exception);
+			FYEH();
+			lpc = readInt(fp, exception);
+			FYEH();
+			fy_loadFrame(context, loader, thread, methodId, sb, sp, pc, lpc,
+					exception);
+			FYEH();
+		}
+		fy_loadEndFrame(context, loader, thread, exception);
+		FYEH();
+	}
+	fy_loadEndThread(context, loader, exception);
+	FYEH();
+	fy_loadEnd(context, loader, exception);
+	FYEH();
+
+	fy_strDestroy(context->memblocks, strbuf);
+	if (intbuf != NULL) {
+		fy_mmFree(context->memblocks, intbuf);
+	}
+	if (intbuf2 != NULL) {
+		fy_mmFree(context->memblocks, intbuf2);
 	}
 
-	fclose("save.dat");
+	fclose(fp);
 }
 void fy_bsRegisterBinarySaver(fy_context *context) {
 	context->callForSave = callForSave;
@@ -392,4 +683,5 @@ void fy_bsRegisterBinarySaver(fy_context *context) {
 	context->saveEndFrame = saveEndFrame;
 	context->saveEndThread = saveEndThread;
 	context->saveEnd = saveEnd;
+	context->loadData = loadData;
 }

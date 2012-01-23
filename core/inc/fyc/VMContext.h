@@ -35,6 +35,7 @@ void fy_vmBootup(fy_context *context, const char* bootStrapClass,
 		fy_exception *exception);
 
 void fy_vmSave(fy_context *context, fy_exception *exception);
+void fy_vmBootFromData(fy_context *context, fy_exception *exception);
 
 void fy_vmRegisterField(fy_context *context, fy_field *field,
 		fy_exception *exception);

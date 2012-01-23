@@ -212,8 +212,11 @@ static void hltest(char *name) {
 	fy_exception ex;
 	fy_context *context;
 	fy_exception *exception = &ex;
-	fy_log("+++Executing test case %s+++\n", name);
-
+	if (name == NULL) {
+		fy_log("+++Executing test case Load+++\n", name);
+	} else {
+		fy_log("+++Executing test case %s+++\n", name);
+	}
 	exception->exceptionType = exception_none;
 	context = fy_allocate(sizeof(fy_context), exception);
 	TEST_EXCEPTION(exception);
@@ -225,8 +228,13 @@ static void hltest(char *name) {
 			testFail, exception);
 	TEST_EXCEPTION(exception);
 
-	fy_vmBootup(context, name, exception);
-	TEST_EXCEPTION(exception);
+	if (name == NULL) {
+		fy_vmBootFromData(context, exception);
+		TEST_EXCEPTION(exception);
+	} else {
+		fy_vmBootup(context, name, exception);
+		TEST_EXCEPTION(exception);
+	}
 
 	while (!dead) {
 		fy_tmRun(context, &message, exception);
@@ -332,6 +340,10 @@ void testSave() {
 	hltest("EXCLUDE/fisce/test/SaveTest");
 }
 
+void testLoad() {
+	hltest(NULL);
+}
+
 void testNative() {
 	char *classes[] = { "com/cirnoworks/fisce/privat/FiScEVM",
 			"com/cirnoworks/fisce/privat/ResourceInputStream",
@@ -382,6 +394,8 @@ void testNative() {
 void testCustom(char *customTest) {
 	if (strcmp(customTest, "NATIVE") == 0) {
 		testNative();
+	} else if (strcmp(customTest, "LOAD") == 0) {
+		testLoad();
 	} else {
 		hltest(customTest);
 	}
@@ -410,6 +424,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "TableSwitch", testTableSwitch }, //
 				{ "LookupSwitch", testLookupSwitch }, //
 				{ "Save", testSave }, //
+				{ "Load", testLoad }, //
 				//{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {

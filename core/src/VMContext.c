@@ -17,6 +17,8 @@
 
 #include "fyc/VMContext.h"
 #include "fyc/FileInputStream.h"
+#include "fyc/NConfig.h"
+#include "fyc/BinarySaver.h"
 
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
@@ -534,7 +536,6 @@ fy_class *fy_vmLoadClass(fy_context *context, fy_str *name, fy_uint handle,
 		fy_exception *exception) {
 	fy_class *clazz;
 	fy_class *clazz2;
-	fy_uint *pCid;
 	clazz = getClass(context, name);
 	if (clazz == NULL) {
 		clazz = fy_clLoadclass(context, name, exception);
@@ -547,11 +548,11 @@ fy_class *fy_vmLoadClass(fy_context *context, fy_str *name, fy_uint handle,
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}
-		clazz2 = fy_vmLookupClass(context, context->sClassClass, exception);
-		if (exception->exceptionType != exception_none) {
-			return NULL;
-		}
 		if (handle == 0) {
+			clazz2 = fy_vmLookupClass(context, context->sClassClass, exception);
+			if (exception->exceptionType != exception_none) {
+				return NULL;
+			}
 			clazz->classObjId = fy_heapAllocate(context, clazz2, exception);
 			if (exception->exceptionType != exception_none) {
 				return NULL;
@@ -817,8 +818,8 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 		fy_arrayListGet(context->memblocks, context->runningThreads, i,
 				&thread);
 		jmax = thread->frameCount;
-		context->saveThread(context, saver, thread->threadId, thread->daemon,
-				thread->destroyPending, thread->interrupted,
+		context->saveThread(context, saver, thread->threadId, thread->priority,
+				thread->daemon, thread->destroyPending, thread->interrupted,
 				thread->nextWakeTime, thread->pendingLockCount,
 				thread->waitForLockId, thread->waitForNotifyId,
 				thread->frames[jmax - 1].sp, thread->stack, thread->typeStack,
@@ -836,4 +837,11 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	}
 	context->saveEndThread(context, saver, exception);
 	context->saveEnd(context, saver, exception);
+}
+
+void fy_vmBootFromData(fy_context *context, fy_exception *exception) {
+	context->loadData(context, exception);
+	context->state = FY_TM_STATE_RUN_PENDING;
+	context->nextGCTime = fy_portTimeMillSec(context->port) + FY_GC_IDV;
+	context->nextForceGCTime = context->nextGCTime + FY_GC_FORCE_IDV;
 }

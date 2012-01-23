@@ -345,12 +345,12 @@ static void loadInterfaces(fy_context *context, fy_class *clazz, void *is,
 	clazz->interfaces = fy_mmAllocate(block, sizeof(fy_class*) * count,
 			exception);
 	FYEH();
+	clazz->interfaceClasses = fy_mmAllocate(block,
+			sizeof(ConstantClass*) * count, exception);
+	FYEH();
 	for (i = 0; i < count; i++) {
-		clazz->interfaces[i] = fy_vmLookupClassFromConstant(
-				context,
-				(ConstantClass*) clazz->constantPools[fy_dataRead2(context, is,
-						exception)], exception);
-		FYEH();
+		clazz->interfaceClasses[i] = clazz->constantPools[fy_dataRead2(context,
+				is, exception)];
 	}
 }
 
@@ -804,39 +804,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 #endif
 	switch (clazz->type) {
 	case arr:
-		switch (clazz->className->content[1]) {
-		case FY_TYPE_ARRAY:
-			name = fy_mmAllocate(block, sizeof(fy_str), exception);
-			FYEH();
-			fy_strInit(block, name, clazz->className->length, exception);
-			FYEH();
-			name->length = clazz->className->length - 1;
-			memcpy(name->content, clazz->className->content + 1,
-					(clazz->className->length - 1) << 1);
-			clazz->ci.arr.contentClass = fy_vmLookupClass(context, name,
-					exception);
-			fy_strDestroy(block, name);
-			fy_mmFree(block, name);
-			break;
-		case FY_TYPE_HANDLE:
-			name = fy_mmAllocate(block, sizeof(fy_str), exception);
-			FYEH();
-			fy_strInit(block, name, clazz->className->length, exception);
-			FYEH();
-			name->length = clazz->className->length - 3;
-			memcpy(name->content, clazz->className->content + 2,
-					(clazz->className->length - 3) << 1);
-			clazz->ci.arr.contentClass = fy_vmLookupClass(context, name,
-					exception);
-			fy_strDestroy(block, name);
-			fy_mmFree(block, name);
-			break;
-		default:
-			clazz->ci.arr.contentClass = fy_vmLookupClass(context,
-					context->primitives[clazz->className->content[1]],
-					exception);
-			break;
-		}
+
 		break;
 	case obj:
 		name = clazz->className;
@@ -847,11 +815,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 						"java.lang.Object cannot have super class!", buf);
 			}
 #endif
-			clazz->super = fy_vmLookupClassFromConstant(context,
-					clazz->superClass, exception);
-			if (exception->exceptionType != exception_none) {
-				break;
-			}
+
 			clazz->sizeAbs = clazz->super->sizeAbs + clazz->sizeRel;
 			for (i = 0; i < clazz->fieldCount; i++) {
 				if (clazz->fields[i]->access_flags & FY_ACC_STATIC) {
@@ -923,6 +887,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	void *is;
 	fy_class *clazz;
 	fy_memblock *block = context->memblocks;
+	int i, count;
 
 #if 0
 	fy_strPrint(name);
@@ -938,6 +903,39 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		FYEH()NULL;
 		clazz->ci.arr.arrayType = getSizeShiftForArray(name, exception);
 		FYEH()NULL;
+		switch (clazz->className->content[1]) {
+		case FY_TYPE_ARRAY:
+			name = fy_mmAllocate(block, sizeof(fy_str), exception);
+			FYEH()NULL;
+			fy_strInit(block, name, clazz->className->length, exception);
+			FYEH()NULL;
+			name->length = clazz->className->length - 1;
+			memcpy(name->content, clazz->className->content + 1,
+					(clazz->className->length - 1) << 1);
+			clazz->ci.arr.contentClass = fy_vmLookupClass(context, name,
+					exception);
+			fy_strDestroy(block, name);
+			fy_mmFree(block, name);
+			break;
+		case FY_TYPE_HANDLE:
+			name = fy_mmAllocate(block, sizeof(fy_str), exception);
+			FYEH()NULL;
+			fy_strInit(block, name, clazz->className->length, exception);
+			FYEH()NULL;
+			name->length = clazz->className->length - 3;
+			memcpy(name->content, clazz->className->content + 2,
+					(clazz->className->length - 3) << 1);
+			clazz->ci.arr.contentClass = fy_vmLookupClass(context, name,
+					exception);
+			fy_strDestroy(block, name);
+			fy_mmFree(block, name);
+			break;
+		default:
+			clazz->ci.arr.contentClass = fy_vmLookupClass(context,
+					context->primitives[clazz->className->content[1]],
+					exception);
+			break;
+		}
 	} else if (fy_hashMapGet(block, context->mapPrimitivesRev, name) != NULL) {
 		clazz = fy_mmAllocate(block, sizeof(fy_class), exception);
 		FYEH()NULL;
@@ -964,7 +962,17 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz = fy_clLoadclassPriv(context, is, exception);
 		context->isClose(context, is);
 		FYEH()NULL;
-
+		if (clazz->superClass != NULL) {
+			clazz->super = fy_vmLookupClassFromConstant(context,
+					clazz->superClass, exception);
+			FYEH()NULL;
+		}
+		count = clazz->interfacesCount;
+		for (i = 0; i < count; i++) {
+			clazz->interfaces[i] = fy_vmLookupClassFromConstant(context,
+					(ConstantClass*) clazz->interfaceClasses[i], exception);
+			FYEH()NULL;
+		}
 	}
 	return clazz;
 }

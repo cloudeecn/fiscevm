@@ -47,8 +47,8 @@ FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 	FYEH();
 }
 
-FY_ATTR_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block, const char *utf8,
-		fy_exception *exception) {
+FY_ATTR_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block,
+		const char *utf8, fy_exception *exception) {
 	fy_str *str;
 
 	str = fy_mmAllocate(block, sizeof(fy_str), exception);
@@ -58,7 +58,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block, const char *utf8
 	return str;
 }
 
-static fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this, fy_int size,
+static fy_str *ensureSize(fy_memblock *block, fy_str *_this, fy_int size,
 		fy_exception *exception) {
 	int len;
 	fy_char *newContent;
@@ -85,12 +85,17 @@ static fy_str *fy_strAppendPriv(fy_memblock *block, fy_str *_this,
 		fy_fault(exception, NULL, "NPT");
 		return NULL;
 	}
-	fy_strEnsureSize(block, _this, _this->length + length, exception);
+	ensureSize(block, _this, _this->length + length, exception);
 	FYEH()NULL;
 	memcpy(_this->content + _this->length, from, length << 1);
 	_this->length += length;
 	_this->hashed = FALSE;
 	return _this;
+}
+
+FY_ATTR_EXPORT fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this,
+		fy_int size, fy_exception *exception) {
+	return ensureSize(block, _this, size, exception);
 }
 
 FY_ATTR_EXPORT fy_str *fy_strAppendChar(fy_memblock *block, fy_str *_this,

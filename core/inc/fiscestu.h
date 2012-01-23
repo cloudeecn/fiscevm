@@ -267,6 +267,7 @@ typedef struct fy_class {
 	ConstantClass* superClass;
 	struct fy_class* super;
 	fy_char interfacesCount;
+	ConstantClass** interfaceClasses;
 	struct fy_class** interfaces;
 	fy_char fieldCount;
 	fy_field** fields;
@@ -553,8 +554,8 @@ typedef struct fy_context {
 	void (*savePrepareThreads)(struct fy_context *context, void *saver,
 			fy_uint threadsCount, fy_exception *exception);
 	void (*saveThread)(struct fy_context *context, void *saver,
-			fy_uint threadId, fy_uint daemon, fy_uint destroyPending,
-			fy_uint interrupted, fy_long nextWakeupTime,
+			fy_uint threadId, fy_int priority, fy_uint daemon,
+			fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 			fy_uint pendingLockCount, fy_uint waitForLockId,
 			fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
 			fy_uint *typeStack, fy_exception *exception);
@@ -569,7 +570,7 @@ typedef struct fy_context {
 			fy_exception *exception);
 	void (*saveEnd)(struct fy_context *context, void *saver,
 			fy_exception *exception);
-
+	void (*loadData)(struct fy_context *context, fy_exception *exception);
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,
