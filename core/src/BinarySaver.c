@@ -320,7 +320,6 @@ static void saveEnd(struct fy_context *context, void *saver,
 		fy_exception *exception) {
 	fclose(saver);
 }
-#if 0
 static fy_uint readInt(FILE *fp, fy_exception *exception) {
 	int i, read;
 	fy_uint ret = 0;
@@ -352,6 +351,8 @@ static fy_char readChar(FILE *fp, fy_exception *exception) {
 static void loadData(struct fy_context *context, fy_exception exception) {
 	FILE fp = fopen("save.dat", "r");
 	void *loader;
+	fy_uint i;
+	fy_uint classCount;
 	if (fp == NULL) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Can't open save.dat for read.");
 		return;
@@ -359,10 +360,14 @@ static void loadData(struct fy_context *context, fy_exception exception) {
 	FY_ASSERTF(0x11BF15CE);
 	fy_loadBegin(context,exception);
 	FY_ASSERTF(0xF15CE002);
+	classCount=readInt(fp,exception);
+	FYEH();
+	for(i=1;i<=classCount;i++){
+
+	}
 
 	fclose("save.dat");
 }
-#endif
 void fy_bsRegisterBinarySaver(fy_context *context) {
 	context->callForSave = callForSave;
 	context->saveBegin = saveBegin;
