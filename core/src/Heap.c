@@ -47,15 +47,15 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 		fy_boolean gced, fy_exception *exception) {
 	void *ret;
-	if (size + context->posInEden >= EDEN_SIZE) {
+	if (size + context->posInEden >= EDEN_ENTRIES) {
 		/*OOM, gc first*/
 		if (gced) {
 			fy_fault(
 					exception,
 					NULL,
 					"Out of memoryE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
-					size, context->posInEden, EDEN_SIZE, context->posInYong,
-					COPY_SIZE, context->posInOld, OLD_ENTRIES);
+					size, context->posInEden, EDEN_ENTRIES, context->posInYong,
+					COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
 			return NULL;
 		} else {
 			DLOG("Call GC due to eden full");
@@ -78,14 +78,68 @@ static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
 					exception,
 					NULL,
 					"Out of memoryO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
-					size, context->posInEden, EDEN_SIZE, context->posInYong,
-					COPY_SIZE, context->posInOld, OLD_ENTRIES);
+					size, context->posInEden, EDEN_ENTRIES, context->posInYong,
+					COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
 			return NULL;
 		} else {
 			DLOG("Call GC due to old full");
 			fy_heapGC(context, exception);
 			return allocateInOld(context, handle, size, TRUE, exception);
 		}
+	}
+	ret = context->old + context->posInOld;
+	context->posInOld += size;
+	return ret;
+}
+
+static void *allocateDirectInEden(fy_context *context, fy_int size,
+		fy_exception *exception) {
+	void *ret;
+	if (size + context->posInEden >= EDEN_ENTRIES) {
+		/*OOM, gc first*/
+		fy_fault(
+				exception,
+				NULL,
+				"Out of memoryDE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
+				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
+				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
+		return NULL;
+	}
+	ret = context->eden + context->posInEden;
+	context->posInEden += size;
+	return ret;
+}
+
+static void *allocateDirectInCopy(fy_context *context, fy_int size,
+		fy_exception *exception) {
+	void *ret;
+	if (size + context->posInYong >= COPY_ENTRIES) {
+		/*OOM, gc first*/
+		fy_fault(
+				exception,
+				NULL,
+				"Out of memoryDC! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
+				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
+				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
+		return NULL;
+	}
+	ret = context->young + context->posInYong;
+	context->posInYong += size;
+	return ret;
+}
+
+static void *allocateDirectInOld(fy_context *context, fy_int size,
+		fy_exception *exception) {
+	void *ret;
+	if (size + context->posInOld >= OLD_ENTRIES) {
+		/*OOM, gc first*/
+		fy_fault(
+				exception,
+				NULL,
+				"Out of memoryDO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
+				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
+				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
+		return NULL;
 	}
 	ret = context->old + context->posInOld;
 	context->posInOld += size;
@@ -104,14 +158,28 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	FYEH()0;
 	obj = fy_heapGetObject(context,handle);
 
-	if (pos == automatic) {
-		if (size > (COPY_SIZE >> 1)) {
+	switch (pos) {
+	case automatic:
+		if (size > (COPY_ENTRIES >> 1)) {
+			obj->position = old;
 			obj->data = allocateInOld(context, handle, size, FALSE, exception);
 		} else {
+			obj->position = eden;
 			obj->data = allocateInEden(context, handle, size, FALSE, exception);
 		}
-	} else {
-
+		break;
+	case eden:
+		obj->data = allocateDirectInEden(context, size, exception);
+		break;
+	case young:
+		obj->data = allocateDirectInCopy(context, size, exception);
+		break;
+	case old:
+		obj->data = allocateDirectInOld(context, size, exception);
+		break;
+	default:
+		fy_fault(exception, NULL, "Illegal pos in heap %d.", pos);
+		return 0;
 	}
 	FYEH()0;
 	memset(obj->data, 0, size * sizeof(fy_uint));
@@ -1021,16 +1089,16 @@ static void moveToOld(fy_context *context, fy_class *clazz, fy_uint handle,
 static void moveToYoung(fy_context *context, fy_class *clazz, fy_uint handle,
 		fy_object *object, fy_int size, fy_int youngId, fy_exception *exception) {
 	fy_int pos = context->posInYong;
-	if (pos + size >= COPY_SIZE) {
+	if (pos + size >= COPY_ENTRIES) {
 		/*move to old*/
 		moveToOld(context, clazz, handle, object, size, exception);
 	} else {
 		/*move to young*/
-		memcpy(context->young + youngId * COPY_SIZE + pos, object->data,
+		memcpy(context->young + youngId * COPY_ENTRIES + pos, object->data,
 				size * sizeof(fy_uint));
 		context->posInYong = pos + size;
 		object->position = young;
-		object->data = context->young + youngId * COPY_SIZE + pos;
+		object->data = context->young + youngId * COPY_ENTRIES + pos;
 		object->gen++;
 	}
 }

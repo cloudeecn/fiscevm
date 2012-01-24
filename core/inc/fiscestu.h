@@ -29,8 +29,8 @@
 #define MAX_FIELDS 65536
 #define MAX_OBJECTS 131072
 #define MAX_THREADS 256
-#define EDEN_SIZE 131072
-#define COPY_SIZE 32768
+#define EDEN_ENTRIES 131072
+#define COPY_ENTRIES 32768
 #define OLD_ENTRIES 1048576
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
@@ -476,10 +476,10 @@ typedef struct fy_context {
 	fy_uint nextHandle;
 	fy_object objects[MAX_OBJECTS];
 	fy_int posInEden;
-	fy_uint eden[EDEN_SIZE];
+	fy_uint eden[EDEN_ENTRIES];
 	fy_int posInYong;
 	fy_uint youngId;
-	fy_uint young[COPY_SIZE * 2];
+	fy_uint young[COPY_ENTRIES * 2];
 	fy_int posInOld;
 	fy_int oldReleasedSize;
 	fy_uint old[OLD_ENTRIES];
