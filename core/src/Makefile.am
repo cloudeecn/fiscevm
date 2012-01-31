@@ -16,30 +16,32 @@ fyinc_HEADERS = \
 	../inc/fy_util/Debug.h \
 	../inc/fy_util/Utf8.h
 
-lib_LTLIBRARIES=libfisce.la
-libfisce_la_SOURCES = Debug.c \
-	HashMap.c \
-	ArrList.c \
-	LnkList.c \
-	MemMan.c \
-	Portable.c \
-	String.c \
-	BitSet.c \
-	Utf8.c \
-	Class.c \
-	ClassLoader.c \
-	CoreHandlers.c \
-	MathHandlers.c \
-	Data.c \
-	Heap.c \
-	Thread.c \
-	ThreadManager.c \
-	VMContext.c \
-	ExpDev.c \
-	FiScE.c \
-	FileInputStream.c \
-	BinarySaver.c \
-	DataLoader.c
+lib_LTLIBRARIES=libfisce.la libfyjni.la
+
+FY_SRC = Debug.c \
+        HashMap.c \
+        ArrList.c \
+        LnkList.c \
+        MemMan.c \
+        Portable.c \
+        String.c \
+        BitSet.c \
+        Utf8.c \
+        Class.c \
+        ClassLoader.c \
+        CoreHandlers.c \
+        MathHandlers.c \
+        Data.c \
+        Heap.c \
+        Thread.c \
+        ThreadManager.c \
+        VMContext.c \
+        ExpDev.c \
+        FiScE.c \
+        FileInputStream.c \
+        BinarySaver.c
+
+libfisce_la_SOURCES = $(FY_SRC)
 
 libfisce_la_CFLAGS = -DFY_EXPORT
 libfisce_la_LDFLAGS = -fwhole-program -no-undefined 
@@ -54,3 +56,11 @@ fiscetest_SOURCES = Test.c
 fiscetest_LDFLAGS = -fwhole-program -static
 fiscetest_CFLAGS = -DFY_STATIC
 fiscetest_LDADD  = libfisce.la
+
+libfyjni_la_SOURCES = $(FY_SRC) FisceService.c 
+if FY_IS_WIN32
+libfyjni_la_LDFLAGS = -fwhole-program -no-undefined -Wl,--kill-at
+else
+libfyjni_la_LDFLAGS = -fwhole-program -no-undefined
+endif
+

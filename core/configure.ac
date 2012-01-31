@@ -117,5 +117,5 @@ AC_CHECK_FUNCS([floor memset])
 CFLAGS="$CFLAGS -Wall"
 
 
-AC_CONFIG_FILES(Makefile src/Makefile jni/Makefile)
+AC_CONFIG_FILES(Makefile src/Makefile)
 AC_OUTPUT
