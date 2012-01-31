@@ -52,7 +52,6 @@ public class FYContext implements Runnable, FiScEVM {
 		boolean succeed = false;
 		if (!succeed) {
 			try {
-				System.loadLibrary("fisce");
 				System.loadLibrary("fyjni");
 				succeed = true;
 			} catch (UnsatisfiedLinkError e) {
@@ -72,6 +71,7 @@ public class FYContext implements Runnable, FiScEVM {
 			for (Throwable e : errors) {
 				e.printStackTrace();
 			}
+			throw new RuntimeException(errors.get(0));
 		}
 	}
 
