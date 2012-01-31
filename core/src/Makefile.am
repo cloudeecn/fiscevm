@@ -39,7 +39,8 @@ FY_SRC = Debug.c \
         ExpDev.c \
         FiScE.c \
         FileInputStream.c \
-        BinarySaver.c
+        BinarySaver.c \
+	DataLoader.c
 
 libfisce_la_SOURCES = $(FY_SRC)
 
