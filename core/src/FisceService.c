@@ -72,9 +72,14 @@ static fy_int isRead(fy_context *context, void *is, fy_exception *exception) {
 	fy_contextData *cdata = context->additionalData;
 	JNIEnv *env = cdata->env;
 	jobject jis = is;
-	jclass clazz = (*env)->FindClass(env, "java/io/InputStream");
+	jclass clazz;
 	jint ret;
-	jmethodID method = (*env)->GetMethodID(env, clazz, "read", "()I");
+	jmethodID method;
+
+	(*env)->PushLocalFrame(env, 32);
+
+	clazz = (*env)->FindClass(env, "java/io/InputStream");
+	method = (*env)->GetMethodID(env, clazz, "read", "()I");
 	if ((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionDescribe(env);
 		return -1;
@@ -84,6 +89,7 @@ static fy_int isRead(fy_context *context, void *is, fy_exception *exception) {
 		(*env)->ExceptionDescribe(env);
 		return -1;
 	}
+	(*env)->PopLocalFrame(env, NULL);
 	return ret;
 }
 
@@ -94,8 +100,12 @@ static fy_int isReadBlock(fy_context *context, void *is, void *target,
 	jarray byteBuf;
 	jobject jis = is;
 	jint ret;
-	jclass clazz = (*env)->FindClass(env, "java/io/InputStream");
-	jmethodID method = (*env)->GetMethodID(env, clazz, "read", "([BII)I");
+	jclass clazz;
+	jmethodID method;
+
+	(*env)->PushLocalFrame(env, 32);
+	clazz = (*env)->FindClass(env, "java/io/InputStream");
+	method = (*env)->GetMethodID(env, clazz, "read", "([BII)I");
 	byteBuf = (*env)->NewByteArray(env, size);
 	ret = (*env)->CallIntMethod(env, jis, method, byteBuf, 0, size);
 	if (target != NULL)
@@ -104,6 +114,7 @@ static fy_int isReadBlock(fy_context *context, void *is, void *target,
 		(*env)->ExceptionDescribe(env);
 		return -1;
 	}
+	(*env)->PopLocalFrame(env, NULL);
 	return ret;
 }
 
