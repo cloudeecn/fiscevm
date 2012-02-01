@@ -105,7 +105,7 @@ public class FYContext implements Runnable, FiScEVM {
 		FisceService.bootFromClass(context, name);
 	}
 
-	private Message execute(int[] params) {
+	public Message execute(int[] params) {
 		FisceService.execute(context, message, params);
 		return message;
 	}
