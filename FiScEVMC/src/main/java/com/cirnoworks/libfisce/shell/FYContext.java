@@ -110,6 +110,10 @@ public class FYContext implements Runnable, FiScEVM {
 		return message;
 	}
 
+	public INativeHandler getHandler(String name) {
+		return handlers.get(name);
+	}
+
 	private void initContext() {
 		FisceService.initContext(this);
 	}
@@ -325,11 +329,15 @@ public class FYContext implements Runnable, FiScEVM {
 			onException(e);
 		} finally {
 			runningCurrent.set(false);
-			System.out.println("over");
-			FisceService.destroyContext(this);
-			for (IStateListener listener : stateListeners) {
-				listener.onVMDead();
-			}
+			onDead();
+		}
+	}
+
+	public void onDead() {
+		System.out.println("over");
+		FisceService.destroyContext(this);
+		for (IStateListener listener : stateListeners) {
+			listener.onVMDead();
 		}
 	}
 
