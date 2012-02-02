@@ -2149,3 +2149,15 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	(*env)->SetDoubleArrayRegion(env, dst, dstPos, len, doubles);
 	fy_free(doubles);
 }
+
+JNIEXPORT
+void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_unregisterNativeHandler(
+		JNIEnv *env, jclass self, jobject buf, jstring name) {
+	const char *cname = (*env)->GetStringUTFChars(env, name, FALSE);
+	GENERIC_HEADER
+
+	fy_nativeUnRegisterNativeHandler(context, cname, exception);
+	if (exception->exceptionType != exception_none) {
+		fillException(env, exception);
+	}
+}

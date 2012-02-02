@@ -58,6 +58,7 @@ fiscetest_LDFLAGS = -fwhole-program -static
 fiscetest_CFLAGS = -DFY_STATIC
 fiscetest_LDADD  = libfisce.la
 
+libfyjni_la_CFLAGS = -DFY_EXPORT
 libfyjni_la_SOURCES = $(FY_SRC) FisceService.c 
 if FY_IS_WIN32
 libfyjni_la_LDFLAGS = -fwhole-program -no-undefined -Wl,--kill-at

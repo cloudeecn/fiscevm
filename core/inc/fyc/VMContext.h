@@ -66,6 +66,8 @@ fy_class *fy_vmLookupClassFromConstant(fy_context *context,
 
 void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 		void *data, fy_nhFunction handler, fy_exception *exception);
+void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
+		fy_exception *exception);
 fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 		fy_exception *exception);
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,

@@ -672,6 +672,19 @@ void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 	FYEH();fy_strRelease(block, str);
 }
 
+void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
+		fy_exception *exception) {
+	fy_nh* nh;
+	fy_str* str;
+	fy_memblock *block = context->memblocks;
+	str = fy_strCreateFromUTF8(block, name, exception);
+	FYEH();
+	if ((nh = fy_hashMapGet(block, context->mapMUNameToNH, str)) != NULL) {
+		fy_hashMapPut(block, context->mapMUNameToNH, str, NULL, exception);
+		fy_mmFree(block, nh);
+	}fy_strRelease(block, str);
+}
+
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 		fy_exceptionHandler *exceptionHandler, fy_exception *exception) {
 	fy_class *clazz;

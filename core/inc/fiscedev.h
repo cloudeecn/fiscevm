@@ -185,6 +185,8 @@ FY_ATTR_EXPORT void fy_nativePutStaticFloat(fy_context *context, fy_field *field
 FY_ATTR_EXPORT void fy_nativePutStaticDouble(fy_context *context, fy_field *field,
 		fy_double value, fy_exception *exception);
 
+FY_ATTR_EXPORT  void fy_nativeUnRegisterNativeHandler(fy_context *context, const char *name,
+		fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif
