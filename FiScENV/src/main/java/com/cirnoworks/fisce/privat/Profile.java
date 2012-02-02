@@ -39,8 +39,10 @@ public class Profile implements Runnable {
 				k += j;
 			}
 			long t3 = System.nanoTime();
-			System.out.println(name + ": " + (t1 - t0) + "\t" + (t2 - t1)
-					+ "\t" + (t3 - t2) + "\t\t" + k);
+			String result = name + ": " + (t1 - t0) + "\t" + (t2 - t1) + "\t"
+					+ (t3 - t2) + "\t\t" + k;
+			System.out.println(result);
+			FiScEVM.debugOut(result);
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {

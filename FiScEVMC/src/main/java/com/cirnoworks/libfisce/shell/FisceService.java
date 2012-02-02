@@ -312,4 +312,7 @@ public final class FisceService {
 		}
 		return is;
 	}
+
+	public static native void unregisterNativeHandler(ByteBuffer context,
+			String uniqueName);
 }
