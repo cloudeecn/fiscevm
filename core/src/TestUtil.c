@@ -9,6 +9,7 @@
 #include <time.h>
 #include "fisceprt.h"
 #include "fy_util/HashMap.h"
+#include "fy_util/HashMapI.h"
 #include "fy_util/LnkList.h"
 #include "fy_util/String.h"
 #include "fy_util/Utf8.h"
@@ -244,6 +245,66 @@ void testHashMap() {
 	fy_mmFree(block, hashMap);
 }
 
+static void checkMapValueI(fy_int key, fy_int value, fy_int nullValue,
+		void *addition) {
+	fy_test_map *test = (fy_test_map*) addition;
+	test->count++;
+	FY_ASSERT(value>=0 && value <30000);
+}
+
+void testHashMapI() {
+	int blocks;
+	int i;
+	fy_int value;
+	//	char buf1[256];
+	fy_int values[10000];
+	fy_exception ex;
+	fy_exception *exception = &ex;
+	ex.exceptionType = exception_none;
+	fy_test_map add;
+	fy_hashMapI *hashMapI = fy_mmAllocate(block, sizeof(fy_hashMapI),
+			exception);
+	printf("TestHashMap\n");
+	CHECK_EXCEPTION(exception);
+	blocks = fy_getAllocated();
+	fy_hashMapIInit(block, hashMapI, 16, 12, -1, exception);
+	CHECK_EXCEPTION(exception);
+
+	fy_long t1, t2, t3, t4, t5;
+
+	memset(&add, 0, sizeof(add));
+	add.values = values;
+
+	t1 = fy_portTimeMillSec(port);
+	for (i = 0; i < 10000; i++) {
+		fy_hashMapIPut(block, hashMapI, i, i * 3, exception);
+		CHECK_EXCEPTION(exception);
+		values[i] = i * 3;
+	}
+
+	t2 = fy_portTimeMillSec(port);
+	fy_hashMapIEachValue(block, hashMapI, checkMapValueI, &add);
+	FY_ASSERT_FATAL(add.count == 10000);
+	t3 = fy_portTimeMillSec(port);
+	FY_ASSERT(hashMapI->size == 10000);
+	for (i = 0; i < 15000; i++) {
+		value = fy_hashMapIGet(block, hashMapI, i);
+		if (i < 10000) {
+			FY_ASSERT(value == values[i])
+		} else {
+			FY_ASSERT(value == -1);
+		}
+	}
+	t4 = fy_portTimeMillSec(port);
+	fy_hashMapIDestroy(block, hashMapI);
+	t5 = fy_portTimeMillSec(port);
+	printf(
+			"HashMapI time %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d %"FY_PRINT64"d\n",
+			(t2 - t1), (t3 - t2), (t4 - t3), (t5 - t4));
+	FY_ASSERT(blocks == fy_getAllocated());
+	fy_mmFree(block, hashMapI);
+}
+
 void testArrayList() {
 	struct stackData {
 		int ivalue;
@@ -297,6 +358,7 @@ FY_TEST_FUN testcases[] = { { "platform related", testPortable }, //
 		{ "memory management", testMemManage }, //
 		{ "string", testString }, //
 		{ "hashMap", testHashMap }, //
+		{ "hashMapI", testHashMapI }, //
 		{ "arrayList", testArrayList }, //
 		{ NULL, NULL } };
 

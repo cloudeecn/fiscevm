@@ -17,6 +17,7 @@
 
 
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -37,7 +38,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-noinst_PROGRAMS = utiltest$(EXEEXT) fiscetest$(EXEEXT)
+@FY_BUILD_TEST_TRUE@noinst_PROGRAMS = utiltest$(EXEEXT) \
+@FY_BUILD_TEST_TRUE@	fiscetest$(EXEEXT)
 subdir = src
 DIST_COMMON = $(fyinc_HEADERS) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -52,6 +54,33 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/fiscecon.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+LIBRARIES = $(noinst_LIBRARIES)
+ARFLAGS = cru
+libfytst_a_AR = $(AR) $(ARFLAGS)
+libfytst_a_LIBADD =
+am__libfytst_a_SOURCES_DIST = Debug.c HashMap.c HashMapI.c ArrList.c \
+	LnkList.c MemMan.c Portable.c String.c BitSet.c Utf8.c Class.c \
+	ClassLoader.c CoreHandlers.c MathHandlers.c Data.c Heap.c \
+	Thread.c ThreadManager.c VMContext.c ExpDev.c FiScE.c \
+	FileInputStream.c BinarySaver.c DataLoader.c
+am__objects_1 = libfytst_a-Debug.$(OBJEXT) \
+	libfytst_a-HashMap.$(OBJEXT) libfytst_a-HashMapI.$(OBJEXT) \
+	libfytst_a-ArrList.$(OBJEXT) libfytst_a-LnkList.$(OBJEXT) \
+	libfytst_a-MemMan.$(OBJEXT) libfytst_a-Portable.$(OBJEXT) \
+	libfytst_a-String.$(OBJEXT) libfytst_a-BitSet.$(OBJEXT) \
+	libfytst_a-Utf8.$(OBJEXT) libfytst_a-Class.$(OBJEXT) \
+	libfytst_a-ClassLoader.$(OBJEXT) \
+	libfytst_a-CoreHandlers.$(OBJEXT) \
+	libfytst_a-MathHandlers.$(OBJEXT) libfytst_a-Data.$(OBJEXT) \
+	libfytst_a-Heap.$(OBJEXT) libfytst_a-Thread.$(OBJEXT) \
+	libfytst_a-ThreadManager.$(OBJEXT) \
+	libfytst_a-VMContext.$(OBJEXT) libfytst_a-ExpDev.$(OBJEXT) \
+	libfytst_a-FiScE.$(OBJEXT) \
+	libfytst_a-FileInputStream.$(OBJEXT) \
+	libfytst_a-BinarySaver.$(OBJEXT) \
+	libfytst_a-DataLoader.$(OBJEXT)
+@FY_BUILD_TEST_TRUE@am_libfytst_a_OBJECTS = $(am__objects_1)
+libfytst_a_OBJECTS = $(am_libfytst_a_OBJECTS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -77,54 +106,50 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(fyincdir)" \
 	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libfisce_la_LIBADD =
-am__objects_1 = libfisce_la-Debug.lo libfisce_la-HashMap.lo \
-	libfisce_la-ArrList.lo libfisce_la-LnkList.lo \
-	libfisce_la-MemMan.lo libfisce_la-Portable.lo \
-	libfisce_la-String.lo libfisce_la-BitSet.lo \
-	libfisce_la-Utf8.lo libfisce_la-Class.lo \
-	libfisce_la-ClassLoader.lo libfisce_la-CoreHandlers.lo \
-	libfisce_la-MathHandlers.lo libfisce_la-Data.lo \
-	libfisce_la-Heap.lo libfisce_la-Thread.lo \
-	libfisce_la-ThreadManager.lo libfisce_la-VMContext.lo \
-	libfisce_la-ExpDev.lo libfisce_la-FiScE.lo \
-	libfisce_la-FileInputStream.lo libfisce_la-BinarySaver.lo \
-	libfisce_la-DataLoader.lo
-am_libfisce_la_OBJECTS = $(am__objects_1)
+am__libfisce_la_SOURCES_DIST = Debug.c HashMap.c HashMapI.c ArrList.c \
+	LnkList.c MemMan.c Portable.c String.c BitSet.c Utf8.c Class.c \
+	ClassLoader.c CoreHandlers.c MathHandlers.c Data.c Heap.c \
+	Thread.c ThreadManager.c VMContext.c ExpDev.c FiScE.c \
+	FileInputStream.c BinarySaver.c DataLoader.c
+am__objects_2 = Debug.lo HashMap.lo HashMapI.lo ArrList.lo LnkList.lo \
+	MemMan.lo Portable.lo String.lo BitSet.lo Utf8.lo Class.lo \
+	ClassLoader.lo CoreHandlers.lo MathHandlers.lo Data.lo Heap.lo \
+	Thread.lo ThreadManager.lo VMContext.lo ExpDev.lo FiScE.lo \
+	FileInputStream.lo BinarySaver.lo DataLoader.lo
+@FY_BUILD_TEST_FALSE@am_libfisce_la_OBJECTS = $(am__objects_2)
 libfisce_la_OBJECTS = $(am_libfisce_la_OBJECTS)
 libfisce_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libfisce_la_CFLAGS) \
-	$(CFLAGS) $(libfisce_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libfisce_la_LDFLAGS) $(LDFLAGS) -o $@
+@FY_BUILD_TEST_FALSE@am_libfisce_la_rpath = -rpath $(libdir)
 libfyjni_la_LIBADD =
-am__objects_2 = libfyjni_la-Debug.lo libfyjni_la-HashMap.lo \
-	libfyjni_la-ArrList.lo libfyjni_la-LnkList.lo \
-	libfyjni_la-MemMan.lo libfyjni_la-Portable.lo \
-	libfyjni_la-String.lo libfyjni_la-BitSet.lo \
-	libfyjni_la-Utf8.lo libfyjni_la-Class.lo \
-	libfyjni_la-ClassLoader.lo libfyjni_la-CoreHandlers.lo \
-	libfyjni_la-MathHandlers.lo libfyjni_la-Data.lo \
-	libfyjni_la-Heap.lo libfyjni_la-Thread.lo \
-	libfyjni_la-ThreadManager.lo libfyjni_la-VMContext.lo \
-	libfyjni_la-ExpDev.lo libfyjni_la-FiScE.lo \
-	libfyjni_la-FileInputStream.lo libfyjni_la-BinarySaver.lo \
-	libfyjni_la-DataLoader.lo
-am_libfyjni_la_OBJECTS = $(am__objects_2) libfyjni_la-FisceService.lo
+am__libfyjni_la_SOURCES_DIST = Debug.c HashMap.c HashMapI.c ArrList.c \
+	LnkList.c MemMan.c Portable.c String.c BitSet.c Utf8.c Class.c \
+	ClassLoader.c CoreHandlers.c MathHandlers.c Data.c Heap.c \
+	Thread.c ThreadManager.c VMContext.c ExpDev.c FiScE.c \
+	FileInputStream.c BinarySaver.c DataLoader.c FisceService.c
+@FY_BUILD_TEST_FALSE@am_libfyjni_la_OBJECTS = $(am__objects_2) \
+@FY_BUILD_TEST_FALSE@	FisceService.lo
 libfyjni_la_OBJECTS = $(am_libfyjni_la_OBJECTS)
 libfyjni_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libfyjni_la_CFLAGS) \
-	$(CFLAGS) $(libfyjni_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libfyjni_la_LDFLAGS) $(LDFLAGS) -o $@
+@FY_BUILD_TEST_FALSE@am_libfyjni_la_rpath = -rpath $(libdir)
 PROGRAMS = $(noinst_PROGRAMS)
-am_fiscetest_OBJECTS = fiscetest-Test.$(OBJEXT)
+am__fiscetest_SOURCES_DIST = Test.c
+@FY_BUILD_TEST_TRUE@am_fiscetest_OBJECTS = Test.$(OBJEXT)
 fiscetest_OBJECTS = $(am_fiscetest_OBJECTS)
-fiscetest_DEPENDENCIES = libfisce.la
+fiscetest_LDADD = $(LDADD)
 fiscetest_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(fiscetest_CFLAGS) \
-	$(CFLAGS) $(fiscetest_LDFLAGS) $(LDFLAGS) -o $@
-am_utiltest_OBJECTS = utiltest-TestUtil.$(OBJEXT)
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(fiscetest_LDFLAGS) $(LDFLAGS) -o $@
+am__utiltest_SOURCES_DIST = TestUtil.c
+@FY_BUILD_TEST_TRUE@am_utiltest_OBJECTS = TestUtil.$(OBJEXT)
 utiltest_OBJECTS = $(am_utiltest_OBJECTS)
-utiltest_DEPENDENCIES = libfisce.la
+utiltest_LDADD = $(LDADD)
 utiltest_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(utiltest_CFLAGS) $(CFLAGS) \
-	$(utiltest_LDFLAGS) $(LDFLAGS) -o $@
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(utiltest_LDFLAGS) \
+	$(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/inc
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -138,10 +163,13 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libfisce_la_SOURCES) $(libfyjni_la_SOURCES) \
-	$(fiscetest_SOURCES) $(utiltest_SOURCES)
-DIST_SOURCES = $(libfisce_la_SOURCES) $(libfyjni_la_SOURCES) \
-	$(fiscetest_SOURCES) $(utiltest_SOURCES)
+SOURCES = $(libfytst_a_SOURCES) $(libfisce_la_SOURCES) \
+	$(libfyjni_la_SOURCES) $(fiscetest_SOURCES) \
+	$(utiltest_SOURCES)
+DIST_SOURCES = $(am__libfytst_a_SOURCES_DIST) \
+	$(am__libfisce_la_SOURCES_DIST) \
+	$(am__libfyjni_la_SOURCES_DIST) $(am__fiscetest_SOURCES_DIST) \
+	$(am__utiltest_SOURCES_DIST)
 HEADERS = $(fyinc_HEADERS) $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -277,13 +305,14 @@ fyinc_HEADERS = \
 	../inc/fy_util/MemMan.h \
 	../inc/fy_util/String.h \
 	../inc/fy_util/HashMap.h \
+	../inc/fy_util/HashMapI.h \
 	../inc/fy_util/ArrList.h \
 	../inc/fy_util/Debug.h \
 	../inc/fy_util/Utf8.h
 
-lib_LTLIBRARIES = libfisce.la libfyjni.la
 FY_SRC = Debug.c \
         HashMap.c \
+        HashMapI.c \
         ArrList.c \
         LnkList.c \
         MemMan.c \
@@ -304,23 +333,21 @@ FY_SRC = Debug.c \
         FiScE.c \
         FileInputStream.c \
         BinarySaver.c \
-	DataLoader.c
+		DataLoader.c
 
-libfisce_la_SOURCES = $(FY_SRC)
-libfisce_la_CFLAGS = -DFY_EXPORT
-libfisce_la_LDFLAGS = -fwhole-program -no-undefined 
-utiltest_SOURCES = TestUtil.c
-utiltest_LDFLAGS = -fwhole-program -static
-utiltest_CFLAGS = -DFY_STATIC
-utiltest_LDADD = libfisce.la
-fiscetest_SOURCES = Test.c
-fiscetest_LDFLAGS = -fwhole-program -static
-fiscetest_CFLAGS = -DFY_STATIC
-fiscetest_LDADD = libfisce.la
-libfyjni_la_CFLAGS = -DFY_EXPORT
-libfyjni_la_SOURCES = $(FY_SRC) FisceService.c 
-@FY_IS_WIN32_FALSE@libfyjni_la_LDFLAGS = -fwhole-program -no-undefined
-@FY_IS_WIN32_TRUE@libfyjni_la_LDFLAGS = -fwhole-program -no-undefined -Wl,--kill-at
+@FY_BUILD_TEST_TRUE@noinst_LIBRARIES = libfytst.a
+@FY_BUILD_TEST_TRUE@libfytst_a_CFLAGS = -DFY_THIS_IS_A_NOOP
+@FY_BUILD_TEST_TRUE@libfytst_a_SOURCES = $(FY_SRC)
+@FY_BUILD_TEST_TRUE@utiltest_SOURCES = TestUtil.c
+@FY_BUILD_TEST_TRUE@utiltest_LDFLAGS = libfytst.a -static
+@FY_BUILD_TEST_TRUE@fiscetest_SOURCES = Test.c
+@FY_BUILD_TEST_TRUE@fiscetest_LDFLAGS = libfytst.a -static
+@FY_BUILD_TEST_FALSE@lib_LTLIBRARIES = libfisce.la libfyjni.la
+@FY_BUILD_TEST_FALSE@libfisce_la_SOURCES = $(FY_SRC)
+@FY_BUILD_TEST_FALSE@libfisce_la_LDFLAGS = -fwhole-program -no-undefined 
+@FY_BUILD_TEST_FALSE@libfyjni_la_SOURCES = $(FY_SRC) FisceService.c 
+@FY_BUILD_TEST_FALSE@@FY_IS_WIN32_FALSE@libfyjni_la_LDFLAGS = -fwhole-program -no-undefined
+@FY_BUILD_TEST_FALSE@@FY_IS_WIN32_TRUE@libfyjni_la_LDFLAGS = -fwhole-program -no-undefined -Wl,--kill-at
 all: all-am
 
 .SUFFIXES:
@@ -355,6 +382,13 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+
+clean-noinstLIBRARIES:
+	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+libfytst.a: $(libfytst_a_OBJECTS) $(libfytst_a_DEPENDENCIES) 
+	-rm -f libfytst.a
+	$(libfytst_a_AR) libfytst.a $(libfytst_a_OBJECTS) $(libfytst_a_LIBADD)
+	$(RANLIB) libfytst.a
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
@@ -387,9 +421,9 @@ clean-libLTLIBRARIES:
 	  rm -f "$${dir}/so_locations"; \
 	done
 libfisce.la: $(libfisce_la_OBJECTS) $(libfisce_la_DEPENDENCIES) 
-	$(libfisce_la_LINK) -rpath $(libdir) $(libfisce_la_OBJECTS) $(libfisce_la_LIBADD) $(LIBS)
+	$(libfisce_la_LINK) $(am_libfisce_la_rpath) $(libfisce_la_OBJECTS) $(libfisce_la_LIBADD) $(LIBS)
 libfyjni.la: $(libfyjni_la_OBJECTS) $(libfyjni_la_DEPENDENCIES) 
-	$(libfyjni_la_LINK) -rpath $(libdir) $(libfyjni_la_OBJECTS) $(libfyjni_la_LIBADD) $(LIBS)
+	$(libfyjni_la_LINK) $(am_libfyjni_la_rpath) $(libfyjni_la_OBJECTS) $(libfyjni_la_LIBADD) $(LIBS)
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -412,55 +446,57 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fiscetest-Test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-ArrList.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-BinarySaver.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-BitSet.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-Class.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-ClassLoader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-CoreHandlers.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-Data.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-DataLoader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-Debug.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-ExpDev.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-FiScE.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-FileInputStream.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-HashMap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-Heap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-LnkList.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-MathHandlers.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-MemMan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-Portable.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-String.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-Thread.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-ThreadManager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-Utf8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfisce_la-VMContext.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-ArrList.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-BinarySaver.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-BitSet.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-Class.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-ClassLoader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-CoreHandlers.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-Data.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-DataLoader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-Debug.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-ExpDev.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-FiScE.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-FileInputStream.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-FisceService.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-HashMap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-Heap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-LnkList.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-MathHandlers.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-MemMan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-Portable.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-String.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-Thread.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-ThreadManager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-Utf8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfyjni_la-VMContext.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utiltest-TestUtil.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ArrList.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BinarySaver.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BitSet.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Class.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ClassLoader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CoreHandlers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Data.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DataLoader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Debug.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ExpDev.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FiScE.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FileInputStream.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FisceService.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMap.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMapI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Heap.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LnkList.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MathHandlers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MemMan.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Portable.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TestUtil.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Thread.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ThreadManager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Utf8.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VMContext.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-ArrList.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-BinarySaver.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-BitSet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-Class.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-ClassLoader.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-CoreHandlers.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-Data.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-DataLoader.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-Debug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-ExpDev.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-FiScE.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-FileInputStream.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-HashMap.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-HashMapI.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-Heap.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-LnkList.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-MathHandlers.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-MemMan.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-Portable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-String.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-Thread.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-ThreadManager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-Utf8.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfytst_a-VMContext.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -483,362 +519,341 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-libfisce_la-Debug.lo: Debug.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-Debug.lo -MD -MP -MF $(DEPDIR)/libfisce_la-Debug.Tpo -c -o libfisce_la-Debug.lo `test -f 'Debug.c' || echo '$(srcdir)/'`Debug.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-Debug.Tpo $(DEPDIR)/libfisce_la-Debug.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Debug.c' object='libfisce_la-Debug.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Debug.o: Debug.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Debug.o -MD -MP -MF $(DEPDIR)/libfytst_a-Debug.Tpo -c -o libfytst_a-Debug.o `test -f 'Debug.c' || echo '$(srcdir)/'`Debug.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Debug.Tpo $(DEPDIR)/libfytst_a-Debug.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Debug.c' object='libfytst_a-Debug.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-Debug.lo `test -f 'Debug.c' || echo '$(srcdir)/'`Debug.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Debug.o `test -f 'Debug.c' || echo '$(srcdir)/'`Debug.c
 
-libfisce_la-HashMap.lo: HashMap.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-HashMap.lo -MD -MP -MF $(DEPDIR)/libfisce_la-HashMap.Tpo -c -o libfisce_la-HashMap.lo `test -f 'HashMap.c' || echo '$(srcdir)/'`HashMap.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-HashMap.Tpo $(DEPDIR)/libfisce_la-HashMap.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HashMap.c' object='libfisce_la-HashMap.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Debug.obj: Debug.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Debug.obj -MD -MP -MF $(DEPDIR)/libfytst_a-Debug.Tpo -c -o libfytst_a-Debug.obj `if test -f 'Debug.c'; then $(CYGPATH_W) 'Debug.c'; else $(CYGPATH_W) '$(srcdir)/Debug.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Debug.Tpo $(DEPDIR)/libfytst_a-Debug.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Debug.c' object='libfytst_a-Debug.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-HashMap.lo `test -f 'HashMap.c' || echo '$(srcdir)/'`HashMap.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Debug.obj `if test -f 'Debug.c'; then $(CYGPATH_W) 'Debug.c'; else $(CYGPATH_W) '$(srcdir)/Debug.c'; fi`
 
-libfisce_la-ArrList.lo: ArrList.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-ArrList.lo -MD -MP -MF $(DEPDIR)/libfisce_la-ArrList.Tpo -c -o libfisce_la-ArrList.lo `test -f 'ArrList.c' || echo '$(srcdir)/'`ArrList.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-ArrList.Tpo $(DEPDIR)/libfisce_la-ArrList.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ArrList.c' object='libfisce_la-ArrList.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-HashMap.o: HashMap.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-HashMap.o -MD -MP -MF $(DEPDIR)/libfytst_a-HashMap.Tpo -c -o libfytst_a-HashMap.o `test -f 'HashMap.c' || echo '$(srcdir)/'`HashMap.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-HashMap.Tpo $(DEPDIR)/libfytst_a-HashMap.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HashMap.c' object='libfytst_a-HashMap.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-ArrList.lo `test -f 'ArrList.c' || echo '$(srcdir)/'`ArrList.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-HashMap.o `test -f 'HashMap.c' || echo '$(srcdir)/'`HashMap.c
 
-libfisce_la-LnkList.lo: LnkList.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-LnkList.lo -MD -MP -MF $(DEPDIR)/libfisce_la-LnkList.Tpo -c -o libfisce_la-LnkList.lo `test -f 'LnkList.c' || echo '$(srcdir)/'`LnkList.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-LnkList.Tpo $(DEPDIR)/libfisce_la-LnkList.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='LnkList.c' object='libfisce_la-LnkList.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-HashMap.obj: HashMap.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-HashMap.obj -MD -MP -MF $(DEPDIR)/libfytst_a-HashMap.Tpo -c -o libfytst_a-HashMap.obj `if test -f 'HashMap.c'; then $(CYGPATH_W) 'HashMap.c'; else $(CYGPATH_W) '$(srcdir)/HashMap.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-HashMap.Tpo $(DEPDIR)/libfytst_a-HashMap.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HashMap.c' object='libfytst_a-HashMap.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-LnkList.lo `test -f 'LnkList.c' || echo '$(srcdir)/'`LnkList.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-HashMap.obj `if test -f 'HashMap.c'; then $(CYGPATH_W) 'HashMap.c'; else $(CYGPATH_W) '$(srcdir)/HashMap.c'; fi`
 
-libfisce_la-MemMan.lo: MemMan.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-MemMan.lo -MD -MP -MF $(DEPDIR)/libfisce_la-MemMan.Tpo -c -o libfisce_la-MemMan.lo `test -f 'MemMan.c' || echo '$(srcdir)/'`MemMan.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-MemMan.Tpo $(DEPDIR)/libfisce_la-MemMan.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='MemMan.c' object='libfisce_la-MemMan.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-HashMapI.o: HashMapI.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-HashMapI.o -MD -MP -MF $(DEPDIR)/libfytst_a-HashMapI.Tpo -c -o libfytst_a-HashMapI.o `test -f 'HashMapI.c' || echo '$(srcdir)/'`HashMapI.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-HashMapI.Tpo $(DEPDIR)/libfytst_a-HashMapI.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HashMapI.c' object='libfytst_a-HashMapI.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-MemMan.lo `test -f 'MemMan.c' || echo '$(srcdir)/'`MemMan.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-HashMapI.o `test -f 'HashMapI.c' || echo '$(srcdir)/'`HashMapI.c
 
-libfisce_la-Portable.lo: Portable.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-Portable.lo -MD -MP -MF $(DEPDIR)/libfisce_la-Portable.Tpo -c -o libfisce_la-Portable.lo `test -f 'Portable.c' || echo '$(srcdir)/'`Portable.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-Portable.Tpo $(DEPDIR)/libfisce_la-Portable.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Portable.c' object='libfisce_la-Portable.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-HashMapI.obj: HashMapI.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-HashMapI.obj -MD -MP -MF $(DEPDIR)/libfytst_a-HashMapI.Tpo -c -o libfytst_a-HashMapI.obj `if test -f 'HashMapI.c'; then $(CYGPATH_W) 'HashMapI.c'; else $(CYGPATH_W) '$(srcdir)/HashMapI.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-HashMapI.Tpo $(DEPDIR)/libfytst_a-HashMapI.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HashMapI.c' object='libfytst_a-HashMapI.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-Portable.lo `test -f 'Portable.c' || echo '$(srcdir)/'`Portable.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-HashMapI.obj `if test -f 'HashMapI.c'; then $(CYGPATH_W) 'HashMapI.c'; else $(CYGPATH_W) '$(srcdir)/HashMapI.c'; fi`
 
-libfisce_la-String.lo: String.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-String.lo -MD -MP -MF $(DEPDIR)/libfisce_la-String.Tpo -c -o libfisce_la-String.lo `test -f 'String.c' || echo '$(srcdir)/'`String.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-String.Tpo $(DEPDIR)/libfisce_la-String.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='String.c' object='libfisce_la-String.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-ArrList.o: ArrList.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-ArrList.o -MD -MP -MF $(DEPDIR)/libfytst_a-ArrList.Tpo -c -o libfytst_a-ArrList.o `test -f 'ArrList.c' || echo '$(srcdir)/'`ArrList.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-ArrList.Tpo $(DEPDIR)/libfytst_a-ArrList.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ArrList.c' object='libfytst_a-ArrList.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-String.lo `test -f 'String.c' || echo '$(srcdir)/'`String.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-ArrList.o `test -f 'ArrList.c' || echo '$(srcdir)/'`ArrList.c
 
-libfisce_la-BitSet.lo: BitSet.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-BitSet.lo -MD -MP -MF $(DEPDIR)/libfisce_la-BitSet.Tpo -c -o libfisce_la-BitSet.lo `test -f 'BitSet.c' || echo '$(srcdir)/'`BitSet.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-BitSet.Tpo $(DEPDIR)/libfisce_la-BitSet.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='BitSet.c' object='libfisce_la-BitSet.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-ArrList.obj: ArrList.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-ArrList.obj -MD -MP -MF $(DEPDIR)/libfytst_a-ArrList.Tpo -c -o libfytst_a-ArrList.obj `if test -f 'ArrList.c'; then $(CYGPATH_W) 'ArrList.c'; else $(CYGPATH_W) '$(srcdir)/ArrList.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-ArrList.Tpo $(DEPDIR)/libfytst_a-ArrList.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ArrList.c' object='libfytst_a-ArrList.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-BitSet.lo `test -f 'BitSet.c' || echo '$(srcdir)/'`BitSet.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-ArrList.obj `if test -f 'ArrList.c'; then $(CYGPATH_W) 'ArrList.c'; else $(CYGPATH_W) '$(srcdir)/ArrList.c'; fi`
 
-libfisce_la-Utf8.lo: Utf8.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-Utf8.lo -MD -MP -MF $(DEPDIR)/libfisce_la-Utf8.Tpo -c -o libfisce_la-Utf8.lo `test -f 'Utf8.c' || echo '$(srcdir)/'`Utf8.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-Utf8.Tpo $(DEPDIR)/libfisce_la-Utf8.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Utf8.c' object='libfisce_la-Utf8.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-LnkList.o: LnkList.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-LnkList.o -MD -MP -MF $(DEPDIR)/libfytst_a-LnkList.Tpo -c -o libfytst_a-LnkList.o `test -f 'LnkList.c' || echo '$(srcdir)/'`LnkList.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-LnkList.Tpo $(DEPDIR)/libfytst_a-LnkList.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='LnkList.c' object='libfytst_a-LnkList.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-Utf8.lo `test -f 'Utf8.c' || echo '$(srcdir)/'`Utf8.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-LnkList.o `test -f 'LnkList.c' || echo '$(srcdir)/'`LnkList.c
 
-libfisce_la-Class.lo: Class.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-Class.lo -MD -MP -MF $(DEPDIR)/libfisce_la-Class.Tpo -c -o libfisce_la-Class.lo `test -f 'Class.c' || echo '$(srcdir)/'`Class.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-Class.Tpo $(DEPDIR)/libfisce_la-Class.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Class.c' object='libfisce_la-Class.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-LnkList.obj: LnkList.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-LnkList.obj -MD -MP -MF $(DEPDIR)/libfytst_a-LnkList.Tpo -c -o libfytst_a-LnkList.obj `if test -f 'LnkList.c'; then $(CYGPATH_W) 'LnkList.c'; else $(CYGPATH_W) '$(srcdir)/LnkList.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-LnkList.Tpo $(DEPDIR)/libfytst_a-LnkList.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='LnkList.c' object='libfytst_a-LnkList.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-Class.lo `test -f 'Class.c' || echo '$(srcdir)/'`Class.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-LnkList.obj `if test -f 'LnkList.c'; then $(CYGPATH_W) 'LnkList.c'; else $(CYGPATH_W) '$(srcdir)/LnkList.c'; fi`
 
-libfisce_la-ClassLoader.lo: ClassLoader.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-ClassLoader.lo -MD -MP -MF $(DEPDIR)/libfisce_la-ClassLoader.Tpo -c -o libfisce_la-ClassLoader.lo `test -f 'ClassLoader.c' || echo '$(srcdir)/'`ClassLoader.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-ClassLoader.Tpo $(DEPDIR)/libfisce_la-ClassLoader.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ClassLoader.c' object='libfisce_la-ClassLoader.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-MemMan.o: MemMan.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-MemMan.o -MD -MP -MF $(DEPDIR)/libfytst_a-MemMan.Tpo -c -o libfytst_a-MemMan.o `test -f 'MemMan.c' || echo '$(srcdir)/'`MemMan.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-MemMan.Tpo $(DEPDIR)/libfytst_a-MemMan.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='MemMan.c' object='libfytst_a-MemMan.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-ClassLoader.lo `test -f 'ClassLoader.c' || echo '$(srcdir)/'`ClassLoader.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-MemMan.o `test -f 'MemMan.c' || echo '$(srcdir)/'`MemMan.c
 
-libfisce_la-CoreHandlers.lo: CoreHandlers.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-CoreHandlers.lo -MD -MP -MF $(DEPDIR)/libfisce_la-CoreHandlers.Tpo -c -o libfisce_la-CoreHandlers.lo `test -f 'CoreHandlers.c' || echo '$(srcdir)/'`CoreHandlers.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-CoreHandlers.Tpo $(DEPDIR)/libfisce_la-CoreHandlers.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='CoreHandlers.c' object='libfisce_la-CoreHandlers.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-MemMan.obj: MemMan.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-MemMan.obj -MD -MP -MF $(DEPDIR)/libfytst_a-MemMan.Tpo -c -o libfytst_a-MemMan.obj `if test -f 'MemMan.c'; then $(CYGPATH_W) 'MemMan.c'; else $(CYGPATH_W) '$(srcdir)/MemMan.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-MemMan.Tpo $(DEPDIR)/libfytst_a-MemMan.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='MemMan.c' object='libfytst_a-MemMan.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-CoreHandlers.lo `test -f 'CoreHandlers.c' || echo '$(srcdir)/'`CoreHandlers.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-MemMan.obj `if test -f 'MemMan.c'; then $(CYGPATH_W) 'MemMan.c'; else $(CYGPATH_W) '$(srcdir)/MemMan.c'; fi`
 
-libfisce_la-MathHandlers.lo: MathHandlers.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-MathHandlers.lo -MD -MP -MF $(DEPDIR)/libfisce_la-MathHandlers.Tpo -c -o libfisce_la-MathHandlers.lo `test -f 'MathHandlers.c' || echo '$(srcdir)/'`MathHandlers.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-MathHandlers.Tpo $(DEPDIR)/libfisce_la-MathHandlers.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='MathHandlers.c' object='libfisce_la-MathHandlers.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Portable.o: Portable.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Portable.o -MD -MP -MF $(DEPDIR)/libfytst_a-Portable.Tpo -c -o libfytst_a-Portable.o `test -f 'Portable.c' || echo '$(srcdir)/'`Portable.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Portable.Tpo $(DEPDIR)/libfytst_a-Portable.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Portable.c' object='libfytst_a-Portable.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-MathHandlers.lo `test -f 'MathHandlers.c' || echo '$(srcdir)/'`MathHandlers.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Portable.o `test -f 'Portable.c' || echo '$(srcdir)/'`Portable.c
 
-libfisce_la-Data.lo: Data.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-Data.lo -MD -MP -MF $(DEPDIR)/libfisce_la-Data.Tpo -c -o libfisce_la-Data.lo `test -f 'Data.c' || echo '$(srcdir)/'`Data.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-Data.Tpo $(DEPDIR)/libfisce_la-Data.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Data.c' object='libfisce_la-Data.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Portable.obj: Portable.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Portable.obj -MD -MP -MF $(DEPDIR)/libfytst_a-Portable.Tpo -c -o libfytst_a-Portable.obj `if test -f 'Portable.c'; then $(CYGPATH_W) 'Portable.c'; else $(CYGPATH_W) '$(srcdir)/Portable.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Portable.Tpo $(DEPDIR)/libfytst_a-Portable.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Portable.c' object='libfytst_a-Portable.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-Data.lo `test -f 'Data.c' || echo '$(srcdir)/'`Data.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Portable.obj `if test -f 'Portable.c'; then $(CYGPATH_W) 'Portable.c'; else $(CYGPATH_W) '$(srcdir)/Portable.c'; fi`
 
-libfisce_la-Heap.lo: Heap.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-Heap.lo -MD -MP -MF $(DEPDIR)/libfisce_la-Heap.Tpo -c -o libfisce_la-Heap.lo `test -f 'Heap.c' || echo '$(srcdir)/'`Heap.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-Heap.Tpo $(DEPDIR)/libfisce_la-Heap.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Heap.c' object='libfisce_la-Heap.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-String.o: String.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-String.o -MD -MP -MF $(DEPDIR)/libfytst_a-String.Tpo -c -o libfytst_a-String.o `test -f 'String.c' || echo '$(srcdir)/'`String.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-String.Tpo $(DEPDIR)/libfytst_a-String.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='String.c' object='libfytst_a-String.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-Heap.lo `test -f 'Heap.c' || echo '$(srcdir)/'`Heap.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-String.o `test -f 'String.c' || echo '$(srcdir)/'`String.c
 
-libfisce_la-Thread.lo: Thread.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-Thread.lo -MD -MP -MF $(DEPDIR)/libfisce_la-Thread.Tpo -c -o libfisce_la-Thread.lo `test -f 'Thread.c' || echo '$(srcdir)/'`Thread.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-Thread.Tpo $(DEPDIR)/libfisce_la-Thread.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Thread.c' object='libfisce_la-Thread.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-String.obj: String.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-String.obj -MD -MP -MF $(DEPDIR)/libfytst_a-String.Tpo -c -o libfytst_a-String.obj `if test -f 'String.c'; then $(CYGPATH_W) 'String.c'; else $(CYGPATH_W) '$(srcdir)/String.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-String.Tpo $(DEPDIR)/libfytst_a-String.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='String.c' object='libfytst_a-String.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-Thread.lo `test -f 'Thread.c' || echo '$(srcdir)/'`Thread.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-String.obj `if test -f 'String.c'; then $(CYGPATH_W) 'String.c'; else $(CYGPATH_W) '$(srcdir)/String.c'; fi`
 
-libfisce_la-ThreadManager.lo: ThreadManager.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-ThreadManager.lo -MD -MP -MF $(DEPDIR)/libfisce_la-ThreadManager.Tpo -c -o libfisce_la-ThreadManager.lo `test -f 'ThreadManager.c' || echo '$(srcdir)/'`ThreadManager.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-ThreadManager.Tpo $(DEPDIR)/libfisce_la-ThreadManager.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ThreadManager.c' object='libfisce_la-ThreadManager.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-BitSet.o: BitSet.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-BitSet.o -MD -MP -MF $(DEPDIR)/libfytst_a-BitSet.Tpo -c -o libfytst_a-BitSet.o `test -f 'BitSet.c' || echo '$(srcdir)/'`BitSet.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-BitSet.Tpo $(DEPDIR)/libfytst_a-BitSet.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='BitSet.c' object='libfytst_a-BitSet.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-ThreadManager.lo `test -f 'ThreadManager.c' || echo '$(srcdir)/'`ThreadManager.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-BitSet.o `test -f 'BitSet.c' || echo '$(srcdir)/'`BitSet.c
 
-libfisce_la-VMContext.lo: VMContext.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-VMContext.lo -MD -MP -MF $(DEPDIR)/libfisce_la-VMContext.Tpo -c -o libfisce_la-VMContext.lo `test -f 'VMContext.c' || echo '$(srcdir)/'`VMContext.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-VMContext.Tpo $(DEPDIR)/libfisce_la-VMContext.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='VMContext.c' object='libfisce_la-VMContext.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-BitSet.obj: BitSet.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-BitSet.obj -MD -MP -MF $(DEPDIR)/libfytst_a-BitSet.Tpo -c -o libfytst_a-BitSet.obj `if test -f 'BitSet.c'; then $(CYGPATH_W) 'BitSet.c'; else $(CYGPATH_W) '$(srcdir)/BitSet.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-BitSet.Tpo $(DEPDIR)/libfytst_a-BitSet.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='BitSet.c' object='libfytst_a-BitSet.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-VMContext.lo `test -f 'VMContext.c' || echo '$(srcdir)/'`VMContext.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-BitSet.obj `if test -f 'BitSet.c'; then $(CYGPATH_W) 'BitSet.c'; else $(CYGPATH_W) '$(srcdir)/BitSet.c'; fi`
 
-libfisce_la-ExpDev.lo: ExpDev.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-ExpDev.lo -MD -MP -MF $(DEPDIR)/libfisce_la-ExpDev.Tpo -c -o libfisce_la-ExpDev.lo `test -f 'ExpDev.c' || echo '$(srcdir)/'`ExpDev.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-ExpDev.Tpo $(DEPDIR)/libfisce_la-ExpDev.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ExpDev.c' object='libfisce_la-ExpDev.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Utf8.o: Utf8.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Utf8.o -MD -MP -MF $(DEPDIR)/libfytst_a-Utf8.Tpo -c -o libfytst_a-Utf8.o `test -f 'Utf8.c' || echo '$(srcdir)/'`Utf8.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Utf8.Tpo $(DEPDIR)/libfytst_a-Utf8.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Utf8.c' object='libfytst_a-Utf8.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-ExpDev.lo `test -f 'ExpDev.c' || echo '$(srcdir)/'`ExpDev.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Utf8.o `test -f 'Utf8.c' || echo '$(srcdir)/'`Utf8.c
 
-libfisce_la-FiScE.lo: FiScE.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-FiScE.lo -MD -MP -MF $(DEPDIR)/libfisce_la-FiScE.Tpo -c -o libfisce_la-FiScE.lo `test -f 'FiScE.c' || echo '$(srcdir)/'`FiScE.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-FiScE.Tpo $(DEPDIR)/libfisce_la-FiScE.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FiScE.c' object='libfisce_la-FiScE.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Utf8.obj: Utf8.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Utf8.obj -MD -MP -MF $(DEPDIR)/libfytst_a-Utf8.Tpo -c -o libfytst_a-Utf8.obj `if test -f 'Utf8.c'; then $(CYGPATH_W) 'Utf8.c'; else $(CYGPATH_W) '$(srcdir)/Utf8.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Utf8.Tpo $(DEPDIR)/libfytst_a-Utf8.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Utf8.c' object='libfytst_a-Utf8.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-FiScE.lo `test -f 'FiScE.c' || echo '$(srcdir)/'`FiScE.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Utf8.obj `if test -f 'Utf8.c'; then $(CYGPATH_W) 'Utf8.c'; else $(CYGPATH_W) '$(srcdir)/Utf8.c'; fi`
 
-libfisce_la-FileInputStream.lo: FileInputStream.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-FileInputStream.lo -MD -MP -MF $(DEPDIR)/libfisce_la-FileInputStream.Tpo -c -o libfisce_la-FileInputStream.lo `test -f 'FileInputStream.c' || echo '$(srcdir)/'`FileInputStream.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-FileInputStream.Tpo $(DEPDIR)/libfisce_la-FileInputStream.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FileInputStream.c' object='libfisce_la-FileInputStream.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Class.o: Class.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Class.o -MD -MP -MF $(DEPDIR)/libfytst_a-Class.Tpo -c -o libfytst_a-Class.o `test -f 'Class.c' || echo '$(srcdir)/'`Class.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Class.Tpo $(DEPDIR)/libfytst_a-Class.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Class.c' object='libfytst_a-Class.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-FileInputStream.lo `test -f 'FileInputStream.c' || echo '$(srcdir)/'`FileInputStream.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Class.o `test -f 'Class.c' || echo '$(srcdir)/'`Class.c
 
-libfisce_la-BinarySaver.lo: BinarySaver.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-BinarySaver.lo -MD -MP -MF $(DEPDIR)/libfisce_la-BinarySaver.Tpo -c -o libfisce_la-BinarySaver.lo `test -f 'BinarySaver.c' || echo '$(srcdir)/'`BinarySaver.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-BinarySaver.Tpo $(DEPDIR)/libfisce_la-BinarySaver.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='BinarySaver.c' object='libfisce_la-BinarySaver.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Class.obj: Class.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Class.obj -MD -MP -MF $(DEPDIR)/libfytst_a-Class.Tpo -c -o libfytst_a-Class.obj `if test -f 'Class.c'; then $(CYGPATH_W) 'Class.c'; else $(CYGPATH_W) '$(srcdir)/Class.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Class.Tpo $(DEPDIR)/libfytst_a-Class.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Class.c' object='libfytst_a-Class.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-BinarySaver.lo `test -f 'BinarySaver.c' || echo '$(srcdir)/'`BinarySaver.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Class.obj `if test -f 'Class.c'; then $(CYGPATH_W) 'Class.c'; else $(CYGPATH_W) '$(srcdir)/Class.c'; fi`
 
-libfisce_la-DataLoader.lo: DataLoader.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -MT libfisce_la-DataLoader.lo -MD -MP -MF $(DEPDIR)/libfisce_la-DataLoader.Tpo -c -o libfisce_la-DataLoader.lo `test -f 'DataLoader.c' || echo '$(srcdir)/'`DataLoader.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfisce_la-DataLoader.Tpo $(DEPDIR)/libfisce_la-DataLoader.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='DataLoader.c' object='libfisce_la-DataLoader.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-ClassLoader.o: ClassLoader.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-ClassLoader.o -MD -MP -MF $(DEPDIR)/libfytst_a-ClassLoader.Tpo -c -o libfytst_a-ClassLoader.o `test -f 'ClassLoader.c' || echo '$(srcdir)/'`ClassLoader.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-ClassLoader.Tpo $(DEPDIR)/libfytst_a-ClassLoader.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ClassLoader.c' object='libfytst_a-ClassLoader.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfisce_la_CFLAGS) $(CFLAGS) -c -o libfisce_la-DataLoader.lo `test -f 'DataLoader.c' || echo '$(srcdir)/'`DataLoader.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-ClassLoader.o `test -f 'ClassLoader.c' || echo '$(srcdir)/'`ClassLoader.c
 
-libfyjni_la-Debug.lo: Debug.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-Debug.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-Debug.Tpo -c -o libfyjni_la-Debug.lo `test -f 'Debug.c' || echo '$(srcdir)/'`Debug.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-Debug.Tpo $(DEPDIR)/libfyjni_la-Debug.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Debug.c' object='libfyjni_la-Debug.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-ClassLoader.obj: ClassLoader.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-ClassLoader.obj -MD -MP -MF $(DEPDIR)/libfytst_a-ClassLoader.Tpo -c -o libfytst_a-ClassLoader.obj `if test -f 'ClassLoader.c'; then $(CYGPATH_W) 'ClassLoader.c'; else $(CYGPATH_W) '$(srcdir)/ClassLoader.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-ClassLoader.Tpo $(DEPDIR)/libfytst_a-ClassLoader.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ClassLoader.c' object='libfytst_a-ClassLoader.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-Debug.lo `test -f 'Debug.c' || echo '$(srcdir)/'`Debug.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-ClassLoader.obj `if test -f 'ClassLoader.c'; then $(CYGPATH_W) 'ClassLoader.c'; else $(CYGPATH_W) '$(srcdir)/ClassLoader.c'; fi`
 
-libfyjni_la-HashMap.lo: HashMap.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-HashMap.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-HashMap.Tpo -c -o libfyjni_la-HashMap.lo `test -f 'HashMap.c' || echo '$(srcdir)/'`HashMap.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-HashMap.Tpo $(DEPDIR)/libfyjni_la-HashMap.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='HashMap.c' object='libfyjni_la-HashMap.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-CoreHandlers.o: CoreHandlers.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-CoreHandlers.o -MD -MP -MF $(DEPDIR)/libfytst_a-CoreHandlers.Tpo -c -o libfytst_a-CoreHandlers.o `test -f 'CoreHandlers.c' || echo '$(srcdir)/'`CoreHandlers.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-CoreHandlers.Tpo $(DEPDIR)/libfytst_a-CoreHandlers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='CoreHandlers.c' object='libfytst_a-CoreHandlers.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-HashMap.lo `test -f 'HashMap.c' || echo '$(srcdir)/'`HashMap.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-CoreHandlers.o `test -f 'CoreHandlers.c' || echo '$(srcdir)/'`CoreHandlers.c
 
-libfyjni_la-ArrList.lo: ArrList.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-ArrList.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-ArrList.Tpo -c -o libfyjni_la-ArrList.lo `test -f 'ArrList.c' || echo '$(srcdir)/'`ArrList.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-ArrList.Tpo $(DEPDIR)/libfyjni_la-ArrList.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ArrList.c' object='libfyjni_la-ArrList.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-CoreHandlers.obj: CoreHandlers.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-CoreHandlers.obj -MD -MP -MF $(DEPDIR)/libfytst_a-CoreHandlers.Tpo -c -o libfytst_a-CoreHandlers.obj `if test -f 'CoreHandlers.c'; then $(CYGPATH_W) 'CoreHandlers.c'; else $(CYGPATH_W) '$(srcdir)/CoreHandlers.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-CoreHandlers.Tpo $(DEPDIR)/libfytst_a-CoreHandlers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='CoreHandlers.c' object='libfytst_a-CoreHandlers.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-ArrList.lo `test -f 'ArrList.c' || echo '$(srcdir)/'`ArrList.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-CoreHandlers.obj `if test -f 'CoreHandlers.c'; then $(CYGPATH_W) 'CoreHandlers.c'; else $(CYGPATH_W) '$(srcdir)/CoreHandlers.c'; fi`
 
-libfyjni_la-LnkList.lo: LnkList.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-LnkList.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-LnkList.Tpo -c -o libfyjni_la-LnkList.lo `test -f 'LnkList.c' || echo '$(srcdir)/'`LnkList.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-LnkList.Tpo $(DEPDIR)/libfyjni_la-LnkList.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='LnkList.c' object='libfyjni_la-LnkList.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-MathHandlers.o: MathHandlers.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-MathHandlers.o -MD -MP -MF $(DEPDIR)/libfytst_a-MathHandlers.Tpo -c -o libfytst_a-MathHandlers.o `test -f 'MathHandlers.c' || echo '$(srcdir)/'`MathHandlers.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-MathHandlers.Tpo $(DEPDIR)/libfytst_a-MathHandlers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='MathHandlers.c' object='libfytst_a-MathHandlers.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-LnkList.lo `test -f 'LnkList.c' || echo '$(srcdir)/'`LnkList.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-MathHandlers.o `test -f 'MathHandlers.c' || echo '$(srcdir)/'`MathHandlers.c
 
-libfyjni_la-MemMan.lo: MemMan.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-MemMan.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-MemMan.Tpo -c -o libfyjni_la-MemMan.lo `test -f 'MemMan.c' || echo '$(srcdir)/'`MemMan.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-MemMan.Tpo $(DEPDIR)/libfyjni_la-MemMan.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='MemMan.c' object='libfyjni_la-MemMan.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-MathHandlers.obj: MathHandlers.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-MathHandlers.obj -MD -MP -MF $(DEPDIR)/libfytst_a-MathHandlers.Tpo -c -o libfytst_a-MathHandlers.obj `if test -f 'MathHandlers.c'; then $(CYGPATH_W) 'MathHandlers.c'; else $(CYGPATH_W) '$(srcdir)/MathHandlers.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-MathHandlers.Tpo $(DEPDIR)/libfytst_a-MathHandlers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='MathHandlers.c' object='libfytst_a-MathHandlers.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-MemMan.lo `test -f 'MemMan.c' || echo '$(srcdir)/'`MemMan.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-MathHandlers.obj `if test -f 'MathHandlers.c'; then $(CYGPATH_W) 'MathHandlers.c'; else $(CYGPATH_W) '$(srcdir)/MathHandlers.c'; fi`
 
-libfyjni_la-Portable.lo: Portable.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-Portable.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-Portable.Tpo -c -o libfyjni_la-Portable.lo `test -f 'Portable.c' || echo '$(srcdir)/'`Portable.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-Portable.Tpo $(DEPDIR)/libfyjni_la-Portable.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Portable.c' object='libfyjni_la-Portable.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Data.o: Data.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Data.o -MD -MP -MF $(DEPDIR)/libfytst_a-Data.Tpo -c -o libfytst_a-Data.o `test -f 'Data.c' || echo '$(srcdir)/'`Data.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Data.Tpo $(DEPDIR)/libfytst_a-Data.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Data.c' object='libfytst_a-Data.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-Portable.lo `test -f 'Portable.c' || echo '$(srcdir)/'`Portable.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Data.o `test -f 'Data.c' || echo '$(srcdir)/'`Data.c
 
-libfyjni_la-String.lo: String.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-String.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-String.Tpo -c -o libfyjni_la-String.lo `test -f 'String.c' || echo '$(srcdir)/'`String.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-String.Tpo $(DEPDIR)/libfyjni_la-String.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='String.c' object='libfyjni_la-String.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Data.obj: Data.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Data.obj -MD -MP -MF $(DEPDIR)/libfytst_a-Data.Tpo -c -o libfytst_a-Data.obj `if test -f 'Data.c'; then $(CYGPATH_W) 'Data.c'; else $(CYGPATH_W) '$(srcdir)/Data.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Data.Tpo $(DEPDIR)/libfytst_a-Data.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Data.c' object='libfytst_a-Data.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-String.lo `test -f 'String.c' || echo '$(srcdir)/'`String.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Data.obj `if test -f 'Data.c'; then $(CYGPATH_W) 'Data.c'; else $(CYGPATH_W) '$(srcdir)/Data.c'; fi`
 
-libfyjni_la-BitSet.lo: BitSet.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-BitSet.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-BitSet.Tpo -c -o libfyjni_la-BitSet.lo `test -f 'BitSet.c' || echo '$(srcdir)/'`BitSet.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-BitSet.Tpo $(DEPDIR)/libfyjni_la-BitSet.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='BitSet.c' object='libfyjni_la-BitSet.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Heap.o: Heap.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Heap.o -MD -MP -MF $(DEPDIR)/libfytst_a-Heap.Tpo -c -o libfytst_a-Heap.o `test -f 'Heap.c' || echo '$(srcdir)/'`Heap.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Heap.Tpo $(DEPDIR)/libfytst_a-Heap.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Heap.c' object='libfytst_a-Heap.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-BitSet.lo `test -f 'BitSet.c' || echo '$(srcdir)/'`BitSet.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Heap.o `test -f 'Heap.c' || echo '$(srcdir)/'`Heap.c
 
-libfyjni_la-Utf8.lo: Utf8.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-Utf8.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-Utf8.Tpo -c -o libfyjni_la-Utf8.lo `test -f 'Utf8.c' || echo '$(srcdir)/'`Utf8.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-Utf8.Tpo $(DEPDIR)/libfyjni_la-Utf8.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Utf8.c' object='libfyjni_la-Utf8.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Heap.obj: Heap.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Heap.obj -MD -MP -MF $(DEPDIR)/libfytst_a-Heap.Tpo -c -o libfytst_a-Heap.obj `if test -f 'Heap.c'; then $(CYGPATH_W) 'Heap.c'; else $(CYGPATH_W) '$(srcdir)/Heap.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Heap.Tpo $(DEPDIR)/libfytst_a-Heap.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Heap.c' object='libfytst_a-Heap.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-Utf8.lo `test -f 'Utf8.c' || echo '$(srcdir)/'`Utf8.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Heap.obj `if test -f 'Heap.c'; then $(CYGPATH_W) 'Heap.c'; else $(CYGPATH_W) '$(srcdir)/Heap.c'; fi`
 
-libfyjni_la-Class.lo: Class.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-Class.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-Class.Tpo -c -o libfyjni_la-Class.lo `test -f 'Class.c' || echo '$(srcdir)/'`Class.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-Class.Tpo $(DEPDIR)/libfyjni_la-Class.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Class.c' object='libfyjni_la-Class.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Thread.o: Thread.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Thread.o -MD -MP -MF $(DEPDIR)/libfytst_a-Thread.Tpo -c -o libfytst_a-Thread.o `test -f 'Thread.c' || echo '$(srcdir)/'`Thread.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Thread.Tpo $(DEPDIR)/libfytst_a-Thread.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Thread.c' object='libfytst_a-Thread.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-Class.lo `test -f 'Class.c' || echo '$(srcdir)/'`Class.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Thread.o `test -f 'Thread.c' || echo '$(srcdir)/'`Thread.c
 
-libfyjni_la-ClassLoader.lo: ClassLoader.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-ClassLoader.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-ClassLoader.Tpo -c -o libfyjni_la-ClassLoader.lo `test -f 'ClassLoader.c' || echo '$(srcdir)/'`ClassLoader.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-ClassLoader.Tpo $(DEPDIR)/libfyjni_la-ClassLoader.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ClassLoader.c' object='libfyjni_la-ClassLoader.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-Thread.obj: Thread.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-Thread.obj -MD -MP -MF $(DEPDIR)/libfytst_a-Thread.Tpo -c -o libfytst_a-Thread.obj `if test -f 'Thread.c'; then $(CYGPATH_W) 'Thread.c'; else $(CYGPATH_W) '$(srcdir)/Thread.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-Thread.Tpo $(DEPDIR)/libfytst_a-Thread.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Thread.c' object='libfytst_a-Thread.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-ClassLoader.lo `test -f 'ClassLoader.c' || echo '$(srcdir)/'`ClassLoader.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-Thread.obj `if test -f 'Thread.c'; then $(CYGPATH_W) 'Thread.c'; else $(CYGPATH_W) '$(srcdir)/Thread.c'; fi`
 
-libfyjni_la-CoreHandlers.lo: CoreHandlers.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-CoreHandlers.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-CoreHandlers.Tpo -c -o libfyjni_la-CoreHandlers.lo `test -f 'CoreHandlers.c' || echo '$(srcdir)/'`CoreHandlers.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-CoreHandlers.Tpo $(DEPDIR)/libfyjni_la-CoreHandlers.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='CoreHandlers.c' object='libfyjni_la-CoreHandlers.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-ThreadManager.o: ThreadManager.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-ThreadManager.o -MD -MP -MF $(DEPDIR)/libfytst_a-ThreadManager.Tpo -c -o libfytst_a-ThreadManager.o `test -f 'ThreadManager.c' || echo '$(srcdir)/'`ThreadManager.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-ThreadManager.Tpo $(DEPDIR)/libfytst_a-ThreadManager.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ThreadManager.c' object='libfytst_a-ThreadManager.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-CoreHandlers.lo `test -f 'CoreHandlers.c' || echo '$(srcdir)/'`CoreHandlers.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-ThreadManager.o `test -f 'ThreadManager.c' || echo '$(srcdir)/'`ThreadManager.c
 
-libfyjni_la-MathHandlers.lo: MathHandlers.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-MathHandlers.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-MathHandlers.Tpo -c -o libfyjni_la-MathHandlers.lo `test -f 'MathHandlers.c' || echo '$(srcdir)/'`MathHandlers.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-MathHandlers.Tpo $(DEPDIR)/libfyjni_la-MathHandlers.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='MathHandlers.c' object='libfyjni_la-MathHandlers.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-ThreadManager.obj: ThreadManager.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-ThreadManager.obj -MD -MP -MF $(DEPDIR)/libfytst_a-ThreadManager.Tpo -c -o libfytst_a-ThreadManager.obj `if test -f 'ThreadManager.c'; then $(CYGPATH_W) 'ThreadManager.c'; else $(CYGPATH_W) '$(srcdir)/ThreadManager.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-ThreadManager.Tpo $(DEPDIR)/libfytst_a-ThreadManager.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ThreadManager.c' object='libfytst_a-ThreadManager.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-MathHandlers.lo `test -f 'MathHandlers.c' || echo '$(srcdir)/'`MathHandlers.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-ThreadManager.obj `if test -f 'ThreadManager.c'; then $(CYGPATH_W) 'ThreadManager.c'; else $(CYGPATH_W) '$(srcdir)/ThreadManager.c'; fi`
 
-libfyjni_la-Data.lo: Data.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-Data.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-Data.Tpo -c -o libfyjni_la-Data.lo `test -f 'Data.c' || echo '$(srcdir)/'`Data.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-Data.Tpo $(DEPDIR)/libfyjni_la-Data.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Data.c' object='libfyjni_la-Data.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-VMContext.o: VMContext.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-VMContext.o -MD -MP -MF $(DEPDIR)/libfytst_a-VMContext.Tpo -c -o libfytst_a-VMContext.o `test -f 'VMContext.c' || echo '$(srcdir)/'`VMContext.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-VMContext.Tpo $(DEPDIR)/libfytst_a-VMContext.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='VMContext.c' object='libfytst_a-VMContext.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-Data.lo `test -f 'Data.c' || echo '$(srcdir)/'`Data.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-VMContext.o `test -f 'VMContext.c' || echo '$(srcdir)/'`VMContext.c
 
-libfyjni_la-Heap.lo: Heap.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-Heap.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-Heap.Tpo -c -o libfyjni_la-Heap.lo `test -f 'Heap.c' || echo '$(srcdir)/'`Heap.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-Heap.Tpo $(DEPDIR)/libfyjni_la-Heap.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Heap.c' object='libfyjni_la-Heap.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-VMContext.obj: VMContext.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-VMContext.obj -MD -MP -MF $(DEPDIR)/libfytst_a-VMContext.Tpo -c -o libfytst_a-VMContext.obj `if test -f 'VMContext.c'; then $(CYGPATH_W) 'VMContext.c'; else $(CYGPATH_W) '$(srcdir)/VMContext.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-VMContext.Tpo $(DEPDIR)/libfytst_a-VMContext.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='VMContext.c' object='libfytst_a-VMContext.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-Heap.lo `test -f 'Heap.c' || echo '$(srcdir)/'`Heap.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-VMContext.obj `if test -f 'VMContext.c'; then $(CYGPATH_W) 'VMContext.c'; else $(CYGPATH_W) '$(srcdir)/VMContext.c'; fi`
 
-libfyjni_la-Thread.lo: Thread.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-Thread.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-Thread.Tpo -c -o libfyjni_la-Thread.lo `test -f 'Thread.c' || echo '$(srcdir)/'`Thread.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-Thread.Tpo $(DEPDIR)/libfyjni_la-Thread.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Thread.c' object='libfyjni_la-Thread.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-ExpDev.o: ExpDev.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-ExpDev.o -MD -MP -MF $(DEPDIR)/libfytst_a-ExpDev.Tpo -c -o libfytst_a-ExpDev.o `test -f 'ExpDev.c' || echo '$(srcdir)/'`ExpDev.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-ExpDev.Tpo $(DEPDIR)/libfytst_a-ExpDev.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ExpDev.c' object='libfytst_a-ExpDev.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-Thread.lo `test -f 'Thread.c' || echo '$(srcdir)/'`Thread.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-ExpDev.o `test -f 'ExpDev.c' || echo '$(srcdir)/'`ExpDev.c
 
-libfyjni_la-ThreadManager.lo: ThreadManager.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-ThreadManager.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-ThreadManager.Tpo -c -o libfyjni_la-ThreadManager.lo `test -f 'ThreadManager.c' || echo '$(srcdir)/'`ThreadManager.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-ThreadManager.Tpo $(DEPDIR)/libfyjni_la-ThreadManager.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ThreadManager.c' object='libfyjni_la-ThreadManager.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-ExpDev.obj: ExpDev.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-ExpDev.obj -MD -MP -MF $(DEPDIR)/libfytst_a-ExpDev.Tpo -c -o libfytst_a-ExpDev.obj `if test -f 'ExpDev.c'; then $(CYGPATH_W) 'ExpDev.c'; else $(CYGPATH_W) '$(srcdir)/ExpDev.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-ExpDev.Tpo $(DEPDIR)/libfytst_a-ExpDev.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ExpDev.c' object='libfytst_a-ExpDev.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-ThreadManager.lo `test -f 'ThreadManager.c' || echo '$(srcdir)/'`ThreadManager.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-ExpDev.obj `if test -f 'ExpDev.c'; then $(CYGPATH_W) 'ExpDev.c'; else $(CYGPATH_W) '$(srcdir)/ExpDev.c'; fi`
 
-libfyjni_la-VMContext.lo: VMContext.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-VMContext.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-VMContext.Tpo -c -o libfyjni_la-VMContext.lo `test -f 'VMContext.c' || echo '$(srcdir)/'`VMContext.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-VMContext.Tpo $(DEPDIR)/libfyjni_la-VMContext.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='VMContext.c' object='libfyjni_la-VMContext.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-FiScE.o: FiScE.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-FiScE.o -MD -MP -MF $(DEPDIR)/libfytst_a-FiScE.Tpo -c -o libfytst_a-FiScE.o `test -f 'FiScE.c' || echo '$(srcdir)/'`FiScE.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-FiScE.Tpo $(DEPDIR)/libfytst_a-FiScE.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FiScE.c' object='libfytst_a-FiScE.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-VMContext.lo `test -f 'VMContext.c' || echo '$(srcdir)/'`VMContext.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-FiScE.o `test -f 'FiScE.c' || echo '$(srcdir)/'`FiScE.c
 
-libfyjni_la-ExpDev.lo: ExpDev.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-ExpDev.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-ExpDev.Tpo -c -o libfyjni_la-ExpDev.lo `test -f 'ExpDev.c' || echo '$(srcdir)/'`ExpDev.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-ExpDev.Tpo $(DEPDIR)/libfyjni_la-ExpDev.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ExpDev.c' object='libfyjni_la-ExpDev.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-FiScE.obj: FiScE.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-FiScE.obj -MD -MP -MF $(DEPDIR)/libfytst_a-FiScE.Tpo -c -o libfytst_a-FiScE.obj `if test -f 'FiScE.c'; then $(CYGPATH_W) 'FiScE.c'; else $(CYGPATH_W) '$(srcdir)/FiScE.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-FiScE.Tpo $(DEPDIR)/libfytst_a-FiScE.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FiScE.c' object='libfytst_a-FiScE.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-ExpDev.lo `test -f 'ExpDev.c' || echo '$(srcdir)/'`ExpDev.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-FiScE.obj `if test -f 'FiScE.c'; then $(CYGPATH_W) 'FiScE.c'; else $(CYGPATH_W) '$(srcdir)/FiScE.c'; fi`
 
-libfyjni_la-FiScE.lo: FiScE.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-FiScE.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-FiScE.Tpo -c -o libfyjni_la-FiScE.lo `test -f 'FiScE.c' || echo '$(srcdir)/'`FiScE.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-FiScE.Tpo $(DEPDIR)/libfyjni_la-FiScE.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FiScE.c' object='libfyjni_la-FiScE.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-FileInputStream.o: FileInputStream.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-FileInputStream.o -MD -MP -MF $(DEPDIR)/libfytst_a-FileInputStream.Tpo -c -o libfytst_a-FileInputStream.o `test -f 'FileInputStream.c' || echo '$(srcdir)/'`FileInputStream.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-FileInputStream.Tpo $(DEPDIR)/libfytst_a-FileInputStream.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FileInputStream.c' object='libfytst_a-FileInputStream.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-FiScE.lo `test -f 'FiScE.c' || echo '$(srcdir)/'`FiScE.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-FileInputStream.o `test -f 'FileInputStream.c' || echo '$(srcdir)/'`FileInputStream.c
 
-libfyjni_la-FileInputStream.lo: FileInputStream.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-FileInputStream.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-FileInputStream.Tpo -c -o libfyjni_la-FileInputStream.lo `test -f 'FileInputStream.c' || echo '$(srcdir)/'`FileInputStream.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-FileInputStream.Tpo $(DEPDIR)/libfyjni_la-FileInputStream.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FileInputStream.c' object='libfyjni_la-FileInputStream.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-FileInputStream.obj: FileInputStream.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-FileInputStream.obj -MD -MP -MF $(DEPDIR)/libfytst_a-FileInputStream.Tpo -c -o libfytst_a-FileInputStream.obj `if test -f 'FileInputStream.c'; then $(CYGPATH_W) 'FileInputStream.c'; else $(CYGPATH_W) '$(srcdir)/FileInputStream.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-FileInputStream.Tpo $(DEPDIR)/libfytst_a-FileInputStream.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FileInputStream.c' object='libfytst_a-FileInputStream.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-FileInputStream.lo `test -f 'FileInputStream.c' || echo '$(srcdir)/'`FileInputStream.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-FileInputStream.obj `if test -f 'FileInputStream.c'; then $(CYGPATH_W) 'FileInputStream.c'; else $(CYGPATH_W) '$(srcdir)/FileInputStream.c'; fi`
 
-libfyjni_la-BinarySaver.lo: BinarySaver.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-BinarySaver.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-BinarySaver.Tpo -c -o libfyjni_la-BinarySaver.lo `test -f 'BinarySaver.c' || echo '$(srcdir)/'`BinarySaver.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-BinarySaver.Tpo $(DEPDIR)/libfyjni_la-BinarySaver.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='BinarySaver.c' object='libfyjni_la-BinarySaver.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-BinarySaver.o: BinarySaver.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-BinarySaver.o -MD -MP -MF $(DEPDIR)/libfytst_a-BinarySaver.Tpo -c -o libfytst_a-BinarySaver.o `test -f 'BinarySaver.c' || echo '$(srcdir)/'`BinarySaver.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-BinarySaver.Tpo $(DEPDIR)/libfytst_a-BinarySaver.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='BinarySaver.c' object='libfytst_a-BinarySaver.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-BinarySaver.lo `test -f 'BinarySaver.c' || echo '$(srcdir)/'`BinarySaver.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-BinarySaver.o `test -f 'BinarySaver.c' || echo '$(srcdir)/'`BinarySaver.c
 
-libfyjni_la-DataLoader.lo: DataLoader.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-DataLoader.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-DataLoader.Tpo -c -o libfyjni_la-DataLoader.lo `test -f 'DataLoader.c' || echo '$(srcdir)/'`DataLoader.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-DataLoader.Tpo $(DEPDIR)/libfyjni_la-DataLoader.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='DataLoader.c' object='libfyjni_la-DataLoader.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-BinarySaver.obj: BinarySaver.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-BinarySaver.obj -MD -MP -MF $(DEPDIR)/libfytst_a-BinarySaver.Tpo -c -o libfytst_a-BinarySaver.obj `if test -f 'BinarySaver.c'; then $(CYGPATH_W) 'BinarySaver.c'; else $(CYGPATH_W) '$(srcdir)/BinarySaver.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-BinarySaver.Tpo $(DEPDIR)/libfytst_a-BinarySaver.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='BinarySaver.c' object='libfytst_a-BinarySaver.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-DataLoader.lo `test -f 'DataLoader.c' || echo '$(srcdir)/'`DataLoader.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-BinarySaver.obj `if test -f 'BinarySaver.c'; then $(CYGPATH_W) 'BinarySaver.c'; else $(CYGPATH_W) '$(srcdir)/BinarySaver.c'; fi`
 
-libfyjni_la-FisceService.lo: FisceService.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -MT libfyjni_la-FisceService.lo -MD -MP -MF $(DEPDIR)/libfyjni_la-FisceService.Tpo -c -o libfyjni_la-FisceService.lo `test -f 'FisceService.c' || echo '$(srcdir)/'`FisceService.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfyjni_la-FisceService.Tpo $(DEPDIR)/libfyjni_la-FisceService.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='FisceService.c' object='libfyjni_la-FisceService.lo' libtool=yes @AMDEPBACKSLASH@
+libfytst_a-DataLoader.o: DataLoader.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-DataLoader.o -MD -MP -MF $(DEPDIR)/libfytst_a-DataLoader.Tpo -c -o libfytst_a-DataLoader.o `test -f 'DataLoader.c' || echo '$(srcdir)/'`DataLoader.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-DataLoader.Tpo $(DEPDIR)/libfytst_a-DataLoader.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='DataLoader.c' object='libfytst_a-DataLoader.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfyjni_la_CFLAGS) $(CFLAGS) -c -o libfyjni_la-FisceService.lo `test -f 'FisceService.c' || echo '$(srcdir)/'`FisceService.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-DataLoader.o `test -f 'DataLoader.c' || echo '$(srcdir)/'`DataLoader.c
 
-fiscetest-Test.o: Test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fiscetest_CFLAGS) $(CFLAGS) -MT fiscetest-Test.o -MD -MP -MF $(DEPDIR)/fiscetest-Test.Tpo -c -o fiscetest-Test.o `test -f 'Test.c' || echo '$(srcdir)/'`Test.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/fiscetest-Test.Tpo $(DEPDIR)/fiscetest-Test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Test.c' object='fiscetest-Test.o' libtool=no @AMDEPBACKSLASH@
+libfytst_a-DataLoader.obj: DataLoader.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -MT libfytst_a-DataLoader.obj -MD -MP -MF $(DEPDIR)/libfytst_a-DataLoader.Tpo -c -o libfytst_a-DataLoader.obj `if test -f 'DataLoader.c'; then $(CYGPATH_W) 'DataLoader.c'; else $(CYGPATH_W) '$(srcdir)/DataLoader.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libfytst_a-DataLoader.Tpo $(DEPDIR)/libfytst_a-DataLoader.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='DataLoader.c' object='libfytst_a-DataLoader.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fiscetest_CFLAGS) $(CFLAGS) -c -o fiscetest-Test.o `test -f 'Test.c' || echo '$(srcdir)/'`Test.c
-
-fiscetest-Test.obj: Test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fiscetest_CFLAGS) $(CFLAGS) -MT fiscetest-Test.obj -MD -MP -MF $(DEPDIR)/fiscetest-Test.Tpo -c -o fiscetest-Test.obj `if test -f 'Test.c'; then $(CYGPATH_W) 'Test.c'; else $(CYGPATH_W) '$(srcdir)/Test.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/fiscetest-Test.Tpo $(DEPDIR)/fiscetest-Test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='Test.c' object='fiscetest-Test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fiscetest_CFLAGS) $(CFLAGS) -c -o fiscetest-Test.obj `if test -f 'Test.c'; then $(CYGPATH_W) 'Test.c'; else $(CYGPATH_W) '$(srcdir)/Test.c'; fi`
-
-utiltest-TestUtil.o: TestUtil.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(utiltest_CFLAGS) $(CFLAGS) -MT utiltest-TestUtil.o -MD -MP -MF $(DEPDIR)/utiltest-TestUtil.Tpo -c -o utiltest-TestUtil.o `test -f 'TestUtil.c' || echo '$(srcdir)/'`TestUtil.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/utiltest-TestUtil.Tpo $(DEPDIR)/utiltest-TestUtil.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='TestUtil.c' object='utiltest-TestUtil.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(utiltest_CFLAGS) $(CFLAGS) -c -o utiltest-TestUtil.o `test -f 'TestUtil.c' || echo '$(srcdir)/'`TestUtil.c
-
-utiltest-TestUtil.obj: TestUtil.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(utiltest_CFLAGS) $(CFLAGS) -MT utiltest-TestUtil.obj -MD -MP -MF $(DEPDIR)/utiltest-TestUtil.Tpo -c -o utiltest-TestUtil.obj `if test -f 'TestUtil.c'; then $(CYGPATH_W) 'TestUtil.c'; else $(CYGPATH_W) '$(srcdir)/TestUtil.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/utiltest-TestUtil.Tpo $(DEPDIR)/utiltest-TestUtil.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='TestUtil.c' object='utiltest-TestUtil.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(utiltest_CFLAGS) $(CFLAGS) -c -o utiltest-TestUtil.obj `if test -f 'TestUtil.c'; then $(CYGPATH_W) 'TestUtil.c'; else $(CYGPATH_W) '$(srcdir)/TestUtil.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfytst_a_CFLAGS) $(CFLAGS) -c -o libfytst_a-DataLoader.obj `if test -f 'DataLoader.c'; then $(CYGPATH_W) 'DataLoader.c'; else $(CYGPATH_W) '$(srcdir)/DataLoader.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -970,7 +985,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(fyincdir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -1003,7 +1018,7 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-noinstPROGRAMS mostlyclean-am
+	clean-noinstLIBRARIES clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -1075,12 +1090,12 @@ uninstall-am: uninstall-fyincHEADERS uninstall-includeHEADERS \
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS ctags \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-fyincHEADERS install-html \
+	clean-libLTLIBRARIES clean-libtool clean-noinstLIBRARIES \
+	clean-noinstPROGRAMS ctags distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-fyincHEADERS install-html \
 	install-html-am install-includeHEADERS install-info \
 	install-info-am install-libLTLIBRARIES install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \

@@ -12,14 +12,15 @@ fyinc_HEADERS = \
 	../inc/fy_util/MemMan.h \
 	../inc/fy_util/String.h \
 	../inc/fy_util/HashMap.h \
+	../inc/fy_util/HashMapI.h \
 	../inc/fy_util/ArrList.h \
 	../inc/fy_util/Debug.h \
 	../inc/fy_util/Utf8.h
 
-lib_LTLIBRARIES=libfisce.la libfyjni.la
 
 FY_SRC = Debug.c \
         HashMap.c \
+        HashMapI.c \
         ArrList.c \
         LnkList.c \
         MemMan.c \
@@ -40,25 +41,22 @@ FY_SRC = Debug.c \
         FiScE.c \
         FileInputStream.c \
         BinarySaver.c \
-	DataLoader.c
+		DataLoader.c
 
+if FY_BUILD_TEST
+noinst_LIBRARIES = libfytst.a
+libfytst_a_CFLAGS = -DFY_THIS_IS_A_NOOP
+libfytst_a_SOURCES = $(FY_SRC)
+noinst_PROGRAMS = utiltest fiscetest
+utiltest_SOURCES = TestUtil.c
+utiltest_LDFLAGS = libfytst.a -static
+fiscetest_SOURCES =  Test.c
+fiscetest_LDFLAGS = libfytst.a -static
+else
+lib_LTLIBRARIES=libfisce.la libfyjni.la
 libfisce_la_SOURCES = $(FY_SRC)
 
-libfisce_la_CFLAGS = -DFY_EXPORT
 libfisce_la_LDFLAGS = -fwhole-program -no-undefined 
-noinst_PROGRAMS = utiltest fiscetest
-
-utiltest_SOURCES = TestUtil.c
-utiltest_LDFLAGS = -fwhole-program -static
-utiltest_CFLAGS = -DFY_STATIC
-utiltest_LDADD  = libfisce.la
-
-fiscetest_SOURCES = Test.c
-fiscetest_LDFLAGS = -fwhole-program -static
-fiscetest_CFLAGS = -DFY_STATIC
-fiscetest_LDADD  = libfisce.la
-
-libfyjni_la_CFLAGS = -DFY_EXPORT
 libfyjni_la_SOURCES = $(FY_SRC) FisceService.c 
 if FY_IS_WIN32
 libfyjni_la_LDFLAGS = -fwhole-program -no-undefined -Wl,--kill-at
@@ -66,3 +64,4 @@ else
 libfyjni_la_LDFLAGS = -fwhole-program -no-undefined
 endif
 
+endif

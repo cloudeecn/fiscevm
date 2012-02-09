@@ -73,7 +73,22 @@ else
 	echo "---------- Disabling sse3."
 fi
 
+AC_ARG_ENABLE(test,
+  [AS_HELP_STRING([--enable-test],
+  [Build fiscetest & utiltest insteadof libs [default=no]])],
+  [fy_do_test=$enableval],
+  [fy_do_test="no"])
+if test x"$fy_do_test" = xyes ; then
+	echo "========== Build test."
+	CFLAGS="$CFLAGS -DFY_STATIC"
+else
+	echo "========== Build libraries."
+	CFLAGS="$CFLAGS -DFY_EXPORT"
+fi
+AM_CONDITIONAL([FY_BUILD_TEST],[test x$fy_do_test = xyes])
+
 CFLAGS="$CFLAGS -pipe"
+
 
 AC_MSG_CHECKING([is win32])
 AC_LANG_PUSH(C)
@@ -96,6 +111,7 @@ LT_INIT(win32-dll)
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
+AC_PROG_RANLIB
 AC_PROG_LIBTOOL
 
 AM_PROG_CC_C_O
