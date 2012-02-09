@@ -20,6 +20,7 @@
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
 #include "fy_util/HashMap.h"
+#include "fy_util/HashMapI.h"
 #include "fy_util/ArrList.h"
 #ifndef FISCESTU_H_
 #define FISCESTU_H_
@@ -298,6 +299,8 @@ typedef struct fy_class {
 			fy_char pType;
 		} prm;
 	} ci;
+
+	fy_hashMapI virtualTable[1];
 
 	/*Need persist*/
 	fy_uint classObjId;

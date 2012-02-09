@@ -44,14 +44,13 @@ FY_SRC = Debug.c \
 		DataLoader.c
 
 if FY_BUILD_TEST
-noinst_LIBRARIES = libfytst.a
-libfytst_a_CFLAGS = -DFY_THIS_IS_A_NOOP
-libfytst_a_SOURCES = $(FY_SRC)
+noinst_LTLIBRARIES = libfytst.la
+libfytst_la_SOURCES = $(FY_SRC)
 noinst_PROGRAMS = utiltest fiscetest
 utiltest_SOURCES = TestUtil.c
-utiltest_LDFLAGS = libfytst.a -static
+utiltest_LDADD = libfytst.la
 fiscetest_SOURCES =  Test.c
-fiscetest_LDFLAGS = libfytst.a -static
+fiscetest_LDADD = libfytst.la
 else
 lib_LTLIBRARIES=libfisce.la libfyjni.la
 libfisce_la_SOURCES = $(FY_SRC)

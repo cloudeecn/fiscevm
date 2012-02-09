@@ -590,6 +590,9 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 		method->owner = clazz;
 		method->access_flags = fy_dataRead2(context, is, exception);
 		FYEH();
+		if (clazz->accessFlags & FY_ACC_FINAL) {
+			method->access_flags |= FY_ACC_FINAL;
+		}
 		method->name = fy_clGetConstantString(context, clazz,
 				fy_dataRead2(context, is, exception));
 		FYEH();
@@ -758,6 +761,7 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, void *is,
 	clazz->constantPools[0] = NULL;
 	clazz->accessFlags = fy_dataRead2(context, is, exception);
 	FYEH()NULL;
+
 	clazz->thisClass = (clazz->constantPools)[fy_dataRead2(context, is,
 			exception)];
 	FYEH()NULL;
@@ -974,5 +978,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 			FYEH()NULL;
 		}
 	}
+	fy_hashMapIInit(block, clazz->virtualTable, 3, 12, -1, exception);
+	FYEH()NULL;
 	return clazz;
 }

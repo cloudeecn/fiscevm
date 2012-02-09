@@ -70,7 +70,7 @@ static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
 		fy_int key) {
 	fy_hashMapIEntry *entry;
 
-	if ((entry = this->buckets[key % this->bucketsSizeM1]) != NULL) {
+	if ((entry = this->buckets[key & this->bucketsSizeM1]) != NULL) {
 		do {
 			if (entry->key == key) {
 				return entry;

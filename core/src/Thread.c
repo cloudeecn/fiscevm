@@ -2834,9 +2834,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case INVOKEINTERFACE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue, ivalue2, ivalue3;
 				fy_class *clazz1;
-				fy_method *mvalue;
+				fy_method *mvalue, *mvalue2;
 #endif
 				ivalue3 = fy_nextU2(code); /*m*/
 				ivalue = fy_nextU1(code); /*count*/
@@ -2855,7 +2855,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				clazz1 = fy_heapGetObject(context, stack[sp])->clazz;
-				mvalue =
+				mvalue2 =
 						fy_vmLookupMethodFromConstant(
 								context,
 								(ConstantMethodRef*) (method->owner->constantPools[ivalue3]),
@@ -2865,7 +2865,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (!fy_classCanCastTo(context, clazz1, mvalue->owner)) {
+				if (!fy_classCanCastTo(context, clazz1, mvalue2->owner)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2876,46 +2876,59 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				mvalue = fy_vmLookupMethodVirtual(context, clazz1,
-						mvalue->fullName, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if (mvalue == NULL) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ABSTRACT);
-					strcpy_s( exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if ((mvalue->access_flags & FY_ACC_PUBLIC) == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ACCESS);
-					strcpy_s( exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if ((mvalue->access_flags & FY_ACC_ABSTRACT)) {
-					message->messageType = message_exception;
+				ivalue2 = fy_hashMapIGet(block, clazz1->virtualTable,
+						mvalue2->method_id);
+				if (ivalue2 == -1) {
+					mvalue = fy_vmLookupMethodVirtual(context, clazz1,
+							mvalue2->fullName, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;
+					}
+					if (mvalue == NULL) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s( exception->exceptionName,
+								sizeof(exception->exceptionName),
+								FY_EXCEPTION_ABSTRACT);
+						strcpy_s( exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						FY_FALLOUT_NOINVOKE
+						break;
+					}
+					if ((mvalue->access_flags & FY_ACC_PUBLIC) == 0) {
+						message->messageType = message_exception;
+						exception->exceptionType = exception_normal;
+						strcpy_s( exception->exceptionName,
+								sizeof(exception->exceptionName),
+								FY_EXCEPTION_ACCESS);
+						strcpy_s( exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						FY_FALLOUT_NOINVOKE
+						break;
+					}
+					if ((mvalue->access_flags & FY_ACC_ABSTRACT)) {
+						message->messageType = message_exception;
 
-					exception->exceptionType = exception_normal;
-					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ABSTRACT);
-					strcpy_s( exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					FY_FALLOUT_NOINVOKE
-					break;
+						exception->exceptionType = exception_normal;
+						strcpy_s( exception->exceptionName,
+								sizeof(exception->exceptionName),
+								FY_EXCEPTION_ABSTRACT);
+						strcpy_s( exception->exceptionDesc,
+								sizeof(exception->exceptionDesc), "");
+						FY_FALLOUT_NOINVOKE
+						break;
+					}
+					fy_hashMapIPut(block, clazz1->virtualTable,
+							mvalue2->method_id, mvalue->method_id, exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;/*EXCEPTION_THROWN*/
+					}
+				} else {
+					mvalue = context->methods[ivalue2];
 				}fy_localToFrame(frame);
 #ifdef FY_VERBOSE
 				fy_strPrint(mvalue->uniqueName);
@@ -3174,7 +3187,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case INVOKEVIRTUAL: {
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue3;
-				fy_class *clazz1, *clazz2;
+				fy_class *clazz1;
 				fy_method *mvalue2, *mvalue;
 #endif
 				clazz1 = method->owner;
@@ -3196,51 +3209,70 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				clazz2 = fy_heapGetObject(context, stack[sp])->clazz;
-				mvalue = fy_vmLookupMethodVirtual(context, clazz2,
-						mvalue2->fullName, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
+				if (mvalue2->access_flags & FY_ACC_FINAL) {
+					mvalue = mvalue2;
+				} else {
+					clazz1 = fy_heapGetObject(context, stack[sp])->clazz;
+#ifdef FY_LATE_DECLARATION
+					fy_uint ivalue2;
+#endif
+					ivalue2 = fy_hashMapIGet(block, clazz1->virtualTable,
+							mvalue2->method_id);
+					if (ivalue2 == -1) {
+						mvalue = fy_vmLookupMethodVirtual(context, clazz1,
+								mvalue2->fullName, exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							FY_FALLOUT_NOINVOKE
+							break;
+						}
 
-				if (mvalue == NULL) {
-					mvalue = fy_vmLookupMethodVirtual(context, clazz2,
-							mvalue2->fullName, exception);
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ABSTRACT);
-					strcpy_s( exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "");
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if (mvalue->access_flags & FY_ACC_STATIC) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_INCOMPAT_CHANGE);
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if ((mvalue->access_flags & FY_ACC_ABSTRACT)) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ABSTRACT);
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					FY_FALLOUT_NOINVOKE
-					break;
+						if (mvalue == NULL) {
+							message->messageType = message_exception;
+							exception->exceptionType = exception_normal;
+							strcpy_s( exception->exceptionName,
+									sizeof(exception->exceptionName),
+									FY_EXCEPTION_ABSTRACT);
+							strcpy_s( exception->exceptionDesc,
+									sizeof(exception->exceptionDesc), "");
+							FY_FALLOUT_NOINVOKE
+							break;
+						}
+						if (mvalue->access_flags & FY_ACC_STATIC) {
+							message->messageType = message_exception;
+							exception->exceptionType = exception_normal;
+							strcpy_s( exception->exceptionName,
+									sizeof(exception->exceptionName),
+									FY_EXCEPTION_INCOMPAT_CHANGE);
+							fy_strSPrint(exception->exceptionDesc,
+									sizeof(exception->exceptionDesc),
+									mvalue->uniqueName);
+							FY_FALLOUT_NOINVOKE
+							break;
+						}
+						if ((mvalue->access_flags & FY_ACC_ABSTRACT)) {
+							message->messageType = message_exception;
+							exception->exceptionType = exception_normal;
+							strcpy_s( exception->exceptionName,
+									sizeof(exception->exceptionName),
+									FY_EXCEPTION_ABSTRACT);
+							fy_strSPrint(exception->exceptionDesc,
+									sizeof(exception->exceptionDesc),
+									mvalue->uniqueName);
+							FY_FALLOUT_NOINVOKE
+							break;
+						}
+						fy_hashMapIPut(block, clazz1->virtualTable,
+								mvalue2->method_id, mvalue->method_id,
+								exception);
+						if (exception->exceptionType != exception_none) {
+							message->messageType = message_exception;
+							FY_FALLOUT_NOINVOKE
+							break;/*EXCEPTION_THROWN*/
+						}
+					} else {
+						mvalue = context->methods[ivalue2];
+					}
 				}fy_localToFrame(frame);
 #ifdef FY_VERBOSE
 				fy_strPrint(mvalue->uniqueName);
@@ -4307,7 +4339,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					pivalue[i] = fy_nextS4(code)
 					;
 				}fy_threadPopInt(ivalue4);
-				if ((fy_int)ivalue4 < (fy_int)ivalue2 || (fy_int)ivalue4 > (fy_int)ivalue3) {
+				if ((fy_int) ivalue4 < (fy_int) ivalue2
+						|| (fy_int) ivalue4 > (fy_int) ivalue3) {
 					ivalue4 = ivalue;
 				} else {
 					ivalue4 = pivalue[ivalue4 - ivalue2];
