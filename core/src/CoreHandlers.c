@@ -23,9 +23,35 @@ static void FiScEVMSave(struct fy_context *context, struct fy_thread *thread,
 	context->callForSave(context, exception);
 }
 
+static void FiScEVMStoreParams(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_exception *exception) {
+//We don't have a frame for native function currently, so the current frame is the caller frame.
+	fy_frame *frame = thread->frames + (thread->frameCount - 1);
+	fy_int begin = args[0];
+	fy_int targetHandle = args[1];
+	fy_int targetPos = args[2];
+	fy_int count = args[3];
+	fy_int *targetData = (fy_int*) fy_heapGetArrayBytes(context, targetHandle,
+			exception);
+	if (fy_heapArrayLength(context, targetHandle, exception)
+			< count + targetPos) {
+		fy_fault(exception, FY_EXCEPTION_IOOB,
+				"Target array is too small to fit param size");
+		return;
+	}
+	if (frame->localCount < count + begin) {
+		fy_fault(exception, FY_EXCEPTION_IOOB,
+				"Current method doesn't have %d params.", count);
+		return;
+	}
+	memcpy(targetData + targetPos, thread->stack + frame->sb + begin,
+			count * sizeof(fy_int));
+}
+
 static void SystemGC(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-
+	fy_heapGC(context, exception);
 }
 
 static void SystemExit(struct fy_context *context, struct fy_thread *thread,
@@ -963,6 +989,11 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.save.()V", NULL, FiScEVMSave,
 			exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			"com/cirnoworks/fisce/privat/FiScEVM.storeParamsToArray.(I[III)V",
+			NULL, FiScEVMStoreParams, exception);
+	FYEH();
 	fy_vmRegisterNativeHandler(
 			context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(L"FY_BASE_STRING";)V",

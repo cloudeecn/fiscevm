@@ -853,7 +853,15 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 }
 
 void fy_vmBootFromData(fy_context *context, fy_exception *exception) {
+
 	context->loadData(context, exception);
+	context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,
+			exception);
+	FYEH();
+
+	context->TOP_THROWABLE = fy_vmLookupClass(context, context->sClassThrowable,
+			exception);
+	FYEH();
 	context->state = FY_TM_STATE_RUN_PENDING;
 	context->nextGCTime = fy_portTimeMillSec(context->port) + FY_GC_IDV;
 	context->nextForceGCTime = context->nextGCTime + FY_GC_FORCE_IDV;

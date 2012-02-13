@@ -340,6 +340,10 @@ void testSave() {
 	hltest("EXCLUDE/fisce/test/SaveTest");
 }
 
+void testStore() {
+	hltest("EXCLUDE/fisce/test/ParamStoreTest");
+}
+
 void testLoad() {
 	hltest(NULL);
 }
@@ -425,6 +429,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "LookupSwitch", testLookupSwitch }, //
 				{ "Save", testSave }, //
 				{ "Load", testLoad }, //
+				{ "StoreParamsToArray", testStore }, //
 				//{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {
