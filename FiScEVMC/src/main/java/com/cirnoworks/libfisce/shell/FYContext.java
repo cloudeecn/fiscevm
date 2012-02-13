@@ -41,6 +41,7 @@ public class FYContext implements Runnable, FiScEVM {
 	private final HashMap<Integer, FYField> fieldCache = new HashMap<Integer, FYField>();
 
 	private final HashMap<String, INativeHandler> handlers = new HashMap<String, INativeHandler>();
+	private final HashMap<String, INativeHandler> optimizedHandlers = new HashMap<String, INativeHandler>();
 	private final LinkedHashSet<IStateListener> stateListeners = new LinkedHashSet<IStateListener>();
 	private final LinkedHashSet<IToolkit> toolkits = new LinkedHashSet<IToolkit>();
 
@@ -111,7 +112,15 @@ public class FYContext implements Runnable, FiScEVM {
 	}
 
 	public INativeHandler getHandler(String name) {
-		return handlers.get(name);
+		INativeHandler ret = optimizedHandlers.get(name);
+		if (ret == null) {
+			ret = handlers.get(name);
+			if ((ret = handlers.get(name)) != null) {
+				optimizedHandlers.put(name, ret);
+				handlers.remove(name);
+			}
+		}
+		return ret;
 	}
 
 	private void initContext() {

@@ -101,4 +101,19 @@ public class FiScEVM {
 			throws InstantiationException, IllegalAccessException;
 
 	public static native void save();
+
+	/**
+	 * Store caller's params to an int array.
+	 * 
+	 * @param begin
+	 *            the beginning of the params
+	 * @param target
+	 *            target array
+	 * @param pos
+	 *            begin pos of target array
+	 * @param count
+	 *            the count of caller's params
+	 */
+	public static native void storeParamsToArray(int begin, int[] target,
+			int pos, int count);
 }

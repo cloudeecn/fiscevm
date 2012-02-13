@@ -22,20 +22,20 @@ import java.util.Iterator;
  * 
  * @author yuxuanhuang
  */
-public final class SimpleList<T> implements Iterable<T> {
+public class SimpleList<T> implements Iterable<T> {
 
-	private int size;
-	private Object[] container;
+	protected int size;
+	protected T[] container;
 
 	public SimpleList(int initSize) {
-		container = new Object[initSize];
+		container = (T[]) new Object[initSize];
 	}
 
 	public SimpleList() {
 		this(16);
 	}
 
-	public void ensureCap(int cap) {
+	public final void ensureCap(int cap) {
 		int oldCap = container.length;
 		int newCap = oldCap;
 		while (newCap < cap) {
@@ -44,28 +44,28 @@ public final class SimpleList<T> implements Iterable<T> {
 		if (oldCap != newCap) {
 			Object[] cs = new Object[newCap];
 			System.arraycopy(container, 0, cs, 0, size);
-			container = cs;
+			container = (T[]) cs;
 		}
 	}
 
-	public void ensureSize(int newSize) {
+	public final void ensureSize(int newSize) {
 		if (newSize > size) {
 			ensureCap(newSize);
 			size = newSize;
 		}
 	}
 
-	public void add(T c) {
+	public final void add(T c) {
 		if (container.length <= size) {
 			Object[] cs = new Object[container.length << 1];
 			System.arraycopy(container, 0, cs, 0, size);
-			container = cs;
+			container = (T[]) cs;
 		}
 		container[size] = c;
 		size++;
 	}
 
-	public boolean remove(T c) {
+	public final boolean remove(T c) {
 		for (int i = 0; i < size; i++) {
 			if (container[i] == c) {
 				remove(i);
@@ -75,7 +75,7 @@ public final class SimpleList<T> implements Iterable<T> {
 		return false;
 	}
 
-	public void clear() {
+	public final void clear() {
 		for (int i = 0, max = size; i < max; i++) {
 			container[i] = null;
 		}
@@ -83,25 +83,25 @@ public final class SimpleList<T> implements Iterable<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public T get(int idx) {
+	public final T get(int idx) {
 		if (idx >= size) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
 		return (T) container[idx];
 	}
 
-	public void set(int idx, T c) {
+	public final void set(int idx, T c) {
 		if (idx >= size) {
 			throw new ArrayIndexOutOfBoundsException(idx + ">=" + size);
 		}
 		container[idx] = c;
 	}
 
-	public int size() {
+	public final int size() {
 		return size;
 	}
 
-	public void trimToSize(int size) {
+	public final void trimToSize(int size) {
 		if (this.size < size) {
 			throw new IndexOutOfBoundsException();
 		} else if (this.size == size) {
@@ -114,7 +114,7 @@ public final class SimpleList<T> implements Iterable<T> {
 		}
 	}
 
-	public T remove(int index) {
+	public final T remove(int index) {
 		if (index < 0 || index >= size) {
 			throw new IndexOutOfBoundsException();
 		}
@@ -128,7 +128,7 @@ public final class SimpleList<T> implements Iterable<T> {
 		return ret;
 	}
 
-	public T pop() {
+	public final T pop() {
 		if (size == 0) {
 			throw new IndexOutOfBoundsException("Pop from empty list");
 		}
@@ -139,7 +139,7 @@ public final class SimpleList<T> implements Iterable<T> {
 		return ret;
 	}
 
-	public class SimpleListIterator implements Iterator<T> {
+	public final class SimpleListIterator implements Iterator<T> {
 
 		private int pos;
 
@@ -183,7 +183,7 @@ public final class SimpleList<T> implements Iterable<T> {
 	 * 
 	 * @see java.lang.Iterable#iterator()
 	 */
-	public Iterator<T> iterator() {
+	public final Iterator<T> iterator() {
 		return new SimpleListIterator();
 	}
 }
