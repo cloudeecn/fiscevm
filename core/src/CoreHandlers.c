@@ -40,7 +40,7 @@ static void FiScEVMStoreParams(struct fy_context *context,
 				"Target array is too small to fit param size");
 		return;
 	}
-	if (frame->localCount < count + begin) {
+	if (frame->method->max_locals < count + begin) {
 		fy_fault(exception, FY_EXCEPTION_IOOB,
 				"Current method doesn't have %d params.", count);
 		return;
