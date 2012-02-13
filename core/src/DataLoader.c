@@ -154,6 +154,7 @@ void fy_loadEndField(struct fy_context *context, void *loader_,
 					"Method %d not loaded.", i);
 			return;
 		}
+		method->method_id = i;
 		/*TODO set handle*/
 	}
 	fy_mmFree(context->memblocks, loader->methodTemp);
@@ -165,6 +166,7 @@ void fy_loadEndField(struct fy_context *context, void *loader_,
 					"Field %d not loaded.", i);
 			return;
 		}
+		field->field_id = i;
 		/*TODO set handle*/
 	}
 	fy_mmFree(context->memblocks, loader->fieldTemp);
