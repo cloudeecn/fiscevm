@@ -288,6 +288,11 @@ void testArray() {
 void testArch() {
 	hltest("EXCLUDE/fisce/test/ArchitectureTest");
 }
+
+void testDebugPrintStream() {
+	hltest("EXCLUDE/fisce/test/DebugPrintStreamTest");
+}
+
 void testAutoBoxing() {
 	hltest("EXCLUDE/fisce/test/AutoBoxingTest");
 }
@@ -413,6 +418,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "heap", testHeap }, //
 				{ "cleanup1", testCleanup1 }, //
 				{ "Arch", testArch }, //
+				//{ "DebugPrintStream", testDebugPrintStream }, //
 				{ "Static", testStatic }, //
 				{ "Smoke", testThread }, //
 				{ "Array", testArray }, //
