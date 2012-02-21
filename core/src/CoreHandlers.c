@@ -277,13 +277,14 @@ static void ThreadYield(struct fy_context *context, struct fy_thread *thread,
 
 static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-	fy_str *str;
+	fy_str str[1];
 	fy_memblock *block = context->memblocks;
 	fy_vmLookupClass(context, context->sString, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
-	str = fy_strCreate(block, exception);
+	str->content = NULL;
+	fy_strInit(block, str, 128, exception);
 	FYEH();
 	fy_heapGetString(context, args[0], str, exception);
 	if (exception->exceptionType != exception_none) {
@@ -292,7 +293,7 @@ static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
 	printf("VMDebugOut: ");
 	fy_strPrint(str);
 	printf("\n");
-	fy_strRelease(block, str);
+	fy_strDestroy(block, str);
 }
 
 static void VMDebugOutI(struct fy_context *context, struct fy_thread *thread,
@@ -380,7 +381,7 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 		}
 	}
 	fy_strDestroy(block, str);
-	fy_free(str);
+	fy_mmFree(block, str);
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
 

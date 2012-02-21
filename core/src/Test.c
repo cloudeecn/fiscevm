@@ -418,7 +418,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "heap", testHeap }, //
 				{ "cleanup1", testCleanup1 }, //
 				{ "Arch", testArch }, //
-				//{ "DebugPrintStream", testDebugPrintStream }, //
+				{ "DebugPrintStream", testDebugPrintStream }, //
 				{ "Static", testStatic }, //
 				{ "Smoke", testThread }, //
 				{ "Array", testArray }, //
@@ -436,7 +436,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "Save", testSave }, //
 				{ "Load", testLoad }, //
 				{ "StoreParamsToArray", testStore }, //
-				//{ "Native", testNative }, //
+//				{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {
 	int i = 0;
