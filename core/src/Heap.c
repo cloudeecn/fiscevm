@@ -1134,6 +1134,24 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	fy_int i, j;
 	fy_int youngId = context->youngId;
 	fy_long timeStamp;
+#ifdef _DEBUG
+	printf(
+			"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d managed native bytes\n",
+			context->posInEden,
+			context->posInYong,
+			context->posInOld,
+			(fy_int) ((context->posInEden + context->posInYong
+					+ context->posInOld) * sizeof(fy_uint)),
+			context->memblocks->size);
+#else
+	printf(
+			"#FISCE GC BEFORE %d+%d+%d total %dbytes\n",
+			context->posInEden,
+			context->posInYong,
+			context->posInOld,
+			(fy_int) ((context->posInEden + context->posInYong
+							+ context->posInOld) * sizeof(fy_uint)));
+#endif
 
 	printf(
 			"#FISCE GC BEFORE %d+%d+%d total %dbytes\n",

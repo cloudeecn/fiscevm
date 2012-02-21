@@ -28,12 +28,16 @@ typedef struct fy_memblock {
 	void *first;
 	void *last;
 	fy_int blocks;
+#ifdef _DEBUG
+	fy_uint size;
+#endif
 } fy_memblock;
 
 FY_ATTR_EXPORT void fy_mmInit(fy_memblock *block, fy_exception *exception);
 FY_ATTR_EXPORT void fy_mmDestroy(fy_memblock *block);
 
-FY_ATTR_EXPORT void* fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception);
+FY_ATTR_EXPORT void* fy_mmAllocate(fy_memblock *block, int size,
+		fy_exception *exception);
 FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address);
 
 #ifdef	__cplusplus

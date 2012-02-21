@@ -19,6 +19,9 @@
 typedef struct fy_memblockNode {
 	struct fy_memblockNode *prev;
 	struct fy_memblockNode *next;
+#ifdef _DEBUG
+	fy_uint size;
+#endif
 	FY_VLS(fy_byte,data);
 } fy_memblockNode;
 
@@ -42,10 +45,14 @@ FY_ATTR_EXPORT void fy_mmDestroy(fy_memblock *block) {
 	} while (node != NULL);
 }
 
-FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size, fy_exception *exception) {
+FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size,
+		fy_exception *exception) {
 	fy_memblockNode *node = fy_allocate(sizeof(fy_memblockNode) + size,
 			exception);
 	FYEH()NULL;
+#ifdef _DEBUG
+	block->size += node->size = sizeof(fy_memblockNode) + size;
+#endif
 	((fy_memblockNode*) block->last)->next = node;
 	node->prev = block->last;
 	block->last = node;
@@ -57,6 +64,9 @@ FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address) {
 
 	fy_memblockNode *base = (fy_memblockNode *) ((fy_byte*) address
 			- (int) ((fy_memblockNode*) 0)->data);
+#ifdef _DEBUG
+	block->size -= base->size;
+#endif
 	base->prev->next = base->next;
 	if (base == block->last) {
 		block->last = base->prev;
