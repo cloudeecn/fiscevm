@@ -27,7 +27,7 @@ fy_uint fy_utf8Size(fy_char unicode) {
 	}
 }
 
-fy_uint fy_utf8SizeU(char firstByte) {
+fy_uint fy_utf8SizeU(signed char firstByte) {
 	if (firstByte >= 0) {
 		return 1;
 	} else if (firstByte >= -16) {
@@ -44,7 +44,7 @@ fy_uint fy_utf8SizeU(char firstByte) {
 fy_uint fy_utf8SizeS(const char *str, fy_int length) {
 	int i = 0;
 	fy_uint ret = 0;
-	char c;
+	signed char c;
 	if (length < 0) {
 		while ((c = str[i]) != 0) {
 			i += fy_utf8SizeU(c);
@@ -61,9 +61,9 @@ fy_uint fy_utf8SizeS(const char *str, fy_int length) {
 }
 
 fy_char fy_utf8Read(const char **from, fy_int *left) {
-	char x = *((*from)++);
-	char y;
-	char z;
+	signed char x = *((*from)++);
+	signed char y;
+	signed char z;
 	(*left)--;
 
 	/*
@@ -123,7 +123,7 @@ int fy_utf8Write(fy_char unicode, char **to, fy_int *left) {
 			return 0;
 		}
 		(*left) -= 1;
-		*((*to)++) = (char) unicode;
+		*((*to)++) = (signed char) unicode;
 		return 1;
 	default:
 		fy_fault(NULL, NULL, "ILLEGAL!");
