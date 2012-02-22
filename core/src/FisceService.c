@@ -716,6 +716,30 @@ jstring JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getString(
 	return ret;
 }
 
+ JNIEXPORT
+ jcharArray JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStringChars(
+ 		JNIEnv *env, jclass self, jobject buf, jint handle) {
+ 	fy_str str;
+ 	jcharArray ret;
+ 	GENERIC_HEADER
+ 	str.content = NULL;
+ 	fy_strInit(context->memblocks, &str, 32, exception);
+ 	if (exception->exceptionType != exception_none) {
+ 		fillException(env, exception);
+ 		return NULL;
+ 	}
+ 	fy_nativeGetString(context, handle, &str, exception);
+ 	if (exception->exceptionType != exception_none) {
+ 		fillException(env, exception);
+ 		fy_strDestroy(context->memblocks, &str);
+ 		return NULL;
+ 	}
+ 	ret = (*env)->NewCharArray(env,str.length);
+ 	(*env)->SetCharArrayRegion(env, ret, 0, str.length, str.content);
+ 	fy_strDestroy(context->memblocks, &str);
+ 	return ret;
+ }
+
 /*
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    getClassOfHandle
