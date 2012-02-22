@@ -277,6 +277,10 @@ static void hltest(char *name) {
 	fy_log("--------------------------------------------------------\n");
 }
 
+void testUnicode() {
+	hltest("EXCLUDE/fisce/test/UnicodeTest");
+}
+
 void testThread() {
 	hltest("EXCLUDE/fisce/test/Tester");
 }
@@ -418,6 +422,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "heap", testHeap }, //
 				{ "cleanup1", testCleanup1 }, //
 				{ "Arch", testArch }, //
+				{ "Unicode", testUnicode }, //
 				{ "DebugPrintStream", testDebugPrintStream }, //
 				{ "Static", testStatic }, //
 				{ "Smoke", testThread }, //
