@@ -23,7 +23,7 @@ extern "C" {
 
 fy_uint fy_utf8Size(fy_char unicode);
 
-fy_uint fy_utf8SizeU(char firstByte);
+fy_uint fy_utf8SizeU(signed char firstByte);
 
 fy_uint fy_utf8SizeS(const char *str, fy_int length);
 
