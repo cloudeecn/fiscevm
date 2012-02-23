@@ -16,11 +16,15 @@
  */
 package com.cirnoworks.fisce.privat;
 
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 public class FiScEVM {
 
 	private static String defaultEncoding = "utf-8";
+
+	public static final PrintStream debug = new PrintStream(
+			new DebugOutOutputStream());
 
 	public static native void debugOut(String str);
 

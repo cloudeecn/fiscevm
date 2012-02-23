@@ -87,6 +87,8 @@ public final class FisceService {
 	public static native int putString(ByteBuffer context, String content);
 
 	public static native String getString(ByteBuffer context, int handle);
+	
+	public static native char[] getStringChars(ByteBuffer context, int handle);
 
 	public static native int getClassOfHandle(ByteBuffer context, int handle);
 

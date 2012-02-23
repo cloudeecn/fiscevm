@@ -18,6 +18,8 @@ package java.lang;
 
 import java.io.PrintStream;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 public class Throwable {
 
 	private String detailMessage;
@@ -75,7 +77,7 @@ public class Throwable {
 	}
 
 	public void printStackTrace() {
-		printStackTrace(System.err);
+		printStackTrace(FiScEVM.debug);
 	}
 
 	public void printStackTrace(PrintStream s) {

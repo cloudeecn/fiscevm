@@ -11,27 +11,22 @@ import com.cirnoworks.fisce.intf.VMFactory;
 
 public class CFiScEFactory implements VMFactory {
 
-	public FiScEVM getVM() {
+	public FYContext getVM() {
 		FYContext context = new FYContext();
 		context.addToolkit(new IToolkit() {
 
-			
 			public void setupContext() {
 			}
 
-			
 			public void setContext(FiScEVM context) {
 			}
 
-			
 			public void saveData(Element data) throws VMCriticalException {
 			}
 
-			
 			public void loadData(Element data) throws VMCriticalException {
 			}
 
-			
 			public InputStream getResourceByClassName(String className) {
 				return this.getClass().getResourceAsStream(
 						"/fisce_scripts/" + className + ".class");
@@ -39,23 +34,18 @@ public class CFiScEFactory implements VMFactory {
 		});
 		context.addToolkit(new IToolkit() {
 
-			
 			public void setupContext() {
 			}
 
-			
 			public void setContext(FiScEVM context) {
 			}
 
-			
 			public void saveData(Element data) throws VMCriticalException {
 			}
 
-			
 			public void loadData(Element data) throws VMCriticalException {
 			}
 
-			
 			public InputStream getResourceByClassName(String className) {
 				return this.getClass().getResourceAsStream(
 						"/classes/" + className + ".class");
@@ -63,23 +53,18 @@ public class CFiScEFactory implements VMFactory {
 		});
 		context.addToolkit(new IToolkit() {
 
-			
 			public void setupContext() {
 			}
 
-			
 			public void setContext(FiScEVM context) {
 			}
 
-			
 			public void saveData(Element data) throws VMCriticalException {
 			}
 
-			
 			public void loadData(Element data) throws VMCriticalException {
 			}
 
-			
 			public InputStream getResourceByClassName(String className) {
 				return this.getClass().getResourceAsStream(
 						"/bin/" + className + ".class");
