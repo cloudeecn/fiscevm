@@ -1826,37 +1826,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 								FY_EXCEPTION_CAST);
 						str1.content=NULL;
 						fy_strInit(block, &str1, 64, exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
 						fy_strAppendUTF8(block, &str1, "from ", 99, exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
 						fy_strAppend(block, &str1, clazz1->className,
 								exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
 						fy_strAppendUTF8(block, &str1, "to ", 99, exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
 						fy_strAppend(block, &str1, clazz2->className,
 								exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
 						fy_strSPrint(exception->exceptionDesc,
 								sizeof(exception->exceptionDesc), &str1);
 						fy_strDestroy(block, &str1);
