@@ -1824,6 +1824,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						strcpy_s( exception->exceptionName,
 								sizeof(exception->exceptionName),
 								FY_EXCEPTION_CAST);
+						str1.content=NULL;
 						fy_strInit(block, &str1, 64, exception);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
