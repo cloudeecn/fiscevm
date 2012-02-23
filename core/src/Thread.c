@@ -1820,7 +1820,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					}
 					if (!fy_classCanCastTo(context, clazz1, clazz2)) {
 						message->messageType = message_exception;
-						exception->exceptionType = exception_normal;
 						strcpy_s( exception->exceptionName,
 								sizeof(exception->exceptionName),
 								FY_EXCEPTION_CAST);
@@ -1829,12 +1828,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_strAppendUTF8(block, &str1, "from ", 99, exception);
 						fy_strAppend(block, &str1, clazz1->className,
 								exception);
-						fy_strAppendUTF8(block, &str1, "to ", 99, exception);
+						fy_strAppendUTF8(block, &str1, " to ", 99, exception);
 						fy_strAppend(block, &str1, clazz2->className,
 								exception);
 						fy_strSPrint(exception->exceptionDesc,
 								sizeof(exception->exceptionDesc), &str1);
 						fy_strDestroy(block, &str1);
+						exception->exceptionType = exception_normal;
 						FY_FALLOUT_NOINVOKE
 						break;
 					}
