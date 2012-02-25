@@ -602,6 +602,9 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getIdFromHandle(
  */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayByte(
 		JNIEnv *, jclass, jobject, jbyteArray, jint, jint, jint, jint);
 
+JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayByteBuffer(
+		JNIEnv *env, jclass self, jobject buf, jobject dst, jint srcHandle,
+		jint srcPos, jint len);
 /*
  * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayChar

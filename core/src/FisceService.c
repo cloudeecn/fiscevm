@@ -2000,6 +2000,50 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 /*
  * Class:     com_cirnoworks_libfisce_shell_FisceService
+ * Method:    fetchArrayByte
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;III)V
+ */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayByteBuffer(
+		JNIEnv *env, jclass self, jobject buf, jobject dst, jint srcHandle,
+		jint srcPos, jint len) {/**/
+	fy_object *obj;
+	void *value;
+	void *pDst;
+	GENERIC_HEADER
+	if (srcHandle == 0 || dst == NULL) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	if (fy_nativeArrayLength(context, srcHandle, exception) < len || len < 0) {
+		fy_fault(exception, FY_EXCEPTION_IOOB, "%d", len);
+		return;
+	}FYEH();
+	obj = context->objects + srcHandle;
+	switch (obj->clazz->ci.arr.arrayType) {
+	case fy_at_long:
+		len <<= 3;
+		break;
+	case fy_at_int:
+		len <<= 2;
+		break;
+	case fy_at_byte:
+		break;
+	case fy_at_short:
+		len <<= 1;
+		break;
+	default:
+		fy_fault(NULL, NULL, "Illegal array type %d",
+				obj->clazz->ci.arr.arrayType);
+		FYEH();
+		break;
+	}
+	value = fy_nativeGetArrayBytes(context, srcHandle, exception);
+	FYEH();
+	pDst = (*env)->GetDirectBufferAddress(env, dst);
+	memcpy(pDst, value, len);
+}
+
+/*
+ * Class:     com_cirnoworks_libfisce_shell_FisceService
  * Method:    fetchArrayChar
  * Signature: (Ljava/nio/ByteBuffer;[CIIII)V
  */JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_fetchArrayChar(
