@@ -1,6 +1,6 @@
 /**
  *  Copyright 2010 Yuxuan Huang. All rights reserved.
- *  
+ * 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -25,10 +25,10 @@ import java.util.Iterator;
 public class SimpleList<T> implements Iterable<T> {
 
 	protected int size;
-	protected T[] container;
+	protected Object[] container;
 
 	public SimpleList(int initSize) {
-		container = (T[]) new Object[initSize];
+		container = new Object[initSize];
 	}
 
 	public SimpleList() {
@@ -44,7 +44,7 @@ public class SimpleList<T> implements Iterable<T> {
 		if (oldCap != newCap) {
 			Object[] cs = new Object[newCap];
 			System.arraycopy(container, 0, cs, 0, size);
-			container = (T[]) cs;
+			container = cs;
 		}
 	}
 
@@ -55,14 +55,14 @@ public class SimpleList<T> implements Iterable<T> {
 		}
 	}
 
-	public final void add(T c) {
+	public final int add(T c) {
 		if (container.length <= size) {
 			Object[] cs = new Object[container.length << 1];
 			System.arraycopy(container, 0, cs, 0, size);
-			container = (T[]) cs;
+			container = cs;
 		}
 		container[size] = c;
-		size++;
+		return size++;
 	}
 
 	public final boolean remove(T c) {

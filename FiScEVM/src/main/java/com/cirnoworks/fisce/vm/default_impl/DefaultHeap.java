@@ -1537,4 +1537,10 @@ public final class DefaultHeap implements JHeap {
 		}
 	}
 
+	public void getArrayByteBuffer(ByteBuffer dst, int handle, int srcPos,
+			int len) {
+		// TODO Auto-generated method stub
+		throw new NoSuchMethodError();
+	}
+
 }

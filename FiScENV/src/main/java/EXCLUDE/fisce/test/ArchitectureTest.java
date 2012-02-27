@@ -1,5 +1,8 @@
 package EXCLUDE.fisce.test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Test if the basic architecture of the VM works well
  * 
@@ -8,6 +11,14 @@ package EXCLUDE.fisce.test;
  */
 public class ArchitectureTest extends TestService {
 	public static void main(String[] args) {
+
+		try {
+			Object o = new HashMap();
+			ArrayList a = (ArrayList) o;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		int a = 5000;
 		int b = 6000;
 		int c = 0;

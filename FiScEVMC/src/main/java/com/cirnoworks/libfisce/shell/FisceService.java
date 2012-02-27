@@ -43,6 +43,8 @@ public final class FisceService {
 
 	public static native boolean validClassId(ByteBuffer context, int id);
 
+	public static native int getIdFromHandle(ByteBuffer context, int handle);
+
 	public static native int getFieldByUniqueName(ByteBuffer context,
 			String name);
 
@@ -87,7 +89,7 @@ public final class FisceService {
 	public static native int putString(ByteBuffer context, String content);
 
 	public static native String getString(ByteBuffer context, int handle);
-	
+
 	public static native char[] getStringChars(ByteBuffer context, int handle);
 
 	public static native int getClassOfHandle(ByteBuffer context, int handle);
@@ -276,6 +278,9 @@ public final class FisceService {
 
 	public static native void fetchArrayBoolean(ByteBuffer context,
 			boolean[] dst, int dstPos, int srcHandle, int srcPos, int len);
+
+	public static native void fetchArrayByteBuffer(ByteBuffer context,
+			ByteBuffer dst, int handle, int srcPos, int len);
 
 	public static native void fetchArrayByte(ByteBuffer context, byte[] dst,
 			int dstPos, int srcHandle, int srcPos, int len);

@@ -16,9 +16,8 @@
  */
 package com.cirnoworks.fisce.intf;
 
-import org.w3c.dom.Element;
+import java.nio.ByteBuffer;
 
-import com.cirnoworks.fisce.intf.idata.IClass;
 import com.cirnoworks.fisce.intf.idata.IClassArray;
 import com.cirnoworks.fisce.intf.idata.IClassBase;
 import com.cirnoworks.fisce.intf.idata.IField;
@@ -28,10 +27,6 @@ import com.cirnoworks.fisce.intf.idata.IField;
  * @author cloudee
  */
 public interface IHeap {
-
-
-
-
 
 	/**
 	 * 分配一个对象
@@ -213,8 +208,6 @@ public interface IHeap {
 	 */
 	int getFieldHandle(int handle, IField field) throws VMException;
 
-
-
 	/**
 	 * 设定对象成员变量的值（boolean）
 	 * 
@@ -335,8 +328,6 @@ public interface IHeap {
 	 * @throws VMException
 	 */
 	void putFieldHandle(int handle, IField field, int value) throws VMException;
-
-
 
 	/**
 	 * 取boolean数组中的值
@@ -518,6 +509,8 @@ public interface IHeap {
 	void getArrayBoolean(boolean[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException;
 
+	void getArrayByteBuffer(ByteBuffer dst, int handle, int srcPos, int len);
+
 	void getArrayByte(byte[] dst, int dstPos, int handle, int srcPos, int len)
 			throws VMException, VMCriticalException;
 
@@ -538,10 +531,6 @@ public interface IHeap {
 
 	void getArrayDouble(double[] dst, int dstPos, int handle, int srcPos,
 			int len) throws VMException, VMCriticalException;
-
-
-
-
 
 	public boolean getStaticBoolean(IField field) throws VMException;
 
@@ -575,8 +564,6 @@ public interface IHeap {
 	public void setStaticFloat(IField field, float value) throws VMException;
 
 	public void setStaticDouble(IField field, double value) throws VMException;
-
-
 
 	/**
 	 * 取字符串常量对象的句柄 <br />
@@ -613,5 +600,4 @@ public interface IHeap {
 	public int putString(String content) throws VMException,
 			VMCriticalException;
 
-	
 }

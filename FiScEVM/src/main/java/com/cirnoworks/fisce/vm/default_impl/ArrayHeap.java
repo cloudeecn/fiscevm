@@ -1432,7 +1432,8 @@ public final class ArrayHeap implements JHeap {
 			// pending.add(slh);
 		}
 
-		for (IThread thread : ((JThreadManager) context.getThreadManager()).getThreads()) {
+		for (IThread thread : ((JThreadManager) context.getThreadManager())
+				.getThreads()) {
 			((JThread) thread).fillUsedHandles(used);
 		}
 
@@ -1810,6 +1811,12 @@ public final class ArrayHeap implements JHeap {
 				}
 			}
 		}
+	}
+
+	public void getArrayByteBuffer(ByteBuffer dst, int handle, int srcPos,
+			int len) {
+		// TODO Auto-generated method stub
+		throw new NoSuchMethodError();
 	}
 
 }

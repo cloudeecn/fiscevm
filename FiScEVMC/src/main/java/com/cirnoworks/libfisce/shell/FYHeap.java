@@ -1,5 +1,7 @@
 package com.cirnoworks.libfisce.shell;
 
+import java.nio.ByteBuffer;
+
 import com.cirnoworks.fisce.intf.IHeap;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
@@ -388,9 +390,7 @@ public class FYHeap implements IHeap {
 	}
 
 	public String getString(int handle) throws VMException, VMCriticalException {
-		char[] chars = FisceService
-				.getStringChars(context.getContext(), handle);
-		return new String(chars);
+		return FisceService.getString(context.getContext(), handle);
 	}
 
 	public int putString(String content) throws VMException,
@@ -477,6 +477,12 @@ public class FYHeap implements IHeap {
 	public void setStaticDouble(IField field, double value) throws VMException {
 		FisceService.setStaticDouble(context.getContext(),
 				((FYField) field).getId(), value);
+	}
+
+	public void getArrayByteBuffer(ByteBuffer dst, int handle, int srcPos,
+			int len) {
+		FisceService.fetchArrayByteBuffer(context.getContext(), dst, handle,
+				srcPos, len);
 	}
 
 }

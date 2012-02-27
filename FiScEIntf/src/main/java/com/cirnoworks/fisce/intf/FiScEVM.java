@@ -179,6 +179,14 @@ public interface FiScEVM {
 	 * @throws VMException
 	 */
 	IClass getClass(int i) throws VMException;
+	
+	/**
+	 * Get class by handle of Class object.
+	 * @param handle
+	 * @return
+	 * @throws VMException
+	 */
+	IClass getClassForClassObjectHandle(int handle) throws VMException;
 
 	/**
 	 * 

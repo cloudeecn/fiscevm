@@ -360,4 +360,9 @@ public class FYContext implements Runnable, FiScEVM {
 	public Collection<IToolkit> getToolkits() {
 		return toolkits;
 	}
+
+	public IClass getClassForClassObjectHandle(int handle) throws VMException {
+		int classId = FisceService.getIdFromHandle(context, handle);
+		return getClass(classId);
+	}
 }
