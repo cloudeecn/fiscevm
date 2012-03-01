@@ -1617,9 +1617,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_VERBOSE
 				printf("%d\n", ivalue2);
 #endif
-				if (ivalue2 > 10000) {
-					fy_fault(NULL, NULL, "Got you!");
-				}
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
