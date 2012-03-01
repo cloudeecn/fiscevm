@@ -160,6 +160,11 @@ struct timeval tvBeginTime;
 #else
 # define FY_PRINT64 "ll"
 #endif
+#if defined(_WIN32)
+# define FY_PRINT32 "I32"
+#else
+# define FY_PRINT32 ""
+#endif
 #define fy_I2TOL(I1,I2) ((fy_long)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
 #define fy_I2TOUL(I1,I2) ((fy_ulong)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
 #define fy_B2TOUI(B1,B2) ((((fy_uint)(fy_ubyte)(B1))<<8)|((fy_uint)(fy_ubyte)(B2)))

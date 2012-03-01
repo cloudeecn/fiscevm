@@ -50,9 +50,7 @@ static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 	if (size + context->posInEden >= EDEN_ENTRIES) {
 		/*OOM, gc first*/
 		if (gced) {
-			fy_fault(
-					exception,
-					NULL,
+			fy_fault(exception, NULL,
 					"Out of memoryE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 					size, context->posInEden, EDEN_ENTRIES, context->posInYong,
 					COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
@@ -74,9 +72,7 @@ static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
 	if (size + context->posInOld >= OLD_ENTRIES) {
 		/*OOM, gc first*/
 		if (gced) {
-			fy_fault(
-					exception,
-					NULL,
+			fy_fault(exception, NULL,
 					"Out of memoryO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 					size, context->posInEden, EDEN_ENTRIES, context->posInYong,
 					COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
@@ -97,9 +93,7 @@ static void *allocateDirectInEden(fy_context *context, fy_int size,
 	void *ret;
 	if (size + context->posInEden >= EDEN_ENTRIES) {
 		/*OOM, gc first*/
-		fy_fault(
-				exception,
-				NULL,
+		fy_fault(exception, NULL,
 				"Out of memoryDE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
 				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
@@ -115,9 +109,7 @@ static void *allocateDirectInCopy(fy_context *context, fy_int size,
 	void *ret;
 	if (size + context->posInYong >= COPY_ENTRIES) {
 		/*OOM, gc first*/
-		fy_fault(
-				exception,
-				NULL,
+		fy_fault(exception, NULL,
 				"Out of memoryDC! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
 				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
@@ -133,9 +125,7 @@ static void *allocateDirectInOld(fy_context *context, fy_int size,
 	void *ret;
 	if (size + context->posInOld >= OLD_ENTRIES) {
 		/*OOM, gc first*/
-		fy_fault(
-				exception,
-				NULL,
+		fy_fault(exception, NULL,
 				"Out of memoryDO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
 				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
@@ -461,7 +451,7 @@ return X; \
 exception->exceptionType = exception_normal;\
 strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_IOOB);\
 sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),\
-		"%I32d / %I32d", index, obj->length);\
+		"%"PRINT32"d / %"PRINT32"d", index, obj->length);\
 return X;\
 }
 
@@ -492,7 +482,8 @@ fy_boolean fy_heapGetArrayBoolean(fy_context *context, fy_int handle,
 
 	fy_object *obj = fy_heapGetObject(context, handle);
 
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_byte*) obj->data)[index];
 
@@ -501,7 +492,8 @@ fy_int fy_heapGetArrayHandle(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_int*) obj->data)[index];
 }
@@ -509,7 +501,8 @@ fy_byte fy_heapGetArrayByte(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_byte*) obj->data)[index];
 }
@@ -524,42 +517,48 @@ fy_byte *fy_heapGetArrayBytes(fy_context *context, fy_int handle,
 fy_short fy_heapGetArrayShort(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_short*) obj->data)[index];
 }
 fy_char fy_heapGetArrayChar(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_char*) obj->data)[index];
 }
 fy_int fy_heapGetArrayInt(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_int*) obj->data)[index];
 }
 fy_long fy_heapGetArrayLong(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_long*) obj->data)[index];
 }
 fy_float fy_heapGetArrayFloat(fy_context *context, fy_int handle, fy_int index,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_float*) obj->data)[index];
 }
 fy_double fy_heapGetArrayDouble(fy_context *context, fy_int handle,
 		fy_int index, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)CHECK_IOOB(0)
+	CHECK_NPT(0)
+	CHECK_IOOB(0)
 
 	return ((fy_double*) obj->data)[index];
 }
@@ -567,62 +566,71 @@ fy_double fy_heapGetArrayDouble(fy_context *context, fy_int handle,
 void fy_heapPutArrayBoolean(fy_context *context, fy_int handle, fy_int index,
 		fy_boolean value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 
 	((fy_byte*) obj->data)[index] = value;
 }
 void fy_heapPutArrayHandle(fy_context *context, fy_int handle, fy_int index,
 		fy_int value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 
 	((fy_int*) obj->data)[index] = value;
 }
 void fy_heapPutArrayByte(fy_context *context, fy_int handle, fy_int index,
 		fy_byte value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 
 	((fy_byte*) obj->data)[index] = value;
 }
 void fy_heapPutArrayShort(fy_context *context, fy_int handle, fy_int index,
 		fy_short value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 
 	((fy_short*) obj->data)[index] = value;
 }
 void fy_heapPutArrayChar(fy_context *context, fy_int handle, fy_int index,
 		fy_char value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 	((fy_char*) obj->data)[index] = value;
 }
 void fy_heapPutArrayInt(fy_context *context, fy_int handle, fy_int index,
 		fy_int value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 
 	((fy_int*) obj->data)[index] = value;
 }
 void fy_heapPutArrayLong(fy_context *context, fy_int handle, fy_int index,
 		fy_long value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 
 	((fy_long*) obj->data)[index] = value;
 }
 void fy_heapPutArrayFloat(fy_context *context, fy_int handle, fy_int index,
 		fy_float value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 
 	((fy_int*) obj->data)[index] = fy_floatToInt(value);
 }
 void fy_heapPutArrayDouble(fy_context *context, fy_int handle, fy_int index,
 		fy_double value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()CHECK_IOOB()
+	CHECK_NPT()
+	CHECK_IOOB()
 
 	((fy_long*) obj->data)[index] = fy_doubleToLong(value);
 }
@@ -630,7 +638,8 @@ void fy_heapPutArrayDouble(fy_context *context, fy_int handle, fy_int index,
 fy_boolean fy_heapGetFieldBoolean(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)ASSERT(validate(context,handle,field));
+	CHECK_NPT(0)
+	ASSERT(validate(context,handle,field));
 
 	return (fy_boolean) (((fy_int*) obj->data)[field->posAbs]);
 }
@@ -646,35 +655,40 @@ fy_int fy_heapGetFieldHandle(fy_context *context, fy_int handle,
 fy_byte fy_heapGetFieldByte(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)ASSERT(validate(context,handle,field));
+	CHECK_NPT(0)
+	ASSERT(validate(context,handle,field));
 
 	return (fy_byte) (((fy_int*) obj->data)[field->posAbs]);
 }
 fy_short fy_heapGetFieldShort(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)ASSERT(validate(context,handle,field));
+	CHECK_NPT(0)
+	ASSERT(validate(context,handle,field));
 
 	return (fy_short) (((fy_int*) obj->data)[field->posAbs]);
 }
 fy_char fy_heapGetFieldChar(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)ASSERT(validate(context,handle,field));
+	CHECK_NPT(0)
+	ASSERT(validate(context,handle,field));
 
 	return (fy_char) (((fy_int*) obj->data)[field->posAbs]);
 }
 fy_int fy_heapGetFieldInt(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)ASSERT(validate(context,handle,field));
+	CHECK_NPT(0)
+	ASSERT(validate(context,handle,field));
 
 	return (fy_int) (((fy_int*) obj->data)[field->posAbs]);
 }
 fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)ASSERT(validate(context,handle,field));
+	CHECK_NPT(0)
+	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	printf("high=%ud\nlow=%ud\n", ((fy_int*) obj->data)[field->posAbs],
 			((fy_int*) obj->data)[field->posAbs + 1]);
@@ -684,14 +698,16 @@ fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 fy_float fy_heapGetFieldFloat(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)ASSERT(validate(context,handle,field));
+	CHECK_NPT(0)
+	ASSERT(validate(context,handle,field));
 
 	return fy_intToFloat(fy_heapGetFieldInt(context, handle, field, exception));
 }
 fy_double fy_heapGetFieldDouble(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT(0)ASSERT(validate(context,handle,field));
+	CHECK_NPT(0)
+	ASSERT(validate(context,handle,field));
 
 	return fy_longToDouble(
 			fy_I2TOL(((fy_int*)obj->data)[field->posAbs],((fy_int*)obj->data)[field->posAbs+1]));
@@ -700,49 +716,56 @@ fy_double fy_heapGetFieldDouble(fy_context *context, fy_int handle,
 void fy_heapPutFieldBoolean(fy_context *context, fy_int handle, fy_field *field,
 		fy_boolean value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 
 	((fy_int*) obj->data)[field->posAbs] = value;
 }
 void fy_heapPutFieldHandle(fy_context *context, fy_int handle, fy_field *field,
 		fy_int value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 
 	((fy_int*) obj->data)[field->posAbs] = value;
 }
 void fy_heapPutFieldByte(fy_context *context, fy_int handle, fy_field *field,
 		fy_byte value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 
 	((fy_int*) obj->data)[field->posAbs] = value;
 }
 void fy_heapPutFieldShort(fy_context *context, fy_int handle, fy_field *field,
 		fy_short value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 
 	((fy_int*) obj->data)[field->posAbs] = value;
 }
 void fy_heapPutFieldChar(fy_context *context, fy_int handle, fy_field *field,
 		fy_char value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 
 	((fy_int*) obj->data)[field->posAbs] = value;
 }
 void fy_heapPutFieldInt(fy_context *context, fy_int handle, fy_field *field,
 		fy_int value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 
 	((fy_int*) obj->data)[field->posAbs] = value;
 }
 void fy_heapPutFieldLong(fy_context *context, fy_int handle, fy_field *field,
 		fy_long value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	printf("value=%"FY_PRINT64"d\nhigh=%ud\nlow=%ud\n", value, fy_HOFL(value),
 			fy_LOFL(value));
@@ -753,7 +776,8 @@ void fy_heapPutFieldLong(fy_context *context, fy_int handle, fy_field *field,
 void fy_heapPutFieldFloat(fy_context *context, fy_int handle, fy_field *field,
 		fy_float value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 
 	((fy_int*) obj->data)[field->posAbs] = fy_floatToInt(value);
 }
@@ -761,7 +785,8 @@ void fy_heapPutFieldDouble(fy_context *context, fy_int handle, fy_field *field,
 		fy_double value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	fy_long longValue;
-	CHECK_NPT()ASSERT(validate(context,handle,field));
+	CHECK_NPT()
+	ASSERT(validate(context,handle,field));
 
 	longValue = fy_doubleToLong(value);
 	((fy_int*) obj->data)[field->posAbs] = fy_HOFL(longValue);
@@ -930,16 +955,14 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 
 	imax = context->toFinalize->length;
 	for (i = 0; i < imax; i++) {
-		fy_bitSet(
-				marks,
+		fy_bitSet(marks,
 				*(fy_int*) fy_arrayListGet(context->memblocks,
 						context->toFinalize, i, NULL));
 	}
 
 	imax = context->protected->length;
 	for (i = 0; i < imax; i++) {
-		fy_bitSet(
-				marks,
+		fy_bitSet(marks,
 				*(fy_int*) fy_arrayListGet(context->memblocks,
 						context->protected, i, NULL));
 	}
@@ -1135,11 +1158,8 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	fy_int youngId = context->youngId;
 	fy_long timeStamp;
 #ifdef _DEBUG
-	printf(
-			"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d managed native bytes\n",
-			context->posInEden,
-			context->posInYong,
-			context->posInOld,
+	printf("#FISCE GC BEFORE %d+%d+%d total %dbytes, %d managed native bytes\n",
+			context->posInEden, context->posInYong, context->posInOld,
 			(fy_int) ((context->posInEden + context->posInYong
 					+ context->posInOld) * sizeof(fy_uint)),
 			context->memblocks->size);
@@ -1153,11 +1173,8 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 							+ context->posInOld) * sizeof(fy_uint)));
 #endif
 
-	printf(
-			"#FISCE GC BEFORE %d+%d+%d total %dbytes\n",
-			context->posInEden,
-			context->posInYong,
-			context->posInOld,
+	printf("#FISCE GC BEFORE %d+%d+%d total %dbytes\n", context->posInEden,
+			context->posInYong, context->posInOld,
 			(fy_int) ((context->posInEden + context->posInYong
 					+ context->posInOld) * sizeof(fy_uint)));
 
@@ -1270,11 +1287,8 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 #ifndef FY_GC_FORCE_FULL
 	}
 #endif
-	printf(
-			"#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",
-			context->posInEden,
-			context->posInYong,
-			context->posInOld,
+	printf("#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",
+			context->posInEden, context->posInYong, context->posInOld,
 			(fy_int) ((context->posInEden + context->posInYong
 					+ context->posInOld) * sizeof(fy_uint)),
 			fy_portTimeMillSec(context->port) - timeStamp);
