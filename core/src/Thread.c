@@ -565,7 +565,7 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
-				"LDC type wrong! %I32d,%d", index, owner->constantTypes[index]);
+				"LDC type wrong! %"FY_PRINT32"d,%d", index, owner->constantTypes[index]);
 		return 0;
 	}
 }
@@ -581,7 +581,7 @@ static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
-				"LDC2 type wrong! %I32d,%d", index,
+				"LDC2 type wrong! %"FY_PRINT32"d,%d", index,
 				owner->constantTypes[index]);
 		return 0;
 	}

@@ -451,7 +451,7 @@ return X; \
 exception->exceptionType = exception_normal;\
 strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_IOOB);\
 sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),\
-		"%"PRINT32"d / %"PRINT32"d", index, obj->length);\
+		"%"FY_PRINT32"d / %"FY_PRINT32"d", index, obj->length);\
 return X;\
 }
 
