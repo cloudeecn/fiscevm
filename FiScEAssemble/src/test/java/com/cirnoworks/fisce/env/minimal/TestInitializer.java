@@ -1,6 +1,6 @@
 /**
  *  Copyright 2010-2011 Yuxuan Huang. All rights reserved.
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -65,7 +65,8 @@ public class TestInitializer {
 		}
 
 		public InputStream getResourceByClassName(String className) {
-			return null;
+			String path = "/classes/" + className + ".class";
+			return getClass().getResourceAsStream(path);
 		}
 
 		public void saveData(Element data) throws VMCriticalException {

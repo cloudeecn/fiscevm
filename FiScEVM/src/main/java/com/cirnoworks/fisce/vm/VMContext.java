@@ -1,6 +1,6 @@
 /**
  *  Copyright 2010 Yuxuan Huang. All rights reserved.
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -54,7 +54,7 @@ import com.cirnoworks.fisce.vm.data.ClassField;
 import com.cirnoworks.fisce.vm.data.ClassMethod;
 
 /**
- * 
+ *
  * @author yuxuanhuang
  */
 public class VMContext implements FiScEVM {
@@ -507,7 +507,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通过类直接找到类的ClassId，如果类还没有被加载，则返回Null
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 */
@@ -517,7 +517,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 直接通过ClassId来取得类
-	 * 
+	 *
 	 * @param cid
 	 *            ClassId
 	 * @return 类
@@ -528,7 +528,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 获取正在进行某个类的clinit的线程id
-	 * 
+	 *
 	 * @param clazz
 	 *            类
 	 * @return 正在进行这个类的clinit的线程ID，如果返回CLINIT_FINISHED的话，表示clinit已经执行完成
@@ -541,7 +541,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通告虚拟机，开始进行某个类的clinit
-	 * 
+	 *
 	 * @param clazz
 	 *            开始进行clinit的类
 	 * @param thread
@@ -555,7 +555,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通告虚拟机，Class的clinit已经完成。主要由Thread实现类调用。
-	 * 
+	 *
 	 * @param clazz
 	 *            Class对象，必须是对应类（不是数组）的
 	 */
@@ -677,7 +677,8 @@ public class VMContext implements FiScEVM {
 			fid = fieldCount++;
 			fieldMap.put(field.getUniqueName(), fid);
 		}
-		assert fields[fid] == null : field.getUniqueName();
+		assert fields[fid] == null : field.getUniqueName() + "   "
+				+ fields[fid].getUniqueName();
 		fields[fid] = field;
 	}
 

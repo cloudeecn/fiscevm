@@ -1,6 +1,6 @@
 /**
  *  Copyright 2010 Yuxuan Huang. All rights reserved.
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -175,6 +175,7 @@ public class BaseToolkit implements IToolkit {
 		context.registerNativeHandler(new FiScEVMDoubleToString());
 		context.registerNativeHandler(new FiScEVMFloatToString());
 		context.registerNativeHandler(new FiScEVMDebugOut());
+		context.registerNativeHandler(new FiScEVMStoreParamsToArray());
 
 		context.registerNativeHandler(new SystemOutStreamWrite0());
 

@@ -1,6 +1,6 @@
 /**
  *  Copyright 2010 Yuxuan Huang. All rights reserved.
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -51,15 +51,15 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantMethodRef;
 import com.cirnoworks.fisce.vm.data.constants.ConstantString;
 
 /**
- * 
+ *
  * Default thread contains a space for frames. <br />
  * the stack have following content:<br />
  * u4 handle handle to the Thread object.<br />
  * u4 current throwable handle u4 status u4 fp pointer to the last-size pos of
  * the frame<br />
- * 
+ *
  * Each frame have following content:<br />
- * 
+ *
  * u1[] oprand-stack type <br />
  * u1[] local vars type <br />
  * u4[] oprand-stack<br />
@@ -74,10 +74,10 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantString;
  * u4 mid method id of this frame<br />
  * u4 SIZE frame size in bytes(including this size itself)<br />
  * <------------fp point to here
- * 
- * 
+ *
+ *
  * @author cloudee
- * 
+ *
  */
 public final class DefaultThread implements JThread {
 
@@ -569,7 +569,7 @@ public final class DefaultThread implements JThread {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return yield
 	 * @throws VMCriticalException
 	 */
@@ -2366,7 +2366,7 @@ public final class DefaultThread implements JThread {
 			}
 
 		} catch (VMException e) {
-			// e.printStackTrace();
+			 e.printStackTrace();
 			assert context.getConsole().debug("Exception thrown", e);
 			try {
 				int handle = context.getThrower().prepareThrowable(e, this);
@@ -2418,7 +2418,7 @@ public final class DefaultThread implements JThread {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param targetClass
 	 * @return will break?
 	 */
