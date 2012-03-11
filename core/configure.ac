@@ -8,6 +8,11 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([inc/fiscecon.h])
 AC_CONFIG_SRCDIR(src/VMContext.c)
 
+AC_ARG_ENABLE(lto,
+  [AS_HELP_STRING([--enable-lto],
+  [enable link time optimization, will greatly increase speed of accessing heap [default=no]])],
+  [fy_do_lto=$enableval],
+  [fy_do_lto="no"])
 AC_ARG_ENABLE(debug,
   [AS_HELP_STRING([--enable-debug],[enable debugging [default=no]])],
   [fy_do_debug=$enableval],
@@ -18,8 +23,18 @@ if test x"$fy_do_debug" = xyes ; then
 	ENABLE_DEBUG="TRUE"
 else
 	echo "---------- Disabling debug mode compilation."
+	LDFLAGS="$LDFLAGS -O3"
 	CFLAGS="$CFLAGS -O3 -fomit-frame-pointer"
 	ENABLE_DEBUG="FALSE"
+fi
+
+if test x"$fy_do_lto" = xyes ; then
+	echo "++++++++++ Enabling link time optimization."
+	CFLAGS="$CFLAGS -flto"
+	ENABLE_LTO="TRUE"
+else
+	echo "---------- Disabling link time optimization."
+	ENABLE_LTO="FALSE"
 fi
 
 AC_ARG_ENABLE(verbose,
@@ -35,19 +50,8 @@ else
 	ENABLE_VERBOSe="FALSE"
 fi
 
-AC_ARG_ENABLE(lto,
-  [AS_HELP_STRING([--enable-lto],
-  [enable link time optimization, will greatly increase speed of accessing heap [default=no]])],
-  [fy_do_lto=$enableval],
-  [fy_do_lto="no"])
-if test x"$fy_do_lto" = xyes ; then
-	echo "++++++++++ Enabling link time optimization."
-	CFLAGS="$CFLAGS -flto"
-	ENABLE_LTO="TRUE"
-else
-	echo "---------- Disabling link time optimization."
-	ENABLE_LTO="FALSE"
-fi
+
+
 
 AC_ARG_ENABLE(sse2,
   [AS_HELP_STRING([--enable-sse2],

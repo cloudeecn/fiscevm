@@ -735,9 +735,9 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+enable_lto
 enable_debug
 enable_verbose
-enable_lto
 enable_sse2
 enable_sse3
 enable_test
@@ -1380,11 +1380,11 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-lto            enable link time optimization, will greatly increase
+                          speed of accessing heap [default=no]
   --enable-debug          enable debugging [default=no]
   --enable-verbose        enable verbose output for byte code executed
                           [default=no]
-  --enable-lto            enable link time optimization, will greatly increase
-                          speed of accessing heap [default=no]
   --enable-sse2           enable use sse2 instructions [default=no]
   --enable-sse3           enable use sse3 instructions [default=no]
   --enable-test           Build fiscetest & utiltest insteadof libs
@@ -2875,6 +2875,13 @@ ac_config_headers="$ac_config_headers inc/fiscecon.h"
 
 
 
+# Check whether --enable-lto was given.
+if test "${enable_lto+set}" = set; then :
+  enableval=$enable_lto; fy_do_lto=$enableval
+else
+  fy_do_lto="no"
+fi
+
 # Check whether --enable-debug was given.
 if test "${enable_debug+set}" = set; then :
   enableval=$enable_debug; fy_do_debug=$enableval
@@ -2888,8 +2895,18 @@ if test x"$fy_do_debug" = xyes ; then
 	ENABLE_DEBUG="TRUE"
 else
 	echo "---------- Disabling debug mode compilation."
+	LDFLAGS="$LDFLAGS -O3"
 	CFLAGS="$CFLAGS -O3 -fomit-frame-pointer"
 	ENABLE_DEBUG="FALSE"
+fi
+
+if test x"$fy_do_lto" = xyes ; then
+	echo "++++++++++ Enabling link time optimization."
+	CFLAGS="$CFLAGS -flto"
+	ENABLE_LTO="TRUE"
+else
+	echo "---------- Disabling link time optimization."
+	ENABLE_LTO="FALSE"
 fi
 
 # Check whether --enable-verbose was given.
@@ -2908,21 +2925,8 @@ else
 	ENABLE_VERBOSe="FALSE"
 fi
 
-# Check whether --enable-lto was given.
-if test "${enable_lto+set}" = set; then :
-  enableval=$enable_lto; fy_do_lto=$enableval
-else
-  fy_do_lto="no"
-fi
 
-if test x"$fy_do_lto" = xyes ; then
-	echo "++++++++++ Enabling link time optimization."
-	CFLAGS="$CFLAGS -flto"
-	ENABLE_LTO="TRUE"
-else
-	echo "---------- Disabling link time optimization."
-	ENABLE_LTO="FALSE"
-fi
+
 
 # Check whether --enable-sse2 was given.
 if test "${enable_sse2+set}" = set; then :
