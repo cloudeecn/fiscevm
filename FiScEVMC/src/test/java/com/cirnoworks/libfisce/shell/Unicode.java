@@ -6,9 +6,9 @@ import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 
-public class UnicodeTest {
+public class Unicode {
 
-	public void testUnicode() throws InterruptedException {
+	public void unicode() throws InterruptedException {
 		CFiScEFactory cf = new CFiScEFactory();
 		final FYContext vm = cf.getVM();
 		vm.registerNativeHandler(new NativeHandlerTemplate() {
@@ -34,7 +34,7 @@ public class UnicodeTest {
 
 	public static void main(String[] args) {
 		try {
-			new UnicodeTest().testUnicode();
+			new Unicode().unicode();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

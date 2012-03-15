@@ -17,6 +17,7 @@
 
 package java.io;
 
+
 import org.apache.harmony.luni.util.SneakyThrow;
 
 /**
@@ -31,123 +32,123 @@ import org.apache.harmony.luni.util.SneakyThrow;
  */
 public class FilterOutputStream extends OutputStream {
 
-	/**
-	 * The target output stream for this filter stream.
-	 */
-	protected OutputStream out;
+    /**
+     * The target output stream for this filter stream.
+     */
+    protected OutputStream out;
 
-	/**
-	 * Constructs a new {@code FilterOutputStream} with {@code out} as its
-	 * target stream.
-	 * 
-	 * @param out
-	 *            the target stream that this stream writes to.
-	 */
-	public FilterOutputStream(OutputStream out) {
-		this.out = out;
-	}
+    /**
+     * Constructs a new {@code FilterOutputStream} with {@code out} as its
+     * target stream.
+     * 
+     * @param out
+     *            the target stream that this stream writes to.
+     */
+    public FilterOutputStream(OutputStream out) {
+        this.out = out;
+    }
 
-	/**
-	 * Closes this stream. This implementation closes the target stream.
-	 * 
-	 * @throws IOException
-	 *             if an error occurs attempting to close this stream.
-	 */
-	@Override
-	public void close() throws IOException {
-		Throwable thrown = null;
-		try {
-			flush();
-		} catch (Throwable e) {
-			thrown = e;
-		}
+    /**
+     * Closes this stream. This implementation closes the target stream.
+     * 
+     * @throws IOException
+     *             if an error occurs attempting to close this stream.
+     */
+    @Override
+    public void close() throws IOException {
+        Throwable thrown = null;
+        try {
+            flush();
+        } catch (Throwable e) {
+            thrown = e;
+        }
 
-		try {
-			out.close();
-		} catch (Throwable e) {
-			if (thrown == null) {
-				thrown = e;
-			}
-		}
+        try {
+            out.close();
+        } catch (Throwable e) {
+            if (thrown == null) {
+                thrown = e;
+            }
+        }
 
-		if (thrown != null) {
-			SneakyThrow.sneakyThrow(thrown);
-		}
-	}
+        if (thrown != null) {
+            SneakyThrow.sneakyThrow(thrown);
+        }
+    }
 
-	/**
-	 * Ensures that all pending data is sent out to the target stream. This
-	 * implementation flushes the target stream.
-	 * 
-	 * @throws IOException
-	 *             if an error occurs attempting to flush this stream.
-	 */
-	@Override
-	public void flush() throws IOException {
-		out.flush();
-	}
+    /**
+     * Ensures that all pending data is sent out to the target stream. This
+     * implementation flushes the target stream.
+     * 
+     * @throws IOException
+     *             if an error occurs attempting to flush this stream.
+     */
+    @Override
+    public void flush() throws IOException {
+        out.flush();
+    }
 
-	/**
-	 * Writes the entire contents of the byte array {@code buffer} to this
-	 * stream. This implementation writes the {@code buffer} to the target
-	 * stream.
-	 * 
-	 * @param buffer
-	 *            the buffer to be written.
-	 * @throws IOException
-	 *             if an I/O error occurs while writing to this stream.
-	 */
-	@Override
-	public void write(byte buffer[]) throws IOException {
-		write(buffer, 0, buffer.length);
-	}
+    /**
+     * Writes the entire contents of the byte array {@code buffer} to this
+     * stream. This implementation writes the {@code buffer} to the target
+     * stream.
+     * 
+     * @param buffer
+     *            the buffer to be written.
+     * @throws IOException
+     *             if an I/O error occurs while writing to this stream.
+     */
+    @Override
+    public void write(byte buffer[]) throws IOException {
+        write(buffer, 0, buffer.length);
+    }
 
-	/**
-	 * Writes {@code count} bytes from the byte array {@code buffer} starting at
-	 * {@code offset} to the target stream.
-	 * 
-	 * @param buffer
-	 *            the buffer to write.
-	 * @param offset
-	 *            the index of the first byte in {@code buffer} to write.
-	 * @param length
-	 *            the number of bytes in {@code buffer} to write.
-	 * @throws IndexOutOfBoundsException
-	 *             if {@code offset < 0} or {@code count < 0}, or if
-	 *             {@code offset + count} is bigger than the length of
-	 *             {@code buffer}.
-	 * @throws IOException
-	 *             if an I/O error occurs while writing to this stream.
-	 */
-	@Override
-	public void write(byte buffer[], int offset, int length) throws IOException {
-		// Force null buffer check first!
-		if (offset > buffer.length || offset < 0) {
-			// luni.12=Offset out of bounds \: {0}
-			throw new ArrayIndexOutOfBoundsException(); //$NON-NLS-1$
-		}
-		if (length < 0 || length > buffer.length - offset) {
-			// luni.18=Length out of bounds \: {0}
-			throw new ArrayIndexOutOfBoundsException(); //$NON-NLS-1$
-		}
-		for (int i = 0; i < length; i++) {
-			// Call write() instead of out.write() since subclasses could
-			// override the write() method.
-			write(buffer[offset + i]);
-		}
-	}
+    /**
+     * Writes {@code count} bytes from the byte array {@code buffer} starting at
+     * {@code offset} to the target stream.
+     * 
+     * @param buffer
+     *            the buffer to write.
+     * @param offset
+     *            the index of the first byte in {@code buffer} to write.
+     * @param length
+     *            the number of bytes in {@code buffer} to write.
+     * @throws IndexOutOfBoundsException
+     *             if {@code offset < 0} or {@code count < 0}, or if
+     *             {@code offset + count} is bigger than the length of
+     *             {@code buffer}.
+     * @throws IOException
+     *             if an I/O error occurs while writing to this stream.
+     */
+    @Override
+    public void write(byte buffer[], int offset, int length) throws IOException {
+        // Force null buffer check first!
+        if (offset > buffer.length || offset < 0) {
+            // luni.12=Offset out of bounds \: {0}
+            throw new ArrayIndexOutOfBoundsException("Offset ou of bounds " + offset); //$NON-NLS-1$
+        }
+        if (length < 0 || length > buffer.length - offset) {
+            // luni.18=Length out of bounds \: {0}
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds : "+length); //$NON-NLS-1$
+        }
+        for (int i = 0; i < length; i++) {
+            // Call write() instead of out.write() since subclasses could
+            // override the write() method.
+            write(buffer[offset + i]);
+        }
+    }
 
-	/**
-	 * Writes one byte to the target stream. Only the low order byte of the
-	 * integer {@code oneByte} is written.
-	 * 
-	 * @param oneByte
-	 *            the byte to be written.
-	 * @throws IOException
-	 *             if an I/O error occurs while writing to this stream.
-	 */
-	@Override
-	public void write(int oneByte) throws IOException {
-		out.write(oneByte);
-	}
+    /**
+     * Writes one byte to the target stream. Only the low order byte of the
+     * integer {@code oneByte} is written.
+     * 
+     * @param oneByte
+     *            the byte to be written.
+     * @throws IOException
+     *             if an I/O error occurs while writing to this stream.
+     */
+    @Override
+    public void write(int oneByte) throws IOException {
+        out.write(oneByte);
+    }
 }
