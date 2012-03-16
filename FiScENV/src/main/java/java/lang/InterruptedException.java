@@ -1,28 +1,46 @@
-/**
- *  Copyright 2010 Yuxuan Huang. All rights reserved.
- *  
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+
 package java.lang;
 
+/**
+ * Thrown when a waiting thread is activated before the condition it was waiting
+ * for has been satisfied.
+ */
 public class InterruptedException extends Exception {
 
-	public InterruptedException() {
-		super();
-	}
+    private static final long serialVersionUID = 6700697376100628473L;
 
-	public InterruptedException(String s) {
-		super(s);
-	}
+    /**
+     * Constructs a new {@code InterruptedException} that includes the current
+     * stack trace.
+     */
+    public InterruptedException() {
+        super();
+    }
+
+    /**
+     * Constructs a new {@code InterruptedException} with the current stack
+     * trace and the specified detail message.
+     * 
+     * @param detailMessage
+     *            the detail message for this exception.
+     */
+    public InterruptedException(String detailMessage) {
+        super(detailMessage);
+    }
 }

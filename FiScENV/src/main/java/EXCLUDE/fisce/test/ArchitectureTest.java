@@ -3,15 +3,18 @@ package EXCLUDE.fisce.test;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * Test if the basic architecture of the VM works well
- * 
+ *
  * @author cloudee
- * 
+ *
  */
 public class ArchitectureTest extends TestService {
 	public static void main(String[] args) {
-
+		FiScEVM.debugOut("Begin!");
+		FiScEVM.debugOut(ArchitectureTest.class.getName());
 		try {
 			Object o = new HashMap();
 			ArrayList a = (ArrayList) o;

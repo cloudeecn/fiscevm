@@ -20,7 +20,7 @@ import java.util.Iterator;
 
 /**
  *
- * @author yuxuanhuang
+ * @author Cloudee
  */
 public class SimpleList<T> implements Iterable<T> {
 
