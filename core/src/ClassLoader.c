@@ -266,9 +266,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			tmpConstantFieldRef->nameType = fy_mmAllocate(block, sizeof(fy_str),
 					exception);
 			FYEH();
-			fy_strInit(
-					block,
-					tmpConstantFieldRef->nameType,
+			fy_strInit(block, tmpConstantFieldRef->nameType,
 					2 + tmpConstantFieldRef->constantNameType->name->length
 							+ tmpConstantFieldRef->constantNameType->descriptor->length,
 					exception);
@@ -297,9 +295,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			tmpConstantMethodRef->nameType = fy_mmAllocate(block,
 					sizeof(fy_str), exception);
 			FYEH();
-			fy_strInit(
-					block,
-					tmpConstantMethodRef->nameType,
+			fy_strInit(block, tmpConstantMethodRef->nameType,
 					2 + tmpConstantMethodRef->constantNameType->name->length
 							+ tmpConstantMethodRef->constantNameType->descriptor->length,
 					exception);
@@ -462,16 +458,67 @@ static void loadFields(fy_context *context, fy_class *clazz, void *is,
 	strConstantValue = 0;
 }
 
+static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
+		fy_int begin, fy_int end, fy_exception *exception) {
+	fy_char ch;
+	fy_class *clazz;
+	fy_str *tmp;
+	fy_str className[1];
+	if (begin <= 0) {
+		fy_fault(NULL, NULL, "Bad descriptor");
+		FYEH()0;
+	}
+	if (end == 0) {
+		//Pri
+
+		tmp = context->primitives[desc->content[begin]];
+		className->length = tmp->length;
+		className->maxLength = tmp->maxLength;
+		className->hashCode = tmp->hashCode;
+		className->hashed = tmp->hashed;
+		className->content = tmp->content;
+	} else {
+		//Class or Array
+		ch = desc->content[begin];
+		if (ch == 'L') {
+			className->maxLength = className->length = end - begin - 2;
+			className->hashed = 0;
+			className->content = desc->content + begin + 1;
+		} else if (ch == '[') {
+			className->maxLength = className->length = end - begin;
+			className->hashed = 0;
+			className->content = desc->content + begin;
+		}
+	}
+#if 0
+	fy_strPrint(className);
+	printf("\n");
+#endif
+	clazz = fy_vmLookupClass(context, className, exception);
+	FYEH()0;
+	if (clazz == NULL) {
+		fy_fault(NULL, NULL, "Bad descriptor");
+		FYEH()0;
+	}
+	return clazz;
+
+}
+
 static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 		fy_exception *exception) {
 	fy_byte *temp;
 	fy_byte returnType = FY_TYPE_UNKNOWN;
+	fy_int beginClass, endClass;
 	int pc = 0;
 	fy_char ch;
 	int i, maxi;
+	fy_class *clazz;
 	fy_boolean begin = FALSE;
 	char msg[256];
 	temp = fy_allocate(desc->length * sizeof(temp), exception);
+	FYEH();
+	fy_arrayListInit(context->memblocks, method->parameterTypes,
+			sizeof(fy_class*), 4, exception);
 	FYEH();
 	maxi = desc->length;
 	for (i = 0; i < maxi; i++) {
@@ -482,28 +529,50 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 			}
 		} else {
 			if (ch == ')') {
-				switch (desc->content[i + 2]) {
+				switch (desc->content[i + 1]) {
 				case 'B':
 				case 'C':
 				case 'F':
 				case 'I':
 				case 'S':
 				case 'Z':
+					beginClass = i + 1;
+					endClass = 0;
 					returnType = FY_TYPE_INT;
 					break;
 				case 'D':
 				case 'J':
+					beginClass = i + 1;
+					endClass = 0;
 					returnType = FY_TYPE_WIDE;
 					break;
 				case '[':
 				case 'L':
+					beginClass = i + 1;
+					endClass = desc->length;
 					returnType = FY_TYPE_HANDLE;
 					break;
 				case 'V':
-				default:
 					returnType = FY_TYPE_UNKNOWN;
+					beginClass = i + 1;
+					endClass = 0;
+					break;
+				default:
+					msg[0] = 0;
+					if (method != NULL) {
+						fy_strSPrint(msg, sizeof(msg), method->uniqueName);
+					} else {
+						fy_strSPrint(msg, sizeof(msg), desc);
+					}
+					fy_fault(exception, NULL,
+							"Malformed description data for %s", msg);
+					FYEH();
 					break;
 				}
+				clazz = getClassFromName(context, desc, beginClass, endClass,
+						exception);
+				FYEH();
+				method->returnTypeClass = clazz;
 				break;
 			} else {
 				switch (ch) {
@@ -513,25 +582,33 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 				case 'I':
 				case 'S':
 				case 'Z':
+					beginClass = i;
+					endClass = 0;
 					temp[pc++] = FY_TYPE_INT;
 					break;
 				case 'D':
 				case 'J':
+					beginClass = i;
+					endClass = 0;
 					temp[pc++] = FY_TYPE_WIDE;
 					temp[pc++] = FY_TYPE_WIDE2;
 					break;
 				case '[':
+					beginClass = i;
 					while ((ch = desc->content[++i]) == '[') {
 					}
 					if (ch == 'L') {
 						while ((ch = desc->content[++i]) != ';') {
 						}
 					}
+					endClass = i + 1;
 					temp[pc++] = FY_TYPE_HANDLE;
 					break;
 				case 'L':
+					beginClass = i;
 					while ((ch = desc->content[++i]) != ';')
 						;
+					endClass = i + 1;
 					temp[pc++] = FY_TYPE_HANDLE;
 					break;
 				default:
@@ -543,8 +620,15 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 					}
 					fy_fault(exception, NULL,
 							"Malformed description data for %s", msg);
+					FYEH();
 					break;
 				}
+				clazz = getClassFromName(context, desc, beginClass, endClass,
+						exception);
+				FYEH();
+				fy_arrayListAdd(context->memblocks, method->parameterTypes,
+						&clazz, exception);
+				FYEH();
 			}
 		}
 	}
@@ -611,9 +695,7 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 		FYEH();
 		method->uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
 		FYEH();
-		fy_strInit(
-				block,
-				method->uniqueName,
+		fy_strInit(block, method->uniqueName,
 				method->name->length + method->descriptor->length
 						+ clazz->className->length + 2, exception);
 		FYEH();
@@ -707,12 +789,12 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 				FYEH();
 			}
 		}
-		countParams(context, method->descriptor, method, exception);
-		FYEH();
+
 		fy_vmRegisterMethod(context, method, exception);
 		FYEH();
 		clazz->methods[i] = method;
-	}fy_strRelease(block, ATT_CODE);
+	}
+	fy_strRelease(block, ATT_CODE);
 	fy_strRelease(block, ATT_LINENUM);
 	fy_strRelease(block, ATT_SYNTH);
 }
@@ -801,6 +883,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 	fy_uint i, pos;
 	fy_memblock *block = context->memblocks;
 	fy_field *field;
+	fy_method *method;
 	fy_str *FINALIZE = fy_strCreateFromUTF8(block, ".finalize.()V", exception);
 	FYEH();
 #ifdef _DEBUG
@@ -811,6 +894,18 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 
 		break;
 	case obj:
+		pos = clazz->methodCount;
+		for (i = 0; i < pos; i++) {
+			method = clazz->methods[i];
+			countParams(context, method->descriptor, method, exception);
+			FYEH();
+		}
+		pos = clazz->interfacesCount;
+		for (i = 0; i < pos; i++) {
+			clazz->interfaces[i] = fy_vmLookupClassFromConstant(context,
+					(ConstantClass*) clazz->interfaceClasses[i], exception);
+			FYEH();
+		}
 		name = clazz->className;
 		if (clazz->superClass != NULL) {
 #ifdef _DEBUG
@@ -830,8 +925,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				}
 			}
 			if (fy_vmLookupMethodVirtual(context, clazz, FINALIZE, exception)
-					!= fy_vmLookupMethodVirtual(
-							context,
+					!= fy_vmLookupMethodVirtual(context,
 							fy_vmLookupClass(context, context->sTopClass,
 									exception), FINALIZE, exception)) {
 				clazz->needFinalize = 1;
@@ -971,12 +1065,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 					clazz->superClass, exception);
 			FYEH()NULL;
 		}
-		count = clazz->interfacesCount;
-		for (i = 0; i < count; i++) {
-			clazz->interfaces[i] = fy_vmLookupClassFromConstant(context,
-					(ConstantClass*) clazz->interfaceClasses[i], exception);
-			FYEH()NULL;
-		}
+
 	}
 	fy_hashMapIInit(block, clazz->virtualTable, 3, 12, -1, exception);
 	FYEH()NULL;

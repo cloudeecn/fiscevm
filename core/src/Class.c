@@ -28,43 +28,84 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 		fy_class *other) {
 	fy_class **interfaces;
 	int i, max;
+#ifdef FY_VERBOSE
+	printf("##CAST ");
+	fy_strPrint(this->className);
+	printf("  -->  ");
+	fy_strPrint(other->className);
+#endif
 	if (this == other) {
+#ifdef FY_VERBOSE
+		printf("=TRUE\n");
+#endif
 		return TRUE;
 	} else {
+#ifdef FY_VERBOSE
+		if (fy_strCmp(this->className, other->className) == 0) {
+			printf("\n");
+			fy_strPrint(this->className);
+			printf("\n");
+			fy_fault(NULL, NULL, "Same class name refers different class!");
+		}
+#endif
 		switch (this->type) {
 		case obj: {
 			interfaces = this->interfaces;
 			for (i = 0, max = this->interfacesCount; i < max; i++) {
 				if (other == interfaces[i]) {
+#ifdef FY_VERBOSE
+					printf("=TRUE\n");
+#endif
 					return TRUE;
 				}
 			}
 
 			if (this->super != NULL
 					&& fy_classCanCastTo(context, this->super, other)) {
+#ifdef FY_VERBOSE
+				printf("=TRUE\n");
+#endif
 				return TRUE;
 			}
 		}
 			break;
 		case arr: {
 			if (other == context->TOP_CLASS) {
-				return 1;
+#ifdef FY_VERBOSE
+				printf("=TRUE\n");
+#endif
+				return TRUE;
 			} else if (arr == other->type) {
 				fy_class *thisContent = this->ci.arr.contentClass;
 				fy_class *otherContent = other->ci.arr.contentClass;
 				if (thisContent != NULL && otherContent != NULL) {
+#ifdef FY_VERBOSE
+					printf("PENDING\n|--");
+#endif
 					return fy_classCanCastTo(context, thisContent, otherContent);
 				} else {
+#ifdef FY_VERBOSE
+					printf("=FALSE\n");
+#endif
 					return FALSE;
 				}
 			} else {
+#ifdef FY_VERBOSE
+				printf("=FALSE\n");
+#endif
 				return FALSE;
 			}
 		}
 			break;
 		case prm:
+#ifdef FY_VERBOSE
+			printf("=FALSE\n");
+#endif
 			return FALSE;
 		}
+#ifdef FY_VERBOSE
+		printf("=FALSE\n");
+#endif
 		return FALSE;
 	}
 }

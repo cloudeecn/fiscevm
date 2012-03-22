@@ -27,6 +27,11 @@
 #define FY_BASE_DOUBLE "java/lang/Double"
 #define FY_BASE_MATH "java/lang/Math"
 #define FY_BASE_FINALIZER "java/lang/Finalizer"
+#define FY_BASE_RUNTIME "java/lang/Runtime"
+#define FY_REFLECT_ARRAY "java/lang/reflect/Array"
+#define FY_REFLECT_CONSTRUCTOR "java/lang/reflect/Constructor"
+#define FY_REFLECT_FIELD "java/lang/reflect/Field"
+#define FY_REFLECT_METHOD "java/lang/reflect/Method"
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
 
 /*Exceptions*/

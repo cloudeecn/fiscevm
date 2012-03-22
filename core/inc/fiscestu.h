@@ -53,6 +53,7 @@
 #define FY_TYPE_RETURN  'R'
 #define FY_TYPE_WIDE2  '_'
 #define FY_TYPE_UNKNOWN  'X'
+#define FY_TYPE_VOID  'V'
 
 #define FY_METHOD_INIT "<init>"
 #define FY_METHOD_CLINIT "<clinit>"
@@ -75,6 +76,8 @@
 #define FY_ACC_SYNCHRONIZED 32
 #define FY_ACC_TRANSIENT 128
 #define FY_ACC_VOLATILE 64
+#define FY_ACC_VARARGS 128
+#define FY_ACC_BRIDGE 64
 
 #define FY_TM_STATE_NEW  0
 #define FY_TM_STATE_BOOT_PENDING  1
@@ -206,6 +209,7 @@ typedef struct fy_exceptionHandler {
 	classInfo ci;
 } fy_exceptionHandler;
 struct fy_nh;
+struct fy_class;
 typedef struct fy_method {
 	fy_int method_id;
 	fy_char access_flags;
@@ -240,6 +244,11 @@ typedef struct fy_method {
 	fy_byte returnType;
 
 	fy_boolean clinit;
+
+	/*Used by reflection, contents refrences of class*/
+	/*Because will be wiped in save and load, and Class objects */
+	fy_arrayList parameterTypes[1];
+	struct fy_class *returnTypeClass;
 } fy_method;
 
 typedef enum fy_arrayType {
@@ -303,7 +312,6 @@ typedef struct fy_class {
 	fy_hashMapI virtualTable[1];
 
 	/*Need persist*/
-	fy_uint classObjId;
 	fy_int clinitThreadId;
 } fy_class;
 enum fy_heapPos {
@@ -407,6 +415,9 @@ typedef struct fy_context {
 
 	fy_str sTopClass[1];
 	fy_str sClassClass[1];
+	fy_str sClassField[1];
+	fy_str sClassMethod[1];
+	fy_str sClassConstructor[1];
 	fy_str sClassThrowable[1];
 	fy_str sBoolean[1];
 	fy_str sByte[1];
@@ -416,6 +427,7 @@ typedef struct fy_context {
 	fy_str sFloat[1];
 	fy_str sLong[1];
 	fy_str sDouble[1];
+	fy_str sVoid[1];
 	fy_str sString[1];
 	fy_str sThread[1];
 	fy_str sStringArray[1];
@@ -440,6 +452,7 @@ typedef struct fy_context {
 	fy_str sArrayInteger[1];
 	fy_str sArrayLong[1];
 	fy_str sArrayObject[1];
+	fy_str sArrayClass[1];
 
 	fy_str sThrowableStackTrace[1];
 	fy_str sThrowableDetailMessage[1];
@@ -473,6 +486,11 @@ typedef struct fy_context {
 	fy_hashMap mapFieldNameToId[1];
 
 	fy_hashMap mapMUNameToNH[1];
+
+	fy_hashMapI classObjIds[1];
+	fy_hashMapI methodObjIds[1];
+	fy_hashMapI fieldObjIds[1];
+	fy_hashMapI constructorObjIds[1];
 
 	/* #BEGIN HEAP*/
 	fy_hashMap literals[1];

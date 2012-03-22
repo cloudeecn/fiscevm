@@ -48,10 +48,25 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	fy_strInitWithUTF8(block, context->sDouble, "<double>", exception);
 	FYEH();
 
+	fy_strInitWithUTF8(block, context->sVoid, "<void>", exception);
+	FYEH();
+
 	fy_strInitWithUTF8(block, context->sTopClass, FY_BASE_OBJECT, exception);
 	FYEH();
 
 	fy_strInitWithUTF8(block, context->sClassClass, FY_BASE_CLASS, exception);
+	FYEH();
+
+	fy_strInitWithUTF8(block, context->sClassField, FY_REFLECT_FIELD,
+			exception);
+	FYEH();
+
+	fy_strInitWithUTF8(block, context->sClassMethod, FY_REFLECT_METHOD,
+			exception);
+	FYEH();
+
+	fy_strInitWithUTF8(block, context->sClassConstructor,
+			FY_REFLECT_CONSTRUCTOR, exception);
 	FYEH();
 
 	fy_strInitWithUTF8(block, context->sClassThrowable, FY_BASE_THROWABLE,
@@ -169,6 +184,10 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	fy_strInitWithUTF8(block, context->sArrayObject, "[L"FY_BASE_OBJECT";",
 			exception);
 	FYEH();
+
+	fy_strInitWithUTF8(block, context->sArrayClass, "[L"FY_BASE_CLASS";",
+			exception);
+	FYEH();
 }
 
 static void initConstantPrimitives(fy_context *context, fy_exception *exception) {
@@ -183,6 +202,7 @@ static void initConstantPrimitives(fy_context *context, fy_exception *exception)
 	context->primitives[FY_TYPE_FLOAT] = context->sFloat;
 	context->primitives[FY_TYPE_LONG] = context->sLong;
 	context->primitives[FY_TYPE_DOUBLE] = context->sDouble;
+	context->primitives[FY_TYPE_VOID] = context->sVoid;
 
 	fy_hashMapInit(block, context->mapPrimitivesRev, 13, 12, exception);
 	FYEH();
@@ -242,6 +262,13 @@ static void initConstantPrimitives(fy_context *context, fy_exception *exception)
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sDouble, cc,
 			exception);
 	FYEH();
+
+	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	FYEH();
+	*cc = FY_TYPE_VOID;
+	fy_hashMapPut(block, context->mapPrimitivesRev, context->sVoid, cc,
+			exception);
+	FYEH();
 }
 
 static void initStructClassloader(fy_context *context, fy_exception *exception) {
@@ -256,6 +283,18 @@ static void initStructClassloader(fy_context *context, fy_exception *exception) 
 	FYEH();
 
 	fy_hashMapInit(block, context->mapMUNameToNH, 1024, 12, exception);
+	FYEH();
+
+	fy_hashMapIInit(block, context->classObjIds, 10, 12, -1, exception);
+	FYEH();
+
+	fy_hashMapIInit(block, context->methodObjIds, 10, 12, -1, exception);
+	FYEH();
+
+	fy_hashMapIInit(block, context->fieldObjIds, 10, 12, -1, exception);
+	FYEH();
+
+	fy_hashMapIInit(block, context->constructorObjIds, 10, 12, -1, exception);
 	FYEH();
 }
 
@@ -532,7 +571,7 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 	clazz->classId = *pCid;
 }
 
-fy_class *fy_vmLoadClass(fy_context *context, fy_str *name, fy_uint handle,
+fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
 		fy_exception *exception) {
 	fy_class *clazz;
 	fy_class *clazz2;
@@ -548,18 +587,9 @@ fy_class *fy_vmLoadClass(fy_context *context, fy_str *name, fy_uint handle,
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}
-		if (handle == 0) {
-			clazz2 = fy_vmLookupClass(context, context->sClassClass, exception);
-			if (exception->exceptionType != exception_none) {
-				return NULL;
-			}
-			clazz->classObjId = fy_heapAllocate(context, clazz2, exception);
-			if (exception->exceptionType != exception_none) {
-				return NULL;
-			}
-			context->objects[clazz->classObjId].attachedId = clazz->classId;
-		} else {
-			clazz->classObjId = handle;
+		clazz2 = fy_vmLookupClass(context, context->sClassClass, exception);
+		if (exception->exceptionType != exception_none) {
+			return NULL;
 		}
 	}
 	return clazz;
@@ -568,7 +598,7 @@ fy_class *fy_vmLoadClass(fy_context *context, fy_str *name, fy_uint handle,
 /*Likes com.cirnoworks.fisce.vm.VMContext.getClass(String name)*/
 fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
 		fy_exception *exception) {
-	return fy_vmLoadClass(context, name, 0, exception);
+	return fy_vmLoadClass(context, name, exception);
 }
 
 fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
@@ -669,7 +699,8 @@ void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 	nh->data = data;
 	nh->handler = handler;
 	fy_hashMapPut(block, context->mapMUNameToNH, str, nh, exception);
-	FYEH();fy_strRelease(block, str);
+	FYEH();
+	fy_strRelease(block, str);
 }
 
 void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
@@ -682,7 +713,8 @@ void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
 	if ((nh = fy_hashMapGet(block, context->mapMUNameToNH, str)) != NULL) {
 		fy_hashMapPut(block, context->mapMUNameToNH, str, NULL, exception);
 		fy_mmFree(block, nh);
-	}fy_strRelease(block, str);
+	}
+	fy_strRelease(block, str);
 }
 
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
@@ -727,7 +759,7 @@ static void fillValues(fy_str *key, void *value, void *addition) {
 }
 
 void fy_vmSave(fy_context *context, fy_exception *exception) {
-	fy_uint i, imax, count, j, jmax;
+	fy_uint i, imax, count, j, jmax, tmp;
 	fy_class *clazz;
 	fy_method *method;
 	fy_field *field;
@@ -747,9 +779,12 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	imax = context->classesCount;
 	for (i = 1; i <= imax; i++) {
 		clazz = context->classes[i];
-		context->saveClass(context, saver, i, clazz->classObjId,
-				clazz->clinitThreadId, clazz->className, clazz->staticSize,
-				clazz->staticArea, exception);
+		tmp = fy_hashMapIGet(context->memblocks, context->classObjIds,
+				clazz->classId);
+		FYEH();
+		context->saveClass(context, saver, i, tmp, clazz->clinitThreadId,
+				clazz->className, clazz->staticSize, clazz->staticArea,
+				exception);
 		FYEH();
 	}/**/
 	context->saveEndClass(context, saver, exception);
@@ -790,18 +825,10 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	FYEH();
 	for (i = 1; i < MAX_OBJECTS; i++) {
 		if ((object = fy_heapGetObject(context,i))->clazz != NULL) {
-			context->saveObject(
-					context,
-					saver,
-					i,
-					object->clazz->classId,
-					object->position,
-					object->gen,
-					object->finalizeStatus,
-					object->monitorOwnerId,
-					object->monitorOwnerTimes,
-					object->attachedId,
-					object->length,
+			context->saveObject(context, saver, i, object->clazz->classId,
+					object->position, object->gen, object->finalizeStatus,
+					object->monitorOwnerId, object->monitorOwnerTimes,
+					object->attachedId, object->length,
 					object->clazz->type == arr ?
 							fy_heapGetArraySizeFromLength(object->clazz,
 									object->length) :
@@ -865,4 +892,21 @@ void fy_vmBootFromData(fy_context *context, fy_exception *exception) {
 	context->state = FY_TM_STATE_RUN_PENDING;
 	context->nextGCTime = fy_portTimeMillSec(context->port) + FY_GC_IDV;
 	context->nextForceGCTime = context->nextGCTime + FY_GC_FORCE_IDV;
+}
+
+int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
+		fy_exception *exception) {
+	fy_class *clcl = fy_vmLookupClass(context, context->sClassClass, exception);
+	fy_int handle = fy_hashMapIGet(context->memblocks, context->classObjIds,
+			clazz->classId);
+	FYEH()-1;
+	if (handle == -1) {
+		fy_heapBeginProtect(context);
+		handle = fy_heapAllocate(context, clcl, exception);
+		fy_heapGetObject(context,handle)->attachedId = clazz->classId;
+		fy_hashMapIPut(context->memblocks, context->classObjIds, clazz->classId,
+				handle, exception);
+		//FYEH is unnessessery
+	}
+	return handle;
 }

@@ -148,7 +148,8 @@ void testClassMethod() {
 			target = method;
 			break;
 		}
-	}FY_ASSERT(target!= NULL);
+	}
+	FY_ASSERT(target!= NULL);
 	FY_ASSERT(target->paramCount == 8);
 	class0 = lookup(context, ""FY_BASE_OBJECT"", exception);
 	class1 = lookup(context, "[[B", exception);
@@ -206,7 +207,7 @@ static void testFail(struct fy_context *context, struct fy_thread *thread,
 
 }
 static void hltest(char *name) {
-	fy_class *clazz;
+//	fy_class *clazz;
 	fy_message message;
 	fy_boolean dead;
 	fy_exception ex;
@@ -271,7 +272,8 @@ static void hltest(char *name) {
 			fy_log("Invalid message type %d\n", message.messageType);
 			break;
 		}
-	}FY_ASSERT(message.messageType == message_vm_dead);
+	}
+	FY_ASSERT(message.messageType == message_vm_dead);
 	fy_vmContextDestroy(context);
 	fy_free(context);
 	fy_log("--------------------------------------------------------\n");
@@ -364,7 +366,8 @@ void testNative() {
 			"com/cirnoworks/fisce/privat/SystemOutputStream", FY_BASE_CLASS,
 			FY_BASE_OBJECT, FY_BASE_STACKTHREADELEMENT, FY_BASE_STRING,
 			FY_BASE_SYSTEM, FY_BASE_THREAD, FY_BASE_THROWABLE, FY_BASE_MATH,
-			NULL };
+			FY_BASE_RUNTIME, FY_REFLECT_ARRAY, FY_REFLECT_CONSTRUCTOR,
+			FY_REFLECT_FIELD, FY_REFLECT_METHOD, NULL };
 	int i = 0, j, jmax;
 	char *className;
 	char msg[512];
@@ -441,7 +444,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "Save", testSave }, //
 				{ "Load", testLoad }, //
 				{ "StoreParamsToArray", testStore }, //
-//				{ "Native", testNative }, //
+				{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {
 	int i = 0;

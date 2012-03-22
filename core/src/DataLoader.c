@@ -132,12 +132,17 @@ void fy_loadEndField(struct fy_context *context, void *loader_,
 	imax = loader->classCount;
 	for (i = 1; i <= imax; i++) {
 		ct = loader->classTemp + i;
-		clazz = fy_vmLoadClass(context, ct->name, ct->handle, exception);
+		clazz = fy_vmLoadClass(context, ct->name, exception);
 		if (clazz == NULL) {
 			fy_strSPrint(msg, sizeof(msg), ct->name);
 			fy_fault(exception, FY_EXCEPTION_VM, "Failed loading class %s",
 					msg);
 			return;
+		}
+		if (ct->handle > 0) {
+			fy_hashMapIPut(context->memblocks, context->classObjIds,
+					clazz->classId, ct->handle, exception);
+			FYEH();
 		}
 		clazz->clinitThreadId = ct->clinited;
 		memcpy(clazz->staticArea, ct->staticArea,
@@ -188,6 +193,11 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 				"Can't find class with id=%d", classId);
 		return;
 	}
+#ifdef _DEBUG
+	printf("AllocateDirect object[%"FY_PRINT32"d] class=", handle);
+	fy_strPrint(clazz->className);
+	printf("\n");
+#endif
 	fy_heapAllocateDirect(context, dataLength, clazz, length, handle, posInHeap,
 			exception);
 	if (object->clazz != clazz) {

@@ -238,7 +238,7 @@ fy_uint fy_heapAllocateArray(fy_context *context, fy_class *clazz,
 	fy_int size;
 
 	if (clazz->type != arr) {
-		fy_fault(exception, NULL, "Cannot instance Array without size");
+		fy_fault(exception, NULL, "Cannot instance Array with object class");
 		return 0;
 	}
 
@@ -918,8 +918,8 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 	for (i = 1; i <= imax; i++) {
 		/*Class object*/
 		clazz = context->classes[i];
-		fy_bitSet(marks, clazz->classObjId);
-
+		fy_bitSet(marks, fy_vmGetClassObjHandle(context, clazz, exception));
+		FYEH();
 		/*Class static area*/
 		jmax = clazz->staticSize;
 		for (j = 0; j < jmax; j++) {
