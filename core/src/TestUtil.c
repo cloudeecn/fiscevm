@@ -257,7 +257,7 @@ void testHashMapI() {
 	int i;
 	fy_int value;
 	//	char buf1[256];
-	fy_int values[10000];
+	fy_uint values[10000];
 	fy_exception ex;
 	fy_exception *exception = &ex;
 	ex.exceptionType = exception_none;

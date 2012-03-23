@@ -357,7 +357,7 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 		return;
 	}
 
-	newArray = fy_allocate(len + 1, exception);
+	newArray = /*TEMP*/fy_allocate(len + 1, exception);
 	FYEH();
 	memcpy(newArray, array + ofs, len);
 	newArray[len] = 0;
@@ -408,7 +408,7 @@ static void VMEncode(struct fy_context *context, struct fy_thread *thread,
 	}
 	left = len * 3 + 1;
 	olen = 0;
-	out = outTmp = fy_allocate(left, exception);
+	out = outTmp = /*TEMP*/fy_allocate(left, exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		ch = fy_heapGetArrayChar(context, handleSrc, i + ofs, exception);

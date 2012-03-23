@@ -200,7 +200,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		fillException(env, exception);
 		return;
 	}
-	fy_hashMapInit(context->memblocks, cdata->nativeCache, 67, 6, exception);
+	fy_hashMapInit(context->memblocks, cdata->nativeCache, 67, 10, exception);
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
 		return;
@@ -1703,7 +1703,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 	value = (fy_ubyte*) fy_nativeGetArrayBytes(context, dstHandle, exception);
 	FYEH();
-	booleans = fy_allocate(len * sizeof(jboolean), exception);
+	booleans = /*TEMP*/fy_allocate(len * sizeof(jboolean), exception);
 	FYEH();
 	(*env)->GetBooleanArrayRegion(env, src, srcPos, len, booleans);
 	for (i = 0; i < len; i++) {
@@ -1735,7 +1735,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 	value = (fy_byte*) fy_nativeGetArrayBytes(context, dstHandle, exception);
 	FYEH();
-	bytes = fy_allocate(len * sizeof(jbyte), exception);
+	bytes = /*TEMP*/fy_allocate(len * sizeof(jbyte), exception);
 	FYEH();
 	(*env)->GetByteArrayRegion(env, src, srcPos, len, bytes);
 	for (i = 0; i < len; i++) {
@@ -1767,7 +1767,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 	value = (fy_char*) fy_nativeGetArrayBytes(context, dstHandle, exception);
 	FYEH();
-	chars = fy_allocate(len * sizeof(jchar), exception);
+	chars = /*TEMP*/fy_allocate(len * sizeof(jchar), exception);
 	FYEH();
 	(*env)->GetCharArrayRegion(env, src, srcPos, len, chars);
 	for (i = 0; i < len; i++) {
@@ -1799,7 +1799,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 	value = (fy_short*) fy_nativeGetArrayBytes(context, dstHandle, exception);
 	FYEH();
-	shorts = fy_allocate(len * sizeof(jshort), exception);
+	shorts = /*TEMP*/fy_allocate(len * sizeof(jshort), exception);
 	FYEH();
 	(*env)->GetShortArrayRegion(env, src, srcPos, len, shorts);
 	for (i = 0; i < len; i++) {
@@ -1831,7 +1831,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 	value = (fy_int*) fy_nativeGetArrayBytes(context, dstHandle, exception);
 	FYEH();
-	ints = fy_allocate(len * sizeof(jint), exception);
+	ints = /*TEMP*/fy_allocate(len * sizeof(jint), exception);
 	FYEH();
 	(*env)->GetIntArrayRegion(env, src, srcPos, len, ints);
 	for (i = 0; i < len; i++) {
@@ -1863,7 +1863,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 	value = (fy_float*) fy_nativeGetArrayBytes(context, dstHandle, exception);
 	FYEH();
-	floats = fy_allocate(len * sizeof(jfloat), exception);
+	floats = /*TEMP*/fy_allocate(len * sizeof(jfloat), exception);
 	FYEH();
 	(*env)->GetFloatArrayRegion(env, src, srcPos, len, floats);
 	for (i = 0; i < len; i++) {
@@ -1895,7 +1895,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 	value = (fy_long*) fy_nativeGetArrayBytes(context, dstHandle, exception);
 	FYEH();
-	longs = fy_allocate(len * sizeof(jlong), exception);
+	longs =/*TEMP*/ fy_allocate(len * sizeof(jlong), exception);
 	FYEH();
 	(*env)->GetLongArrayRegion(env, src, srcPos, len, longs);
 	for (i = 0; i < len; i++) {
@@ -1927,7 +1927,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 
 	value = (fy_double*) fy_nativeGetArrayBytes(context, dstHandle, exception);
 	FYEH();
-	doubles = fy_allocate(len * sizeof(jdouble), exception);
+	doubles = /*TEMP*/fy_allocate(len * sizeof(jdouble), exception);
 	FYEH();
 	(*env)->GetDoubleArrayRegion(env, src, srcPos, len, doubles);
 	for (i = 0; i < len; i++) {
@@ -1958,7 +1958,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	}FYEH();
 	value = (fy_ubyte*) fy_nativeGetArrayBytes(context, srcHandle, exception);
 	FYEH();
-	booleans = fy_allocate(len * sizeof(jboolean), exception);
+	booleans = /*TEMP*/fy_allocate(len * sizeof(jboolean), exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		booleans[i] = value[i + srcPos];
@@ -1989,7 +1989,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	}FYEH();
 	value = (fy_byte*) fy_nativeGetArrayBytes(context, srcHandle, exception);
 	FYEH();
-	bytes = fy_allocate(len * sizeof(jbyte), exception);
+	bytes =/*TEMP*/ fy_allocate(len * sizeof(jbyte), exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		bytes[i] = value[i + srcPos];
@@ -2064,7 +2064,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	}FYEH();
 	value = (fy_char*) fy_nativeGetArrayBytes(context, srcHandle, exception);
 	FYEH();
-	chars = fy_allocate(len * sizeof(jchar), exception);
+	chars = /*TEMP*/fy_allocate(len * sizeof(jchar), exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		chars[i] = value[i + srcPos];
@@ -2096,7 +2096,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	}FYEH();
 	value = (fy_short*) fy_nativeGetArrayBytes(context, srcHandle, exception);
 	FYEH();
-	shorts = fy_allocate(len * sizeof(jshort), exception);
+	shorts = /*TEMP*/fy_allocate(len * sizeof(jshort), exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		shorts[i] = value[i + srcPos];
@@ -2127,7 +2127,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	}FYEH();
 	value = (fy_int*) fy_nativeGetArrayBytes(context, srcHandle, exception);
 	FYEH();
-	ints = fy_allocate(len * sizeof(jint), exception);
+	ints = /*TEMP*/fy_allocate(len * sizeof(jint), exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		ints[i] = value[i + srcPos];
@@ -2158,7 +2158,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	}FYEH();
 	value = (fy_float*) fy_nativeGetArrayBytes(context, srcHandle, exception);
 	FYEH();
-	floats = fy_allocate(len * sizeof(jfloat), exception);
+	floats = /*TEMP*/fy_allocate(len * sizeof(jfloat), exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		floats[i] = value[i + srcPos];
@@ -2189,7 +2189,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	}FYEH();
 	value = (fy_long*) fy_nativeGetArrayBytes(context, srcHandle, exception);
 	FYEH();
-	longs = fy_allocate(len * sizeof(jlong), exception);
+	longs = /*TEMP*/fy_allocate(len * sizeof(jlong), exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		longs[i] = value[i + srcPos];
@@ -2220,7 +2220,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	}FYEH();
 	value = (fy_double*) fy_nativeGetArrayBytes(context, srcHandle, exception);
 	FYEH();
-	doubles = fy_allocate(len * sizeof(jdouble), exception);
+	doubles = /*TEMP*/fy_allocate(len * sizeof(jdouble), exception);
 	FYEH();
 	for (i = 0; i < len; i++) {
 		doubles[i] = value[i + srcPos];

@@ -27,11 +27,15 @@ extern "C" {
 #endif
 
 typedef struct fy_str {
-	int length;
-	int maxLength;
-	int hashed;
-	int hashCode;
-	fy_char* content;
+	fy_int length;
+	fy_int maxLength;
+	fy_short sizeFixed;
+	fy_short hashed;
+	fy_int hashCode;
+	union {
+		fy_char* content;
+		fy_char staticContent[1];
+	};
 } fy_str;
 #define fy_strCreate(BLOCK,EXCEPTION) fy_strInit((BLOCK),fy_mmAllocate((BLOCK),sizeof(fy_str),(EXCEPTION)),16,(EXCEPTION))
 #define fy_strRelease(BLOCK,STR) fy_strDestroy((BLOCK),(STR));fy_mmFree((BLOCK),(STR));
@@ -46,12 +50,12 @@ FY_ATTR_EXPORT fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this,
 		fy_int size, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strAppend(fy_memblock *mem, fy_str *this,
 		const fy_str *string, fy_exception *exception);
-FY_ATTR_EXPORT fy_str *fy_strAppendChar(fy_memblock *mem, fy_str *this, fy_char ch,
-		fy_exception *exception);
+FY_ATTR_EXPORT fy_str *fy_strAppendChar(fy_memblock *mem, fy_str *this,
+		fy_char ch, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *mem, fy_str *this,
 		const char* utf8, fy_int size, fy_exception *exception);
-FY_ATTR_EXPORT fy_str *fy_strSubstring(fy_memblock *mem, fy_str *this, fy_int begin,
-		fy_int end);
+FY_ATTR_EXPORT fy_str *fy_strSubstring(fy_memblock *mem, fy_str *this,
+		fy_int begin, fy_int end);
 FY_ATTR_EXPORT fy_uint fy_strUtf8Count(fy_str *str);
 FY_ATTR_EXPORT fy_uint fy_strHash(fy_str *str);
 

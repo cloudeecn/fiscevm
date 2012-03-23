@@ -177,6 +177,11 @@ void fy_heapPutStaticFloat(fy_context *context, fy_field *field, fy_float value,
 void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 		fy_double value, fy_exception *exception);
 
+void* fy_heapPermAllocate(fy_context *context, size_t size,
+		fy_exception *exception);
+
+fy_int fy_heapPermSize(fy_context *context);
+
 #ifdef	__cplusplus
 }
 #endif

@@ -186,7 +186,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			FYEH();
 			fy_strInit(block, tmpConstantUtf8Info->string, j * 3, exception);
 			FYEH();
-			dataBuffer = fy_allocate(j, exception);
+			dataBuffer = /*TEMP*/fy_allocate(j, exception);
 			FYEH();
 			fy_dataReadBlock(context, is, dataBuffer, j, exception);
 			if (exception->exceptionType != exception_none) {
@@ -515,7 +515,7 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	fy_class *clazz;
 	fy_boolean begin = FALSE;
 	char msg[256];
-	temp = fy_allocate(desc->length * sizeof(temp), exception);
+	temp = /*TEMP*/fy_allocate(desc->length * sizeof(temp), exception);
 	FYEH();
 	fy_arrayListInit(context->memblocks, method->parameterTypes,
 			sizeof(fy_class*), 4, exception);
@@ -647,19 +647,12 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 		fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	fy_char i, count, j, jcount, k, kcount, l, lcount;
-	fy_str *ATT_CODE, *ATT_LINENUM, *ATT_SYNTH;
 	fy_str *attrName;
 	fy_uint attrSize;
 	fy_str *attrNameCode;
 	fy_uint attrSizeCode;
 	fy_method *method;
 
-	ATT_CODE = fy_strCreateFromUTF8(block, "Code", exception);
-	FYEH();
-	ATT_LINENUM = fy_strCreateFromUTF8(block, "LineNumberTable", exception);
-	FYEH();
-	ATT_SYNTH = fy_strCreateFromUTF8(block, "Synthetic", exception);
-	FYEH();
 	clazz->methodCount = count = fy_dataRead2(context, is, exception);
 	FYEH();
 	clazz->methods = fy_mmAllocate(block, sizeof(fy_method*) * count,
@@ -719,7 +712,7 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 			FYEH();
 			attrSize = fy_dataRead4(context, is, exception);
 			FYEH();
-			if (fy_strCmp(ATT_CODE, attrName) == 0) {
+			if (fy_strCmp(context->sAttCode, attrName) == 0) {
 				method->max_stack = fy_dataRead2(context, is, exception);
 				FYEH();
 				method->max_locals = fy_dataRead2(context, is, exception);
@@ -762,7 +755,7 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 					FYEH();
 					attrSizeCode = fy_dataRead4(context, is, exception);
 					FYEH();
-					if (fy_strCmp(ATT_LINENUM, attrNameCode) == 0) {
+					if (fy_strCmp(context->sAttLineNum, attrNameCode) == 0) {
 						lcount = fy_dataRead2(context, is, exception);
 						FYEH();
 						method->line_number_table = fy_mmAllocate(block,
@@ -782,7 +775,7 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 						FYEH();
 					}
 				}
-			} else if (fy_strCmp(ATT_SYNTH, attrName) == 0) {
+			} else if (fy_strCmp(context->sAttSynth, attrName) == 0) {
 				method->synthetic = 1;
 			} else {
 				fy_dataSkip(context, is, attrSize, exception);
@@ -794,9 +787,6 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 		FYEH();
 		clazz->methods[i] = method;
 	}
-	fy_strRelease(block, ATT_CODE);
-	fy_strRelease(block, ATT_LINENUM);
-	fy_strRelease(block, ATT_SYNTH);
 }
 
 /************public***************/
@@ -815,7 +805,7 @@ void *fy_clOpenResource(fy_context *context, fy_str *name,
 	for (i = 0, max = name->length; i < max; i++) {
 		size += fy_utf8Size(name->content[i]);
 	}
-	cname = fy_allocate(size + 1, exception);
+	cname = /*TEMP*/fy_allocate(size + 1, exception);
 	FYEH()NULL;
 	fy_strSPrint(cname, size + 1, name);
 	ret = context->isOpen(context, cname, exception);
@@ -884,8 +874,6 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 	fy_memblock *block = context->memblocks;
 	fy_field *field;
 	fy_method *method;
-	fy_str *FINALIZE = fy_strCreateFromUTF8(block, ".finalize.()V", exception);
-	FYEH();
 #ifdef _DEBUG
 	char buf[255];
 #endif
@@ -924,10 +912,12 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 							+ clazz->fields[i]->posRel;
 				}
 			}
-			if (fy_vmLookupMethodVirtual(context, clazz, FINALIZE, exception)
+			if (fy_vmLookupMethodVirtual(context, clazz, context->sMFinalize,
+					exception)
 					!= fy_vmLookupMethodVirtual(context,
 							fy_vmLookupClass(context, context->sTopClass,
-									exception), FINALIZE, exception)) {
+									exception), context->sMFinalize,
+							exception)) {
 				clazz->needFinalize = 1;
 #ifdef _DEBUG
 				fy_strSPrint(buf, 255, clazz->className);
@@ -977,7 +967,6 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 		break;
 	}
 	clazz->phase = 2;
-	fy_strRelease(block, FINALIZE);
 }
 fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		fy_exception *exception) {

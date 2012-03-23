@@ -53,7 +53,7 @@ static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 			fy_fault(exception, NULL,
 					"Out of memoryE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 					size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-					COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
+					COPY_ENTRIES, context->posInOld, context->oldTop);
 			return NULL;
 		} else {
 			DLOG("Call GC due to eden full");
@@ -69,13 +69,13 @@ static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
 static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
 		fy_boolean gced, fy_exception *exception) {
 	void *ret;
-	if (size + context->posInOld >= OLD_ENTRIES) {
+	if (size + context->posInOld >= context->oldTop) {
 		/*OOM, gc first*/
 		if (gced) {
 			fy_fault(exception, NULL,
 					"Out of memoryO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 					size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-					COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
+					COPY_ENTRIES, context->posInOld, context->oldTop);
 			return NULL;
 		} else {
 			DLOG("Call GC due to old full");
@@ -96,7 +96,7 @@ static void *allocateDirectInEden(fy_context *context, fy_int size,
 		fy_fault(exception, NULL,
 				"Out of memoryDE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
+				COPY_ENTRIES, context->posInOld, context->oldTop);
 		return NULL;
 	}
 	ret = context->eden + context->posInEden;
@@ -112,7 +112,7 @@ static void *allocateDirectInCopy(fy_context *context, fy_int size,
 		fy_fault(exception, NULL,
 				"Out of memoryDC! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
+				COPY_ENTRIES, context->posInOld, context->oldTop);
 		return NULL;
 	}
 	ret = context->young + context->posInYong;
@@ -123,12 +123,12 @@ static void *allocateDirectInCopy(fy_context *context, fy_int size,
 static void *allocateDirectInOld(fy_context *context, fy_int size,
 		fy_exception *exception) {
 	void *ret;
-	if (size + context->posInOld >= OLD_ENTRIES) {
+	if (size + context->posInOld >= context->oldTop) {
 		/*OOM, gc first*/
 		fy_fault(exception, NULL,
 				"Out of memoryDO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
 				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-				COPY_ENTRIES, context->posInOld, OLD_ENTRIES);
+				COPY_ENTRIES, context->posInOld, context->oldTop);
 		return NULL;
 	}
 	ret = context->old + context->posInOld;
@@ -893,6 +893,24 @@ void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 	field->owner->staticArea[field->posAbs + 1] = fy_LOFL(lvalue);
 }
 
+void* fy_heapPermAllocate(fy_context *context, size_t size,
+		fy_exception *exception) {
+	fy_int blocks = (size + 3) >> 2;
+	if (context->posInOld >= context->oldTop - blocks) {
+		fy_heapGC(context, exception);
+		FYEH()NULL;
+	}
+	if (context->posInOld >= context->oldTop - blocks) {
+		fy_fault(exception, NULL, "Out of memory: perm");
+		FYEH()NULL;
+	}
+	return context->old + (context->oldTop -= blocks);
+}
+
+fy_int fy_heapPermSize(fy_context *context) {
+	return OLD_ENTRIES - context->oldTop;
+}
+
 typedef struct fy_fill_literals_data {
 	fy_context *context;
 	fy_uint *makrs;
@@ -1095,10 +1113,10 @@ static void compactOld(fy_context *context, fy_exception *exception) {
 static void moveToOld(fy_context *context, fy_class *clazz, fy_uint handle,
 		fy_object *object, fy_int size, fy_exception *exception) {
 	fy_int pos = context->posInOld;
-	if (pos + size + 1 >= OLD_ENTRIES) {
+	if (pos + size + 1 >= context->oldTop) {
 		compactOld(context, exception);
 		pos = context->posInOld;
-		if (pos + size + 1 >= OLD_ENTRIES) {
+		if (pos + size + 1 >= context->oldTop) {
 			/*Really OOM*/
 			fy_fault(exception, NULL, "Old area full");
 		}
@@ -1179,7 +1197,8 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 					+ context->posInOld) * sizeof(fy_uint)));
 
 	timeStamp = fy_portTimeMillSec(context->port);
-	marks = fy_allocate(fy_bitSizeToInt(MAX_OBJECTS) << fy_bitSHIFT, exception);
+	marks = /*TEMP*/fy_allocate(fy_bitSizeToInt(MAX_OBJECTS) << fy_bitSHIFT,
+			exception);
 	FYEH();
 
 	fillInitialHandles(context, marks, exception);

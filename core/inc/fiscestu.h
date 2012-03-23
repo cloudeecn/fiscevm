@@ -59,9 +59,14 @@
 #define FY_METHOD_CLINIT "<clinit>"
 #define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"
 #define FY_METHODF_RUN ".run.()V"
+#define FY_METHODF_FINALIZE ".finalize.()V"
 #define FY_FIELDF_PRIORITY ".priority.I"
 #define FY_FIELDF_NAME ".name.[C"
 #define FY_FIELDF_DAEMON ".daemon.Z"
+#define FY_ATT_CODE "Code"
+#define FY_ATT_LINENUM "LineNumberTable"
+#define FY_ATT_SYNTH "Synthetic"
+#define FY_ATT_SOURCE_FILE "SourceFile"
 
 #define FY_ACC_ABSTRACT 1024
 #define FY_ACC_FINAL 16
@@ -410,121 +415,6 @@ typedef struct fy_message {
 struct fy_context;
 
 typedef struct fy_context {
-	void *additionalData;
-	fy_boolean loading;
-
-	fy_str sTopClass[1];
-	fy_str sClassClass[1];
-	fy_str sClassField[1];
-	fy_str sClassMethod[1];
-	fy_str sClassConstructor[1];
-	fy_str sClassThrowable[1];
-	fy_str sBoolean[1];
-	fy_str sByte[1];
-	fy_str sShort[1];
-	fy_str sChar[1];
-	fy_str sInt[1];
-	fy_str sFloat[1];
-	fy_str sLong[1];
-	fy_str sDouble[1];
-	fy_str sVoid[1];
-	fy_str sString[1];
-	fy_str sThread[1];
-	fy_str sStringArray[1];
-	fy_str sThrowablePrintStacktrace[1];
-	fy_str sInit[1];
-	fy_str sClinit[1];
-	fy_str sFMain[1];
-	fy_str sFRun[1];
-	fy_str sFPriority[1];
-	fy_str sFName[1];
-	fy_str sFDaemon[1];
-	fy_str sStringValue[1];
-	fy_str sStringOffset[1];
-	fy_str sStringCount[1];
-
-	fy_str sArrayBoolean[1];
-	fy_str sArrayChar[1];
-	fy_str sArrayFloat[1];
-	fy_str sArrayDouble[1];
-	fy_str sArrayByte[1];
-	fy_str sArrayShort[1];
-	fy_str sArrayInteger[1];
-	fy_str sArrayLong[1];
-	fy_str sArrayObject[1];
-	fy_str sArrayClass[1];
-
-	fy_str sThrowableStackTrace[1];
-	fy_str sThrowableDetailMessage[1];
-	fy_str sStackTraceElement[1];
-	fy_str sStackTraceElementArray[1];
-	fy_str sStackTraceElementDeclaringClass[1];
-	fy_str sStackTraceElementMethodName[1];
-	fy_str sStackTraceElementFileName[1];
-	fy_str sStackTraceElementLineNumber[1];
-
-	fy_class *TOP_THROWABLE;
-	fy_class *TOP_CLASS;
-
-	fy_str *primitives[128];
-	fy_hashMap mapPrimitivesRev[1];
-
-	fy_memblock memblocks[1];
-	fy_port port[1];
-
-	int classesCount;
-	fy_class *classes[MAX_CLASSES];
-
-	fy_hashMap mapClassNameToId[1];
-
-	int methodsCount;
-	fy_method *methods[MAX_METHODS];
-	fy_hashMap mapMethodNameToId[1];
-
-	int fieldsCount;
-	fy_field *fields[MAX_FIELDS];
-	fy_hashMap mapFieldNameToId[1];
-
-	fy_hashMap mapMUNameToNH[1];
-
-	fy_hashMapI classObjIds[1];
-	fy_hashMapI methodObjIds[1];
-	fy_hashMapI fieldObjIds[1];
-	fy_hashMapI constructorObjIds[1];
-
-	/* #BEGIN HEAP*/
-	fy_hashMap literals[1];
-	fy_uint nextHandle;
-	fy_object objects[MAX_OBJECTS];
-	fy_int posInEden;
-	fy_uint eden[EDEN_ENTRIES];
-	fy_int posInYong;
-	fy_uint youngId;
-	fy_uint young[COPY_ENTRIES * 2];
-	fy_int posInOld;
-	fy_int oldReleasedSize;
-	fy_uint old[OLD_ENTRIES];
-	fy_arrayList toFinalize[1];
-	fy_boolean protectMode;
-	fy_arrayList protected[1];
-	/* #END HEAP*/
-
-	/* #BEGIN THREAD MANAGER*/
-	int pricmds[11];
-	fy_thread *threads[MAX_THREADS];
-	fy_arrayList runningThreads[1];
-	int runningThreadPos;
-	int run;
-	int state;
-	fy_linkedList pendingThreads;
-	fy_long nextWakeUpTimeTotal;
-	fy_int nextThreadId;
-	fy_exception exitException;
-	fy_int exitCode;
-	fy_long nextGCTime;
-	fy_long nextForceGCTime;
-	/* #END THREAD MANAGER*/
-
 	/*Service Function Table*/
 	/*INPUTSTREAM*/
 	void* (*isOpen)(struct fy_context *context, const char *name,
@@ -592,6 +482,132 @@ typedef struct fy_context {
 	void (*saveEnd)(struct fy_context *context, void *saver,
 			fy_exception *exception);
 	void (*loadData)(struct fy_context *context, fy_exception *exception);
+
+	void *additionalData;
+	fy_boolean loading;
+
+	fy_str *sAttCode;
+	fy_str *sAttLineNum;
+	fy_str *sAttSynth;
+	fy_str *sAttSourceFile;
+
+
+	fy_str *sTopClass;
+	fy_str *sClassClass;
+	fy_str *sClassField;
+	fy_str *sClassMethod;
+	fy_str *sClassConstructor;
+	fy_str *sClassThrowable;
+	fy_str *sBoolean;
+	fy_str *sByte;
+	fy_str *sShort;
+	fy_str *sChar;
+	fy_str *sInt;
+	fy_str *sFloat;
+	fy_str *sLong;
+	fy_str *sDouble;
+	fy_str *sVoid;
+	fy_str *sString;
+	fy_str *sThread;
+	fy_str *sStringArray;
+	fy_str *sThrowablePrintStacktrace;
+	fy_str *sInit;
+	fy_str *sClinit;
+	fy_str *sFMain;
+	fy_str *sFRun;
+	fy_str *sFPriority;
+	fy_str *sFName;
+	fy_str *sFDaemon;
+	fy_str *sMFinalize;
+	fy_str *sStringValue;
+	fy_str *sStringOffset;
+	fy_str *sStringCount;
+
+	fy_str *sArrayBoolean;
+	fy_str *sArrayChar;
+	fy_str *sArrayFloat;
+	fy_str *sArrayDouble;
+	fy_str *sArrayByte;
+	fy_str *sArrayShort;
+	fy_str *sArrayInteger;
+	fy_str *sArrayLong;
+	fy_str *sArrayObject;
+	fy_str *sArrayClass;
+
+	fy_str *sThrowableStackTrace;
+	fy_str *sThrowableDetailMessage;
+	fy_str *sStackTraceElement;
+	fy_str *sStackTraceElementArray;
+	fy_str *sStackTraceElementDeclaringClass;
+	fy_str *sStackTraceElementMethodName;
+	fy_str *sStackTraceElementFileName;
+	fy_str *sStackTraceElementLineNumber;
+
+	fy_class *TOP_THROWABLE;
+	fy_class *TOP_CLASS;
+
+	fy_str *primitives[128];
+	fy_hashMap mapPrimitivesRev[1];
+
+	fy_memblock memblocks[1];
+	fy_port port[1];
+
+	int classesCount;
+	fy_class *classes[MAX_CLASSES];
+
+	fy_hashMap mapClassNameToId[1];
+
+	int methodsCount;
+	fy_method *methods[MAX_METHODS];
+	fy_hashMap mapMethodNameToId[1];
+
+	int fieldsCount;
+	fy_field *fields[MAX_FIELDS];
+	fy_hashMap mapFieldNameToId[1];
+
+	fy_hashMap mapMUNameToNH[1];
+
+	fy_hashMapI classObjIds[1];
+	fy_hashMapI methodObjIds[1];
+	fy_hashMapI fieldObjIds[1];
+	fy_hashMapI constructorObjIds[1];
+
+	/* #BEGIN THREAD MANAGER*/
+	int pricmds[11];
+	fy_thread *threads[MAX_THREADS];
+	fy_arrayList runningThreads[1];
+	int runningThreadPos;
+	int run;
+	int state;
+	fy_linkedList pendingThreads;
+	fy_long nextWakeUpTimeTotal;
+	fy_int nextThreadId;
+	fy_exception exitException;
+	fy_int exitCode;
+	fy_long nextGCTime;
+	fy_long nextForceGCTime;
+
+	/* #BEGIN HEAP*/
+	fy_arrayList toFinalize[1];
+	fy_boolean protectMode;
+	fy_arrayList protected[1];
+	fy_hashMap literals[1];
+	fy_uint nextHandle;
+	fy_object objects[MAX_OBJECTS];
+	fy_int posInEden;
+	fy_uint eden[EDEN_ENTRIES];
+	fy_int posInYong;
+	fy_uint youngId;
+	fy_uint young[COPY_ENTRIES * 2];
+	fy_int posInOld;
+	fy_int oldReleasedSize;
+	fy_int oldTop;
+	fy_uint old[OLD_ENTRIES];
+
+/* #END HEAP*/
+
+/* #END THREAD MANAGER*/
+
 } fy_context;
 
 typedef void (*fy_nhFunction)(struct fy_context *context,

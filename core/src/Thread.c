@@ -3656,13 +3656,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				pc += ivalue3;
 				ivalue = fy_nextS4(code);/*db*/
 				ivalue2 = fy_nextS4(code);/*np*/
-				pivalue = fy_allocate(sizeof(fy_int) * ivalue2, exception); /*match*/
+				pivalue = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue2, exception); /*match*/
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
 				}
-				pivalue2 = fy_allocate(sizeof(fy_int) * ivalue2, exception); /*offset*/
+				pivalue2 = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue2, exception); /*offset*/
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -3913,7 +3913,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				pivalue = fy_allocate(sizeof(int) * ivalue, exception);
+				pivalue = /*TEMP*/fy_allocate(sizeof(int) * ivalue, exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -4367,7 +4367,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				ivalue2 = fy_nextS4(code );/*lb*/
 				ivalue3 = fy_nextS4(code );/*hb*/
 				ivalue4 = ivalue3 - ivalue2 + 1;/*count*/
-				pivalue = fy_allocate(sizeof(fy_int) * ivalue4, exception);
+				pivalue = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue4, exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
