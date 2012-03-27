@@ -214,7 +214,7 @@ static void ClassInvokeMethod(struct fy_context *context,
 		thread->stack[sp + i] = fy_heapGetArrayInt(context, paramsHandle, i,
 				exception);
 		FYEH();
-		thread->typeStack[sp + i] = FY_TYPE_HANDLE;
+		fy_bitSet(thread->typeStack, sp+i);
 		if (paramTypes[i] != FY_TYPE_HANDLE) {
 			fy_fault(exception, FY_EXCEPTION_ITE, "param type not all handle");
 			break;
@@ -600,7 +600,7 @@ static void classNewInstanceO(struct fy_context *context,
 	fy_strDestroy(context->memblocks, &str);
 	FYEH();
 	thread->stack[sp] = handle;
-	thread->typeStack[sp] = FY_TYPE_HANDLE;
+	fy_bitSet(thread->typeStack, sp);
 	fy_threadPushMethod(context, thread, invoke, NULL, exception);
 }
 
@@ -711,13 +711,13 @@ static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 	fy_strDestroy(context->memblocks, &str);
 	FYEH();
 	thread->stack[sp] = handle;
-	thread->typeStack[sp] = FY_TYPE_HANDLE;
+	fy_bitSet(thread->typeStack, sp);
 	for (i = 0; i < len; i++) {
 		paramClassHandle = fy_heapGetArrayHandle(context, paramsArray, i,
 				exception);
 		FYEH();
 		thread->stack[sp + i + 1] = paramClassHandle;
-		thread->typeStack[sp + i + 1] = FY_TYPE_HANDLE;
+		fy_bitSet(thread->typeStack, sp+i+1);
 	}
 	fy_threadPushMethod(context, thread, invoke, NULL, exception);
 }

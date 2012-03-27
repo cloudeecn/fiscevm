@@ -295,7 +295,7 @@ static void saveThread(struct fy_context *context, void *saver,
 	for (i = 0; i < stackSize; i++) {
 		writeInt(fp, stack[i], exception);
 	}
-	for (i = 0; i < stackSize; i++) {
+	for (i = 0; i < (stackSize + 31) / 32; i++) {
 		writeInt(fp, typeStack[i], exception);
 	}
 }
@@ -464,7 +464,8 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	if (fp == NULL) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Can't open save.dat for read.");
 		return;
-	}FY_ASSERTF(0x11BF15CE);
+	}
+	FY_ASSERTF(0x11BF15CE);
 	loader = fy_loadBegin(context, exception);
 	FY_ASSERTF(0xF15CE002);
 	classCount = readInt(fp, exception);
@@ -613,7 +614,8 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		FYEH();
 		readIntBlock(context, fp, &intbufSize, &intbuf, stackSize, exception);
 		FYEH();
-		readIntBlock(context, fp, &intbufSize2, &intbuf2, stackSize, exception);
+		readIntBlock(context, fp, &intbufSize2, &intbuf2, (stackSize + 31) / 32,
+				exception);
 		FYEH();
 		thread = fy_loadThread(context, loader, id, priority, daemon,
 				destroyPending, interrupted,

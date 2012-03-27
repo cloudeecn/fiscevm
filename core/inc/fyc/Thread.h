@@ -42,9 +42,6 @@ fy_method *fy_threadGetCurrentMethod(fy_context *context, fy_thread *thread);
 void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 		fy_exception *exception);
 
-void fy_threadInitWithData(fy_context *context, fy_thread *thread,
-		fy_byte *data, fy_int length, fy_exception *exception);
-
 void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 		int threadHandle, fy_method *method, fy_exception *exception);
 

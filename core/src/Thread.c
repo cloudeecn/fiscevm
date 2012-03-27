@@ -533,10 +533,10 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Integer:
 	case CONSTANT_Float:
-		*type = FY_TYPE_INT;
+		*type = 0;
 		return ((ConstantIntegerFloatInfo*) (owner->constantPools[index]))->value;
 	case CONSTANT_String:
-		*type = FY_TYPE_HANDLE;
+		*type = 1;
 		constantStringInfo =
 				((ConstantStringInfo*) (owner->constantPools[index]));
 		if (!constantStringInfo->derefed) {
@@ -554,7 +554,7 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 		return hvalue;
 	case CONSTANT_Class:
 		constantClass = (ConstantClass*) (owner->constantPools[index]);
-		*type = FY_TYPE_HANDLE;
+		*type = 1;
 		clazz = fy_vmLookupClassFromConstant(context, constantClass, exception);
 		if (exception->exceptionType != exception_none) {
 			return 0;
@@ -784,15 +784,19 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	} \
 }
 
-# define fy_checkPop(SIZE,T) { \
+# define fy_checkPopSize(SIZE) { \
 	if(sp<=sb+localCount+(SIZE)){ \
 		fy_fault(exception,NULL,"Stack underflow! base=%d sp=%d localvars=%d",sb,sp,localCount); \
 		message->messageType=message_exception; \
 		FY_FALLOUT_NOINVOKE \
 		break; \
 	} \
-	if(typeStack[sp-1]!=(T)){ \
-		fy_fault(exception,NULL,"Type mismatch, needs [%c] but got [%c]",(T),typeStack[sp-1]); \
+}
+
+# define fy_checkPop(SIZE,T) { \
+	fy_checkPopSize(SIZE) \
+	if(T!=fy_bitGet(typeStack, sp-1)){ \
+		fy_fault(exception,NULL,"Type mismatch, needs [%d] but got [%d]",(T),fy_bitGet(typeStack, sp-1)); \
 		message->messageType=message_exception; \
 		FY_FALLOUT_NOINVOKE \
 		break; \
@@ -827,8 +831,9 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		FY_FALLOUT_NOINVOKE \
 		break; \
 	} \
-	if(typeStack[sb+(P)]!=(T)){\
-		fy_fault(exception,NULL,"Type mismatch, needs [%c] but got [%c]",(T),typeStack[sb+(P)]); \
+	if((T)!=fy_bitGet(typeStack, sb+(P))){\
+		fy_fault(exception,NULL,"Type mismatch, needs [%d] but got [%d]",\
+				(T),fy_bitGet(typeStack, sb+(P))); \
 		message->messageType=message_exception; \
 		FY_FALLOUT_NOINVOKE \
 		break; \
@@ -845,6 +850,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 
 #else
 # define fy_checkPush(SIZE)
+# define fy_checkPopSize(SIZE)
 # define fy_checkPop(SIZE,T)
 # define fy_frameToLocalCheck(F)
 # define fy_localToFrameCheck(F)
@@ -855,63 +861,64 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 
 #define fy_threadPushType(V,T) { \
 	fy_checkPush(0) \
-	typeStack[sp]=(T);stack[sp++]=V; \
+	if(T)fy_bitSet(typeStack,sp);else fy_bitClear(typeStack,sp);\
+	stack[sp++]=V; \
 }
 
 #define fy_threadPushInt(V) { \
 	fy_checkPush(0) \
-	typeStack[sp]=FY_TYPE_INT;stack[sp++]=V; \
+	fy_bitClear(typeStack,sp);stack[sp++]=V; \
 }
 
 #define fy_threadPushHandle(V) { \
 		fy_checkPush(0) \
-	typeStack[sp]=FY_TYPE_HANDLE;stack[sp++]=V; \
+	fy_bitSet(typeStack,sp);stack[sp++]=V; \
 }
 #define fy_threadPushReturn(V) { \
 	fy_checkPush(0) \
-	typeStack[sp]=FY_TYPE_RETURN;stack[sp++]=V; \
+	fy_bitClear(typeStack,sp);stack[sp++]=V; \
 }
 
 #define fy_threadPushLong(W) { \
 	fy_checkPush(1) \
-	typeStack[sp]=FY_TYPE_WIDE;stack[sp++]=fy_HOFL((W)); \
-	typeStack[sp]=FY_TYPE_WIDE2;stack[sp++]=fy_LOFL((W)); \
+	fy_bitClear(typeStack,sp);stack[sp++]=fy_HOFL((W)); \
+	fy_bitClear(typeStack,sp);stack[sp++]=fy_LOFL((W)); \
 }
 
 #define fy_threadPopType(O,T) { \
-	fy_checkPop(0,typeStack[sp-1]) \
+	fy_checkPopSize(0) \
 	O=stack[--sp]; \
-	T=typeStack[sp]; \
+	T=fy_bitGet(typeStack,sp); \
 }
 
 #define fy_threadPopInt(O) { \
-	fy_checkPop(0,typeStack[sp-1]) \
+	fy_checkPop(0,0) \
 	O=stack[--sp]; \
 }
 
 #define fy_threadPopFloat(O) { \
-	fy_checkPop(0,typeStack[sp-1]) \
+	fy_checkPop(0,0) \
 	O=fy_intToFloat(stack[--sp]); \
 }
 
 #define fy_threadPopHandle(O) { \
-	fy_checkPop(0,typeStack[sp-1]) \
+	fy_checkPop(0,1) \
 	O=stack[--sp]; \
 }
 
 #define fy_threadPopReturn(O) { \
-	fy_checkPop(0,typeStack[sp-1]) \
+	fy_checkPop(0,0) \
 	O=stack[--sp]; \
 }
 
 #define fy_threadPopLong(O) { \
-	fy_checkPop(1,typeStack[sp-1]) \
+	fy_checkPop(1,0) \
 	O = (fy_ulong)stack[--sp]; \
 	O += ((fy_ulong)stack[--sp])<<32; \
 }
 
 #define fy_threadPopDouble(O) { \
-	fy_checkPop(1,typeStack[sp-1]) \
+	fy_checkPop(1,0) \
 	sp-=2; \
 	O=fy_longToDouble((((fy_ulong)stack[sp])<<32)+(fy_ulong)stack[sp+1]); \
 }
@@ -919,46 +926,46 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 #define fy_threadPutLocalInt(P,V) { \
 	fy_checkPutLocal(P,0) \
 	stack[sb+(P)]=(V); \
-	typeStack[sb+(P)]=FY_TYPE_INT; \
+	fy_bitClear(typeStack,sb+(P)); \
 }
 
 #define fy_threadPutLocalHandle(P,V) { \
 	fy_checkPutLocal(P,0) \
 	stack[sb+(P)]=(V); \
-	typeStack[sb+(P)]=FY_TYPE_HANDLE; \
+	fy_bitSet(typeStack,sb+(P)); \
 }
 
 #define fy_threadPutLocalType(P,V,TYPE) { \
 	fy_checkPutLocal(P,0) \
 	stack[sb+(P)]=(V); \
-	typeStack[sb+(P)]=(TYPE); \
+	if(TYPE)fy_bitSet(typeStack,sb+(P)); else fy_bitClear(typeStack,sb+(P)); \
 }
 
 #define fy_threadPutLocalLong(P,W) { \
 	fy_checkPutLocal(P,1) \
 	stack[sb+(P)]=fy_HOFL(W); \
 	stack[sb+(P)+1]=fy_LOFL(W); \
-	typeStack[sb+(P)]=FY_TYPE_WIDE; \
-	typeStack[sb+(P)+1]=FY_TYPE_WIDE2; \
+	fy_bitClear(typeStack,sb+(P)); \
+	fy_bitClear(typeStack,sb+(P)+1); \
 }
 
 #define fy_threadGetLocalInt(P,O) { \
-	fy_checkGetLocal(P,0,FY_TYPE_INT) \
+	fy_checkGetLocal(P,0,FALSE) \
 	O=stack[sb+(P)]; \
 }
 
 #define fy_threadGetLocalHandle(P,O) { \
-	fy_checkGetLocal(P,0,FY_TYPE_HANDLE) \
+	fy_checkGetLocal(P,0,TRUE) \
 	O=stack[sb+(P)]; \
 }
 
 #define fy_threadGetLocalReturn(P,O) { \
-	fy_checkGetLocal(P,0,FY_TYPE_RETURN) \
+	fy_checkGetLocal(P,0,FALSE) \
 	O=stack[sb+(P)]; \
 }
 
 #define fy_threadGetLocalLong(P,O) { \
-	fy_checkGetLocal(P,1,FY_TYPE_WIDE) \
+	fy_checkGetLocal(P,1,FALSE) \
 	O=stack[sb+(P)]; \
 	O=((fy_ulong)O<<32)+((fy_ulong)stack[sb+(P)+1]); \
 }
@@ -1104,7 +1111,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	}
 
 	thread->stack[0] = fy_heapAllocateArray(context, clazz, 0, exception);
-	thread->typeStack[0] = FY_TYPE_HANDLE;
+	fy_bitSet(thread->typeStack, 0);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
@@ -1133,12 +1140,7 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	fy_threadPushFrame(context, thread, runner, exception);
 	FYEH();
 	thread->stack[0] = handle;
-	thread->typeStack[0] = FY_TYPE_HANDLE;
-}
-
-void fy_threadInitWithData(fy_context *context, fy_thread *thread,
-		fy_byte *data, fy_int length, fy_exception *exception) {
-	/*TODO*/
+	fy_bitSet(thread->typeStack, 0);
 }
 
 #define fy_nextU1(CODE) (fy_uint)CODE[pc++]
@@ -1210,7 +1212,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				stack[frame->sb] = thread->currentThrowable;
-				typeStack[frame->sb] = FY_TYPE_HANDLE;
+				fy_bitSet(typeStack, frame->sb);
 				thread->currentThrowable = 0;
 				continue;
 			} else {
@@ -2525,7 +2527,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case I2F: {
 				/*CUSTOM*/
-				fy_checkPop(0, FY_TYPE_INT);
+				fy_checkPop(0, 0);
 				stack[sp - 1] = fy_floatToInt((fy_float) stack[sp - 1]);
 				break;
 			}
@@ -2541,7 +2543,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case I2S: {
 				/*CUSTOM*/
-				fy_checkPop(0, FY_TYPE_INT);
+				fy_checkPop(0, 0);
 				stack[sp - 1] = (fy_short) stack[sp - 1];
 				break;
 			}
@@ -3218,7 +3220,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				ivalue = mvalue2->paramCount + 1;
 				fy_checkCall(ivalue);
 				sp -= ivalue;
-				ASSERT(typeStack[sp]==FY_TYPE_HANDLE);
+				ASSERT(fy_bitGet(typeStack,sp));
 				if (stack[sp] == 0) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
@@ -4258,7 +4260,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_LATE_DECLARATION
 					fy_uint ivalue;
 #endif
-					fy_threadPopInt(ivalue)
+					fy_threadPopHandle(ivalue)
 					fy_heapPutStaticHandle(context, field, ivalue, exception);
 					break;
 				}
@@ -4605,7 +4607,7 @@ void fy_threadReturnInt(fy_context *context, fy_thread *thread, fy_int value) {
 	fy_uint *stack = thread->stack;
 	fy_uint *typeStack = thread->typeStack;
 	stack[sp] = value;
-	typeStack[sp] = FY_TYPE_INT;
+	fy_bitClear(typeStack, sp);
 	frame->sp = sp + 1;
 }
 
@@ -4616,7 +4618,7 @@ void fy_threadReturnHandle(fy_context *context, fy_thread *thread, fy_int value)
 	fy_uint *stack = thread->stack;
 	fy_uint *typeStack = thread->typeStack;
 	stack[sp] = value;
-	typeStack[sp] = FY_TYPE_HANDLE;
+	fy_bitSet(typeStack, sp);
 	frame->sp = sp + 1;
 }
 
@@ -4628,8 +4630,8 @@ void fy_threadReturnLong(fy_context *context, fy_thread *thread, fy_long value) 
 	fy_uint *typeStack = thread->typeStack;
 	stack[sp] = fy_HOFL(value);
 	stack[sp + 1] = fy_LOFL(value);
-	typeStack[sp] = FY_TYPE_WIDE;
-	typeStack[sp + 1] = FY_TYPE_WIDE2;
+	fy_bitClear(typeStack, sp);
+	fy_bitClear(typeStack, sp+1);
 	frame->sp = sp + 2;
 }
 
@@ -4648,7 +4650,8 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *marks) {
 	imax = frame->sb + frame->method->max_locals + frame->method->max_stack;
 	ASSERT(imax<=STACK_SIZE);
 	for (i = 0; i < imax; i++) {
-		if (typeStack[i] == FY_TYPE_HANDLE || typeStack[i] == FY_TYPE_ARRAY) {
+		/*TODO we can scan 32bits a time first and skip all-zero blocks*/
+		if (fy_bitGet(typeStack, i)) {
 			handle = stack[i];
 			if (handle == 0) {
 				continue;

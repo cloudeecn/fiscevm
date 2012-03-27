@@ -371,7 +371,7 @@ typedef struct fy_thread {
 	fy_uint frameCount;
 	fy_frame frames[MAX_FRAMES];
 	fy_uint stack[STACK_SIZE];
-	fy_uint typeStack[STACK_SIZE];
+	fy_uint typeStack[(STACK_SIZE+31)/32];
 
 	/*Used by thread manager*/
 	fy_int waitForLockId;

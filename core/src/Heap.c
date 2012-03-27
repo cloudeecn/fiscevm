@@ -349,6 +349,7 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 	} else {
 		fy_fault(exception, NULL, "Illegal object type for clone: %d",
 				clazz->type);
+		return NULL;
 	}
 	return ret;
 }

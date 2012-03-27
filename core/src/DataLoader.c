@@ -270,7 +270,8 @@ fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
 	thread->waitForLockId = waitForLockId;
 	thread->waitForNotifyId = waitForNotifyId;
 	memcpy(thread->stack, stack, stackSize * sizeof(fy_uint));
-	memcpy(thread->typeStack, typeStack, stackSize * sizeof(fy_uint));
+	memcpy(thread->typeStack, typeStack,
+			(stackSize + 31) / 32 * sizeof(fy_uint));
 	return thread;
 }
 void fy_loadPrepareFrame(struct fy_context *context, void *loader_,
