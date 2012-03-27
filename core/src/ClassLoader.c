@@ -448,7 +448,7 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 	fy_str *tmp;
 	fy_str className[1];
 	if (begin <= 0) {
-		fy_fault(NULL, NULL, "Bad descriptor");
+		fy_fault(exception, NULL, "Bad descriptor");
 		FYEH()0;
 	}
 	if (end == 0) {
@@ -480,7 +480,7 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 	clazz = fy_vmLookupClass(context, className, exception);
 	FYEH()0;
 	if (clazz == NULL) {
-		fy_fault(NULL, NULL, "Bad descriptor");
+		fy_fault(exception, NULL, "Bad descriptor");
 		FYEH()0;
 	}
 	return clazz;

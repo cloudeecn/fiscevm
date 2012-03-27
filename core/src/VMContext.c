@@ -900,13 +900,13 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 				thread->daemon, thread->destroyPending, thread->interrupted,
 				thread->nextWakeTime, thread->pendingLockCount,
 				thread->waitForLockId, thread->waitForNotifyId,
-				thread->frames[jmax - 1].sp, thread->stack, thread->typeStack,
+				FY_GET_FRAME(thread,jmax-1)->sp, thread->stack, thread->typeStack,
 				exception);
 		FYEH();
 		context->savePrepareFrame(context, saver, jmax, exception);
 		FYEH();
 		for (j = 0; j < jmax; j++) {
-			frame = thread->frames + j;
+			frame = FY_GET_FRAME(thread,j);
 			context->saveFrame(context, saver, frame->methodId, frame->sb,
 					frame->sp, frame->pc, frame->lpc, exception);
 			FYEH();

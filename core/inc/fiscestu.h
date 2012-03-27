@@ -32,7 +32,6 @@
 #define MAX_THREADS 256
 
 #define STACK_SIZE 16384
-#define MAX_FRAMES 256
 
 /*Bellow are used by context*/
 #define FY_TYPE_BYTE  'B'
@@ -359,6 +358,8 @@ typedef struct fy_frame {
 	fy_uint lpc;
 } fy_frame;
 
+#define FY_FRAME_ENTRIES ((sizeof(struct fy_frame)+3)/4)
+#define FY_GET_FRAME(THREAD,FRAMEID) ((fy_frame*)((THREAD)->stack+(STACK_SIZE-((FRAMEID)+1)*FY_FRAME_ENTRIES)))
 typedef struct fy_thread {
 	fy_boolean yield;
 
@@ -369,7 +370,6 @@ typedef struct fy_thread {
 	fy_int threadId;
 
 	fy_uint frameCount;
-	fy_frame frames[MAX_FRAMES];
 	fy_uint stack[STACK_SIZE];
 	fy_uint typeStack[(STACK_SIZE+31)/32];
 

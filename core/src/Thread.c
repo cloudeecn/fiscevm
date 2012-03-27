@@ -709,7 +709,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		FY_SIMPLE_ERROR_HANDLE
 		fy_heapPutArrayHandle(context, arrayHandle, t, itemHandle, exception);
 		FY_SIMPLE_ERROR_HANDLE
-		frame = thread->frames + i;
+		frame = FY_GET_FRAME(thread,i);
 		method = frame->method;
 		str->content = NULL;
 		fy_strInit(context->memblocks, str, method->owner->className->length,
@@ -995,7 +995,7 @@ static fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 	if (frameCount == 0) {
 		return NULL;
 	} else {
-		return thread->frames + (frameCount - 1);
+		return FY_GET_FRAME(thread,thread->frameCount-1);
 	}
 }
 
@@ -1006,14 +1006,16 @@ static fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
 	if (frame == NULL) {
 		sb = 0;
 		sp = invoke->max_locals;
-		frame = thread->frames;
+		frame = FY_GET_FRAME(thread,0);
 	} else {
 		sb = frame->sp;
 		sp = sb + invoke->max_locals;
-		frame++;
+		frame--;
 	}
-	if ((++(thread->frameCount)) >= MAX_FRAMES) {
-		fy_fault(exception, NULL, "FRAME OVERFLOW! %d", MAX_FRAMES);
+	if (sp + invoke->max_stack + (++(thread->frameCount)) * FY_FRAME_ENTRIES
+			>= STACK_SIZE) {
+		fy_fault(exception, NULL, "STACK OVERFLOW! sp=%d frame_size=", sp,
+				thread->frameCount * FY_FRAME_ENTRIES);
 		return NULL;
 	}
 	frame->method = invoke;
@@ -1037,7 +1039,7 @@ static fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread) {
 	if (fc <= 0) {
 		return NULL;
 	} else {
-		return thread->frames + fc - 1;
+		return FY_GET_FRAME(thread,fc-1);
 	}
 }
 
@@ -4648,7 +4650,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *marks) {
 	}
 
 	imax = frame->sb + frame->method->max_locals + frame->method->max_stack;
-	ASSERT(imax<=STACK_SIZE);
+	ASSERT(imax<=STACK_SIZE-thread->frameCount*FY_FRAME_ENTRIES);
 	for (i = 0; i < imax; i++) {
 		/*TODO we can scan 32bits a time first and skip all-zero blocks*/
 		if (fy_bitGet(typeStack, i)) {

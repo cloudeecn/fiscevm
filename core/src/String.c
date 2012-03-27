@@ -91,7 +91,7 @@ static fy_str *ensureSize(fy_memblock *block, fy_str *_this, fy_int size,
 
 	if (_this->maxLength < size) {
 		if (_this->perm) {
-			fy_fault(NULL, NULL, "Perm string overflow!");
+			fy_fault(exception, NULL, "Perm string overflow!");
 			FYEH()NULL;
 		}
 		len = _this->maxLength;

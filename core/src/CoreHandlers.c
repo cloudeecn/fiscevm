@@ -27,7 +27,7 @@ static void FiScEVMStoreParams(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 //We don't have a frame for native function currently, so the current frame is the caller frame.
-	fy_frame *frame = thread->frames + (thread->frameCount - 1);
+	fy_frame *frame = FY_GET_FRAME(thread, thread->frameCount - 1);
 	fy_int begin = args[0];
 	fy_int targetHandle = args[1];
 	fy_int targetPos = args[2];
@@ -172,7 +172,7 @@ static void ClassInvokeMethod(struct fy_context *context,
 	fy_method *method;
 	fy_byte *paramTypes;
 	fy_uint count, i;
-	fy_frame *currentFrame = thread->frames + (thread->frameCount - 1);
+	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
 	fy_uint sp = currentFrame->sp;
 
 	methodName.content = NULL;
@@ -577,7 +577,7 @@ static void classNewInstanceO(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_class *clazz;
-	fy_frame *currentFrame = thread->frames + thread->frameCount - 1;
+	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
 	fy_method *invoke;
 	fy_str str;
 	fy_uint sp;
@@ -621,7 +621,7 @@ static void classNewInstanceA(struct fy_context *context,
 static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_class *clazz;
-	fy_frame *currentFrame = thread->frames + thread->frameCount - 1;
+	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
 	fy_method *invoke;
 	fy_str str;
 	fy_uint sp;

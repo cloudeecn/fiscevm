@@ -280,7 +280,7 @@ void fy_loadPrepareFrame(struct fy_context *context, void *loader_,
 void fy_loadFrame(struct fy_context *context, void *loader_, fy_thread *thread,
 		fy_uint methodId, fy_uint sb, fy_uint sp, fy_uint pc, fy_uint lpc,
 		fy_exception *exception) {
-	fy_frame *frame = thread->frames + (thread->frameCount++);
+	fy_frame *frame = FY_GET_FRAME(thread,thread->frameCount++);
 	frame->methodId = methodId;
 	frame->method = context->methods[methodId];
 	frame->code = frame->method->code;
