@@ -887,7 +887,7 @@ static void methodIsBridge(struct fy_context *context, struct fy_thread *thread,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
-	fy_nativeReturnInt(context, thread, 0);
+	fy_nativeReturnInt(context, thread, FY_ACC_BRIDGE && method->access_flags);
 }
 
 static void methodIsVarArgs(struct fy_context *context,
@@ -899,7 +899,7 @@ static void methodIsVarArgs(struct fy_context *context,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
-	fy_nativeReturnInt(context, thread, 0);
+	fy_nativeReturnInt(context, thread, FY_ACC_VARARGS && method->access_flags);
 }
 
 static void methodIsSynthetic(struct fy_context *context,
@@ -911,7 +911,7 @@ static void methodIsSynthetic(struct fy_context *context,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
-	fy_nativeReturnInt(context, thread, 0);
+	fy_nativeReturnInt(context, thread, method->synthetic);
 }
 
 static void methodGetDeclaringClass(struct fy_context *context,

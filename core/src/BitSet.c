@@ -17,15 +17,5 @@
 
 #include "fy_util/BitSet.h"
 
-void fy_bitSet(fy_uint *marks, fy_uint pos) {
-	marks[pos >> fy_bitSHIFT] |= 1 << (pos & fy_bitMASK);
-}
-
-void fy_bitClear(fy_uint *marks, fy_uint pos) {
-	marks[pos >> fy_bitSHIFT] &= ~(fy_uint) (1 << (pos & fy_bitMASK));
-}
-
-fy_boolean fy_bitGet(fy_uint *marks, fy_uint pos) {
-	return (marks[pos >> fy_bitSHIFT] >> (pos & fy_bitMASK)) & 1;
-}
+/*Dummy as all the functions are redefined as macros*/
 

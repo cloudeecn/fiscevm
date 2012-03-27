@@ -25,14 +25,11 @@ extern "C" {
 #endif
 
 #define fy_bitSHIFT 5
-#define fy_bitMASK ((1<<fy_bitSHIFT)-1)
+#define fy_bitMASK 31/*((1<<fy_bitSHIFT)-1)*/
 #define fy_bitSizeToInt(X) (((X)+fy_bitMASK)>>fy_bitSHIFT)
-
-void fy_bitSet(fy_uint *marks, fy_uint pos);
-
-void fy_bitClear(fy_uint *marks, fy_uint pos);
-
-fy_boolean fy_bitGet(fy_uint *marks, fy_uint pos);
+#define fy_bitSet(BS,POS)	BS[(POS) >> fy_bitSHIFT] |= 1 << ((POS) & fy_bitMASK)
+#define fy_bitClear(BS,POS) BS[(POS) >> fy_bitSHIFT] &= ~(fy_uint)(1 << ((POS) & fy_bitMASK))
+#define fy_bitGet(BS,POS) ((BS[(POS) >> fy_bitSHIFT] >> ((POS) & fy_bitMASK)) & 1)
 
 #ifdef	__cplusplus
 }
