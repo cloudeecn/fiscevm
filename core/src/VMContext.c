@@ -610,7 +610,6 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
 		fy_exception *exception) {
 	fy_class *clazz;
-	fy_class *clazz2;
 	clazz = getClass(context, name);
 	if (clazz == NULL) {
 		clazz = fy_clLoadclass(context, name, exception);
@@ -623,7 +622,7 @@ fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}
-		clazz2 = fy_vmLookupClass(context, context->sClassClass, exception);
+		fy_vmLookupClass(context, context->sClassClass, exception);
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}

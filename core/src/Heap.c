@@ -349,7 +349,7 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 	} else {
 		fy_fault(exception, NULL, "Illegal object type for clone: %d",
 				clazz->type);
-		return NULL;
+		return 0;
 	}
 	return ret;
 }
@@ -611,7 +611,9 @@ fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 }
 fy_float fy_heapGetFieldFloat(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
+#ifdef _DEBUG
 	fy_object *obj = fy_heapGetObject(context, handle);
+#endif
 	CHECK_NPT(0)
 	ASSERT(validate(context,handle,field));
 
@@ -1085,7 +1087,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 			block->posInOld * sizeof(fy_uint),
 			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
 					* sizeof(fy_uint)), context->memblocks->size,
-			(OLD_ENTRIES - context->memblocks->oldTop) * sizeof(fy_uint));
+			(fy_int)((OLD_ENTRIES - context->memblocks->oldTop) * sizeof(fy_uint)));
 #else
 	printf(
 			"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d perm bytes\n",
@@ -1094,7 +1096,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 			block->posInOld,
 			(fy_int) ((block->posInEden + block->posInYong
 							+ block->posInOld) * sizeof(fy_uint)),
-			(OLD_ENTRIES - context->memblocks->oldTop) * sizeof(fy_uint));
+			(fy_int)((OLD_ENTRIES - context->memblocks->oldTop) * sizeof(fy_uint)));
 #endif
 
 	timeStamp = fy_portTimeMillSec(context->port);
