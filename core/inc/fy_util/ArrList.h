@@ -27,24 +27,30 @@ extern "C" {
 typedef struct fy_arrayList {
 	fy_int length;
 	fy_int maxLength;
-	size_t entrySize;
+	fy_short entrySize;
+	fy_short perm;
 	void *data;
+	FY_VLS(fy_uint,staticData);
 } fy_arrayList;
-FY_ATTR_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list, size_t entrySize,
-		fy_int initCap, fy_exception *exception);
+FY_ATTR_EXPORT fy_arrayList* fy_arrayListCreatePerm(fy_memblock *block,
+		fy_short entrySize, fy_int maxCap, fy_exception *exception);
+
+FY_ATTR_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list,
+		fy_short entrySize, fy_int initCap, fy_exception *exception);
 
 FY_ATTR_EXPORT void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list);
 
-FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list, void *data,
-		fy_exception *exception);
+FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list,
+		void *data, fy_exception *exception);
 
-FY_ATTR_EXPORT void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list, fy_uint pos,
+FY_ATTR_EXPORT void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list,
+		fy_uint pos, void *storage);
+
+FY_ATTR_EXPORT void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list,
 		void *storage);
 
-FY_ATTR_EXPORT void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list, void *storage);
-
-FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list, fy_int pos,
-		fy_exception *exception);
+FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list,
+		fy_int pos, fy_exception *exception);
 
 FY_ATTR_EXPORT void fy_arrayListClear(fy_memblock *block, fy_arrayList *list);
 

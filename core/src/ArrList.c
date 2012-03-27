@@ -16,11 +16,24 @@
  */
 #include "fy_util/ArrList.h"
 
+FY_ATTR_EXPORT fy_arrayList* fy_arrayListCreatePerm(fy_memblock *block,
+		fy_short entrySize, fy_int maxCap, fy_exception *exception) {
+	fy_arrayList *list = fy_mmAllocatePerm(block,
+			sizeof(fy_arrayList) + entrySize * maxCap, exception);
+	FYEH()NULL;
+	list->maxLength = maxCap;
+	list->data = list->staticData;
+	list->perm = TRUE;
+	list->entrySize = entrySize;
+	return list;
+}
+
 FY_ATTR_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list,
-		size_t entrySize, fy_int initCap, fy_exception *exception) {
+		fy_short entrySize, fy_int initCap, fy_exception *exception) {
 	list->maxLength = initCap;
 	list->length = 0;
 	list->entrySize = entrySize;
+	list->perm = FALSE;
 	list->data = fy_mmAllocate(block, entrySize * initCap, exception);
 	FYEH();
 }

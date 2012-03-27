@@ -29,20 +29,20 @@ extern "C" {
 typedef struct fy_str {
 	fy_int length;
 	fy_int maxLength;
-	fy_short sizeFixed;
+	fy_short perm;
 	fy_short hashed;
 	fy_int hashCode;
-	union {
-		fy_char* content;
-		fy_char staticContent[1];
-	};
+	fy_char* content;
+	FY_VLS(fy_char,staticContent);
 } fy_str;
-#define fy_strCreate(BLOCK,EXCEPTION) fy_strInit((BLOCK),fy_mmAllocate((BLOCK),sizeof(fy_str),(EXCEPTION)),16,(EXCEPTION))
-#define fy_strRelease(BLOCK,STR) fy_strDestroy((BLOCK),(STR));fy_mmFree((BLOCK),(STR));
 FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 		const char *utf8, fy_exception *exception);
-FY_ATTR_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *mem, const char *utf8,
+FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
 		fy_exception *exception);
+FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
+		fy_str *other, fy_int additionalSize, fy_exception *exception);
+FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
+		const char *utf8, fy_int additionalSize, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
 		fy_exception *exception);
 FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *mem, fy_str *string);

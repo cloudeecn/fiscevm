@@ -30,9 +30,7 @@
 #define MAX_FIELDS 65536
 #define MAX_OBJECTS 131072
 #define MAX_THREADS 256
-#define EDEN_ENTRIES 131072
-#define COPY_ENTRIES 32768
-#define OLD_ENTRIES 1048576
+
 #define STACK_SIZE 16384
 #define MAX_FRAMES 256
 
@@ -67,6 +65,7 @@
 #define FY_ATT_LINENUM "LineNumberTable"
 #define FY_ATT_SYNTH "Synthetic"
 #define FY_ATT_SOURCE_FILE "SourceFile"
+#define FY_ATT_CONSTANT_VALIE "ConstantValue"
 
 #define FY_ACC_ABSTRACT 1024
 #define FY_ACC_FINAL 16
@@ -252,7 +251,7 @@ typedef struct fy_method {
 
 	/*Used by reflection, contents refrences of class*/
 	/*Because will be wiped in save and load, and Class objects */
-	fy_arrayList parameterTypes[1];
+	fy_arrayList* parameterTypes;
 	struct fy_class *returnTypeClass;
 } fy_method;
 
@@ -490,7 +489,7 @@ typedef struct fy_context {
 	fy_str *sAttLineNum;
 	fy_str *sAttSynth;
 	fy_str *sAttSourceFile;
-
+	fy_str *sAttConstantValue;
 
 	fy_str *sTopClass;
 	fy_str *sClassClass;
@@ -573,12 +572,12 @@ typedef struct fy_context {
 	fy_hashMapI constructorObjIds[1];
 
 	/* #BEGIN THREAD MANAGER*/
-	int pricmds[11];
+	fy_int pricmds[11];
 	fy_thread *threads[MAX_THREADS];
-	fy_arrayList runningThreads[1];
-	int runningThreadPos;
-	int run;
-	int state;
+	fy_arrayList *runningThreads;
+	fy_int runningThreadPos;
+	fy_int run;
+	fy_int state;
 	fy_linkedList pendingThreads;
 	fy_long nextWakeUpTimeTotal;
 	fy_int nextThreadId;
@@ -594,15 +593,6 @@ typedef struct fy_context {
 	fy_hashMap literals[1];
 	fy_uint nextHandle;
 	fy_object objects[MAX_OBJECTS];
-	fy_int posInEden;
-	fy_uint eden[EDEN_ENTRIES];
-	fy_int posInYong;
-	fy_uint youngId;
-	fy_uint young[COPY_ENTRIES * 2];
-	fy_int posInOld;
-	fy_int oldReleasedSize;
-	fy_int oldTop;
-	fy_uint old[OLD_ENTRIES];
 
 /* #END HEAP*/
 

@@ -44,98 +44,6 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 	return handle;
 }
 
-static void *allocateInEden(fy_context *context, fy_uint handle, fy_int size,
-		fy_boolean gced, fy_exception *exception) {
-	void *ret;
-	if (size + context->posInEden >= EDEN_ENTRIES) {
-		/*OOM, gc first*/
-		if (gced) {
-			fy_fault(exception, NULL,
-					"Out of memoryE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
-					size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-					COPY_ENTRIES, context->posInOld, context->oldTop);
-			return NULL;
-		} else {
-			DLOG("Call GC due to eden full");
-			fy_heapGC(context, exception);
-			return allocateInEden(context, handle, size, TRUE, exception);
-		}
-	}
-	ret = context->eden + context->posInEden;
-	context->posInEden += size;
-	return ret;
-}
-
-static void *allocateInOld(fy_context *context, fy_uint handle, fy_int size,
-		fy_boolean gced, fy_exception *exception) {
-	void *ret;
-	if (size + context->posInOld >= context->oldTop) {
-		/*OOM, gc first*/
-		if (gced) {
-			fy_fault(exception, NULL,
-					"Out of memoryO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
-					size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-					COPY_ENTRIES, context->posInOld, context->oldTop);
-			return NULL;
-		} else {
-			DLOG("Call GC due to old full");
-			fy_heapGC(context, exception);
-			return allocateInOld(context, handle, size, TRUE, exception);
-		}
-	}
-	ret = context->old + context->posInOld;
-	context->posInOld += size;
-	return ret;
-}
-
-static void *allocateDirectInEden(fy_context *context, fy_int size,
-		fy_exception *exception) {
-	void *ret;
-	if (size + context->posInEden >= EDEN_ENTRIES) {
-		/*OOM, gc first*/
-		fy_fault(exception, NULL,
-				"Out of memoryDE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
-				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-				COPY_ENTRIES, context->posInOld, context->oldTop);
-		return NULL;
-	}
-	ret = context->eden + context->posInEden;
-	context->posInEden += size;
-	return ret;
-}
-
-static void *allocateDirectInCopy(fy_context *context, fy_int size,
-		fy_exception *exception) {
-	void *ret;
-	if (size + context->posInYong >= COPY_ENTRIES) {
-		/*OOM, gc first*/
-		fy_fault(exception, NULL,
-				"Out of memoryDC! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
-				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-				COPY_ENTRIES, context->posInOld, context->oldTop);
-		return NULL;
-	}
-	ret = context->young + context->posInYong;
-	context->posInYong += size;
-	return ret;
-}
-
-static void *allocateDirectInOld(fy_context *context, fy_int size,
-		fy_exception *exception) {
-	void *ret;
-	if (size + context->posInOld >= context->oldTop) {
-		/*OOM, gc first*/
-		fy_fault(exception, NULL,
-				"Out of memoryDO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
-				size, context->posInEden, EDEN_ENTRIES, context->posInYong,
-				COPY_ENTRIES, context->posInOld, context->oldTop);
-		return NULL;
-	}
-	ret = context->old + context->posInOld;
-	context->posInOld += size;
-	return ret;
-}
-
 static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 		fy_int length, fy_uint toHandle, enum fy_heapPos pos,
 		fy_exception *exception) {
@@ -152,20 +60,25 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	case automatic:
 		if (size > (COPY_ENTRIES >> 1)) {
 			obj->position = old;
-			obj->data = allocateInOld(context, handle, size, FALSE, exception);
+			obj->data = fy_mmAllocateInOld(context->memblocks, handle, size,
+					FALSE, exception);
 		} else {
 			obj->position = eden;
-			obj->data = allocateInEden(context, handle, size, FALSE, exception);
+			obj->data = fy_mmAllocateInEden(context->memblocks, handle, size,
+					FALSE, exception);
 		}
 		break;
 	case eden:
-		obj->data = allocateDirectInEden(context, size, exception);
+		obj->data = fy_mmAllocateDirectInEden(context->memblocks, size,
+				exception);
 		break;
 	case young:
-		obj->data = allocateDirectInCopy(context, size, exception);
+		obj->data = fy_mmAllocateDirectInCopy(context->memblocks, size,
+				exception);
 		break;
 	case old:
-		obj->data = allocateDirectInOld(context, size, exception);
+		obj->data = fy_mmAllocateDirectInOld(context->memblocks, size,
+				exception);
 		break;
 	default:
 		fy_fault(exception, NULL, "Illegal pos in heap %d.", pos);
@@ -339,7 +252,7 @@ fy_int fy_heapLiteral(fy_context *context, fy_str *str, fy_exception *exception)
 	fy_memblock *block = context->memblocks;
 	pInt = fy_hashMapGet(block, context->literals, str);
 	if (pInt == NULL) {
-		pInt = fy_mmAllocate(block, sizeof(fy_int), exception);
+		pInt = fy_mmAllocatePerm(block, sizeof(fy_int), exception);
 		FYEH() 0;
 		*pInt = fy_heapMakeString(context, str, exception);
 		if (exception->exceptionType != exception_none) {
@@ -893,24 +806,6 @@ void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 	field->owner->staticArea[field->posAbs + 1] = fy_LOFL(lvalue);
 }
 
-void* fy_heapPermAllocate(fy_context *context, size_t size,
-		fy_exception *exception) {
-	fy_int blocks = (size + 3) >> 2;
-	if (context->posInOld >= context->oldTop - blocks) {
-		fy_heapGC(context, exception);
-		FYEH()NULL;
-	}
-	if (context->posInOld >= context->oldTop - blocks) {
-		fy_fault(exception, NULL, "Out of memory: perm");
-		FYEH()NULL;
-	}
-	return context->old + (context->oldTop -= blocks);
-}
-
-fy_int fy_heapPermSize(fy_context *context) {
-	return OLD_ENTRIES - context->oldTop;
-}
-
 typedef struct fy_fill_literals_data {
 	fy_context *context;
 	fy_uint *makrs;
@@ -1089,57 +984,60 @@ static void compactOld(fy_context *context, fy_exception *exception) {
 	fy_uint handle;
 	fy_uint size;
 	fy_object *object;
-	imax = context->posInOld;
+	fy_memblock *block = context->memblocks;
+	imax = block->posInOld;
 	for (i = 0; i < imax; i++) {
-		handle = context->old[i];
+		handle = block->old[i];
 		if (handle > 0 && handle < MAX_OBJECTS) {
 			object = context->objects + handle;
-			if (object->clazz != NULL && object->data == context->old + i + 1) {
+			if (object->clazz != NULL && object->data == block->old + i + 1) {
 				/*It's a real object*/
 				size = getSizeFromObject(context, object) + 1;
 				if (newPos != i) {
-					memmove(context->old + newPos, context->old + i,
+					memmove(block->old + newPos, block->old + i,
 							size * sizeof(fy_uint));
-					object->data = context->old + newPos + 1;
+					object->data = block->old + newPos + 1;
 				}
 				newPos += size;
 				i += size - 1;
 			}
 		}
 	}
-	context->posInOld = newPos;
+	block->posInOld = newPos;
 }
 
 static void moveToOld(fy_context *context, fy_class *clazz, fy_uint handle,
 		fy_object *object, fy_int size, fy_exception *exception) {
-	fy_int pos = context->posInOld;
-	if (pos + size + 1 >= context->oldTop) {
+	fy_memblock *block = context->memblocks;
+	fy_int pos = block->posInOld;
+	if (pos + size + 1 >= block->oldTop) {
 		compactOld(context, exception);
-		pos = context->posInOld;
-		if (pos + size + 1 >= context->oldTop) {
+		pos = block->posInOld;
+		if (pos + size + 1 >= block->oldTop) {
 			/*Really OOM*/
 			fy_fault(exception, NULL, "Old area full");
 		}
 	}
-	context->old[pos] = handle;
-	memcpy(context->old + pos + 1, object->data, size * sizeof(fy_uint));
-	context->posInOld = pos + size + 1;
+	block->old[pos] = handle;
+	memcpy(block->old + pos + 1, object->data, size * sizeof(fy_uint));
+	block->posInOld = pos + size + 1;
 	object->position = old;
-	object->data = context->old + pos + 1;
+	object->data = block->old + pos + 1;
 }
 static void moveToYoung(fy_context *context, fy_class *clazz, fy_uint handle,
 		fy_object *object, fy_int size, fy_int youngId, fy_exception *exception) {
-	fy_int pos = context->posInYong;
+	fy_memblock *block = context->memblocks;
+	fy_int pos = block->posInYong;
 	if (pos + size >= COPY_ENTRIES) {
 		/*move to old*/
 		moveToOld(context, clazz, handle, object, size, exception);
 	} else {
 		/*move to young*/
-		memcpy(context->young + youngId * COPY_ENTRIES + pos, object->data,
+		memcpy(block->young + youngId * COPY_ENTRIES + pos, object->data,
 				size * sizeof(fy_uint));
-		context->posInYong = pos + size;
+		block->posInYong = pos + size;
 		object->position = young;
-		object->data = context->young + youngId * COPY_ENTRIES + pos;
+		object->data = block->young + youngId * COPY_ENTRIES + pos;
 		object->gen++;
 	}
 }
@@ -1158,14 +1056,15 @@ static void move(fy_context *context, fy_class *clazz, fy_uint handle,
 }
 
 static void release(fy_context *context, fy_uint handle) {
+	fy_memblock *block = context->memblocks;
 	fy_object *object = fy_heapGetObject(context,handle);
 	if (object->position == old) {
-		context->oldReleasedSize += getSizeFromObject(context, object) + 1;
+		block->oldReleasedSize += getSizeFromObject(context, object) + 1;
 	}
 	memset(object, 0, sizeof(fy_object));
 }
 
-void fy_heapGC(fy_context *context, fy_exception *exception) {
+void fy_heapGC(void *ctx, fy_exception *exception) {
 	/*Init scan for all handles*/
 	fy_uint *marks;
 	fy_object *object;
@@ -1173,28 +1072,29 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	fy_arrayList from;
 	fy_uint handle;
 	fy_int i, j;
-	fy_int youngId = context->youngId;
+	fy_context *context = ctx;
+	fy_memblock *block = context->memblocks;
+	fy_int youngId = block->youngId;
 	fy_long timeStamp;
 #ifdef _DEBUG
-	printf("#FISCE GC BEFORE %d+%d+%d total %dbytes, %d managed native bytes\n",
-			context->posInEden, context->posInYong, context->posInOld,
-			(fy_int) ((context->posInEden + context->posInYong
-					+ context->posInOld) * sizeof(fy_uint)),
-			context->memblocks->size);
+	printf(
+			"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d managed native bytes, %d perm bytes\n",
+			block->posInEden * sizeof(fy_uint),
+			block->posInYong * sizeof(fy_uint),
+			block->posInOld * sizeof(fy_uint),
+			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
+					* sizeof(fy_uint)), context->memblocks->size,
+			(OLD_ENTRIES - context->memblocks->oldTop) * sizeof(fy_uint));
 #else
 	printf(
-			"#FISCE GC BEFORE %d+%d+%d total %dbytes\n",
-			context->posInEden,
-			context->posInYong,
-			context->posInOld,
-			(fy_int) ((context->posInEden + context->posInYong
-							+ context->posInOld) * sizeof(fy_uint)));
+			"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d perm bytes\n",
+			block->posInEden,
+			block->posInYong,
+			block->posInOld,
+			(fy_int) ((block->posInEden + block->posInYong
+							+ block->posInOld) * sizeof(fy_uint)),
+			(OLD_ENTRIES - context->memblocks->oldTop) * sizeof(fy_uint));
 #endif
-
-	printf("#FISCE GC BEFORE %d+%d+%d total %dbytes\n", context->posInEden,
-			context->posInYong, context->posInOld,
-			(fy_int) ((context->posInEden + context->posInYong
-					+ context->posInOld) * sizeof(fy_uint)));
 
 	timeStamp = fy_portTimeMillSec(context->port);
 	marks = /*TEMP*/fy_allocate(fy_bitSizeToInt(MAX_OBJECTS) << fy_bitSHIFT,
@@ -1265,15 +1165,15 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 	}
 
 	scanRef(context, &from, marks, exception);
+	fy_arrayListDestroy(context->memblocks, &from);
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
-		fy_arrayListDestroy(context->memblocks, &from);
 		return;
 	}
 
-	context->posInEden = 0;
-	context->posInYong = 0;
-	context->youngId = youngId = 1 - context->youngId;
+	block->posInEden = 0;
+	block->posInYong = 0;
+	block->youngId = youngId = 1 - block->youngId;
 	for (i = 1; i < MAX_OBJECTS; i++) {
 		object = fy_heapGetObject(context,i);
 		clazz = object->clazz;
@@ -1298,19 +1198,29 @@ void fy_heapGC(fy_context *context, fy_exception *exception) {
 		}
 	}
 #ifndef FY_GC_FORCE_FULL
-	if ((context->posInOld - context->oldReleasedSize) * 4
-			< context->posInOld) {
+	if ((block->posInOld - block->oldReleasedSize) * 4 < block->posInOld) {
 #endif
 		compactOld(context, exception);
 		FYEH();
 #ifndef FY_GC_FORCE_FULL
 	}
 #endif
-	printf("#FISCE GC AFTER %d+%d+%d total %dbytes time=%"FY_PRINT64"d\n",
-			context->posInEden, context->posInYong, context->posInOld,
-			(fy_int) ((context->posInEden + context->posInYong
-					+ context->posInOld) * sizeof(fy_uint)),
+#ifdef _DEBUG
+	printf(
+			"#FISCE GC AFTER %d+%d+%d total %dbytes, %d managed native bytes, %d perm bytes, time=%"FY_PRINT64"d\n",
+			block->posInEden * sizeof(fy_uint),
+			block->posInYong * sizeof(fy_uint),
+			block->posInOld * sizeof(fy_uint),
+			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
+					* sizeof(fy_uint)), context->memblocks->size,
+			(OLD_ENTRIES - context->memblocks->oldTop) * sizeof(fy_uint),
 			fy_portTimeMillSec(context->port) - timeStamp);
-
+#else
+	printf("#FISCE GC AFTER %d+%d+%d total %dbytes %dperm-bytes time=%"FY_PRINT64"d\n",
+			block->posInEden, block->posInYong, block->posInOld,
+			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
+					* sizeof(fy_uint)),(OLD_ENTRIES - context->memblocks->oldTop) * sizeof(fy_uint),
+			fy_portTimeMillSec(context->port) - timeStamp);
+#endif
 	fy_free(marks);
 }

@@ -30,6 +30,7 @@ FY_ATTR_EXPORT void fy_mmInit(fy_memblock *block, fy_exception *exception) {
 			exception);
 	FYEH();
 	block->blocks = 0;
+	block->oldTop = OLD_ENTRIES;
 }
 
 FY_ATTR_EXPORT void fy_mmDestroy(fy_memblock *block) {
@@ -47,8 +48,8 @@ FY_ATTR_EXPORT void fy_mmDestroy(fy_memblock *block) {
 
 FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size,
 		fy_exception *exception) {
-	fy_memblockNode *node = /*MANAGED*/fy_allocate(sizeof(fy_memblockNode) + size,
-			exception);
+	fy_memblockNode *node = /*MANAGED*/fy_allocate(
+			sizeof(fy_memblockNode) + size, exception);
 	FYEH()NULL;
 #ifdef _DEBUG
 	block->size += node->size = sizeof(fy_memblockNode) + size;
@@ -75,4 +76,113 @@ FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address) {
 	}
 	fy_free(base);
 	block->blocks--;
+}
+
+void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
+		fy_exception *exception) {
+	fy_int blocks = (size + 3) >> 2;
+	if (block->posInOld >= block->oldTop - blocks) {
+		block->gcProvider(block->gcContext, exception);
+		FYEH()NULL;
+	}
+	if (block->posInOld >= block->oldTop - blocks) {
+		fy_fault(exception, NULL, "Out of memory: perm");
+		FYEH()NULL;
+	}
+	return block->old + (block->oldTop -= blocks);
+}
+
+fy_int fy_mmPermSize(fy_memblock *block) {
+	return OLD_ENTRIES - block->oldTop;
+}
+
+void *fy_mmAllocateInEden(fy_memblock *block, fy_uint handle, fy_int size,
+		fy_boolean gced, fy_exception *exception) {
+	void *ret;
+	if (size + block->posInEden >= EDEN_ENTRIES) {
+		/*OOM, gc first*/
+		if (gced) {
+			fy_fault(exception, NULL,
+					"Out of memoryE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
+					size, block->posInEden, EDEN_ENTRIES, block->posInYong,
+					COPY_ENTRIES, block->posInOld, block->oldTop);
+			return NULL;
+		} else {
+			block->gcProvider(block->gcContext, exception);
+			FYEH()NULL;
+			return fy_mmAllocateInEden(block, handle, size, TRUE, exception);
+		}
+	}
+	ret = block->eden + block->posInEden;
+	block->posInEden += size;
+	return ret;
+}
+
+void *fy_mmAllocateInOld(fy_memblock *block, fy_uint handle, fy_int size,
+		fy_boolean gced, fy_exception *exception) {
+	void *ret;
+	if (size + block->posInOld >= block->oldTop) {
+		/*OOM, gc first*/
+		if (gced) {
+			fy_fault(exception, NULL,
+					"Out of memoryO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
+					size, block->posInEden, EDEN_ENTRIES, block->posInYong,
+					COPY_ENTRIES, block->posInOld, block->oldTop);
+			return NULL;
+		} else {
+			block->gcProvider(block->gcContext, exception);
+			return fy_mmAllocateInOld(block, handle, size, TRUE, exception);
+		}
+	}
+	ret = block->old + block->posInOld;
+	block->posInOld += size;
+	return ret;
+}
+
+void *fy_mmAllocateDirectInEden(fy_memblock *block, fy_int size,
+		fy_exception *exception) {
+	void *ret;
+	if (size + block->posInEden >= EDEN_ENTRIES) {
+		/*OOM, gc first*/
+		fy_fault(exception, NULL,
+				"Out of memoryDE! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
+				size, block->posInEden, EDEN_ENTRIES, block->posInYong,
+				COPY_ENTRIES, block->posInOld, block->oldTop);
+		return NULL;
+	}
+	ret = block->eden + block->posInEden;
+	block->posInEden += size;
+	return ret;
+}
+
+void *fy_mmAllocateDirectInCopy(fy_memblock *block, fy_int size,
+		fy_exception *exception) {
+	void *ret;
+	if (size + block->posInYong >= COPY_ENTRIES) {
+		/*OOM, gc first*/
+		fy_fault(exception, NULL,
+				"Out of memoryDC! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
+				size, block->posInEden, EDEN_ENTRIES, block->posInYong,
+				COPY_ENTRIES, block->posInOld, block->oldTop);
+		return NULL;
+	}
+	ret = block->young + block->posInYong;
+	block->posInYong += size;
+	return ret;
+}
+
+void *fy_mmAllocateDirectInOld(fy_memblock *block, fy_int size,
+		fy_exception *exception) {
+	void *ret;
+	if (size + block->posInOld >= block->oldTop) {
+		/*OOM, gc first*/
+		fy_fault(exception, NULL,
+				"Out of memoryDO! Memory overflow size=%d EDEN:%d/%d COPY:%d/%d OLD:%d/%d\n",
+				size, block->posInEden, EDEN_ENTRIES, block->posInYong,
+				COPY_ENTRIES, block->posInOld, block->oldTop);
+		return NULL;
+	}
+	ret = block->old + block->posInOld;
+	block->posInOld += size;
+	return ret;
 }

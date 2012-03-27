@@ -16,6 +16,38 @@
  */
 
 #include "fy_util/String.h"
+FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
+		fy_exception *exception) {
+	fy_str *str = fy_mmAllocatePerm(mem,
+			sizeof(fy_str) + size * sizeof(fy_char), exception);
+	FYEH()NULL;
+	str->length = 0;
+	str->maxLength = size;
+	str->hashed = FALSE;
+	str->perm = TRUE;
+	str->content = str->staticContent;
+	return str;
+}
+FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
+		fy_str *other, fy_int additionalSize, fy_exception *exception) {
+	fy_str *str;
+	fy_int size = other->length + additionalSize;
+	str = fy_strCreatePerm(mem, size, exception);
+	FYEH()NULL;
+	fy_strAppend(mem, str, other, exception);
+	FYEH()NULL;
+	return str;
+}
+FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
+		const char *utf8, fy_int additionalSize, fy_exception *exception) {
+	fy_str *str;
+	fy_int size = fy_utf8SizeS(utf8, -1) + additionalSize;
+	str = fy_strCreatePerm(mem, size, exception);
+	FYEH()NULL;
+	fy_strAppendUTF8(mem, str, utf8, -1, exception);
+	FYEH()NULL;
+	return str;
+}
 
 FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
 		fy_exception *exception) {
@@ -27,14 +59,19 @@ FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
 	str->maxLength = size;
 	str->content = fy_mmAllocate(block, size << 1, exception);
 	str->hashed = FALSE;
+	str->perm = FALSE;
 	return str;
 }
 
 FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *block, fy_str *string) {
-	fy_mmFree(block, string->content);
-	string->length = 0;
-	string->maxLength = 0;
-
+	if (string->perm) {
+		fy_fault(NULL, NULL, "Try to destroy a static string");
+	} else {
+		fy_mmFree(block, string->content);
+		string->length = 0;
+		string->maxLength = 0;
+		string->content = NULL;
+	}
 }
 
 FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
@@ -47,23 +84,16 @@ FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 	FYEH();
 }
 
-FY_ATTR_EXPORT fy_str *fy_strCreateFromUTF8(fy_memblock *block,
-		const char *utf8, fy_exception *exception) {
-	fy_str *str;
-
-	str = fy_mmAllocate(block, sizeof(fy_str), exception);
-	FYEH()NULL;
-	fy_strInitWithUTF8(block, str, utf8, exception);
-	FYEH()NULL;
-	return str;
-}
-
 static fy_str *ensureSize(fy_memblock *block, fy_str *_this, fy_int size,
 		fy_exception *exception) {
 	int len;
 	fy_char *newContent;
-	if (_this->maxLength < size) {
 
+	if (_this->maxLength < size) {
+		if (_this->perm) {
+			fy_fault(NULL, NULL, "Perm string overflow!");
+			FYEH()NULL;
+		}
 		len = _this->maxLength;
 		while (len < size) {
 			len <<= 1;

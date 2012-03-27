@@ -92,11 +92,13 @@ static void testClassLoader() {
 }
 static fy_class *lookup(fy_context *context, const char *name,
 		fy_exception *exception) {
-	fy_str *sName = fy_strCreateFromUTF8(context->memblocks, name, exception);
+	fy_str sName[1];
+	sName->content = NULL;
+	fy_strInitWithUTF8(context->memblocks, sName, name, exception);
 	fy_class *clazz;
 	FYEH()NULL;
 	clazz = fy_vmLookupClass(context, sName, exception);
-	fy_strRelease(context->memblocks, sName);
+	fy_strDestroy(context->memblocks, sName);
 	return clazz;
 }
 void testClassLoaderFull() {
@@ -104,19 +106,20 @@ void testClassLoaderFull() {
 			"<int>", "<double>", FY_BASE_DOUBLE, FY_BASE_MATH, NULL };
 	int i = 0;
 	char *nm;
-	fy_str *snm;
+	fy_str snm[1];
 	fy_class *clazz;
 	fy_class *clStr;
 	fy_class *clObj;
 	exception->exceptionType = exception_none;
 	while ((nm = names[i++]) != NULL) {
 		DLOG("###Full loading class %s\n", nm);
-		snm = fy_strCreateFromUTF8(block, nm, exception);
+		snm->content = NULL;
+		fy_strInitWithUTF8(block, snm, nm, exception);
 		TEST_EXCEPTION(exception);
 		clazz = fy_vmLookupClass(context, snm, exception);
 		TEST_EXCEPTION(exception);
 		FY_ASSERT(clazz!= NULL);
-		fy_strRelease(block, snm);
+		fy_strDestroy(block, snm);
 	}
 	clStr = lookup(context, FY_BASE_STRING, exception);
 	clObj = lookup(context, FY_BASE_OBJECT, exception);
@@ -130,10 +133,11 @@ void testClassMethod() {
 	fy_method **methods;
 	fy_method *target = NULL;
 	fy_method *method;
-	fy_str *sComplex;
+	fy_str sComplex[1];
 	int i;
 	exception->exceptionType = exception_none;
-	sComplex = fy_strCreateFromUTF8(block, "complex", exception);
+	sComplex->content=NULL;
+	fy_strInitWithUTF8(block,sComplex,"complex",exception);
 	TEST_EXCEPTION(exception);
 	lookup(context, "com/cirnoworks/fisce/privat/StringUtils", exception);
 
@@ -149,6 +153,7 @@ void testClassMethod() {
 			break;
 		}
 	}
+	fy_strDestroy(block,sComplex);
 	FY_ASSERT(target!= NULL);
 	FY_ASSERT(target->paramCount == 8);
 	class0 = lookup(context, ""FY_BASE_OBJECT"", exception);
@@ -171,13 +176,15 @@ void testClassMethod() {
 }
 
 void testHeap() {
-	fy_str *str;
-	fy_str *compare;
+	fy_str str[1];
+	fy_str compare[1];
 	fy_int sHandle;
 	exception->exceptionType = exception_none;
-	str = fy_strCreateFromUTF8(block, "咩哈哈哈ABCabc,|/", exception);
+	str->content = NULL;
+	fy_strInitWithUTF8(block, str, "咩哈哈哈ABCabc,|/", exception);
 	TEST_EXCEPTION(exception);
-	compare = fy_strCreate(block, exception);
+	compare->content = NULL;
+	fy_strInit(block, compare, 128, exception);
 	TEST_EXCEPTION(exception);
 
 	sHandle = fy_heapLiteral(context, str, exception);
@@ -187,8 +194,8 @@ void testHeap() {
 	TEST_EXCEPTION(exception);
 	FY_ASSERT(fy_strCmp(str, compare) == 0);
 	FY_ASSERT(sHandle == fy_heapLiteral(context, compare, NULL));
-	fy_strRelease(block, str);
-	fy_strRelease(block, compare);
+	fy_strDestroy(block, str);
+	fy_strDestroy(block, compare);
 }
 
 static void testFail(struct fy_context *context, struct fy_thread *thread,

@@ -19,18 +19,32 @@
 #define FY_MEMMAN_H_
 
 #include "../fisceprt.h"
+#define EDEN_ENTRIES 131072
+#define COPY_ENTRIES 32768
+#define OLD_ENTRIES 1048576
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
 typedef struct fy_memblock {
+	void (*gcProvider)(void *context, fy_exception *exception);
 	void *first;
 	void *last;
 	fy_int blocks;
 #ifdef _DEBUG
 	fy_uint size;
 #endif
+	void *gcContext;
+	fy_int posInEden;
+	fy_uint eden[EDEN_ENTRIES];
+	fy_int posInYong;
+	fy_uint youngId;
+	fy_uint young[COPY_ENTRIES * 2];
+	fy_int posInOld;
+	fy_int oldReleasedSize;
+	fy_int oldTop;
+	fy_uint old[OLD_ENTRIES];
 } fy_memblock;
 
 FY_ATTR_EXPORT void fy_mmInit(fy_memblock *block, fy_exception *exception);
@@ -39,6 +53,26 @@ FY_ATTR_EXPORT void fy_mmDestroy(fy_memblock *block);
 FY_ATTR_EXPORT void* fy_mmAllocate(fy_memblock *block, int size,
 		fy_exception *exception);
 FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address);
+
+void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
+		fy_exception *exception);
+
+fy_int fy_mmPermSize(fy_memblock *block);
+
+void *fy_mmAllocateInEden(fy_memblock *block, fy_uint handle, fy_int size,
+		fy_boolean gced, fy_exception *exception);
+
+void *fy_mmAllocateInOld(fy_memblock *block, fy_uint handle, fy_int size,
+		fy_boolean gced, fy_exception *exception);
+
+void *fy_mmAllocateDirectInEden(fy_memblock *block, fy_int size,
+		fy_exception *exception);
+
+void *fy_mmAllocateDirectInCopy(fy_memblock *block, fy_int size,
+		fy_exception *exception);
+
+void *fy_mmAllocateDirectInOld(fy_memblock *block, fy_int size,
+		fy_exception *exception);
 
 #ifdef	__cplusplus
 }

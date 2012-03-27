@@ -628,7 +628,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 			*methodNameField, *fileNameField, *lineNumberField;
 	fy_frame *frame;
 	fy_method *method;
-	fy_str *str;
+	fy_str str[1];
 	fy_uint arrayHandle, itemHandle, strHandle;
 	fy_uint lpc;
 	fy_int i, j, t;
@@ -711,12 +711,20 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		FY_SIMPLE_ERROR_HANDLE
 		frame = thread->frames + i;
 		method = frame->method;
-		str = fy_strCreateClone(context->memblocks, method->owner->className,
+		str->content = NULL;
+		fy_strInit(context->memblocks, str, method->owner->className->length,
 				exception);
 		FYEH();
+		fy_strAppend(context->memblocks, str, method->owner->className,
+				exception);
+		if (exception->exceptionType != exception_none) {
+			fy_strDestroy(context->memblocks, str);
+			return;
+		}
 		fy_strReplaceOne(str, '/', '.');
 		strHandle = fy_heapMakeString(context, str, exception);
-		fy_strRelease(context->memblocks, str);
+		FYEH();
+		fy_strDestroy(context->memblocks, str);
 		FY_SIMPLE_ERROR_HANDLE
 		fy_heapPutFieldHandle(context, itemHandle, declaringClassField,
 				strHandle, exception);
@@ -3656,13 +3664,15 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				pc += ivalue3;
 				ivalue = fy_nextS4(code);/*db*/
 				ivalue2 = fy_nextS4(code);/*np*/
-				pivalue = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue2, exception); /*match*/
+				pivalue = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue2,
+						exception); /*match*/
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
 				}
-				pivalue2 = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue2, exception); /*offset*/
+				pivalue2 = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue2,
+						exception); /*offset*/
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -4367,7 +4377,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				ivalue2 = fy_nextS4(code );/*lb*/
 				ivalue3 = fy_nextS4(code );/*hb*/
 				ivalue4 = ivalue3 - ivalue2 + 1;/*count*/
-				pivalue = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue4, exception);
+				pivalue = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue4,
+						exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -4531,16 +4542,17 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 		FY_ATTR_RESTRICT fy_exception *toPrepare,
 		FY_ATTR_RESTRICT fy_exception *exception) {
 	fy_class *clazz1;
-	fy_str *str1;
+	fy_str str1[1];
 	fy_uint ivalue, ivalue2;
 	fy_field *field;
 	fy_memblock *block = context->memblocks;
-	str1 = fy_strCreateFromUTF8(block, toPrepare->exceptionName, exception);
+	str1->content = NULL;
+	fy_strInitWithUTF8(block, str1, toPrepare->exceptionName, exception);
 	if (exception->exceptionType != exception_none) {
 		return 0;
 	}
 	clazz1 = fy_vmLookupClass(context, str1, exception);
-	fy_strRelease(block, str1);
+	fy_strDestroy(block, str1);
 	if (exception->exceptionType != exception_none) {
 		return 0;
 	}
@@ -4566,7 +4578,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 				context->sThrowableDetailMessage);
 		return 0;
 	}
-	str1 = fy_strCreateFromUTF8(block, toPrepare->exceptionDesc, exception);
+	fy_strInitWithUTF8(block, str1, toPrepare->exceptionDesc, exception);
 	if (exception->exceptionType != exception_none) {
 		return 0;
 	}
@@ -4574,7 +4586,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	if (exception->exceptionType != exception_none) {
 		return 0;
 	}
-	fy_strRelease(block, str1);
+	fy_strDestroy(block, str1);
 	fy_heapPutFieldHandle(context, ivalue, field, ivalue2, exception);
 	if (exception->exceptionType != exception_none) {
 		return 0;

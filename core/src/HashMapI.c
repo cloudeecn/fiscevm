@@ -69,7 +69,6 @@ static void expandBuckets(fy_memblock *mem, fy_hashMapI *this,
 static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
 		fy_int key) {
 	fy_hashMapIEntry *entry;
-
 	if ((entry = this->buckets[key & this->bucketsSizeM1]) != NULL) {
 		do {
 			if (entry->key == key) {
@@ -77,6 +76,7 @@ static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
 			}
 		} while ((entry = entry->next) != NULL);
 	}
+
 	return NULL;
 }
 
@@ -93,7 +93,7 @@ FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
 }
 FY_ATTR_EXPORT void fy_hashMapIInitSimple(fy_memblock *mem, fy_hashMapI *this,
 		fy_int nullValue, fy_exception *exception) {
-	fy_hashMapIInit(mem, this, 16, 12, nullValue, exception);
+	fy_hashMapIInit(mem, this, 4, 12, nullValue, exception);
 }
 FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
 		int key, int value, fy_exception *exception) {
@@ -142,7 +142,7 @@ FY_ATTR_EXPORT fy_int fy_hashMapIGet(fy_memblock *mem, fy_hashMapI *this,
 }
 
 FY_ATTR_EXPORT void fy_hashMapIEachValue(fy_memblock *mem, fy_hashMapI *map,
-		void(*fn)(fy_int key, fy_int value, fy_int nullValue, void *addition),
+		void (*fn)(fy_int key, fy_int value, fy_int nullValue, void *addition),
 		void *addition) {
 	fy_uint i, imax;
 	fy_hashMapIEntry *entry;

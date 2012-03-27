@@ -21,6 +21,7 @@
 #include "../fisceprt.h"
 #include "../fy_util/Debug.h"
 #include "../fy_util/BitSet.h"
+#include "../fy_util/MemMan.h"
 #include "../fiscestu.h"
 #include "VMContext.h"
 
@@ -49,7 +50,7 @@ fy_int fy_heapArrayLength(fy_context *context, fy_int handle,
 void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 		fy_int dest, fy_int destPos, fy_int len, fy_exception *exception);
 fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception);
-void fy_heapGC(fy_context *context, fy_exception *exception);
+void fy_heapGC(void *context, fy_exception *exception);
 
 fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 		fy_exception *exception);
@@ -176,11 +177,6 @@ void fy_heapPutStaticFloat(fy_context *context, fy_field *field, fy_float value,
 		fy_exception *exception);
 void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 		fy_double value, fy_exception *exception);
-
-void* fy_heapPermAllocate(fy_context *context, size_t size,
-		fy_exception *exception);
-
-fy_int fy_heapPermSize(fy_context *context);
 
 #ifdef	__cplusplus
 }

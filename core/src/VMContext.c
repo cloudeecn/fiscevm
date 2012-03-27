@@ -24,189 +24,205 @@
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 
-	context->sAttCode = fy_strCreateFromUTF8(block, FY_ATT_CODE, exception);
-	FYEH();
-
-	context->sAttLineNum = fy_strCreateFromUTF8(block, FY_ATT_LINENUM,
+	context->sAttCode = fy_strCreatePermFromUTF8(block, FY_ATT_CODE, 0,
 			exception);
 	FYEH();
 
-	context->sAttSynth = fy_strCreateFromUTF8(block, FY_ATT_SYNTH, exception);
-	FYEH();
-
-	context->sAttSourceFile = fy_strCreateFromUTF8(block, FY_ATT_SOURCE_FILE,
+	context->sAttLineNum = fy_strCreatePermFromUTF8(block, FY_ATT_LINENUM, 0,
 			exception);
 	FYEH();
 
-	context->sBoolean = fy_strCreateFromUTF8(block, "<boolean>", exception);
-	FYEH();
-
-	context->sByte = fy_strCreateFromUTF8(block, "<byte>", exception);
-	FYEH();
-
-	context->sShort = fy_strCreateFromUTF8(block, "<short>", exception);
-	FYEH();
-
-	context->sChar = fy_strCreateFromUTF8(block, "<char>", exception);
-	FYEH();
-
-	context->sInt = fy_strCreateFromUTF8(block, "<int>", exception);
-	FYEH();
-
-	context->sFloat = fy_strCreateFromUTF8(block, "<float>", exception);
-	FYEH();
-
-	context->sLong = fy_strCreateFromUTF8(block, "<long>", exception);
-	FYEH();
-
-	context->sDouble = fy_strCreateFromUTF8(block, "<double>", exception);
-	FYEH();
-
-	context->sVoid = fy_strCreateFromUTF8(block, "<void>", exception);
-	FYEH();
-
-	context->sTopClass = fy_strCreateFromUTF8(block, FY_BASE_OBJECT, exception);
-	FYEH();
-
-	context->sClassClass = fy_strCreateFromUTF8(block, FY_BASE_CLASS,
+	context->sAttSynth = fy_strCreatePermFromUTF8(block, FY_ATT_SYNTH, 0,
 			exception);
 	FYEH();
 
-	context->sClassField = fy_strCreateFromUTF8(block, FY_REFLECT_FIELD,
+	context->sAttSourceFile = fy_strCreatePermFromUTF8(block,
+			FY_ATT_SOURCE_FILE, 0, exception);
+	FYEH();
+	context->sAttConstantValue = fy_strCreatePermFromUTF8(block,
+			FY_ATT_CONSTANT_VALIE, 0, exception);
+	FYEH();
+	context->sBoolean = fy_strCreatePermFromUTF8(block, "<boolean>", 0,
 			exception);
 	FYEH();
 
-	context->sClassMethod = fy_strCreateFromUTF8(block, FY_REFLECT_METHOD,
+	context->sByte = fy_strCreatePermFromUTF8(block, "<byte>", 0, exception);
+	FYEH();
+
+	context->sShort = fy_strCreatePermFromUTF8(block, "<short>", 0, exception);
+	FYEH();
+
+	context->sChar = fy_strCreatePermFromUTF8(block, "<char>", 0, exception);
+	FYEH();
+
+	context->sInt = fy_strCreatePermFromUTF8(block, "<int>", 0, exception);
+	FYEH();
+
+	context->sFloat = fy_strCreatePermFromUTF8(block, "<float>", 0, exception);
+	FYEH();
+
+	context->sLong = fy_strCreatePermFromUTF8(block, "<long>", 0, exception);
+	FYEH();
+
+	context->sDouble = fy_strCreatePermFromUTF8(block, "<double>", 0,
 			exception);
 	FYEH();
 
-	context->sClassConstructor = fy_strCreateFromUTF8(block,
-			FY_REFLECT_CONSTRUCTOR, exception);
+	context->sVoid = fy_strCreatePermFromUTF8(block, "<void>", 0, exception);
 	FYEH();
 
-	context->sClassThrowable = fy_strCreateFromUTF8(block, FY_BASE_THROWABLE,
+	context->sTopClass = fy_strCreatePermFromUTF8(block, FY_BASE_OBJECT, 0,
 			exception);
 	FYEH();
 
-	context->sString = fy_strCreateFromUTF8(block, FY_BASE_STRING, exception);
-	FYEH();
-
-	context->sThread = fy_strCreateFromUTF8(block, FY_BASE_THREAD, exception);
-	FYEH();
-
-	context->sStringArray = fy_strCreateFromUTF8(block,
-			"[L"FY_BASE_THROWABLE";", exception);
-	FYEH();
-
-	context->sThrowablePrintStacktrace = fy_strCreateFromUTF8(block,
-			FY_BASE_THROWABLE".printStackTrace.()V", exception);
-	FYEH();
-
-	context->sThrowableDetailMessage = fy_strCreateFromUTF8(block,
-			FY_BASE_THROWABLE".detailMessage.L"FY_BASE_STRING";", exception);
-	FYEH();
-
-	context->sInit = fy_strCreateFromUTF8(block, FY_METHOD_INIT, exception);
-	FYEH();
-
-	context->sClinit = fy_strCreateFromUTF8(block, FY_METHOD_CLINIT, exception);
-	FYEH();
-
-	context->sFMain = fy_strCreateFromUTF8(block, FY_METHODF_MAIN, exception);
-	FYEH();
-
-	context->sFRun = fy_strCreateFromUTF8(block, FY_METHODF_RUN, exception);
-	FYEH();
-
-	context->sFName = fy_strCreateFromUTF8(block, FY_FIELDF_NAME, exception);
-	FYEH();
-
-	context->sMFinalize = fy_strCreateFromUTF8(block, FY_METHODF_FINALIZE,
+	context->sClassClass = fy_strCreatePermFromUTF8(block, FY_BASE_CLASS, 0,
 			exception);
 	FYEH();
 
-	context->sFPriority = fy_strCreateFromUTF8(block, FY_FIELDF_PRIORITY,
+	context->sClassField = fy_strCreatePermFromUTF8(block, FY_REFLECT_FIELD, 0,
 			exception);
 	FYEH();
 
-	context->sFDaemon = fy_strCreateFromUTF8(block, FY_FIELDF_DAEMON,
+	context->sClassMethod = fy_strCreatePermFromUTF8(block, FY_REFLECT_METHOD,
+			0, exception);
+	FYEH();
+
+	context->sClassConstructor = fy_strCreatePermFromUTF8(block,
+			FY_REFLECT_CONSTRUCTOR, 0, exception);
+	FYEH();
+
+	context->sClassThrowable = fy_strCreatePermFromUTF8(block,
+			FY_BASE_THROWABLE, 0, exception);
+	FYEH();
+
+	context->sString = fy_strCreatePermFromUTF8(block, FY_BASE_STRING, 0,
 			exception);
 	FYEH();
 
-	context->sStringCount = fy_strCreateFromUTF8(block,
-			FY_BASE_STRING".count.I", exception);
-	FYEH();
-
-	context->sStringValue = fy_strCreateFromUTF8(block,
-			FY_BASE_STRING".value.[C", exception);
-	FYEH();
-
-	context->sStringOffset = fy_strCreateFromUTF8(block,
-			FY_BASE_STRING".offset.I", exception);
-	FYEH();
-
-	context->sStackTraceElement = fy_strCreateFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT, exception);
-	FYEH();
-
-	context->sStackTraceElementArray = fy_strCreateFromUTF8(block,
-			"[L"FY_BASE_STACKTHREADELEMENT";", exception);
-	FYEH();
-
-	context->sStackTraceElementDeclaringClass = fy_strCreateFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT".declaringClass.L"FY_BASE_STRING";",
+	context->sThread = fy_strCreatePermFromUTF8(block, FY_BASE_THREAD, 0,
 			exception);
 	FYEH();
 
-	context->sStackTraceElementMethodName = fy_strCreateFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT".methodName.L"FY_BASE_STRING";",
+	context->sStringArray = fy_strCreatePermFromUTF8(block,
+			"[L"FY_BASE_THROWABLE";", 0, exception);
+	FYEH();
+
+	context->sThrowablePrintStacktrace = fy_strCreatePermFromUTF8(block,
+			FY_BASE_THROWABLE".printStackTrace.()V", 0, exception);
+	FYEH();
+
+	context->sThrowableDetailMessage = fy_strCreatePermFromUTF8(block,
+			FY_BASE_THROWABLE".detailMessage.L"FY_BASE_STRING";", 0, exception);
+	FYEH();
+
+	context->sInit = fy_strCreatePermFromUTF8(block, FY_METHOD_INIT, 0,
 			exception);
 	FYEH();
 
-	context->sStackTraceElementFileName = fy_strCreateFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT".fileName.L"FY_BASE_STRING";",
+	context->sClinit = fy_strCreatePermFromUTF8(block, FY_METHOD_CLINIT, 0,
 			exception);
 	FYEH();
 
-	context->sStackTraceElementLineNumber = fy_strCreateFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT".lineNumber.I", exception);
-	FYEH();
-
-	context->sThrowableStackTrace = fy_strCreateFromUTF8(block,
-			FY_BASE_THROWABLE".stackTrace.[L"FY_BASE_STACKTHREADELEMENT";",
+	context->sFMain = fy_strCreatePermFromUTF8(block, FY_METHODF_MAIN, 0,
 			exception);
 	FYEH();
 
-	context->sArrayBoolean = fy_strCreateFromUTF8(block, "[Z", exception);
-	FYEH();
-
-	context->sArrayChar = fy_strCreateFromUTF8(block, "[C", exception);
-	FYEH();
-
-	context->sArrayFloat = fy_strCreateFromUTF8(block, "[F", exception);
-	FYEH();
-
-	context->sArrayDouble = fy_strCreateFromUTF8(block, "[D", exception);
-	FYEH();
-
-	context->sArrayByte = fy_strCreateFromUTF8(block, "[B", exception);
-	FYEH();
-
-	context->sArrayShort = fy_strCreateFromUTF8(block, "[S", exception);
-	FYEH();
-
-	context->sArrayInteger = fy_strCreateFromUTF8(block, "[I", exception);
-	FYEH();
-
-	context->sArrayLong = fy_strCreateFromUTF8(block, "[J", exception);
-	FYEH();
-
-	context->sArrayObject = fy_strCreateFromUTF8(block, "[L"FY_BASE_OBJECT";",
+	context->sFRun = fy_strCreatePermFromUTF8(block, FY_METHODF_RUN, 0,
 			exception);
 	FYEH();
 
-	context->sArrayClass = fy_strCreateFromUTF8(block, "[L"FY_BASE_CLASS";",
+	context->sFName = fy_strCreatePermFromUTF8(block, FY_FIELDF_NAME, 0,
 			exception);
+	FYEH();
+
+	context->sMFinalize = fy_strCreatePermFromUTF8(block, FY_METHODF_FINALIZE,
+			0, exception);
+	FYEH();
+
+	context->sFPriority = fy_strCreatePermFromUTF8(block, FY_FIELDF_PRIORITY, 0,
+			exception);
+	FYEH();
+
+	context->sFDaemon = fy_strCreatePermFromUTF8(block, FY_FIELDF_DAEMON, 0,
+			exception);
+	FYEH();
+
+	context->sStringCount = fy_strCreatePermFromUTF8(block,
+			FY_BASE_STRING".count.I", 0, exception);
+	FYEH();
+
+	context->sStringValue = fy_strCreatePermFromUTF8(block,
+			FY_BASE_STRING".value.[C", 0, exception);
+	FYEH();
+
+	context->sStringOffset = fy_strCreatePermFromUTF8(block,
+			FY_BASE_STRING".offset.I", 0, exception);
+	FYEH();
+
+	context->sStackTraceElement = fy_strCreatePermFromUTF8(block,
+			FY_BASE_STACKTHREADELEMENT, 0, exception);
+	FYEH();
+
+	context->sStackTraceElementArray = fy_strCreatePermFromUTF8(block,
+			"[L"FY_BASE_STACKTHREADELEMENT";", 0, exception);
+	FYEH();
+
+	context->sStackTraceElementDeclaringClass = fy_strCreatePermFromUTF8(block,
+			FY_BASE_STACKTHREADELEMENT".declaringClass.L"FY_BASE_STRING";", 0,
+			exception);
+	FYEH();
+
+	context->sStackTraceElementMethodName = fy_strCreatePermFromUTF8(block,
+			FY_BASE_STACKTHREADELEMENT".methodName.L"FY_BASE_STRING";", 0,
+			exception);
+	FYEH();
+
+	context->sStackTraceElementFileName = fy_strCreatePermFromUTF8(block,
+			FY_BASE_STACKTHREADELEMENT".fileName.L"FY_BASE_STRING";", 0,
+			exception);
+	FYEH();
+
+	context->sStackTraceElementLineNumber = fy_strCreatePermFromUTF8(block,
+			FY_BASE_STACKTHREADELEMENT".lineNumber.I", 0, exception);
+	FYEH();
+
+	context->sThrowableStackTrace = fy_strCreatePermFromUTF8(block,
+			FY_BASE_THROWABLE".stackTrace.[L"FY_BASE_STACKTHREADELEMENT";", 0,
+			exception);
+	FYEH();
+
+	context->sArrayBoolean = fy_strCreatePermFromUTF8(block, "[Z", 0,
+			exception);
+	FYEH();
+
+	context->sArrayChar = fy_strCreatePermFromUTF8(block, "[C", 0, exception);
+	FYEH();
+
+	context->sArrayFloat = fy_strCreatePermFromUTF8(block, "[F", 0, exception);
+	FYEH();
+
+	context->sArrayDouble = fy_strCreatePermFromUTF8(block, "[D", 0, exception);
+	FYEH();
+
+	context->sArrayByte = fy_strCreatePermFromUTF8(block, "[B", 0, exception);
+	FYEH();
+
+	context->sArrayShort = fy_strCreatePermFromUTF8(block, "[S", 0, exception);
+	FYEH();
+
+	context->sArrayInteger = fy_strCreatePermFromUTF8(block, "[I", 0,
+			exception);
+	FYEH();
+
+	context->sArrayLong = fy_strCreatePermFromUTF8(block, "[J", 0, exception);
+	FYEH();
+
+	context->sArrayObject = fy_strCreatePermFromUTF8(block,
+			"[L"FY_BASE_OBJECT";", 0, exception);
+	FYEH();
+
+	context->sArrayClass = fy_strCreatePermFromUTF8(block, "[L"FY_BASE_CLASS";",
+			0, exception);
 	FYEH();
 }
 
@@ -227,63 +243,63 @@ static void initConstantPrimitives(fy_context *context, fy_exception *exception)
 	fy_hashMapInit(block, context->mapPrimitivesRev, 17, 12, exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_BOOLEAN;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sBoolean, cc,
 			exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_BYTE;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sByte, cc,
 			exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_SHORT;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sShort, cc,
 			exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_CHAR;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sChar, cc,
 			exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_INT;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sInt, cc,
 			exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_FLOAT;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sFloat, cc,
 			exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_LONG;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sLong, cc,
 			exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_DOUBLE;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sDouble, cc,
 			exception);
 	FYEH();
 
-	cc = fy_mmAllocate(block, sizeof(fy_char), exception);
+	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
 	FYEH();
 	*cc = FY_TYPE_VOID;
 	fy_hashMapPut(block, context->mapPrimitivesRev, context->sVoid, cc,
@@ -305,24 +321,24 @@ static void initStructClassloader(fy_context *context, fy_exception *exception) 
 	fy_hashMapInit(block, context->mapMUNameToNH, 1024, 12, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->classObjIds, 128, 12, -1, exception);
+	fy_hashMapIInit(block, context->classObjIds, 7, 12, -1, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->methodObjIds, 128, 12, -1, exception);
+	fy_hashMapIInit(block, context->methodObjIds, 7, 12, -1, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->fieldObjIds, 128, 12, -1, exception);
+	fy_hashMapIInit(block, context->fieldObjIds, 7, 12, -1, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->constructorObjIds, 128, 12, -1, exception);
+	fy_hashMapIInit(block, context->constructorObjIds, 7, 12, -1, exception);
 	FYEH();
 }
 
 static void initThreadManager(fy_context *context, fy_exception *exception) {
 	context->nextThreadId = 1;
 
-	fy_arrayListInit(context->memblocks, context->runningThreads,
-			sizeof(fy_thread*), 16, exception);
+	context->runningThreads = fy_arrayListCreatePerm(context->memblocks,
+			sizeof(fy_thread*), 128, exception);
 	FYEH();
 
 	context->state = FY_TM_STATE_NEW;
@@ -343,7 +359,8 @@ static void initThreadManager(fy_context *context, fy_exception *exception) {
 static void initHeap(fy_context *context, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	context->nextHandle = 1;
-	context->oldTop = OLD_ENTRIES;
+	block->gcContext = context;
+	block->gcProvider = fy_heapGC;
 
 	fy_hashMapInit(block, context->literals, 4096, 12, exception);
 	FYEH();
@@ -423,7 +440,7 @@ void fy_vmRegisterField(fy_context *context, fy_field *field,
 	fy_memblock *block = context->memblocks;
 	pFid = fy_hashMapGet(block, context->mapFieldNameToId, field->uniqueName);
 	if (pFid == NULL) {
-		pFid = fy_mmAllocate(block, sizeof(int), exception);
+		pFid = fy_mmAllocatePerm(block, sizeof(int), exception);
 		FYEH();
 		field->field_id = *pFid = context->fieldsCount++;
 		fy_hashMapPut(block, context->mapFieldNameToId, field->uniqueName, pFid,
@@ -507,7 +524,7 @@ void fy_vmRegisterMethod(fy_context *context, fy_method *method,
 	pMid = fy_hashMapGet(context->memblocks, context->mapMethodNameToId,
 			method->uniqueName);
 	if (pMid == NULL) {
-		pMid = fy_mmAllocate(block, sizeof(int), exception);
+		pMid = fy_mmAllocatePerm(block, sizeof(int), exception);
 		FYEH();
 		method->method_id = *pMid = context->methodsCount++;
 		fy_hashMapPut(block, context->mapMethodNameToId, method->uniqueName,
@@ -575,7 +592,7 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 	fy_memblock *block = context->memblocks;
 	pCid = fy_hashMapGet(block, context->mapClassNameToId, clazz->className);
 	if (pCid == NULL) {
-		pCid = fy_mmAllocate(block, sizeof(int), exception);
+		pCid = fy_mmAllocatePerm(block, sizeof(int), exception);
 		FYEH();
 		*pCid = (context->classesCount++) + 1;
 		if (*pCid >= MAX_CLASSES) {
@@ -585,8 +602,6 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 		fy_hashMapPut(block, context->mapClassNameToId, clazz->className, pCid,
 				exception);
 		FYEH();
-		/*
-		 clazz->staticArea = fy_mmAllocate(block, clazz->staticSize);*/
 	}
 	context->classes[*pCid] = clazz;
 	clazz->classId = *pCid;
@@ -708,34 +723,36 @@ fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 		void *data, fy_nhFunction handler, fy_exception *exception) {
 	fy_nh* nh;
-	fy_str* str;
+	fy_str str[1];
 	fy_memblock *block = context->memblocks;
-	str = fy_strCreateFromUTF8(block, name, exception);
+	str->content = NULL;
+	fy_strInitWithUTF8(block, str, name, exception);
 	FYEH();
 	if (fy_hashMapGet(block, context->mapMUNameToNH, str) != NULL) {
 		fy_fault(exception, NULL, "Native handler conflict %s", name);
 	}
-	nh = fy_mmAllocate(block, sizeof(fy_nh), exception);
+	nh = fy_mmAllocatePerm(block, sizeof(fy_nh), exception);
 	FYEH();
 	nh->data = data;
 	nh->handler = handler;
 	fy_hashMapPut(block, context->mapMUNameToNH, str, nh, exception);
 	FYEH();
-	fy_strRelease(block, str);
+	fy_strDestroy(block, str);
 }
 
 void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
 		fy_exception *exception) {
 	fy_nh* nh;
-	fy_str* str;
+	fy_str str[1];
 	fy_memblock *block = context->memblocks;
-	str = fy_strCreateFromUTF8(block, name, exception);
+	str->content = NULL;
+	fy_strInitWithUTF8(block, str, name, exception);
 	FYEH();
 	if ((nh = fy_hashMapGet(block, context->mapMUNameToNH, str)) != NULL) {
 		fy_hashMapPut(block, context->mapMUNameToNH, str, NULL, exception);
 		fy_mmFree(block, nh);
 	}
-	fy_strRelease(block, str);
+	fy_strDestroy(block, str);
 }
 
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,

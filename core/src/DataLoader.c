@@ -193,7 +193,7 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 				"Can't find class with id=%d", classId);
 		return;
 	}
-#ifdef _DEBUG
+#ifdef FY_VERBOSE
 	printf("AllocateDirect object[%"FY_PRINT32"d] class=", handle);
 	fy_strPrint(clazz->className);
 	printf("\n");

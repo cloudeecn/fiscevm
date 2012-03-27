@@ -82,8 +82,8 @@ static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 	return NULL;
 }
 
-FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initSize,
-		fy_uint loadFactor, fy_exception *exception) {
+FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this,
+		fy_uint initSize, fy_uint loadFactor, fy_exception *exception) {
 	this->loadFactor = loadFactor;
 	this->bucketsCount = initSize;
 	this->buckets = fy_mmAllocate(mem, sizeof(fy_hashMapEntry*) * initSize,
@@ -94,8 +94,8 @@ FY_ATTR_EXPORT void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this,
 		fy_exception *exception) {
 	fy_hashMapInit(mem, this, 16, 12, exception);
 }
-FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
-		void *value, fy_exception *exception) {
+FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
+		fy_str *key, void *value, fy_exception *exception) {
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
 	fy_str *keyClone;
@@ -105,7 +105,9 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *k
 	if (entry == NULL) {
 		entry = fy_mmAllocate(mem, sizeof(fy_hashMapEntry), exception);
 		FYEH()NULL;
-		keyClone = fy_strCreateClone(mem, key, exception);
+		keyClone =
+				key->perm ?
+						key : fy_strCreatePermFromClone(mem, key, 0, exception);
 		FYEH()NULL;
 		entry->key = keyClone;
 		entry->keyHash = fy_strHash(keyClone);
@@ -137,8 +139,8 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *k
 	}
 }
 
-FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const char *keyUtf8,
-		void *value, fy_exception *exception) {
+FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
+		const char *keyUtf8, void *value, fy_exception *exception) {
 	fy_str *key;
 	void *ret;
 
@@ -157,14 +159,15 @@ FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const
 	return ret;
 }
 
-FY_ATTR_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key) {
+FY_ATTR_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this,
+		fy_str *key) {
 	fy_hashMapEntry *entry = getBucket(mem, this, key);
 	return entry == NULL ? NULL : entry->value;
 }
 
 FY_ATTR_EXPORT void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
-		void(*fn)(fy_str *key, void *value, void *addition), void *addition) {
-	fy_uint i, imax, j, jmax;
+		void (*fn)(fy_str *key, void *value, void *addition), void *addition) {
+	fy_uint i, imax;
 	fy_hashMapEntry *entry;
 	imax = map->bucketsCount;
 	for (i = 0; i < imax; i++) {
