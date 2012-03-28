@@ -81,13 +81,15 @@ libfisce_la_LIBADD =
 am__libfisce_la_SOURCES_DIST = Debug.c HashMap.c HashMapI.c ArrList.c \
 	LnkList.c MemMan.c Portable.c String.c BitSet.c Utf8.c Class.c \
 	ClassLoader.c CoreHandlers.c MathHandlers.c Data.c Heap.c \
-	Thread.c ThreadManager.c VMContext.c ExpDev.c FiScE.c \
-	FileInputStream.c BinarySaver.c DataLoader.c
+	Instructions.c Preverifier.c Thread.c ThreadManager.c \
+	VMContext.c ExpDev.c FiScE.c FileInputStream.c BinarySaver.c \
+	DataLoader.c
 am__objects_1 = Debug.lo HashMap.lo HashMapI.lo ArrList.lo LnkList.lo \
 	MemMan.lo Portable.lo String.lo BitSet.lo Utf8.lo Class.lo \
 	ClassLoader.lo CoreHandlers.lo MathHandlers.lo Data.lo Heap.lo \
-	Thread.lo ThreadManager.lo VMContext.lo ExpDev.lo FiScE.lo \
-	FileInputStream.lo BinarySaver.lo DataLoader.lo
+	Instructions.lo Preverifier.lo Thread.lo ThreadManager.lo \
+	VMContext.lo ExpDev.lo FiScE.lo FileInputStream.lo \
+	BinarySaver.lo DataLoader.lo
 @FY_BUILD_TEST_FALSE@am_libfisce_la_OBJECTS = $(am__objects_1)
 libfisce_la_OBJECTS = $(am_libfisce_la_OBJECTS)
 libfisce_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -98,8 +100,9 @@ libfyjni_la_LIBADD =
 am__libfyjni_la_SOURCES_DIST = Debug.c HashMap.c HashMapI.c ArrList.c \
 	LnkList.c MemMan.c Portable.c String.c BitSet.c Utf8.c Class.c \
 	ClassLoader.c CoreHandlers.c MathHandlers.c Data.c Heap.c \
-	Thread.c ThreadManager.c VMContext.c ExpDev.c FiScE.c \
-	FileInputStream.c BinarySaver.c DataLoader.c FisceService.c
+	Instructions.c Preverifier.c Thread.c ThreadManager.c \
+	VMContext.c ExpDev.c FiScE.c FileInputStream.c BinarySaver.c \
+	DataLoader.c FisceService.c
 @FY_BUILD_TEST_FALSE@am_libfyjni_la_OBJECTS = $(am__objects_1) \
 @FY_BUILD_TEST_FALSE@	FisceService.lo
 libfyjni_la_OBJECTS = $(am_libfyjni_la_OBJECTS)
@@ -111,8 +114,9 @@ libfytst_la_LIBADD =
 am__libfytst_la_SOURCES_DIST = Debug.c HashMap.c HashMapI.c ArrList.c \
 	LnkList.c MemMan.c Portable.c String.c BitSet.c Utf8.c Class.c \
 	ClassLoader.c CoreHandlers.c MathHandlers.c Data.c Heap.c \
-	Thread.c ThreadManager.c VMContext.c ExpDev.c FiScE.c \
-	FileInputStream.c BinarySaver.c DataLoader.c
+	Instructions.c Preverifier.c Thread.c ThreadManager.c \
+	VMContext.c ExpDev.c FiScE.c FileInputStream.c BinarySaver.c \
+	DataLoader.c
 @FY_BUILD_TEST_TRUE@am_libfytst_la_OBJECTS = $(am__objects_1)
 libfytst_la_OBJECTS = $(am_libfytst_la_OBJECTS)
 @FY_BUILD_TEST_TRUE@am_libfytst_la_rpath =
@@ -301,6 +305,8 @@ FY_SRC = Debug.c \
         MathHandlers.c \
         Data.c \
         Heap.c \
+        Instructions.c \
+        Preverifier.c \
         Thread.c \
         ThreadManager.c \
         VMContext.c \
@@ -440,10 +446,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HashMapI.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Heap.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Instructions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LnkList.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MathHandlers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MemMan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Portable.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Preverifier.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TestUtil.Po@am__quote@

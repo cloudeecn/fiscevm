@@ -17,6 +17,7 @@
 
 #include "fyc/DataLoader.h"
 #include "fyc/VMContext.h"
+#include "fyc/Preverifier.h"
 typedef struct ClassTemp {
 	fy_str name[1];
 	fy_uint handle;
@@ -283,7 +284,10 @@ void fy_loadFrame(struct fy_context *context, void *loader_, fy_thread *thread,
 	fy_frame *frame = FY_GET_FRAME(thread,thread->frameCount++);
 	frame->methodId = methodId;
 	frame->method = context->methods[methodId];
-	frame->code = frame->method->code;
+	if (!(frame->method->access_flags & FY_ACC_VERIFIED)) {
+		fy_preverify(context, frame->method, exception);
+	}
+	frame->instructions = frame->method->instructions;
 	frame->sb = sb;
 	frame->sp = sp;
 	frame->pc = pc;

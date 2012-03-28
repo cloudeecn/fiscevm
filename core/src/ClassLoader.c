@@ -712,7 +712,8 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 				FYEH();
 				method->codeLength = fy_dataRead4(context, is, exception);
 				FYEH();
-				method->code = fy_mmAllocatePerm(block, method->codeLength,
+				/*临时分配到堆里，Preverify之后销毁*/
+				method->code = fy_mmAllocate(block, method->codeLength,
 						exception);
 				FYEH();
 				fy_dataReadBlock(context, is, method->code, method->codeLength,
@@ -769,7 +770,7 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 					}
 				}
 			} else if (fy_strCmp(context->sAttSynth, attrName) == 0) {
-				method->synthetic = 1;
+				method->access_flags |= FY_ACC_SYNTHETIC;
 			} else {
 				fy_dataSkip(context, is, attrSize, exception);
 				FYEH();

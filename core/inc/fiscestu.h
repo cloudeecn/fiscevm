@@ -82,6 +82,10 @@
 #define FY_ACC_VARARGS 128
 #define FY_ACC_BRIDGE 64
 
+/*Extended access flags*/
+#define FY_ACC_SYNTHETIC 0x00010000
+#define FY_ACC_VERIFIED 0x80000000
+
 #define FY_TM_STATE_NEW  0
 #define FY_TM_STATE_BOOT_PENDING  1
 #define FY_TM_STATE_STOP  2
@@ -94,6 +98,8 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+
+typedef struct fy_instruction fy_instruction;
 
 typedef union stringInfo {
 	fy_char string_index;
@@ -215,7 +221,7 @@ struct fy_nh;
 struct fy_class;
 typedef struct fy_method {
 	fy_int method_id;
-	fy_char access_flags;
+	fy_uint access_flags;
 
 	fy_str* name;
 
@@ -226,14 +232,13 @@ typedef struct fy_method {
 
 	struct fy_class* owner;
 
-	fy_ubyte synthetic;
-
 	fy_char max_stack;
 	fy_char max_locals;
 
 	fy_uint codeLength;
 	union {
 		fy_ubyte *code;
+		fy_instruction *instructions;
 		struct fy_nh *nh;
 	};
 	fy_char exception_table_length;
@@ -345,7 +350,7 @@ typedef struct fy_object {
 
 typedef struct fy_frame {
 	fy_method *method;
-	fy_ubyte *code;
+	fy_instruction *instructions;
 	fy_uint sb;
 #ifdef FY_STRICT_CHECK
 	fy_uint size;
@@ -371,7 +376,7 @@ typedef struct fy_thread {
 
 	fy_uint frameCount;
 	fy_uint stack[STACK_SIZE];
-	fy_uint typeStack[(STACK_SIZE+31)/32];
+	fy_uint typeStack[(STACK_SIZE + 31) / 32];
 
 	/*Used by thread manager*/
 	fy_int waitForLockId;
@@ -571,6 +576,9 @@ typedef struct fy_context {
 	fy_hashMapI fieldObjIds[1];
 	fy_hashMapI constructorObjIds[1];
 
+	/* #BEGIN GLOBAL*/
+	fy_arrayList switchTargets[1];
+
 	/* #BEGIN THREAD MANAGER*/
 	fy_int pricmds[11];
 	fy_thread *threads[MAX_THREADS];
@@ -608,6 +616,38 @@ typedef struct fy_nh {
 	void *data;
 	fy_nhFunction handler;
 } fy_nh;
+
+struct fy_switch_target {
+	fy_int value;
+	fy_int target;
+};
+
+typedef struct fy_switch_lookup {
+	fy_int defaultJump, count;
+	FY_VLS(struct fy_switch_target,targets);
+} fy_switch_lookup;
+
+typedef struct fy_switch_table {
+	fy_int defaultJump, lowest, highest;
+	FY_VLS(fy_int,targets);
+} fy_switch_table;
+
+struct fy_instruction {
+	fy_int op;
+	union {
+		struct {
+			fy_int param1;
+			fy_int param2;
+		} int_params;
+		fy_class *clazz;
+		fy_method *method;
+		fy_field *field;
+		struct{
+			fy_int derefed;
+			fy_uint value;
+		} ldc;
+	} params;
+};
 
 #ifdef	__cplusplus
 }

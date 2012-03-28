@@ -25,6 +25,7 @@
 #include "../fiscedev.h"
 #include "../fy_util/Debug.h"
 #include "ThreadManager.h"
+#include "Preverifier.h"
 
 void fy_threadSetCurrentThrowable(fy_context *context, fy_thread *thread,
 		fy_int handle, fy_exception *exception);

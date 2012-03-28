@@ -34,6 +34,8 @@ FY_SRC = Debug.c \
         MathHandlers.c \
         Data.c \
         Heap.c \
+        Instructions.c \
+        Preverifier.c \
         Thread.c \
         ThreadManager.c \
         VMContext.c \
