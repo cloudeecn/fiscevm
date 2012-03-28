@@ -18,9 +18,6 @@
 #include "fyc/Thread.h"
 #include "fyc/Instructions.h"
 
-
-
-
 static fy_nh _NO_HANDLER;
 static fy_nh *NO_HANDLER = &_NO_HANDLER;
 
@@ -544,7 +541,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	lpc=ptrFrame->lpc; \
 	sb=ptrFrame->sb; \
 	method = ptrFrame->method; \
-	code = method->code; \
+	instructions = method->instructions; \
 	fy_frameToLocalCheck(ptrFrame) \
 }
 
@@ -571,9 +568,9 @@ static fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
 		fy_method *invoke, fy_exception *exception) {
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	fy_uint sb, sp;
-	if(!(invoke->access_flags & FY_ACC_VERIFIED)){
-		fy_preverify(context,invoke,exception);
-		FYEH() NULL;
+	if (!(invoke->access_flags & FY_ACC_VERIFIED)) {
+		fy_preverify(context, invoke, exception);
+		FYEH()NULL;
 	}
 	if (frame == NULL) {
 		sb = 0;
@@ -717,14 +714,12 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	fy_bitSet(thread->typeStack, 0);
 }
 
-
-
 /**
  * DON'T USE RETURN HERE!!!!
  */
 void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		fy_int ops) {
-	fy_uint sb, sp, pc, lpc, opCount, op;
+	fy_uint sb, sp, pc, lpc, opCount;
 #ifndef FY_GOTO
 	enum FallOut {
 		fallout_none, fallout_invoke, fallout_noinvoke
@@ -733,7 +728,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_STRICT_CHECK
 	fy_uint size, localCount, codeSize;
 #endif
-	fy_ubyte *code;
+	fy_instruction *instructions;
+	fy_instruction *instruction;
 	fy_method *method = NULL;
 	fy_frame *frame = NULL;
 	fy_uint *stack = thread->stack;
@@ -869,17 +865,18 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				; opCount++) {
 			/*RUN_ONE_INST!!!!!*/
 			lpc = pc;
-			op = fy_nextU1(code);
+			instruction = instructions + (pc++);
 #ifdef FY_VERBOSE
 #ifdef FY_LATE_DECLARATION
 			char msg[256];
 #endif
 			fy_strSPrint(msg, 256, method->uniqueName);
 			printf("##%2d %6d/%6d %s %d %s SB=%d SP=%d\n", thread->threadId,
-					opCount, ops, msg, lpc, FY_OP_NAME[op], sb, sp);
+					opCount, ops, msg, lpc, FY_OP_NAME[instruction->op], sb,
+					sp);
 #endif
 
-			switch (op) {
+			switch (instruction->op) {
 			case AALOAD: {
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2;
@@ -970,19 +967,19 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case ILOAD:
 			case FLOAD: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
+				fy_uint ivalue2;
 #endif
-				ivalue = fy_nextU1(code);
-				fy_threadGetLocalInt(ivalue, ivalue2);
+				fy_threadGetLocalInt(instruction->params.int_params.param1,
+						ivalue2);
 				fy_threadPushInt(ivalue2);
 				break;
 			}
 			case ALOAD: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
+				fy_uint ivalue2;
 #endif
-				ivalue = fy_nextU1(code);
-				fy_threadGetLocalHandle(ivalue, ivalue2);
+				fy_threadGetLocalHandle(instruction->params.int_params.param1,
+						ivalue2);
 				fy_threadPushHandle(ivalue2);
 				break;
 			}
@@ -1059,11 +1056,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case ANEWARRAY: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ch1, ivalue;
+				fy_uint ivalue;
 				fy_class *clazz1, *clazz2;
 				fy_str str1;
 #endif
-				ch1 = fy_nextU2(code);
 				fy_threadPopInt(ivalue);
 				if (ivalue < 0) {
 					message->messageType = message_exception;
@@ -1077,9 +1073,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 
-				clazz1 = fy_vmLookupClassFromConstant(context,
-						(ConstantClass*) method->owner->constantPools[ch1],
-						exception);
+				clazz1 = instruction->params.clazz;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -1230,21 +1224,21 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case ISTORE:
 			case FSTORE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
+				fy_uint ivalue2;
 #endif
-				ivalue = fy_nextU1(code);
 				fy_threadPopInt(ivalue2);
-				fy_threadPutLocalInt(ivalue, ivalue2);
+				fy_threadPutLocalInt(instruction->params.int_params.param1,
+						ivalue2);
 				break;
 			}
 			case ASTORE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
+				fy_uint ivalue2;
 				fy_uint type;
 #endif
-				ivalue = fy_nextU1(code);
 				fy_threadPopType(ivalue2, type);
-				fy_threadPutLocalType(ivalue, ivalue2, type);
+				fy_threadPutLocalType(instruction->params.int_params.param1,
+						ivalue2, type);
 				break;
 			}
 			case ISTORE_0:
@@ -1361,11 +1355,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case BIPUSH: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				ivalue = fy_nextS1(code);
-				fy_threadPushInt(ivalue);
+				fy_threadPushInt(instruction->params.int_params.param1);
 				break;
 			}
 			case CALOAD: {
@@ -1402,17 +1392,15 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case CHECKCAST: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
+				fy_uint ivalue2;
 				fy_class *clazz1, *clazz2;
 				fy_str str1;
 #endif
-				ivalue = fy_nextU2(code);
 				/*CUSTOM*/
 				ivalue2 = stack[sp - 1];
 				if (ivalue2 != 0) {
 					clazz1 = fy_heapGetClassOfObject(context, ivalue2);
-					clazz2 = fy_vmLookupClassFromConstant(context,
-							method->owner->constantPools[ivalue], exception);
+					clazz2 = instruction->params.clazz;
 					if (exception->exceptionType != exception_none) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
@@ -1863,16 +1851,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case GETFIELD: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3, ivalue2;
+				fy_uint ivalue2;
 				fy_field *field;
 				fy_uint type;
 #endif
-				ivalue3 = fy_nextU2(code);
 				fy_threadPopHandle(ivalue2);
-				field =
-						fy_vmLookupFieldFromConstant(context,
-								(ConstantFieldRef*) (method->owner->constantPools[ivalue3]),
-								exception);
+				field = instruction->params.field;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -1960,18 +1944,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case GETSTATIC: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3;
 				fy_uint type;
 				fy_field *field;
 				fy_class *clazz1, *clinitClazz;
 #endif
 
-				ivalue3 = fy_nextU2(code);
-
-				field =
-						fy_vmLookupFieldFromConstant(context,
-								(ConstantFieldRef*) (method->owner->constantPools[ivalue3]),
-								exception);
+				field = instruction->params.field;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -2051,20 +2029,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				break;
 			}
+			case GOTO_W:
 			case GOTO: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				ivalue = fy_nextS2(code);
-				pc = lpc + ivalue;
-				break;
-			}
-			case GOTO_W: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				ivalue = fy_nextS4(code);
-				pc = lpc + ivalue;
+				pc = instruction->params.int_params.param1;
 				break;
 			}
 			case I2B: {
@@ -2190,199 +2157,179 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case IF_ICMPEQ: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
 				if (ivalue == ivalue2) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IF_ACMPEQ: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopHandle(ivalue2);
 				fy_threadPopHandle(ivalue);
 				if (ivalue == ivalue2) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IF_ICMPNE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
 				if (ivalue != ivalue2) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IF_ACMPNE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopHandle(ivalue2);
 				fy_threadPopHandle(ivalue);
 				if (ivalue != ivalue2) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IF_ICMPLT: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
 				if ((fy_int) ivalue < (fy_int) ivalue2) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IF_ICMPLE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
 				if ((fy_int) ivalue <= (fy_int) ivalue2) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IF_ICMPGT: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
 				if ((fy_int) ivalue > (fy_int) ivalue2) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IF_ICMPGE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
 				if ((fy_int) ivalue >= (fy_int) ivalue2) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 
 			case IFEQ: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue);
 				if (ivalue == 0) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IFNULL: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopHandle(ivalue);
 				if (ivalue == 0) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 
 			case IFNE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue);
 				if (ivalue != 0) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IFNONNULL: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopHandle(ivalue);
 				if (ivalue != 0) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 
 			case IFLT: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue);
 				if ((fy_int) ivalue < 0) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IFLE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue);
 				if ((fy_int) ivalue <= 0) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IFGT: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue);
 				if ((fy_int) ivalue > 0) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IFGE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextS2(code);
 				fy_threadPopInt(ivalue);
 				if ((fy_int) ivalue >= 0) {
-					pc = lpc + ivalue3;
+					pc = instruction->params.int_params.param1;
 				}
 				break;
 			}
 			case IINC: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
-#endif
-				ivalue3 = fy_nextU1(code);
-				ivalue = fy_nextS1(code);
 				/*CUSTOM*/
-				stack[sb + ivalue3] += ivalue;
+				stack[sb + instruction->params.int_params.param1] +=
+						instruction->params.int_params.param2;
 				break;
 			}
 			case IMUL: {
@@ -2391,7 +2338,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopInt(ivalue);
 				fy_threadPopInt(ivalue2);
-				fy_threadPushInt((fy_uint)((fy_int)ivalue2) * ((fy_int)ivalue));
+				fy_threadPushInt(
+						(fy_uint)((fy_int)ivalue2) * ((fy_int)ivalue));
 				break;
 			}
 			case INEG: {
@@ -2404,16 +2352,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case INSTANCEOF: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2, ivalue3;
+				fy_uint ivalue2;
 				fy_class *clazz1, *clazz2;
 #endif
-				ivalue3 = fy_nextU2(code);
 				fy_threadPopHandle(ivalue2);
 				clazz1 = fy_heapGetClassOfObject(context, ivalue2);
-				clazz2 =
-						fy_vmLookupClassFromConstant(context,
-								(ConstantClass*) (method->owner->constantPools[ivalue3]),
-								exception);
+				clazz2 = instruction->params.clazz;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -2425,13 +2369,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case INVOKEINTERFACE: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
+				fy_uint ivalue, ivalue2;
 				fy_class *clazz1;
 				fy_method *mvalue, *mvalue2;
 #endif
-				ivalue3 = fy_nextU2(code); /*m*/
-				ivalue = fy_nextU1(code); /*count*/
-				fy_nextU1(code);
+				mvalue2 = instruction->params.method;
+				ivalue = mvalue2->paramCount + 1;
 				/*CusTOM*/
 				fy_checkCall(ivalue);
 				sp -= ivalue;
@@ -2445,16 +2388,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				clazz1 = fy_heapGetObject(context, stack[sp])->clazz;
-				mvalue2 =
-						fy_vmLookupMethodFromConstant(context,
-								(ConstantMethodRef*) (method->owner->constantPools[ivalue3]),
-								exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
+				clazz1 = fy_heapGetObject(context, stack[sp])->clazz;
 				if (!fy_classCanCastTo(context, clazz1, mvalue2->owner)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
@@ -2564,15 +2503,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case INVOKESPECIAL: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 				fy_class *clazz1, *clazz2;
 				fy_method *mvalue;
 #endif
-				ivalue3 = fy_nextU2(code);/*m*/
 				clazz1 = method->owner;
-				mvalue = fy_vmLookupMethodFromConstant(context,
-						(ConstantMethodRef*) (clazz1->constantPools[ivalue3]),
-						exception);
+				mvalue = instruction->params.method;
 				clazz2 = mvalue->owner;
 				ivalue = mvalue->paramCount + 1;/*count*/
 				fy_checkCall(ivalue);
@@ -2679,15 +2615,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case INVOKESTATIC: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
-				fy_class *clazz1, *clazz2, *clinitClazz;
+				fy_uint ivalue;
+				fy_class *clazz2, *clinitClazz;
 				fy_method *mvalue;
 #endif
-				clazz1 = method->owner;
-				ivalue3 = fy_nextU2(code);/*m*/
-				mvalue = fy_vmLookupMethodFromConstant(context,
-						(ConstantMethodRef*) (clazz1->constantPools[ivalue3]),
-						exception);
+				mvalue = instruction->params.method;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -2778,15 +2710,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case INVOKEVIRTUAL: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 				fy_class *clazz1;
 				fy_method *mvalue2, *mvalue;
 #endif
 				clazz1 = method->owner;
-				ivalue3 = fy_nextU2(code);/*m*/
-				mvalue2 = fy_vmLookupMethodFromConstant(context,
-						(ConstantMethodRef*) (clazz1->constantPools[ivalue3]),
-						exception);
+				mvalue2 = instruction->params.method;
 				ivalue = mvalue2->paramCount + 1;
 				fy_checkCall(ivalue);
 				sp -= ivalue;
@@ -2986,22 +2915,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPushInt(ivalue ^ ivalue2);
 				break;
 			}
-			case JSR: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				ivalue = fy_nextS2(code);
-				fy_threadPushReturn(pc);
-				pc = lpc + ivalue;
-				break;
-			}
+			case JSR:
 			case JSR_W: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				ivalue = fy_nextS4(code);
 				fy_threadPushReturn(pc);
-				pc = lpc + ivalue;
+				pc = instruction->params.int_params.param1;
 				break;
 			}
 			case L2D: {
@@ -3075,13 +2992,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LDC: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3, ivalue;
+				fy_uint ivalue;
 				fy_uint type;
 #endif
-				ivalue3 = fy_nextU1(code);
-
-				ivalue = opLDC(context, method->owner, ivalue3, &type,
-						exception);
+				ivalue = opLDC(context, method->owner,
+						instruction->params.ldc.value, &type, exception);
 
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
@@ -3094,12 +3009,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LDC_W: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3, ivalue;
+				fy_uint ivalue;
 				fy_uint type;
 #endif
-				ivalue3 = fy_nextU2(code);
-				ivalue = opLDC(context, method->owner, ivalue3, &type,
-						exception);
+				ivalue = opLDC(context, method->owner,
+						instruction->params.ldc.value, &type, exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -3110,11 +3024,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LDC2_W: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3;
 				fy_ulong lvalue;
 #endif
-				ivalue3 = fy_nextU2(code );
-				lvalue = opLDC2(context, method->owner, ivalue3, exception);
+				lvalue = opLDC2(context, method->owner,
+						instruction->params.ldc.value, exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -3149,12 +3062,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case LLOAD: {
 #ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
-				fy_uint ivalue;
 #endif
-				ivalue = fy_nextU1(code);
-				fy_threadGetLocalLong(ivalue, lvalue);
+				fy_threadGetLocalLong(instruction->params.int_params.param1,
+						lvalue);
 #ifdef FY_VERBOSE
-				printf("LOCAL[%d]=%"FY_PRINT64"d\n", ivalue, lvalue);
+				printf("LOCAL[%d]=%"FY_PRINT64"d\n",
+						instruction->params.int_params.param1, lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -3227,47 +3140,23 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case LOOKUPSWITCH: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-				fy_int *pivalue, *pivalue2;
+				fy_uint ivalue, ivalue2;
 				fy_uint i;
 				fy_boolean bvalue1;
+				fy_switch_lookup *swlookup;
 #endif
-				ivalue3 = (65536 - pc) % 4;
-				pc += ivalue3;
-				ivalue = fy_nextS4(code);/*db*/
-				ivalue2 = fy_nextS4(code);/*np*/
-				pivalue = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue2,
-						exception); /*match*/
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				pivalue2 = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue2,
-						exception); /*offset*/
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				for (i = 0; i < ivalue2; i++) {
-					pivalue[i] = fy_nextS4(code);
-					pivalue2[i] = fy_nextS4(code)
-					;
-				}
-				fy_threadPopInt(ivalue3);
-				bvalue1 = FALSE; /*matched*/
-				for (i = 0; i < ivalue2; i++) {
-					if (ivalue3 == pivalue[i]) {
-						pc = lpc + pivalue2[i];
+				swlookup = instruction->params.swlookup;
+				ivalue = swlookup->count;
+				fy_threadPopInt(ivalue2);
+				bvalue1 = FALSE;
+				for (i = 0; i < ivalue; i++) {
+					if (swlookup->targets[i].value == ivalue2) {
+						pc = swlookup->targets[i].target;
 						bvalue1 = TRUE;
-						break;
 					}
 				}
-				fy_free(pivalue);
-				fy_free(pivalue2);
 				if (!bvalue1) {
-					pc = lpc + ivalue;
+					pc = swlookup->defaultJump;
 				}
 				break;
 			}
@@ -3375,14 +3264,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case LSTORE: {
 #ifdef FY_LATE_DECLARATION
 				fy_ulong lvalue;
-				fy_uint ivalue;
 #endif
-				ivalue = fy_nextU1(code);
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, ivalue);
+				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
+						instruction->params.int_params.param1);
 #endif
-				fy_threadPutLocalLong(ivalue, lvalue);
+				fy_threadPutLocalLong(instruction->params.int_params.param1,
+						lvalue);
 				break;
 			}
 			case DSTORE_0:
@@ -3485,8 +3374,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_class *clazz1;
 				fy_int i;
 #endif
-				ivalue3 = fy_nextU2(code );
-				ivalue = fy_nextU1(code );
+				ivalue3 = instruction->params.int_params.param1;
+				ivalue = instruction->params.int_params.param2;
 				clazz1 = fy_vmLookupClassFromConstant(context,
 						(ConstantClass*) method->owner->constantPools[ivalue3],
 						exception);
@@ -3518,13 +3407,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case NEW: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3, ivalue;
+				fy_uint ivalue;
 				fy_class *clazz1, *clinitClazz;
 #endif
-				ivalue3 = fy_nextU2(code);
-				clazz1 = fy_vmLookupClassFromConstant(context,
-						(ConstantClass*) method->owner->constantPools[ivalue3],
-						exception);
+				clazz1 = instruction->params.clazz;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -3580,7 +3466,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_str *pstr1;
 				fy_class *clazz1;
 #endif
-				type = fy_nextU1(code);
+				type = instruction->params.int_params.param1;
 				fy_threadPopInt(ivalue3);
 				if (ivalue3 < 0) {
 					message->messageType = message_exception;
@@ -3663,16 +3549,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case PUTFIELD: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue = 0, ivalue2, ivalue3;
+				fy_uint ivalue = 0, ivalue2;
 				fy_ulong lvalue = 0;
 				fy_uint type;
 				fy_field *field;
 #endif
-				ivalue3 = fy_nextU2(code);
-				field =
-						fy_vmLookupFieldFromConstant(context,
-								(ConstantFieldRef*) method->owner->constantPools[ivalue3],
-								exception);
+				field = instruction->params.field;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -3757,16 +3639,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case PUTSTATIC: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3;
 				fy_uint type;
 				fy_field *field;
 				fy_class *clazz1, *clinitClazz;
 #endif
-				ivalue3 = fy_nextU2(code);
-				field =
-						fy_vmLookupFieldFromConstant(context,
-								(ConstantFieldRef*) (method->owner->constantPools[ivalue3]),
-								exception);
+				field = instruction->params.field;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
@@ -3847,10 +3724,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case RET: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue3;
+				fy_uint ivalue;
 #endif
-				ivalue3 = fy_nextU1(code);
-				fy_threadGetLocalReturn(ivalue3, ivalue);
+				fy_threadGetLocalReturn(instruction->params.int_params.param1,
+						ivalue);
 				pc = ivalue;
 				break;
 			}
@@ -3922,7 +3799,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
-				ivalue = fy_nextS2(code);
+				ivalue = instruction->params.int_params.param1;
 				fy_threadPushInt(ivalue);
 				break;
 			}
@@ -3939,121 +3816,23 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case TABLESWITCH: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3, ivalue4;
+				fy_uint ivalue, ivalue2, ivalue3;
 				fy_uint i;
-				fy_int *pivalue;
 #endif
-				ivalue4 = (65536 - pc) % 4;
-				pc += ivalue4;
-				ivalue = fy_nextS4(code );/*db*/
-				ivalue2 = fy_nextS4(code );/*lb*/
-				ivalue3 = fy_nextS4(code );/*hb*/
-				ivalue4 = ivalue3 - ivalue2 + 1;/*count*/
-				pivalue = /*TEMP*/fy_allocate(sizeof(fy_int) * ivalue4,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				for (i = 0; i < ivalue4; i++) {
-					pivalue[i] = fy_nextS4(code)
-					;
-				}
-				fy_threadPopInt(ivalue4);
-				if ((fy_int) ivalue4 < (fy_int) ivalue2
-						|| (fy_int) ivalue4 > (fy_int) ivalue3) {
-					ivalue4 = ivalue;
+				fy_threadPopInt(ivalue);
+				ivalue2 = instruction->params.swtable->lowest;/*lb*/
+				ivalue3 = instruction->params.swtable->highest;/*hb*/
+				if ((fy_int) ivalue < (fy_int) ivalue2
+						|| (fy_int) ivalue > (fy_int) ivalue3) {
+					pc = instruction->params.swtable->defaultJump;
 				} else {
-					ivalue4 = pivalue[ivalue4 - ivalue2];
+					pc = instruction->params.swtable->targets[ivalue - ivalue2];
 				}
-				fy_free(pivalue);
-				pc = lpc + ivalue4;
 				break;
 			}
-			case WIDE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3, ivalue4;
-#endif
-				ivalue4 = fy_nextU1(code);
-				ivalue3 = fy_nextU2(code);
-				switch (ivalue4) {
-				case FLOAD:
-				case ILOAD: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					fy_threadGetLocalInt(ivalue3, ivalue);
-					fy_threadPushInt(ivalue);
-					break;
-				}
-				case ALOAD: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					fy_threadGetLocalHandle(ivalue3, ivalue);
-					fy_threadPushHandle(ivalue);
-					break;
-				}
-				case DLOAD:
-				case LLOAD: {
-#ifdef FY_LATE_DECLARATION
-					fy_ulong lvalue;
-#endif
-					fy_threadGetLocalLong(ivalue3, lvalue);
-					fy_threadPushLong(lvalue);
-					break;
-				}
-				case FSTORE:
-				case ISTORE: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					fy_threadPopInt(ivalue);
-					fy_threadPutLocalInt( ivalue3, ivalue);
-					break;
-				}
-				case ASTORE: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-					fy_uint type;
-#endif
-					fy_threadPopType(ivalue, type);
-					fy_threadPutLocalType( ivalue3, ivalue, type);
-					break;
-				}
-				case DSTORE:
-				case LSTORE: {
-#ifdef FY_LATE_DECLARATION
-					fy_ulong lvalue;
-#endif
-					fy_threadPopLong(lvalue);
-					fy_threadPutLocalLong( ivalue3, lvalue);
-					break;
-				}
-				case RET: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					fy_threadGetLocalReturn( ivalue3, ivalue);
-					pc = ivalue;
-					break;
-				}
-				case IINC: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					ivalue = fy_nextS2(code);
-					/*CuSTOM*/
-					stack[sb + ivalue3] += ivalue;
-					break;
-				}
-				default: {
-					fy_fault(exception, NULL, "Unknown OPCode %d", ivalue4);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				}
+			default: {
+				fy_fault(exception, NULL, "Unknown OPCode %d", instruction->op);
+				FY_FALLOUT_NOINVOKE
 				break;
 			}
 			}

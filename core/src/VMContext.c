@@ -411,6 +411,9 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	initStructClassloader(context, exception);
 	FYEH();
 
+	fy_arrayListInit(context->memblocks, context->switchTargets,
+			sizeof(fy_switch_lookup*), 64, exception);
+
 	fy_coreRegisterCoreHandlers(context, exception);
 	fy_coreRegisterMathHandlers(context, exception);
 	FYEH();
@@ -900,8 +903,8 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 				thread->daemon, thread->destroyPending, thread->interrupted,
 				thread->nextWakeTime, thread->pendingLockCount,
 				thread->waitForLockId, thread->waitForNotifyId,
-				FY_GET_FRAME(thread,jmax-1)->sp, thread->stack, thread->typeStack,
-				exception);
+				FY_GET_FRAME(thread,jmax-1)->sp, thread->stack,
+				thread->typeStack, exception);
 		FYEH();
 		context->savePrepareFrame(context, saver, jmax, exception);
 		FYEH();

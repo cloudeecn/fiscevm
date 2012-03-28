@@ -267,8 +267,8 @@ static void preverifyMethodExceptionTable(fy_context *context,
 		FYEH();
 	}
 }
-static void preverifyMethodLineNumberTable(fy_context *context, fy_method *method,
-		fy_hashMapI *tmpPcIcMap, fy_exception *exception) {
+static void preverifyMethodLineNumberTable(fy_context *context,
+		fy_method *method, fy_hashMapI *tmpPcIcMap, fy_exception *exception) {
 	fy_lineNumber *ln;
 	fy_int i, imax;
 	if ((imax = method->line_number_table_length) == 0) {
@@ -314,7 +314,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 		fy_hashMapIPut(context->memblocks, tmpPcIcMap, pc, instCount,
 				exception);
 		FYEH();
-#if 1
+#if 0
 		fy_strPrint(method->uniqueName);
 		printf(" - pc=%d inst=%d op=[%d,%s]\n", pc, instCount, op,
 				FY_OP_NAME[op]);
@@ -325,8 +325,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 		}
 		if (op == LOOKUPSWITCH) {
 			ivalue4 = context->switchTargets->length;
-			fy_hashMapIPut(context->memblocks, tmpSwitchTargets, pc, ivalue4,
-					exception);
+			fy_hashMapIPut(context->memblocks, tmpSwitchTargets, instCount,
+					ivalue4, exception);
 			FYEH();
 			pc++;
 			ivalue3 = (65536 - pc) % 4;
@@ -348,10 +348,11 @@ void fy_preverify(fy_context *context, fy_method *method,
 				switchLookup->targets[i].target = fy_nextS4(code)
 				;
 			}
+			switchLookup->nextPC = pc;
 		} else if (op == TABLESWITCH) {
 			ivalue4 = context->switchTargets->length;
-			fy_hashMapIPut(context->memblocks, tmpSwitchTargets, pc, ivalue4,
-					exception);
+			fy_hashMapIPut(context->memblocks, tmpSwitchTargets, instCount,
+					ivalue4, exception);
 			FYEH();
 			pc++;
 			ivalue3 = (65536 - pc) % 4;
@@ -374,6 +375,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				switchTable->targets[i] = fy_nextS4(code)
 				;
 			}
+			switchTable->nextPC = pc;
 		} else if (op == WIDE) {
 			if (code[pc + 1] == IINC) {
 				pc += 6;
@@ -399,6 +401,11 @@ void fy_preverify(fy_context *context, fy_method *method,
 		op = fy_nextU1(code);
 		instruction = method->instructions + (ic++);
 		instruction->op = op;
+#if 0
+		fy_strPrint(method->uniqueName);
+		printf(" + pc=%d inst=%d op=[%d,%s]\n", pc - 1, ic - 1, op,
+				FY_OP_NAME[op]);
+#endif
 		switch (op) {
 		case UNUSED_BA:
 		case AALOAD:
@@ -651,38 +658,30 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case IFNONNULL:
 		case IFNULL: {
 			target = pc - 1 + fy_nextS2(code);
-			instruction->params.int_params.param1 = fy_hashMapIGet(
-					context->memblocks, tmpPcIcMap, target);
-			if (instruction->params.int_params.param1 == -1) {
-				fy_fault(exception, NULL, "");
-			}
+			instruction->params.int_params.param1 = getIcFromPc(context, target,
+					tmpPcIcMap, exception);
+			FYEH();
 			break;
 		}
 		case GOTO_W: {
 			target = pc - 1 + fy_nextS4(code); /*jump*/
-			instruction->params.int_params.param1 = fy_hashMapIGet(
-					context->memblocks, tmpPcIcMap, target);
-			if (instruction->params.int_params.param1 == -1) {
-				fy_fault(exception, NULL, "");
-			}
+			instruction->params.int_params.param1 = getIcFromPc(context, target,
+					tmpPcIcMap, exception);
+			FYEH();
 			break;
 		}
 		case JSR: {
 			target = pc - 1 + fy_nextS2(code); /*jump*/
-			instruction->params.int_params.param1 = fy_hashMapIGet(
-					context->memblocks, tmpPcIcMap, target);
-			if (instruction->params.int_params.param1 == -1) {
-				fy_fault(exception, NULL, "");
-			}
+			instruction->params.int_params.param1 = getIcFromPc(context, target,
+					tmpPcIcMap, exception);
+			FYEH();
 			break;
 		}
 		case JSR_W: {
 			target = pc - 1 + fy_nextS4(code); /*jump*/
-			instruction->params.int_params.param1 = fy_hashMapIGet(
-					context->memblocks, tmpPcIcMap, target);
-			if (instruction->params.int_params.param1 == -1) {
-				fy_fault(exception, NULL, "");
-			}
+			instruction->params.int_params.param1 = getIcFromPc(context, target,
+					tmpPcIcMap, exception);
+			FYEH();
 			break;
 		}
 		case IINC: {
@@ -693,6 +692,44 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case MULTIANEWARRAY: {
 			instruction->params.int_params.param1 = fy_nextU2(code); /*Constant id-> class Constant*/
 			instruction->params.int_params.param2 = fy_nextU1(code); /*count*/
+			break;
+		}
+		case LOOKUPSWITCH: {
+			target = fy_hashMapIGet(context->memblocks, tmpSwitchTargets,
+					ic - 1);
+			if (target == -1) {
+				fy_fault(exception, NULL, "Can't find switch target for ic=%d",
+						ic - 1);
+			}
+			fy_arrayListGet(context->memblocks, context->switchTargets, target,
+					&switchLookup);
+			instruction->params.swlookup = switchLookup;
+			imax = switchLookup->count;
+			for (i = 0; i < imax; i++) {
+				(switchLookup->targets + i)->target = getIcFromPc(context,
+						pc - 1 + (switchLookup->targets + i)->target,
+						tmpPcIcMap, exception);
+			}
+			pc = switchLookup->nextPC;
+			break;
+		}
+		case TABLESWITCH: {
+			target = fy_hashMapIGet(context->memblocks, tmpSwitchTargets,
+					ic - 1);
+			if (target == -1) {
+				fy_fault(exception, NULL, "Can't find switch target for ic=%d",
+						ic - 1);
+			}
+			fy_arrayListGet(context->memblocks, context->switchTargets, target,
+					&switchTable);
+			instruction->params.swtable = switchTable;
+			imax = switchTable->highest - switchTable->lowest;
+			for (i = 0; i <= imax; i++) {
+				switchTable->targets[i] = getIcFromPc(context,
+						pc - 1 + switchTable->targets[i], tmpPcIcMap,
+						exception);
+			}
+			pc = switchTable->nextPC;
 			break;
 		}
 		case WIDE: {
@@ -734,6 +771,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 	}
 	preverifyMethodExceptionTable(context, method, tmpPcIcMap, exception);
 	preverifyMethodLineNumberTable(context, method, tmpPcIcMap, exception);
+	method->access_flags |= FY_ACC_VERIFIED;
 	fy_mmFree(context->memblocks, code);
 	fy_hashMapIDestroy(context->memblocks, tmpPcIcMap);
 	fy_hashMapIDestroy(context->memblocks, tmpSwitchTargets);

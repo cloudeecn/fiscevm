@@ -623,12 +623,12 @@ struct fy_switch_target {
 };
 
 typedef struct fy_switch_lookup {
-	fy_int defaultJump, count;
+	fy_int nextPC, defaultJump, count;
 	FY_VLS(struct fy_switch_target,targets);
 } fy_switch_lookup;
 
 typedef struct fy_switch_table {
-	fy_int defaultJump, lowest, highest;
+	fy_int nextPC, defaultJump, lowest, highest;
 	FY_VLS(fy_int,targets);
 } fy_switch_table;
 
@@ -642,7 +642,9 @@ struct fy_instruction {
 		fy_class *clazz;
 		fy_method *method;
 		fy_field *field;
-		struct{
+		fy_switch_lookup *swlookup;
+		fy_switch_table *swtable;
+		struct {
 			fy_int derefed;
 			fy_uint value;
 		} ldc;
