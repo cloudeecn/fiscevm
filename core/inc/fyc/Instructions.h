@@ -243,6 +243,7 @@
 #define fy_nextS2(CODE) fy_B2TOI(CODE[pc],CODE[pc+1]);pc+=2
 #define fy_nextS4(CODE) fy_B4TOI(CODE[pc],CODE[pc+1],CODE[pc+2],CODE[pc+3]);pc+=4
 
-extern const char *FY_OP_NAME[512];
+extern const char *FY_OP_NAME[256];
+
 
 #endif /* INSTRUCTIONS_H_ */

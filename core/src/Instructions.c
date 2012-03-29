@@ -1,6 +1,6 @@
 #include "fyc/Instructions.h"
 
-const char *FY_OP_NAME[512] = { /**/
+const char *FY_OP_NAME[256] = { /**/
 "NOP", /* 0x00 */
 "ACONST_NULL", /* 0x01 */
 "ICONST_M1", /* 0x02 */
@@ -204,3 +204,4 @@ const char *FY_OP_NAME[512] = { /**/
 "GOTO_W", /* 0xC8 */
 "JSR_W", /* 0xC9 */
 "BREAKPOINT" /* 0xCA */};
+

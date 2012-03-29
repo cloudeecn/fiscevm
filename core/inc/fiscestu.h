@@ -416,6 +416,12 @@ typedef struct fy_message {
 	} body;
 
 } fy_message;
+
+typedef struct fy_profile_data{
+	fy_int op1,op2;
+	fy_int count;
+} fy_profile_data;
+
 struct fy_context;
 
 typedef struct fy_context {
@@ -556,16 +562,16 @@ typedef struct fy_context {
 	fy_memblock memblocks[1];
 	fy_port port[1];
 
-	int classesCount;
+	fy_int classesCount;
 	fy_class *classes[MAX_CLASSES];
 
 	fy_hashMap mapClassNameToId[1];
 
-	int methodsCount;
+	fy_int methodsCount;
 	fy_method *methods[MAX_METHODS];
 	fy_hashMap mapMethodNameToId[1];
 
-	int fieldsCount;
+	fy_int fieldsCount;
 	fy_field *fields[MAX_FIELDS];
 	fy_hashMap mapFieldNameToId[1];
 
@@ -578,7 +584,11 @@ typedef struct fy_context {
 
 	/* #BEGIN GLOBAL*/
 	fy_arrayList switchTargets[1];
-
+#ifdef FY_PROFILE
+	fy_uint lastOp;
+	fy_profile_data opUsage[256];
+	fy_profile_data opCombine[65536];
+#endif
 	/* #BEGIN THREAD MANAGER*/
 	fy_int pricmds[11];
 	fy_thread *threads[MAX_THREADS];

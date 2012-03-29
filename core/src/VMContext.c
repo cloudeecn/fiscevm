@@ -16,6 +16,7 @@
  */
 
 #include "fyc/VMContext.h"
+#include "fyc/Instructions.h"
 #include "fyc/FileInputStream.h"
 #include "fyc/NConfig.h"
 #include "fyc/BinarySaver.h"
@@ -432,7 +433,62 @@ static fy_class* getClass(fy_context *context, fy_str *name) {
 	return ret;
 }
 
+static void sortUsage(fy_profile_data *data, int length) {
+	fy_boolean changed = TRUE;
+	fy_profile_data tmp;
+	fy_int i;
+	while (changed) {
+		changed = FALSE;
+		for (i = 0; i < length - 1; i++) {
+			if (data[i].count < data[i + 1].count) {
+				changed = TRUE;
+				tmp = data[i];
+				data[i] = data[i + 1];
+				data[i + 1] = tmp;
+			}
+		}
+	}
+}
+
 void fy_vmContextDestroy(fy_context *context) {
+	fy_uint i, imax;
+	const char *c, *c2;
+	imax = 256;
+	printf("Destroying vm\n");
+#ifdef FY_PROFILE
+	printf("Op usage top 10:\n");
+	for (i = 0; i < imax; i++) {
+		context->opUsage[i].op1 = i;
+	}
+	sortUsage(context->opUsage, 256);
+	for (i = 0; i < 10; i++) {
+		if (context->opUsage[i].count) {
+			c = FY_OP_NAME[context->opUsage[i].op1];
+			if (c) {
+				printf("%s(%d) - %d\n", c, context->opUsage[i].op1,
+						context->opUsage[i].count);
+			} else {
+				printf("UNKNOWN(%d) - %d\n", context->opUsage[i].op1,
+						context->opUsage[i].count);
+			}
+		}
+	}
+	printf("Op combian usage top 16:\n");
+	imax = 65536;
+	for (i = 0; i < imax; i++) {
+		context->opCombine[i].op1 = i >> 8;
+		context->opCombine[i].op2 = i & 0xff;
+	}
+	sortUsage(context->opCombine, 65536);
+	for (i = 0; i < 16; i++) {
+		if (context->opUsage[i].count) {
+			c = FY_OP_NAME[context->opCombine[i].op1];
+			c2 = FY_OP_NAME[context->opCombine[i].op2];
+			printf("%s(%d)+%s(%d) - %d\n", c, context->opCombine[i].op1, c2,
+					context->opCombine[i].op2, context->opCombine[i].count);
+		}
+	}
+#endif
 	fy_portDestroy(context->port);
 	fy_mmDestroy(context->memblocks);
 }

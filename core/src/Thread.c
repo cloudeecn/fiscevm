@@ -866,6 +866,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			/*RUN_ONE_INST!!!!!*/
 			lpc = pc;
 			instruction = instructions + (pc++);
+#ifdef FY_PROFILE
+			context->opUsage[instruction->op].count++;
+			context->opCombine[(context->lastOp << 8) + instruction->op].count++;
+			context->lastOp = instruction->op;
+#endif
 #ifdef FY_VERBOSE
 #ifdef FY_LATE_DECLARATION
 			char msg[256];
