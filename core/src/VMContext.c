@@ -241,7 +241,7 @@ static void initConstantPrimitives(fy_context *context, fy_exception *exception)
 	context->primitives[FY_TYPE_DOUBLE] = context->sDouble;
 	context->primitives[FY_TYPE_VOID] = context->sVoid;
 
-	fy_hashMapInit(block, context->mapPrimitivesRev, 17, 12, exception);
+	fy_hashMapInitPerm(block, context->mapPrimitivesRev, 19, exception);
 	FYEH();
 
 	cc = fy_mmAllocatePerm(block, sizeof(fy_char), exception);
@@ -310,28 +310,28 @@ static void initConstantPrimitives(fy_context *context, fy_exception *exception)
 
 static void initStructClassloader(fy_context *context, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
-	fy_hashMapInit(block, context->mapClassNameToId, 1024, 12, exception);
+	fy_hashMapInitPerm(block, context->mapClassNameToId, 1024, exception);
 	FYEH();
 
-	fy_hashMapInit(block, context->mapFieldNameToId, 4096, 12, exception);
+	fy_hashMapInitPerm(block, context->mapFieldNameToId, 4096, exception);
 	FYEH();
 
-	fy_hashMapInit(block, context->mapMethodNameToId, 4096, 12, exception);
+	fy_hashMapInitPerm(block, context->mapMethodNameToId, 4096, exception);
 	FYEH();
 
-	fy_hashMapInit(block, context->mapMUNameToNH, 1024, 12, exception);
+	fy_hashMapInitPerm(block, context->mapMUNameToNH, 1024, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->classObjIds, 7, 12, -1, exception);
+	fy_hashMapIInitPerm(block, context->classObjIds, 7, -1, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->methodObjIds, 7, 12, -1, exception);
+	fy_hashMapIInitPerm(block, context->methodObjIds, 7, -1, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->fieldObjIds, 7, 12, -1, exception);
+	fy_hashMapIInitPerm(block, context->fieldObjIds, 7, -1, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->constructorObjIds, 7, 12, -1, exception);
+	fy_hashMapIInitPerm(block, context->constructorObjIds, 7, -1, exception);
 	FYEH();
 }
 
@@ -363,7 +363,7 @@ static void initHeap(fy_context *context, fy_exception *exception) {
 	block->gcContext = context;
 	block->gcProvider = fy_heapGC;
 
-	fy_hashMapInit(block, context->literals, 4096, 12, exception);
+	fy_hashMapInitPerm(block, context->literals, 4096, exception);
 	FYEH();
 
 	fy_arrayListInit(block, context->toFinalize, sizeof(fy_uint), 256,

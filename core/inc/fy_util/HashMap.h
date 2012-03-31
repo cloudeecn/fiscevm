@@ -28,23 +28,25 @@ extern "C" {
 
 typedef struct fy_hashMap {
 	fy_char loadFactor;
+	fy_char perm;
 	fy_uint bucketsCount;
 	void **buckets;
 	fy_uint size;
 } fy_hashMap;
 
-FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this, fy_uint initSize,
-		fy_uint loadFactor, fy_exception *exception);
-FY_ATTR_EXPORT void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this,
-		fy_exception *exception);
-FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this, fy_str *key,
-		void *value, fy_exception *exception);
-FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this, const char *keyUtf8,
-		void *value, fy_exception *exception);
-FY_ATTR_EXPORT void *fy_hashMapGet(fy_memblock *mem, fy_hashMap *this, fy_str *key);
+FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this,
+		fy_uint initSize, fy_uint loadFactor, fy_exception *exception);
+FY_ATTR_EXPORT void fy_hashMapInitPerm(fy_memblock *mem, fy_hashMap *this,
+		fy_uint initSize, fy_exception *exception);
+FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
+		fy_str *key, void *value, fy_exception *exception);
+FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
+		const char *keyUtf8, void *value, fy_exception *exception);
+FY_ATTR_EXPORT void *fy_hashMapGet(fy_memblock *mem, fy_hashMap *this,
+		fy_str *key);
 FY_ATTR_EXPORT void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this);
 FY_ATTR_EXPORT void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
-		void(*fn)(fy_str *key, void *value, void *addition), void *addition);
+		void (*fn)(fy_str *key, void *value, void *addition), void *addition);
 #ifdef	__cplusplus
 }
 #endif

@@ -200,7 +200,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		fillException(env, exception);
 		return;
 	}
-	fy_hashMapInit(context->memblocks, cdata->nativeCache, 67, 10, exception);
+	fy_hashMapInitPerm(context->memblocks, cdata->nativeCache, 203,  exception);
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
 		return;

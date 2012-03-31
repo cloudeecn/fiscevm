@@ -417,8 +417,8 @@ typedef struct fy_message {
 
 } fy_message;
 
-typedef struct fy_profile_data{
-	fy_int op1,op2;
+typedef struct fy_profile_data {
+	fy_int op1, op2;
 	fy_int count;
 } fy_profile_data;
 
@@ -603,6 +603,7 @@ typedef struct fy_context {
 	fy_int exitCode;
 	fy_long nextGCTime;
 	fy_long nextForceGCTime;
+	/* #END THREAD MANAGER*/
 
 	/* #BEGIN HEAP*/
 	fy_arrayList toFinalize[1];
@@ -611,10 +612,7 @@ typedef struct fy_context {
 	fy_hashMap literals[1];
 	fy_uint nextHandle;
 	fy_object objects[MAX_OBJECTS];
-
 /* #END HEAP*/
-
-/* #END THREAD MANAGER*/
 
 } fy_context;
 

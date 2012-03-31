@@ -85,15 +85,22 @@ static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this,
 		fy_uint initSize, fy_uint loadFactor, fy_exception *exception) {
 	this->loadFactor = loadFactor;
+	this->perm = FALSE;
 	this->bucketsCount = initSize;
 	this->buckets = fy_mmAllocate(mem, sizeof(fy_hashMapEntry*) * initSize,
 			exception);
 	this->size = 0;
 }
-FY_ATTR_EXPORT void fy_hashMapInitSimple(fy_memblock *mem, fy_hashMap *this,
-		fy_exception *exception) {
-	fy_hashMapInit(mem, this, 16, 12, exception);
+
+FY_ATTR_EXPORT void fy_hashMapInitPerm(fy_memblock *mem, fy_hashMap *this,
+		fy_uint initSize, fy_exception *exception) {
+	this->perm = TRUE;
+	this->bucketsCount = initSize;
+	this->buckets = fy_mmAllocatePerm(mem, sizeof(fy_hashMapEntry*) * initSize,
+			exception);
+	this->size = 0;
 }
+
 FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 		fy_str *key, void *value, fy_exception *exception) {
 	fy_hashMapEntry *entry;
@@ -103,7 +110,11 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 	void *ret = NULL;
 	entry = getBucket(mem, this, key);
 	if (entry == NULL) {
-		entry = fy_mmAllocate(mem, sizeof(fy_hashMapEntry), exception);
+		if (this->perm) {
+			entry = fy_mmAllocatePerm(mem, sizeof(fy_hashMapEntry), exception);
+		} else {
+			entry = fy_mmAllocate(mem, sizeof(fy_hashMapEntry), exception);
+		}
 		FYEH()NULL;
 		keyClone =
 				key->perm ?
@@ -113,7 +124,9 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 		entry->keyHash = fy_strHash(keyClone);
 		entry->value = value;
 
-		if ((this->size + 1) * 16 > this->bucketsCount * this->loadFactor) {
+		if (!this->perm
+				&& ((this->size + 1) * 16
+						> this->bucketsCount * this->loadFactor)) {
 			expandBuckets(mem, this, this->bucketsCount << 1, exception);
 			FYEH()NULL;
 		}
@@ -144,18 +157,24 @@ FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
 	fy_str *key;
 	void *ret;
 
-	key = fy_mmAllocate(mem, sizeof(fy_str), exception);
-	FYEH()NULL;
-	fy_strInit(mem, key, fy_utf8SizeS(keyUtf8, -1), exception);
-	FYEH()NULL;
-	fy_strAppendUTF8(mem, key, keyUtf8, -1, exception);
-	FYEH()NULL;
+	if (this->perm) {
+		key = fy_strCreatePermFromUTF8(mem, keyUtf8, 0, exception);
+	} else {
+		key = fy_mmAllocate(mem, sizeof(fy_str), exception);
+		FYEH()NULL;
+		fy_strInit(mem, key, fy_utf8SizeS(keyUtf8, -1), exception);
+		FYEH()NULL;
+		fy_strAppendUTF8(mem, key, keyUtf8, -1, exception);
+		FYEH()NULL;
+	}
 
 	ret = fy_hashMapPut(mem, this, key, value, exception);
 	FYEH()NULL;
-
-	fy_strDestroy(mem, key);
-	fy_mmFree(mem, key);
+	if (this->perm) {
+	} else {
+		fy_strDestroy(mem, key);
+		fy_mmFree(mem, key);
+	}
 	return ret;
 }
 

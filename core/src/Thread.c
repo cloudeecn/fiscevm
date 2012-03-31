@@ -714,6 +714,11 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	fy_bitSet(thread->typeStack, 0);
 }
 
+//static void invokeMethod(fy_context *context,fy_thread *thread,fy_method *method,,fy_exception *exception){
+//	fy_frame *frame=fy_threadCurrentFrame(context,thread);
+//}
+
+
 /**
  * DON'T USE RETURN HERE!!!!
  */

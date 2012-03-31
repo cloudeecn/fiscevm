@@ -83,6 +83,7 @@ static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
 FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
 		fy_uint initFact, fy_uint loadFactor, fy_int nullValue,
 		fy_exception *exception) {
+	this->perm = FALSE;
 	this->loadFactor = loadFactor;
 	this->bucketsFact = initFact;
 	this->nullValue = nullValue;
@@ -91,10 +92,18 @@ FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
 			exception);
 	this->size = 0;
 }
-FY_ATTR_EXPORT void fy_hashMapIInitSimple(fy_memblock *mem, fy_hashMapI *this,
-		fy_int nullValue, fy_exception *exception) {
-	fy_hashMapIInit(mem, this, 4, 12, nullValue, exception);
+
+FY_ATTR_EXPORT void fy_hashMapIInitPerm(fy_memblock *mem, fy_hashMapI *this,
+		fy_uint initFact, fy_int nullValue, fy_exception *exception) {
+	this->perm = TRUE;
+	this->bucketsFact = initFact;
+	this->nullValue = nullValue;
+	this->bucketsSizeM1 = (1 << initFact) - 1;
+	this->buckets = fy_mmAllocatePerm(mem,
+			sizeof(fy_hashMapIEntry*) << initFact, exception);
+	this->size = 0;
 }
+
 FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
 		int key, int value, fy_exception *exception) {
 	fy_hashMapIEntry *entry;
@@ -103,13 +112,19 @@ FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
 	fy_int ret = this->nullValue;
 	entry = getBucket(mem, this, key);
 	if (entry == NULL) {
-		entry = fy_mmAllocate(mem, sizeof(fy_hashMapIEntry), exception);
+		if (this->perm) {
+			entry = fy_mmAllocatePerm(mem, sizeof(fy_hashMapIEntry), exception);
+		} else {
+			entry = fy_mmAllocate(mem, sizeof(fy_hashMapIEntry), exception);
+		}
 		FYEH()this->nullValue;
 		FYEH()this->nullValue;
 		entry->key = key;
 		entry->value = value;
 
-		if ((this->size + 1) * 16 > this->loadFactor << this->bucketsFact) {
+		if (!this->perm
+				&& ((this->size + 1) * 16
+						> this->loadFactor << this->bucketsFact)) {
 			expandBuckets(mem, this, this->bucketsFact + 1, exception);
 			FYEH()this->nullValue;
 		}

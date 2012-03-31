@@ -1041,7 +1041,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		}
 
 	}
-	fy_hashMapIInit(block, clazz->virtualTable, 3, 12, -1, exception);
+	fy_hashMapIInitPerm(block, clazz->virtualTable, 3, -1, exception);
 	FYEH()NULL;
 	return clazz;
 }

@@ -28,6 +28,7 @@ extern "C" {
 
 typedef struct fy_hashMapI {
 	fy_char loadFactor;
+	fy_char perm;
 	fy_uint bucketsFact;
 	fy_uint bucketsSizeM1;
 	void **buckets;
@@ -38,15 +39,15 @@ typedef struct fy_hashMapI {
 FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
 		fy_uint initSize, fy_uint loadFactor, fy_int nullValue,
 		fy_exception *exception);
-FY_ATTR_EXPORT void fy_hashMapIInitSimple(fy_memblock *mem, fy_hashMapI *this,
-		fy_int nullValue, fy_exception *exception);
+FY_ATTR_EXPORT void fy_hashMapIInitPerm(fy_memblock *mem, fy_hashMapI *this,
+		fy_uint initFact, fy_int nullValue, fy_exception *exception);
 FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
 		fy_int, fy_int, fy_exception *exception);
 FY_ATTR_EXPORT fy_int fy_hashMapIGet(fy_memblock *mem, fy_hashMapI *this,
 		fy_int key);
 FY_ATTR_EXPORT void fy_hashMapIDestroy(fy_memblock *mem, fy_hashMapI *this);
 FY_ATTR_EXPORT void fy_hashMapIEachValue(fy_memblock *mem, fy_hashMapI *map,
-		void(*fn)(fy_int key, fy_int value, fy_int nullValue, void *addition),
+		void (*fn)(fy_int key, fy_int value, fy_int nullValue, void *addition),
 		void *addition);
 
 #ifdef	__cplusplus
