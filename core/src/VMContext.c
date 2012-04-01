@@ -390,7 +390,10 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 fy_str *primitives[128];
 	 fy_hashMap *mapPrimitivesRev;
 	 */
-
+	printf(
+			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
+			sizeof(fy_context), sizeof(fy_memblock),
+			MAX_OBJECTS * sizeof(fy_object));
 	fy_fisInitInputStream(context);
 	fy_bsRegisterBinarySaver(context);
 	fy_mmInit(context->memblocks, exception);
