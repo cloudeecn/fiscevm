@@ -113,7 +113,7 @@ static void SystemIdentityHashCode(struct fy_context *context,
 
 static void ObjectGetClass(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
-	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
+	fy_class *clazz = fy_heapGetClassOfObject(context, args[0], exception);
 	fy_nativeReturnHandle(context, thread,
 			fy_vmGetClassObjHandle(context, clazz, exception));
 }
@@ -148,7 +148,7 @@ static void ObjectNotifyAll(struct fy_context *context,
 static void ClassGetComponentType(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
-	fy_class *clazz = fy_heapGetClassOfObject(context, args[0]);
+	fy_class *clazz = fy_heapGetClassOfObject(context, args[0], exception);
 	if (clazz->type == arr) {
 		fy_nativeReturnHandle(context, thread,
 				fy_vmGetClassObjHandle(context, clazz->ci.arr.contentClass,
@@ -770,7 +770,7 @@ static void classIsInstance(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	fy_class *objClazz = fy_heapGetObject(context,args[1])->clazz;
+	fy_class *objClazz = fy_heapGetObject(context,args[1])->object_data->clazz;
 	FYEH();
 	fy_nativeReturnInt(context, thread,
 			fy_classCanCastTo(context, objClazz, clazz) ? 1 : 0);
@@ -864,7 +864,7 @@ static void finalizerGetFinalizee(struct fy_context *context,
 		fy_heapPutArrayHandle(context, ret, i, storage, exception);
 		FYEH();
 		object = fy_heapGetObject(context,storage);
-		object->finalizeStatus = finalized;
+		object->object_data->finalizeStatus = finalized;
 	}
 	fy_arrayListClear(context->memblocks, context->toFinalize);
 	fy_nativeReturnHandle(context, thread, ret);

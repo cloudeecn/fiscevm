@@ -69,8 +69,8 @@ FY_ATTR_EXPORT int fy_nativeAllocate(fy_context *context, fy_class *clazz,
 }
 
 FY_ATTR_EXPORT fy_class* fy_nativeGetClassOfObject(fy_context *context,
-		fy_int handle) {
-	return fy_heapGetClassOfObject(context, handle);
+		fy_int handle, fy_exception *exception) {
+	return fy_heapGetClassOfObject(context, handle, exception);
 }
 
 FY_ATTR_EXPORT int fy_nativeAllocateArray(fy_context *context, fy_class *clazz,

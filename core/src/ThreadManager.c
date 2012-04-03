@@ -78,8 +78,8 @@ static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
 		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
 		return 0;
 	}
-	return monitorExit(context, thread, monitorId, monitor->object_data->monitorOwnerTimes,
-			exception);
+	return monitorExit(context, thread, monitorId,
+			monitor->object_data->monitorOwnerTimes, exception);
 }
 
 static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
@@ -169,7 +169,7 @@ void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
 
 	ASSERT( thread->waitForNotifyId == 0);
 	monitor = context->objects + monitorId;
-	ASSERT(monitor->clazz!=NULL);
+	ASSERT(monitor->object_data!=NULL);
 	if (monitor->object_data->monitorOwnerId != thread->threadId) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
@@ -199,7 +199,7 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 
 	ASSERT(thread->waitForNotifyId == 0);
 	monitor = context->objects + monitorId;
-	ASSERT(monitor->clazz!=NULL);
+	ASSERT(monitor->object_data!=NULL);
 	if (monitor->object_data->monitorOwnerId != thread->threadId) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
@@ -268,7 +268,8 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	for (i = 0; i < clazz->className->length; i++) {
 		fy_heapPutArrayChar(context, threadNameHandle, i + 5,
 				clazz->className->content[i], exception);
-	}FYEH();
+	}
+	FYEH();
 
 	threadClass = fy_vmLookupClass(context, context->sThread, exception);
 	FYEH();
@@ -443,8 +444,10 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 					if (lockId > 0) {
 						lock = context->objects + lockId;
 						if (lock->object_data->monitorOwnerId <= 0) {
-							lock->object_data->monitorOwnerId = thread->threadId;
-							lock->object_data->monitorOwnerTimes = thread->pendingLockCount;
+							lock->object_data->monitorOwnerId =
+									thread->threadId;
+							lock->object_data->monitorOwnerTimes =
+									thread->pendingLockCount;
 							thread->waitForLockId = 0;
 						} else {
 							break;

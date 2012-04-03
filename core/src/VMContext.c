@@ -705,7 +705,8 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 	fy_class *classClass;
 	fy_class *inputClass;
 	fy_int classId;
-	inputClass = fy_heapGetClassOfObject(context, handle);
+	inputClass = fy_heapGetClassOfObject(context, handle, exception);
+	FYEH()NULL;
 	classClass = fy_vmLookupClass(context, context->sClassClass, exception);
 	if (exception->exceptionType != exception_none) {
 		return NULL;
@@ -917,7 +918,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	/*Objects*/
 	count = 0;
 	for (i = 1; i < MAX_OBJECTS; i++) {
-		if (fy_heapGetObject(context,i)->clazz != NULL) {
+		if (fy_heapGetObject(context,i)->object_data != NULL) {
 			count++;
 		}
 	}
@@ -925,17 +926,20 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 			exception);
 	FYEH();
 	for (i = 1; i < MAX_OBJECTS; i++) {
-		if ((object = fy_heapGetObject(context,i))->clazz != NULL) {
-			context->saveObject(context, saver, i, object->clazz->classId,
-					object->position, object->gen, object->finalizeStatus,
+		if ((object = fy_heapGetObject(context,i))->object_data != NULL) {
+			context->saveObject(context, saver, i,
+					object->object_data->clazz->classId,
+					object->object_data->position, object->object_data->gen,
+					object->object_data->finalizeStatus,
 					object->object_data->monitorOwnerId,
 					object->object_data->monitorOwnerTimes,
 					object->object_data->attachedId,
 					object->object_data->length,
-					object->clazz->type == arr ?
-							fy_heapGetArraySizeFromLength(object->clazz,
+					object->object_data->clazz->type == arr ?
+							fy_heapGetArraySizeFromLength(
+									object->object_data->clazz,
 									object->object_data->length) :
-							object->clazz->sizeAbs,
+							object->object_data->clazz->sizeAbs,
 					(void*) object->object_data->data, exception);
 			count++;
 		}

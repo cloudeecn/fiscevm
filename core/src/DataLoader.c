@@ -201,14 +201,14 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 #endif
 	fy_heapAllocateDirect(context, dataLength, clazz, length, handle, posInHeap,
 			exception);
-	if (object->clazz != clazz) {
+	if (object->object_data->clazz != clazz) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
 				"Object allocate error!", classId);
 		return;
 	}
-	object->position = posInHeap;
-	object->gen = gen;
-	object->finalizeStatus = finalizeStatus;
+	object->object_data->position = posInHeap;
+	object->object_data->gen = gen;
+	object->object_data->finalizeStatus = finalizeStatus;
 	object->object_data->monitorOwnerId = monitorOwner;
 	object->object_data->monitorOwnerTimes = monitorCount;
 	object->object_data->attachedId = attachedId;

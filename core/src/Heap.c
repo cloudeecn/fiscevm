@@ -22,7 +22,7 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 		fy_exception *exception) {
 	int handle = context->nextHandle;
 	while (1) {
-		if (fy_heapGetObject(context, handle)->clazz == NULL) {
+		if (fy_heapGetObject(context, handle)->object_data == NULL) {
 			break;
 		}
 		handle++;
@@ -59,15 +59,21 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	switch (pos) {
 	case automatic:
 		if (size > (COPY_ENTRIES >> 1)) {
-			obj->position = old;
 			obj->object_data = fy_mmAllocateInOld(context->memblocks, handle,
 					size + ((sizeof(fy_object_data) + 3) >> 2), FALSE,
 					exception);
+			memset(obj->object_data, 0,
+					(size + ((sizeof(fy_object_data) + 3) >> 2))
+							* sizeof(fy_uint));
+			obj->object_data->position = old;
 		} else {
-			obj->position = eden;
 			obj->object_data = fy_mmAllocateInEden(context->memblocks, handle,
 					size + ((sizeof(fy_object_data) + 3) >> 2), FALSE,
 					exception);
+			memset(obj->object_data, 0,
+					(size + ((sizeof(fy_object_data) + 3) >> 2))
+							* sizeof(fy_uint));
+			obj->object_data->position = eden;
 		}
 		break;
 	case eden:
@@ -87,10 +93,8 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 		return 0;
 	}
 	FYEH()0;
-	memset(obj->object_data, 0,
-			(size + ((sizeof(fy_object_data) + 3) >> 2)) * sizeof(fy_uint));
 	obj->object_data->length = length;
-	obj->clazz = clazz;
+	obj->object_data->clazz = clazz;
 	if (context->protectMode) {
 		fy_arrayListAdd(context->memblocks, context->protected, &handle,
 				exception);
@@ -103,7 +107,7 @@ fy_uint fy_heapAllocateDirect(fy_context *context, fy_int size, fy_class *clazz,
 		fy_int length, fy_uint toHandle, enum fy_heapPos pos,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context,toHandle);
-	if (obj->clazz != NULL) {
+	if (obj->object_data != NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
 				"Handle %d already allocated.", toHandle);
 	}
@@ -163,8 +167,12 @@ fy_uint fy_heapAllocateArray(fy_context *context, fy_class *clazz,
 	return allocate(context, size, clazz, length, 0, automatic, exception);
 }
 
-fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle) {
-	return fy_heapGetObject(context, handle)->clazz;
+fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle,
+		fy_exception *exception) {
+	if (handle == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+	}
+	return fy_heapGetObject(context, handle)->object_data->clazz;
 }
 
 fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
@@ -285,8 +293,8 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 		fy_fault(exception, FY_EXCEPTION_IOOB, "0");
 		return;
 	}
-	sClass = sObject->clazz;
-	dClass = dObject->clazz;
+	sClass = sObject->object_data->clazz;
+	dClass = dObject->object_data->clazz;
 	if (sClass->type != arr || dClass->type != arr
 	/*TODO still need more study...
 	 * || !fy_classCanCastTo(context, sClass, dClass)
@@ -326,7 +334,8 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 		return 0;
 	}
 	sobj = fy_heapGetObject(context,src);
-	clazz = fy_heapGetClassOfObject(context, src);
+	clazz = fy_heapGetClassOfObject(context, src, exception);
+	FYEH()0;
 	if (clazz->type == obj) {
 		ret = fy_heapAllocate(context, clazz, exception);
 		FYEH()0;
@@ -369,7 +378,7 @@ exception->exceptionType = exception_normal; \
 strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_NPT); \
 exception->exceptionDesc[0] = 0; \
 return X; \
-}else ASSERT(obj->clazz!=NULL);
+}else ASSERT(obj->object_data!=NULL);
 
 #define CHECK_IOOB(X) if (index < 0 || index >= obj->object_data->length) {\
 exception->exceptionType = exception_normal;\
@@ -388,7 +397,8 @@ return X;\
 
 #ifdef _DEBUG
 static fy_boolean validate(fy_context *context, fy_int handle, fy_field *field) {
-	fy_class *handleClass = fy_heapGetObject(context, handle)->clazz;
+	fy_class *handleClass =
+			fy_heapGetObject(context, handle)->object_data->clazz;
 	fy_class *fieldClass = field->owner;
 	return fy_classCanCastTo(context, handleClass, fieldClass);
 }
@@ -570,7 +580,7 @@ fy_boolean fy_heapGetFieldBoolean(fy_context *context, fy_int handle,
 fy_int fy_heapGetFieldHandle(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
-	ASSERT(obj->clazz!=NULL);
+	ASSERT(obj->object_data!=NULL);
 	ASSERT(validate(context,handle,field));
 
 	CHECK_NPT(0)
@@ -877,6 +887,7 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 			fy_bitSet(marks, thread->waitForNotifyId);
 			fy_bitSet(marks, thread->currentThrowable);
 			fy_threadScanRef(context, thread, marks);
+			FYEH();
 		}
 	}
 
@@ -919,7 +930,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 #endif
 		ASSERT(handle>0 && handle<MAX_OBJECTS);
 		object = context->objects + handle;
-		clazz = object->clazz;
+		clazz = object->object_data->clazz;
 		ASSERT(clazz!=NULL);
 		switch (clazz->type) {
 		case arr:
@@ -932,7 +943,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 						continue;
 					}/**/
 					ASSERT(
-							handle2 > 0 && handle2 < MAX_OBJECTS && fy_heapGetObject(context,handle2)->clazz != NULL);
+							handle2 > 0 && handle2 < MAX_OBJECTS && fy_heapGetObject(context,handle2)->object_data != NULL);
 					if (!fy_bitGet(marks, handle2)) {
 						fy_bitSet(marks, handle2);
 						fy_arrayListAdd(context->memblocks, from, &handle2,
@@ -957,7 +968,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 						continue;
 					}/**/
 					ASSERT(
-							handle2 > 0 && handle2 < MAX_OBJECTS && fy_heapGetObject(context,handle2)->clazz != NULL);
+							handle2 > 0 && handle2 < MAX_OBJECTS && fy_heapGetObject(context,handle2)->object_data != NULL);
 					if (!fy_bitGet(marks, handle2)) {
 						fy_bitSet(marks, handle2);
 						fy_arrayListAdd(context->memblocks, from, &handle2,
@@ -976,7 +987,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 }
 
 static fy_int getSizeFromObject(fy_context *context, fy_object *object) {
-	fy_class *clazz = object->clazz;
+	fy_class *clazz = object->object_data->clazz;
 	switch (clazz->type) {
 	case arr:
 		return fy_heapGetArraySizeFromLength(clazz, object->object_data->length)
@@ -1003,7 +1014,7 @@ static void compactOld(fy_context *context, fy_exception *exception) {
 		handle = block->old[i];
 		if (handle > 0 && handle < MAX_OBJECTS) {
 			object = context->objects + handle;
-			if (object->clazz != NULL
+			if (object->object_data != NULL
 					&& (void*) object->object_data == block->old + i + 1) {
 				/*It's a real object*/
 				size = getSizeFromObject(context, object) + 1;
@@ -1035,8 +1046,8 @@ static void moveToOld(fy_context *context, fy_class *clazz, fy_uint handle,
 	block->old[pos] = handle;
 	memcpy(block->old + pos + 1, object->object_data, size * sizeof(fy_uint));
 	block->posInOld = pos + size + 1;
-	object->position = old;
 	object->object_data = (void*) (block->old + pos + 1);
+	object->object_data->position = old;
 }
 static void moveToYoung(fy_context *context, fy_class *clazz, fy_uint handle,
 		fy_object *object, fy_int size, fy_int youngId, fy_exception *exception) {
@@ -1050,10 +1061,10 @@ static void moveToYoung(fy_context *context, fy_class *clazz, fy_uint handle,
 		memcpy(block->young + youngId * COPY_ENTRIES + pos, object->object_data,
 				size * sizeof(fy_uint));
 		block->posInYong = pos + size;
-		object->position = young;
 		object->object_data = (void*) (block->young + youngId * COPY_ENTRIES
 				+ pos);
-		object->gen++;
+		object->object_data->position = young;
+		object->object_data->gen++;
 	}
 }
 
@@ -1063,7 +1074,7 @@ static void move(fy_context *context, fy_class *clazz, fy_uint handle,
 
 	size = getSizeFromObject(context, object);
 
-	if (object->gen > MAX_GEN) {
+	if (object->object_data->gen > MAX_GEN) {
 		moveToOld(context, clazz, handle, object, size, exception);
 	} else {
 		moveToYoung(context, clazz, handle, object, size, youngId, exception);
@@ -1073,10 +1084,11 @@ static void move(fy_context *context, fy_class *clazz, fy_uint handle,
 static void release(fy_context *context, fy_uint handle) {
 	fy_memblock *block = context->memblocks;
 	fy_object *object = fy_heapGetObject(context,handle);
-	if (object->position == old) {
+	if (object->object_data->position == old) {
 		block->oldReleasedSize += getSizeFromObject(context, object) + 1;
 	}
-	memset(object, 0, sizeof(fy_object));
+	memset(object->object_data, 0, sizeof(fy_object_data));
+	object->object_data = NULL;
 }
 
 void fy_heapGC(void *ctx, fy_exception *exception) {
@@ -1158,9 +1170,10 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 	fy_arrayListClear(context->memblocks, &from);
 	for (i = 1; i < MAX_OBJECTS; i++) {
 		object = fy_heapGetObject(context,i);
-		clazz = object->clazz;
-		if (clazz != NULL && !fy_bitGet(marks, i) && clazz->needFinalize
-				&& object->finalizeStatus == not_finalized) {
+		if (object->object_data != NULL && !fy_bitGet(marks, i)
+				&& object->object_data->clazz->needFinalize
+				&& object->object_data->finalizeStatus == not_finalized) {
+			clazz = object->object_data->clazz;
 //			printf("ADD %d need finalize\n", i);
 			fy_bitSet(marks, i);
 			fy_arrayListAdd(context->memblocks, context->toFinalize, &i,
@@ -1176,7 +1189,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 				fy_arrayListDestroy(context->memblocks, &from);
 				return;
 			}
-			object->finalizeStatus = in_finalize_array;
+			object->object_data->finalizeStatus = in_finalize_array;
 		}
 	}
 
@@ -1192,10 +1205,10 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 	block->youngId = youngId = 1 - block->youngId;
 	for (i = 1; i < MAX_OBJECTS; i++) {
 		object = fy_heapGetObject(context,i);
-		clazz = object->clazz;
-		if (clazz != NULL) {
+		if (object->object_data != NULL) {
+			clazz = object->object_data->clazz;
 			if (fy_bitGet(marks, i)) {
-				switch (object->position) {
+				switch (object->object_data->position) {
 				case eden:
 				case young:
 					move(context, clazz, i, object, youngId, exception);
@@ -1204,7 +1217,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 					break;
 				default: {
 					fy_fault(exception, NULL, "Illegal position %d in heap",
-							object->position);
+							object->object_data->position);
 					return;
 				}
 				}

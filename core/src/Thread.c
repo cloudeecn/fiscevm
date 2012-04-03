@@ -32,12 +32,13 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	DLOG("EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 #ifdef _DEBUG
 	printf("Exception:");
-	fy_strPrint(fy_heapGetObject(context,handle)->clazz->className);
+	fy_strPrint(fy_heapGetClassOfObject(context, handle, exception)->className);
 	printf("\nat ");
 	fy_strPrint(frame->method->uniqueName);
 	printf("\n");
 #endif
-	throwableClass = fy_heapGetClassOfObject(context, handle);
+	throwableClass = fy_heapGetClassOfObject(context, handle, exception);
+	FYEH()0;
 	handlers = frame->method->exception_table;
 	imax = frame->method->exception_table_length;
 	for (i = 0; i < imax; i++) {
@@ -691,11 +692,13 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 
 void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 		fy_exception *exception) {
-	fy_class *handleClass = fy_heapGetClassOfObject(context, handle);
-	fy_class *threadClass = fy_vmLookupClass(context, context->sThread,
-			exception);
+	fy_class *handleClass;
+	fy_class *threadClass;
 	fy_object *obj;
 	fy_method *runner;
+	handleClass = fy_heapGetClassOfObject(context, handle, exception);
+	FYEH();
+	threadClass = fy_vmLookupClass(context, context->sThread, exception);
 	FYEH();
 	if (!fy_classCanCastTo(context, handleClass, threadClass)) {
 		fy_fault(exception, NULL,
@@ -926,12 +929,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue);
 				fy_threadPopInt(ivalue2);
 				fy_threadPopHandle(ivalue3);
-				clazz1 = fy_heapGetClassOfObject(context, ivalue3);
+				clazz1 = fy_heapGetClassOfObject(context, ivalue3, exception);
 				clazz2 = clazz1->ci.arr.contentClass;
 				if (ivalue != 0
 						&& !fy_classCanCastTo(context,
-								fy_heapGetClassOfObject(context, ivalue),
-								clazz2)) {
+								fy_heapGetClassOfObject(context, ivalue,
+										exception), clazz2)) {
 					exception->exceptionType = exception_normal;
 					strcpy_s(exception->exceptionName,
 							sizeof(exception->exceptionName),
@@ -1409,7 +1412,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				/*CUSTOM*/
 				ivalue2 = stack[sp - 1];
 				if (ivalue2 != 0) {
-					clazz1 = fy_heapGetClassOfObject(context, ivalue2);
+					clazz1 = fy_heapGetClassOfObject(context, ivalue2,
+							exception);
 					clazz2 = instruction->params.clazz;
 					if (exception->exceptionType != exception_none) {
 						message->messageType = message_exception;
@@ -2366,7 +2370,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_class *clazz1, *clazz2;
 #endif
 				fy_threadPopHandle(ivalue2);
-				clazz1 = fy_heapGetClassOfObject(context, ivalue2);
+				clazz1 = fy_heapGetClassOfObject(context, ivalue2, exception);
 				clazz2 = instruction->params.clazz;
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
@@ -2403,7 +2407,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				clazz1 = fy_heapGetObject(context, stack[sp])->clazz;
+				clazz1 = fy_heapGetClassOfObject(context, stack[sp], exception);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;
+				}
 				if (!fy_classCanCastTo(context, clazz1, mvalue2->owner)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
@@ -2743,7 +2752,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				if (mvalue2->access_flags & FY_ACC_FINAL) {
 					mvalue = mvalue2;
 				} else {
-					clazz1 = fy_heapGetObject(context, stack[sp])->clazz;
+					clazz1 = fy_heapGetClassOfObject(context, stack[sp],
+							exception);
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;
+					}
 #ifdef FY_LATE_DECLARATION
 					fy_uint ivalue2;
 #endif
@@ -4017,10 +4032,11 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *marks) {
 			}
 			/**/
 			ASSERT(
-					i>=frame->sb || (handle > 0 && handle < MAX_OBJECTS && fy_heapGetObject(context,handle)->clazz != NULL));
+					i>=frame->sb || (handle > 0 && handle < MAX_OBJECTS && fy_heapGetObject(context,handle)->object_data!= NULL));
 			if (handle > 0 && handle < MAX_OBJECTS) {
 				object = fy_heapGetObject(context,handle);
-				if (object->clazz != NULL && object->object_data->data != NULL) {
+				if (object->object_data != NULL
+						&& object->object_data->data != NULL) {
 					/*Valid handle*/
 					fy_bitSet(marks, handle);
 				}

@@ -327,6 +327,12 @@ enum fy_heapPos {
 };
 
 typedef struct fy_object_data {
+	fy_class *clazz;
+	enum fy_heapPos position :2;
+	enum {
+		not_finalized, in_finalize_array, finalized
+	} finalizeStatus :2;
+	fy_int gen :8;
 	fy_int length;
 	fy_uint monitorOwnerId;
 	fy_int monitorOwnerTimes;
@@ -335,12 +341,6 @@ typedef struct fy_object_data {
 } fy_object_data;
 
 typedef struct fy_object {
-	fy_class *clazz;
-	enum fy_heapPos position :2;
-	enum {
-		not_finalized, in_finalize_array, finalized
-	} finalizeStatus :2;
-	fy_int gen :8;
 	fy_object_data *object_data;
 } fy_object;
 

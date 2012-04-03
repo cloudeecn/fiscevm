@@ -27,8 +27,8 @@ extern "C" {
 FY_ATTR_EXPORT void fy_nativeReturnInt(fy_context *context, fy_thread *thread,
 		fy_int value);
 
-FY_ATTR_EXPORT void fy_nativeReturnHandle(fy_context *context, fy_thread *thread,
-		fy_int value);
+FY_ATTR_EXPORT void fy_nativeReturnHandle(fy_context *context,
+		fy_thread *thread, fy_int value);
 
 FY_ATTR_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
 		fy_long value);
@@ -49,7 +49,7 @@ FY_ATTR_EXPORT fy_uint fy_nativePrepareThrowable(fy_context *context,
 FY_ATTR_EXPORT int fy_nativeAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception);
 FY_ATTR_EXPORT fy_class* fy_nativeGetClassOfObject(fy_context *context,
-		fy_int handle);
+		fy_int handle, fy_exception *exception);
 
 FY_ATTR_EXPORT int fy_nativeAllocateArray(fy_context *context, fy_class *clazz,
 		int length, fy_exception *exception);
@@ -73,24 +73,24 @@ FY_ATTR_EXPORT void fy_nativeBeginProtect(fy_context *context);
 FY_ATTR_EXPORT void fy_nativeEndProtect(fy_context *context);
 FY_ATTR_EXPORT fy_boolean fy_nativeGetArrayBoolean(fy_context *context,
 		fy_int handle, fy_int index, fy_exception *exception);
-FY_ATTR_EXPORT fy_int fy_nativeGetArrayHandle(fy_context *context, fy_int handle,
-		fy_int index, fy_exception *exception);
+FY_ATTR_EXPORT fy_int fy_nativeGetArrayHandle(fy_context *context,
+		fy_int handle, fy_int index, fy_exception *exception);
 FY_ATTR_EXPORT fy_byte fy_nativeGetArrayByte(fy_context *context, fy_int handle,
 		fy_int index, fy_exception *exception);
-FY_ATTR_EXPORT fy_byte *fy_nativeGetArrayBytes(fy_context *context, fy_int handle,
-		fy_exception *exception);
-FY_ATTR_EXPORT fy_short fy_nativeGetArrayShort(fy_context *context, fy_int handle,
-		fy_int index, fy_exception *exception);
+FY_ATTR_EXPORT fy_byte *fy_nativeGetArrayBytes(fy_context *context,
+		fy_int handle, fy_exception *exception);
+FY_ATTR_EXPORT fy_short fy_nativeGetArrayShort(fy_context *context,
+		fy_int handle, fy_int index, fy_exception *exception);
 FY_ATTR_EXPORT fy_char fy_nativeGetArrayChar(fy_context *context, fy_int handle,
 		fy_int index, fy_exception *exception);
 FY_ATTR_EXPORT fy_int fy_nativeGetArrayInt(fy_context *context, fy_int handle,
 		fy_int index, fy_exception *exception);
 FY_ATTR_EXPORT fy_long fy_nativeGetArrayLong(fy_context *context, fy_int handle,
 		fy_int index, fy_exception *exception);
-FY_ATTR_EXPORT fy_float fy_nativeGetArrayFloat(fy_context *context, fy_int handle,
-		fy_int index, fy_exception *exception);
-FY_ATTR_EXPORT fy_double fy_nativeGetArrayDouble(fy_context *context, fy_int handle,
-		fy_int index, fy_exception *exception);
+FY_ATTR_EXPORT fy_float fy_nativeGetArrayFloat(fy_context *context,
+		fy_int handle, fy_int index, fy_exception *exception);
+FY_ATTR_EXPORT fy_double fy_nativeGetArrayDouble(fy_context *context,
+		fy_int handle, fy_int index, fy_exception *exception);
 
 FY_ATTR_EXPORT void fy_nativePutArrayBoolean(fy_context *context, fy_int handle,
 		fy_int index, fy_boolean value, fy_exception *exception);
@@ -112,22 +112,22 @@ FY_ATTR_EXPORT void fy_nativePutArrayDouble(fy_context *context, fy_int handle,
 		fy_int index, fy_double value, fy_exception *exception);
 FY_ATTR_EXPORT fy_boolean fy_nativeGetFieldBoolean(fy_context *context,
 		fy_int handle, fy_field *field, fy_exception *exception);
-FY_ATTR_EXPORT fy_int fy_nativeGetFieldHandle(fy_context *context, fy_int handle,
-		fy_field *field, fy_exception *exception);
+FY_ATTR_EXPORT fy_int fy_nativeGetFieldHandle(fy_context *context,
+		fy_int handle, fy_field *field, fy_exception *exception);
 FY_ATTR_EXPORT fy_byte fy_nativeGetFieldByte(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception);
-FY_ATTR_EXPORT fy_short fy_nativeGetFieldShort(fy_context *context, fy_int handle,
-		fy_field *field, fy_exception *exception);
+FY_ATTR_EXPORT fy_short fy_nativeGetFieldShort(fy_context *context,
+		fy_int handle, fy_field *field, fy_exception *exception);
 FY_ATTR_EXPORT fy_char fy_nativeGetFieldChar(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception);
 FY_ATTR_EXPORT fy_int fy_nativeGetFieldInt(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception);
 FY_ATTR_EXPORT fy_long fy_nativeGetFieldLong(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception);
-FY_ATTR_EXPORT fy_float fy_nativeGetFieldFloat(fy_context *context, fy_int handle,
-		fy_field *field, fy_exception *exception);
-FY_ATTR_EXPORT fy_double fy_nativeGetFieldDouble(fy_context *context, fy_int handle,
-		fy_field *field, fy_exception *exception);
+FY_ATTR_EXPORT fy_float fy_nativeGetFieldFloat(fy_context *context,
+		fy_int handle, fy_field *field, fy_exception *exception);
+FY_ATTR_EXPORT fy_double fy_nativeGetFieldDouble(fy_context *context,
+		fy_int handle, fy_field *field, fy_exception *exception);
 
 FY_ATTR_EXPORT void fy_nativePutFieldBoolean(fy_context *context, fy_int handle,
 		fy_field *field, fy_boolean value, fy_exception *exception);
@@ -149,44 +149,44 @@ FY_ATTR_EXPORT void fy_nativePutFieldDouble(fy_context *context, fy_int handle,
 		fy_field *field, fy_double value, fy_exception *exception);
 FY_ATTR_EXPORT fy_boolean fy_nativeGetStaticBoolean(fy_context *context,
 		fy_field *field, fy_exception *exception);
-FY_ATTR_EXPORT fy_int fy_nativeGetStaticHandle(fy_context *context, fy_field *field,
-		fy_exception *exception);
-FY_ATTR_EXPORT fy_byte fy_nativeGetStaticByte(fy_context *context, fy_field *field,
-		fy_exception *exception);
+FY_ATTR_EXPORT fy_int fy_nativeGetStaticHandle(fy_context *context,
+		fy_field *field, fy_exception *exception);
+FY_ATTR_EXPORT fy_byte fy_nativeGetStaticByte(fy_context *context,
+		fy_field *field, fy_exception *exception);
 FY_ATTR_EXPORT fy_short fy_nativeGetStaticShort(fy_context *context,
 		fy_field *field, fy_exception *exception);
-FY_ATTR_EXPORT fy_char fy_nativeGetStaticChar(fy_context *context, fy_field *field,
-		fy_exception *exception);
-FY_ATTR_EXPORT fy_int fy_nativeGetStaticInt(fy_context *context, fy_field *field,
-		fy_exception *exception);
-FY_ATTR_EXPORT fy_long fy_nativeGetStaticLong(fy_context *context, fy_field *field,
-		fy_exception *exception);
+FY_ATTR_EXPORT fy_char fy_nativeGetStaticChar(fy_context *context,
+		fy_field *field, fy_exception *exception);
+FY_ATTR_EXPORT fy_int fy_nativeGetStaticInt(fy_context *context,
+		fy_field *field, fy_exception *exception);
+FY_ATTR_EXPORT fy_long fy_nativeGetStaticLong(fy_context *context,
+		fy_field *field, fy_exception *exception);
 FY_ATTR_EXPORT fy_float fy_nativeGetStaticFloat(fy_context *context,
 		fy_field *field, fy_exception *exception);
 FY_ATTR_EXPORT fy_double fy_nativeGetStaticDouble(fy_context *context,
 		fy_field *field, fy_exception *exception);
 
-FY_ATTR_EXPORT void fy_nativePutStaticBoolean(fy_context *context, fy_field *field,
-		fy_boolean value, fy_exception *exception);
-FY_ATTR_EXPORT void fy_nativePutStaticHandle(fy_context *context, fy_field *field,
-		fy_int value, fy_exception *exception);
+FY_ATTR_EXPORT void fy_nativePutStaticBoolean(fy_context *context,
+		fy_field *field, fy_boolean value, fy_exception *exception);
+FY_ATTR_EXPORT void fy_nativePutStaticHandle(fy_context *context,
+		fy_field *field, fy_int value, fy_exception *exception);
 FY_ATTR_EXPORT void fy_nativePutStaticByte(fy_context *context, fy_field *field,
 		fy_byte value, fy_exception *exception);
-FY_ATTR_EXPORT void fy_nativePutStaticShort(fy_context *context, fy_field *field,
-		fy_short value, fy_exception *exception);
+FY_ATTR_EXPORT void fy_nativePutStaticShort(fy_context *context,
+		fy_field *field, fy_short value, fy_exception *exception);
 FY_ATTR_EXPORT void fy_nativePutStaticChar(fy_context *context, fy_field *field,
 		fy_char value, fy_exception *exception);
 FY_ATTR_EXPORT void fy_nativePutStaticInt(fy_context *context, fy_field *field,
 		fy_int value, fy_exception *exception);
 FY_ATTR_EXPORT void fy_nativePutStaticLong(fy_context *context, fy_field *field,
 		fy_long value, fy_exception *exception);
-FY_ATTR_EXPORT void fy_nativePutStaticFloat(fy_context *context, fy_field *field,
-		fy_float value, fy_exception *exception);
-FY_ATTR_EXPORT void fy_nativePutStaticDouble(fy_context *context, fy_field *field,
-		fy_double value, fy_exception *exception);
+FY_ATTR_EXPORT void fy_nativePutStaticFloat(fy_context *context,
+		fy_field *field, fy_float value, fy_exception *exception);
+FY_ATTR_EXPORT void fy_nativePutStaticDouble(fy_context *context,
+		fy_field *field, fy_double value, fy_exception *exception);
 
-FY_ATTR_EXPORT  void fy_nativeUnRegisterNativeHandler(fy_context *context, const char *name,
-		fy_exception *exception);
+FY_ATTR_EXPORT void fy_nativeUnRegisterNativeHandler(fy_context *context,
+		const char *name, fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif
