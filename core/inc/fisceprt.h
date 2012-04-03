@@ -33,10 +33,6 @@
 #include<stdio.h>
 #include<stdarg.h>
 
-#ifdef _DEBUG
-#define FY_PROFILE
-#endif
-
 #ifdef	__cplusplus
 extern "C" {
 #endif

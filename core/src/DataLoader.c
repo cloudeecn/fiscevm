@@ -209,11 +209,11 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 	object->position = posInHeap;
 	object->gen = gen;
 	object->finalizeStatus = finalizeStatus;
-	object->monitorOwnerId = monitorOwner;
-	object->monitorOwnerTimes = monitorCount;
-	object->attachedId = attachedId;
-	object->length = length;
-	memcpy(object->data, data, dataLength * sizeof(fy_uint));
+	object->object_data->monitorOwnerId = monitorOwner;
+	object->object_data->monitorOwnerTimes = monitorCount;
+	object->object_data->attachedId = attachedId;
+	object->object_data->length = length;
+	memcpy(object->object_data->data, data, dataLength * sizeof(fy_uint));
 }
 void fy_loadEndObject(struct fy_context *context, void *loader_,
 		fy_exception *exception) {
@@ -250,7 +250,7 @@ void fy_loadPrepareThreads(struct fy_context *context, void *loader_,
 		fy_uint threadsCount, fy_exception *exception) {
 }
 fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
-		fy_uint threadId, fy_int priority, fy_uint daemon,
+		fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
 		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 		fy_uint pendingLockCount, fy_uint waitForLockId,
 		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
@@ -262,6 +262,7 @@ fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
 			exception);
 	FYEH()NULL;
 	thread->threadId = threadId;
+	thread->handle = handle;
 	thread->priority = priority;
 	thread->daemon = daemon;
 	thread->destroyPending = destroyPending;

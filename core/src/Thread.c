@@ -167,7 +167,7 @@ void fy_threadDestroy(fy_context *context, fy_thread *thread) {
 	fy_uint handle;
 	fy_object *obj;
 	obj = context->objects + thread->handle;
-	obj->attachedId = 0;
+	obj->object_data->attachedId = 0;
 	thread->handle = 0;
 
 	thread->waitForLockId = 0;
@@ -177,9 +177,10 @@ void fy_threadDestroy(fy_context *context, fy_thread *thread) {
 	thread->destroyPending = FALSE;
 	for (handle = 1; handle < MAX_OBJECTS; handle++) {
 		obj = context->objects + handle;
-		if (obj->monitorOwnerId == thread->threadId) {
-			obj->monitorOwnerId = 0;
-			obj->monitorOwnerTimes = 0;
+		if (obj->object_data
+				&& obj->object_data->monitorOwnerId == thread->threadId) {
+			obj->object_data->monitorOwnerId = 0;
+			obj->object_data->monitorOwnerTimes = 0;
 		}
 	}
 }
@@ -673,7 +674,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 		return;
 	}
 	thread->handle = threadHandle;
-	obj->attachedId = thread->threadId;
+	obj->object_data->attachedId = thread->threadId;
 	fy_threadPushFrame(context, thread, method, exception);
 	FYEH();
 	clazz = fy_vmLookupClass(context, context->sStringArray, exception);
@@ -707,7 +708,7 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 
 	obj = context->objects + handle;
 	thread->handle = handle;
-	obj->attachedId = thread->threadId;
+	obj->object_data->attachedId = thread->threadId;
 	fy_threadPushFrame(context, thread, runner, exception);
 	FYEH();
 	thread->stack[0] = handle;
@@ -717,7 +718,6 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 //static void invokeMethod(fy_context *context,fy_thread *thread,fy_method *method,,fy_exception *exception){
 //	fy_frame *frame=fy_threadCurrentFrame(context,thread);
 //}
-
 
 /**
  * DON'T USE RETURN HERE!!!!
@@ -4020,7 +4020,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *marks) {
 					i>=frame->sb || (handle > 0 && handle < MAX_OBJECTS && fy_heapGetObject(context,handle)->clazz != NULL));
 			if (handle > 0 && handle < MAX_OBJECTS) {
 				object = fy_heapGetObject(context,handle);
-				if (object->clazz != NULL && object->data != NULL) {
+				if (object->clazz != NULL && object->object_data->data != NULL) {
 					/*Valid handle*/
 					fy_bitSet(marks, handle);
 				}

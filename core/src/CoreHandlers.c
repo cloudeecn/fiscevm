@@ -236,7 +236,7 @@ static void ThreadSetPriority(struct fy_context *context,
 		fy_exception *exception) {
 	fy_thread *target;
 	fy_object *obj = context->objects + args[0];
-	target = context->threads[obj->attachedId];
+	target = context->threads[obj->object_data->attachedId];
 	if (target != NULL) {
 		target->priority = args[1];
 	}
@@ -882,7 +882,7 @@ static void finalizerGetFinalizee(struct fy_context *context,
 static void methodIsBridge(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -895,7 +895,7 @@ static void methodIsVarArgs(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -908,7 +908,7 @@ static void methodIsSynthetic(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -921,7 +921,7 @@ static void methodGetDeclaringClass(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -937,7 +937,7 @@ static void methodExceptionTypes(struct fy_context *context,
 	fy_exceptionHandler *eh;
 	fy_class *handlerClass, *classClass;
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -965,7 +965,7 @@ static void methodGetModifiers(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -976,7 +976,7 @@ static void methodGetModifiers(struct fy_context *context,
 static void methodGetName(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	fy_int ret;
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
@@ -991,7 +991,7 @@ static void methodGetParameterTypes(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	fy_class *clazz;
 	fy_int ret, i, max, handle;
 	if (method == NULL) {
@@ -1017,7 +1017,7 @@ static void methodGetReturnType(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -1030,7 +1030,7 @@ static void methodGetReturnType(struct fy_context *context,
 static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -1042,7 +1042,7 @@ static void methodGetUniqueName(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
-	fy_method *method = context->methods[methodObj->attachedId];
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -1110,7 +1110,7 @@ static void fieldIsSynthetic(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
-	fy_field *field = context->fields[fieldObj->attachedId];
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	if (field == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -1123,7 +1123,7 @@ static void fieldIsEnumconstant(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
-	fy_field *field = context->fields[fieldObj->attachedId];
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	if (field == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -1134,7 +1134,7 @@ static void fieldIsEnumconstant(struct fy_context *context,
 static void fieldGet(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
-	fy_field *field = context->fields[fieldObj->attachedId];
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	if (field == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
@@ -1146,7 +1146,7 @@ static void fieldGet(struct fy_context *context, struct fy_thread *thread,
 static void field(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
-	fy_field *field = context->fields[fieldObj->attachedId];
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	if (field == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();

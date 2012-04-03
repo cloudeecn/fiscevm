@@ -22,7 +22,7 @@ static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 		fy_exception *exception) {
 	//TODO
 	fy_object *obj = context->objects + targetHandle;
-	fy_uint threadId = obj->attachedId;
+	fy_uint threadId = obj->object_data->attachedId;
 	if (threadId == 0) {
 		return NULL;
 	} //
@@ -33,13 +33,13 @@ static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 static fy_int monitorEnter(fy_context *context, fy_thread *thread,
 		fy_uint monitorId, fy_int times) {
 	fy_object *monitor = context->objects + monitorId;
-	fy_uint owner = monitor->monitorOwnerId;
+	fy_uint owner = monitor->object_data->monitorOwnerId;
 	fy_uint threadId = thread->threadId;
 	if (owner == threadId) {
-		monitor->monitorOwnerTimes += times;
+		monitor->object_data->monitorOwnerTimes += times;
 	} else if (owner <= 0) {
-		monitor->monitorOwnerId = threadId;
-		monitor->monitorOwnerTimes = times;
+		monitor->object_data->monitorOwnerId = threadId;
+		monitor->object_data->monitorOwnerTimes = times;
 	} else {
 		ASSERT(thread->waitForLockId==0);
 		thread->waitForLockId = monitorId;
@@ -53,16 +53,16 @@ static fy_int monitorExit(fy_context *context, fy_thread *thread,
 		fy_uint monitorId, fy_int times, fy_exception *exception) {
 	fy_uint threadId = thread->threadId;
 	fy_object *monitor = context->objects + monitorId;
-	fy_uint owner = monitor->monitorOwnerId;
+	fy_uint owner = monitor->object_data->monitorOwnerId;
 	if (owner != threadId) {
 		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
 		return 0;
 	}
-	monitor->monitorOwnerTimes -= times;
-	if (monitor->monitorOwnerTimes == 0) {
-		monitor->monitorOwnerId = 0;
+	monitor->object_data->monitorOwnerTimes -= times;
+	if (monitor->object_data->monitorOwnerTimes == 0) {
+		monitor->object_data->monitorOwnerId = 0;
 		thread->yield = TRUE;
-	} else if (monitor->monitorOwnerTimes < 0) {
+	} else if (monitor->object_data->monitorOwnerTimes < 0) {
 		fy_fault(exception, NULL, "Too many monitors released!");
 		return 0;
 	}
@@ -73,12 +73,12 @@ static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
 		fy_uint monitorId, fy_exception *exception) {
 	fy_uint threadId = thread->threadId;
 	fy_object *monitor = context->objects + monitorId;
-	fy_uint owner = monitor->monitorOwnerId;
+	fy_uint owner = monitor->object_data->monitorOwnerId;
 	if (owner != threadId) {
 		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
 		return 0;
 	}
-	return monitorExit(context, thread, monitorId, monitor->monitorOwnerTimes,
+	return monitorExit(context, thread, monitorId, monitor->object_data->monitorOwnerTimes,
 			exception);
 }
 
@@ -170,7 +170,7 @@ void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
 	ASSERT( thread->waitForNotifyId == 0);
 	monitor = context->objects + monitorId;
 	ASSERT(monitor->clazz!=NULL);
-	if (monitor->monitorOwnerId != thread->threadId) {
+	if (monitor->object_data->monitorOwnerId != thread->threadId) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				FY_EXCEPTION_IMSE);
@@ -200,7 +200,7 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 	ASSERT(thread->waitForNotifyId == 0);
 	monitor = context->objects + monitorId;
 	ASSERT(monitor->clazz!=NULL);
-	if (monitor->monitorOwnerId != thread->threadId) {
+	if (monitor->object_data->monitorOwnerId != thread->threadId) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				FY_EXCEPTION_IMSE);
@@ -442,9 +442,9 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 					lockId = thread->waitForLockId;
 					if (lockId > 0) {
 						lock = context->objects + lockId;
-						if (lock->monitorOwnerId <= 0) {
-							lock->monitorOwnerId = thread->threadId;
-							lock->monitorOwnerTimes = thread->pendingLockCount;
+						if (lock->object_data->monitorOwnerId <= 0) {
+							lock->object_data->monitorOwnerId = thread->threadId;
+							lock->object_data->monitorOwnerTimes = thread->pendingLockCount;
 							thread->waitForLockId = 0;
 						} else {
 							break;

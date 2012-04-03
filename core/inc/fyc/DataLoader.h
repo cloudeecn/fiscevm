@@ -56,7 +56,7 @@ void fy_loadFinalizes(struct fy_context *context, void *loader_, fy_uint count,
 void fy_loadPrepareThreads(struct fy_context *context, void *loader_,
 		fy_uint threadsCount, fy_exception *exception);
 fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
-		fy_uint threadId, fy_int priority, fy_uint daemon,
+		fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
 		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 		fy_uint pendingLockCount, fy_uint waitForLockId,
 		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,

@@ -273,7 +273,7 @@ static void savePrepareThreads(struct fy_context *context, void *saver,
 	writeInt(fp, threadsCount, exception);
 }
 static void saveThread(struct fy_context *context, void *saver,
-		fy_uint threadId, fy_int priority, fy_uint daemon,
+		fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
 		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 		fy_uint pendingLockCount, fy_uint waitForLockId,
 		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
@@ -282,6 +282,7 @@ static void saveThread(struct fy_context *context, void *saver,
 	int i;
 	writeInt(fp, 0xF15CE00D, exception);
 	writeInt(fp, threadId, exception);
+	writeInt(fp, handle, exception);
 	writeInt(fp, priority, exception);
 	writeInt(fp, daemon, exception);
 	writeInt(fp, destroyPending, exception);
@@ -592,6 +593,8 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		FY_ASSERTF(0xF15CE00D);
 		id = readInt(fp, exception);
 		FYEH();
+		handle = readInt(fp, exception);
+		FYEH();
 		priority = readInt(fp, exception);
 		FYEH();
 		daemon = readInt(fp, exception);
@@ -617,7 +620,7 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		readIntBlock(context, fp, &intbufSize2, &intbuf2, (stackSize + 31) / 32,
 				exception);
 		FYEH();
-		thread = fy_loadThread(context, loader, id, priority, daemon,
+		thread = fy_loadThread(context, loader, id, handle, priority, daemon,
 				destroyPending, interrupted,
 				fy_I2TOL(nextWakeUpTimeH,nextWakeUpTimeL), pendingLockCount,
 				waitForLockId, waitForNotifyId, stackSize, intbuf, intbuf2,

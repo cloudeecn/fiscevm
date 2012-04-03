@@ -29,7 +29,7 @@
 #define MAX_METHODS 65536
 #define MAX_FIELDS 65536
 #define MAX_OBJECTS 131072
-#define MAX_THREADS 256
+#define MAX_THREADS 32
 
 #define STACK_SIZE 16384
 
@@ -325,27 +325,23 @@ typedef struct fy_class {
 enum fy_heapPos {
 	automatic = 0, eden = 1, young = 2, old = 3
 };
+
+typedef struct fy_object_data {
+	fy_int length;
+	fy_uint monitorOwnerId;
+	fy_int monitorOwnerTimes;
+	fy_uint attachedId;
+	FY_VLS(fy_byte,data);
+} fy_object_data;
+
 typedef struct fy_object {
 	fy_class *clazz;
-	fy_int length;
 	enum fy_heapPos position :2;
 	enum {
 		not_finalized, in_finalize_array, finalized
 	} finalizeStatus :2;
 	fy_int gen :8;
-	fy_uint monitorOwnerId;
-	fy_int monitorOwnerTimes;
-	fy_uint attachedId;
-	void *data;
-/*
- union fy_object_data {
- fy_ulong *ldata;
- fy_uint *idata;
- fy_ubyte *bdata;
- fy_char *cdata;
- } data;
- */
-
+	fy_object_data *object_data;
 } fy_object;
 
 typedef struct fy_frame {
@@ -475,7 +471,7 @@ typedef struct fy_context {
 	void (*savePrepareThreads)(struct fy_context *context, void *saver,
 			fy_uint threadsCount, fy_exception *exception);
 	void (*saveThread)(struct fy_context *context, void *saver,
-			fy_uint threadId, fy_int priority, fy_uint daemon,
+			fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
 			fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 			fy_uint pendingLockCount, fy_uint waitForLockId,
 			fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
@@ -596,7 +592,6 @@ typedef struct fy_context {
 	fy_int runningThreadPos;
 	fy_int run;
 	fy_int state;
-	fy_linkedList pendingThreads;
 	fy_long nextWakeUpTimeTotal;
 	fy_int nextThreadId;
 	fy_exception exitException;

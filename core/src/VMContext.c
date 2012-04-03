@@ -435,7 +435,7 @@ static fy_class* getClass(fy_context *context, fy_str *name) {
 	}
 	return ret;
 }
-
+#ifdef FY_PROFILE
 static void sortUsage(fy_profile_data *data, int length) {
 	fy_boolean changed = TRUE;
 	fy_profile_data tmp;
@@ -452,11 +452,13 @@ static void sortUsage(fy_profile_data *data, int length) {
 		}
 	}
 }
-
+#endif
 void fy_vmContextDestroy(fy_context *context) {
+#ifdef FY_PROFILE
 	fy_uint i, imax;
 	const char *c, *c2;
 	imax = 256;
+#endif
 	printf("Destroying vm\n");
 #ifdef FY_PROFILE
 	printf("Op usage top 10:\n");
@@ -716,7 +718,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 				"Get class ID for non-class object");
 		return NULL;
 	}
-	classId = context->objects[handle].attachedId;
+	classId = context->objects[handle].object_data->attachedId;
 	return context->classes[classId];
 }
 
@@ -926,12 +928,15 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 		if ((object = fy_heapGetObject(context,i))->clazz != NULL) {
 			context->saveObject(context, saver, i, object->clazz->classId,
 					object->position, object->gen, object->finalizeStatus,
-					object->monitorOwnerId, object->monitorOwnerTimes,
-					object->attachedId, object->length,
+					object->object_data->monitorOwnerId,
+					object->object_data->monitorOwnerTimes,
+					object->object_data->attachedId,
+					object->object_data->length,
 					object->clazz->type == arr ?
 							fy_heapGetArraySizeFromLength(object->clazz,
-									object->length) :
-							object->clazz->sizeAbs, object->data, exception);
+									object->object_data->length) :
+							object->clazz->sizeAbs,
+					(void*) object->object_data->data, exception);
 			count++;
 		}
 	}/**/
@@ -958,12 +963,12 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 		fy_arrayListGet(context->memblocks, context->runningThreads, i,
 				&thread);
 		jmax = thread->frameCount;
-		context->saveThread(context, saver, thread->threadId, thread->priority,
-				thread->daemon, thread->destroyPending, thread->interrupted,
-				thread->nextWakeTime, thread->pendingLockCount,
-				thread->waitForLockId, thread->waitForNotifyId,
-				FY_GET_FRAME(thread,jmax-1)->sp, thread->stack,
-				thread->typeStack, exception);
+		context->saveThread(context, saver, thread->threadId, thread->handle,
+				thread->priority, thread->daemon, thread->destroyPending,
+				thread->interrupted, thread->nextWakeTime,
+				thread->pendingLockCount, thread->waitForLockId,
+				thread->waitForNotifyId, FY_GET_FRAME(thread,jmax-1)->sp,
+				thread->stack, thread->typeStack, exception);
 		FYEH();
 		context->savePrepareFrame(context, saver, jmax, exception);
 		FYEH();
@@ -1003,7 +1008,8 @@ int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
 	if (handle == -1) {
 		fy_heapBeginProtect(context);
 		handle = fy_heapAllocate(context, clcl, exception);
-		fy_heapGetObject(context,handle)->attachedId = clazz->classId;
+		fy_heapGetObject(context,handle)->object_data->attachedId =
+				clazz->classId;
 		fy_hashMapIPut(context->memblocks, context->classObjIds, clazz->classId,
 				handle, exception);
 		//FYEH is unnessessery
