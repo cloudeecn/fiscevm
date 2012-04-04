@@ -199,7 +199,7 @@ void testHeap() {
 }
 
 static void testFail(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
 	fy_str str;
 	char msg[256];
 	memset(&str, 0, sizeof(str));

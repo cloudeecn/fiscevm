@@ -405,7 +405,8 @@ typedef enum fy_messageType {
 typedef struct fy_message {
 	fy_messageType messageType;
 	fy_thread *thread;
-	union {
+	/*We care more about stability than some hundreds bytes of memory*/
+	struct {
 		fy_nativeCall call;
 		fy_exception exception;
 		fy_long sleepTime;
@@ -613,7 +614,7 @@ typedef struct fy_context {
 
 typedef void (*fy_nhFunction)(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_exception *exception);
+		fy_message *message, fy_exception *exception);
 
 typedef struct fy_nh {
 	void *data;

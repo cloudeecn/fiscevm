@@ -737,7 +737,7 @@ static void doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 		} else {
 			fy_heapBeginProtect(context);
 			(nh->handler)(context, thread, nh->data, thread->stack + frame->sp,
-					paramsCount, exception);
+					paramsCount, message, exception);
 			FYEH();
 		}
 	} else {
@@ -823,6 +823,11 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 	printf("\n");
 #endif
 	doInvoke(context, thread, frame, method, count, message, exception);
+}
+
+void fy_threadInvoke(fy_context *context, fy_thread *thread, fy_method *method,
+		fy_exception *exception) {
+//	if(method->)
 }
 /**
  * DON'T USE RETURN HERE!!!!
@@ -2575,7 +2580,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					} else {
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
-								ivalue, exception);
+								ivalue, message, exception);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
