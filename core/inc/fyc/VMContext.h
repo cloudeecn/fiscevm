@@ -50,6 +50,8 @@ void fy_vmRegisterMethod(fy_context *context, fy_method *method,
 		fy_exception *exception);
 fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 		fy_str *name, fy_exception *exception);
+fy_method *fy_vmLookupMethodVirtualByMethod(fy_context *context,
+		fy_class *clazz, fy_method *method, fy_exception *exception);
 fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 		ConstantMethodRef *methodInfo, fy_exception *exception);
 

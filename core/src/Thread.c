@@ -718,17 +718,42 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	fy_bitSet(thread->typeStack, 0);
 }
 
+static void doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
+		fy_method *method, fy_uint paramsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_nh *nh;
+	if (method->access_flags & FY_ACC_NATIVE) {
+		nh = method->nh;
+		if (nh == NULL) {
+			nh = fy_hashMapGet(context->memblocks, context->mapMUNameToNH,
+					method->uniqueName);
+			nh = method->nh = (nh == NULL ? NO_HANDLER : nh);
+		}
+		if (nh == NO_HANDLER) {
+			message->messageType = message_invoke_native;
+			message->body.call.method = method;
+			message->body.call.paramCount = paramsCount;
+			message->body.call.params = thread->stack + frame->sp;
+		} else {
+			fy_heapBeginProtect(context);
+			(nh->handler)(context, thread, nh->data, thread->stack + frame->sp,
+					paramsCount, exception);
+			FYEH();
+		}
+	} else {
+		fy_threadPushMethod(context, thread, method, &frame, exception);
+		FYEH();
+	}
+}
+
 static void invokeVirtual(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_exception *exception,
 		fy_message *message) {
 	fy_int count = method->paramCount + 1;
-	fy_uint actureMethodId;
 	fy_method *actureMethod;
 	fy_class *clazz;
 	fy_uint *stack;
 	fy_uint sp;
-	fy_nh *nh;
-	char msg[256];
 	if (frame->sp - (count) - frame->sb < frame->localCount) {
 		fy_fault(exception, NULL, "Buffer underflow! %d %d",
 				frame->sp - (count) - frame->sb, frame->localCount);
@@ -747,63 +772,58 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 	} else {
 		clazz = fy_heapGetClassOfObject(context, stack[sp], exception);
 		FYEH();
-		actureMethodId = fy_hashMapIGet(context->memblocks, clazz->virtualTable,
-				method->method_id);
-		if (actureMethodId == -1) {
-			actureMethod = fy_vmLookupMethodVirtual(context, clazz,
-					method->fullName, exception);
-			FYEH();
-
-			if (actureMethod == NULL) {
-				fy_strSPrint(msg, 256, method->uniqueName);
-				fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", msg);
-				return;
-			}
-			if (actureMethod->access_flags & FY_ACC_STATIC) {
-				fy_strSPrint(msg, 256, method->uniqueName);
-				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s", msg);
-				return;
-			}
-			if ((actureMethod->access_flags & FY_ACC_ABSTRACT)) {
-				fy_strSPrint(msg, 256, method->uniqueName);
-				fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", msg);
-				return;
-			}
-			fy_hashMapIPut(context->memblocks, clazz->virtualTable,
-					method->method_id, actureMethod->method_id, exception);
-			FYEH();
-		} else {
-			actureMethod = context->methods[actureMethodId];
-		}
+		actureMethod = fy_vmLookupMethodVirtualByMethod(context, clazz, method,
+				exception);
 #ifdef FY_VERBOSE
 		fy_strPrint(actureMethod->uniqueName);
 		printf("\n");
 #endif
 	}
-	nh = actureMethod->nh;
-	if (actureMethod->access_flags & FY_ACC_NATIVE) {
-		if (nh == NULL) {
-			nh = fy_hashMapGet(context->memblocks, context->mapMUNameToNH,
-					actureMethod->uniqueName);
-			nh = actureMethod->nh = (nh == NULL ? NO_HANDLER : nh);
-		}
-		if (nh == NO_HANDLER) {
-			message->messageType = message_invoke_native;
-			message->body.call.method = actureMethod;
-			message->body.call.paramCount = count;
-			message->body.call.params = stack + sp;
-		} else {
-			fy_heapBeginProtect(context);
-			(nh->handler)(context, thread, nh->data, stack + sp, count,
-					exception);
-			FYEH();
-		}
-	} else {
-		fy_threadPushMethod(context, thread, actureMethod, &frame, exception);
-		FYEH();
-	}
+	doInvoke(context, thread, frame, actureMethod, count, message, exception);
 }
 
+static void invokeStatic(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fy_exception *exception,
+		fy_message *message) {
+	char msg[256];
+	fy_class *owner = method->owner;
+	fy_class *clinitClazz;
+	fy_uint count = method->paramCount;
+	if (!(method->access_flags & FY_ACC_STATIC)) {
+		fy_strSPrint(msg, 256, method->uniqueName);
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s is not static",
+				msg);
+		return;
+	}
+	{
+		clinitClazz = clinit(context, thread, owner);
+		if (clinitClazz) {
+			if (clinitClazz->clinitThreadId == 0) {
+				frame->pc--;
+				clinitClazz->clinitThreadId = thread->threadId;
+				frame = fy_threadPushFrame(context, thread, clinitClazz->clinit,
+						exception);
+				FYEH();
+				return;
+			} else {
+				frame->pc--;
+				thread->yield = TRUE;
+				return;
+			}
+		}
+	}
+	if (frame->sp - (count) - frame->sb < frame->localCount) {
+		fy_fault(exception, NULL, "Buffer underflow! %d %d",
+				frame->sp - (count) - frame->sb, frame->localCount);
+		return;
+	}
+	frame->sp -= count;
+#ifdef FY_VERBOSE
+	fy_strPrint(method->uniqueName);
+	printf("\n");
+#endif
+	doInvoke(context, thread, frame, method, count, message, exception);
+}
 /**
  * DON'T USE RETURN HERE!!!!
  */
@@ -1073,7 +1093,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue2;
 #endif
-				fy_threadGetLocalHandle(instruction->params.int_params.param1,
+				fy_threadGetLocalHandle( instruction->params.int_params.param1,
 						ivalue2);
 				fy_threadPushHandle(ivalue2);
 				break;
@@ -2478,8 +2498,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				if ((clazz1->accessFlags & FY_ACC_SUPER)
 						&& fy_classIsSuperClassOf(context, clazz2, clazz1)
 						&& fy_strCmp(mvalue->name, context->sInit)) {
-					mvalue = fy_vmLookupMethodVirtual(context, clazz1->super,
-							mvalue->fullName, exception);
+					mvalue = fy_vmLookupMethodVirtualByMethod(context,
+							clazz1->super, mvalue, exception);
 					if (exception->exceptionType != exception_none) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
@@ -2576,96 +2596,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case INVOKESTATIC: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_class *clazz2, *clinitClazz;
-				fy_method *mvalue;
-#endif
-				mvalue = instruction->params.method;
+				fy_localToFrame(frame);
+				invokeStatic(context, thread, frame, instruction->params.method,
+						exception, message);
+				frame = fy_threadCurrentFrame(context, thread);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				clazz2 = mvalue->owner;
-				if ((mvalue->access_flags & FY_ACC_STATIC) == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s( exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_INCOMPAT_CHANGE);
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-
-				{
-					clinitClazz = clinit(context, thread, clazz2);
-					if (clinitClazz) {
-						if (clinitClazz->clinitThreadId == 0) {
-							pc = lpc;
-							fy_localToFrame(frame);
-							clinitClazz->clinitThreadId = thread->threadId;
-							frame = fy_threadPushFrame(context, thread,
-									clinitClazz->clinit, exception);
-							if (exception->exceptionType != exception_none) {
-								message->messageType = message_exception;
-								FY_FALLOUT_NOINVOKE
-								break;/*EXCEPTION_THROWN*/
-							}
-							FY_FALLOUT_INVOKE
-							break;
-						} else {
-							pc = lpc;
-							thread->yield = TRUE;
-							FY_FALLOUT_NOINVOKE
-							break;
-						}
-					}
-				}
-				ivalue = mvalue->paramCount;
-				fy_checkCall(ivalue);
-				sp -= ivalue;
-				fy_localToFrame(frame);
-#ifdef FY_VERBOSE
-				fy_strPrint(mvalue->uniqueName);
-				printf("\n");
-#endif
-				if (mvalue->access_flags & FY_ACC_NATIVE) {
-#ifdef FY_LATE_DECLARATION
-					fy_nh *nh = mvalue->nh;
-#endif
-					if (nh == NULL) {
-						nh = fy_hashMapGet(block, context->mapMUNameToNH,
-								mvalue->uniqueName);
-						nh = mvalue->nh = (nh == NULL ? NO_HANDLER : nh);
-					}
-					if (nh == NO_HANDLER) {
-						message->messageType = message_invoke_native;
-						message->body.call.method = mvalue;
-						message->body.call.paramCount = ivalue;
-						message->body.call.params = stack + sp;
-					} else {
-						fy_heapBeginProtect(context);
-						(nh->handler)(context, thread, nh->data, stack + sp,
-								ivalue, exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;
-						}
-						frame = fy_threadCurrentFrame(context, thread);
-					}
-				} else {
-					fy_threadPushMethod(context, thread, mvalue, &frame,
-							exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
 				}
 				FY_FALLOUT_INVOKE
 				break;
@@ -2676,6 +2612,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				invokeVirtual(context, thread, frame,
 						instruction->params.method, exception, message);
 				frame = fy_threadCurrentFrame(context, thread);
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+				}
 				FY_FALLOUT_INVOKE
 				break;
 			}
@@ -3568,7 +3507,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
-				fy_threadGetLocalReturn(instruction->params.int_params.param1,
+				fy_threadGetLocalReturn( instruction->params.int_params.param1,
 						ivalue);
 				pc = ivalue;
 				break;

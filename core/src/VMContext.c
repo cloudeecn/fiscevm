@@ -607,6 +607,42 @@ fy_method *fy_vmGetMethod(fy_context *context, fy_str *uniqueName) {
 	return context->methods[*pMid];
 }
 
+fy_method *fy_vmLookupMethodVirtualByMethod(fy_context *context,
+		fy_class *clazz, fy_method *method, fy_exception *exception) {
+	fy_method *actureMethod;
+	fy_uint actureMethodId;
+	char msg[256];
+	actureMethodId = fy_hashMapIGet(context->memblocks, clazz->virtualTable,
+			method->method_id);
+	if (actureMethodId == -1) {
+		actureMethod = fy_vmLookupMethodVirtual(context, clazz,
+				method->fullName, exception);
+		FYEH()NULL;
+
+		if (actureMethod == NULL) {
+			fy_strSPrint(msg, 256, method->uniqueName);
+			fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", msg);
+			return NULL;
+		}
+		if (actureMethod->access_flags & FY_ACC_STATIC) {
+			fy_strSPrint(msg, 256, method->uniqueName);
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s", msg);
+			return NULL;
+		}
+		if ((actureMethod->access_flags & FY_ACC_ABSTRACT)) {
+			fy_strSPrint(msg, 256, method->uniqueName);
+			fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", msg);
+			return NULL;
+		}
+		fy_hashMapIPut(context->memblocks, clazz->virtualTable,
+				method->method_id, actureMethod->method_id, exception);
+		FYEH()NULL;
+	} else {
+		actureMethod = context->methods[actureMethodId];
+	}
+	return actureMethod;
+}
+
 fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 		fy_str *methodName, fy_exception *exception) {
 	int *pMid;
