@@ -19,13 +19,14 @@
 #include "fiscedev.h"
 
 static void FiScEVMSave(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	context->callForSave(context, exception);
 }
 
 static void FiScEVMStoreParams(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 //We don't have a frame for native function currently, so the current frame is the caller frame.
 	fy_frame *frame = FY_GET_FRAME(thread, thread->frameCount - 1);
 	fy_int begin = args[0];
@@ -50,17 +51,20 @@ static void FiScEVMStoreParams(struct fy_context *context,
 }
 
 static void SystemGC(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_heapGC(context, exception);
 }
 
 static void SystemExit(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	context->exitCode = args[0];
 }
 
 static void StringIntern(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_str str;
 	fy_uint ret;
 
@@ -78,14 +82,14 @@ static void StringIntern(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void floatIntBitsToFloat(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_nativeReturnInt(context, thread, args[0]);
 }
 
 static void SystemArrayCopy(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_int srcHandle = args[0];
 	fy_int srcPos = args[1];
 	fy_int dstHandle = args[2];
@@ -96,35 +100,40 @@ static void SystemArrayCopy(struct fy_context *context,
 }
 
 static void SystemTimeMS(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_nativeReturnLong(context, thread, fy_portTimeMillSec(context->port));
 }
 
 static void SystemTimeNS(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_nativeReturnLong(context, thread, fy_portTimeNanoSec(context->port));
 }
 
 static void SystemIdentityHashCode(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_nativeReturnInt(context, thread, args[0]);
 }
 
 static void ObjectGetClass(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0], exception);
 	fy_nativeReturnHandle(context, thread,
 			fy_vmGetClassObjHandle(context, clazz, exception));
 }
 static void ObjectClone(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_int ret = fy_heapClone(context, args[0], exception);
 	FYEH();
 	fy_nativeReturnHandle(context, thread, ret);
 }
 static void ObjectWait(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_uint monitorId = args[0];
 	fy_uint high = args[1];
 	fy_uint low = args[2];
@@ -133,21 +142,22 @@ static void ObjectWait(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void ObjectNotify(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_uint monitorId = args[0];
 	fy_tmNotify(context, thread, monitorId, FALSE, exception);
 }
 
 static void ObjectNotifyAll(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_uint monitorId = args[0];
 	fy_tmNotify(context, thread, monitorId, TRUE, exception);
 }
 
 static void ClassGetComponentType(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0], exception);
 	if (clazz->type == arr) {
 		fy_nativeReturnHandle(context, thread,
@@ -159,8 +169,8 @@ static void ClassGetComponentType(struct fy_context *context,
 }
 
 static void ClassInvokeMethod(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_uint classHandle = args[0];
 	fy_uint methodNameHandle = args[1];
 	/*fy_boolean isStatic = args[2];*/
@@ -226,14 +236,14 @@ static void ClassInvokeMethod(struct fy_context *context,
 }
 
 static void ThreadCurrentThread(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_nativeReturnHandle(context, thread, thread->handle);
 }
 
 static void ThreadSetPriority(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_thread *target;
 	fy_object *obj = context->objects + args[0];
 	target = context->threads[obj->object_data->attachedId];
@@ -243,42 +253,47 @@ static void ThreadSetPriority(struct fy_context *context,
 }
 
 static void ThreadIsAlive(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_nativeReturnInt(context, thread,
 			fy_tmIsAlive(context, args[0], exception) ? 1 : 0);
 }
 
 static void ThreadInterrupt(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_tmInterrupt(context, args[0], exception);
 }
 
 static void ThreadInterrupted(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_boolean ret;
 	ret = fy_tmIsInterrupted(context, args[0], args[1], exception);
 	fy_nativeReturnInt(context, thread, ret ? 1 : 0);
 }
 
 static void ThreadStart(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_tmPushThread(context, args[0], exception);
 }
 
 static void ThreadSleep(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_tmSleep(context, thread, fy_I2TOL(args[0],args[1]));
 }
 
 static void ThreadYield(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	thread->yield = TRUE;
 }
 
 static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_str str[1];
 	fy_memblock *block = context->memblocks;
 	fy_vmLookupClass(context, context->sString, exception);
@@ -299,43 +314,51 @@ static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void VMDebugOutI(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	printf("VMDebugOutI: %d\n", args[0]);
 }
 
 static void VMDebugOutJ(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	printf("VMDebugOutI: %"FY_PRINT64"d\n", fy_I2TOL(args[0],args[1]));
 }
 
 static void VMDebugOutF(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	printf("VMDebugOutI: %f\n", fy_intToFloat(args[0]));
 }
 
 static void VMDebugOutD(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	printf("VMDebugOutI: %f\n", fy_longToDouble(fy_I2TOL(args[0],args[1])));
 }
 
 static void VMThrowOut(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	/*TODO */
 	thread->currentThrowable = args[0];
 }
 
 static void VMExit(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	/*TODO */
 }
 
 static void SOSWrite(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	putchar(args[1]);
 }
 
 static void VMDecode(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_int handleSrc = args[1];
 	fy_int ofs = args[2];
 	fy_int len = args[3];
@@ -386,7 +409,8 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void VMEncode(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_int handleSrc = args[1];
 	fy_int ofs = args[2];
 	fy_int len = args[3];
@@ -441,19 +465,21 @@ static void VMEncode(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void VMGetDoubleRaw(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_nativeReturnLong(context, thread,
 			((fy_long) args[0] << 32) | ((fy_uint) args[1]));
 }
 
 static void VMGetFloatRaw(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_nativeReturnInt(context, thread, args[0]);
 }
 
 static void VMStringToDouble(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	char ch[64];
 	fy_str str[1];
 	str->content = NULL;
@@ -469,8 +495,8 @@ static void VMStringToDouble(struct fy_context *context,
 }
 
 static void VMDoubleToString(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_long lvalue = ((fy_ulong) args[0] << 32) | ((fy_uint) args[1]);
 	fy_double dvalue = fy_longToDouble(lvalue);
 	fy_int handleRet;
@@ -488,8 +514,8 @@ static void VMDoubleToString(struct fy_context *context,
 }
 
 static void VMStringToFloat(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	char ch[64];
 	fy_double value;
 	fy_str str[1];
@@ -505,8 +531,8 @@ static void VMStringToFloat(struct fy_context *context,
 }
 
 static void VMFloatToString(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	fy_int value = args[0];
 	fy_float fvalue = fy_intToFloat(value);
@@ -531,14 +557,15 @@ static void VMFloatToString(struct fy_context *context,
 }
 
 static void throwableFillInStackTrace(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_int value = args[0];
 	fy_threadFillException(context, thread, value, exception);
 }
 
 static void classGetName(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_uint handle;
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	if (exception->exceptionType != exception_none) {
@@ -552,7 +579,8 @@ static void classGetName(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void classForName(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_uint nameHandle = args[0];
 	fy_boolean initialize = args[1];
 	fy_str str;
@@ -574,8 +602,8 @@ static void classForName(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void classNewInstanceO(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz;
 	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
 	fy_method *invoke;
@@ -606,8 +634,8 @@ static void classNewInstanceO(struct fy_context *context,
 
 /*Make an array of array class for example Object[]->Object[]*/
 static void classNewInstanceA(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz;
 	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	FYEH();
@@ -619,7 +647,8 @@ static void classNewInstanceA(struct fy_context *context,
 }
 
 static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_class *clazz;
 	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
 	fy_method *invoke;
@@ -724,7 +753,8 @@ static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 
 /*Make an array of any class for example Object->Object[]*/
 static void vmNewArray(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_class *clazz;
 	fy_str str;
 	fy_char *cc;
@@ -767,8 +797,8 @@ static void vmNewArray(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void classIsInstance(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	fy_class *objClazz = fy_heapGetObject(context,args[1])->object_data->clazz;
 	FYEH();
@@ -777,8 +807,8 @@ static void classIsInstance(struct fy_context *context,
 }
 
 static void classIsAssignableFrom(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	fy_class *targetClazz = fy_vmGetClassFromClassObject(context, args[1],
 			exception);
@@ -788,8 +818,8 @@ static void classIsAssignableFrom(struct fy_context *context,
 }
 
 static void classIsInterface(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	FYEH();
 	fy_nativeReturnInt(context, thread,
@@ -797,23 +827,24 @@ static void classIsInterface(struct fy_context *context,
 }
 
 static void classIsArray(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	FYEH();
 	fy_nativeReturnInt(context, thread, clazz->type == arr ? 1 : 0);
 }
 
 static void classIsPrimitive(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	FYEH();
 	fy_nativeReturnInt(context, thread, clazz->type == prm ? 1 : 0);
 }
 
 static void classGetSuperclass(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	FYEH();
 	clazz = clazz->super;
@@ -823,8 +854,8 @@ static void classGetSuperclass(struct fy_context *context,
 }
 
 static void classGetInterfaces(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	fy_class *classOfClass;
 	fy_uint ret, i, imax, tmp;
@@ -843,8 +874,8 @@ static void classGetInterfaces(struct fy_context *context,
 }
 
 static void finalizerGetFinalizee(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_uint ret;
 	fy_int storage, i, len = context->toFinalize->length;
 	fy_object *object;
@@ -880,7 +911,8 @@ static void finalizerGetFinalizee(struct fy_context *context,
  #     #  #######     #     #     #    ###    #####
  */
 static void methodIsBridge(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
@@ -892,8 +924,8 @@ static void methodIsBridge(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void methodIsVarArgs(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
@@ -905,8 +937,8 @@ static void methodIsVarArgs(struct fy_context *context,
 }
 
 static void methodIsSynthetic(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
@@ -918,8 +950,8 @@ static void methodIsSynthetic(struct fy_context *context,
 }
 
 static void methodGetDeclaringClass(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
@@ -931,8 +963,8 @@ static void methodGetDeclaringClass(struct fy_context *context,
 }
 
 static void methodExceptionTypes(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_int i, max, ret, handler;
 	fy_exceptionHandler *eh;
 	fy_class *handlerClass, *classClass;
@@ -962,8 +994,8 @@ static void methodExceptionTypes(struct fy_context *context,
 }
 
 static void methodGetModifiers(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
@@ -974,7 +1006,8 @@ static void methodGetModifiers(struct fy_context *context,
 }
 
 static void methodGetName(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	fy_int ret;
@@ -988,8 +1021,8 @@ static void methodGetName(struct fy_context *context, struct fy_thread *thread,
 }
 
 static void methodGetParameterTypes(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	fy_class *clazz;
@@ -1014,8 +1047,8 @@ static void methodGetParameterTypes(struct fy_context *context,
 }
 
 static void methodGetReturnType(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
@@ -1028,19 +1061,103 @@ static void methodGetReturnType(struct fy_context *context,
 }
 
 static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
+	fy_frame *frame = fy_threadCurrentFrame(context, thread);
+	fy_uint count =
+			args[1] ? fy_heapArrayLength(context, args[1], exception) : 0;
+	fy_class *paramType;
+	fy_uint i;
+	fy_uint paramsHandle = args[1];
+	fy_uint paramHandle;
+	FYEH();
+
 	if (method == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
-	/*TODO*/
+	if (count != method->paramCount) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+	}
+	if (!(method->access_flags & FY_ACC_STATIC)) {
+		frame->sp++;
+	}
+	for (i = 0; i < count; i++) {
+		paramType = fy_arrayListGet(context->memblocks, method->parameterTypes,
+				i, NULL);
+		paramHandle = fy_heapGetArrayHandle(context, paramsHandle, i,
+				exception);
+		FYEH();
+		if (paramType->type == prm) {
+			/*Unwrap*/
+			switch (paramType->ci.prm.pType) {
+			case FY_TYPE_BOOLEAN: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapBoolean(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_BYTE: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapByte(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_SHORT: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapShort(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_CHAR: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapChar(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_INT: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapInt(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_FLOAT: {
+				fy_threadReturnFloat(context, thread,
+						fy_heapUnwrapFloat(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_LONG: {
+				fy_threadReturnLong(context, thread,
+						fy_heapUnwrapLong(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_DOUBLE: {
+				fy_threadReturnDouble(context, thread,
+						fy_heapUnwrapDouble(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			default: {
+				fy_fault(exception, FY_EXCEPTION_ARGU,
+						"Illegal parameter type %c",
+						(char) paramType->ci.prm.pType);
+				break;
+			}
+			}
+		} else {
+			fy_threadReturnHandle(context, thread, paramHandle);
+		}
+	}
+	fy_threadInvoke(context, thread, method, message, exception);
 }
 
 static void methodGetUniqueName(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	if (method == NULL) {
@@ -1087,7 +1204,39 @@ static void registerMethod(fy_context *context, fy_exception *exception) {
 			methodGetReturnType, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_METHOD".invoke.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
+			FY_REFLECT_METHOD".invokeZ.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)Z",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeB.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)B",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeS.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)S",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeC.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)C",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeI.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)I",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeF.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)F",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeD.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)D",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeJ.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)J",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeL.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
 			NULL, methodInvoke, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
@@ -1107,8 +1256,8 @@ static void registerMethod(fy_context *context, fy_exception *exception) {
  */
 
 static void fieldIsSynthetic(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	if (field == NULL) {
@@ -1120,31 +1269,38 @@ static void fieldIsSynthetic(struct fy_context *context,
 }
 
 static void fieldIsEnumconstant(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,fy_message *message,
-		fy_exception *exception) {
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *enumClazz;
 	if (field == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
 	/*FIXME 谁知道这种事情啊*/
+	enumClazz = fy_vmLookupClass(context, context->sEnum, exception);
+	FYEH();
 }
 
 static void fieldGet(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+
 	if (field == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
 	/*TODO STUD*/
+
 	fy_fault(exception, FY_EXCEPTION_NO_METHOD, "stub");
 }
 
 static void field(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	if (field == NULL) {

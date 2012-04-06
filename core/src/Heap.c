@@ -1253,3 +1253,203 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 #endif
 	fy_free(marks);
 }
+
+fy_uint fy_heapWrapBoolean(fy_context *context, fy_boolean value,
+		fy_exception *exception) {
+	fy_class *clazz;
+	fy_field *field;
+	fy_uint ret;
+	clazz = fy_vmLookupClass(context, context->sBoolean, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueBoolean);
+	FYEH()0;
+	ret = fy_heapAllocate(context, clazz, exception);
+	FYEH()0;
+	fy_heapPutFieldBoolean(context, ret, field, value, exception);
+	return ret;
+}
+
+fy_boolean fy_heapUnwrapBoolean(fy_context *context, fy_uint handle,
+		fy_exception *exception) {
+	fy_field *field;
+	fy_vmLookupClass(context, context->sBoolean, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueBoolean);
+	FYEH()0;
+	return fy_heapGetFieldBoolean(context, handle, field, exception);
+}
+
+fy_uint fy_heapWrapByte(fy_context *context, fy_byte value,
+		fy_exception *exception) {
+	fy_class *clazz;
+	fy_field *field;
+	fy_uint ret;
+	clazz = fy_vmLookupClass(context, context->sByte, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueByte);
+	FYEH()0;
+	ret = fy_heapAllocate(context, clazz, exception);
+	FYEH()0;
+	fy_heapPutFieldByte(context, ret, field, value, exception);
+	return ret;
+}
+
+fy_byte fy_heapUnwrapByte(fy_context *context, fy_uint handle,
+		fy_exception *exception) {
+	fy_field *field;
+	fy_vmLookupClass(context, context->sByte, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueByte);
+	FYEH()0;
+	return fy_heapGetFieldByte(context, handle, field, exception);
+}
+
+fy_uint fy_heapWrapShort(fy_context *context, fy_short value,
+		fy_exception *exception) {
+	fy_class *clazz;
+	fy_field *field;
+	fy_uint ret;
+	clazz = fy_vmLookupClass(context, context->sShort, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueShort);
+	FYEH()0;
+	ret = fy_heapAllocate(context, clazz, exception);
+	FYEH()0;
+	fy_heapPutFieldShort(context, ret, field, value, exception);
+	return ret;
+}
+
+fy_short fy_heapUnwrapShort(fy_context *context, fy_uint handle,
+		fy_exception *exception) {
+	fy_field *field;
+	fy_vmLookupClass(context, context->sShort, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueShort);
+	FYEH()0;
+	return fy_heapGetFieldShort(context, handle, field, exception);
+}
+
+fy_uint fy_heapWrapChar(fy_context *context, fy_char value,
+		fy_exception *exception) {
+	fy_class *clazz;
+	fy_field *field;
+	fy_uint ret;
+	clazz = fy_vmLookupClass(context, context->sChar, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueChar);
+	FYEH()0;
+	ret = fy_heapAllocate(context, clazz, exception);
+	FYEH()0;
+	fy_heapPutFieldChar(context, ret, field, value, exception);
+	return ret;
+}
+
+fy_char fy_heapUnwrapChar(fy_context *context, fy_uint handle,
+		fy_exception *exception) {
+	fy_field *field;
+	fy_vmLookupClass(context, context->sChar, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueChar);
+	FYEH()0;
+	return fy_heapGetFieldChar(context, handle, field, exception);
+}
+
+fy_uint fy_heapWrapInt(fy_context *context, fy_int value,
+		fy_exception *exception) {
+	fy_class *clazz;
+	fy_field *field;
+	fy_uint ret;
+	clazz = fy_vmLookupClass(context, context->sInt, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueInt);
+	FYEH()0;
+	ret = fy_heapAllocate(context, clazz, exception);
+	FYEH()0;
+	fy_heapPutFieldInt(context, ret, field, value, exception);
+	return ret;
+}
+
+fy_int fy_heapUnwrapInt(fy_context *context, fy_uint handle,
+		fy_exception *exception) {
+	fy_field *field;
+	fy_vmLookupClass(context, context->sInt, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueInt);
+	FYEH()0;
+	return fy_heapGetFieldInt(context, handle, field, exception);
+}
+
+fy_uint fy_heapWrapFloat(fy_context *context, fy_float value,
+		fy_exception *exception) {
+	fy_class *clazz;
+	fy_field *field;
+	fy_uint ret;
+	clazz = fy_vmLookupClass(context, context->sFloat, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueFloat);
+	FYEH()0;
+	ret = fy_heapAllocate(context, clazz, exception);
+	FYEH()0;
+	fy_heapPutFieldFloat(context, ret, field, value, exception);
+	return ret;
+}
+
+fy_float fy_heapUnwrapFloat(fy_context *context, fy_uint handle,
+		fy_exception *exception) {
+	fy_field *field;
+	fy_vmLookupClass(context, context->sFloat, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueFloat);
+	FYEH()0;
+	return fy_heapGetFieldFloat(context, handle, field, exception);
+}
+
+fy_uint fy_heapWrapLong(fy_context *context, fy_long value,
+		fy_exception *exception) {
+	fy_class *clazz;
+	fy_field *field;
+	fy_uint ret;
+	clazz = fy_vmLookupClass(context, context->sLong, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueLong);
+	FYEH()0;
+	ret = fy_heapAllocate(context, clazz, exception);
+	FYEH()0;
+	fy_heapPutFieldLong(context, ret, field, value, exception);
+	return ret;
+}
+
+fy_long fy_heapUnwrapLong(fy_context *context, fy_uint handle,
+		fy_exception *exception) {
+	fy_field *field;
+	fy_vmLookupClass(context, context->sLong, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueLong);
+	FYEH()0;
+	return fy_heapGetFieldLong(context, handle, field, exception);
+}
+
+fy_uint fy_heapWrapDouble(fy_context *context, fy_double value,
+		fy_exception *exception) {
+	fy_class *clazz;
+	fy_field *field;
+	fy_uint ret;
+	clazz = fy_vmLookupClass(context, context->sDouble, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueDouble);
+	FYEH()0;
+	ret = fy_heapAllocate(context, clazz, exception);
+	FYEH()0;
+	fy_heapPutFieldDouble(context, ret, field, value, exception);
+	return ret;
+}
+
+fy_double fy_heapUnwrapDouble(fy_context *context, fy_uint handle,
+		fy_exception *exception) {
+	fy_field *field;
+	fy_vmLookupClass(context, context->sDouble, exception);
+	FYEH()0;
+	field = fy_vmGetField(context, context->sValueDouble);
+	FYEH()0;
+	return fy_heapGetFieldDouble(context, handle, field, exception);
+}

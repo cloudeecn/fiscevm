@@ -72,6 +72,10 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	context->sVoid = fy_strCreatePermFromUTF8(block, "<void>", 0, exception);
 	FYEH();
 
+	context->sEnum = fy_strCreatePermFromUTF8(block, FY_BASE_ENUM, 0,
+			exception);
+	FYEH();
+
 	context->sTopClass = fy_strCreatePermFromUTF8(block, FY_BASE_OBJECT, 0,
 			exception);
 	FYEH();
@@ -224,6 +228,38 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 
 	context->sArrayClass = fy_strCreatePermFromUTF8(block, "[L"FY_BASE_CLASS";",
 			0, exception);
+	FYEH();
+
+	context->sValueBoolean = fy_strCreatePermFromUTF8(block, FY_VALUE_BOOLEAN,
+			0, exception);
+	FYEH();
+
+	context->sValueByte = fy_strCreatePermFromUTF8(block, FY_VALUE_BYTE, 0,
+			exception);
+	FYEH();
+
+	context->sValueChar = fy_strCreatePermFromUTF8(block, FY_VALUE_CHARACTER, 0,
+			exception);
+	FYEH();
+
+	context->sValueShort = fy_strCreatePermFromUTF8(block, FY_VALUE_SHORT, 0,
+			exception);
+	FYEH();
+
+	context->sValueInt = fy_strCreatePermFromUTF8(block, FY_VALUE_INTEGER, 0,
+			exception);
+	FYEH();
+
+	context->sValueFloat = fy_strCreatePermFromUTF8(block, FY_VALUE_FLOAT, 0,
+			exception);
+	FYEH();
+
+	context->sValueLong = fy_strCreatePermFromUTF8(block, FY_VALUE_LONG, 0,
+			exception);
+	FYEH();
+
+	context->sValueDouble = fy_strCreatePermFromUTF8(block, FY_VALUE_DOUBLE, 0,
+			exception);
 	FYEH();
 }
 
@@ -823,10 +859,9 @@ fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 		void *data, fy_nhFunction handler, fy_exception *exception) {
 	fy_nh* nh;
-	fy_str str[1];
+	fy_str *str;
 	fy_memblock *block = context->memblocks;
-	str->content = NULL;
-	fy_strInitWithUTF8(block, str, name, exception);
+	str = fy_strCreatePermFromUTF8(block, name, 0, exception);
 	FYEH();
 	if (fy_hashMapGet(block, context->mapMUNameToNH, str) != NULL) {
 		fy_fault(exception, NULL, "Native handler conflict %s", name);
@@ -837,7 +872,6 @@ void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 	nh->handler = handler;
 	fy_hashMapPut(block, context->mapMUNameToNH, str, nh, exception);
 	FYEH();
-	fy_strDestroy(block, str);
 }
 
 void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,

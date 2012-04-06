@@ -33,39 +33,7 @@
 
 #define STACK_SIZE 16384
 
-/*Bellow are used by context*/
-#define FY_TYPE_BYTE  'B'
-#define FY_TYPE_CHAR  'C'
-#define FY_TYPE_DOUBLE  'D'
-#define FY_TYPE_FLOAT  'F'
-#define FY_TYPE_LONG  'J'
-#define FY_TYPE_SHORT  'S'
-#define FY_TYPE_BOOLEAN  'Z'
-#define FY_TYPE_ARRAY  '['
-/*Below are shared by thread and context*/
-#define FY_TYPE_INT  'I'
-#define FY_TYPE_HANDLE  'L'
-/*Below are used only by thread*/
-#define FY_TYPE_WIDE  'W'
-#define FY_TYPE_RETURN  'R'
-#define FY_TYPE_WIDE2  '_'
-#define FY_TYPE_UNKNOWN  'X'
-#define FY_TYPE_VOID  'V'
-
-#define FY_METHOD_INIT "<init>"
-#define FY_METHOD_CLINIT "<clinit>"
-#define FY_METHODF_MAIN ".main.([L"FY_BASE_STRING";)V"
-#define FY_METHODF_RUN ".run.()V"
-#define FY_METHODF_FINALIZE ".finalize.()V"
-#define FY_FIELDF_PRIORITY ".priority.I"
-#define FY_FIELDF_NAME ".name.[C"
-#define FY_FIELDF_DAEMON ".daemon.Z"
-#define FY_ATT_CODE "Code"
-#define FY_ATT_LINENUM "LineNumberTable"
-#define FY_ATT_SYNTH "Synthetic"
-#define FY_ATT_SOURCE_FILE "SourceFile"
-#define FY_ATT_CONSTANT_VALIE "ConstantValue"
-
+/*Access flags*/
 #define FY_ACC_ABSTRACT 1024
 #define FY_ACC_FINAL 16
 #define FY_ACC_INTERFACE 512
@@ -195,6 +163,7 @@ typedef struct fy_field {
 	fy_str* uniqueName;
 
 	struct fy_class* owner;
+	struct fy_class *type;
 
 	fy_uint posRel;
 	fy_uint posAbs;
@@ -529,6 +498,7 @@ typedef struct fy_context {
 	fy_str *sStringValue;
 	fy_str *sStringOffset;
 	fy_str *sStringCount;
+	fy_str *sEnum;
 
 	fy_str *sArrayBoolean;
 	fy_str *sArrayChar;
@@ -549,6 +519,15 @@ typedef struct fy_context {
 	fy_str *sStackTraceElementMethodName;
 	fy_str *sStackTraceElementFileName;
 	fy_str *sStackTraceElementLineNumber;
+
+	fy_str *sValueBoolean;
+	fy_str *sValueByte;
+	fy_str *sValueShort;
+	fy_str *sValueChar;
+	fy_str *sValueInt;
+	fy_str *sValueFloat;
+	fy_str *sValueLong;
+	fy_str *sValueDouble;
 
 	fy_class *TOP_THROWABLE;
 	fy_class *TOP_CLASS;

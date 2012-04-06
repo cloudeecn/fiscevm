@@ -179,6 +179,54 @@ void fy_heapPutStaticFloat(fy_context *context, fy_field *field, fy_float value,
 void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 		fy_double value, fy_exception *exception);
 
+fy_uint fy_heapWrapBoolean(fy_context *context, fy_boolean value,
+		fy_exception *exception);
+
+fy_boolean fy_heapUnwrapBoolean(fy_context *context, fy_uint handle,
+		fy_exception *exception);
+
+fy_uint fy_heapWrapByte(fy_context *context, fy_byte value,
+		fy_exception *exception);
+
+fy_byte fy_heapUnwrapByte(fy_context *context, fy_uint handle,
+		fy_exception *exception);
+
+fy_uint fy_heapWrapShort(fy_context *context, fy_short value,
+		fy_exception *exception);
+
+fy_short fy_heapUnwrapShort(fy_context *context, fy_uint handle,
+		fy_exception *exception);
+
+fy_uint fy_heapWrapChar(fy_context *context, fy_char value,
+		fy_exception *exception);
+
+fy_char fy_heapUnwrapChar(fy_context *context, fy_uint handle,
+		fy_exception *exception);
+
+fy_uint fy_heapWrapInt(fy_context *context, fy_int value,
+		fy_exception *exception);
+
+fy_int fy_heapUnwrapInt(fy_context *context, fy_uint handle,
+		fy_exception *exception);
+
+fy_uint fy_heapWrapFloat(fy_context *context, fy_float value,
+		fy_exception *exception);
+
+fy_float fy_heapUnwrapFloat(fy_context *context, fy_uint handle,
+		fy_exception *exception);
+
+fy_uint fy_heapWrapLong(fy_context *context, fy_long value,
+		fy_exception *exception);
+
+fy_long fy_heapUnwrapLong(fy_context *context, fy_uint handle,
+		fy_exception *exception);
+
+fy_uint fy_heapWrapDouble(fy_context *context, fy_double value,
+		fy_exception *exception);
+
+fy_double fy_heapUnwrapDouble(fy_context *context, fy_uint handle,
+		fy_exception *exception);
+
 #ifdef	__cplusplus
 }
 #endif

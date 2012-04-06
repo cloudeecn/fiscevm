@@ -864,6 +864,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 	fy_memblock *block = context->memblocks;
 	fy_field *field;
 	fy_method *method;
+	fy_str str[1];
 #ifdef _DEBUG
 	char buf[255];
 #endif
@@ -946,6 +947,40 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				pos = field->posAbs;
 				ASSERT(pos<clazz->sizeAbs);
 				clazz->fieldAbs[pos] = field;
+			}
+			switch (field->descriptor->content[0]) {
+			case '[':
+				field->type = fy_vmLookupClass(context, field->descriptor,
+						exception);
+				break;
+			case 'L':
+				str->content = NULL;
+				fy_strInit(context->memblocks, str, field->descriptor->length,
+						exception);
+				FYEH();
+				fy_strAppend(context->memblocks, str, field->descriptor,
+						exception);
+				FYEH();
+				fy_strSubstring(context->memblocks, str, 1, str->length - 1);
+				field->type = fy_vmLookupClass(context, str, exception);
+				fy_strDestroy(context->memblocks, str);
+				FYEH();
+				break;
+			case 'Z':
+			case 'B':
+			case 'S':
+			case 'C':
+			case 'I':
+			case 'F':
+			case 'J':
+			case 'D':
+				field->type = fy_vmLookupClass(context,
+						context->primitives[field->descriptor->content[0]],
+						exception);
+				break;
+			default:
+				fy_fault(exception, NULL, "Illegal descriptor of field");
+				break;
 			}
 		}
 		if (clazz->super && (i = clazz->super->sizeAbs) > 0) {

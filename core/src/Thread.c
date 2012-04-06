@@ -557,7 +557,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	fy_localToFrameCheck(ptrFrame) \
 }
 
-static fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
+fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 	fy_uint frameCount = thread->frameCount;
 	if (frameCount == 0) {
 		return NULL;
@@ -826,8 +826,14 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 }
 
 void fy_threadInvoke(fy_context *context, fy_thread *thread, fy_method *method,
-		fy_exception *exception) {
-//	if(method->)
+		fy_message *message, fy_exception *exception) {
+	if (method->access_flags & FY_ACC_STATIC) {
+		invokeStatic(context, thread, fy_threadCurrentFrame(context, thread),
+				method, exception, message);
+	} else {
+		invokeVirtual(context, thread, fy_threadCurrentFrame(context, thread),
+				method, exception, message);
+	}
 }
 /**
  * DON'T USE RETURN HERE!!!!
