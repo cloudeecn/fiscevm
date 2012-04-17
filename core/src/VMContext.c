@@ -76,6 +76,10 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 			exception);
 	FYEH();
 
+	context->sAnnotation = fy_strCreatePermFromUTF8(block, FY_BASE_ANNOTATION,
+			0, exception);
+	FYEH();
+
 	context->sTopClass = fy_strCreatePermFromUTF8(block, FY_BASE_OBJECT, 0,
 			exception);
 	FYEH();
@@ -1005,7 +1009,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 					object->object_data->monitorOwnerTimes,
 					object->object_data->attachedId,
 					object->object_data->length,
-					object->object_data->clazz->type == arr ?
+					object->object_data->clazz->type == array_class ?
 							fy_heapGetArraySizeFromLength(
 									object->object_data->clazz,
 									object->object_data->length) :
@@ -1073,7 +1077,7 @@ void fy_vmBootFromData(fy_context *context, fy_exception *exception) {
 	context->nextForceGCTime = context->nextGCTime + FY_GC_FORCE_IDV;
 }
 
-int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
+fy_int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
 		fy_exception *exception) {
 	fy_class *clcl = fy_vmLookupClass(context, context->sClassClass, exception);
 	fy_int handle = fy_hashMapIGet(context->memblocks, context->classObjIds,
@@ -1087,6 +1091,48 @@ int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
 		fy_hashMapIPut(context->memblocks, context->classObjIds, clazz->classId,
 				handle, exception);
 		//FYEH is unnessessery
+	}
+	return handle;
+}
+
+fy_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
+		fy_exception *exception) {
+	fy_class *mecl = fy_vmLookupClass(context, context->sClassMethod,
+			exception);
+	fy_class *cocl = fy_vmLookupClass(context, context->sClassConstructor,
+			exception);
+	fy_int handle = fy_hashMapIGet(context->memblocks, context->methodObjIds,
+			method->method_id);
+	FYEH()-1;
+	if (handle == -1) {
+		fy_heapBeginProtect(context);
+		if (method->access_flags & FY_ACC_CONSTRUCTOR) {
+			handle = fy_heapAllocate(context, cocl, exception);
+		} else {
+			handle = fy_heapAllocate(context, mecl, exception);
+		}
+		FYEH()-1;
+		fy_heapGetObject(context,handle)->object_data->attachedId =
+				method->method_id;
+		fy_hashMapIPut(context->memblocks, context->methodObjIds,
+				method->method_id, handle, exception);
+	}
+	return handle;
+}
+
+fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
+		fy_exception *exception) {
+	fy_class *ficl = fy_vmLookupClass(context, context->sClassField, exception);
+	fy_int handle = fy_hashMapIGet(context->memblocks, context->fieldObjIds,
+			field->field_id);
+	FYEH()-1;
+	if (handle == -1) {
+		fy_heapBeginProtect(context);
+		handle = fy_heapAllocate(context, ficl, exception);
+		fy_heapGetObject(context,handle)->object_data->attachedId =
+				field->field_id;
+		fy_hashMapIPut(context->memblocks, context->fieldObjIds,
+				field->field_id, handle, exception);
 	}
 	return handle;
 }

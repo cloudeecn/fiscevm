@@ -49,7 +49,7 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 		}
 #endif
 		switch (this->type) {
-		case obj: {
+		case object_class: {
 			interfaces = this->interfaces;
 			for (i = 0, max = this->interfacesCount; i < max; i++) {
 				if (other == interfaces[i]) {
@@ -69,13 +69,13 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 			}
 		}
 			break;
-		case arr: {
+		case array_class: {
 			if (other == context->TOP_CLASS) {
 #ifdef FY_VERBOSE
 				printf("=TRUE\n");
 #endif
 				return TRUE;
-			} else if (arr == other->type) {
+			} else if (array_class == other->type) {
 				fy_class *thisContent = this->ci.arr.contentClass;
 				fy_class *otherContent = other->ci.arr.contentClass;
 				if (thisContent != NULL && otherContent != NULL) {
@@ -97,7 +97,7 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 			}
 		}
 			break;
-		case prm:
+		case primitive_class:
 #ifdef FY_VERBOSE
 			printf("=FALSE\n");
 #endif

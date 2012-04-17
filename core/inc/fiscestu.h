@@ -49,10 +49,13 @@
 #define FY_ACC_VOLATILE 64
 #define FY_ACC_VARARGS 128
 #define FY_ACC_BRIDGE 64
-
 /*Extended access flags*/
-#define FY_ACC_SYNTHETIC 0x00010000
-#define FY_ACC_VERIFIED 0x80000000
+#define FY_ACC_SYNTHETIC	0x00001000
+#define FY_ACC_ANNOTATION	0x00002000
+#define FY_ACC_ENUM			0x00004000
+#define FY_ACC_CONSTRUCTOR	0x00010000
+#define FY_ACC_CLINIT		0x00020000
+#define FY_ACC_VERIFIED		0x80000000
 
 #define FY_TM_STATE_NEW  0
 #define FY_TM_STATE_BOOT_PENDING  1
@@ -224,6 +227,7 @@ typedef struct fy_method {
 
 	/*Used by reflection, contents refrences of class*/
 	/*Because will be wiped in save and load, and Class objects */
+	fy_uint parameterCount;
 	fy_arrayList* parameterTypes;
 	struct fy_class *returnTypeClass;
 } fy_method;
@@ -240,7 +244,7 @@ typedef struct fy_class {
 	 *
 	 */
 	enum type {
-		obj, prm, arr
+		object_class, primitive_class, array_class
 	} type;
 	fy_ubyte phase;
 	fy_ubyte needFinalize;
@@ -499,6 +503,7 @@ typedef struct fy_context {
 	fy_str *sStringOffset;
 	fy_str *sStringCount;
 	fy_str *sEnum;
+	fy_str *sAnnotation;
 
 	fy_str *sArrayBoolean;
 	fy_str *sArrayChar;

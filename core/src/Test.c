@@ -362,6 +362,10 @@ void testStore() {
 	hltest("EXCLUDE/fisce/test/ParamStoreTest");
 }
 
+void testReflection() {
+	hltest("EXCLUDE/fisce/test/ReflectionTest");
+}
+
 void testLoad() {
 	hltest(NULL);
 }
@@ -451,7 +455,8 @@ FY_TEST_FUN testcases[] = { //
 				{ "Save", testSave }, //
 				{ "Load", testLoad }, //
 				{ "StoreParamsToArray", testStore }, //
-				/*{ "Native", testNative },*/ //
+				{ "Reflection", testReflection }, //
+				{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {
 	int i = 0;

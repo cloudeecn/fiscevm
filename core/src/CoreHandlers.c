@@ -155,86 +155,6 @@ static void ObjectNotifyAll(struct fy_context *context,
 	fy_tmNotify(context, thread, monitorId, TRUE, exception);
 }
 
-static void ClassGetComponentType(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz = fy_heapGetClassOfObject(context, args[0], exception);
-	if (clazz->type == arr) {
-		fy_nativeReturnHandle(context, thread,
-				fy_vmGetClassObjHandle(context, clazz->ci.arr.contentClass,
-						exception));
-	} else {
-		fy_nativeReturnHandle(context, thread, 0);
-	}
-}
-
-static void ClassInvokeMethod(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_uint classHandle = args[0];
-	fy_uint methodNameHandle = args[1];
-	/*fy_boolean isStatic = args[2];*/
-	fy_uint paramsHandle = args[3];
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, classHandle,
-			exception);
-	fy_str methodName;
-	FYEH();
-	fy_method *method;
-	fy_byte *paramTypes;
-	fy_uint count, i;
-	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
-	fy_uint sp = currentFrame->sp;
-
-	methodName.content = NULL;
-	fy_strInit(context->memblocks, &methodName, 64, exception);
-	FYEH();
-
-	fy_strAppendUTF8(context->memblocks, &methodName, ".", 1, exception);
-	if (exception->exceptionType != exception_none) {
-		fy_strDestroy(context->memblocks, &methodName);
-		return;
-	}
-
-	fy_heapGetString(context, methodNameHandle, &methodName, exception);
-	if (exception->exceptionType != exception_none) {
-		fy_strDestroy(context->memblocks, &methodName);
-		return;
-	}
-
-	method = fy_vmLookupMethodVirtual(context, clazz, &methodName, exception);
-	fy_strDestroy(context->memblocks, &methodName);
-	FYEH();
-	if (method == NULL) {
-		fy_fault(exception, FY_EXCEPTION_ITE, "Method not found!");
-		return;
-	}
-	if (method->returnType != FY_TYPE_HANDLE) {
-		fy_fault(exception, FY_EXCEPTION_ITE, "Return type not Object!");
-		return;
-	}
-	paramTypes = method->paramTypes;
-	count = paramsHandle == 0 ?
-			0 : fy_heapArrayLength(context, paramsHandle, exception);
-	FYEH();
-	if (count != method->paramCount) {
-		fy_fault(exception, FY_EXCEPTION_ITE, "param count not match!");
-		return;
-	}
-	for (i = 0; i < count; i++) {
-		thread->stack[sp + i] = fy_heapGetArrayInt(context, paramsHandle, i,
-				exception);
-		FYEH();
-		fy_bitSet(thread->typeStack, sp+i);
-		if (paramTypes[i] != FY_TYPE_HANDLE) {
-			fy_fault(exception, FY_EXCEPTION_ITE, "param type not all handle");
-			break;
-		}
-	}
-	fy_threadPushMethod(context, thread, method, NULL, exception);
-	FYEH();
-
-}
-
 static void ThreadCurrentThread(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_message *message, fy_exception *exception) {
@@ -563,89 +483,6 @@ static void throwableFillInStackTrace(struct fy_context *context,
 	fy_threadFillException(context, thread, value, exception);
 }
 
-static void classGetName(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	fy_uint handle;
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	if (exception->exceptionType != exception_none) {
-		return;
-	}
-	handle = fy_heapMakeString(context, clazz->className, exception);
-	if (exception->exceptionType != exception_none) {
-		return;
-	}
-	fy_nativeReturnHandle(context, thread, handle);
-}
-
-static void classForName(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	fy_uint nameHandle = args[0];
-	fy_boolean initialize = args[1];
-	fy_str str;
-	fy_class *clazz;
-	str.content = NULL;
-	fy_strInit(context->memblocks, &str, 64, exception);
-	FYEH();
-
-	fy_heapGetString(context, nameHandle, &str, exception);
-	if (exception->exceptionType != exception_none) {
-		fy_strDestroy(context->memblocks, &str);
-		return;
-	}
-	fy_strReplaceOne(&str, '.', '/');
-	clazz = fy_vmLookupClass(context, &str, exception);
-	FYEH();
-	fy_nativeReturnHandle(context, thread,
-			fy_vmGetClassObjHandle(context, clazz, exception));
-}
-
-static void classNewInstanceO(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz;
-	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
-	fy_method *invoke;
-	fy_str str;
-	fy_uint sp;
-	fy_uint handle;
-	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	FYEH();
-	if (clazz->type != obj) {
-		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
-		return;
-	}
-	handle = fy_heapAllocate(context, clazz, exception);
-	FYEH();
-	fy_nativeReturnHandle(context, thread, handle);
-	sp = currentFrame->sp;
-	str.content = NULL;
-	fy_strInitWithUTF8(context->memblocks, &str, "."FY_METHOD_INIT".()V",
-			exception);
-	FYEH();
-	invoke = fy_vmLookupMethodVirtual(context, clazz, &str, exception);
-	fy_strDestroy(context->memblocks, &str);
-	FYEH();
-	thread->stack[sp] = handle;
-	fy_bitSet(thread->typeStack, sp);
-	fy_threadPushMethod(context, thread, invoke, NULL, exception);
-}
-
-/*Make an array of array class for example Object[]->Object[]*/
-static void classNewInstanceA(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz;
-	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	FYEH();
-	if (clazz->type != arr) {
-		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
-	}
-	fy_nativeReturnHandle(context, thread,
-			fy_heapAllocateArray(context, clazz, args[1], exception));
-}
-
 static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
@@ -662,7 +499,7 @@ static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 	fy_class *paramClass;
 	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
 	FYEH();
-	if (clazz->type != obj) {
+	if (clazz->type != object_class) {
 		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
 		return;
 	}
@@ -691,7 +528,7 @@ static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 			return;
 		}
 		switch (paramClass->type) {
-		case obj:
+		case object_class:
 			fy_strAppendUTF8(context->memblocks, &str, "L", 1, exception);
 			if (exception->exceptionType != exception_none) {
 				fy_strDestroy(context->memblocks, &str);
@@ -709,7 +546,7 @@ static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 				return;
 			}
 			break;
-		case arr:
+		case array_class:
 			fy_strAppend(context->memblocks, &str, paramClass->className,
 					exception);
 			if (exception->exceptionType != exception_none) {
@@ -717,7 +554,7 @@ static void vmNewInstance(struct fy_context *context, struct fy_thread *thread,
 				return;
 			}
 			break;
-		case prm:
+		case primitive_class:
 			fy_strAppendChar(context->memblocks, &str, paramClass->ci.prm.pType,
 					exception);
 			if (exception->exceptionType != exception_none) {
@@ -766,16 +603,16 @@ static void vmNewArray(struct fy_context *context, struct fy_thread *thread,
 			exception);
 	FYEH();
 	switch (clazz->type) {
-	case obj:
+	case object_class:
 		fy_strAppendUTF8(context->memblocks, &str, "[L", 2, exception);
 		fy_strAppend(context->memblocks, &str, clazz->className, exception);
 		fy_strAppendChar(context->memblocks, &str, ';', exception);
 		break;
-	case arr:
+	case array_class:
 		fy_strAppendUTF8(context->memblocks, &str, "[", 1, exception);
 		fy_strAppend(context->memblocks, &str, clazz->className, exception);
 		break;
-	case prm:
+	case primitive_class:
 		fy_strAppendChar(context->memblocks, &str, '[', exception);
 		cc = fy_hashMapGet(context->memblocks, context->mapPrimitivesRev,
 				clazz->className);
@@ -789,88 +626,11 @@ static void vmNewArray(struct fy_context *context, struct fy_thread *thread,
 	clazz = fy_vmLookupClass(context, &str, exception);
 	fy_strDestroy(context->memblocks, &str);
 	FYEH();
-	if (clazz->type != arr) {
+	if (clazz->type != array_class) {
 		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
 	}
 	fy_nativeReturnHandle(context, thread,
 			fy_heapAllocateArray(context, clazz, args[1], exception));
-}
-
-static void classIsInstance(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	fy_class *objClazz = fy_heapGetObject(context,args[1])->object_data->clazz;
-	FYEH();
-	fy_nativeReturnInt(context, thread,
-			fy_classCanCastTo(context, objClazz, clazz) ? 1 : 0);
-}
-
-static void classIsAssignableFrom(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	fy_class *targetClazz = fy_vmGetClassFromClassObject(context, args[1],
-			exception);
-	FYEH();
-	fy_nativeReturnInt(context, thread,
-			fy_classCanCastTo(context, clazz, targetClazz) ? 1 : 0);
-}
-
-static void classIsInterface(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	FYEH();
-	fy_nativeReturnInt(context, thread,
-			(clazz->accessFlags & FY_ACC_INTERFACE) ? 1 : 0);
-}
-
-static void classIsArray(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	FYEH();
-	fy_nativeReturnInt(context, thread, clazz->type == arr ? 1 : 0);
-}
-
-static void classIsPrimitive(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	FYEH();
-	fy_nativeReturnInt(context, thread, clazz->type == prm ? 1 : 0);
-}
-
-static void classGetSuperclass(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	FYEH();
-	clazz = clazz->super;
-	fy_nativeReturnInt(context, thread,
-			clazz == NULL ?
-					0 : fy_vmGetClassObjHandle(context, clazz, exception));
-}
-
-static void classGetInterfaces(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
-	fy_class *classOfClass;
-	fy_uint ret, i, imax, tmp;
-	FYEH();
-	classOfClass = fy_vmLookupClass(context, context->sClassClass, exception);
-	FYEH();
-	imax = clazz->interfacesCount;
-	ret = fy_heapAllocateArray(context, classOfClass, imax, exception);
-	FYEH();
-	for (i = 0; i < imax; i++) {
-		tmp = fy_vmGetClassObjHandle(context, clazz->interfaces[i], exception);
-		fy_heapPutArrayHandle(context, ret, i, tmp, exception);
-		FYEH();
-	}
-	fy_nativeReturnHandle(context, thread, ret);
 }
 
 static void finalizerGetFinalizee(struct fy_context *context,
@@ -958,7 +718,7 @@ static void methodGetDeclaringClass(struct fy_context *context,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
-	fy_nativeReturnInt(context, thread,
+	fy_nativeReturnHandle(context, thread,
 			fy_vmGetClassObjHandle(context, method->owner, exception));
 }
 
@@ -1067,10 +827,10 @@ static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	fy_uint count =
-			args[1] ? fy_heapArrayLength(context, args[1], exception) : 0;
+			args[2] ? fy_heapArrayLength(context, args[2], exception) : 0;
 	fy_class *paramType;
 	fy_uint i;
-	fy_uint paramsHandle = args[1];
+	fy_uint paramsHandle = args[2];
 	fy_uint paramHandle;
 	FYEH();
 
@@ -1078,19 +838,19 @@ static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
-	if (count != method->paramCount) {
+	if (count != method->parameterCount) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 	}
 	if (!(method->access_flags & FY_ACC_STATIC)) {
 		frame->sp++;
 	}
 	for (i = 0; i < count; i++) {
-		paramType = fy_arrayListGet(context->memblocks, method->parameterTypes,
-				i, NULL);
+		fy_arrayListGet(context->memblocks, method->parameterTypes, i,
+				&paramType);
 		paramHandle = fy_heapGetArrayHandle(context, paramsHandle, i,
 				exception);
 		FYEH();
-		if (paramType->type == prm) {
+		if (paramType->type == primitive_class) {
 			/*Unwrap*/
 			switch (paramType->ci.prm.pType) {
 			case FY_TYPE_BOOLEAN: {
@@ -1273,14 +1033,12 @@ static void fieldIsEnumconstant(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	fy_class *enumClazz;
 	if (field == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
-	/*FIXME 谁知道这种事情啊*/
-	enumClazz = fy_vmLookupClass(context, context->sEnum, exception);
-	FYEH();
+	fy_nativeReturnInt(context, thread,
+			(field->access_flags & FY_ACC_ENUM) ? 1 : 0);
 }
 
 static void fieldGet(struct fy_context *context, struct fy_thread *thread,
@@ -1288,17 +1046,800 @@ static void fieldGet(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-
+	fy_class *type;
 	if (field == NULL) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
-	/*TODO STUD*/
 
-	fy_fault(exception, FY_EXCEPTION_NO_METHOD, "stub");
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->type) {
+		case primitive_class:
+			switch (field->type->ci.prm.pType) {
+			case 'Z':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapBoolean(context,
+								fy_heapGetStaticBoolean(context, field,
+										exception), exception));
+				break;
+			case 'B':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapByte(context,
+								fy_heapGetStaticByte(context, field, exception),
+								exception));
+				break;
+			case 'S':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapShort(context,
+								fy_heapGetStaticShort(context, field,
+										exception), exception));
+				break;
+			case 'C':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapChar(context,
+								fy_heapGetStaticChar(context, field, exception),
+								exception));
+				break;
+			case 'I':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapInt(context,
+								fy_heapGetStaticInt(context, field, exception),
+								exception));
+				break;
+			case 'F':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapFloat(context,
+								fy_heapGetStaticFloat(context, field,
+										exception), exception));
+				break;
+			case 'J':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapLong(context,
+								fy_heapGetStaticLong(context, field, exception),
+								exception));
+				break;
+			case 'D':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapDouble(context,
+								fy_heapGetStaticDouble(context, field,
+										exception), exception));
+				break;
+			default:
+				fy_fault(exception, NULL, "Illegal prm type %c",
+						field->type->ci.prm.pType);
+				break;
+			}
+			break;
+		default:
+			fy_nativeReturnHandle(context, thread,
+					fy_heapGetStaticHandle(context, field, exception));
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->type) {
+		case primitive_class:
+			switch (field->type->ci.prm.pType) {
+			case 'Z':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapBoolean(context,
+								fy_heapGetFieldBoolean(context, args[1], field,
+										exception), exception));
+				break;
+			case 'B':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapByte(context,
+								fy_heapGetFieldByte(context, args[1], field,
+										exception), exception));
+				break;
+			case 'S':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapShort(context,
+								fy_heapGetFieldShort(context, args[1], field,
+										exception), exception));
+				break;
+			case 'C':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapChar(context,
+								fy_heapGetFieldChar(context, args[1], field,
+										exception), exception));
+				break;
+			case 'I':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapInt(context,
+								fy_heapGetFieldInt(context, args[1], field,
+										exception), exception));
+				break;
+			case 'F':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapFloat(context,
+								fy_heapGetFieldFloat(context, args[1], field,
+										exception), exception));
+				break;
+			case 'J':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapLong(context,
+								fy_heapGetFieldLong(context, args[1], field,
+										exception), exception));
+				break;
+			case 'D':
+				fy_nativeReturnHandle(context, thread,
+						fy_heapWrapDouble(context,
+								fy_heapGetFieldDouble(context, args[1], field,
+										exception), exception));
+				break;
+			default:
+				fy_fault(exception, NULL, "Illegal prm type %c",
+						field->type->ci.prm.pType);
+				break;
+			}
+			break;
+		default:
+			fy_nativeReturnHandle(context, thread,
+					fy_heapGetFieldHandle(context, args[1], field, exception));
+			break;
+		}
+	}
 }
 
-static void field(struct fy_context *context, struct fy_thread *thread,
+static void fieldGetBoolean(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *type;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BOOLEAN:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticBoolean(context, field, exception));
+			break;
+		case FY_TYPE_BYTE:
+		case FY_TYPE_SHORT:
+		case FY_TYPE_CHAR:
+		case FY_TYPE_INT:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type boolean by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BOOLEAN:
+
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldBoolean(context, args[1], field, exception));
+			break;
+		case FY_TYPE_BYTE:
+		case FY_TYPE_SHORT:
+		case FY_TYPE_CHAR:
+		case FY_TYPE_INT:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type boolean by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	}
+}
+
+static void fieldGetByte(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *type;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticByte(context, field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_SHORT:
+		case FY_TYPE_CHAR:
+		case FY_TYPE_INT:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type byte by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldByte(context, args[1], field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_SHORT:
+		case FY_TYPE_CHAR:
+		case FY_TYPE_INT:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type byte by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	}
+
+}
+
+static void fieldGetShort(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *type;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticByte(context, field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticShort(context, field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_CHAR:
+		case FY_TYPE_INT:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type short by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldByte(context, args[1], field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldShort(context, args[1], field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_CHAR:
+		case FY_TYPE_INT:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type short by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	}
+
+}
+
+static void fieldGetChar(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *type;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_CHAR:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticChar(context, field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_BYTE:
+		case FY_TYPE_SHORT:
+		case FY_TYPE_INT:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type char by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_CHAR:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldChar(context, args[1], field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_BYTE:
+		case FY_TYPE_SHORT:
+		case FY_TYPE_INT:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type char by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	}
+
+}
+
+static void fieldGetInt(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *type;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticByte(context, field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticShort(context, field, exception));
+			break;
+		case FY_TYPE_CHAR:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticChar(context, field, exception));
+			break;
+		case FY_TYPE_INT:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetStaticInt(context, field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type int by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldByte(context, args[1], field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldShort(context, args[1], field, exception));
+			break;
+		case FY_TYPE_CHAR:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldChar(context, args[1], field, exception));
+			break;
+		case FY_TYPE_INT:
+			fy_nativeReturnInt(context, thread,
+					fy_heapGetFieldInt(context, args[1], field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_LONG:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type int by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	}
+
+}
+
+static void fieldGetFloat(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *type;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetStaticByte(context, field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetStaticShort(context, field, exception));
+			break;
+		case FY_TYPE_CHAR:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetStaticChar(context, field, exception));
+			break;
+		case FY_TYPE_INT:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetStaticInt(context, field, exception));
+			break;
+		case FY_TYPE_FLOAT:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetStaticFloat(context, field, exception));
+			break;
+		case FY_TYPE_LONG:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetStaticLong(context, field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type float by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetFieldByte(context, args[1], field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetFieldShort(context, args[1], field, exception));
+			break;
+		case FY_TYPE_CHAR:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetFieldChar(context, args[1], field, exception));
+			break;
+		case FY_TYPE_INT:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetFieldInt(context, args[1], field, exception));
+			break;
+		case FY_TYPE_FLOAT:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetFieldFloat(context, args[1], field, exception));
+			break;
+		case FY_TYPE_LONG:
+			fy_nativeReturnFloat(context, thread,
+					fy_heapGetFieldLong(context, args[1], field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type float by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	}
+
+}
+
+static void fieldGetLong(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *type;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetStaticByte(context, field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetStaticShort(context, field, exception));
+			break;
+		case FY_TYPE_CHAR:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetStaticChar(context, field, exception));
+			break;
+		case FY_TYPE_INT:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetStaticInt(context, field, exception));
+			break;
+		case FY_TYPE_LONG:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetStaticLong(context, field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type long by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetFieldByte(context, args[1], field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetFieldShort(context, args[1], field, exception));
+			break;
+		case FY_TYPE_CHAR:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetFieldChar(context, args[1], field, exception));
+			break;
+		case FY_TYPE_INT:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetFieldInt(context, args[1], field, exception));
+			break;
+		case FY_TYPE_LONG:
+			fy_nativeReturnLong(context, thread,
+					fy_heapGetFieldLong(context, args[1], field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+		case FY_TYPE_FLOAT:
+		case FY_TYPE_DOUBLE:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type long by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	}
+
+}
+
+static void fieldGetDouble(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_class *type;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetStaticByte(context, field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetStaticShort(context, field, exception));
+			break;
+		case FY_TYPE_CHAR:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetStaticChar(context, field, exception));
+			break;
+		case FY_TYPE_INT:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetStaticInt(context, field, exception));
+			break;
+		case FY_TYPE_LONG:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetStaticLong(context, field, exception));
+			break;
+		case FY_TYPE_FLOAT:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetStaticFloat(context, field, exception));
+			break;
+		case FY_TYPE_DOUBLE:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetStaticDouble(context, field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type long by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	} else {
+		type = fy_heapGetClassOfObject(context, args[1], exception);
+		FYEH();
+		if (!fy_classCanCastTo(context, type, field->owner)) {
+			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
+			FYEH();
+		}
+		switch (field->type->ci.prm.pType) {
+		case FY_TYPE_BYTE:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetFieldByte(context, args[1], field, exception));
+			break;
+		case FY_TYPE_SHORT:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetFieldShort(context, args[1], field, exception));
+			break;
+		case FY_TYPE_CHAR:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetFieldChar(context, args[1], field, exception));
+			break;
+		case FY_TYPE_INT:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetFieldInt(context, args[1], field, exception));
+			break;
+		case FY_TYPE_LONG:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetFieldLong(context, args[1], field, exception));
+			break;
+		case FY_TYPE_FLOAT:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetFieldFloat(context, args[1], field, exception));
+			break;
+		case FY_TYPE_DOUBLE:
+			fy_nativeReturnDouble(context, thread,
+					fy_heapGetFieldDouble(context, args[1], field, exception));
+			break;
+		case FY_TYPE_BOOLEAN:
+			fy_fault(exception, FY_EXCEPTION_ARGU,
+					"The field value cannot be converted to the type long by a widening conversion");
+			break;
+		default:
+			fy_fault(exception, NULL, "");
+			break;
+		}
+	}
+}
+
+static void fieldGetModifiers(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+		FYEH();
+	}
+	fy_nativeReturnInt(context, thread, field->access_flags);
+}
+
+static void fieldGetName(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_uint ret;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+		FYEH();
+	}
+	ret = fy_heapLiteral(context, field->name, exception);
+	FYEH();
+	fy_nativeReturnHandle(context, thread, ret);
+}
+
+static void fieldGetType(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
@@ -1307,240 +1848,573 @@ static void field(struct fy_context *context, struct fy_thread *thread,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
+	fy_nativeReturnHandle(context, thread,
+			fy_vmGetClassObjHandle(context, field->type, exception));
+}
+
+static void fieldGetDeclaringClass(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+		FYEH();
+	}
+	fy_nativeReturnHandle(context, thread,
+			fy_vmGetClassObjHandle(context, field->owner, exception));
+}
+
+static void fieldSetObject(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type == primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field is primitive");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		fy_heapPutStaticHandle(context, field, args[2], exception);
+	} else {
+		fy_heapPutFieldHandle(context, args[1], field, args[2], exception);
+	}
+}
+
+static void fieldSetPrim(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+				"Field is not primitive");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		fy_heapPutStaticInt(context, field, args[2], exception);
+	} else {
+		fy_heapPutFieldInt(context, args[1], field, args[2], exception);
+	}
+}
+
+static void fieldSetWidePrim(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type != primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+				"Field is not primitive");
+		FYEH();
+	}
+	if (field->access_flags & FY_ACC_STATIC) {
+		fy_heapPutStaticInt(context, field, fy_I2TOL(args[2],args[3]),
+				exception);
+	} else {
+		fy_heapPutFieldInt(context, args[1], field, fy_I2TOL(args[2],args[3]),
+				exception);
+	}
+}
+
+static void fieldGetUniqueName(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
+	fy_field *field = context->fields[fieldObj->object_data->attachedId];
+	fy_uint ret;
+	if (field == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+		FYEH();
+	}
+	ret = fy_heapLiteral(context, field->uniqueName, exception);
+	FYEH();
+	fy_nativeReturnHandle(context, thread, ret);
+}
+
+static void registerFields(fy_context *context, fy_exception *exception) {
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getName.()L"FY_BASE_STRING";", NULL, fieldGetName,
+			exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getUniqueName.()L"FY_BASE_STRING";", NULL,
+			fieldGetUniqueName, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context, FY_REFLECT_FIELD".isSynthetic.()Z",
+			NULL, fieldIsSynthetic, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context, FY_REFLECT_FIELD".isEnumConstant.()Z",
+			NULL, fieldIsEnumconstant, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context, FY_REFLECT_FIELD".getModifiers.()I",
+			NULL, fieldGetModifiers, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getDeclaringClass.()L"FY_BASE_CLASS";", NULL,
+			fieldGetDeclaringClass, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getType.()L"FY_BASE_CLASS";", NULL, fieldGetType,
+			exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".get.(L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";", NULL,
+			fieldGet, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getBoolean.(L"FY_BASE_OBJECT";)Z", NULL,
+			fieldGetBoolean, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getByte.(L"FY_BASE_OBJECT";)B", NULL,
+			fieldGetByte, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getShort.(L"FY_BASE_OBJECT";)S", NULL,
+			fieldGetShort, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getChar.(L"FY_BASE_OBJECT";)C", NULL,
+			fieldGetChar, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getInt.(L"FY_BASE_OBJECT";)I", NULL, fieldGetInt,
+			exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getFloat.(L"FY_BASE_OBJECT";)F", NULL,
+			fieldGetFloat, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getLong.(L"FY_BASE_OBJECT";)J", NULL,
+			fieldGetLong, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".getDouble.(L"FY_BASE_OBJECT";)D", NULL,
+			fieldGetDouble, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setObject.(L"FY_BASE_OBJECT";L"FY_BASE_OBJECT";)V",
+			NULL, fieldSetObject, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setBoolean.(L"FY_BASE_OBJECT";Z)V", NULL,
+			fieldSetPrim, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setByte.(L"FY_BASE_OBJECT";B)V", NULL,
+			fieldSetPrim, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setShort.(L"FY_BASE_OBJECT";S)V", NULL,
+			fieldSetPrim, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setChar.(L"FY_BASE_OBJECT";C)V", NULL,
+			fieldSetPrim, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setInt.(L"FY_BASE_OBJECT";I)V", NULL,
+			fieldSetPrim, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setFloat.(L"FY_BASE_OBJECT";F)V", NULL,
+			fieldSetPrim, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setLong.(L"FY_BASE_OBJECT";J)V", NULL,
+			fieldSetWidePrim, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_FIELD".setDouble.(L"FY_BASE_OBJECT";D)V", NULL,
+			fieldSetWidePrim, exception);
+	FYEH();
+}
+static void classPrivateGetDeclaredMethods(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz, *clazzArrayObject;
+	fy_uint methodCount;
+	fy_uint ret;
+	fy_int i, j;
+
+	clazzArrayObject = fy_vmLookupClass(context, context->sArrayObject,
+			exception);
+	FYEH();
+	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	methodCount = clazz->methodCount;
+	ret = fy_heapAllocateArray(context, clazzArrayObject, methodCount,
+			exception);
+	FYEH();
+	i = 0;
+	for (j = 0; j < methodCount; j++) {
+		printf("$$$ ");
+		fy_strPrint(clazz->methods[j]->uniqueName);
+		printf("\n");
+		fy_heapPutArrayHandle(context, ret, i++,
+				fy_vmGetMethodObjHandle(context, clazz->methods[j], exception),
+				exception);
+		FYEH();
+	}
+	fy_nativeReturnHandle(context, thread, ret);
+}
+static void classPrivateGetDeclaredFields(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz, *clazzArrayObject;
+	fy_uint fieldCount;
+	fy_uint ret;
+	fy_int i, j;
+
+	clazzArrayObject = fy_vmLookupClass(context, context->sArrayObject,
+			exception);
+	FYEH();
+	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	fieldCount = clazz->fieldCount;
+	ret = fy_heapAllocateArray(context, clazzArrayObject, fieldCount,
+			exception);
+	FYEH();
+	i = 0;
+	for (j = 0; j < fieldCount; j++) {
+		printf("$$$ ");
+		fy_strPrint(clazz->fields[j]->uniqueName);
+		printf("\n");
+		fy_heapPutArrayHandle(context, ret, i++,
+				fy_vmGetFieldObjHandle(context, clazz->fields[j], exception),
+				exception);
+		FYEH();
+	}
+	fy_nativeReturnHandle(context, thread, ret);
+}
+static void classGetComponentType(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	if (clazz->type == array_class) {
+		fy_nativeReturnHandle(context, thread,
+				fy_vmGetClassObjHandle(context, clazz->ci.arr.contentClass,
+						exception));
+	} else {
+		fy_nativeReturnHandle(context, thread, 0);
+	}
+}
+
+static void classInvokeMethod(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_uint classHandle = args[0];
+	fy_uint methodNameHandle = args[1];
+	/*fy_boolean isStatic = args[2];*/
+	fy_uint paramsHandle = args[3];
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, classHandle,
+			exception);
+	fy_str methodName;
+	FYEH();
+	fy_method *method;
+	fy_byte *paramTypes;
+	fy_uint count, i;
+	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
+	fy_uint sp = currentFrame->sp;
+
+	methodName.content = NULL;
+	fy_strInit(context->memblocks, &methodName, 64, exception);
+	FYEH();
+
+	fy_strAppendUTF8(context->memblocks, &methodName, ".", 1, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, &methodName);
+		return;
+	}
+
+	fy_heapGetString(context, methodNameHandle, &methodName, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, &methodName);
+		return;
+	}
+
+	method = fy_vmLookupMethodVirtual(context, clazz, &methodName, exception);
+	fy_strDestroy(context->memblocks, &methodName);
+	FYEH();
+	if (method == NULL) {
+		fy_fault(exception, FY_EXCEPTION_ITE, "Method not found!");
+		return;
+	}
+	if (method->returnType != FY_TYPE_HANDLE) {
+		fy_fault(exception, FY_EXCEPTION_ITE, "Return type not Object!");
+		return;
+	}
+	paramTypes = method->paramTypes;
+	count = paramsHandle == 0 ?
+			0 : fy_heapArrayLength(context, paramsHandle, exception);
+	FYEH();
+	if (count != method->paramCount) {
+		fy_fault(exception, FY_EXCEPTION_ITE, "param count not match!");
+		return;
+	}
+	for (i = 0; i < count; i++) {
+		thread->stack[sp + i] = fy_heapGetArrayInt(context, paramsHandle, i,
+				exception);
+		FYEH();
+		fy_bitSet(thread->typeStack, sp+i);
+		if (paramTypes[i] != FY_TYPE_HANDLE) {
+			fy_fault(exception, FY_EXCEPTION_ITE, "param type not all handle");
+			break;
+		}
+	}
+	fy_threadPushMethod(context, thread, method, NULL, exception);
+	FYEH();
 
 }
-/*
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
 
- }
+static void classForName(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_uint nameHandle = args[0];
+	fy_boolean initialize = args[1];
+	fy_str str;
+	fy_class *clazz;
+	str.content = NULL;
+	fy_strInit(context->memblocks, &str, 64, exception);
+	FYEH();
 
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
+	fy_heapGetString(context, nameHandle, &str, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, &str);
+		return;
+	}
+	fy_strReplaceOne(&str, '.', '/');
+	clazz = fy_vmLookupClass(context, &str, exception);
+	FYEH();
+	fy_nativeReturnHandle(context, thread,
+			fy_vmGetClassObjHandle(context, clazz, exception));
+}
 
- }
+static void classNewInstanceO(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz;
+	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
+	fy_method *invoke;
+	fy_str str;
+	fy_uint sp;
+	fy_uint handle;
+	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	if (clazz->type != object_class) {
+		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
+		return;
+	}
+	handle = fy_heapAllocate(context, clazz, exception);
+	FYEH();
+	fy_nativeReturnHandle(context, thread, handle);
+	sp = currentFrame->sp;
+	str.content = NULL;
+	fy_strInitWithUTF8(context->memblocks, &str, "."FY_METHOD_INIT".()V",
+			exception);
+	FYEH();
+	invoke = fy_vmLookupMethodVirtual(context, clazz, &str, exception);
+	fy_strDestroy(context->memblocks, &str);
+	FYEH();
+	thread->stack[sp] = handle;
+	fy_bitSet(thread->typeStack, sp);
+	fy_threadPushMethod(context, thread, invoke, NULL, exception);
+}
 
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
+/*Make an array of array class for example Object[]->Object[]*/
+static void classNewInstanceA(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz;
+	clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	if (clazz->type != array_class) {
+		fy_fault(exception, FY_EXCEPTION_RT, "Class is not an object class!");
+	}
+	fy_nativeReturnHandle(context, thread,
+			fy_heapAllocateArray(context, clazz, args[1], exception));
+}
+static void classIsInstance(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	fy_class *objClazz = fy_heapGetObject(context,args[1])->object_data->clazz;
+	FYEH();
+	fy_nativeReturnInt(context, thread,
+			fy_classCanCastTo(context, objClazz, clazz) ? 1 : 0);
+}
 
- }
+static void classIsAssignableFrom(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	fy_class *targetClazz = fy_vmGetClassFromClassObject(context, args[1],
+			exception);
+	FYEH();
+	fy_nativeReturnInt(context, thread,
+			fy_classCanCastTo(context, targetClazz, clazz) ? 1 : 0);
+}
 
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
+static void classIsInterface(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	fy_nativeReturnInt(context, thread,
+			(clazz->accessFlags & FY_ACC_INTERFACE) ? 1 : 0);
+}
 
- }
+static void classIsArray(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	fy_nativeReturnInt(context, thread, clazz->type == array_class ? 1 : 0);
+}
 
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
+static void classIsPrimitive(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	fy_nativeReturnInt(context, thread, clazz->type == primitive_class ? 1 : 0);
+}
 
- }
+static void classGetSuperclass(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	clazz = clazz->super;
+	fy_nativeReturnHandle(context, thread,
+			clazz == NULL ?
+					0 : fy_vmGetClassObjHandle(context, clazz, exception));
+}
 
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
+static void classGetInterfaces(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	fy_class *classOfClass;
+	fy_uint ret, i, imax, tmp;
+	FYEH();
+	classOfClass = fy_vmLookupClass(context, context->sArrayClass, exception);
+	FYEH();
+	imax = clazz->interfacesCount;
+	ret = fy_heapAllocateArray(context, classOfClass, imax, exception);
+	FYEH();
+	for (i = 0; i < imax; i++) {
+		tmp = fy_vmGetClassObjHandle(context, clazz->interfaces[i], exception);
+		fy_heapPutArrayHandle(context, ret, i, tmp, exception);
+		FYEH();
+	}
+	fy_nativeReturnHandle(context, thread, ret);
+}
 
- }
+static void classGetNativeName(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	fy_uint ret;
+	FYEH();
+	ret = fy_heapLiteral(context, clazz->className, exception);
+	fy_nativeReturnHandle(context, thread, ret);
+}
 
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
+static void classGetModifiers(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	fy_nativeReturnInt(context, thread, clazz->accessFlags);
+}
 
- }
+static void classIsEnum(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	FYEH();
+	fy_nativeReturnInt(context, thread,
+			clazz->accessFlags & FY_ACC_ENUM ? 1 : 0);
+}
 
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
+static void registerClasses(fy_context *context, fy_exception *exception) {
+	/*Class*/
+	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isEnum.()Z", NULL,
+			classIsEnum, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".getModifiers.()I", NULL,
+			classGetModifiers, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".getNativeName.()L"FY_BASE_STRING";", NULL,
+			classGetNativeName, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".getPrivateDeclaredMethods0.()[L"FY_BASE_OBJECT";",
+			NULL, classPrivateGetDeclaredMethods, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".getPrivateDeclaredFields0.()[L"FY_BASE_OBJECT";",
+			NULL, classPrivateGetDeclaredFields, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
+			classGetComponentType, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".invokeMethodHandleReturn0.(L"FY_BASE_STRING";Z[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
+			NULL, classInvokeMethod, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".forName0.(L"FY_BASE_STRING";Z)L"FY_BASE_CLASS";",
+			NULL, classForName, exception);
+	FYEH();
 
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
-
- static void field(struct fy_context *context, struct fy_thread *thread,
- void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
- fy_object *fieldObj = fy_heapGetObject(context,args[0]);
- fy_field *field = context->fields[fieldObj->attachedId];
- if (field == NULL) {
- fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
- FYEH();
- }
-
- }
- */
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".newInstance0.()L"FY_BASE_OBJECT";", NULL,
+			classNewInstanceO, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".isInstance.(L"FY_BASE_OBJECT";)Z", NULL,
+			classIsInstance, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".isAssignableFrom.(L"FY_BASE_CLASS";)Z", NULL,
+			classIsAssignableFrom, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isInterface.()Z", NULL,
+			classIsInterface, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isArray.()Z", NULL,
+			classIsArray, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isPrimitive.()Z", NULL,
+			classIsPrimitive, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".getSuperclass.()L"FY_BASE_CLASS";", NULL,
+			classGetSuperclass, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_BASE_CLASS".getInterfaces.()[L"FY_BASE_CLASS";", NULL,
+			classGetInterfaces, exception);
+	FYEH();
+}
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context, FY_BASE_FLOAT".intBitsToFloat.(I)F",
@@ -1586,48 +2460,7 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			SystemExit, exception);
 	FYEH();
 
-	/*Class*/
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
-			ClassGetComponentType, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".invokeMethodHandleReturn0.(L"FY_BASE_STRING";Z[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
-			NULL, ClassInvokeMethod, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".forName0.(L"FY_BASE_STRING";Z)L"FY_BASE_CLASS";",
-			NULL, classForName, exception);
-	FYEH();
-
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".newInstance0.()L"FY_BASE_OBJECT";", NULL,
-			classNewInstanceO, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".isInstance.(L"FY_BASE_OBJECT";)Z", NULL,
-			classIsInstance, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".isAssignableFrom.(L"FY_BASE_CLASS";)Z", NULL,
-			classIsAssignableFrom, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isInterface.()Z", NULL,
-			classIsInterface, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isArray.()Z", NULL,
-			classIsArray, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context, FY_BASE_CLASS".isPrimitive.()Z", NULL,
-			classIsPrimitive, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".getSuperclass.()L"FY_BASE_CLASS";", NULL,
-			classGetSuperclass, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".getInterfaces.()[L"FY_BASE_CLASS";", NULL,
-			classGetInterfaces, exception);
+	registerClasses(context, exception);
 	FYEH();
 
 	/*Object*/
@@ -1746,10 +2579,6 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			FY_BASE_THROWABLE".fillInStackTrace0.()V", NULL,
 			throwableFillInStackTrace, exception);
 	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".getName0.()L"FY_BASE_STRING";", NULL, classGetName,
-			exception);
-	FYEH();
 	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".sleep.(J)V", NULL,
 			ThreadSleep, exception);
 	fy_vmRegisterNativeHandler(context, FY_BASE_THREAD".yield.()V", NULL,
@@ -1762,6 +2591,9 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	registerMethod(context, exception);
+	FYEH();
+
+	registerFields(context, exception);
 	FYEH();
 
 }

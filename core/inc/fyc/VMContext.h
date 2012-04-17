@@ -76,4 +76,8 @@ fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 		fy_exceptionHandler *exceptionHandler, fy_exception *exception);
 int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
 		fy_exception *exception);
+fy_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
+		fy_exception *exception);
+fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
+		fy_exception *exception);
 #endif /* FY_VMCONTEXT_H_ */

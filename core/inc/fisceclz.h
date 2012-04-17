@@ -46,6 +46,7 @@
 #define FY_BASE_VM "com/cirnoworks/fisce/privat/FiScEVM"
 #define FY_BASE_STRING "java/lang/String"
 #define FY_BASE_ENUM "java/lang/Enum"
+#define FY_BASE_ANNOTATION "java/lang/annotation/Annotation"
 #define FY_BASE_STRING_BUILDER "java/lang/StringBuilder"
 #define FY_BASE_OBJECT "java/lang/Object"
 #define FY_BASE_CLASS "java/lang/Class"

@@ -119,7 +119,7 @@ fy_uint fy_heapAllocate(fy_context *context, fy_class *clazz,
 	fy_int length = clazz->sizeAbs;
 	fy_int size = length;
 
-	if (clazz->type != obj) {
+	if (clazz->type != object_class) {
 		fy_fault(exception, NULL, "Cannot instance Array without size");
 		return 0;
 	}
@@ -157,7 +157,7 @@ fy_uint fy_heapAllocateArray(fy_context *context, fy_class *clazz,
 		fy_int length, fy_exception *exception) {
 	fy_int size;
 
-	if (clazz->type != arr) {
+	if (clazz->type != array_class) {
 		fy_fault(exception, NULL, "Cannot instance Array with object class");
 		return 0;
 	}
@@ -295,7 +295,7 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 	}
 	sClass = sObject->object_data->clazz;
 	dClass = dObject->object_data->clazz;
-	if (sClass->type != arr || dClass->type != arr
+	if (sClass->type != array_class || dClass->type != array_class
 	/*TODO still need more study...
 	 * || !fy_classCanCastTo(context, sClass, dClass)
 	 * @see also void com.cirnoworks.fisce.vm.default_impl.ArrayHeap.arrayCopy
@@ -336,13 +336,13 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 	sobj = fy_heapGetObject(context,src);
 	clazz = fy_heapGetClassOfObject(context, src, exception);
 	FYEH()0;
-	if (clazz->type == obj) {
+	if (clazz->type == object_class) {
 		ret = fy_heapAllocate(context, clazz, exception);
 		FYEH()0;
 		dobj = fy_heapGetObject(context,ret);
 		memcpy(dobj->object_data, sobj->object_data,
 				sizeof(fy_object_data) + (clazz->sizeAbs << 2));
-	} else if (clazz->type == arr) {
+	} else if (clazz->type == array_class) {
 		ret = fy_heapAllocateArray(context, clazz, sobj->object_data->length,
 				exception);
 		FYEH()0;
@@ -933,8 +933,8 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 		clazz = object->object_data->clazz;
 		ASSERT(clazz!=NULL);
 		switch (clazz->type) {
-		case arr:
-			if (clazz->ci.arr.contentClass->type != prm) {
+		case array_class:
+			if (clazz->ci.arr.contentClass->type != primitive_class) {
 				for (i = object->object_data->length - 1; i >= 0; i--) {
 					handle2 = fy_heapGetArrayHandle(context, handle, i,
 							exception);
@@ -953,7 +953,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 				}
 			}
 			break;
-		case obj:
+		case object_class:
 			for (i = clazz->sizeAbs - 1; i >= 0; i--) {
 				field = clazz->fieldAbs[i];
 				if (field == NULL) {
@@ -989,11 +989,11 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 static fy_int getSizeFromObject(fy_context *context, fy_object *object) {
 	fy_class *clazz = object->object_data->clazz;
 	switch (clazz->type) {
-	case arr:
+	case array_class:
 		return fy_heapGetArraySizeFromLength(clazz, object->object_data->length)
 				+ ((sizeof(fy_object_data) + 3) >> 2);
 		break;
-	case obj:
+	case object_class:
 		return clazz->sizeAbs + ((sizeof(fy_object_data) + 3) >> 2);
 		break;
 	default:

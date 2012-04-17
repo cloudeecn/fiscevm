@@ -620,7 +620,7 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	if (method != NULL) {
 		method->parameterTypes = fy_arrayListCreatePerm(context->memblocks,
 				sizeof(fy_class*), tmpList->length, exception);
-		maxi = tmpList->length;
+		method->parameterCount = maxi = tmpList->length;
 		for (i = 0; i < maxi; i++) {
 			fy_arrayListAdd(context->memblocks, method->parameterTypes,
 					fy_arrayListGet(context->memblocks, tmpList, i, NULL),
@@ -671,8 +671,11 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 				fy_dataRead2(context, is, exception));
 		FYEH();
 		if (fy_strCmp(method->name, context->sClinit) == 0) {
-			method->clinit = TRUE;
+			method->access_flags |= FY_ACC_CLINIT;
 			clazz->clinit = method;
+		}
+		if (fy_strCmp(method->name, context->sInit) == 0) {
+			method->access_flags |= FY_ACC_CONSTRUCTOR;
 		}
 		method->descriptor = fy_clGetConstantString(context, clazz,
 				fy_dataRead2(context, is, exception));
@@ -816,7 +819,7 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, void *is,
 	fy_memblock *block = context->memblocks;
 	fy_class *clazz = fy_mmAllocatePerm(block, sizeof(fy_class), exception);
 	FYEH()NULL;
-	clazz->type = obj;
+	clazz->type = object_class;
 	fy_dataSkip(context, is, 8, exception);
 	FYEH()NULL;
 	fillConstantContent(context, clazz, is, exception);
@@ -868,11 +871,17 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 #ifdef _DEBUG
 	char buf[255];
 #endif
+	fy_class *annotationClazz, *enumClazz;
+	annotationClazz = fy_vmLookupClass(context, context->sAnnotation,
+			exception);
+	FYEH();
+	enumClazz = fy_vmLookupClass(context, context->sEnum, exception);
+	FYEH();
 	switch (clazz->type) {
-	case arr:
+	case array_class:
 
 		break;
-	case obj:
+	case object_class:
 		pos = clazz->methodCount;
 		for (i = 0; i < pos; i++) {
 			method = clazz->methods[i];
@@ -987,8 +996,16 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			memcpy(clazz->fieldAbs, clazz->super->fieldAbs,
 					i * sizeof(fy_field*));
 		}
+		if (fy_classCanCastTo(context, clazz, enumClazz)
+				&& fy_strCmp(clazz->className, context->sEnum)) {
+			clazz->accessFlags |= FY_ACC_ENUM;
+		}
+		if (fy_classCanCastTo(context, clazz, annotationClazz)
+				&& fy_strCmp(clazz->className, context->sAnnotation)) {
+			clazz->accessFlags |= FY_ACC_ANNOTATION;
+		}
 		break;
-	case prm:
+	case primitive_class:
 		break;
 	}
 	clazz->phase = 2;
@@ -1010,7 +1027,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	if (name->content[0] == FY_TYPE_ARRAY) {
 		clazz = fy_mmAllocatePerm(block, sizeof(fy_class), exception);
 		FYEH()NULL;
-		clazz->type = arr;
+		clazz->type = array_class;
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
 		clazz->className = fy_strCreatePermFromClone(block, name, 0, exception);
 		FYEH()NULL;
@@ -1048,7 +1065,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		FYEH()NULL;
 		clazz->className = fy_strCreatePermFromClone(block, name, 0, exception);
 		FYEH()NULL;
-		clazz->type = prm;
+		clazz->type = primitive_class;
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
 		FYEH()NULL;
 		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(block,

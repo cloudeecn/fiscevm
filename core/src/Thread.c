@@ -754,6 +754,11 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 	fy_class *clazz;
 	fy_uint *stack;
 	fy_uint sp;
+#ifdef FY_VERBOSE
+	printf("Invoke virtual: ");
+	fy_strPrint(method->uniqueName);
+	printf("\n");
+#endif
 	if (frame->sp - (count) - frame->sb < frame->localCount) {
 		fy_fault(exception, NULL, "Buffer underflow! %d %d",
 				frame->sp - (count) - frame->sb, frame->localCount);
@@ -779,6 +784,11 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 		printf("\n");
 #endif
 	}
+#ifdef FY_VERBOSE
+	printf("\tmethod is: ");
+	fy_strPrint(actureMethod->uniqueName);
+	printf("\n");
+#endif
 	doInvoke(context, thread, frame, actureMethod, count, message, exception);
 }
 
@@ -789,6 +799,11 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 	fy_class *owner = method->owner;
 	fy_class *clinitClazz;
 	fy_uint count = method->paramCount;
+#ifdef FY_VERBOSE
+	printf("Invoke static: ");
+	fy_strPrint(method->uniqueName);
+	printf("\n");
+#endif
 	if (!(method->access_flags & FY_ACC_STATIC)) {
 		fy_strSPrint(msg, 256, method->uniqueName);
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s is not static",
@@ -957,7 +972,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		fallout = fallout_none;
 #endif
 		lpc = pc;
-		if (method->clinit) {
+		if (method->access_flags & FY_ACC_CLINIT) {
 #ifdef FY_LATE_DECLARATION
 			fy_class *clinitClazz;
 #endif
@@ -1212,7 +1227,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
 				}
-				if (clazz1->type == obj) {
+				if (clazz1->type == object_class) {
 					fy_strAppendUTF8(block, &str1, "[L", 3, exception);
 					if (exception->exceptionType != exception_none) {
 						message->messageType = message_exception;
@@ -1231,7 +1246,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
 					}
-				} else if (clazz1->type == arr) {
+				} else if (clazz1->type == array_class) {
 					fy_strAppendUTF8(block, &str1, "[", 3, exception);
 					if (exception->exceptionType != exception_none) {
 						message->messageType = message_exception;
@@ -2502,6 +2517,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				clazz1 = method->owner;
 				mvalue = instruction->params.method;
+#ifdef FY_VERBOSE
+				printf("Invoke special: ");
+				fy_strPrint(mvalue->uniqueName);
+				printf("\n");
+#endif
 				clazz2 = mvalue->owner;
 				ivalue = mvalue->paramCount + 1;/*count*/
 				fy_checkCall(ivalue);
@@ -3548,7 +3568,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						break;/*EXCEPTION_THROWN*/
 					}
 				}
-				if (method->clinit) {
+				if (method->access_flags & FY_ACC_CLINIT) {
 					method->owner->clinitThreadId = -1;
 				}
 				frame = fy_threadPopFrame(context, thread);
