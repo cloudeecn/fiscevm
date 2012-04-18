@@ -759,11 +759,13 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 	fy_strPrint(method->uniqueName);
 	printf("\n");
 #endif
+#ifdef FY_STRICT_CHECK
 	if (frame->sp - (count) - frame->sb < frame->localCount) {
 		fy_fault(exception, NULL, "Buffer underflow! %d %d",
 				frame->sp - (count) - frame->sb, frame->localCount);
 		return;
 	}
+#endif
 	frame->sp -= count;
 	sp = frame->sp;
 	ASSERT(fy_bitGet(thread->typeStack,frame->sp));
@@ -804,12 +806,14 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 	fy_strPrint(method->uniqueName);
 	printf("\n");
 #endif
+
 	if (!(method->access_flags & FY_ACC_STATIC)) {
 		fy_strSPrint(msg, 256, method->uniqueName);
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s is not static",
 				msg);
 		return;
 	}
+
 	{
 		clinitClazz = clinit(context, thread, owner);
 		if (clinitClazz) {
@@ -827,11 +831,13 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 			}
 		}
 	}
+#ifdef FY_STRICT_CHECK
 	if (frame->sp - (count) - frame->sb < frame->localCount) {
 		fy_fault(exception, NULL, "Buffer underflow! %d %d",
 				frame->sp - (count) - frame->sb, frame->localCount);
 		return;
 	}
+#endif
 	frame->sp -= count;
 #ifdef FY_VERBOSE
 	fy_strPrint(method->uniqueName);
