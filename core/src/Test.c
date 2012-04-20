@@ -423,6 +423,8 @@ void testCustom(char *customTest) {
 		testNative();
 	} else if (strcmp(customTest, "LOAD") == 0) {
 		testLoad();
+	}  else if (strcmp(customTest, "SAVE") == 0) {
+		testSave();
 	} else {
 		hltest(customTest);
 	}

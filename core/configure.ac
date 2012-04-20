@@ -18,7 +18,7 @@ AC_ARG_ENABLE(debug,
   [AS_HELP_STRING([--enable-debug],[enable debugging [default=no]])],
   [fy_do_debug=$enableval],
   [fy_do_debug="no"])
-  AC_ARG_ENABLE(light-debug,
+AC_ARG_ENABLE(light-debug,
   [AS_HELP_STRING([--enable-light-debug],[enable light debugging(enable debug but disable FY_DEBUG macro) [default=no]])],
   [fy_do_ldebug=$enableval],
   [fy_do_ldebug="no"])
@@ -27,7 +27,7 @@ LD_OPTIMIZE_LEVEL="-O3"
 
 if test x"$fy_do_ldebug" = xyes ; then
 	echo "++++++++++ Enabling light debug mode compilation."
-	OPTIMIZE_LEVEL="-g3"
+	OPTIMIZE_LEVEL="-O2 -g3"
 	LD_OPTIMIZE_LEVEL=""
 fi
 
