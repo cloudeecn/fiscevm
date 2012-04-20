@@ -46,6 +46,59 @@ import com.cirnoworks.fisce.privat.ResourceInputStream;
 public final class Class<T> implements Serializable, AnnotatedElement,
 		GenericDeclaration, Type {
 
+	private Method[] privateDeclaredMethods;
+	private Constructor<T>[] privateDeclaredConstructors;
+	private Field[] privateDeclaredFields;
+
+	@SuppressWarnings("unchecked")
+	private void getMethodConstructors() {
+		ArrayList<Method> arrayMethods = new ArrayList<Method>();
+		ArrayList<Constructor<?>> arrayConstructors = new ArrayList<Constructor<?>>();
+		for (Object a : getPrivateDeclaredMethods0()) {
+			if (a instanceof Method) {
+				arrayMethods.add((Method) a);
+			} else if (a instanceof Constructor<?>) {
+				arrayConstructors.add((Constructor<?>) a);
+			} else {
+				throw new RuntimeException("Illegal member type "
+						+ a.getClass());
+			}
+		}
+		privateDeclaredMethods = arrayMethods.toArray(new Method[arrayMethods
+				.size()]);
+		privateDeclaredConstructors = arrayConstructors
+				.toArray(new Constructor[arrayConstructors.size()]);
+	}
+
+	private synchronized Method[] getPrivateDeclaredMethods() {
+		if (privateDeclaredMethods == null) {
+			getMethodConstructors();
+		}
+		return privateDeclaredMethods;
+	}
+
+	private synchronized Constructor<T>[] getPrivateDeclaredConstructors() {
+		if (privateDeclaredConstructors == null) {
+			getMethodConstructors();
+		}
+		return privateDeclaredConstructors;
+	}
+
+	private synchronized Field[] getPrivateDeclaredFields() {
+		if (privateDeclaredFields == null) {
+			Object[] fs = getPrivateDeclaredFields0();
+			privateDeclaredFields = new Field[fs.length];
+			for (int i = 0, max = fs.length; i < max; i++) {
+				privateDeclaredFields[i] = (Field) fs[i];
+			}
+		}
+		return privateDeclaredFields;
+	}
+
+	private native Object[] getPrivateDeclaredMethods0();
+
+	private native Object[] getPrivateDeclaredFields0();
+
 	private static native Class<?> forName0(String name, boolean initialize)
 			throws ClassNotFoundException;
 
@@ -62,7 +115,7 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 
 	public native boolean isPrimitive();
 
-	private native String getName0();
+	private native String getNativeName();
 
 	public native Class<?> getSuperclass();
 
@@ -92,7 +145,7 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 	private static final long serialVersionUID = 3206093459760846163L;
 
 	private static final Class<Cloneable> CLONEABLE_CLASS = Cloneable.class;
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static final Class<Enum> ENUM_CLASS = Enum.class;
 	private static final Class<Object> OBJECT_CLASS = Object.class;
 	private static final Class<Serializable> SERIALIZABLE_CLASS = Serializable.class;
@@ -226,14 +279,9 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 		return ClassLoader.getSystemClassLoader();
 	}
 
-	private native Constructor<T>[] getPublicConstructors0();
-
-	private native Constructor<T>[] getConstructors0();
-
 	public Constructor<T> getConstructor(Class... argumentTypes)
 			throws NoSuchMethodException {
-
-		Constructor<T> ctors[] = getPublicConstructors0();
+		Constructor<T> ctors[] = getConstructors();
 		for (int i = 0; i < ctors.length; i++) {
 			Constructor<T> c = ctors[i];
 			try {
@@ -247,46 +295,144 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 				+ printMethodSignature(argumentTypes));
 	}
 
-	public native Constructor[] getConstructors();
+	@SuppressWarnings("unchecked")
+	public Constructor<T>[] getConstructors() {
+		ArrayList<Constructor<T>> ret = new ArrayList<Constructor<T>>();
+		for (Constructor<T> constructor : getPrivateDeclaredConstructors()) {
+			if ((constructor.getModifiers() & FiScEVM.ACC_PUBLIC) != 0) {
+				ret.add(constructor);
+			}
+		}
+		return ret.toArray(new Constructor[ret.size()]);
+	}
 
-	public native Class[] getDeclaredClasses();
+	public Class[] getDeclaredClasses() {
+		// TODO: Stub
+		return new Class[0];
+	}
 
-	public native Constructor<T> getDeclaredConstructor(Class... argumentTypes)
-			throws NoSuchMethodException;
+	public Constructor<T> getDeclaredConstructor(Class... argumentTypes)
+			throws NoSuchMethodException {
+		for (Constructor<T> constructor : getPrivateDeclaredConstructors()) {
+			if (isTypeMatches(constructor.getParameterTypes(), argumentTypes)) {
+				return constructor;
+			}
+		}
+		throw new NoSuchMethodException(getName()
+				+ printMethodSignature(argumentTypes));
+	}
 
-	public native Constructor[] getDeclaredConstructors();
+	public Constructor<T>[] getDeclaredConstructors() {
+		return getPrivateDeclaredConstructors();
+	}
 
-	public native Field getDeclaredField(String fieldName)
-			throws NoSuchFieldException;
+	public Field getDeclaredField(String fieldName) throws NoSuchFieldException {
+		for (Field f : getDeclaredFields()) {
+			if (f.getName().equals(fieldName)) {
+				return f;
+			}
+		}
+		throw new NoSuchFieldException(fieldName);
+	}
 
-	public native Field[] getDeclaredFields();
+	public Field[] getDeclaredFields() {
+		return getPrivateDeclaredFields();
+	}
 
-	public native Method getDeclaredMethod(String methodName,
-			Class... argumentTypes) throws NoSuchMethodException;
+	public Method getDeclaredMethod(String methodName, Class... argumentTypes)
+			throws NoSuchMethodException {
+		for (Method method : getDeclaredMethods()) {
+			if (method.getName().equals(methodName)
+					&& isTypeMatches(argumentTypes, method.getParameterTypes())) {
+				return method;
+			}
+		}
+		return null;
+	}
 
-	public native Method[] getDeclaredMethods();
+	public Method[] getDeclaredMethods() {
+		return getPrivateDeclaredMethods();
+	}
 
 	public Class<?> getDeclaringClass() {
 		throw new RuntimeException(
 				"Anonymous and Enclosing classes' reflection are not supported");
 	}
 
-	public native Field getField(String fieldName) throws NoSuchFieldException;
+	public Field getField(String fieldName) throws NoSuchFieldException {
+		return null;
+	}
 
-	public native Field[] getFields();
+	public Field[] getFields() {
+		ArrayList<Field> fields = new ArrayList<Field>();
+		Class<?> clazz = this;
+		if (isPrimitive() || isArray()) {
+			return new Field[0];
+		} else if (isInterface()) {
+			for (Field field : clazz.getPrivateDeclaredFields()) {
+				fields.add(field);
+			}
+			for (Class<?> cl : clazz.getInterfaces()) {
+				for (Field field : cl.getFields()) {
+					fields.add(field);
+				}
+			}
+		} else {
+			do {
+				for (Field field : clazz.getPrivateDeclaredFields()) {
+					if ((field.getModifiers() & FiScEVM.ACC_PUBLIC) != 0) {
+						fields.add(field);
+					}
+				}
+			} while ((clazz = clazz.getSuperclass()) != null);
+		}
+		return fields.toArray(new Field[fields.size()]);
+	}
 
-	public native Method getMethod(String methodName, Class... argumentTypes)
-			throws NoSuchMethodException;
+	public Method getMethod(String methodName, Class<?>... argumentTypes)
+			throws NoSuchMethodException {
+		// all public methods
+		for (Method method : getMethods()) {
+			if (method.getName().equals(methodName)
+					&& isTypeMatches(argumentTypes, method.getParameterTypes())) {
+				return method;
+			}
+		}
+		// all super interface methods
+		for (Class<?> intfs : getInterfaces()) {
+			for (Method method : intfs.getMethods()) {
+				if (method.getName().equals(methodName)
+						&& isTypeMatches(argumentTypes,
+								method.getParameterTypes())) {
+					return method;
+				}
+			}
+		}
+		return null;
+	}
 
-	public native Method[] getMethods();
+	public Method[] getMethods() {
+		Class<?> clazz = this;
+		ArrayList<Method> ret = new ArrayList<Method>();
+		do {
+			System.out.println(clazz.getName());
+			for (Method method : clazz.getPrivateDeclaredMethods()) {
+				if ((method.getModifiers() & FiScEVM.ACC_PUBLIC) != 0) {
+					ret.add(method);
+				}
+			}
+		} while ((clazz = clazz.getSuperclass()) != null);
+		return ret.toArray(new Method[ret.size()]);
+	}
 
 	public native int getModifiers();
 
 	private transient String name;
 
-	public String getName() {
-		if (name == null)
-			name = getName0();
+	public synchronized String getName() {
+		if (name == null) {
+			name = getNativeName().replace('/', '.');
+		}
 		return name;
 	}
 
@@ -409,11 +555,20 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 	}
 
 	@SuppressWarnings("unchecked")
-	public native <U> Class<? extends U> asSubclass(Class<U> clazz)
-			throws ClassCastException;
+	public <U> Class<? extends U> asSubclass(Class<U> clazz)
+			throws ClassCastException {
+		if (clazz.isAssignableFrom(this))
+			return (Class<? extends U>) this;
+		else
+			throw new ClassCastException(this.toString());
+	}
 
 	@SuppressWarnings("unchecked")
-	public native T cast(Object obj) throws ClassCastException;
+	public T cast(Object obj) {
+		if (obj != null && !isInstance(obj))
+			throw new ClassCastException();
+		return (T) obj;
+	}
 
 	public TypeVariable<Class<T>>[] getTypeParameters()
 			throws GenericSignatureFormatError {
@@ -487,6 +642,12 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 		return sb.toString();
 	}
 
-	public native String getSimpleName();
-
+	public String getSimpleName() {
+		String ret = getNativeName();
+		int idx = ret.lastIndexOf('/');
+		if (idx >= 0) {
+			ret = ret.substring(idx + 1);
+		}
+		return ret;
+	}
 }

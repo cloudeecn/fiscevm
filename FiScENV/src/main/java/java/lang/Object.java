@@ -19,6 +19,14 @@ public class Object {
 
 	static {
 		new Finalizer().start();
+		Boolean.valueOf("true");
+		Byte.valueOf("1");
+		Short.valueOf("1");
+		Character.valueOf('1');
+		Integer.valueOf("1");
+		Float.valueOf("1");
+		Long.valueOf("1");
+		Double.valueOf("1");
 		// FiScEVM.throwOut(new RuntimeException());
 	}
 

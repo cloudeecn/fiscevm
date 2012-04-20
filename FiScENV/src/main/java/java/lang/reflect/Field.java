@@ -157,7 +157,84 @@ public final class Field extends AccessibleObject implements Member {
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native void set(Object obj, Object value)
+	public void set(Object obj, Object value) throws IllegalArgumentException,
+			IllegalAccessException {
+		if (getType().isPrimitive()) {
+			if (value == null) {
+				throw new NullPointerException("value");
+			}
+			if (getType() == Boolean.TYPE) {
+				if (value instanceof Boolean) {
+					setBoolean(obj, ((Boolean) value).booleanValue());
+				} else {
+					throw new IllegalArgumentException("Can't convert "
+							+ value.getClass() + " to boolean");
+				}
+			} else if (getType() == Byte.TYPE) {
+				if (value instanceof Byte) {
+					setBoolean(obj, ((Boolean) value).booleanValue());
+				} else {
+					throw new IllegalArgumentException("Can't convert "
+							+ value.getClass() + " to byte");
+				}
+			} else if (getType() == Short.TYPE) {
+				if (value instanceof Number) {
+					setByte(obj, ((Number) value).byteValue());
+				} else {
+					throw new IllegalArgumentException("Can't convert "
+							+ value.getClass() + " to short");
+				}
+
+			} else if (getType() == Integer.TYPE) {
+				if (value instanceof Number) {
+					setInt(obj, ((Number) value).intValue());
+				} else if (value instanceof Character) {
+					setInt(obj, ((Character) value).charValue());
+				} else {
+					throw new IllegalArgumentException("Can't convert "
+							+ value.getClass() + " to int");
+				}
+			} else if (getType() == Float.TYPE) {
+				if (value instanceof Number) {
+					setFloat(obj, ((Number) value).floatValue());
+				} else if (value instanceof Character) {
+					setFloat(obj, ((Character) value).charValue());
+				} else {
+					throw new IllegalArgumentException("Can't convert "
+							+ value.getClass() + " to int");
+				}
+			} else if (getType() == Long.TYPE) {
+				if (value instanceof Number) {
+					setLong(obj, ((Number) value).longValue());
+				} else if (value instanceof Character) {
+					setLong(obj, ((Character) value).charValue());
+				} else {
+					throw new IllegalArgumentException("Can't convert "
+							+ value.getClass() + " to int");
+				}
+			} else if (getType() == Double.TYPE) {
+				if (value instanceof Number) {
+					setDouble(obj, ((Number) value).doubleValue());
+				} else if (value instanceof Character) {
+					setDouble(obj, ((Character) value).charValue());
+				} else {
+					throw new IllegalArgumentException("Can't convert "
+							+ value.getClass() + " to int");
+				}
+			} else if (getType() == Character.TYPE) {
+				if (value instanceof Character) {
+					setChar(obj, ((Character) value).charValue());
+				} else {
+					throw new IllegalArgumentException("Can't convert "
+							+ value.getClass() + " to int");
+				}
+			}
+		} else {
+			setObject(obj, value);
+		}
+	}
+
+	private native void setObject(Object obj, Object value)
 			throws IllegalArgumentException, IllegalAccessException;
 
 	/**

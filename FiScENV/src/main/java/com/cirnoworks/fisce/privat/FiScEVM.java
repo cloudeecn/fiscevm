@@ -20,6 +20,29 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 public class FiScEVM {
+	/*Access flags*/
+	public static final int ACC_ABSTRACT = 1024;
+	public static final int ACC_FINAL =16;
+	public static final int ACC_INTERFACE= 512;
+	public static final int ACC_NATIVE= 256;
+	public static final int ACC_PRIVATE =2;
+	public static final int ACC_PROTECTED =4;
+	public static final int ACC_PUBLIC= 1;
+	public static final int ACC_STATIC= 8;
+	public static final int ACC_STRICT= 2048;
+	public static final int ACC_SUPER=32;
+	public static final int ACC_SYNCHRONIZED= 32;
+	public static final int ACC_TRANSIENT=128;
+	public static final int ACC_VOLATILE= 64;
+	public static final int ACC_VARARGS =128;
+	public static final int ACC_BRIDGE =64;
+	/*Extended access flags*/
+	public static final int ACC_SYNTHETIC	=0x00001000;
+	public static final int ACC_ANNOTATION	=0x00002000;
+	public static final int ACC_ENUM		=	0x00004000;
+	public static final int ACC_CONSTRUCTOR=0x00010000;
+	public static final int ACC_CLINIT=0x00020000;
+	public static final int ACC_VERIFIED	=	0x80000000;
 
 	private static String defaultEncoding = "utf-8";
 

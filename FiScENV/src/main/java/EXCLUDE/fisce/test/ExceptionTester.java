@@ -3,6 +3,12 @@ package EXCLUDE.fisce.test;
 public class ExceptionTester extends TestService {
 
 	static public void main(String[] args) {
+		try {
+			Class.forName("ooxxoxxxxoox");
+			fail("CNFE not raisen");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 		System.out.println("Phase 0");
 		boolean af = true, bf = true;
 		if (af)

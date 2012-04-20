@@ -157,7 +157,76 @@ public final class Method extends AccessibleObject implements Member,
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native Object invoke(Object obj, Object... args)
+	public Object invoke(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		try {
+			Class<?> rt = getReturnType();
+			if (rt.isPrimitive()) {
+				if (rt == Boolean.TYPE) {
+					return invokeZ(obj, args);
+				} else if (rt == Byte.TYPE) {
+					return invokeB(obj, args);
+				} else if (rt == Short.TYPE) {
+					return invokeS(obj, args);
+				} else if (rt == Character.TYPE) {
+					return invokeC(obj, args);
+				} else if (rt == Integer.TYPE) {
+					return invokeI(obj, args);
+				} else if (rt == Float.TYPE) {
+					return invokeF(obj, args);
+				} else if (rt == Long.TYPE) {
+					return invokeJ(obj, args);
+				} else if (rt == Double.TYPE) {
+					return invokeD(obj, args);
+				} else {
+					throw new IllegalArgumentException(
+							"Illegal primitive type " + rt);
+				}
+			} else {
+				return invokeL(obj, args);
+			}
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Throwable t) {
+			throw new InvocationTargetException(t);
+		}
+
+	}
+
+	private native boolean invokeZ(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
+
+	private native byte invokeB(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
+
+	private native short invokeS(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
+
+	private native char invokeC(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
+
+	private native int invokeI(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
+
+	private native float invokeF(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
+
+	private native long invokeJ(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
+
+	private native double invokeD(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
+
+	private native Object invokeL(Object obj, Object... args)
 			throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException;
 

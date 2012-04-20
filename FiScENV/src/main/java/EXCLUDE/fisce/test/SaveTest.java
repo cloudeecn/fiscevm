@@ -28,12 +28,15 @@ public class SaveTest extends Thread {
 		}
 	}
 
+	@Override
 	public void run() {
 		try {
 			Thread.sleep(300);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.gc();
+		FiScEVM.debugOut("Saveing...");
 		FiScEVM.save();
 		FiScEVM.debugOut("\nSaved\n");
 		running = false;
