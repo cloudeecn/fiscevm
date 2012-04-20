@@ -27,7 +27,7 @@ extern "C" {
 
 FY_ATTR_EXPORT void fy_strPrint(fy_str *str);
 
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 
 #define ASSERT(TEST) {if(!(TEST)) fy_fault(NULL,NULL,"ASSERTION ERROR IN %s:%d", __FILE__,__LINE__);}
 FY_ATTR_EXPORT void fy_varprintf(const char *format, ...);

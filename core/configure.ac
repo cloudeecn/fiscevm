@@ -8,6 +8,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([inc/fiscecon.h])
 AC_CONFIG_SRCDIR(src/VMContext.c)
 
+
 AC_ARG_ENABLE(lto,
   [AS_HELP_STRING([--enable-lto],
   [enable link time optimization, will greatly increase speed of accessing heap [default=no]])],
@@ -17,24 +18,33 @@ AC_ARG_ENABLE(debug,
   [AS_HELP_STRING([--enable-debug],[enable debugging [default=no]])],
   [fy_do_debug=$enableval],
   [fy_do_debug="no"])
+  AC_ARG_ENABLE(light-debug,
+  [AS_HELP_STRING([--enable-light-debug],[enable light debugging(enable debug but disable FY_DEBUG macro) [default=no]])],
+  [fy_do_ldebug=$enableval],
+  [fy_do_ldebug="no"])
+OPTIMIZE_LEVEL="-O3 -fomit-frame-pointer"
+LD_OPTIMIZE_LEVEL="-O3"
+
+if test x"$fy_do_ldebug" = xyes ; then
+	echo "++++++++++ Enabling light debug mode compilation."
+	OPTIMIZE_LEVEL="-g3"
+	LD_OPTIMIZE_LEVEL=""
+fi
+
 if test x"$fy_do_debug" = xyes ; then
 	echo "++++++++++ Enabling debug mode compilation."
-	CFLAGS="$CFLAGS -D_DEBUG -g3 -O0"
-	ENABLE_DEBUG="TRUE"
-else
-	echo "---------- Disabling debug mode compilation."
-	LDFLAGS="$LDFLAGS -O3"
-	CFLAGS="$CFLAGS -O3 -fomit-frame-pointer"
-	ENABLE_DEBUG="FALSE"
+	OPTIMIZE_LEVEL="-g3 -O0"
+	LD_OPTIMIZE_LEVEL="-O0"
+	CFLAGS="$CFLAGS -DFY_DEBUG"
 fi
+CFLAGS="$CFLAGS $OPTIMIZE_LEVEL"
+LDFLAGS="$LDFLAGS $LD_OPTIMIZE_LEVEL"
 
 if test x"$fy_do_lto" = xyes ; then
 	echo "++++++++++ Enabling link time optimization."
 	CFLAGS="$CFLAGS -flto"
-	ENABLE_LTO="TRUE"
 else
 	echo "---------- Disabling link time optimization."
-	ENABLE_LTO="FALSE"
 fi
 
 AC_ARG_ENABLE(verbose,
@@ -44,10 +54,8 @@ AC_ARG_ENABLE(verbose,
 if test x"$fy_do_verbose" = xyes ; then
 	echo "++++++++++ Enabling verbose mode compilation."
 	CFLAGS="$CFLAGS -DFY_VERBOSE"
-	ENABLE_VERBOSE="TRUE"
 else
 	echo "---------- Disabling verbose mode compilation."
-	ENABLE_VERBOSe="FALSE"
 fi
 
 
@@ -91,10 +99,9 @@ else
 fi
 AM_CONDITIONAL([FY_BUILD_TEST],[test x$fy_do_test = xyes])
 
-CFLAGS="$CFLAGS -pipe"
+dnl CFLAGS="$CFLAGS -pipe"
 
 
-AC_MSG_CHECKING([is win32])
 AC_LANG_PUSH(C)
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 #if !defined (_WIN32) && !defined (__WIN32__) && !defined (WIN32)
@@ -103,9 +110,12 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 ]])],[fy_is_win32=true],[fy_is_win32=false])
 AC_LANG_POP()
 
+AC_MSG_CHECKING([is win32])
 if test x$fy_is_win32 = xtrue ; then
+	AC_MSG_RESULT([yes])
 	echo "++++++++++ Adding win32 dll flags."
 else
+	AC_MSG_RESULT([no])
 	echo "---------- Disabling win32 dll flags."
 fi
 AM_CONDITIONAL([FY_IS_WIN32],[test x$fy_is_win32 = xtrue])

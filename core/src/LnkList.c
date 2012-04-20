@@ -103,18 +103,18 @@ FY_ATTR_EXPORT void fy_linkedListTraverse(
 				fy_exception *exception), fy_exception *exception) {
 	struct fy_linkedListNode* node = list->head;
 	struct fy_linkedListNode* next = node->next;
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 	int i = 0;
 #endif
 	while ((node = next) != NULL) {
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 		i++;
 #endif
 		next = node->next;
 		fun(block, node, exception);
 		FYEH();
 	}
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 	if (i != list->count) {
 		fy_fault(exception, NULL, "err: %d %d", i, list->count);
 		return;

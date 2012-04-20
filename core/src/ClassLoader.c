@@ -16,7 +16,7 @@
  */
 #include "fyc/ClassLoader.h"
 
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 static int checkConstantBonud(fy_class *clazz, int idx, fy_exception *exception) {
 	if (idx > clazz->constantPoolCount) {
 		fy_fault(exception, NULL, "Constant index out of bound %d/%d", idx,
@@ -868,7 +868,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 	fy_field *field;
 	fy_method *method;
 	fy_str str[1];
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 	char buf[255];
 #endif
 	fy_class *annotationClazz, *enumClazz;
@@ -896,7 +896,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 		}
 		/*name = clazz->className;*/
 		if (clazz->superClass != NULL) {
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 			if (fy_strCmp(context->sTopClass, clazz->className) == 0) {
 				fy_fault(exception, NULL,
 						"java.lang.Object cannot have super class!", buf);
@@ -919,14 +919,14 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 									exception), context->sMFinalize,
 							exception)) {
 				clazz->needFinalize = 1;
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 				fy_strSPrint(buf, 255, clazz->className);
 				DLOG
 				("%s needs finalize!", buf);
 #endif
 			}
 		} else {
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 			if (fy_strCmp(context->sTopClass, clazz->className) != 0) {
 				fy_strSPrint(buf, 255, clazz->className);
 				fy_fault(exception, NULL, "%s must have super class!", buf);

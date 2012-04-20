@@ -146,7 +146,7 @@ struct timeval tvBeginTime;
 #else
 #define FY_FASTCALL
 #endif
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 #define FY_STRICT_CHECK
 #endif
 #ifndef TRUE

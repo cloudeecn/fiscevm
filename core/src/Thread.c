@@ -30,7 +30,7 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_exceptionHandler *handler;
 	fy_int target = -1;
 	DLOG("EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 	printf("Exception:");
 	fy_strPrint(fy_heapGetClassOfObject(context, handle, exception)->className);
 	printf("\nat ");

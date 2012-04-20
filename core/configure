@@ -737,6 +737,7 @@ ac_user_opts='
 enable_option_checking
 enable_lto
 enable_debug
+enable_light_debug
 enable_verbose
 enable_sse2
 enable_sse3
@@ -1383,6 +1384,8 @@ Optional Features:
   --enable-lto            enable link time optimization, will greatly increase
                           speed of accessing heap [default=no]
   --enable-debug          enable debugging [default=no]
+  --enable-light-debug    enable light debugging(enable debug but disable
+                          FY_DEBUG macro) [default=no]
   --enable-verbose        enable verbose output for byte code executed
                           [default=no]
   --enable-sse2           enable use sse2 instructions [default=no]
@@ -2875,6 +2878,7 @@ ac_config_headers="$ac_config_headers inc/fiscecon.h"
 
 
 
+
 # Check whether --enable-lto was given.
 if test "${enable_lto+set}" = set; then :
   enableval=$enable_lto; fy_do_lto=$enableval
@@ -2889,24 +2893,36 @@ else
   fy_do_debug="no"
 fi
 
+  # Check whether --enable-light-debug was given.
+if test "${enable_light_debug+set}" = set; then :
+  enableval=$enable_light_debug; fy_do_ldebug=$enableval
+else
+  fy_do_ldebug="no"
+fi
+
+OPTIMIZE_LEVEL="-O3 -fomit-frame-pointer"
+LD_OPTIMIZE_LEVEL="-O3"
+
+if test x"$fy_do_ldebug" = xyes ; then
+	echo "++++++++++ Enabling light debug mode compilation."
+	OPTIMIZE_LEVEL="-g3"
+	LD_OPTIMIZE_LEVEL=""
+fi
+
 if test x"$fy_do_debug" = xyes ; then
 	echo "++++++++++ Enabling debug mode compilation."
-	CFLAGS="$CFLAGS -D_DEBUG -g3 -O0"
-	ENABLE_DEBUG="TRUE"
-else
-	echo "---------- Disabling debug mode compilation."
-	LDFLAGS="$LDFLAGS -O3"
-	CFLAGS="$CFLAGS -O3 -fomit-frame-pointer"
-	ENABLE_DEBUG="FALSE"
+	OPTIMIZE_LEVEL="-g3 -O0"
+	LD_OPTIMIZE_LEVEL="-O0"
+	CFLAGS="$CFLAGS -DFY_DEBUG"
 fi
+CFLAGS="$CFLAGS $OPTIMIZE_LEVEL"
+LDFLAGS="$LDFLAGS $LD_OPTIMIZE_LEVEL"
 
 if test x"$fy_do_lto" = xyes ; then
 	echo "++++++++++ Enabling link time optimization."
 	CFLAGS="$CFLAGS -flto"
-	ENABLE_LTO="TRUE"
 else
 	echo "---------- Disabling link time optimization."
-	ENABLE_LTO="FALSE"
 fi
 
 # Check whether --enable-verbose was given.
@@ -2919,10 +2935,8 @@ fi
 if test x"$fy_do_verbose" = xyes ; then
 	echo "++++++++++ Enabling verbose mode compilation."
 	CFLAGS="$CFLAGS -DFY_VERBOSE"
-	ENABLE_VERBOSE="TRUE"
 else
 	echo "---------- Disabling verbose mode compilation."
-	ENABLE_VERBOSe="FALSE"
 fi
 
 
@@ -2979,11 +2993,8 @@ else
 fi
 
 
-CFLAGS="$CFLAGS -pipe"
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking is win32" >&5
-$as_echo_n "checking is win32... " >&6; }
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3991,9 +4002,15 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking is win32" >&5
+$as_echo_n "checking is win32... " >&6; }
 if test x$fy_is_win32 = xtrue ; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
 	echo "++++++++++ Adding win32 dll flags."
 else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
 	echo "---------- Disabling win32 dll flags."
 fi
  if test x$fy_is_win32 = xtrue; then

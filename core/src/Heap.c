@@ -395,7 +395,7 @@ return X;\
 		return X;\
 	}
 
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 static fy_boolean validate(fy_context *context, fy_int handle, fy_field *field) {
 	fy_class *handleClass =
 			fy_heapGetObject(context, handle)->object_data->clazz;
@@ -632,7 +632,7 @@ fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 }
 fy_float fy_heapGetFieldFloat(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 	fy_object *obj = fy_heapGetObject(context, handle);
 #endif
 	CHECK_NPT(0)
@@ -1103,7 +1103,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	fy_int youngId = block->youngId;
 	fy_long timeStamp;
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 	printf(
 			"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d managed native bytes, %d perm bytes\n",
 			block->posInEden * sizeof(fy_uint),
@@ -1234,7 +1234,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 #ifndef FY_GC_FORCE_FULL
 	}
 #endif
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 	printf(
 			"#FISCE GC AFTER %d+%d+%d total %dbytes, %d managed native bytes, %d perm bytes, %d context size, time=%"FY_PRINT64"d\n",
 			block->posInEden * sizeof(fy_uint),

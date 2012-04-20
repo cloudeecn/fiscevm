@@ -32,7 +32,7 @@ typedef struct fy_memblock {
 	void *first;
 	void *last;
 	fy_int blocks;
-#ifdef _DEBUG
+#ifdef FY_DEBUG
 	fy_uint size;
 #endif
 	void *gcContext;
