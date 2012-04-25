@@ -781,6 +781,7 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 		FYEH();
 		actureMethod = fy_vmLookupMethodVirtualByMethod(context, clazz, method,
 				exception);
+		FYEH();
 #ifdef FY_VERBOSE
 		fy_strPrint(actureMethod->uniqueName);
 		printf("\n");

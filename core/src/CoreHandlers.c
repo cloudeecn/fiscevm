@@ -842,7 +842,7 @@ static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 	}
 	if (!(method->access_flags & FY_ACC_STATIC)) {
-		frame->sp++;
+		fy_threadReturnHandle(context, thread,args[1]);
 	}
 	for (i = 0; i < count; i++) {
 		fy_arrayListGet(context->memblocks, method->parameterTypes, i,
@@ -2062,9 +2062,6 @@ static void classPrivateGetDeclaredMethods(struct fy_context *context,
 	FYEH();
 	i = 0;
 	for (j = 0; j < methodCount; j++) {
-		printf("$$$ ");
-		fy_strPrint(clazz->methods[j]->uniqueName);
-		printf("\n");
 		fy_heapPutArrayHandle(context, ret, i++,
 				fy_vmGetMethodObjHandle(context, clazz->methods[j], exception),
 				exception);
@@ -2091,9 +2088,6 @@ static void classPrivateGetDeclaredFields(struct fy_context *context,
 	FYEH();
 	i = 0;
 	for (j = 0; j < fieldCount; j++) {
-		printf("$$$ ");
-		fy_strPrint(clazz->fields[j]->uniqueName);
-		printf("\n");
 		fy_heapPutArrayHandle(context, ret, i++,
 				fy_vmGetFieldObjHandle(context, clazz->fields[j], exception),
 				exception);
