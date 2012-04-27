@@ -265,6 +265,39 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	context->sValueDouble = fy_strCreatePermFromUTF8(block, FY_VALUE_DOUBLE, 0,
 			exception);
 	FYEH();
+
+	context->sClassBoolean = fy_strCreatePermFromUTF8(block, FY_BASE_BOOLEAN, 0,
+			exception);
+	FYEH();
+
+	context->sClassByte = fy_strCreatePermFromUTF8(block, FY_BASE_BYTE, 0,
+			exception);
+	FYEH();
+
+	context->sClassChar = fy_strCreatePermFromUTF8(block, FY_BASE_CHAR, 0,
+			exception);
+	FYEH();
+
+	context->sClassShort = fy_strCreatePermFromUTF8(block, FY_BASE_SHORT, 0,
+			exception);
+	FYEH();
+
+	context->sClassInt = fy_strCreatePermFromUTF8(block, FY_BASE_INT, 0,
+			exception);
+	FYEH();
+
+	context->sClassFloat = fy_strCreatePermFromUTF8(block, FY_BASE_FLOAT, 0,
+			exception);
+	FYEH();
+
+	context->sClassLong = fy_strCreatePermFromUTF8(block, FY_BASE_LONG, 0,
+			exception);
+	FYEH();
+
+	context->sClassDouble = fy_strCreatePermFromUTF8(block, FY_BASE_DOUBLE, 0,
+			exception);
+	FYEH();
+
 }
 
 static void initConstantPrimitives(fy_context *context, fy_exception *exception) {
@@ -432,8 +465,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 */
 	printf(
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
-			sizeof(fy_context), sizeof(fy_memblock),
-			MAX_OBJECTS * sizeof(fy_object));
+			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
+			MAX_OBJECTS * (fy_int) sizeof(fy_object));
 	fy_fisInitInputStream(context);
 	fy_bsRegisterBinarySaver(context);
 	fy_mmInit(context->memblocks, exception);

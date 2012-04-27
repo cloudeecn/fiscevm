@@ -478,6 +478,14 @@ typedef struct fy_context {
 	fy_str *sClassMethod;
 	fy_str *sClassConstructor;
 	fy_str *sClassThrowable;
+	fy_str *sClassBoolean;
+	fy_str *sClassByte;
+	fy_str *sClassShort;
+	fy_str *sClassChar;
+	fy_str *sClassInt;
+	fy_str *sClassFloat;
+	fy_str *sClassLong;
+	fy_str *sClassDouble;
 	fy_str *sBoolean;
 	fy_str *sByte;
 	fy_str *sShort;

@@ -825,7 +825,6 @@ static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	fy_uint count =
 			args[2] ? fy_heapArrayLength(context, args[2], exception) : 0;
 	fy_class *paramType;

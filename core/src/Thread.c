@@ -3636,7 +3636,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			case TABLESWITCH: {
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue, ivalue2, ivalue3;
-				fy_uint i;
+				/*fy_uint i;*/
 #endif
 				fy_threadPopInt(ivalue);
 				ivalue2 = instruction->params.swtable->lowest;/*lb*/

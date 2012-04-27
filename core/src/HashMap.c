@@ -162,7 +162,7 @@ FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
 	} else {
 		key = fy_mmAllocate(mem, sizeof(fy_str), exception);
 		FYEH()NULL;
-		fy_strInit(mem, key, fy_utf8SizeS(keyUtf8, -1), exception);
+		fy_strInit(mem, key, (fy_utf8SizeS(keyUtf8, -1) + 1) / 2, exception);
 		FYEH()NULL;
 		fy_strAppendUTF8(mem, key, keyUtf8, -1, exception);
 		FYEH()NULL;

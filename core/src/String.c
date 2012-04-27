@@ -41,7 +41,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
 		const char *utf8, fy_int additionalSize, fy_exception *exception) {
 	fy_str *str;
-	fy_int size = fy_utf8SizeS(utf8, -1) + additionalSize;
+	fy_int size = (fy_utf8SizeS(utf8, -1) + 1) / 2 + additionalSize;
 	str = fy_strCreatePerm(mem, size, exception);
 	FYEH()NULL;
 	fy_strAppendUTF8(mem, str, utf8, -1, exception);
@@ -77,7 +77,7 @@ FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *block, fy_str *string) {
 FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 		const char *utf8, fy_exception *exception) {
 	size_t size;
-	size = fy_utf8SizeS(utf8, -1);
+	size = (fy_utf8SizeS(utf8, -1) + 1) / 2;
 	fy_strInit(block, str, size, exception);
 	FYEH();
 	fy_strAppendUTF8(block, str, utf8, -1, exception);
