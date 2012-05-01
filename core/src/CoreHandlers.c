@@ -1008,6 +1008,105 @@ static void registerMethod(fy_context *context, fy_exception *exception) {
 	FYEH();
 }
 
+static void constructorNewInstance(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_object *methodObj = fy_heapGetObject(context,args[0]);
+	fy_method *method = context->methods[methodObj->object_data->attachedId];
+	fy_uint count =
+			args[1] ? fy_heapArrayLength(context, args[1], exception) : 0;
+	fy_class *paramType;
+	fy_uint i;
+	fy_uint paramsHandle = args[1];
+	fy_uint paramHandle;
+	FYEH();
+
+	if (method == NULL) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+		FYEH();
+	}
+	if (count != method->parameterCount) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+	}
+	if (method->access_flags & FY_ACC_STATIC) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+				"This is not a constructor!!");
+	}
+	paramHandle = fy_heapAllocate(context, method->owner, exception);
+	FYEH();
+	fy_threadReturnHandle(context, thread, paramHandle);
+	fy_threadReturnHandle(context, thread, paramHandle);
+	for (i = 0; i < count; i++) {
+		fy_arrayListGet(context->memblocks, method->parameterTypes, i,
+				&paramType);
+		paramHandle = fy_heapGetArrayHandle(context, paramsHandle, i,
+				exception);
+		FYEH();
+		if (paramType->type == primitive_class) {
+			/*Unwrap*/
+			switch (paramType->ci.prm.pType) {
+			case FY_TYPE_BOOLEAN: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapBoolean(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_BYTE: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapByte(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_SHORT: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapShort(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_CHAR: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapChar(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_INT: {
+				fy_threadReturnInt(context, thread,
+						fy_heapUnwrapInt(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_FLOAT: {
+				fy_threadReturnFloat(context, thread,
+						fy_heapUnwrapFloat(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_LONG: {
+				fy_threadReturnLong(context, thread,
+						fy_heapUnwrapLong(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			case FY_TYPE_DOUBLE: {
+				fy_threadReturnDouble(context, thread,
+						fy_heapUnwrapDouble(context, paramHandle, exception));
+				FYEH();
+				break;
+			}
+			default: {
+				fy_fault(exception, FY_EXCEPTION_ARGU,
+						"Illegal parameter type %c",
+						(char) paramType->ci.prm.pType);
+				break;
+			}
+			}
+		} else {
+			fy_threadReturnHandle(context, thread, paramHandle);
+		}
+	}
+	fy_threadInvoke(context, thread, method, message, exception);
+}
+
 static void registerConstructor(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context, FY_REFLECT_CONSTRUCTOR".isBridge.()Z",
 			NULL, methodIsBridge, exception);
@@ -1043,6 +1142,11 @@ static void registerConstructor(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context,
 			FY_REFLECT_CONSTRUCTOR".getUniqueName.()L"FY_BASE_STRING";", NULL,
 			methodGetUniqueName, exception);
+	FYEH();
+
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_CONSTRUCTOR".newInstance0.([L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
+			NULL, constructorNewInstance, exception);
 	FYEH();
 }
 

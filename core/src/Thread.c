@@ -65,7 +65,6 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	//Jump after found the target is move to run() for further optimize
 }
 
-
 static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 		fy_uint *type, fy_exception *exception) {
 	ConstantStringInfo *constantStringInfo;
@@ -768,7 +767,6 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 	fy_class *clazz;
 	fy_uint *stack;
 	fy_object *object;
-//	fy_uint
 	fy_uint sp;
 #ifdef FY_VERBOSE
 	printf("Invoke direct: ");
@@ -788,6 +786,11 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 	stack = thread->stack;
 	if (stack[frame->sp] == 0) {
 		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+	object = fy_heapGetObject(context,stack[sp]);
+	if (!fy_classCanCastTo(context,object->object_data->clazz, method->owner)) {
+		fy_fault(exception, FY_EXCEPTION_CAST, "");
 		return;
 	}
 #ifdef FY_VERBOSE
