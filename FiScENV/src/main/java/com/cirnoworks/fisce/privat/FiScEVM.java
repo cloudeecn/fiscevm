@@ -20,33 +20,33 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 public class FiScEVM {
-	/*Access flags*/
+	/* Access flags */
 	public static final int ACC_ABSTRACT = 1024;
-	public static final int ACC_FINAL =16;
-	public static final int ACC_INTERFACE= 512;
-	public static final int ACC_NATIVE= 256;
-	public static final int ACC_PRIVATE =2;
-	public static final int ACC_PROTECTED =4;
-	public static final int ACC_PUBLIC= 1;
-	public static final int ACC_STATIC= 8;
-	public static final int ACC_STRICT= 2048;
-	public static final int ACC_SUPER=32;
-	public static final int ACC_SYNCHRONIZED= 32;
-	public static final int ACC_TRANSIENT=128;
-	public static final int ACC_VOLATILE= 64;
-	public static final int ACC_VARARGS =128;
-	public static final int ACC_BRIDGE =64;
-	/*Extended access flags*/
-	public static final int ACC_SYNTHETIC	=0x00001000;
-	public static final int ACC_ANNOTATION	=0x00002000;
-	public static final int ACC_ENUM		=	0x00004000;
-	public static final int ACC_CONSTRUCTOR=0x00010000;
-	public static final int ACC_CLINIT=0x00020000;
-	public static final int ACC_VERIFIED	=	0x80000000;
+	public static final int ACC_FINAL = 16;
+	public static final int ACC_INTERFACE = 512;
+	public static final int ACC_NATIVE = 256;
+	public static final int ACC_PRIVATE = 2;
+	public static final int ACC_PROTECTED = 4;
+	public static final int ACC_PUBLIC = 1;
+	public static final int ACC_STATIC = 8;
+	public static final int ACC_STRICT = 2048;
+	public static final int ACC_SUPER = 32;
+	public static final int ACC_SYNCHRONIZED = 32;
+	public static final int ACC_TRANSIENT = 128;
+	public static final int ACC_VOLATILE = 64;
+	public static final int ACC_VARARGS = 128;
+	public static final int ACC_BRIDGE = 64;
+	/* Extended access flags */
+	public static final int ACC_SYNTHETIC = 0x00001000;
+	public static final int ACC_ANNOTATION = 0x00002000;
+	public static final int ACC_ENUM = 0x00004000;
+	public static final int ACC_CONSTRUCTOR = 0x00010000;
+	public static final int ACC_CLINIT = 0x00020000;
+	public static final int ACC_VERIFIED = 0x80000000;
 
 	private static String defaultEncoding = "utf-8";
 
-	public static final PrintStream debug = new PrintStream(
+	public static PrintStream debug = new PrintStream(
 			new DebugOutOutputStream());
 
 	public static native void debugOut(String str);
@@ -131,7 +131,7 @@ public class FiScEVM {
 
 	/**
 	 * Store caller's params to an int array.
-	 *
+	 * 
 	 * @param begin
 	 *            the beginning of the params
 	 * @param target
@@ -143,4 +143,97 @@ public class FiScEVM {
 	 */
 	public static native void storeParamsToArray(int begin, int[] target,
 			int pos, int count);
+
+
+	public static Object wide(Object from, Class<?> type) {
+		Class<?> argType = from.getClass();
+		if (type.isAssignableFrom(argType)) {
+			return from;
+		} else if (type == Boolean.TYPE || type == Boolean.class) {
+
+			if (argType == Boolean.class) {
+				return from;
+			} else {
+				throw new IllegalArgumentException("Can't wide from " + argType
+						+ " to" + type);
+			}
+
+		} else if (type == Byte.TYPE || type == Byte.class) {
+
+			if (argType == Byte.class) {
+				return from;
+			} else {
+				throw new IllegalArgumentException("Can't wide from " + argType
+						+ " to" + type);
+			}
+
+		} else if (type == Short.TYPE || type == Short.class) {
+
+			if (argType == Short.class) {
+				return from;
+			}
+			if (argType == Byte.class) {
+				return ((Number) from).shortValue();
+			} else {
+				throw new IllegalArgumentException("Can't wide from " + argType
+						+ " to" + type);
+			}
+
+		} else if (type == Character.TYPE || type == Boolean.class) {
+
+			if (argType == Character.class) {
+				return from;
+			} else {
+				throw new IllegalArgumentException("Can't wide from " + argType
+						+ " to" + type);
+			}
+
+		} else if (type == Integer.TYPE || type == Integer.class) {
+			if (argType == Integer.class) {
+				return from;
+			} else if (argType == Byte.TYPE || argType == Short.TYPE
+					|| argType == Character.TYPE) {
+				return ((Number) from).intValue();
+			} else {
+				throw new IllegalArgumentException("Can't wide from " + argType
+						+ " to" + type);
+			}
+		} else if (type == Float.TYPE || type == Float.class) {
+			if (argType == Float.class) {
+				return from;
+			} else if (argType == Byte.TYPE || argType == Short.TYPE
+					|| argType == Character.TYPE || argType == Integer.TYPE
+					|| argType == Long.TYPE) {
+				return ((Number) from).floatValue();
+			} else {
+				throw new IllegalArgumentException("Can't wide from " + argType
+						+ " to" + type);
+			}
+
+		} else if (type == Long.TYPE || type == Long.class) {
+			if (argType == Long.class) {
+				return from;
+			} else if (argType == Byte.TYPE || argType == Short.TYPE
+					|| argType == Character.TYPE || argType == Integer.TYPE) {
+				return ((Number) from).longValue();
+			} else {
+				throw new IllegalArgumentException("Can't wide from " + argType
+						+ " to" + type);
+			}
+
+		} else if (type == Double.TYPE || type == Double.class) {
+			if (argType == Double.class) {
+				return from;
+			} else if (Number.class.isAssignableFrom(argType)) {
+				return ((Number) from).doubleValue();
+			} else {
+				throw new IllegalArgumentException("Can't wide from " + argType
+						+ " to" + type);
+			}
+
+		} else {
+			throw new IllegalArgumentException("Can't wide from " + argType
+					+ " to" + type);
+		}
+	}
 }

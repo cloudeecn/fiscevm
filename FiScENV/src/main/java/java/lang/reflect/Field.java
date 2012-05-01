@@ -75,25 +75,176 @@ public final class Field extends AccessibleObject implements Member {
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native Object get(Object obj) throws IllegalArgumentException,
-			IllegalAccessException;
+	public Object get(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type.isPrimitive()) {
+			if (type == Boolean.TYPE) {
+				return getBoolean0(obj);
+			} else if (type == Byte.TYPE) {
+				return getByte0(obj);
+			} else if (type == Short.TYPE) {
+				return getShort0(obj);
+			} else if (type == Character.TYPE) {
+				return getChar0(obj);
+			} else if (type == Integer.TYPE) {
+				return getInt0(obj);
+			} else if (type == Float.TYPE) {
+				return getFloat0(obj);
+			} else if (type == Long.TYPE) {
+				return getLong0(obj);
+			} else if (type == Double.TYPE) {
+				return getDouble0(obj);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		} else {
+			return getObject0(obj);
+		}
+	}
+
+	public boolean getBoolean(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type == Boolean.TYPE) {
+			return getBoolean0(obj);
+		} else {
+			throw new IllegalArgumentException("Can't convert " + type
+					+ " to boolean");
+		}
+	}
+
+	public byte getByte(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type == Byte.TYPE) {
+			return getByte0(obj);
+		} else {
+			throw new IllegalArgumentException("Can't convert " + type
+					+ " to boolean");
+		}
+	}
+
+	public char getChar(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type == Character.TYPE) {
+			return getChar0(obj);
+		} else {
+			throw new IllegalArgumentException("Can't convert " + type
+					+ " to boolean");
+		}
+	}
+
+	public short getShort(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type == Short.TYPE) {
+			return getShort0(obj);
+		} else if (type == Byte.TYPE) {
+			return getByte0(obj);
+		} else {
+			throw new IllegalArgumentException("Can't convert " + type
+					+ " to boolean");
+		}
+	}
+
+	public int getInt(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type == Integer.TYPE) {
+			return getInt0(obj);
+		} else if (type == Byte.TYPE) {
+			return getByte0(obj);
+		} else if (type == Character.TYPE) {
+			return getChar0(obj);
+		} else if (type == Short.TYPE) {
+			return getShort0(obj);
+		} else {
+			throw new IllegalArgumentException("Can't convert " + type
+					+ " to boolean");
+		}
+	}
+
+	public float getFloat(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type == Float.TYPE) {
+			return getFloat0(obj);
+		} else if (type == Long.TYPE) {
+			return getLong0(obj);
+		} else if (type == Byte.TYPE) {
+			return getByte0(obj);
+		} else if (type == Character.TYPE) {
+			return getChar0(obj);
+		} else if (type == Short.TYPE) {
+			return getShort0(obj);
+		} else if (type == Integer.TYPE) {
+			return getInt0(obj);
+		} else {
+			throw new IllegalArgumentException("Can't convert " + type
+					+ " to boolean");
+		}
+	}
+
+	public long getLong(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type == Long.TYPE) {
+			return getLong0(obj);
+		} else if (type == Byte.TYPE) {
+			return getByte0(obj);
+		} else if (type == Character.TYPE) {
+			return getChar0(obj);
+		} else if (type == Short.TYPE) {
+			return getShort0(obj);
+		} else if (type == Integer.TYPE) {
+			return getInt0(obj);
+		} else {
+			throw new IllegalArgumentException("Can't convert " + type
+					+ " to boolean");
+		}
+	}
+
+	public double getDouble(Object obj) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<?> type = getType();
+		if (type == Double.TYPE) {
+			return getDouble0(obj);
+		} else if (type == Float.TYPE) {
+			return getFloat0(obj);
+		} else if (type == Long.TYPE) {
+			return getLong0(obj);
+		} else if (type == Byte.TYPE) {
+			return getByte0(obj);
+		} else if (type == Character.TYPE) {
+			return getChar0(obj);
+		} else if (type == Short.TYPE) {
+			return getShort0(obj);
+		} else if (type == Integer.TYPE) {
+			return getInt0(obj);
+		} else {
+			throw new IllegalArgumentException("Can't convert " + type
+					+ " to boolean");
+		}
+	}
 
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native boolean getBoolean(Object obj)
+	private native boolean getBoolean0(Object obj)
 			throws IllegalArgumentException, IllegalAccessException;
 
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native byte getByte(Object obj) throws IllegalArgumentException,
+	private native byte getByte0(Object obj) throws IllegalArgumentException,
 			IllegalAccessException;
 
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native char getChar(Object obj) throws IllegalArgumentException,
+	private native char getChar0(Object obj) throws IllegalArgumentException,
 			IllegalAccessException;
 
 	/**
@@ -104,25 +255,25 @@ public final class Field extends AccessibleObject implements Member {
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native double getDouble(Object obj) throws IllegalArgumentException,
+	private native double getDouble0(Object obj)
+			throws IllegalArgumentException, IllegalAccessException;
+
+	/**
+	 * @com.intel.drl.spec_ref
+	 */
+	private native float getFloat0(Object obj) throws IllegalArgumentException,
 			IllegalAccessException;
 
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native float getFloat(Object obj) throws IllegalArgumentException,
+	private native int getInt0(Object obj) throws IllegalArgumentException,
 			IllegalAccessException;
 
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native int getInt(Object obj) throws IllegalArgumentException,
-			IllegalAccessException;
-
-	/**
-	 * @com.intel.drl.spec_ref
-	 */
-	public native long getLong(Object obj) throws IllegalArgumentException,
+	private native long getLong0(Object obj) throws IllegalArgumentException,
 			IllegalAccessException;
 
 	/**
@@ -138,8 +289,11 @@ public final class Field extends AccessibleObject implements Member {
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	public native short getShort(Object obj) throws IllegalArgumentException,
+	private native short getShort0(Object obj) throws IllegalArgumentException,
 			IllegalAccessException;
+
+	private native Object getObject0(Object obj)
+			throws IllegalArgumentException, IllegalAccessException;
 
 	/**
 	 * @com.intel.drl.spec_ref

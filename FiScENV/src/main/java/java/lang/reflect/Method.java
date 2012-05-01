@@ -22,6 +22,8 @@ package java.lang.reflect;
 
 import java.lang.annotation.Annotation;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * @com.intel.drl.spec_ref
  */
@@ -160,6 +162,14 @@ public final class Method extends AccessibleObject implements Member,
 	public Object invoke(Object obj, Object... args)
 			throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
+		int length;
+		Class<?>[] types = getParameterTypes();
+		if ((length = args.length) != types.length) {
+			throw new IllegalArgumentException("Parameters length mismatch");
+		}
+		for (int i = 0; i < length; i++) {
+			args[i] = FiScEVM.wide(args[i], types[i]);
+		}
 		try {
 			Class<?> rt = getReturnType();
 			if (rt.isPrimitive()) {

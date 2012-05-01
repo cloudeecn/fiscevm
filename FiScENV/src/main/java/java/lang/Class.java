@@ -40,7 +40,7 @@ import com.cirnoworks.fisce.privat.ResourceInputStream;
 
 /**
  * Runtime representation of a class
- *
+ * 
  * @author Evgueni Brevnov, Serguei S. Zapreyev, Alexey V. Varlamov
  */
 public final class Class<T> implements Serializable, AnnotatedElement,
@@ -228,7 +228,7 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 	/**
 	 * Provides strong referencing between the classloader and it's defined
 	 * classes. Intended for class unloading implementation.
-	 *
+	 * 
 	 * @see java.lang.ClassLoader#loadedClasses
 	 */
 	ClassLoader definingLoader;
@@ -360,7 +360,12 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 	}
 
 	public Field getField(String fieldName) throws NoSuchFieldException {
-		return null;
+		for (Field field : getFields()) {
+			if (field.getName().equals(fieldName)) {
+				return field;
+			}
+		}
+		throw new NoSuchFieldException(this + "." + fieldName);
 	}
 
 	public Field[] getFields() {
@@ -381,6 +386,11 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 			do {
 				for (Field field : clazz.getPrivateDeclaredFields()) {
 					if ((field.getModifiers() & FiScEVM.ACC_PUBLIC) != 0) {
+						fields.add(field);
+					}
+				}
+				for (Class<?> intf : clazz.getInterfaces()) {
+					for (Field field : intf.getPrivateDeclaredFields()) {
 						fields.add(field);
 					}
 				}
@@ -415,7 +425,7 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 		Class<?> clazz = this;
 		ArrayList<Method> ret = new ArrayList<Method>();
 		do {
-			System.out.println(clazz.getName());
+//			System.out.println(clazz.getName());
 			for (Method method : clazz.getPrivateDeclaredMethods()) {
 				if ((method.getModifiers() & FiScEVM.ACC_PUBLIC) != 0) {
 					ret.add(method);

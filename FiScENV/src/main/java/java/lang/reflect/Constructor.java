@@ -22,6 +22,8 @@ package java.lang.reflect;
 
 import java.lang.annotation.Annotation;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 /**
  * @com.intel.drl.spec_ref
  */
@@ -138,8 +140,21 @@ public final class Constructor<T> extends AccessibleObject implements Member,
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
-	@SuppressWarnings("unchecked")
-	public native T newInstance(Object... args) throws InstantiationException,
+	public T newInstance(Object... args) throws InstantiationException,
+			IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		int length;
+		Class<?>[] types = getParameterTypes();
+		if ((length = args.length) != types.length) {
+			throw new IllegalArgumentException("Parameters length mismatch");
+		}
+		for (int i = 0; i < length; i++) {
+			args[i] = FiScEVM.wide(args[i], types[i]);
+		}
+		return newInstance0(args);
+	}
+
+	private native T newInstance0(Object... args) throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException;
 
