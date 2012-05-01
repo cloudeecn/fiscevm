@@ -146,7 +146,11 @@ public class ReflectionTest extends RTParent implements RTInterface3,
 			FiScEVM.debug.println("getConstructors"
 					+ Arrays.toString(clazz.getConstructors()));
 
-			// clazz.getConstructor(int.class).newInstance(args)
+			rt = clazz.getConstructor(int.class, float.class).newInstance(200,
+					200.0f);
+			assertTrue(rt.e1 == RTEnum.CCC);
+			assertTrue(rt.a == 200);
+			assertTrue(rt.b == 200.0f);
 
 		} catch (Exception e) {
 			e.printStackTrace(FiScEVM.debug);

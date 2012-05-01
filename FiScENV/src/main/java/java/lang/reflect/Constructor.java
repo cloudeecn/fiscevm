@@ -146,7 +146,8 @@ public final class Constructor<T> extends AccessibleObject implements Member,
 		int length;
 		Class<?>[] types = getParameterTypes();
 		if ((length = args.length) != types.length) {
-			throw new IllegalArgumentException("Parameters length mismatch");
+			throw new IllegalArgumentException("Parameters length mismatch "
+					+ args.length + " vs" + types.length);
 		}
 		for (int i = 0; i < length; i++) {
 			args[i] = FiScEVM.wide(args[i], types[i]);
@@ -154,9 +155,9 @@ public final class Constructor<T> extends AccessibleObject implements Member,
 		return newInstance0(args);
 	}
 
-	private native T newInstance0(Object... args) throws InstantiationException,
-			IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException;
+	private native T newInstance0(Object... args)
+			throws InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException;
 
 	/**
 	 * @com.intel.drl.spec_ref
