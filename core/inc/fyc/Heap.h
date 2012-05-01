@@ -227,6 +227,12 @@ fy_uint fy_heapWrapDouble(fy_context *context, fy_double value,
 fy_double fy_heapUnwrapDouble(fy_context *context, fy_uint handle,
 		fy_exception *exception);
 
+fy_uint fy_heapLookupStringFromConstant(fy_context *context,
+		ConstantStringInfo *constantStringInfo, fy_exception *exception);
+
+fy_int fy_heapMultiArray(fy_context *context, fy_class *clazz, fy_int layers,
+		fy_int *elementsForEachLayer, fy_exception *exception);
+
 #ifdef	__cplusplus
 }
 #endif

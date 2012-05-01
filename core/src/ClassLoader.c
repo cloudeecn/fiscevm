@@ -418,8 +418,8 @@ static void loadFields(fy_context *context, fy_class *clazz, void *is,
 			attrSize = fy_dataRead4(context, is, exception);
 			FYEH();
 			if (fy_strCmp(context->sAttConstantValue, attrName) == 0) {
-				/*TODO*/
-				fy_dataRead2(context, is, exception);
+				field->constant_value_index = fy_dataRead2(context, is,
+						exception);
 				FYEH();
 			} else {
 				fy_dataSkip(context, is, attrSize, exception);
@@ -990,6 +990,42 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			default:
 				fy_fault(exception, NULL, "Illegal descriptor of field");
 				break;
+			}
+			if (field->constant_value_index > 0) {
+				if (field->access_flags & FY_ACC_STATIC) {
+					switch (field->descriptor->content[0]) {
+					case FY_TYPE_BOOLEAN:
+					case FY_TYPE_BYTE:
+					case FY_TYPE_SHORT:
+					case FY_TYPE_CHAR:
+					case FY_TYPE_INT:
+					case FY_TYPE_FLOAT: {
+						clazz->staticArea[field->posAbs] =
+								((ConstantIntegerFloatInfo*) clazz->constantPools[field->constant_value_index])->value;
+						break;
+					}
+					case FY_TYPE_LONG:
+					case FY_TYPE_DOUBLE: {
+						clazz->staticArea[field->posAbs] =
+								fy_HOFL(
+										((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
+						clazz->staticArea[field->posAbs + 1] =
+								fy_LOFL(
+										((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
+						break;
+					}
+					case FY_TYPE_HANDLE: {
+						clazz->staticArea[field->posAbs] =
+								fy_heapLookupStringFromConstant(context,
+										clazz->constantPools[field->constant_value_index],
+										exception);
+						FYEH();
+						break;
+					}
+					}
+				} else {
+					/*Ignore it since it will be proceed in default <init>*/
+				}
 			}
 		}
 		if (clazz->super && (i = clazz->super->sizeAbs) > 0) {

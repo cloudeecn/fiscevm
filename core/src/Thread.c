@@ -65,30 +65,6 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	//Jump after found the target is move to run() for further optimize
 }
 
-static fy_int threadmulitANewArray(fy_context *context, fy_class *clazz,
-		fy_int layers, fy_int *elementsForEachLayer, fy_exception *exception) {
-	int i;
-	fy_int handle;
-	int size = elementsForEachLayer[0];
-	int ret = fy_heapAllocateArray(context, clazz, size, exception);
-	if (exception->exceptionType != exception_none) {
-		return 0;
-	}
-	if (layers > 1) {
-		for (i = 0; i < size; i++) {
-			handle = threadmulitANewArray(context, clazz->ci.arr.contentClass,
-					layers - 1, elementsForEachLayer + 1, exception);
-			if (exception->exceptionType != exception_none) {
-				return 0;
-			}
-			fy_heapPutArrayHandle(context, ret, i, handle, exception);
-			if (exception->exceptionType != exception_none) {
-				return 0;
-			}
-		}
-	}
-	return ret;
-}
 
 static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 		fy_uint *type, fy_exception *exception) {
@@ -105,18 +81,8 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 		*type = 1;
 		constantStringInfo =
 				((ConstantStringInfo*) (owner->constantPools[index]));
-		if (!constantStringInfo->derefed) {
-			fy_heapBeginProtect(context);
-			hvalue = fy_heapLiteral(context, constantStringInfo->ci.string,
-					exception);
-			if (exception->exceptionType != exception_none) {
-				return 0;
-			}
-			constantStringInfo->derefed = TRUE;
-			constantStringInfo->ci.handle = hvalue;
-		} else {
-			hvalue = constantStringInfo->ci.handle;
-		}
+		hvalue = fy_heapLookupStringFromConstant(context, constantStringInfo,
+				exception);
 		return hvalue;
 	case CONSTANT_Class:
 		constantClass = (ConstantClass*) (owner->constantPools[index]);
@@ -793,6 +759,43 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 	printf("\n");
 #endif
 	doInvoke(context, thread, frame, actureMethod, count, message, exception);
+}
+
+static void invokeDirect(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fy_exception *exception,
+		fy_message *message) {
+	fy_int count = method->paramCount + 1;
+	fy_class *clazz;
+	fy_uint *stack;
+	fy_object *object;
+//	fy_uint
+	fy_uint sp;
+#ifdef FY_VERBOSE
+	printf("Invoke direct: ");
+	fy_strPrint(method->uniqueName);
+	printf("\n");
+#endif
+#ifdef FY_STRICT_CHECK
+	if (frame->sp - (count) - frame->sb < frame->localCount) {
+		fy_fault(exception, NULL, "Buffer underflow! %d %d",
+				frame->sp - (count) - frame->sb, frame->localCount);
+		return;
+	}
+#endif
+	frame->sp -= count;
+	sp = frame->sp;
+	ASSERT(fy_bitGet(thread->typeStack,frame->sp));
+	stack = thread->stack;
+	if (stack[frame->sp] == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return;
+	}
+#ifdef FY_VERBOSE
+	printf("\tmethod is: ");
+	fy_strPrint(actureMethod->uniqueName);
+	printf("\n");
+#endif
+	doInvoke(context, thread, frame, method, count, message, exception);
 }
 
 static void invokeStatic(fy_context *context, fy_thread *thread,
@@ -3213,7 +3216,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_threadPopInt(pivalue[i]);
 				}
 				fy_heapBeginProtect(context);
-				ivalue2 = threadmulitANewArray(context, clazz1, ivalue, pivalue,
+				ivalue2 = fy_heapMultiArray(context, clazz1, ivalue, pivalue,
 						exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;

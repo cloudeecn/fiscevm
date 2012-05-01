@@ -162,6 +162,8 @@ typedef struct fy_field {
 	fy_char descriptor_index;
 	fy_str* descriptor;
 
+	fy_char constant_value_index;
+
 	fy_str* fullName;
 	fy_str* uniqueName;
 
@@ -170,9 +172,6 @@ typedef struct fy_field {
 
 	fy_uint posRel;
 	fy_uint posAbs;
-
-	fy_uint initHigh;
-	fy_uint initLow;
 
 } fy_field;
 

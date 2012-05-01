@@ -80,7 +80,11 @@ static void StringIntern(struct fy_context *context, struct fy_thread *thread,
 	fy_strDestroy(context->memblocks, &str);
 	fy_nativeReturnHandle(context, thread, ret);
 }
-
+static void doubleLongBitsToDouble(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_nativeReturnLong(context, thread, fy_I2TOL(args[0],args[1]));
+}
 static void floatIntBitsToFloat(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_message *message, fy_exception *exception) {
@@ -841,7 +845,7 @@ static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 	}
 	if (!(method->access_flags & FY_ACC_STATIC)) {
-		fy_threadReturnHandle(context, thread,args[1]);
+		fy_threadReturnHandle(context, thread, args[1]);
 	}
 	for (i = 0; i < count; i++) {
 		fy_arrayListGet(context->memblocks, method->parameterTypes, i,
@@ -1004,6 +1008,44 @@ static void registerMethod(fy_context *context, fy_exception *exception) {
 	FYEH();
 }
 
+static void registerConstructor(fy_context *context, fy_exception *exception) {
+	fy_vmRegisterNativeHandler(context, FY_REFLECT_CONSTRUCTOR".isBridge.()Z",
+			NULL, methodIsBridge, exception);
+	FYEH();
+
+	fy_vmRegisterNativeHandler(context, FY_REFLECT_CONSTRUCTOR".isVarArgs.()Z",
+			NULL, methodIsVarArgs, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_CONSTRUCTOR".isSynthetic.()Z", NULL, methodIsSynthetic,
+			exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_CONSTRUCTOR".getDeclaringClass.()L"FY_BASE_CLASS";",
+			NULL, methodGetDeclaringClass, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_CONSTRUCTOR".getExceptionTypes.()[L"FY_BASE_CLASS";",
+			NULL, methodExceptionTypes, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_CONSTRUCTOR".getModifiers.()I", NULL, methodGetModifiers,
+			exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_CONSTRUCTOR".getName.()L"FY_BASE_STRING";", NULL,
+			methodGetName, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_CONSTRUCTOR".getParameterTypes.()[L"FY_BASE_CLASS";",
+			NULL, methodGetParameterTypes, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_CONSTRUCTOR".getUniqueName.()L"FY_BASE_STRING";", NULL,
+			methodGetUniqueName, exception);
+	FYEH();
+}
+
 /*
  #######   #####   #######  #        #####
  #           #     #        #        #    #
@@ -1040,80 +1082,25 @@ static void fieldIsEnumconstant(struct fy_context *context,
 			(field->access_flags & FY_ACC_ENUM) ? 1 : 0);
 }
 
-static void fieldGet(struct fy_context *context, struct fy_thread *thread,
+static void fieldGetObject(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
 	if (field == NULL) {
-		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
+		FYEH();
+	}
+	if (field->type->type == primitive_class) {
+		fy_fault(exception, FY_EXCEPTION_ARGU,
+				"This field is not object or array");
 		FYEH();
 	}
 
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->type) {
-		case primitive_class:
-			switch (field->type->ci.prm.pType) {
-			case 'Z':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapBoolean(context,
-								fy_heapGetStaticBoolean(context, field,
-										exception), exception));
-				break;
-			case 'B':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapByte(context,
-								fy_heapGetStaticByte(context, field, exception),
-								exception));
-				break;
-			case 'S':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapShort(context,
-								fy_heapGetStaticShort(context, field,
-										exception), exception));
-				break;
-			case 'C':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapChar(context,
-								fy_heapGetStaticChar(context, field, exception),
-								exception));
-				break;
-			case 'I':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapInt(context,
-								fy_heapGetStaticInt(context, field, exception),
-								exception));
-				break;
-			case 'F':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapFloat(context,
-								fy_heapGetStaticFloat(context, field,
-										exception), exception));
-				break;
-			case 'J':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapLong(context,
-								fy_heapGetStaticLong(context, field, exception),
-								exception));
-				break;
-			case 'D':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapDouble(context,
-								fy_heapGetStaticDouble(context, field,
-										exception), exception));
-				break;
-			default:
-				fy_fault(exception, NULL, "Illegal prm type %c",
-						field->type->ci.prm.pType);
-				break;
-			}
-			break;
-		default:
-			fy_nativeReturnHandle(context, thread,
-					fy_heapGetStaticHandle(context, field, exception));
-			break;
-		}
+		fy_nativeReturnHandle(context, thread,
+				fy_heapGetStaticHandle(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1121,68 +1108,8 @@ static void fieldGet(struct fy_context *context, struct fy_thread *thread,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->type) {
-		case primitive_class:
-			switch (field->type->ci.prm.pType) {
-			case 'Z':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapBoolean(context,
-								fy_heapGetFieldBoolean(context, args[1], field,
-										exception), exception));
-				break;
-			case 'B':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapByte(context,
-								fy_heapGetFieldByte(context, args[1], field,
-										exception), exception));
-				break;
-			case 'S':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapShort(context,
-								fy_heapGetFieldShort(context, args[1], field,
-										exception), exception));
-				break;
-			case 'C':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapChar(context,
-								fy_heapGetFieldChar(context, args[1], field,
-										exception), exception));
-				break;
-			case 'I':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapInt(context,
-								fy_heapGetFieldInt(context, args[1], field,
-										exception), exception));
-				break;
-			case 'F':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapFloat(context,
-								fy_heapGetFieldFloat(context, args[1], field,
-										exception), exception));
-				break;
-			case 'J':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapLong(context,
-								fy_heapGetFieldLong(context, args[1], field,
-										exception), exception));
-				break;
-			case 'D':
-				fy_nativeReturnHandle(context, thread,
-						fy_heapWrapDouble(context,
-								fy_heapGetFieldDouble(context, args[1], field,
-										exception), exception));
-				break;
-			default:
-				fy_fault(exception, NULL, "Illegal prm type %c",
-						field->type->ci.prm.pType);
-				break;
-			}
-			break;
-		default:
-			fy_nativeReturnHandle(context, thread,
-					fy_heapGetFieldHandle(context, args[1], field, exception));
-			break;
-		}
+		fy_nativeReturnHandle(context, thread,
+				fy_heapGetFieldHandle(context, args[1], field, exception));
 	}
 }
 
@@ -1197,29 +1124,18 @@ static void fieldGetBoolean(struct fy_context *context,
 		FYEH();
 	}
 	if (field->type->type != primitive_class) {
-		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not boolean");
 		FYEH();
 	}
+
+	if (field->type->ci.prm.pType != FY_TYPE_BOOLEAN) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not boolean");
+		FYEH();
+	}
+
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BOOLEAN:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticBoolean(context, field, exception));
-			break;
-		case FY_TYPE_BYTE:
-		case FY_TYPE_SHORT:
-		case FY_TYPE_CHAR:
-		case FY_TYPE_INT:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type boolean by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetStaticBoolean(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1227,26 +1143,8 @@ static void fieldGetBoolean(struct fy_context *context,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BOOLEAN:
-
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldBoolean(context, args[1], field, exception));
-			break;
-		case FY_TYPE_BYTE:
-		case FY_TYPE_SHORT:
-		case FY_TYPE_CHAR:
-		case FY_TYPE_INT:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type boolean by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetFieldBoolean(context, args[1], field, exception));
 	}
 }
 
@@ -1261,29 +1159,18 @@ static void fieldGetByte(struct fy_context *context, struct fy_thread *thread,
 		FYEH();
 	}
 	if (field->type->type != primitive_class) {
-		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not byte");
 		FYEH();
 	}
+
+	if (field->type->ci.prm.pType != FY_TYPE_BYTE) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not byte");
+		FYEH();
+	}
+
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticByte(context, field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_SHORT:
-		case FY_TYPE_CHAR:
-		case FY_TYPE_INT:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type byte by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetStaticByte(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1291,27 +1178,9 @@ static void fieldGetByte(struct fy_context *context, struct fy_thread *thread,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldByte(context, args[1], field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_SHORT:
-		case FY_TYPE_CHAR:
-		case FY_TYPE_INT:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type byte by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetFieldByte(context, args[1], field, exception));
 	}
-
 }
 
 static void fieldGetShort(struct fy_context *context, struct fy_thread *thread,
@@ -1325,32 +1194,18 @@ static void fieldGetShort(struct fy_context *context, struct fy_thread *thread,
 		FYEH();
 	}
 	if (field->type->type != primitive_class) {
-		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not short");
 		FYEH();
 	}
+
+	if (field->type->ci.prm.pType != FY_TYPE_SHORT) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not short");
+		FYEH();
+	}
+
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticByte(context, field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticShort(context, field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_CHAR:
-		case FY_TYPE_INT:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type short by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetStaticShort(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1358,28 +1213,8 @@ static void fieldGetShort(struct fy_context *context, struct fy_thread *thread,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldByte(context, args[1], field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldShort(context, args[1], field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_CHAR:
-		case FY_TYPE_INT:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type short by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetFieldShort(context, args[1], field, exception));
 	}
 
 }
@@ -1395,29 +1230,18 @@ static void fieldGetChar(struct fy_context *context, struct fy_thread *thread,
 		FYEH();
 	}
 	if (field->type->type != primitive_class) {
-		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not char");
 		FYEH();
 	}
+
+	if (field->type->ci.prm.pType != FY_TYPE_CHAR) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not char");
+		FYEH();
+	}
+
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_CHAR:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticChar(context, field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_BYTE:
-		case FY_TYPE_SHORT:
-		case FY_TYPE_INT:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type char by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetStaticChar(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1425,27 +1249,9 @@ static void fieldGetChar(struct fy_context *context, struct fy_thread *thread,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_CHAR:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldChar(context, args[1], field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_BYTE:
-		case FY_TYPE_SHORT:
-		case FY_TYPE_INT:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type char by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetFieldChar(context, args[1], field, exception));
 	}
-
 }
 
 static void fieldGetInt(struct fy_context *context, struct fy_thread *thread,
@@ -1459,38 +1265,18 @@ static void fieldGetInt(struct fy_context *context, struct fy_thread *thread,
 		FYEH();
 	}
 	if (field->type->type != primitive_class) {
-		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not int");
 		FYEH();
 	}
+
+	if (field->type->ci.prm.pType != FY_TYPE_INT) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not int");
+		FYEH();
+	}
+
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticByte(context, field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticShort(context, field, exception));
-			break;
-		case FY_TYPE_CHAR:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticChar(context, field, exception));
-			break;
-		case FY_TYPE_INT:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetStaticInt(context, field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type int by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetStaticInt(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1498,36 +1284,9 @@ static void fieldGetInt(struct fy_context *context, struct fy_thread *thread,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldByte(context, args[1], field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldShort(context, args[1], field, exception));
-			break;
-		case FY_TYPE_CHAR:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldChar(context, args[1], field, exception));
-			break;
-		case FY_TYPE_INT:
-			fy_nativeReturnInt(context, thread,
-					fy_heapGetFieldInt(context, args[1], field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_LONG:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type int by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetFieldInt(context, args[1], field, exception));
 	}
-
 }
 
 static void fieldGetFloat(struct fy_context *context, struct fy_thread *thread,
@@ -1541,44 +1300,18 @@ static void fieldGetFloat(struct fy_context *context, struct fy_thread *thread,
 		FYEH();
 	}
 	if (field->type->type != primitive_class) {
-		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not float");
 		FYEH();
 	}
+
+	if (field->type->ci.prm.pType != FY_TYPE_FLOAT) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not float");
+		FYEH();
+	}
+
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetStaticByte(context, field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetStaticShort(context, field, exception));
-			break;
-		case FY_TYPE_CHAR:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetStaticChar(context, field, exception));
-			break;
-		case FY_TYPE_INT:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetStaticInt(context, field, exception));
-			break;
-		case FY_TYPE_FLOAT:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetStaticFloat(context, field, exception));
-			break;
-		case FY_TYPE_LONG:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetStaticLong(context, field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type float by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetStaticInt(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1586,42 +1319,9 @@ static void fieldGetFloat(struct fy_context *context, struct fy_thread *thread,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetFieldByte(context, args[1], field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetFieldShort(context, args[1], field, exception));
-			break;
-		case FY_TYPE_CHAR:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetFieldChar(context, args[1], field, exception));
-			break;
-		case FY_TYPE_INT:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetFieldInt(context, args[1], field, exception));
-			break;
-		case FY_TYPE_FLOAT:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetFieldFloat(context, args[1], field, exception));
-			break;
-		case FY_TYPE_LONG:
-			fy_nativeReturnFloat(context, thread,
-					fy_heapGetFieldLong(context, args[1], field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type float by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnInt(context, thread,
+				fy_heapGetFieldInt(context, args[1], field, exception));
 	}
-
 }
 
 static void fieldGetLong(struct fy_context *context, struct fy_thread *thread,
@@ -1635,41 +1335,18 @@ static void fieldGetLong(struct fy_context *context, struct fy_thread *thread,
 		FYEH();
 	}
 	if (field->type->type != primitive_class) {
-		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not long");
 		FYEH();
 	}
+
+	if (field->type->ci.prm.pType != FY_TYPE_LONG) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not long");
+		FYEH();
+	}
+
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetStaticByte(context, field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetStaticShort(context, field, exception));
-			break;
-		case FY_TYPE_CHAR:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetStaticChar(context, field, exception));
-			break;
-		case FY_TYPE_INT:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetStaticInt(context, field, exception));
-			break;
-		case FY_TYPE_LONG:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetStaticLong(context, field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type long by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnLong(context, thread,
+				fy_heapGetStaticLong(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1677,39 +1354,9 @@ static void fieldGetLong(struct fy_context *context, struct fy_thread *thread,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetFieldByte(context, args[1], field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetFieldShort(context, args[1], field, exception));
-			break;
-		case FY_TYPE_CHAR:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetFieldChar(context, args[1], field, exception));
-			break;
-		case FY_TYPE_INT:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetFieldInt(context, args[1], field, exception));
-			break;
-		case FY_TYPE_LONG:
-			fy_nativeReturnLong(context, thread,
-					fy_heapGetFieldLong(context, args[1], field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-		case FY_TYPE_FLOAT:
-		case FY_TYPE_DOUBLE:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type long by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnLong(context, thread,
+				fy_heapGetFieldLong(context, args[1], field, exception));
 	}
-
 }
 
 static void fieldGetDouble(struct fy_context *context, struct fy_thread *thread,
@@ -1723,47 +1370,18 @@ static void fieldGetDouble(struct fy_context *context, struct fy_thread *thread,
 		FYEH();
 	}
 	if (field->type->type != primitive_class) {
-		fy_fault(exception, FY_EXCEPTION_ARGU, "");
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not double");
 		FYEH();
 	}
+
+	if (field->type->ci.prm.pType != FY_TYPE_DOUBLE) {
+		fy_fault(exception, FY_EXCEPTION_ARGU, "This field is not double");
+		FYEH();
+	}
+
 	if (field->access_flags & FY_ACC_STATIC) {
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetStaticByte(context, field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetStaticShort(context, field, exception));
-			break;
-		case FY_TYPE_CHAR:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetStaticChar(context, field, exception));
-			break;
-		case FY_TYPE_INT:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetStaticInt(context, field, exception));
-			break;
-		case FY_TYPE_LONG:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetStaticLong(context, field, exception));
-			break;
-		case FY_TYPE_FLOAT:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetStaticFloat(context, field, exception));
-			break;
-		case FY_TYPE_DOUBLE:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetStaticDouble(context, field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type long by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnLong(context, thread,
+				fy_heapGetStaticLong(context, field, exception));
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
@@ -1771,43 +1389,8 @@ static void fieldGetDouble(struct fy_context *context, struct fy_thread *thread,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
-		switch (field->type->ci.prm.pType) {
-		case FY_TYPE_BYTE:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetFieldByte(context, args[1], field, exception));
-			break;
-		case FY_TYPE_SHORT:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetFieldShort(context, args[1], field, exception));
-			break;
-		case FY_TYPE_CHAR:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetFieldChar(context, args[1], field, exception));
-			break;
-		case FY_TYPE_INT:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetFieldInt(context, args[1], field, exception));
-			break;
-		case FY_TYPE_LONG:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetFieldLong(context, args[1], field, exception));
-			break;
-		case FY_TYPE_FLOAT:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetFieldFloat(context, args[1], field, exception));
-			break;
-		case FY_TYPE_DOUBLE:
-			fy_nativeReturnDouble(context, thread,
-					fy_heapGetFieldDouble(context, args[1], field, exception));
-			break;
-		case FY_TYPE_BOOLEAN:
-			fy_fault(exception, FY_EXCEPTION_ARGU,
-					"The field value cannot be converted to the type long by a widening conversion");
-			break;
-		default:
-			fy_fault(exception, NULL, "");
-			break;
-		}
+		fy_nativeReturnLong(context, thread,
+				fy_heapGetFieldLong(context, args[1], field, exception));
 	}
 }
 
@@ -1970,39 +1553,39 @@ static void registerFields(fy_context *context, fy_exception *exception) {
 			exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".get.(L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";", NULL,
-			fieldGet, exception);
+			FY_REFLECT_FIELD".getObject0.(L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
+			NULL, fieldGetObject, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".getBoolean.(L"FY_BASE_OBJECT";)Z", NULL,
+			FY_REFLECT_FIELD".getBoolean0.(L"FY_BASE_OBJECT";)Z", NULL,
 			fieldGetBoolean, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".getByte.(L"FY_BASE_OBJECT";)B", NULL,
+			FY_REFLECT_FIELD".getByte0.(L"FY_BASE_OBJECT";)B", NULL,
 			fieldGetByte, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".getShort.(L"FY_BASE_OBJECT";)S", NULL,
+			FY_REFLECT_FIELD".getShort0.(L"FY_BASE_OBJECT";)S", NULL,
 			fieldGetShort, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".getChar.(L"FY_BASE_OBJECT";)C", NULL,
+			FY_REFLECT_FIELD".getChar0.(L"FY_BASE_OBJECT";)C", NULL,
 			fieldGetChar, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".getInt.(L"FY_BASE_OBJECT";)I", NULL, fieldGetInt,
+			FY_REFLECT_FIELD".getInt0.(L"FY_BASE_OBJECT";)I", NULL, fieldGetInt,
 			exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".getFloat.(L"FY_BASE_OBJECT";)F", NULL,
+			FY_REFLECT_FIELD".getFloat0.(L"FY_BASE_OBJECT";)F", NULL,
 			fieldGetFloat, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".getLong.(L"FY_BASE_OBJECT";)J", NULL,
+			FY_REFLECT_FIELD".getLong0.(L"FY_BASE_OBJECT";)J", NULL,
 			fieldGetLong, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_REFLECT_FIELD".getDouble.(L"FY_BASE_OBJECT";)D", NULL,
+			FY_REFLECT_FIELD".getDouble0.(L"FY_BASE_OBJECT";)D", NULL,
 			fieldGetDouble, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
@@ -2214,8 +1797,12 @@ static void classNewInstanceO(struct fy_context *context,
 	}
 	handle = fy_heapAllocate(context, clazz, exception);
 	FYEH();
+
 	fy_nativeReturnHandle(context, thread, handle);
 	sp = currentFrame->sp;
+	thread->stack[sp] = handle;
+	fy_bitSet(thread->typeStack, sp);
+
 	str.content = NULL;
 	fy_strInitWithUTF8(context->memblocks, &str, "."FY_METHOD_INIT".()V",
 			exception);
@@ -2223,8 +1810,6 @@ static void classNewInstanceO(struct fy_context *context,
 	invoke = fy_vmLookupMethodVirtual(context, clazz, &str, exception);
 	fy_strDestroy(context->memblocks, &str);
 	FYEH();
-	thread->stack[sp] = handle;
-	fy_bitSet(thread->typeStack, sp);
 	fy_threadPushMethod(context, thread, invoke, NULL, exception);
 }
 
@@ -2409,7 +1994,77 @@ static void registerClasses(fy_context *context, fy_exception *exception) {
 	FYEH();
 }
 
+static void arrayNewInstance(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0], exception);
+	fy_uint len;
+	fy_int sizes[1024];
+	fy_int i;
+	fy_str name[1];
+	fy_class *targetClass;
+	FYEH();
+	len = fy_heapArrayLength(context, args[1], exception);
+	FYEH();
+	for (i = 0; i < len; i++) {
+		sizes[i] = fy_heapGetArrayInt(context, args[1], i, exception);
+		FYEH();
+	}
+	name->content = NULL;
+	switch (clazz->type) {
+	case object_class:
+		fy_strInit(context->memblocks, name, clazz->className->length + 2 + len,
+				exception);
+		FYEH();
+		for (i = 0; i < len; i++) {
+			fy_strAppendUTF8(context->memblocks, name, "[", 1, exception);
+		}
+		fy_strAppendUTF8(context->memblocks, name, "L", 1, exception);
+		fy_strAppend(context->memblocks, name, clazz->className, exception);
+		fy_strAppendUTF8(context->memblocks, name, ";", 1, exception);
+		targetClass = fy_vmLookupClass(context, name, exception);
+		fy_strDestroy(context->memblocks, name);
+		FYEH();
+		break;
+	case primitive_class:
+		fy_strInit(context->memblocks, name, clazz->className->length + len,
+				exception);
+		FYEH();
+		for (i = 0; i < len; i++) {
+			fy_strAppendUTF8(context->memblocks, name, "[", 1, exception);
+		}
+		fy_strAppendChar(context->memblocks, name, clazz->ci.prm.pType,
+				exception);
+		targetClass = fy_vmLookupClass(context, name, exception);
+		fy_strDestroy(context->memblocks, name);
+		FYEH();
+		break;
+	case array_class:
+		fy_strInit(context->memblocks, name, clazz->className->length + len,
+				exception);
+		FYEH();
+		for (i = 0; i < len; i++) {
+			fy_strAppendUTF8(context->memblocks, name, "[", 1, exception);
+		}
+		fy_strAppend(context->memblocks, name, clazz->className, exception);
+		targetClass = fy_vmLookupClass(context, name, exception);
+		fy_strDestroy(context->memblocks, name);
+		FYEH();
+		break;
+	default:
+		fy_fault(exception, "", "Illegal class type %d", clazz->type);
+		FYEH();
+		break;
+	}
+
+	fy_nativeReturnHandle(context, thread,
+			fy_heapMultiArray(context, targetClass, len, sizes, exception));
+}
+
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
+	fy_vmRegisterNativeHandler(context, FY_BASE_DOUBLE".longBitsToDouble.(J)D",
+			NULL, doubleLongBitsToDouble, exception);
+
 	fy_vmRegisterNativeHandler(context, FY_BASE_FLOAT".intBitsToFloat.(I)F",
 			NULL, floatIntBitsToFloat, exception);
 	/*vm*/
@@ -2583,7 +2238,15 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			finalizerGetFinalizee, exception);
 	FYEH();
 
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_ARRAY".newInstance.(L"FY_BASE_CLASS";[I)L"FY_BASE_OBJECT";",
+			NULL, arrayNewInstance, exception);
+	FYEH();
+
 	registerMethod(context, exception);
+	FYEH();
+
+	registerConstructor(context, exception);
 	FYEH();
 
 	registerFields(context, exception);

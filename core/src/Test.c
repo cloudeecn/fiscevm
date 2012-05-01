@@ -136,8 +136,8 @@ void testClassMethod() {
 	fy_str sComplex[1];
 	int i;
 	exception->exceptionType = exception_none;
-	sComplex->content=NULL;
-	fy_strInitWithUTF8(block,sComplex,"complex",exception);
+	sComplex->content = NULL;
+	fy_strInitWithUTF8(block, sComplex, "complex", exception);
 	TEST_EXCEPTION(exception);
 	lookup(context, "com/cirnoworks/fisce/privat/StringUtils", exception);
 
@@ -153,7 +153,7 @@ void testClassMethod() {
 			break;
 		}
 	}
-	fy_strDestroy(block,sComplex);
+	fy_strDestroy(block, sComplex);
 	FY_ASSERT(target!= NULL);
 	FY_ASSERT(target->paramCount == 8);
 	class0 = lookup(context, ""FY_BASE_OBJECT"", exception);
@@ -199,7 +199,8 @@ void testHeap() {
 }
 
 static void testFail(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount,fy_message *message, fy_exception *exception) {
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
 	fy_str str;
 	char msg[256];
 	memset(&str, 0, sizeof(str));
@@ -378,7 +379,8 @@ void testNative() {
 			FY_BASE_OBJECT, FY_BASE_STACKTHREADELEMENT, FY_BASE_STRING,
 			FY_BASE_SYSTEM, FY_BASE_THREAD, FY_BASE_THROWABLE, FY_BASE_MATH,
 			FY_BASE_RUNTIME, FY_REFLECT_ARRAY, FY_REFLECT_CONSTRUCTOR,
-			FY_REFLECT_FIELD, FY_REFLECT_METHOD, NULL };
+			FY_REFLECT_FIELD, FY_REFLECT_METHOD, FY_BASE_FLOAT, FY_BASE_DOUBLE,
+			NULL };
 	int i = 0, j, jmax;
 	char *className;
 	char msg[512];
@@ -423,7 +425,7 @@ void testCustom(char *customTest) {
 		testNative();
 	} else if (strcmp(customTest, "LOAD") == 0) {
 		testLoad();
-	}  else if (strcmp(customTest, "SAVE") == 0) {
+	} else if (strcmp(customTest, "SAVE") == 0) {
 		testSave();
 	} else {
 		hltest(customTest);

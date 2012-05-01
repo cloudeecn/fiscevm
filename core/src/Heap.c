@@ -1536,3 +1536,46 @@ fy_double fy_heapUnwrapDouble(fy_context *context, fy_uint handle,
 	}
 	return fy_heapGetFieldDouble(context, handle, field, exception);
 }
+
+fy_uint fy_heapLookupStringFromConstant(fy_context *context,
+		ConstantStringInfo *constantStringInfo, fy_exception *exception) {
+	fy_uint hvalue;
+	if (!constantStringInfo->derefed) {
+		fy_heapBeginProtect(context);
+		hvalue = fy_heapLiteral(context, constantStringInfo->ci.string,
+				exception);
+		if (exception->exceptionType != exception_none) {
+			return 0;
+		}
+		constantStringInfo->derefed = TRUE;
+		constantStringInfo->ci.handle = hvalue;
+	} else {
+		hvalue = constantStringInfo->ci.handle;
+	}
+	return hvalue;
+}
+
+fy_int fy_heapMultiArray(fy_context *context, fy_class *clazz, fy_int layers,
+		fy_int *elementsForEachLayer, fy_exception *exception) {
+	int i;
+	fy_int handle;
+	int size = elementsForEachLayer[0];
+	int ret = fy_heapAllocateArray(context, clazz, size, exception);
+	if (exception->exceptionType != exception_none) {
+		return 0;
+	}
+	if (layers > 1) {
+		for (i = 0; i < size; i++) {
+			handle = fy_heapMultiArray(context, clazz->ci.arr.contentClass,
+					layers - 1, elementsForEachLayer + 1, exception);
+			if (exception->exceptionType != exception_none) {
+				return 0;
+			}
+			fy_heapPutArrayHandle(context, ret, i, handle, exception);
+			if (exception->exceptionType != exception_none) {
+				return 0;
+			}
+		}
+	}
+	return ret;
+}
