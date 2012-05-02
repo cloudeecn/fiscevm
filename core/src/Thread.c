@@ -795,7 +795,7 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 	}
 #ifdef FY_VERBOSE
 	printf("\tmethod is: ");
-	fy_strPrint(actureMethod->uniqueName);
+	fy_strPrint(method->uniqueName);
 	printf("\n");
 #endif
 	doInvoke(context, thread, frame, method, count, message, exception);

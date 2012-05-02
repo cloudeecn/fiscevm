@@ -2345,11 +2345,11 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	FYEH();
 	fy_vmRegisterNativeHandler(
 			context,
-			FY_BASE_SYSTEM".setProperty.(L"FY_BASE_STRING";L"FY_BASE_STRING";)L"FY_BASE_STRING";",
+			FY_BASE_SYSTEM".setProperty0.(L"FY_BASE_STRING";L"FY_BASE_STRING";)L"FY_BASE_STRING";",
 			NULL, SystemSetProperty, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			FY_BASE_SYSTEM".getProperty.(L"FY_BASE_STRING";)L"FY_BASE_STRING";",
+			FY_BASE_SYSTEM".getProperty0.(L"FY_BASE_STRING";)L"FY_BASE_STRING";",
 			NULL, SystemGetProperty, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(
