@@ -259,7 +259,8 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			tmpConstantFieldRef->constantNameType =
 					(ConstantNameAndTypeInfo*) (constantPools[tmpConstantFieldRef->name_type_index]);
 			tmpConstantFieldRef->nameType =
-					fy_strCreatePerm(block,
+					fy_strCreatePerm(
+							block,
 							2
 									+ tmpConstantFieldRef->constantNameType->name->length
 									+ tmpConstantFieldRef->constantNameType->descriptor->length,
@@ -287,7 +288,8 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			tmpConstantMethodRef->constantNameType =
 					(ConstantNameAndTypeInfo*) (constantPools[tmpConstantMethodRef->name_type_index]);
 			tmpConstantMethodRef->nameType =
-					fy_strCreatePerm(block,
+					fy_strCreatePerm(
+							block,
 							2
 									+ tmpConstantMethodRef->constantNameType->name->length
 									+ tmpConstantMethodRef->constantNameType->descriptor->length,
@@ -376,7 +378,8 @@ static void loadFields(fy_context *context, fy_class *clazz, void *is,
 		field->fullName = fy_strCreatePerm(block,
 				2 + field->name->length + field->descriptor->length, exception);
 		FYEH();
-		field->uniqueName = fy_strCreatePerm(block,
+		field->uniqueName = fy_strCreatePerm(
+				block,
 				clazz->className->length + 2 + field->name->length
 						+ field->descriptor->length, exception);
 		FYEH();
@@ -684,7 +687,8 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 				method->name->length + method->descriptor->length + 2,
 				exception);
 		FYEH();
-		method->uniqueName = fy_strCreatePerm(block,
+		method->uniqueName = fy_strCreatePerm(
+				block,
 				method->name->length + method->descriptor->length
 						+ clazz->className->length + 2, exception);
 		FYEH();
@@ -914,10 +918,10 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			}
 			if (fy_vmLookupMethodVirtual(context, clazz, context->sMFinalize,
 					exception)
-					!= fy_vmLookupMethodVirtual(context,
+					!= fy_vmLookupMethodVirtual(
+							context,
 							fy_vmLookupClass(context, context->sTopClass,
-									exception), context->sMFinalize,
-							exception)) {
+									exception), context->sMFinalize, exception)) {
 				clazz->needFinalize = 1;
 #ifdef FY_DEBUG
 				fy_strSPrint(buf, 255, clazz->className);
@@ -945,6 +949,19 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 		clazz->fieldAbs = fy_mmAllocatePerm(block,
 				clazz->sizeAbs * sizeof(fy_field*), exception);
 		FYEH();
+
+		if (clazz->super && (i = clazz->super->sizeAbs) > 0) {
+			memcpy(clazz->fieldAbs, clazz->super->fieldAbs,
+					i * sizeof(fy_field*));
+		}
+		if (fy_classCanCastTo(context, clazz, enumClazz)
+				&& fy_strCmp(clazz->className, context->sEnum)) {
+			clazz->accessFlags |= FY_ACC_ENUM;
+		}
+		if (fy_classCanCastTo(context, clazz, annotationClazz)
+				&& fy_strCmp(clazz->className, context->sAnnotation)) {
+			clazz->accessFlags |= FY_ACC_ANNOTATION;
+		}
 
 		for (i = 0; i < clazz->fieldCount; i++) {
 			field = clazz->fields[i];
@@ -991,55 +1008,42 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				fy_fault(exception, NULL, "Illegal descriptor of field");
 				break;
 			}
+#if 1
 			if (field->constant_value_index > 0) {
-				if (field->access_flags & FY_ACC_STATIC) {
+				if ((field->access_flags & FY_ACC_STATIC) && (field->access_flags & FY_ACC_FINAL)) {
 					switch (field->descriptor->content[0]) {
-					case FY_TYPE_BOOLEAN:
-					case FY_TYPE_BYTE:
-					case FY_TYPE_SHORT:
-					case FY_TYPE_CHAR:
-					case FY_TYPE_INT:
-					case FY_TYPE_FLOAT: {
-						clazz->staticArea[field->posAbs] =
-								((ConstantIntegerFloatInfo*) clazz->constantPools[field->constant_value_index])->value;
-						break;
-					}
-					case FY_TYPE_LONG:
-					case FY_TYPE_DOUBLE: {
-						clazz->staticArea[field->posAbs] =
-								fy_HOFL(
-										((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
-						clazz->staticArea[field->posAbs + 1] =
-								fy_LOFL(
-										((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
-						break;
-					}
-					case FY_TYPE_HANDLE: {
-						clazz->staticArea[field->posAbs] =
-								fy_heapLookupStringFromConstant(context,
-										clazz->constantPools[field->constant_value_index],
-										exception);
-						FYEH();
-						break;
-					}
+						case FY_TYPE_BOOLEAN:
+						case FY_TYPE_BYTE:
+						case FY_TYPE_SHORT:
+						case FY_TYPE_CHAR:
+						case FY_TYPE_INT:
+						case FY_TYPE_FLOAT: {
+							clazz->staticArea[field->posAbs] =
+							((ConstantIntegerFloatInfo*) clazz->constantPools[field->constant_value_index])->value;
+							break;
+						}
+						case FY_TYPE_LONG:
+						case FY_TYPE_DOUBLE: {
+							clazz->staticArea[field->posAbs] =
+							fy_HOFL(
+									((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
+							clazz->staticArea[field->posAbs + 1] =
+							fy_LOFL(
+									((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
+							break;
+						}
+						case FY_TYPE_HANDLE: {
+							/*Will be lazy loaded in Field.get()*/
+							break;
+						}
 					}
 				} else {
 					/*Ignore it since it will be proceed in default <init>*/
 				}
 			}
+#endif
 		}
-		if (clazz->super && (i = clazz->super->sizeAbs) > 0) {
-			memcpy(clazz->fieldAbs, clazz->super->fieldAbs,
-					i * sizeof(fy_field*));
-		}
-		if (fy_classCanCastTo(context, clazz, enumClazz)
-				&& fy_strCmp(clazz->className, context->sEnum)) {
-			clazz->accessFlags |= FY_ACC_ENUM;
-		}
-		if (fy_classCanCastTo(context, clazz, annotationClazz)
-				&& fy_strCmp(clazz->className, context->sAnnotation)) {
-			clazz->accessFlags |= FY_ACC_ANNOTATION;
-		}
+
 		break;
 	case primitive_class:
 		break;
