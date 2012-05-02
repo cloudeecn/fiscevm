@@ -17,6 +17,7 @@ package java.lang;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
 
 import com.cirnoworks.fisce.privat.SystemInputStream;
 import com.cirnoworks.fisce.privat.SystemOutputStream;
@@ -26,24 +27,36 @@ public final class System {
 	private System() {
 	}
 
-	public final static InputStream in = new SystemInputStream();
+	private final static InputStream _in = new SystemInputStream();
 
-	public final static PrintStream out = new PrintStream(
-			new SystemOutputStream("info"));
+	private static PrintStream _out = new PrintStream(new SystemOutputStream(
+			"info"));
 
-	public final static PrintStream err = new PrintStream(
-			new SystemOutputStream("error"));
+	private static PrintStream _err = new PrintStream(new SystemOutputStream(
+			"error"));
+
+	public static InputStream in = _in;
+
+	public static PrintStream out = _out;
+
+	public static PrintStream err = _err;
+
+	private static final HashMap<String, String> overrideProperties = new HashMap<String, String>();
+
+	static {
+		System.setProperty("fisce", "true");
+	}
 
 	public static void setIn(InputStream in) {
-		setIn0(in);
+		System.in = in == null ? _in : in;
 	}
 
 	public static void setOut(PrintStream out) {
-		setOut0(out);
+		System.out = out == null ? _out : out;
 	}
 
 	public static void setErr(PrintStream err) {
-		setErr0(err);
+		System.err = err == null ? _err : err;
 	}
 
 	private static native void setIn0(InputStream in);
@@ -59,14 +72,26 @@ public final class System {
 
 	public static native int identityHashCode(Object x);
 
-	public static native String getProperty(String key);
+	public static String getProperty(String key) {
+		String value = overrideProperties.get(key);
+		if (value == null) {
+			value = getProperty0(key);
+		}
+		return value;
+	}
 
 	public static String getProperty(String key, String def) {
 		String ret = getProperty(key);
 		return ret == null ? def : ret;
 	}
 
-	public static native String setProperty(String key, String value);
+	public static String setProperty(String key, String value) {
+		String ret = getProperty(key);
+		overrideProperties.put(key, value);
+		return ret;
+	}
+
+	private static native String getProperty0(String key);
 
 	public static native void exit(int status);
 

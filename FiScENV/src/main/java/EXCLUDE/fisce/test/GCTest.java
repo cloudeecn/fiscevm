@@ -1,5 +1,7 @@
 package EXCLUDE.fisce.test;
 
+import com.cirnoworks.fisce.privat.FiScEVM;
+
 public class GCTest extends TestService {
 	public static void main(String[] args) {
 		try {
@@ -18,7 +20,8 @@ public class GCTest extends TestService {
 			System.gc();
 			System.gc();
 		} catch (Exception e) {
-			fail(e.toString());
+//			e.printStackTrace(FiScEVM.debug);
+			fail("aaa");
 		}
 	}
 }
