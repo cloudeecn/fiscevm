@@ -921,7 +921,7 @@ void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
 	FYEH();
 	if ((nh = fy_hashMapGet(block, context->mapMUNameToNH, str)) != NULL) {
 		fy_hashMapPut(block, context->mapMUNameToNH, str, NULL, exception);
-		fy_mmFree(block, nh);
+		/*fy_mmFree(block, nh);*/
 	}
 	fy_strDestroy(block, str);
 }
