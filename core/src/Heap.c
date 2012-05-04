@@ -60,8 +60,11 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	case automatic:
 		if (size > (COPY_ENTRIES >> 1)) {
 			obj->object_data = fy_mmAllocateInOld(context->memblocks, handle,
-					size + ((sizeof(fy_object_data) + 3) >> 2), FALSE,
+					size + ((sizeof(fy_object_data) + 3) >> 2) + 1, FALSE,
 					exception);
+			*(fy_uint*) (obj->object_data) = handle;
+			obj->object_data = (fy_object_data *) ((fy_uint*) (obj->object_data)
+					+ 1);
 			memset(obj->object_data, 0,
 					(size + ((sizeof(fy_object_data) + 3) >> 2))
 							* sizeof(fy_uint));
@@ -86,7 +89,10 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 		break;
 	case old:
 		obj->object_data = fy_mmAllocateDirectInOld(context->memblocks,
-				size + ((sizeof(fy_object_data) + 3) >> 2), exception);
+				size + ((sizeof(fy_object_data) + 3) >> 2) + 1, exception);
+		*(fy_uint*) (obj->object_data) = handle;
+		obj->object_data =
+				(fy_object_data *) ((fy_uint*) (obj->object_data) + 1);
 		break;
 	default:
 		fy_fault(exception, NULL, "Illegal pos in heap %d.", pos);
@@ -624,7 +630,7 @@ fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 	CHECK_NPT(0)
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
-	printf("high=%ud\nlow=%ud\n",
+	context->logDVar(context, "high=%ud\nlow=%ud\n",
 			((fy_int*) obj->object_data->data)[field->posAbs],
 			((fy_int*) obj->object_data->data)[field->posAbs + 1]);
 #endif
@@ -704,8 +710,8 @@ void fy_heapPutFieldLong(fy_context *context, fy_int handle, fy_field *field,
 	CHECK_NPT()
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
-	printf("value=%"FY_PRINT64"d\nhigh=%ud\nlow=%ud\n", value, fy_HOFL(value),
-			fy_LOFL(value));
+	context->logDVar(context, "value=%"FY_PRINT64"d\nhigh=%ud\nlow=%ud\n",
+			value, fy_HOFL(value), fy_LOFL(value));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = fy_HOFL(value);
 	((fy_int*) obj->object_data->data)[field->posAbs + 1] = fy_LOFL(value);
@@ -1041,14 +1047,35 @@ static void compactOld(fy_context *context, fy_exception *exception) {
 				/*It's a real object*/
 				size = getSizeFromObject(context, object) + 1;
 				if (newPos != i) {
+#ifdef FY_GC_DEBUG
+					context->logDVarLn(context,
+							"Move %d(%d) from %d to %d size=%d", handle,
+							object->object_data->clazz->type, i, newPos, size);
+#endif
 					memmove(block->old + newPos, block->old + i,
 							size * sizeof(fy_uint));
 					object->object_data = (void*) (block->old + newPos + 1);
 				}
+#ifdef FY_GC_DEBUG
+				else {
+					context->logDVarLn(context, "Hold %d(%d) at %d size=%d",
+							handle, object->object_data->clazz->type, i, size);
+				}
+#endif
 				newPos += size;
 				i += size - 1;
 			}
+#ifdef FY_GC_DEBUG
+			else {
+				context->logDVarLn(context, "Ignore %d at %d", handle, i);
+			}
+#endif
 		}
+#ifdef FY_GC_DEBUG
+		else {
+			context->logDVarLn(context, "Ignore2 %d at %d", handle, i);
+		}
+#endif
 	}
 	block->posInOld = newPos;
 }
@@ -1126,7 +1153,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 	fy_int youngId = block->youngId;
 	fy_long timeStamp;
 #ifdef FY_DEBUG
-	printf(
+	context->logDVar(context,
 			"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d managed native bytes, %d perm bytes\n",
 			block->posInEden * (fy_int) sizeof(fy_uint),
 			block->posInYong * (fy_int) sizeof(fy_uint),
@@ -1136,8 +1163,8 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 			(fy_int) ((OLD_ENTRIES - context->memblocks->oldTop)
 					* (fy_int) sizeof(fy_uint)));
 #else
-	printf("#FISCE GC BEFORE %d+%d+%d total %dbytes, %d perm bytes\n",
-			block->posInEden, block->posInYong, block->posInOld,
+	context->logDVar(context,"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d perm bytes\n",
+			block->posInEden* (fy_int)sizeof(fy_uint), block->posInYong* (fy_int)sizeof(fy_uint), block->posInOld* (fy_int)sizeof(fy_uint),
 			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
 					* (fy_int)sizeof(fy_uint)),
 			(fy_int) ((OLD_ENTRIES - context->memblocks->oldTop)
@@ -1194,7 +1221,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 				&& object->object_data->clazz->needFinalize
 				&& object->object_data->finalizeStatus == not_finalized) {
 			clazz = object->object_data->clazz;
-//			printf("ADD %d need finalize\n", i);
+//			context->logDVar(context,"ADD %d need finalize\n", i);
 			fy_bitSet(marks, i);
 			fy_arrayListAdd(context->memblocks, context->toFinalize, &i,
 					exception);
@@ -1228,12 +1255,19 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 		if (object->object_data != NULL) {
 			clazz = object->object_data->clazz;
 			if (fy_bitGet(marks, i)) {
+
 				switch (object->object_data->position) {
 				case eden:
 				case young:
+#ifdef FY_GC_DEBUG
+					context->logDVarLn(context, "#GC move %d.", i);
+#endif
 					move(context, clazz, i, object, youngId, exception);
 					break;
 				case old:
+#ifdef FY_GC_DEBUG
+					context->logDVarLn(context, "#GC hold %d.", i);
+#endif
 					break;
 				default: {
 					fy_fault(exception, NULL, "Illegal position %d in heap",
@@ -1242,6 +1276,9 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 				}
 				}
 			} else {
+#ifdef FY_GC_DEBUG
+				context->logDVarLn(context, "#GC release %d.", i);
+#endif
 				release(context, i);
 			}
 		}
@@ -1255,7 +1292,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 	}
 #endif
 #ifdef FY_DEBUG
-	printf(
+	context->logDVar(context,
 			"#FISCE GC AFTER %d+%d+%d total %dbytes, %d managed native bytes, %d perm bytes, %d context size, time=%"FY_PRINT64"d\n",
 			block->posInEden * (fy_int) sizeof(fy_uint),
 			block->posInYong * (fy_int) sizeof(fy_uint),
@@ -1266,11 +1303,11 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 					* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
 			fy_portTimeMillSec(context->port) - timeStamp);
 #else
-	printf(
+	context->logDVar(context,
 			"#FISCE GC AFTER %d+%d+%d total %dbytes,%d perm bytes,%d context bytes, time=%"FY_PRINT64"d\n",
-			block->posInEden, block->posInYong, block->posInOld,
+			block->posInEden* (fy_int)sizeof(fy_uint), block->posInYong* (fy_int)sizeof(fy_uint), block->posInOld* (fy_int)sizeof(fy_uint),
 			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
-					* sizeof(fy_uint)),
+					* (fy_int)sizeof(fy_uint)),
 			(OLD_ENTRIES - context->memblocks->oldTop) * (fy_int)sizeof(fy_uint),
 			(fy_int)sizeof(fy_context), fy_portTimeMillSec(context->port) - timeStamp);
 #endif

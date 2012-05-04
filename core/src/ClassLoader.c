@@ -474,8 +474,8 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 		}
 	}
 #if 0
-	fy_strPrint(className);
-	printf("\n");
+	context->logDStr(context,className);
+	context->logDVar(context,"\n");
 #endif
 	clazz = fy_vmLookupClass(context, className, exception);
 	FYEH()0;
@@ -656,7 +656,7 @@ static void loadMethods(fy_context *context, fy_class *clazz, void *is,
 			exception);
 	FYEH();
 #if 0
-	printf("Loading %d methods...\n", count);
+	context->logDVar(context,"Loading %d methods...\n", count);
 #endif
 	for (i = 0; i < count; i++) {
 		method = fy_mmAllocatePerm(block, sizeof(fy_method), exception);
@@ -1057,8 +1057,8 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	str->content = NULL;
 
 #if 0
-	fy_strPrint(name);
-	printf("\n");
+	context->logDStr(context,name);
+	context->logDVar(context,"\n");
 #endif
 
 	if (name->content[0] == FY_TYPE_ARRAY) {

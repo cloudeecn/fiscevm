@@ -22,6 +22,10 @@
 
 #define FY_GC_IDV 10000
 #define FY_GC_FORCE_IDV 10000
-/*#define FY_GC_FORCE_FULL*/
+
+#if 0
+#define FY_GC_FORCE_FULL
+#define FY_GC_DEBUG
+#endif
 
 #endif /* NCONFIG_H_ */

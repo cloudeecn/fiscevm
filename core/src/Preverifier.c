@@ -315,8 +315,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 				exception);
 		FYEH();
 #if 0
-		fy_strPrint(method->uniqueName);
-		printf(" - pc=%d inst=%d op=[%d,%s]\n", pc, instCount, op,
+		context->logDStr(context,method->uniqueName);
+		context->logDVar(context," - pc=%d inst=%d op=[%d,%s]\n", pc, instCount, op,
 				FY_OP_NAME[op]);
 #endif
 		if (op > 0xca) {
@@ -402,8 +402,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 		instruction = method->instructions + (ic++);
 		instruction->op = op;
 #if 0
-		fy_strPrint(method->uniqueName);
-		printf(" + pc=%d inst=%d op=[%d,%s]\n", pc - 1, ic - 1, op,
+		context->logDStr(context,method->uniqueName);
+		context->logDVar(context," + pc=%d inst=%d op=[%d,%s]\n", pc - 1, ic - 1, op,
 				FY_OP_NAME[op]);
 #endif
 		switch (op) {

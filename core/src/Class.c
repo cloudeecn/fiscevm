@@ -29,22 +29,22 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 	fy_class **interfaces;
 	int i, max;
 #ifdef FY_VERBOSE
-	printf("##CAST ");
-	fy_strPrint(this->className);
-	printf("  -->  ");
-	fy_strPrint(other->className);
+	context->logDVar(context,"##CAST ");
+	context->logDStr(context,this->className);
+	context->logDVar(context,"  -->  ");
+	context->logDStr(context,other->className);
 #endif
 	if (this == other) {
 #ifdef FY_VERBOSE
-		printf("=TRUE\n");
+		context->logDVar(context,"=TRUE\n");
 #endif
 		return TRUE;
 	} else {
 #ifdef FY_VERBOSE
 		if (fy_strCmp(this->className, other->className) == 0) {
-			printf("\n");
-			fy_strPrint(this->className);
-			printf("\n");
+			context->logDVar(context,"\n");
+			context->logDStr(context,this->className);
+			context->logDVar(context,"\n");
 			fy_fault(NULL, NULL, "Same class name refers different class!");
 		}
 #endif
@@ -54,7 +54,7 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 			for (i = 0, max = this->interfacesCount; i < max; i++) {
 				if (other == interfaces[i]) {
 #ifdef FY_VERBOSE
-					printf("=TRUE\n");
+					context->logDVar(context,"=TRUE\n");
 #endif
 					return TRUE;
 				}
@@ -63,7 +63,7 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 			if (this->super != NULL
 					&& fy_classCanCastTo(context, this->super, other)) {
 #ifdef FY_VERBOSE
-				printf("=TRUE\n");
+				context->logDVar(context,"=TRUE\n");
 #endif
 				return TRUE;
 			}
@@ -72,7 +72,7 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 		case array_class: {
 			if (other == context->TOP_CLASS) {
 #ifdef FY_VERBOSE
-				printf("=TRUE\n");
+				context->logDVar(context,"=TRUE\n");
 #endif
 				return TRUE;
 			} else if (array_class == other->type) {
@@ -80,18 +80,18 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 				fy_class *otherContent = other->ci.arr.contentClass;
 				if (thisContent != NULL && otherContent != NULL) {
 #ifdef FY_VERBOSE
-					printf("PENDING\n|--");
+					context->logDVar(context,"PENDING\n|--");
 #endif
 					return fy_classCanCastTo(context, thisContent, otherContent);
 				} else {
 #ifdef FY_VERBOSE
-					printf("=FALSE\n");
+					context->logDVar(context,"=FALSE\n");
 #endif
 					return FALSE;
 				}
 			} else {
 #ifdef FY_VERBOSE
-				printf("=FALSE\n");
+				context->logDVar(context,"=FALSE\n");
 #endif
 				return FALSE;
 			}
@@ -99,12 +99,12 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 			break;
 		case primitive_class:
 #ifdef FY_VERBOSE
-			printf("=FALSE\n");
+			context->logDVar(context,"=FALSE\n");
 #endif
 			return FALSE;
 		}
 #ifdef FY_VERBOSE
-		printf("=FALSE\n");
+		context->logDVar(context,"=FALSE\n");
 #endif
 		return FALSE;
 	}

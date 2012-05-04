@@ -44,6 +44,140 @@ static void fillException(JNIEnv *env, fy_exception *exception) {
 
 #define CHECK_JNI_EXCEPTION if((*env)->ExceptionOccurred(env)) return
 
+static void sendLog(struct fy_context *context, const char* target,
+		const char* msg) {
+	fy_contextData *cdata = context->additionalData;
+	JNIEnv *env = cdata->env;
+	jclass clazz;
+	jmethodID method;
+	jstring jmsg;
+
+	(*env)->PushLocalFrame(env, 8);
+	clazz = (*env)->FindClass(env,
+			"com/cirnoworks/libfisce/shell/FisceService");
+	method = (*env)->GetStaticMethodID(env, clazz, target,
+			"(Ljava/lang/String;)V");
+	jmsg = (*env)->NewStringUTF(env, msg);
+	(*env)->CallStaticVoidMethod(env, clazz, method, jmsg);
+	(*env)->PopLocalFrame(env, NULL);
+}
+
+static void dLogStr(struct fy_context *context, const fy_str *str) {
+	char msg[512];
+
+	fy_strSPrint(msg, sizeof(msg), str);
+	msg[511] = 0;
+	sendLog(context, "logD", msg);
+}
+
+static void dLogVar(struct fy_context *context, const char *format, ...) {
+	char msg[512];
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vsnprintf(msg, sizeof(msg), format, arg_ptr);
+	va_end(arg_ptr);
+	msg[511] = 0;
+	sendLog(context, "logD", msg);
+}
+
+static void dLogVarLn(struct fy_context *context, const char *format, ...) {
+	char msg[512];
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vsnprintf(msg, sizeof(msg), format, arg_ptr);
+	va_end(arg_ptr);
+	msg[511] = 0;
+	sendLog(context, "logD", msg);
+	sendLog(context, "logD", "\n");
+}
+
+static void iLogStr(struct fy_context *context, const fy_str *str) {
+	char msg[512];
+
+	fy_strSPrint(msg, sizeof(msg), str);
+	msg[511] = 0;
+	sendLog(context, "logI", msg);
+}
+
+static void iLogVar(struct fy_context *context, const char *format, ...) {
+	char msg[512];
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vsnprintf(msg, sizeof(msg), format, arg_ptr);
+	va_end(arg_ptr);
+	msg[511] = 0;
+	sendLog(context, "logI", msg);
+}
+
+static void iLogVarLn(struct fy_context *context, const char *format, ...) {
+	char msg[512];
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vsnprintf(msg, sizeof(msg), format, arg_ptr);
+	va_end(arg_ptr);
+	msg[511] = 0;
+	sendLog(context, "logI", msg);
+	sendLog(context, "logI", "\n");
+}
+
+static void wLogStr(struct fy_context *context, const fy_str *str) {
+	char msg[512];
+
+	fy_strSPrint(msg, sizeof(msg), str);
+	msg[511] = 0;
+	sendLog(context, "logW", msg);
+}
+
+static void wLogVar(struct fy_context *context, const char *format, ...) {
+	char msg[512];
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vsnprintf(msg, sizeof(msg), format, arg_ptr);
+	va_end(arg_ptr);
+	msg[511] = 0;
+	sendLog(context, "logW", msg);
+}
+
+static void wLogVarLn(struct fy_context *context, const char *format, ...) {
+	char msg[512];
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vsnprintf(msg, sizeof(msg), format, arg_ptr);
+	va_end(arg_ptr);
+	msg[511] = 0;
+	sendLog(context, "logW", msg);
+	sendLog(context, "logW", "\n");
+}
+
+static void eLogStr(struct fy_context *context, const fy_str *str) {
+	char msg[512];
+
+	fy_strSPrint(msg, sizeof(msg), str);
+	msg[511] = 0;
+	sendLog(context, "logE", msg);
+}
+
+static void eLogVar(struct fy_context *context, const char *format, ...) {
+	char msg[512];
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vsnprintf(msg, sizeof(msg), format, arg_ptr);
+	va_end(arg_ptr);
+	msg[511] = 0;
+	sendLog(context, "logE", msg);
+}
+
+static void eLogVarLn(struct fy_context *context, const char *format, ...) {
+	char msg[512];
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vsnprintf(msg, sizeof(msg), format, arg_ptr);
+	va_end(arg_ptr);
+	msg[511] = 0;
+	sendLog(context, "logE", msg);
+	sendLog(context, "logE", "\n");
+}
+
 static void* isOpen(fy_context *context, const char *name,
 		fy_exception *exception) {
 	fy_contextData *cdata = context->additionalData;
@@ -210,6 +344,18 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 	context->isRead = isRead;
 	context->isReadBlock = isReadBlock;
 	context->isSkip = isSkip;
+	context->logDStr = dLogStr;
+	context->logDVar = dLogVar;
+	context->logDVarLn = dLogVarLn;
+	context->logIStr = iLogStr;
+	context->logIVar = iLogVar;
+	context->logIVarLn = iLogVarLn;
+	context->logWStr = wLogStr;
+	context->logWVar = wLogVar;
+	context->logWVarLn = wLogVarLn;
+	context->logEStr = eLogStr;
+	context->logEVar = eLogVar;
+	context->logEVarLn = eLogVarLn;
 }
 
 JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(

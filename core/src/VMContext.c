@@ -464,7 +464,7 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 fy_hashMap *mapPrimitivesRev;
 	 */
 	fy_debugInit(context);
-	context->logIVarLn(context,
+	ILOG(context,
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
 			MAX_OBJECTS * (fy_int) sizeof(fy_object));
@@ -533,9 +533,9 @@ void fy_vmContextDestroy(fy_context *context) {
 	const char *c, *c2;
 	imax = 256;
 #endif
-	printf("Destroying vm\n");
+	context->logDVar(context,"Destroying vm\n");
 #ifdef FY_PROFILE
-	printf("Op usage top 10:\n");
+	context->logDVar(context,"Op usage top 10:\n");
 	for (i = 0; i < imax; i++) {
 		context->opUsage[i].op1 = i;
 	}
@@ -544,15 +544,15 @@ void fy_vmContextDestroy(fy_context *context) {
 		if (context->opUsage[i].count) {
 			c = FY_OP_NAME[context->opUsage[i].op1];
 			if (c) {
-				printf("%s(%d) - %d\n", c, context->opUsage[i].op1,
+				context->logDVar(context,"%s(%d) - %d\n", c, context->opUsage[i].op1,
 						context->opUsage[i].count);
 			} else {
-				printf("UNKNOWN(%d) - %d\n", context->opUsage[i].op1,
+				context->logDVar(context,"UNKNOWN(%d) - %d\n", context->opUsage[i].op1,
 						context->opUsage[i].count);
 			}
 		}
 	}
-	printf("Op combian usage top 16:\n");
+	context->logDVar(context,"Op combian usage top 16:\n");
 	imax = 65536;
 	for (i = 0; i < imax; i++) {
 		context->opCombine[i].op1 = i >> 8;
@@ -563,7 +563,7 @@ void fy_vmContextDestroy(fy_context *context) {
 		if (context->opUsage[i].count) {
 			c = FY_OP_NAME[context->opCombine[i].op1];
 			c2 = FY_OP_NAME[context->opCombine[i].op2];
-			printf("%s(%d)+%s(%d) - %d\n", c, context->opCombine[i].op1, c2,
+			context->logDVar(context,"%s(%d)+%s(%d) - %d\n", c, context->opCombine[i].op1, c2,
 					context->opCombine[i].op2, context->opCombine[i].count);
 		}
 	}

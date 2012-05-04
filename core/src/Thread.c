@@ -31,11 +31,12 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_int target = -1;
 	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 #ifdef FY_DEBUG
-	printf("Exception:");
-	fy_strPrint(fy_heapGetClassOfObject(context, handle, exception)->className);
-	printf("\nat ");
-	fy_strPrint(frame->method->uniqueName);
-	printf("\n");
+	context->logDVar(context,"Exception:");
+	context->logDStr(context,
+			fy_heapGetClassOfObject(context, handle, exception)->className);
+	context->logDVar(context,"\nat ");
+	context->logDStr(context, frame->method->uniqueName);
+	context->logDVar(context,"\n");
 #endif
 	throwableClass = fy_heapGetClassOfObject(context, handle, exception);
 	FYEH()0;
@@ -720,9 +721,9 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 	fy_uint *stack;
 	fy_uint sp;
 #ifdef FY_VERBOSE
-	printf("Invoke virtual: ");
-	fy_strPrint(method->uniqueName);
-	printf("\n");
+	context->logDVar(context,"Invoke virtual: ");
+	context->logDStr(context, method->uniqueName);
+	context->logDVar(context,"\n");
 #endif
 #ifdef FY_STRICT_CHECK
 	if (frame->sp - (count) - frame->sb < frame->localCount) {
@@ -748,14 +749,14 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 				exception);
 		FYEH();
 #ifdef FY_VERBOSE
-		fy_strPrint(actureMethod->uniqueName);
-		printf("\n");
+		context->logDStr(context, actureMethod->uniqueName);
+		context->logDVar(context,"\n");
 #endif
 	}
 #ifdef FY_VERBOSE
-	printf("\tmethod is: ");
-	fy_strPrint(actureMethod->uniqueName);
-	printf("\n");
+	context->logDVar(context,"\tmethod is: ");
+	context->logDStr(context, actureMethod->uniqueName);
+	context->logDVar(context,"\n");
 #endif
 	doInvoke(context, thread, frame, actureMethod, count, message, exception);
 }
@@ -769,9 +770,9 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 	fy_object *object;
 	fy_uint sp;
 #ifdef FY_VERBOSE
-	printf("Invoke direct: ");
-	fy_strPrint(method->uniqueName);
-	printf("\n");
+	context->logDVar(context,"Invoke direct: ");
+	context->logDStr(context, method->uniqueName);
+	context->logDVar(context,"\n");
 #endif
 #ifdef FY_STRICT_CHECK
 	if (frame->sp - (count) - frame->sb < frame->localCount) {
@@ -795,9 +796,9 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 		return;
 	}
 #ifdef FY_VERBOSE
-	printf("\tmethod is: ");
-	fy_strPrint(method->uniqueName);
-	printf("\n");
+	context->logDVar(context,"\tmethod is: ");
+	context->logDStr(context, method->uniqueName);
+	context->logDVar(context,"\n");
 #endif
 	doInvoke(context, thread, frame, method, count, message, exception);
 }
@@ -810,9 +811,9 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 	fy_class *clinitClazz;
 	fy_uint count = method->paramCount;
 #ifdef FY_VERBOSE
-	printf("Invoke static: ");
-	fy_strPrint(method->uniqueName);
-	printf("\n");
+	context->logDVar(context,"Invoke static: ");
+	context->logDStr(context, method->uniqueName);
+	context->logDVar(context,"\n");
 #endif
 
 	if (!(method->access_flags & FY_ACC_STATIC)) {
@@ -848,8 +849,8 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 #endif
 	frame->sp -= count;
 #ifdef FY_VERBOSE
-	fy_strPrint(method->uniqueName);
-	printf("\n");
+	context->logDStr(context, method->uniqueName);
+	context->logDVar(context,"\n");
 #endif
 	doInvoke(context, thread, frame, method, count, message, exception);
 }
@@ -1026,7 +1027,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			char msg[256];
 #endif
 			fy_strSPrint(msg, 256, method->uniqueName);
-			printf("##%2d %6d/%6d %s %d %s SB=%d SP=%d\n", thread->threadId,
+			context->logDVar(context,"##%2d %6d/%6d %s %d %s SB=%d SP=%d\n", thread->threadId,
 					opCount, ops, msg, lpc, FY_OP_NAME[instruction->op], sb,
 					sp);
 #endif
@@ -1162,7 +1163,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalInt(1, ivalue);
 #ifdef FY_VERBOSE
-				printf("%d\n", ivalue);
+				context->logDVar(context,"%d\n", ivalue);
 #endif
 				fy_threadPushInt(ivalue);
 				break;
@@ -1365,7 +1366,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue);
 				ivalue2 = fy_heapArrayLength(context, ivalue, exception);
 #ifdef FY_VERBOSE
-				printf("%d\n", ivalue2);
+				context->logDVar(context,"%d\n", ivalue2);
 #endif
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
@@ -2050,9 +2051,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					}
 					fy_threadPushLong( lvalue);
 #ifdef FY_VERBOSE
-					printf("Long field:[");
-					fy_strPrint(field->uniqueName);
-					printf("] = %"FY_PRINT64"d\n", lvalue);
+					context->logDVar(context,"Long field:[");
+					context->logDStr(context, field->uniqueName);
+					context->logDVar(context,"] = %"FY_PRINT64"d\n", lvalue);
 #endif
 					break;
 				}
@@ -2070,9 +2071,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					}
 					fy_threadPushHandle(ivalue);
 #ifdef FY_VERBOSE
-					printf("Handle field:[");
-					fy_strPrint(field->uniqueName);
-					printf("] = %d\n", ivalue);
+					context->logDVar(context,"Handle field:[");
+					context->logDStr(context, field->uniqueName);
+					context->logDVar(context,"] = %d\n", ivalue);
 #endif
 				}
 					break;
@@ -2089,9 +2090,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					}
 					fy_threadPushInt( ivalue);
 #ifdef FY_VERBOSE
-					printf("Integer field:[");
-					fy_strPrint(field->uniqueName);
-					printf("] = %d\n", ivalue);
+					context->logDVar(context,"Integer field:[");
+					context->logDStr(context, field->uniqueName);
+					context->logDVar(context,"] = %d\n", ivalue);
 #endif
 					break;
 				}
@@ -2247,7 +2248,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
 #ifdef FY_VERBOSE
-				printf("%d+%d=%d\n", ivalue, ivalue2, ivalue + ivalue2);
+				context->logDVar(context,"%d+%d=%d\n", ivalue, ivalue2, ivalue + ivalue2);
 #endif
 				fy_threadPushInt(ivalue+ivalue2);
 				break;
@@ -2532,9 +2533,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				clazz1 = method->owner;
 				mvalue = instruction->params.method;
 #ifdef FY_VERBOSE
-				printf("Invoke special: ");
-				fy_strPrint(mvalue->uniqueName);
-				printf("\n");
+				context->logDVar(context,"Invoke special: ");
+				context->logDStr(context, mvalue->uniqueName);
+				context->logDVar(context,"\n");
 #endif
 				clazz2 = mvalue->owner;
 				ivalue = mvalue->paramCount + 1;/*count*/
@@ -2600,8 +2601,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				fy_localToFrame(frame);
 #ifdef FY_VERBOSE
-				fy_strPrint(mvalue->uniqueName);
-				printf("\n");
+				context->logDStr(context, mvalue->uniqueName);
+				context->logDVar(context,"\n");
 #endif
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
@@ -2781,7 +2782,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				printf("%"FY_PRINT64"d+%"FY_PRINT64"d=%"FY_PRINT64"d\n", lvalue,
+				context->logDVar(context,"%"FY_PRINT64"d+%"FY_PRINT64"d=%"FY_PRINT64"d\n", lvalue,
 						lvalue2, lvalue + lvalue2);
 #endif
 				lvalue += lvalue2;
@@ -2892,7 +2893,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadGetLocalLong(instruction->params.int_params.param1,
 						lvalue);
 #ifdef FY_VERBOSE
-				printf("LOCAL[%d]=%"FY_PRINT64"d\n",
+				context->logDVar(context,"LOCAL[%d]=%"FY_PRINT64"d\n",
 						instruction->params.int_params.param1, lvalue);
 #endif
 				fy_threadPushLong(lvalue);
@@ -2905,7 +2906,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalLong(0, lvalue);
 #ifdef FY_VERBOSE
-				printf("LOCAL[0]=%"FY_PRINT64"d\n", lvalue);
+				context->logDVar(context,"LOCAL[0]=%"FY_PRINT64"d\n", lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -2917,7 +2918,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalLong(1, lvalue);
 #ifdef FY_VERBOSE
-				printf("LOCAL[1]=%"FY_PRINT64"d\n", lvalue);
+				context->logDVar(context,"LOCAL[1]=%"FY_PRINT64"d\n", lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -2929,7 +2930,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalLong(2, lvalue);
 #ifdef FY_VERBOSE
-				printf("LOCAL[2]=%"FY_PRINT64"d\n", lvalue);
+				context->logDVar(context,"LOCAL[2]=%"FY_PRINT64"d\n", lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -2941,7 +2942,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalLong(3, lvalue);
 #ifdef FY_VERBOSE
-				printf("LOCAL[3]=%"FY_PRINT64"d\n", lvalue);
+				context->logDVar(context,"LOCAL[3]=%"FY_PRINT64"d\n", lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -3093,7 +3094,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
+				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
 						instruction->params.int_params.param1);
 #endif
 				fy_threadPutLocalLong(instruction->params.int_params.param1,
@@ -3107,7 +3108,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 0);
+				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 0);
 #endif
 				fy_threadPutLocalLong(0, lvalue);
 				break;
@@ -3119,7 +3120,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 1);
+				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 1);
 #endif
 				fy_threadPutLocalLong(1, lvalue);
 				break;
@@ -3131,7 +3132,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 2);
+				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 2);
 #endif
 				fy_threadPutLocalLong(2, lvalue);
 				break;
@@ -3143,7 +3144,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				printf("%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 3);
+				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 3);
 #endif
 				fy_threadPutLocalLong(3, lvalue);
 				break;
@@ -3155,7 +3156,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				printf("%"FY_PRINT64"d-%"FY_PRINT64"d=%"FY_PRINT64"d\n", lvalue,
+				context->logDVar(context,"%"FY_PRINT64"d-%"FY_PRINT64"d=%"FY_PRINT64"d\n", lvalue,
 						lvalue2, lvalue - lvalue2);
 #endif
 				lvalue -= lvalue2;
@@ -3441,18 +3442,18 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_heapPutFieldLong(context, ivalue2, field, lvalue,
 							exception);
 #ifdef FY_VERBOSE
-					printf("Long field:[");
-					fy_strPrint(field->uniqueName);
-					printf("] = %"FY_PRINT64"d\n", lvalue);
+					context->logDVar(context,"Long field:[");
+					context->logDStr(context, field->uniqueName);
+					context->logDVar(context,"] = %"FY_PRINT64"d\n", lvalue);
 #endif
 					break;
 				default:
 					fy_heapPutFieldInt(context, ivalue2, field, ivalue,
 							exception);
 #ifdef FY_VERBOSE
-					printf("Field:[");
-					fy_strPrint(field->uniqueName);
-					printf("] = %d\n", ivalue);
+					context->logDVar(context,"Field:[");
+					context->logDStr(context, field->uniqueName);
+					context->logDVar(context,"] = %d\n", ivalue);
 #endif
 					break;
 				}

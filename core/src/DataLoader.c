@@ -195,9 +195,9 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 		return;
 	}
 #ifdef FY_VERBOSE
-	printf("AllocateDirect object[%"FY_PRINT32"d] class=", handle);
-	fy_strPrint(clazz->className);
-	printf("\n");
+	context->logDVar(context,"AllocateDirect object[%"FY_PRINT32"d] class=", handle);
+	context->logDStr(context,clazz->className);
+	context->logDVar(context,"\n");
 #endif
 	fy_heapAllocateDirect(context, dataLength, clazz, length, handle, posInHeap,
 			exception);
