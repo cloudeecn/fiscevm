@@ -17,7 +17,7 @@
 
 #include "fy_util/Debug.h"
 
-FY_ATTR_EXPORT void fy_strPrint(fy_str *str) {
+static void fy_strPrint0(FILE *fp, const fy_str *str) {
 	int i, count;
 	fy_char unicode;
 	char buf[4];
@@ -30,8 +30,12 @@ FY_ATTR_EXPORT void fy_strPrint(fy_str *str) {
 		left = 3;
 		fy_utf8Write(unicode, &tmp, &left);
 		*tmp = 0;
-		printf("%s", buf);
+		fprintf(fp, "%s", buf);
 	}
+}
+
+FY_ATTR_EXPORT void fy_strPrint(const fy_str *str) {
+	fy_strPrint0(stdout, str);
 }
 
 FY_ATTR_EXPORT void fy_varprintf(const char *format, ...) {
@@ -41,4 +45,76 @@ FY_ATTR_EXPORT void fy_varprintf(const char *format, ...) {
 	va_end(arg_ptr);
 	printf("\n");
 	/*printf("%s:%d: %s\n",__FILE__ ,__LINE__,buf);*/
+}
+
+static void stdoutLogStr(struct fy_context *context, const fy_str *str) {
+	fy_strPrint0(stdout, str);
+}
+
+static void stdoutLogVar(struct fy_context *context, const char *format, ...) {
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vfprintf(stdout, format, arg_ptr);
+	va_end(arg_ptr);
+}
+
+static void stdoutLogVarLn(struct fy_context *context, const char *format, ...) {
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vfprintf(stdout, format, arg_ptr);
+	va_end(arg_ptr);
+	fprintf(stdout, "\n");
+}
+
+static void stderrLogStr(struct fy_context *context, const fy_str *str) {
+	fy_strPrint0(stderr, str);
+}
+
+static void stderrLogVar(struct fy_context *context, const char *format, ...) {
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vfprintf(stderr, format, arg_ptr);
+	va_end(arg_ptr);
+}
+
+static void stderrLogVarLn(struct fy_context *context, const char *format, ...) {
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vfprintf(stderr, format, arg_ptr);
+	va_end(arg_ptr);
+	fprintf(stderr, "\n");
+}
+#ifndef FY_DEBUG
+static nullLogStr(fy_context *context, fy_str *str) {
+}
+
+static nullLogVar(fy_context *context, const char *format, ...) {
+}
+
+static nullLogVarLn(fy_context *context, const char *format, ...) {
+}
+#endif
+
+FY_ATTR_EXPORT void fy_debugInit(fy_context *context) {
+	context->logEStr = stderrLogStr;
+	context->logEVar = stderrLogVar;
+	context->logEVarLn = stderrLogVarLn;
+
+	context->logWStr = stderrLogStr;
+	context->logWVar = stderrLogVar;
+	context->logWVarLn = stderrLogVarLn;
+
+	context->logIStr = stdoutLogStr;
+	context->logIVar = stdoutLogVar;
+	context->logIVarLn = stdoutLogVarLn;
+
+#ifdef FY_DEBUG
+	context->logDStr = stdoutLogStr;
+	context->logDVar = stdoutLogVar;
+	context->logDVarLn = stdoutLogVarLn;
+#else
+	context->logDStr = nullLogStr;
+	context->logDVar = nullLogVar;
+	context->logDVarLn = nullLogVarLn;
+#endif
 }

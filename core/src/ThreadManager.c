@@ -500,7 +500,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 							context->nextGCTime = now + FY_GC_IDV;
 							context->nextForceGCTime = context->nextGCTime
 									+ FY_GC_FORCE_IDV;
-							DLOG("Call GC due to time out");
+							DLOG(context, "Call GC due to time out");
 							fy_heapGC(context, exception);
 							FYEH();
 							now = fy_portTimeMillSec(context->port);

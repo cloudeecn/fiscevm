@@ -26,9 +26,9 @@
 #define FISCESTU_H_
 
 #define MAX_CLASSES 4096
-#define MAX_METHODS 65536
-#define MAX_FIELDS 65536
-#define MAX_OBJECTS 131072
+#define MAX_METHODS 32768
+#define MAX_FIELDS 32768
+#define MAX_OBJECTS 65536
 #define MAX_THREADS 32
 
 #define STACK_SIZE 16384
@@ -461,6 +461,26 @@ typedef struct fy_context {
 	void (*saveEnd)(struct fy_context *context, void *saver,
 			fy_exception *exception);
 	void (*loadData)(struct fy_context *context, fy_exception *exception);
+
+	/*Logging*/
+
+	void (*logEStr)(struct fy_context *context, const fy_str *str);
+	void (*logEVar)(struct fy_context *context, const char *format, ...);
+	void (*logEVarLn)(struct fy_context *context, const char *format, ...);
+
+	void (*logWStr)(struct fy_context *context, const fy_str *str);
+	void (*logWVar)(struct fy_context *context, const char *format, ...);
+	void (*logWVarLn)(struct fy_context *context, const char *format, ...);
+
+	void (*logIStr)(struct fy_context *context, const fy_str *str);
+	void (*logIVar)(struct fy_context *context, const char *format, ...);
+	void (*logIVarLn)(struct fy_context *context, const char *format, ...);
+
+	void (*logDStr)(struct fy_context *context, const fy_str *str);
+	void (*logDVar)(struct fy_context *context, const char *format, ...);
+	void (*logDVarLn)(struct fy_context *context, const char *format, ...);
+
+	/*Finish function pointers*/
 
 	void *additionalData;
 	fy_boolean loading;

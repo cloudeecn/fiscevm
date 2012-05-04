@@ -18,15 +18,18 @@
 #define _FY_FISCEPRT_H
 
 #include "fiscecon.h"
+
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+
 #if defined(_WIN32)
-#include <windows.h>
+# include <windows.h>
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
-#include <sys/time.h>
-#include <errno.h>
+# include <sys/time.h>
+# include <errno.h>
 #endif
+
 #include <time.h>
 #include<memory.h>
 #include<stdlib.h>
@@ -74,7 +77,6 @@ typedef struct fy_exception {
 } fy_exception;
 #define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)!=NULL&&(EXCEPTION)->exceptionType!=exception_none) return
 #define FYEH() fy_exceptionCheckAndReturn(exception)
-#define FY_RETURN_VOID
 typedef struct fy_port {
 	fy_long initTimeInMillSec;
 #if defined(_WIN32)

@@ -463,7 +463,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 fy_str *primitives[128];
 	 fy_hashMap *mapPrimitivesRev;
 	 */
-	printf(
+	fy_debugInit(context);
+	context->logIVarLn(context,
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
 			MAX_OBJECTS * (fy_int) sizeof(fy_object));
@@ -1169,3 +1170,4 @@ fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 	}
 	return handle;
 }
+

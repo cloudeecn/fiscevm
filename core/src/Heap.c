@@ -35,7 +35,7 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 				fy_fault(exception, NULL, "Out of memory! Handle overflow");
 				return 0;
 			} else {
-				DLOG("Call GC due to handle full\n");
+				DLOG(context, "Call GC due to handle full\n");
 				fy_heapGC(context, exception);
 				return fetchNextHandle(context, TRUE, exception);
 			}

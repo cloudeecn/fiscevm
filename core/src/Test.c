@@ -112,7 +112,7 @@ void testClassLoaderFull() {
 	fy_class *clObj;
 	exception->exceptionType = exception_none;
 	while ((nm = names[i++]) != NULL) {
-		DLOG("###Full loading class %s\n", nm);
+		DLOG(context, "###Full loading class %s\n", nm);
 		snm->content = NULL;
 		fy_strInitWithUTF8(block, snm, nm, exception);
 		TEST_EXCEPTION(exception);

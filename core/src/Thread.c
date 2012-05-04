@@ -29,7 +29,7 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_exceptionHandler *handlers;
 	fy_exceptionHandler *handler;
 	fy_int target = -1;
-	DLOG("EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
+	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 #ifdef FY_DEBUG
 	printf("Exception:");
 	fy_strPrint(fy_heapGetClassOfObject(context, handle, exception)->className);
@@ -789,7 +789,8 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 		return;
 	}
 	object = fy_heapGetObject(context,stack[sp]);
-	if (!fy_classCanCastTo(context,object->object_data->clazz, method->owner)) {
+	if (!fy_classCanCastTo(context, object->object_data->clazz,
+			method->owner)) {
 		fy_fault(exception, FY_EXCEPTION_CAST, "");
 		return;
 	}
@@ -917,7 +918,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		if (frame == NULL) {
 			/*Time to quit!*/
 			if (thread->currentThrowable) {
-				DLOG("XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX");
+				DLOG(context, "XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX");
 				method = fy_vmGetMethod(context,
 						context->sThrowablePrintStacktrace);
 				ASSERT( method != NULL);
