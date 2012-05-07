@@ -18,7 +18,9 @@ fyinc_HEADERS = \
 	../inc/fy_util/Utf8.h
 
 
-FY_SRC = Debug.c \
+#		roxml-internal.c roxml-parse-engine.c roxml.c 
+FY_SRC = \
+		Debug.c \
         HashMap.c \
         HashMapI.c \
         ArrList.c \
@@ -43,7 +45,7 @@ FY_SRC = Debug.c \
         FiScE.c \
         FileInputStream.c \
         BinarySaver.c \
-		DataLoader.c
+	DataLoader.c
 
 if FY_BUILD_TEST
 noinst_LTLIBRARIES = libfytst.la

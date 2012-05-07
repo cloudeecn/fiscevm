@@ -134,7 +134,9 @@ AM_PROG_CC_C_O
 AC_CHECK_LIB([m],[floor])
 
 # Checks for header files.
-AC_CHECK_HEADERS([math.h float.h memory.h stdlib.h string.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([math.h float.h memory.h stdlib.h string.h sys/time.h unistd.h pthread.h])
+
+
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T

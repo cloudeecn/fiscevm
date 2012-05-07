@@ -67,7 +67,7 @@ static void dLogStr(struct fy_context *context, const fy_str *str) {
 
 	fy_strSPrint(msg, sizeof(msg), str);
 	msg[511] = 0;
-	sendLog(context, "logD", msg);
+	sendLog(context, "logD0", msg);
 }
 
 static void dLogVar(struct fy_context *context, const char *format, ...) {
@@ -77,7 +77,7 @@ static void dLogVar(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logD", msg);
+	sendLog(context, "logD0", msg);
 }
 
 static void dLogVarLn(struct fy_context *context, const char *format, ...) {
@@ -87,8 +87,8 @@ static void dLogVarLn(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logD", msg);
-	sendLog(context, "logD", "\n");
+	sendLog(context, "logD0", msg);
+	sendLog(context, "logD0", "\n");
 }
 
 static void iLogStr(struct fy_context *context, const fy_str *str) {
@@ -96,7 +96,7 @@ static void iLogStr(struct fy_context *context, const fy_str *str) {
 
 	fy_strSPrint(msg, sizeof(msg), str);
 	msg[511] = 0;
-	sendLog(context, "logI", msg);
+	sendLog(context, "logI0", msg);
 }
 
 static void iLogVar(struct fy_context *context, const char *format, ...) {
@@ -106,7 +106,7 @@ static void iLogVar(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logI", msg);
+	sendLog(context, "logI0", msg);
 }
 
 static void iLogVarLn(struct fy_context *context, const char *format, ...) {
@@ -116,8 +116,8 @@ static void iLogVarLn(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logI", msg);
-	sendLog(context, "logI", "\n");
+	sendLog(context, "logI0", msg);
+	sendLog(context, "logI0", "\n");
 }
 
 static void wLogStr(struct fy_context *context, const fy_str *str) {
@@ -125,7 +125,7 @@ static void wLogStr(struct fy_context *context, const fy_str *str) {
 
 	fy_strSPrint(msg, sizeof(msg), str);
 	msg[511] = 0;
-	sendLog(context, "logW", msg);
+	sendLog(context, "logW0", msg);
 }
 
 static void wLogVar(struct fy_context *context, const char *format, ...) {
@@ -135,7 +135,7 @@ static void wLogVar(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logW", msg);
+	sendLog(context, "logW0", msg);
 }
 
 static void wLogVarLn(struct fy_context *context, const char *format, ...) {
@@ -145,8 +145,8 @@ static void wLogVarLn(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logW", msg);
-	sendLog(context, "logW", "\n");
+	sendLog(context, "logW0", msg);
+	sendLog(context, "logW0", "\n");
 }
 
 static void eLogStr(struct fy_context *context, const fy_str *str) {
@@ -154,7 +154,7 @@ static void eLogStr(struct fy_context *context, const fy_str *str) {
 
 	fy_strSPrint(msg, sizeof(msg), str);
 	msg[511] = 0;
-	sendLog(context, "logE", msg);
+	sendLog(context, "logE0", msg);
 }
 
 static void eLogVar(struct fy_context *context, const char *format, ...) {
@@ -164,7 +164,7 @@ static void eLogVar(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logE", msg);
+	sendLog(context, "logE0", msg);
 }
 
 static void eLogVarLn(struct fy_context *context, const char *format, ...) {
@@ -174,8 +174,8 @@ static void eLogVarLn(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logE", msg);
-	sendLog(context, "logE", "\n");
+	sendLog(context, "logE0", msg);
+	sendLog(context, "logE0", "\n");
 }
 
 static void* isOpen(fy_context *context, const char *name,
