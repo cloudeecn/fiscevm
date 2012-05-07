@@ -21,6 +21,7 @@ import com.cirnoworks.fisce.intf.IStateListener;
 import com.cirnoworks.fisce.intf.IThreadManager;
 import com.cirnoworks.fisce.intf.IToolkit;
 import com.cirnoworks.fisce.intf.SaveDataPostProcesser;
+import com.cirnoworks.fisce.intf.SystemDebugConsole;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IClass;
@@ -194,7 +195,8 @@ public class FYContext implements Runnable, FiScEVM {
 	}
 
 	public void setConsole(IDebugConsole console) {
-
+		FisceService.setConsole(console == null ? new SystemDebugConsole()
+				: console);
 	}
 
 	public void registerNativeHandler(INativeHandler inh) {

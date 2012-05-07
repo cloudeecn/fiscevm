@@ -5,10 +5,21 @@ import java.nio.ByteBuffer;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import com.cirnoworks.fisce.intf.IDebugConsole;
 import com.cirnoworks.fisce.intf.IToolkit;
+import com.cirnoworks.fisce.intf.SystemDebugConsole;
 
 public final class FisceService {
 	private static Map<ByteBuffer, FYContext> contextMap = new IdentityHashMap<ByteBuffer, FYContext>();
+	private static IDebugConsole console = new SystemDebugConsole();
+
+	public static IDebugConsole getConsole() {
+		return console;
+	}
+
+	public static void setConsole(IDebugConsole console) {
+		FisceService.console = console;
+	}
 
 	public static void initContext(FYContext jcontext) {
 		ByteBuffer context = jcontext.getContext();
@@ -322,4 +333,133 @@ public final class FisceService {
 
 	public static native void unregisterNativeHandler(ByteBuffer context,
 			String uniqueName);
+
+	private static StringBuilder debug = new StringBuilder();
+	private static StringBuilder info = new StringBuilder();
+	private static StringBuilder warn = new StringBuilder();
+	private static StringBuilder error = new StringBuilder();
+
+	public static void logD(String msg) {
+		logD0(msg);
+		logD0("\n");
+	}
+
+	public static void logD(String msg, Throwable t) {
+		logD0(msg);
+		logD0("\n");
+		logD0(t.toString());
+		logD0("\n");
+		for (StackTraceElement ste : t.getStackTrace()) {
+//			logD0("\t");
+			logD0(ste.toString());
+			logD0("\n");
+		}
+	}
+
+	public static void logI(String msg) {
+		logI0(msg);
+		logI0("\n");
+	}
+
+	public static void logI(String msg, Throwable t) {
+		logI0(msg);
+		logI0("\n");
+		logI0(t.toString());
+		logI0("\n");
+		for (StackTraceElement ste : t.getStackTrace()) {
+//			logI0("\t");
+			logI0(ste.toString());
+			logI0("\n");
+		}
+	}
+
+	public static void logW(String msg) {
+		logW0(msg);
+		logW0("\n");
+	}
+
+	public static void logW(String msg, Throwable t) {
+		logW0(msg);
+		logW0("\n");
+		logW0(t.toString());
+		logW0("\n");
+		for (StackTraceElement ste : t.getStackTrace()) {
+//			logW0("\t");
+			logW0(ste.toString());
+			logW0("\n");
+		}
+	}
+
+	public static void logE(String msg) {
+		logE0(msg);
+		logE0("\n");
+	}
+
+	public static void logE(String msg, Throwable t) {
+		logE0(msg);
+		logE0("\n");
+		logE0(t.toString());
+		logE0("\n");
+		for (StackTraceElement ste : t.getStackTrace()) {
+//			logE0("\t");
+			logE0(ste.toString());
+			logE0("\n");
+		}
+	}
+
+	public static void logD0(String msg) {
+		for (int i = 0, max = msg.length(); i < max; i++) {
+			char c = msg.charAt(i);
+			if (c == '\r') {
+				continue;
+			} else if (c == '\n') {
+				console.debug(error.toString());
+				error.setLength(0);
+			} else {
+				error.append(c);
+			}
+		}
+	}
+
+	public static void logI0(String msg) {
+		for (int i = 0, max = msg.length(); i < max; i++) {
+			char c = msg.charAt(i);
+			if (c == '\r') {
+				continue;
+			} else if (c == '\n') {
+				console.info(info.toString());
+				info.setLength(0);
+			} else {
+				info.append(c);
+			}
+		}
+	}
+
+	public static void logW0(String msg) {
+		for (int i = 0, max = msg.length(); i < max; i++) {
+			char c = msg.charAt(i);
+			if (c == '\r') {
+				continue;
+			} else if (c == '\n') {
+				console.warn(warn.toString());
+				warn.setLength(0);
+			} else {
+				warn.append(c);
+			}
+		}
+	}
+
+	public static void logE0(String msg) {
+		for (int i = 0, max = msg.length(); i < max; i++) {
+			char c = msg.charAt(i);
+			if (c == '\r') {
+				continue;
+			} else if (c == '\n') {
+				console.error(error.toString());
+				error.setLength(0);
+			} else {
+				error.append(c);
+			}
+		}
+	}
 }

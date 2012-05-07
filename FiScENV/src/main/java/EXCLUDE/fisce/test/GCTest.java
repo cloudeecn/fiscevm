@@ -5,8 +5,14 @@ import com.cirnoworks.fisce.privat.FiScEVM;
 public class GCTest extends TestService {
 	public static void main(String[] args) {
 		try {
+			FiScEVM.debugOut("$$$$$$$$$$$$$$$$");
+			byte[] big = new byte[262144];
+			FiScEVM.debugOut("" + System.identityHashCode(big));
 			System.out.println("++++++++++++++++++=+");
 			for (int i = 0; i < 10; i++) {
+				if (i == 4) {
+					big = null;
+				}
 				System.out.println(i + "+");
 				for (int j = 0; j < 100; j++) {
 					Thread.sleep(1);
@@ -20,7 +26,7 @@ public class GCTest extends TestService {
 			System.gc();
 			System.gc();
 		} catch (Exception e) {
-//			e.printStackTrace(FiScEVM.debug);
+			// e.printStackTrace(FiScEVM.debug);
 			fail("aaa");
 		}
 	}
