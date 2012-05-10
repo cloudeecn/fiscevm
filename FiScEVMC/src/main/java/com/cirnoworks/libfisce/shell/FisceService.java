@@ -350,9 +350,12 @@ public final class FisceService {
 		logD0(t.toString());
 		logD0("\n");
 		for (StackTraceElement ste : t.getStackTrace()) {
-//			logD0("\t");
+			logD0("\tat ");
 			logD0(ste.toString());
 			logD0("\n");
+		}
+		if (t.getCause() != null) {
+			logD("Caused by:", t.getCause());
 		}
 	}
 
@@ -367,9 +370,12 @@ public final class FisceService {
 		logI0(t.toString());
 		logI0("\n");
 		for (StackTraceElement ste : t.getStackTrace()) {
-//			logI0("\t");
+			logI0("\tat ");
 			logI0(ste.toString());
 			logI0("\n");
+		}
+		if (t.getCause() != null) {
+			logI("Caused by:", t.getCause());
 		}
 	}
 
@@ -384,9 +390,12 @@ public final class FisceService {
 		logW0(t.toString());
 		logW0("\n");
 		for (StackTraceElement ste : t.getStackTrace()) {
-//			logW0("\t");
+			logW0("\tat ");
 			logW0(ste.toString());
 			logW0("\n");
+		}
+		if (t.getCause() != null) {
+			logW("Caused by:", t.getCause());
 		}
 	}
 
@@ -401,9 +410,12 @@ public final class FisceService {
 		logE0(t.toString());
 		logE0("\n");
 		for (StackTraceElement ste : t.getStackTrace()) {
-//			logE0("\t");
+			logE0("\tat ");
 			logE0(ste.toString());
 			logE0("\n");
+		}
+		if (t.getCause() != null) {
+			logE("Caused by:", t.getCause());
 		}
 	}
 
