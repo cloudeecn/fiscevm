@@ -17,7 +17,7 @@
 package com.cirnoworks.fisce.privat;
 
 /**
- *
+ * 
  * @author yuxuanhuang
  */
 class PSuper {
@@ -272,7 +272,6 @@ public class Profile extends PSuper implements Runnable {
 				e.printStackTrace();
 			}
 		}
-
 		ttStack /= max - min;
 		ttField /= max - min;
 		ttStatic /= max - min;
@@ -315,8 +314,8 @@ public class Profile extends PSuper implements Runnable {
 	}
 
 	private void debugOut(String v) {
-		FiScEVM.debugOut(v);
-		// System.out.println(v);
+		// FiScEVM.debugOut(v);
+		System.out.println(v);
 	}
 }
 
