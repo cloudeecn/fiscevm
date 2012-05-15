@@ -43,8 +43,8 @@ FY_ATTR_EXPORT fy_method *fy_nativeGetMethod(fy_context *context, fy_str *name);
 FY_ATTR_EXPORT fy_method *fy_nativeLookupMethodVirtual(fy_context *context,
 		fy_class *clazz, fy_str *name, fy_exception *exception);
 FY_ATTR_EXPORT fy_uint fy_nativePrepareThrowable(fy_context *context,
-		fy_thread *thread, FY_ATTR_RESTRICT fy_exception *toPrepare,
-		FY_ATTR_RESTRICT fy_exception *exception);
+		fy_thread *thread, FY_ATTR_RESTRICT fy_exception* toPrepare,
+		FY_ATTR_RESTRICT fy_exception* exception);
 
 FY_ATTR_EXPORT int fy_nativeAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception);

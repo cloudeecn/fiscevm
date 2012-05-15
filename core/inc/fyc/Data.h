@@ -29,8 +29,8 @@ fy_ubyte fy_dataRead(fy_context *context, void *is, fy_exception *exception);
 fy_char fy_dataRead2(fy_context *context, void *is, fy_exception *exception);
 fy_uint fy_dataRead4(fy_context *context, void *is, fy_exception *exception);
 fy_ulong fy_dataRead8(fy_context *context, void *is, fy_exception *exception);
-void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT void *is,
-		FY_ATTR_RESTRICT void *buffer, fy_int size, fy_exception *exception);
+void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT void* is,
+		FY_ATTR_RESTRICT void* buffer, fy_int size, fy_exception *exception);
 void fy_dataSkip(fy_context *context, void *is, int size,
 		fy_exception *exception);
 

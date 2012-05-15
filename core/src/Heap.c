@@ -31,7 +31,7 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 		}
 		if (handle == context->nextHandle) {
 			/*TODO OOM*/
-			if (!gced) {
+			if (gced) {
 				fy_fault(exception, NULL, "Out of memory! Handle overflow");
 				return 0;
 			} else {

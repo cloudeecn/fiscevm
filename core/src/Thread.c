@@ -1217,7 +1217,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_str str1;
 #endif
 				fy_threadPopInt(ivalue);
-				if (ivalue < 0) {
+				if (((fy_int)ivalue) < 0) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -3295,7 +3295,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				type = instruction->params.int_params.param1;
 				fy_threadPopInt(ivalue3);
-				if (ivalue3 < 0) {
+				if (((fy_int)ivalue3) < 0) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,

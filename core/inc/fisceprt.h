@@ -126,7 +126,7 @@ struct timeval tvBeginTime;
 #endif
 #if __STDC_VERSION__ >= 199901L
 # define _C99
-# define FY_ATTR_RESTRICT restrict
+# define FY_ATTR_RESTRICT /*restrict*/
 #else
 # define FY_ATTR_RESTRICT
 #endif

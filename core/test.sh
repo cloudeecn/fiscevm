@@ -1,3 +1,3 @@
 #!/bin/sh
-./configure --enable-test --disable-shared $@ && make clean all && src/fiscetest
+./configure --enable-test --disable-shared $@ && make clean all && make/fiscetest
 
