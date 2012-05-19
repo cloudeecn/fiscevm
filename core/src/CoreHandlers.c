@@ -286,7 +286,7 @@ static void ThreadYield(struct fy_context *context, struct fy_thread *thread,
 	thread->yield = TRUE;
 }
 
-static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
+static void VMLogOut(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
 	fy_str str[1];
@@ -298,38 +298,55 @@ static void VMDebugOut(struct fy_context *context, struct fy_thread *thread,
 	str->content = NULL;
 	fy_strInit(block, str, 128, exception);
 	FYEH();
-	fy_heapGetString(context, args[0], str, exception);
+	fy_heapGetString(context, args[1], str, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
-	context->logDVar(context,"VMDebugOut: ");
-	context->logDStr(context, str);
-	context->logDVar(context,"\n");
+	switch (args[0]) {
+	case 0:
+		context->logDStr(context, str);
+		context->logDVar(context, "\n");
+		break;
+	case 1:
+		context->logIStr(context, str);
+		context->logIVar(context, "\n");
+		break;
+	case 2:
+		context->logWStr(context, str);
+		context->logWVar(context, "\n");
+		break;
+	case 3:
+		context->logEStr(context, str);
+		context->logEVar(context, "\n");
+		break;
+	}
 	fy_strDestroy(block, str);
 }
 
 static void VMDebugOutI(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
-	context->logDVar(context,"VMDebugOutI: %d\n", args[0]);
+	context->logDVar(context, "VMDebugOutI: %d\n", args[0]);
 }
 
 static void VMDebugOutJ(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
-	context->logDVar(context,"VMDebugOutI: %"FY_PRINT64"d\n", fy_I2TOL(args[0],args[1]));
+	context->logDVar(context, "VMDebugOutI: %"FY_PRINT64"d\n",
+			fy_I2TOL(args[0],args[1]));
 }
 
 static void VMDebugOutF(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
-	context->logDVar(context,"VMDebugOutI: %f\n", fy_intToFloat(args[0]));
+	context->logDVar(context, "VMDebugOutI: %f\n", fy_intToFloat(args[0]));
 }
 
 static void VMDebugOutD(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
-	context->logDVar(context,"VMDebugOutI: %f\n", fy_longToDouble(fy_I2TOL(args[0],args[1])));
+	context->logDVar(context, "VMDebugOutI: %f\n",
+			fy_longToDouble(fy_I2TOL(args[0],args[1])));
 }
 
 static void VMThrowOut(struct fy_context *context, struct fy_thread *thread,
@@ -2397,8 +2414,8 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			NULL, FiScEVMStoreParams, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(L"FY_BASE_STRING";)V",
-			NULL, VMDebugOut, exception);
+			"com/cirnoworks/fisce/privat/FiScEVM.logOut.(IL"FY_BASE_STRING";)V",
+			NULL, VMLogOut, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(I)V", NULL,
