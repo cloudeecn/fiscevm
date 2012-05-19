@@ -36,9 +36,9 @@ public class SaveTest extends Thread {
 			e.printStackTrace();
 		}
 		System.gc();
-		FiScEVM.debugOut("Saveing...");
+		FiScEVM.infoOut("Saveing...");
 		FiScEVM.save();
-		FiScEVM.debugOut("\nSaved\n");
+		FiScEVM.infoOut("\nSaved\n");
 		running = false;
 	}
 }

@@ -48,7 +48,7 @@ public class FiScEVMDebugOut extends NativeHandlerTemplate {
 	 * @see com.cirnoworks.fisce.vm.INativeHandler#getUniqueName()
 	 */
 	public String getUniqueName() {
-		return "com/cirnoworks/fisce/privat/FiScEVM.debugOut.(Ljava/lang/String;)V";
+		return "com/cirnoworks/fisce/privat/FiScEVM.infoOut.(Ljava/lang/String;)V";
 	}
 
 }

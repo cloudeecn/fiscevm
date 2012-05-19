@@ -14,7 +14,7 @@ public class Unicode {
 		vm.registerNativeHandler(new NativeHandlerTemplate() {
 
 			public String getUniqueName() {
-				return "com/cirnoworks/fisce/privat/FiScEVM.debugOut.(Ljava/lang/String;)V";
+				return "com/cirnoworks/fisce/privat/FiScEVM.infoOut.(Ljava/lang/String;)V";
 			}
 
 			public void dealNative(int[] args, IThread thread)
@@ -26,7 +26,7 @@ public class Unicode {
 		});
 		FisceService
 				.unregisterNativeHandler(vm.getContext(),
-						"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(Ljava/lang/String;)V");
+						"com/cirnoworks/fisce/privat/FiScEVM.infoOut.(Ljava/lang/String;)V");
 		vm.bootFromClass("EXCLUDE/fisce/test/UnicodeTest");
 		vm.start();
 		vm.waitTillStopped(1000);

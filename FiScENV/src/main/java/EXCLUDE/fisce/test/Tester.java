@@ -95,7 +95,7 @@ public class Tester extends Thread implements ITester {
 			int a = 0;
 			int b = 1234987123;
 			String sb = Integer.toString(b);
-			FiScEVM.debugOut(sb);
+			FiScEVM.infoOut(sb);
 			if (a == 0) {
 				return;
 			}
@@ -120,9 +120,9 @@ public class Tester extends Thread implements ITester {
 			// ib *= 11111;
 			// }
 			// String sb = "b=" + ib;
-			// FiScEVM.debugOut(sb);
-			// FiScEVM.debugOut(Integer.toString(ib, 10));
-			// FiScEVM.debugOut(ib);
+			// FiScEVM.infoOut(sb);
+			// FiScEVM.infoOut(Integer.toString(ib, 10));
+			// FiScEVM.infoOut(ib);
 
 			int k = 1000000;
 			if (k > 100) {
@@ -139,17 +139,17 @@ public class Tester extends Thread implements ITester {
 				d = 0;
 				s += " World";
 			}
-//			FiScEVM.debugOut(d2);
-//			FiScEVM.debugOut(d);
-//			FiScEVM.debugOut(i);
-//			FiScEVM.debugOut(s);
-//			FiScEVM.debugOut(System.currentTimeMillis());
-//			FiScEVM.debugOut(System.nanoTime());
+//			FiScEVM.infoOut(d2);
+//			FiScEVM.infoOut(d);
+//			FiScEVM.infoOut(i);
+//			FiScEVM.infoOut(s);
+//			FiScEVM.infoOut(System.currentTimeMillis());
+//			FiScEVM.infoOut(System.nanoTime());
 
-			FiScEVM.debugOut("Hello world " + 123 + " "
+			FiScEVM.infoOut("Hello world " + 123 + " "
 					+ (i + 12345678901234567l) + " " + 123.4f + " "
 					+ (123.4d + i) + "  我们来试试中文！");
-			FiScEVM.debugOut("" + 0.0 / d + " " + 1.0 / d + " " + -1.0 / d);
+			FiScEVM.infoOut("" + 0.0 / d + " " + 1.0 / d + " " + -1.0 / d);
 			System.out.println("Hello " + 111 + "world");
 			System.out.println("5*3=" + 5 * 3 + "\n" + "5.0*3.3=" + 5.0f * 3.3
 					+ "\n" + "77*65=" + 77 * 65 + "\n");

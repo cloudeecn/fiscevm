@@ -5,9 +5,9 @@ import com.cirnoworks.fisce.privat.FiScEVM;
 public class GCTest extends TestService {
 	public static void main(String[] args) {
 		try {
-			FiScEVM.debugOut("$$$$$$$$$$$$$$$$");
+			FiScEVM.infoOut("$$$$$$$$$$$$$$$$");
 			byte[] big = new byte[262144];
-			FiScEVM.debugOut("" + System.identityHashCode(big));
+			FiScEVM.infoOut("" + System.identityHashCode(big));
 			System.out.println("++++++++++++++++++=+");
 			for (int i = 0; i < 10; i++) {
 				if (i == 4) {

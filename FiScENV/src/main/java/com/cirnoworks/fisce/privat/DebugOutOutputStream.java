@@ -37,7 +37,7 @@ public class DebugOutOutputStream extends OutputStream {
 	public void flush() {
 		if (pos > 0) {
 			try {
-				FiScEVM.debugOut(new String(buf, 0, pos, enc));
+				FiScEVM.infoOut(new String(buf, 0, pos, enc));
 			} catch (Exception e) {
 			}
 			pos = 0;

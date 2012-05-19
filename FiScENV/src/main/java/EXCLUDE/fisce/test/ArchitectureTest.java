@@ -13,8 +13,8 @@ import com.cirnoworks.fisce.privat.FiScEVM;
  */
 public class ArchitectureTest extends TestService {
 	public static void main(String[] args) {
-		FiScEVM.debugOut("Begin!");
-		FiScEVM.debugOut(ArchitectureTest.class.getName());
+		FiScEVM.infoOut("Begin!");
+		FiScEVM.infoOut(ArchitectureTest.class.getName());
 		try {
 			Object o = new HashMap();
 			ArrayList a = (ArrayList) o;

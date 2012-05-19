@@ -177,7 +177,7 @@ public class Profile extends PSuper implements Runnable {
 
 			for (i = 0; i < 50000; i++) {
 				k += i;
-				im.fooS();
+				Impl.fooS();
 			}
 			t2 = System.nanoTime();
 			if (u >= min) {
@@ -314,8 +314,8 @@ public class Profile extends PSuper implements Runnable {
 	}
 
 	private void debugOut(String v) {
-		// FiScEVM.debugOut(v);
-		System.out.println(v);
+		FiScEVM.infoOut(v);
+		// System.out.println(v);
 	}
 }
 

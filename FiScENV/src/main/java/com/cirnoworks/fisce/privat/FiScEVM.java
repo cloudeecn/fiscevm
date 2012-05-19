@@ -43,13 +43,34 @@ public class FiScEVM {
 	public static final int ACC_CONSTRUCTOR = 0x00010000;
 	public static final int ACC_CLINIT = 0x00020000;
 	public static final int ACC_VERIFIED = 0x80000000;
+	/* Log level */
+	public static final int LOG_DEBUG = 0;
+	public static final int LOG_INFO = 1;
+	public static final int LOG_WARN = 2;
+	public static final int LOG_ERROR = 3;
 
 	private static String defaultEncoding = "utf-8";
 
 	public static PrintStream debug = new PrintStream(
 			new DebugOutOutputStream());
 
-	public static native void debugOut(String str);
+	public static native void logOut(int level, String str);
+
+	public static void debugOut(String str) {
+		logOut(LOG_DEBUG, str);
+	}
+
+	public static void infoOut(String str) {
+		logOut(LOG_INFO, str);
+	}
+
+	public static void warnOut(String str) {
+		logOut(LOG_WARN, str);
+	}
+
+	public static void errorOut(String str) {
+		logOut(LOG_ERROR, str);
+	}
 
 	public static void throwOut(Throwable t) {
 		throwOut(t, "");
@@ -143,7 +164,6 @@ public class FiScEVM {
 	 */
 	public static native void storeParamsToArray(int begin, int[] target,
 			int pos, int count);
-
 
 	public static Object wide(Object from, Class<?> type) {
 		Class<?> argType = from.getClass();

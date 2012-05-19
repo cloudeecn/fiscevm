@@ -32,10 +32,10 @@ public final class Finalizer extends Thread {
 	public void run() {
 		try {
 			while (true) {
-				// FiScEVM.debugOut("Finalizer!");
+				// FiScEVM.infoOut("Finalizer!");
 				Object[] finalizee = getFinalizee();
 				if (finalizee.length > 0) {
-//					FiScEVM.debugOut("#FINALIZER "
+//					FiScEVM.infoOut("#FINALIZER "
 //							+ System.identityHashCode(Thread.currentThread())
 //							+ ":" + System.identityHashCode(finalizee) + ": "
 //							+ finalizee.length + " objects to finalize...");
@@ -43,7 +43,7 @@ public final class Finalizer extends Thread {
 						Object o = finalizee[i];
 						try {
 
-//							FiScEVM.debugOut("FINALIZE "
+//							FiScEVM.infoOut("FINALIZE "
 //									+ System.identityHashCode(o));
 
 							o.finalize();
@@ -53,7 +53,7 @@ public final class Finalizer extends Thread {
 						}
 						finalizee[i] = null;
 					}
-//					FiScEVM.debugOut("#FINALIZER:" + finalizee.length
+//					FiScEVM.infoOut("#FINALIZER:" + finalizee.length
 //							+ " objects finalized.");
 					finalizee = null;
 				}
