@@ -111,6 +111,7 @@
 #define FY_EXCEPTION_IO "java/io/IOException"
 #define FY_EXCEPTION_RT "java/lang/RuntimeException"
 #define FY_EXCEPTION_IOOB "java/lang/IndexOutOfBoundsException"
+#define FY_EXCEPTION_AIOOB "java/lang/ArrayIndexOutOfBoundsException"
 #define FY_EXCEPTION_STORE "java/lang/ArrayStoreException"
 #define FY_EXCEPTION_CLASSNOTFOUND "java/lang/ClassNotFoundException"
 #define FY_EXCEPTION_ABSTRACT "java/lang/AbstractMethodError"

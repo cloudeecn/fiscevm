@@ -296,7 +296,7 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 	if (srcPos < 0 || destPos < 0 || len < 0
 			|| (srcPos + len > sObject->object_data->length)
 			|| (destPos + len > dObject->object_data->length)) {
-		fy_fault(exception, FY_EXCEPTION_IOOB, "0");
+		fy_fault(exception, FY_EXCEPTION_AIOOB, "0");
 		return;
 	}
 	sClass = sObject->object_data->clazz;
@@ -380,19 +380,19 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 }
 
 #define CHECK_NPT(X) if (handle == 0) { \
-exception->exceptionType = exception_normal; \
-strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_NPT); \
-exception->exceptionDesc[0] = 0; \
-return X; \
-}else ASSERT(obj->object_data!=NULL);
+		exception->exceptionType = exception_normal; \
+		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_NPT); \
+		exception->exceptionDesc[0] = 0; \
+		return X; \
+	} else ASSERT(obj->object_data!=NULL);
 
 #define CHECK_IOOB(X) if (index < 0 || index >= obj->object_data->length) {\
-exception->exceptionType = exception_normal;\
-strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_IOOB);\
-sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),\
-		"%"FY_PRINT32"d / %"FY_PRINT32"d", index, obj->object_data->length);\
-return X;\
-}
+		exception->exceptionType = exception_normal;\
+		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_AIOOB);\
+		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),\
+				"%"FY_PRINT32"d / %"FY_PRINT32"d", index, obj->object_data->length);\
+		return X;\
+	}
 
 #define CHECK_STATIC(X) if((field->access_flags & FY_ACC_STATIC)==0){\
 		exception->exceptionType=exception_normal;\
@@ -1152,6 +1152,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	fy_int youngId = block->youngId;
 	fy_long timeStamp;
+	fy_long t1, t2, t3, t4, t5, t6, t7;
 #ifdef FY_DEBUG
 	context->logDVar(context,
 			"#FISCE GC BEFORE %d+%d+%d total %dbytes, %d managed native bytes, %d perm bytes\n",
@@ -1176,19 +1177,21 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 			exception);
 	FYEH();
 
+	t1 = fy_portTimeMillSec(context->port);
 	fillInitialHandles(context, marks, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
 		return;
 	}
 
-	fy_arrayListInit(context->memblocks, &from, sizeof(fy_uint), 128,
+	fy_arrayListInit(context->memblocks, &from, sizeof(fy_uint), 1024,
 			exception);
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
 		return;
 	}
 
+	t2 = fy_portTimeMillSec(context->port);
 	/*push initial handles*/
 	for (i = fy_bitSizeToInt(MAX_OBJECTS); i >= 0; i--) {
 		if (marks[i]) {
@@ -1207,6 +1210,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 		}
 	}
 
+	t3 = fy_portTimeMillSec(context->port);
 	scanRef(context, &from, marks, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
@@ -1214,6 +1218,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 		return;
 	}
 
+	t4 = fy_portTimeMillSec(context->port);
 	fy_arrayListClear(context->memblocks, &from);
 	for (i = 1; i < MAX_OBJECTS; i++) {
 		object = fy_heapGetObject(context,i);
@@ -1240,6 +1245,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 		}
 	}
 
+	t5 = fy_portTimeMillSec(context->port);
 	scanRef(context, &from, marks, exception);
 	fy_arrayListDestroy(context->memblocks, &from);
 	if (exception->exceptionType != exception_none) {
@@ -1247,6 +1253,7 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 		return;
 	}
 
+	t6 = fy_portTimeMillSec(context->port);
 	block->posInEden = 0;
 	block->posInYong = 0;
 	block->youngId = youngId = 1 - block->youngId;
@@ -1283,9 +1290,11 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 			}
 		}
 	}
+	t7 = fy_portTimeMillSec(context->port);
 #ifndef FY_GC_FORCE_FULL
 	if ((block->posInOld - block->oldReleasedSize) * 4 < block->posInOld) {
 #endif
+		context->logDVarLn(context, "Compacting old area...");
 		compactOld(context, exception);
 		FYEH();
 #ifndef FY_GC_FORCE_FULL
@@ -1302,6 +1311,9 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 			(OLD_ENTRIES - context->memblocks->oldTop)
 					* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
 			fy_portTimeMillSec(context->port) - timeStamp);
+	context->logDVar(context, "%d %d %d %d %d %d %d %d\n", t1 - timeStamp,
+			t2 - t1, t3 - t2, t4 - t3, t5 - t4, t6 - t5, t7 - t6,
+			fy_portTimeMillSec(context->port) - t7);
 #else
 	context->logDVar(context,
 			"#FISCE GC AFTER %d+%d+%d total %dbytes,%d perm bytes,%d context bytes, time=%"FY_PRINT64"d\n",
@@ -1310,6 +1322,9 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 					* (fy_int)sizeof(fy_uint)),
 			(OLD_ENTRIES - context->memblocks->oldTop) * (fy_int)sizeof(fy_uint),
 			(fy_int)sizeof(fy_context), fy_portTimeMillSec(context->port) - timeStamp);
+	context->logDVar(context, "%d %d %d %d %d %d %d %d\n", t1 - timeStamp,
+				t2 - t1, t3 - t2, t4 - t3, t5 - t4, t6 - t5, t7 - t6,
+				fy_portTimeMillSec(context->port) - t7);
 #endif
 	fy_free(marks);
 }

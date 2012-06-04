@@ -18,10 +18,10 @@
 #ifndef NCONFIG_H_
 #define NCONFIG_H_
 
-#define MAX_GEN 6
+#define MAX_GEN 8
 
-#define FY_GC_IDV 10000
-#define FY_GC_FORCE_IDV 10000
+#define FY_GC_IDV 3000
+#define FY_GC_FORCE_IDV 15000
 
 #if 0
 #define FY_GC_FORCE_FULL

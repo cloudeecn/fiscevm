@@ -1222,7 +1222,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
 							sizeof(exception->exceptionName),
-							FY_EXCEPTION_IOOB);
+							FY_EXCEPTION_AIOOB);
 					sprintf_s(exception->exceptionDesc,
 							sizeof(exception->exceptionDesc), "%d<0", ivalue);
 					FY_FALLOUT_NOINVOKE
