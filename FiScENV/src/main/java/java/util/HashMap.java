@@ -17,14 +17,14 @@
 
 package java.util;
 
-import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * HashMap is an implementation of Map. All optional operations (adding and
  * removing) are supported. Keys and values can be any objects.
  */
 public class HashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>,
-		Cloneable {
+		Cloneable, Serializable {
 
 	private static final long serialVersionUID = 362498820763181265L;
 

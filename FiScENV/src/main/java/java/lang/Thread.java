@@ -220,5 +220,9 @@ public class Thread implements Runnable {
 	private native void setPriority0(int newPriority);
 
 	private native void interrupt0();
+	
+	public ClassLoader getContextClassLoader(){
+		return ClassLoader.getSystemClassLoader();
+	}
 
 }

@@ -17,9 +17,8 @@
 
 package java.util;
 
-import java.io.IOException;
-
-import com.cirnoworks.fisce.privat.FiScEVM;
+import java.io.Serializable;
+import java.lang.reflect.Array;
 
 /**
  * {@code Collections} contains static methods which operate on
@@ -29,7 +28,8 @@ import com.cirnoworks.fisce.privat.FiScEVM;
  */
 public class Collections {
 
-	private static final class CopiesList<E> extends AbstractList<E> {
+	private static final class CopiesList<E> extends AbstractList<E> implements
+			Serializable {
 		private static final long serialVersionUID = 2739099268398711800L;
 
 		private final int n;
@@ -65,7 +65,7 @@ public class Collections {
 
 	@SuppressWarnings("unchecked")
 	private static final class EmptyList extends AbstractList implements
-			RandomAccess {
+			RandomAccess, Serializable {
 		private static final long serialVersionUID = 8842843931221139166L;
 
 		@Override
@@ -89,7 +89,8 @@ public class Collections {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static final class EmptySet extends AbstractSet {
+	private static final class EmptySet extends AbstractSet implements
+			Serializable {
 		private static final long serialVersionUID = 1582296315990362920L;
 
 		@Override
@@ -125,7 +126,8 @@ public class Collections {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static final class EmptyMap extends AbstractMap {
+	private static final class EmptyMap extends AbstractMap implements
+			Serializable {
 		private static final long serialVersionUID = 6428348081105594320L;
 
 		@Override
@@ -184,7 +186,8 @@ public class Collections {
 	/**
 	 * This class is a singleton so that equals() and hashCode() work properly.
 	 */
-	private static final class ReverseComparator<T> implements Comparator<T> {
+	private static final class ReverseComparator<T> implements Comparator<T>,
+			Serializable {
 
 		private static final ReverseComparator<Object> INSTANCE = new ReverseComparator<Object>();
 
@@ -195,10 +198,11 @@ public class Collections {
 			Comparable<T> c2 = (Comparable<T>) o2;
 			return c2.compareTo(o1);
 		}
+
 	}
 
 	private static final class ReverseComparatorWithComparator<T> implements
-			Comparator<T> {
+			Comparator<T>, Serializable {
 		private static final long serialVersionUID = 4374092139857L;
 
 		private final Comparator<T> comparator;
@@ -225,7 +229,8 @@ public class Collections {
 		}
 	}
 
-	private static final class SingletonSet<E> extends AbstractSet<E> {
+	private static final class SingletonSet<E> extends AbstractSet<E> implements
+			Serializable {
 		private static final long serialVersionUID = 3193687207550431679L;
 
 		final E element;
@@ -268,7 +273,8 @@ public class Collections {
 		}
 	}
 
-	private static final class SingletonList<E> extends AbstractList<E> {
+	private static final class SingletonList<E> extends AbstractList<E>
+			implements Serializable {
 		private static final long serialVersionUID = 3093736618740652951L;
 
 		final E element;
@@ -296,7 +302,8 @@ public class Collections {
 		}
 	}
 
-	private static final class SingletonMap<K, V> extends AbstractMap<K, V> {
+	private static final class SingletonMap<K, V> extends AbstractMap<K, V>
+			implements Serializable {
 		private static final long serialVersionUID = -6979724477215052911L;
 
 		final K k;
@@ -381,7 +388,8 @@ public class Collections {
 		}
 	}
 
-	static class SynchronizedCollection<E> implements Collection<E> {
+	static class SynchronizedCollection<E> implements Collection<E>,
+			Serializable {
 		private static final long serialVersionUID = 3053995032091335093L;
 
 		final Collection<E> c;
@@ -482,6 +490,7 @@ public class Collections {
 				return c.toArray(array);
 			}
 		}
+
 	}
 
 	static class SynchronizedRandomAccessList<E> extends SynchronizedList<E>
@@ -668,7 +677,7 @@ public class Collections {
 		}
 	}
 
-	static class SynchronizedMap<K, V> implements Map<K, V> {
+	static class SynchronizedMap<K, V> implements Map<K, V>, Serializable {
 		private static final long serialVersionUID = 1978198479659022715L;
 
 		private final Map<K, V> m;
@@ -917,9 +926,11 @@ public class Collections {
 				return new SynchronizedSortedSet<E>(ss.tailSet(start), mutex);
 			}
 		}
+
 	}
 
-	private static class UnmodifiableCollection<E> implements Collection<E> {
+	private static class UnmodifiableCollection<E> implements Collection<E>,
+			Serializable {
 		private static final long serialVersionUID = 1820017752578914078L;
 
 		final Collection<E> c;
@@ -1151,7 +1162,8 @@ public class Collections {
 		}
 	}
 
-	private static class UnmodifiableMap<K, V> implements Map<K, V> {
+	private static class UnmodifiableMap<K, V> implements Map<K, V>,
+			Serializable {
 		private static final long serialVersionUID = -1034234728574286014L;
 
 		private final Map<K, V> m;
@@ -1236,12 +1248,8 @@ public class Collections {
 				int size = c.size(), index = 0;
 				Iterator<Map.Entry<K, V>> it = iterator();
 				if (size > contents.length) {
-					try {
-						contents = (T[]) FiScEVM.newArray(contents.getClass(),
-								size);
-					} catch (Exception e) {
-						throw new Error(e);
-					}
+					Class<?> ct = contents.getClass().getComponentType();
+					contents = (T[]) Array.newInstance(ct, size);
 				}
 				while (index < size) {
 					contents[index++] = (T) it.next();
@@ -1549,7 +1557,8 @@ public class Collections {
 			List<? extends T> source) {
 		if (destination.size() < source.size()) {
 			// luni.38=Source size {0} does not fit into destination
-			throw new ArrayIndexOutOfBoundsException("source:" + source.size()); //$NON-NLS-1$
+			throw new ArrayIndexOutOfBoundsException(
+					"Source size " + source.size() + " does not fit into destination " + destination.size()); //$NON-NLS-1$
 		}
 		Iterator<? extends T> srcIt = source.iterator();
 		ListIterator<? super T> destIt = destination.listIterator();
@@ -1559,7 +1568,7 @@ public class Collections {
 			} catch (NoSuchElementException e) {
 				// luni.38=Source size {0} does not fit into destination
 				throw new ArrayIndexOutOfBoundsException(
-						"source:" + source.size()); //$NON-NLS-1$
+						"Source size " + source.size() + " does not fit into destination " + destination.size()); //$NON-NLS-1$
 			}
 			destIt.set(srcIt.next());
 		}
@@ -2643,16 +2652,240 @@ public class Collections {
 		if (obj != null && !type.isInstance(obj)) {
 			// luni.05=Attempt to insert {0} element into collection with
 			// element type {1}
-			throw new ClassCastException(
-					"Attempt to insert " + obj.getClass() + " element into collection with element type " + type); //$NON-NLS-1$
+			throw new ClassCastException("Attempt to insert " + obj.getClass()
+					+ " element into collection with " + "element type " + type); //$NON-NLS-1$
 		}
 		return obj;
 	}
 
 	/**
+	 * Answers a set backed by a map. And the map must be empty when this method
+	 * is called.
+	 * 
+	 * @param <E>
+	 *            type of elements in set
+	 * @param map
+	 *            the backing map
+	 * @return the set from the map
+	 * @throws IllegalArgumentException
+	 *             if the map is not empty
+	 * @since 1.6
+	 */
+	public static <E> Set<E> newSetFromMap(Map<E, Boolean> map) {
+		if (map.isEmpty()) {
+			return new SetFromMap<E>(map);
+		}
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * Answers a LIFO Queue as a view of a Deque. Methods in the returned Queue
+	 * need to be re-written to implement the LIFO feature.
+	 * 
+	 * @param <T>
+	 *            type of elements
+	 * @param deque
+	 *            the Deque
+	 * @return the LIFO Queue
+	 * @since 1.6
+	 */
+	public static <T> Queue<T> asLifoQueue(Deque<T> deque) {
+		return new AsLIFOQueue<T>(deque);
+	}
+
+	private static class SetFromMap<E> extends AbstractSet<E> implements
+			Serializable {
+		private static final long serialVersionUID = 2454657854757543876L;
+
+		// must named as it, to pass serialization compatibility test.
+		private Map<E, Boolean> m;
+
+		private transient Set<E> backingSet;
+
+		SetFromMap(final Map<E, Boolean> map) {
+			super();
+			m = map;
+			backingSet = map.keySet();
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			return backingSet.equals(object);
+		}
+
+		@Override
+		public int hashCode() {
+			return backingSet.hashCode();
+		}
+
+		@Override
+		public boolean add(E object) {
+			return m.put(object, Boolean.TRUE) == null;
+		}
+
+		@Override
+		public void clear() {
+			m.clear();
+		}
+
+		@Override
+		public String toString() {
+			return backingSet.toString();
+		}
+
+		@Override
+		public boolean contains(Object object) {
+			return backingSet.contains(object);
+		}
+
+		@Override
+		public boolean containsAll(Collection<?> collection) {
+			return backingSet.containsAll(collection);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return m.isEmpty();
+		}
+
+		@Override
+		public boolean remove(Object object) {
+			return m.remove(object) != null;
+		}
+
+		@Override
+		public boolean retainAll(Collection<?> collection) {
+			return backingSet.retainAll(collection);
+		}
+
+		@Override
+		public Object[] toArray() {
+			return backingSet.toArray();
+		}
+
+		@Override
+		public <T> T[] toArray(T[] contents) {
+			return backingSet.toArray(contents);
+		}
+
+		@Override
+		public Iterator<E> iterator() {
+			return backingSet.iterator();
+		}
+
+		@Override
+		public int size() {
+			return m.size();
+		}
+
+	}
+
+	private static class AsLIFOQueue<E> extends AbstractQueue<E> implements
+			Serializable {
+		private static final long serialVersionUID = 1802017725587941708L;
+
+		// must named as it, to pass serialization compatibility test.
+		private final Deque<E> q;
+
+		AsLIFOQueue(final Deque<E> deque) {
+			super();
+			this.q = deque;
+		}
+
+		@Override
+		public Iterator<E> iterator() {
+			return q.iterator();
+		}
+
+		@Override
+		public int size() {
+			return q.size();
+		}
+
+		public boolean offer(E o) {
+			return q.offerFirst(o);
+		}
+
+		public E peek() {
+			return q.peekFirst();
+		}
+
+		public E poll() {
+			return q.pollFirst();
+		}
+
+		@Override
+		public boolean add(E o) {
+			q.push(o);
+			return true;
+		}
+
+		@Override
+		public void clear() {
+			q.clear();
+		}
+
+		@Override
+		public E element() {
+			return q.getFirst();
+		}
+
+		@Override
+		public E remove() {
+			return q.pop();
+		}
+
+		@Override
+		public boolean contains(Object object) {
+			return q.contains(object);
+		}
+
+		@Override
+		public boolean containsAll(Collection<?> collection) {
+			return q.containsAll(collection);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return q.isEmpty();
+		}
+
+		@Override
+		public boolean remove(Object object) {
+			return q.remove(object);
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> collection) {
+			return q.removeAll(collection);
+		}
+
+		@Override
+		public boolean retainAll(Collection<?> collection) {
+			return q.retainAll(collection);
+		}
+
+		@Override
+		public Object[] toArray() {
+			return q.toArray();
+		}
+
+		@Override
+		public <T> T[] toArray(T[] contents) {
+			return q.toArray(contents);
+		}
+
+		@Override
+		public String toString() {
+			return q.toString();
+		}
+	}
+
+	/**
 	 * Class represents a dynamically typesafe view of the specified collection.
 	 */
-	private static class CheckedCollection<E> implements Collection<E> {
+	private static class CheckedCollection<E> implements Collection<E>,
+			Serializable {
 
 		private static final long serialVersionUID = 1578914078182001775L;
 
@@ -3046,7 +3279,7 @@ public class Collections {
 	/**
 	 * Class represents a dynamically typesafe view of the specified map.
 	 */
-	private static class CheckedMap<K, V> implements Map<K, V> {
+	private static class CheckedMap<K, V> implements Map<K, V>, Serializable {
 
 		private static final long serialVersionUID = 5742860141034234728L;
 
@@ -3313,12 +3546,8 @@ public class Collections {
 			public <T> T[] toArray(T[] array) {
 				int thisSize = size();
 				if (array.length < thisSize) {
-					try {
-						array = (T[]) FiScEVM.newArray(array.getClass(),
-								thisSize);
-					} catch (Exception e) {
-						throw new Error(e);
-					}
+					Class<?> ct = array.getClass().getComponentType();
+					array = (T[]) Array.newInstance(ct, thisSize);
 				}
 				Iterator<?> it = iterator();
 				for (int i = 0; i < thisSize; i++) {

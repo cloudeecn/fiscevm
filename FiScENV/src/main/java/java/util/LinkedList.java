@@ -17,19 +17,18 @@
 
 package java.util;
 
-import java.io.IOException;
-
-import com.cirnoworks.fisce.privat.FiScEVM;
+import java.io.Serializable;
+import java.lang.reflect.Array;
 
 /**
  * LinkedList is an implementation of List, backed by a linked list. All
- * optional operations (adding, removing and replacing) are supported. The
+ * optional operations are supported, adding, removing and replacing. The
  * elements can be any objects.
  * 
  * @since 1.2
  */
 public class LinkedList<E> extends AbstractSequentialList<E> implements
-		List<E>, Queue<E>, Cloneable {
+		List<E>, Deque<E>, Cloneable, Serializable {
 
 	private static final long serialVersionUID = 876323262645176354L;
 
@@ -152,12 +151,11 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 					expectedModCount++;
 					list.size--;
 					list.modCount++;
-				} else {
-					throw new IllegalStateException();
+					return;
 				}
-			} else {
-				throw new ConcurrentModificationException();
+				throw new IllegalStateException();
 			}
+			throw new ConcurrentModificationException();
 		}
 
 		public void set(ET object) {
@@ -170,6 +168,64 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 			} else {
 				throw new ConcurrentModificationException();
 			}
+		}
+	}
+
+	/*
+	 * NOTES:descendingIterator is not fail-fast, according to the documentation
+	 * and test case.
+	 */
+	private class ReverseLinkIterator<ET> implements Iterator<ET> {
+		private int expectedModCount;
+
+		private final LinkedList<ET> list;
+
+		private Link<ET> link;
+
+		private boolean canRemove;
+
+		ReverseLinkIterator(LinkedList<ET> linkedList) {
+			super();
+			list = linkedList;
+			expectedModCount = list.modCount;
+			link = list.voidLink;
+			canRemove = false;
+		}
+
+		public boolean hasNext() {
+			return link.previous != list.voidLink;
+		}
+
+		public ET next() {
+			if (expectedModCount == list.modCount) {
+				if (hasNext()) {
+					link = link.previous;
+					canRemove = true;
+					return link.data;
+				}
+				throw new NoSuchElementException();
+			}
+			throw new ConcurrentModificationException();
+
+		}
+
+		public void remove() {
+			if (expectedModCount == list.modCount) {
+				if (canRemove) {
+					Link<ET> next = link.previous;
+					Link<ET> previous = link.next;
+					next.next = previous;
+					previous.previous = next;
+					link = previous;
+					list.size--;
+					list.modCount++;
+					expectedModCount++;
+					canRemove = false;
+					return;
+				}
+				throw new IllegalStateException();
+			}
+			throw new ConcurrentModificationException();
 		}
 	}
 
@@ -242,7 +298,10 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	 */
 	@Override
 	public boolean add(E object) {
-		// Cannot call addLast() as subclasses can override
+		return addLastImpl(object);
+	}
+
+	private boolean addLastImpl(E object) {
 		Link<E> oldLast = voidLink.previous;
 		Link<E> newLink = new Link<E>(object, oldLast, voidLink);
 		voidLink.previous = newLink;
@@ -342,12 +401,17 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	 *            the object to add.
 	 */
 	public void addFirst(E object) {
+		addFirstImpl(object);
+	}
+
+	private boolean addFirstImpl(E object) {
 		Link<E> oldFirst = voidLink.next;
 		Link<E> newLink = new Link<E>(object, voidLink, oldFirst);
 		voidLink.next = newLink;
 		oldFirst.previous = newLink;
 		size++;
 		modCount++;
+		return true;
 	}
 
 	/**
@@ -357,12 +421,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	 *            the object to add.
 	 */
 	public void addLast(E object) {
-		Link<E> oldLast = voidLink.previous;
-		Link<E> newLink = new Link<E>(object, oldLast, voidLink);
-		voidLink.previous = newLink;
-		oldLast.next = newLink;
-		size++;
-		modCount++;
+		addLastImpl(object);
 	}
 
 	/**
@@ -459,6 +518,10 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	 *             if this {@code LinkedList} is empty.
 	 */
 	public E getFirst() {
+		return getFirstImpl();
+	}
+
+	private E getFirstImpl() {
 		Link<E> first = voidLink.next;
 		if (first != voidLink) {
 			return first.data;
@@ -591,26 +654,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 
 	@Override
 	public boolean remove(Object object) {
-		Link<E> link = voidLink.next;
-		if (object != null) {
-			while (link != voidLink && !object.equals(link.data)) {
-				link = link.next;
-			}
-		} else {
-			while (link != voidLink && link.data != null) {
-				link = link.next;
-			}
-		}
-		if (link == voidLink) {
-			return false;
-		}
-		Link<E> next = link.next;
-		Link<E> previous = link.previous;
-		previous.next = next;
-		next.previous = previous;
-		size--;
-		modCount++;
-		return true;
+		return removeFirstOccurrenceImpl(object);
 	}
 
 	/**
@@ -621,6 +665,10 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	 *             if this {@code LinkedList} is empty.
 	 */
 	public E removeFirst() {
+		return removeFirstImpl();
+	}
+
+	private E removeFirstImpl() {
 		Link<E> first = voidLink.next;
 		if (first != voidLink) {
 			Link<E> next = first.next;
@@ -641,6 +689,10 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	 *             if this {@code LinkedList} is empty.
 	 */
 	public E removeLast() {
+		return removeLastImpl();
+	}
+
+	private E removeLastImpl() {
 		Link<E> last = voidLink.previous;
 		if (last != voidLink) {
 			Link<E> previous = last.previous;
@@ -651,6 +703,134 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 			return last.data;
 		}
 		throw new NoSuchElementException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#descendingIterator()
+	 * @since 1.6
+	 */
+	public Iterator<E> descendingIterator() {
+		return new ReverseLinkIterator<E>(this);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#offerFirst(java.lang.Object)
+	 * @since 1.6
+	 */
+	public boolean offerFirst(E e) {
+		return addFirstImpl(e);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#offerLast(java.lang.Object)
+	 * @since 1.6
+	 */
+	public boolean offerLast(E e) {
+		return addLastImpl(e);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#peekFirst()
+	 * @since 1.6
+	 */
+	public E peekFirst() {
+		return peekFirstImpl();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#peekLast()
+	 * @since 1.6
+	 */
+	public E peekLast() {
+		Link<E> last = voidLink.previous;
+		return (last == voidLink) ? null : last.data;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#pollFirst()
+	 * @since 1.6
+	 */
+	public E pollFirst() {
+		return (size == 0) ? null : removeFirstImpl();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#pollLast()
+	 * @since 1.6
+	 */
+	public E pollLast() {
+		return (size == 0) ? null : removeLastImpl();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#pop()
+	 * @since 1.6
+	 */
+	public E pop() {
+		return removeFirstImpl();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#push(java.lang.Object)
+	 * @since 1.6
+	 */
+	public void push(E e) {
+		addFirstImpl(e);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#removeFirstOccurrence(java.lang.Object)
+	 * @since 1.6
+	 */
+	public boolean removeFirstOccurrence(Object o) {
+		return removeFirstOccurrenceImpl(o);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see java.util.Deque#removeLastOccurrence(java.lang.Object)
+	 * @since 1.6
+	 */
+	public boolean removeLastOccurrence(Object o) {
+		Iterator<E> iter = new ReverseLinkIterator<E>(this);
+		return removeOneOccurrence(o, iter);
+	}
+
+	private boolean removeFirstOccurrenceImpl(Object o) {
+		Iterator<E> iter = new LinkIterator<E>(this, 0);
+		return removeOneOccurrence(o, iter);
+	}
+
+	private boolean removeOneOccurrence(Object o, Iterator<E> iter) {
+		while (iter.hasNext()) {
+			E element = iter.next();
+			if (o == null ? element == null : o.equals(element)) {
+				iter.remove();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -700,8 +880,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	}
 
 	public boolean offer(E o) {
-		add(o);
-		return true;
+		return addLastImpl(o);
 	}
 
 	public E poll() {
@@ -709,16 +888,20 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	}
 
 	public E remove() {
-		return removeFirst();
+		return removeFirstImpl();
 	}
 
 	public E peek() {
+		return peekFirstImpl();
+	}
+
+	private E peekFirstImpl() {
 		Link<E> first = voidLink.next;
 		return first == voidLink ? null : first.data;
 	}
 
 	public E element() {
-		return getFirst();
+		return getFirstImpl();
 	}
 
 	/**
@@ -759,11 +942,8 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 	public <T> T[] toArray(T[] contents) {
 		int index = 0;
 		if (size > contents.length) {
-			try {
-				contents = (T[]) FiScEVM.newArray(contents.getClass(), size);
-			} catch (Exception e) {
-				throw new Error(e);
-			}
+			Class<?> ct = contents.getClass().getComponentType();
+			contents = (T[]) Array.newInstance(ct, size);
 		}
 		Link<E> link = voidLink.next;
 		while (link != voidLink) {

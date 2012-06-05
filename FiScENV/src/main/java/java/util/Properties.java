@@ -37,17 +37,6 @@ import java.io.Writer;
  */
 public class Properties extends Hashtable<Object, Object> {
 
-	private static final long serialVersionUID = 4112578634029874840L;
-
-	private static final String PROP_DTD_NAME = "http://java.sun.com/dtd/properties.dtd";
-
-	private static final String PROP_DTD = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-			+ "    <!ELEMENT properties (comment?, entry*) >"
-			+ "    <!ATTLIST properties version CDATA #FIXED \"1.0\" >"
-			+ "    <!ELEMENT comment (#PCDATA) >"
-			+ "    <!ELEMENT entry (#PCDATA) >"
-			+ "    <!ATTLIST entry key CDATA #REQUIRED >";
-
 	/**
 	 * The default values for keys not found in this {@code Properties}
 	 * instance.

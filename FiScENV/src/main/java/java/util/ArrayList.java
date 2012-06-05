@@ -17,7 +17,9 @@
 
 package java.util;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.Array;
 
 /**
  * ArrayList is an implementation of {@link List}, backed by an array. All
@@ -27,7 +29,7 @@ import com.cirnoworks.fisce.privat.FiScEVM;
  * @since 1.2
  */
 public class ArrayList<E> extends AbstractList<E> implements List<E>,
-		Cloneable, RandomAccess {
+		Cloneable, Serializable, RandomAccess {
 
 	private static final long serialVersionUID = 8683452581122892189L;
 
@@ -101,7 +103,9 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>,
 	@Override
 	public void add(int location, E object) {
 		if (location < 0 || location > size) {
-			throw new IndexOutOfBoundsException(location + "/" + size);
+			throw new IndexOutOfBoundsException(
+			// luni.0A=Index: {0}, Size: {1}
+					"Index: " + location + " size: " + size);
 		}
 		if (location == 0) {
 			if (firstIndex == 0) {
@@ -167,7 +171,9 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>,
 	@Override
 	public boolean addAll(int location, Collection<? extends E> collection) {
 		if (location < 0 || location > size) {
-			throw new IndexOutOfBoundsException(location + "/" + size);
+			throw new IndexOutOfBoundsException(
+			// luni.0A=Index: {0}, Size: {1}
+					"Index: " + location + " size: " + size);
 		}
 
 		Object[] dumparray = collection.toArray();
@@ -325,7 +331,9 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>,
 	@Override
 	public E get(int location) {
 		if (location < 0 || location >= size) {
-			throw new IndexOutOfBoundsException(location + "/" + size);
+			throw new IndexOutOfBoundsException(
+			// luni.0A=Index: {0}, Size: {1}
+					"Index: " + location + " size: " + size);
 		}
 		return array[firstIndex + location];
 	}
@@ -472,7 +480,9 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>,
 	public E remove(int location) {
 		E result;
 		if (location < 0 || location >= size) {
-			throw new IndexOutOfBoundsException(location + "/" + size);
+			throw new IndexOutOfBoundsException(
+			// luni.0A=Index: {0}, Size: {1}
+					"Index: " + location + " size: " + size);
 		}
 		if (location == 0) {
 			result = array[firstIndex];
@@ -532,12 +542,18 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>,
 		// REVIEW: does RI call this from remove(location)
 		if (start < 0) {
 			// REVIEW: message should indicate which index is out of range
-			throw new IndexOutOfBoundsException(start + "-" + end + "/" + size);
+			throw new IndexOutOfBoundsException(
+			// luni.0B=Array index out of range: {0}
+					"" + start);
 		} else if (end > size) {
 			// REVIEW: message should indicate which index is out of range
-			throw new IndexOutOfBoundsException(start + "-" + end + "/" + size);
+			throw new IndexOutOfBoundsException(
+			// luni.0A=Index: {0}, Size: {1}
+					"Index: " + end + " size: " + size);
 		} else if (start > end) {
-			throw new IndexOutOfBoundsException(start + "-" + end + "/" + size);
+			throw new IndexOutOfBoundsException(
+			// luni.35=Start index ({0}) is greater than end index ({1})
+					start + "/" + end);
 		}
 
 		if (start == end) {
@@ -575,7 +591,9 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>,
 	@Override
 	public E set(int location, E object) {
 		if (location < 0 || location >= size) {
-			throw new IndexOutOfBoundsException(location + "/" + size);
+			throw new IndexOutOfBoundsException(
+			// luni.0A=Index: {0}, Size: {1}
+					"Index: " + location + " size: " + size);
 		}
 		E result = array[firstIndex + location];
 		array[firstIndex + location] = object;
@@ -624,11 +642,8 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>,
 	@SuppressWarnings("unchecked")
 	public <T> T[] toArray(T[] contents) {
 		if (size > contents.length) {
-			try {
-				contents = (T[]) FiScEVM.newArray(contents.getClass(), size);
-			} catch (Exception e) {
-				throw new Error(e);
-			}
+			Class<?> ct = contents.getClass().getComponentType();
+			contents = (T[]) Array.newInstance(ct, size);
 		}
 		System.arraycopy(array, firstIndex, contents, 0, size);
 		if (size < contents.length) {

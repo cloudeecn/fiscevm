@@ -16,15 +16,14 @@
 
 package java.util;
 
-import java.io.IOException;
-
-import com.cirnoworks.fisce.privat.FiScEVM;
+import java.io.Serializable;
+import java.lang.reflect.Array;
 
 /**
  * An {@code Map} specialized for use with {@code Enum} types as keys.
  */
 public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
-		Cloneable {
+		Serializable, Cloneable {
 
 	private static final long serialVersionUID = 458661240069192865L;
 
@@ -363,12 +362,8 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
 			int index = 0;
 			Object[] entryArray = array;
 			if (size > array.length) {
-				try {
-					entryArray = (Object[]) FiScEVM.newArray(array.getClass(),
-							size);
-				} catch (Exception e) {
-					throw new Error(e);
-				}
+				Class<?> clazz = array.getClass().getComponentType();
+				entryArray = (Object[]) Array.newInstance(clazz, size);
 			}
 			Iterator<Map.Entry<KT, VT>> iter = iterator();
 			for (; index < size; index++) {
@@ -435,7 +430,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
 			Iterator<K> iter = map.keySet().iterator();
 			K enumKey = iter.next();
 			Class clazz = enumKey.getClass();
-			if (clazz.getSuperclass() == Enum.class) {
+			if (clazz.isEnum()) {
 				initialization(clazz);
 			} else {
 				initialization(clazz.getSuperclass());
