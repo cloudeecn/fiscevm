@@ -1078,6 +1078,7 @@ static void compactOld(fy_context *context, fy_exception *exception) {
 #endif
 	}
 	block->posInOld = newPos;
+	block->oldReleasedSize = 0;
 }
 
 static void moveToOld(fy_context *context, fy_class *clazz, fy_uint handle,
@@ -1291,14 +1292,9 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 		}
 	}
 	t7 = fy_portTimeMillSec(context->port);
-#ifndef FY_GC_FORCE_FULL
-	if ((block->posInOld - block->oldReleasedSize) * 4 < block->posInOld) {
-#endif
-		context->logDVarLn(context, "Compacting old area...");
-		compactOld(context, exception);
-		FYEH();
-#ifndef FY_GC_FORCE_FULL
-	}
+#ifdef FY_GC_FORCE_FULL
+	compactOld(context, exception);
+	FYEH();
 #endif
 #ifdef FY_DEBUG
 	context->logDVar(context,
@@ -1323,8 +1319,8 @@ void fy_heapGC(void *ctx, fy_exception *exception) {
 			(OLD_ENTRIES - context->memblocks->oldTop) * (fy_int)sizeof(fy_uint),
 			(fy_int)sizeof(fy_context), fy_portTimeMillSec(context->port) - timeStamp);
 	context->logDVar(context, "%d %d %d %d %d %d %d %d\n", t1 - timeStamp,
-				t2 - t1, t3 - t2, t4 - t3, t5 - t4, t6 - t5, t7 - t6,
-				fy_portTimeMillSec(context->port) - t7);
+			t2 - t1, t3 - t2, t4 - t3, t5 - t4, t6 - t5, t7 - t6,
+			fy_portTimeMillSec(context->port) - t7);
 #endif
 	fy_free(marks);
 }
