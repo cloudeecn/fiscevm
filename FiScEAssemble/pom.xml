@@ -50,12 +50,13 @@
 			<scope>test</scope>
 		</dependency>
 
+<!-- 
 		<dependency>
 			<groupId>com.cirnoworks.FiScE</groupId>
 			<artifactId>FiScENVTK</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
+ -->
 		<dependency>
 			<groupId>com.cirnoworks.FiScE</groupId>
 			<artifactId>FiScENVDist</artifactId>
