@@ -47,6 +47,7 @@ import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IClass;
 import com.cirnoworks.fisce.intf.idata.IClassBase;
+import com.cirnoworks.fisce.intf.idata.Message;
 import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -706,6 +707,78 @@ public class VMContext implements FiScEVM {
 	public String getString(int nameHandle) throws VMException,
 			VMCriticalException {
 		return heap.getString(nameHandle);
+	}
+
+	@Override
+	public Message execute(int[] params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public INativeHandler getHandler(String nativeUniqueName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IThread getThreadById(int threadId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void logD(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void logD(String msg, Throwable t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void logI(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void logI(String msg, Throwable t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void logW(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void logW(String msg, Throwable t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void logE(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void logE(String msg, Throwable t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unregisterNativeHandler(String string) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

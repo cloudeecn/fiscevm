@@ -27,6 +27,7 @@ import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IClass;
 import com.cirnoworks.fisce.intf.idata.IClassBase;
 import com.cirnoworks.fisce.intf.idata.IField;
+import com.cirnoworks.fisce.intf.idata.Message;
 
 public class FYContext implements Runnable, FiScEVM {
 
@@ -367,4 +368,50 @@ public class FYContext implements Runnable, FiScEVM {
 		int classId = FisceService.getIdFromHandle(context, handle);
 		return getClass(classId);
 	}
+
+	@Override
+	public void logD(String msg) {
+		FisceService.logD(msg);
+	}
+
+	@Override
+	public void logD(String msg, Throwable t) {
+		FisceService.logD(msg, t);
+	}
+
+	@Override
+	public void logI(String msg) {
+		FisceService.logI(msg);
+	}
+
+	@Override
+	public void logI(String msg, Throwable t) {
+		FisceService.logI(msg, t);
+	}
+
+	@Override
+	public void logW(String msg) {
+		FisceService.logW(msg);
+	}
+
+	@Override
+	public void logW(String msg, Throwable t) {
+		FisceService.logW(msg, t);
+	}
+
+	@Override
+	public void logE(String msg) {
+		FisceService.logE(msg);
+	}
+
+	@Override
+	public void logE(String msg, Throwable t) {
+		FisceService.logE(msg, t);
+	}
+
+	@Override
+	public void unregisterNativeHandler(String string) {
+		FisceService.unregisterNativeHandler(context, string);
+	}
+
 }

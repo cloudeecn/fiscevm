@@ -8,6 +8,7 @@ import java.util.Map;
 import com.cirnoworks.fisce.intf.IDebugConsole;
 import com.cirnoworks.fisce.intf.IToolkit;
 import com.cirnoworks.fisce.intf.SystemDebugConsole;
+import com.cirnoworks.fisce.intf.idata.Message;
 
 public final class FisceService {
 	private static Map<ByteBuffer, FYContext> contextMap = new IdentityHashMap<ByteBuffer, FYContext>();

@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
 import com.cirnoworks.fisce.intf.idata.IClass;
 import com.cirnoworks.fisce.intf.idata.IClassBase;
 import com.cirnoworks.fisce.intf.idata.IField;
+import com.cirnoworks.fisce.intf.idata.Message;
 
 /**
  * 虚拟机的对外接口，里面是供外界使用的虚拟机的方法。<br />
@@ -179,9 +180,10 @@ public interface FiScEVM {
 	 * @throws VMException
 	 */
 	IClass getClass(int i) throws VMException;
-	
+
 	/**
 	 * Get class by handle of Class object.
+	 * 
 	 * @param handle
 	 * @return
 	 * @throws VMException
@@ -194,4 +196,29 @@ public interface FiScEVM {
 	 */
 	Collection<IToolkit> getToolkits();
 
+	Message execute(int[] params);
+
+	INativeHandler getHandler(String nativeUniqueName);
+
+	IThread getThreadById(int threadId);
+
+	void onException(Throwable e);
+
+	void logD(String msg);
+
+	void logD(String msg, Throwable t);
+
+	void logI(String msg);
+
+	void logI(String msg, Throwable t);
+
+	void logW(String msg);
+
+	void logW(String msg, Throwable t);
+
+	void logE(String msg);
+
+	void logE(String msg, Throwable t);
+
+	void unregisterNativeHandler(String string);
 }

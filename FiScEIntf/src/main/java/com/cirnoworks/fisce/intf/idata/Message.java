@@ -1,4 +1,4 @@
-package com.cirnoworks.libfisce.shell;
+package com.cirnoworks.fisce.intf.idata;
 
 public class Message {
 	public static final int message_invoke_native = 3;// Thread And TM pass
