@@ -4,11 +4,11 @@ import com.cirnoworks.fisce.intf.IThreadManager;
 
 public class FYThreadManager implements IThreadManager {
 
-	private FYContext context;
+//	private FYContext context;
 
 	public FYThreadManager(FYContext context) {
 		super();
-		this.context = context;
+//		this.context = context;
 	}
 
 

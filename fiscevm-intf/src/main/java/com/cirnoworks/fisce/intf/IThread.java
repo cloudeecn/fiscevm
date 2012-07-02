@@ -16,11 +16,6 @@
  */
 package com.cirnoworks.fisce.intf;
 
-import java.util.BitSet;
-import java.util.List;
-
-import com.cirnoworks.fisce.intf.idata.IMethod;
-
 /**
  * 
  * @author yuxuanhuang

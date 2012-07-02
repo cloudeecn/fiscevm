@@ -21,6 +21,11 @@ package com.cirnoworks.fisce.intf;
  */
 public class VMCriticalException extends RuntimeException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8665554174277992568L;
+
 	public VMCriticalException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
 	}

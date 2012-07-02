@@ -22,7 +22,6 @@ import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IField;
-import com.cirnoworks.fisce.vm.data.ClassArray;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.StackTraceElement;
 
@@ -37,8 +36,8 @@ public class FiScEVMThrowOut extends NativeHandlerTemplate {
 		assert backtrace != null;
 		ClassBase clazz = (ClassBase) context
 				.getClass("java/lang/StackTraceElement");
-		ClassArray array = (ClassArray) context
-				.getClass("[Ljava/lang/StackTraceElement;");
+//		ClassArray array = (ClassArray) context
+//				.getClass("[Ljava/lang/StackTraceElement;");
 		IField declaringClass = context
 				.getField("java/lang/StackTraceElement.declaringClass.Ljava/lang/String;");
 		assert declaringClass != null : clazz;

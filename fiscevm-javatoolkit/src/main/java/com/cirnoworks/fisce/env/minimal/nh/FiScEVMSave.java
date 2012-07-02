@@ -21,7 +21,6 @@ import com.cirnoworks.fisce.intf.IThread;
 import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
-import com.cirnoworks.fisce.vm.VMContext;
 
 /**
  * @author cloudee

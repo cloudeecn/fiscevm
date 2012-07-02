@@ -52,7 +52,7 @@ public final class DOMHelper {
 	}
 
 	public static String getTextContent(Element element) {
-		Document document = element.getOwnerDocument();
+//		Document document = element.getOwnerDocument();
 		NodeList children = element.getChildNodes();
 		for (int i = 0, max = children.getLength(); i < max; i++) {
 			Node node = children.item(i);

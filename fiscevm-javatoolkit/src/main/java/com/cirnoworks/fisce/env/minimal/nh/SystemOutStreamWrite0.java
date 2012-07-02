@@ -25,10 +25,10 @@ public class SystemOutStreamWrite0 extends NativeHandlerTemplate{
 
 	public void dealNative(int[] args, IThread thread)
 			throws VMException, VMCriticalException {
-		int thisHandle = args[0];
+//		int thisHandle = args[0];
 		int value = args[1];
-		int channelHandle = args[2];
-		String channel = context.getHeap().getString(channelHandle);
+//		int channelHandle = args[2];
+//		String channel = context.getHeap().getString(channelHandle);
 		System.out.write(value);
 	}
 

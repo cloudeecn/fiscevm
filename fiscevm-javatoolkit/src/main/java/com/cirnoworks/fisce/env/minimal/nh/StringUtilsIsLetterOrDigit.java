@@ -16,7 +16,6 @@
  */
 package com.cirnoworks.fisce.env.minimal.nh;
 
-import com.cirnoworks.fisce.intf.IHeap;
 import com.cirnoworks.fisce.intf.IThread;
 import com.cirnoworks.fisce.intf.NativeHandlerTemplate;
 import com.cirnoworks.fisce.intf.VMCriticalException;
@@ -28,7 +27,7 @@ import com.cirnoworks.fisce.intf.VMException;
  */
 public class StringUtilsIsLetterOrDigit extends NativeHandlerTemplate {
 
-	private IHeap heap;
+//	private IHeap heap;
 
 	/*
 	 * (non-Javadoc)
@@ -38,7 +37,7 @@ public class StringUtilsIsLetterOrDigit extends NativeHandlerTemplate {
 	 */
 	@Override
 	public void doInit() throws VMException, VMCriticalException {
-		heap = context.getHeap();
+//		heap = context.getHeap();
 	}
 
 	public void dealNative(int[] args, IThread thread) throws VMException,

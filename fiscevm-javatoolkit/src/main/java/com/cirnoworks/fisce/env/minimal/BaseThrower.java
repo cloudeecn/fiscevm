@@ -31,11 +31,11 @@ import com.cirnoworks.fisce.vm.data.StackTraceElement;
 
 public class BaseThrower implements JThrower {
 	private VMContext context;
-	private BaseToolkit toolkit;
+//	private BaseToolkit toolkit;
 
 	public BaseThrower(VMContext context, BaseToolkit toolkit) {
 		this.context = context;
-		this.toolkit = toolkit;
+//		this.toolkit = toolkit;
 	}
 
 	public int prepareThrowable(VMException e, IThread thread)

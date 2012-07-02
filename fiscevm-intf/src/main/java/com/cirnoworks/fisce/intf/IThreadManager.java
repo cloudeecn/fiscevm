@@ -17,13 +17,7 @@
 
 package com.cirnoworks.fisce.intf;
 
-import org.w3c.dom.Element;
-
-import com.cirnoworks.fisce.intf.idata.IClassBase;
-
 public interface IThreadManager {
-
-
 
 	// IThread getThread(int threadHandle);
 

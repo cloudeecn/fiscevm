@@ -41,7 +41,7 @@ public final class ClassField implements IAttributesHolder, IField {
 	 * Length of the class. set after the constant table filled.
 	 */
 	private int length;
-	private VMContext context;
+//	private VMContext context;
 	private ClassBase owner;
 	private char accessFlags;
 	private char nameIndex;
@@ -53,7 +53,7 @@ public final class ClassField implements IAttributesHolder, IField {
 	private String uniqueName;
 
 	public ClassField(VMContext context, ClassBase owner) {
-		this.context = context;
+//		this.context = context;
 		this.owner = owner;
 	}
 

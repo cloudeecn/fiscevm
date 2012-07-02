@@ -42,7 +42,7 @@ public final class ClassMethod implements IAttributesHolder, IMethod {
 	public static final byte TYPE_WIDE2 = '_';
 	public static final byte TYPE_UNKNOWN = 0;
 
-	private VMContext context;
+//	private VMContext context;
 	private ClassBase owner;
 	private char accessFlags;
 	private char nameIndex;
@@ -110,7 +110,7 @@ public final class ClassMethod implements IAttributesHolder, IMethod {
 	}
 
 	public ClassMethod(VMContext context, ClassBase owner) {
-		this.context = context;
+//		this.context = context;
 		this.owner = owner;
 	}
 

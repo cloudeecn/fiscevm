@@ -1128,7 +1128,7 @@ public final class DefaultHeap implements JHeap {
 	public void arrayCopy(int srcHandle, int srcOfs, int dstHandle, int dstOfs,
 			int count) throws VMException {
 		AbstractClass srcClass = (AbstractClass) context.getClass(srcHandle);
-		AbstractClass dstClass = (AbstractClass) context.getClass(dstHandle);
+//		AbstractClass dstClass = (AbstractClass) context.getClass(dstHandle);
 		if (srcHandle == 0 || dstHandle == 0) {
 			throw new VMException("java/lang/NullPointerException", "");
 		}

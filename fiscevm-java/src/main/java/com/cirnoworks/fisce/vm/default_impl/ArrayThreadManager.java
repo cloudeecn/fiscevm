@@ -24,11 +24,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.cirnoworks.fisce.intf.FiScEVM;
 import com.cirnoworks.fisce.intf.IThread;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
-import com.cirnoworks.fisce.intf.idata.IClassBase;
 import com.cirnoworks.fisce.util.Base64;
 import com.cirnoworks.fisce.util.DOMHelper;
 import com.cirnoworks.fisce.vm.JHeap;
