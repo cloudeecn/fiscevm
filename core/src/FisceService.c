@@ -304,7 +304,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 	setvbuf(stdout, NULL, _IONBF, 1024);
 	if (messageClass == NULL) {
 		messageClass = (*env)->FindClass(env,
-				"com/cirnoworks/libfisce/shell/Message");
+				"com/cirnoworks/fisce/intf/idata/Message");
 
 		messageTypeField = (*env)->GetFieldID(env, messageClass, "messageType",
 				"I");
