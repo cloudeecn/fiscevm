@@ -24,6 +24,14 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<bootclasspath>${project.home}/lib/dummy.jar</bootclasspath>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
