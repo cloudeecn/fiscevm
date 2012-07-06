@@ -13,10 +13,10 @@
 	<name>FiScE VM Build</name>
 	<url>http://fiscevm.googlecode.com</url>
 	<scm>
-		<connection>scm:svn:http://fiscevm.googlecode.com/svn</connection>
-		<developerConnection>scm:svn:https://fiscevm.googlecode.com/svn</developerConnection>
+		<connection>scm:svn:https://fiscevm.googlecode.com/svn/trunk</connection>
+		<developerConnection>scm:svn:https://fiscevm.googlecode.com/svn/trunk</developerConnection>
 		<tag>HEAD</tag>
-		<url>http://fiscevm.googlecode.com/svn</url>
+		<url>http://fiscevm.googlecode.com/svn/trunk</url>
 	</scm>
 	<distributionManagement>
 		<repository>
@@ -33,7 +33,7 @@
 	<repositories>
 		<repository>
 			<id>cirnoworks</id>
-			<name>Codehaus Snapshots</name>
+			<name>Cirnowork</name>
 			<url>http://repo.cirnoworks.com/nexus/content/groups/public/</url>
 			<layout>default</layout>
 		</repository>
@@ -51,6 +51,14 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<tagBase>https://fiscevm.googlecode.com/svn/tags/releases</tagBase>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
