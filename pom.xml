@@ -10,9 +10,8 @@
 	<name>FiScE VM Build</name>
 	<url>http://fiscevm.googlecode.com</url>
 	<scm>
-		<connection>scm:svn:http://fiscevm.googlecode.com/svn</connection>
-		<developerConnection>scm:svn:https://fiscevm.googlecode.com/svn</developerConnection>
-		<tag>HEAD</tag>
+		<connection>scm:svn:http://fiscevm.googlecode.com/svn/trunk</connection>
+		<developerConnection>scm:svn:https://fiscevm.googlecode.com/svn/trunk</developerConnection>
 		<url>http://fiscevm.googlecode.com/svn</url>
 	</scm>
 	<distributionManagement>
@@ -30,7 +29,7 @@
 	<repositories>
 		<repository>
 			<id>cirnoworks</id>
-			<name>Codehaus Snapshots</name>
+			<name>Cirnoworks</name>
 			<url>http://repo.cirnoworks.com/nexus/content/groups/public/</url>
 			<layout>default</layout>
 		</repository>
