@@ -6,8 +6,6 @@
 	<version>2.0.0-SNAPSHOT</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<fiscevm.version>1.0.0-SNAPSHOT</fiscevm.version>
-		<!-- *Versions: *nighty:Latest-SNAPSHOT *last-release:0.9.1 -->
 	</properties>
 	<name>FiScE VM Build</name>
 	<url>http://fiscevm.googlecode.com</url>
