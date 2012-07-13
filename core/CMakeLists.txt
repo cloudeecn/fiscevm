@@ -1,0 +1,12 @@
+cmake_minimum_required (VERSION 2.6)
+project (fisce)
+ADD_SUBDIRECTORY(src)
+ 
+#SET(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR})
+#SET(CMAKE_INSTALL_PREFIX /usr/local)
+ 
+#INSTALL(PROGRAMS crnode.sh DESTINATION bin)
+ 
+#INSTALL(FILES COPYRIGHT README DESTINATION share/doc/crnode)
+ 
+#INSTALL(DIRECTORY doc/ DESTINATION share/doc/crnode)
