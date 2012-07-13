@@ -35,7 +35,7 @@ SET(SRC_LIST_TEST
 
 ADD_LIBRARY(fisce STATIC ${SRC_LIST_LIB})
 ADD_EXECUTABLE(fisce-test Test.c)
-ADD_LIBRARY(fyjni MODULE FisceService.c)
+ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} FisceService.c)
 
 include_directories(../inc)
 
@@ -57,11 +57,12 @@ set_target_properties(fyjni
 endif()
 
 IF(UNIX)
-  LINK_LIBRARIES(myexe m)
+  TARGET_LINK_LIBRARIES(fisce-test m)
+  TARGET_LINK_LIBRARIES(fyjni m)
 ENDIF(UNIX)
 
 TARGET_LINK_LIBRARIES(fisce-test fisce)
-TARGET_LINK_LIBRARIES(fyjni fisce)
+#TARGET_LINK_LIBRARIES(fyjni fisce)
 
 
 
