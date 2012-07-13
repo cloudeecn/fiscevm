@@ -56,7 +56,9 @@ set_target_properties(fyjni
 )
 endif()
 
-#set(CMAKE_SHARED_LIBRARY_LINKER_FLAGS "-Wl,--kill-at")
+IF(UNIX)
+  LINK_LIBRARIES(myexe m)
+ENDIF(UNIX)
 
 TARGET_LINK_LIBRARIES(fisce-test fisce)
 TARGET_LINK_LIBRARIES(fyjni fisce)
