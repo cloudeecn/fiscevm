@@ -49,8 +49,19 @@ set_target_properties(fyjni
 	COMPILE_DEFINITIONS "FY_EXPORT"
 )
 
+if(WIN32)
+set_target_properties(fyjni
+    PROPERTIES
+	LINK_FLAGS "-Wl,--kill-at"
+)
+endif()
+
+#set(CMAKE_SHARED_LIBRARY_LINKER_FLAGS "-Wl,--kill-at")
+
 TARGET_LINK_LIBRARIES(fisce-test fisce)
 TARGET_LINK_LIBRARIES(fyjni fisce)
+
+
 
 #INSTALL(TARGETS fisce
 #        RUNTIME DESTINATION bin)
