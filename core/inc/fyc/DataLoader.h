@@ -19,7 +19,9 @@
 #define DATALOADER_H_
 
 #include "../fiscestu.h"
-
+#ifdef	__cplusplus
+extern "C" {
+#endif
 void* fy_loadBegin(struct fy_context *context, fy_exception *exception);
 void fy_loadPrepareClass(struct fy_context *context, void *loader_,
 		fy_uint classCount, fy_exception *exception);
@@ -72,5 +74,8 @@ void fy_loadEndThread(struct fy_context *context, void *loader_,
 		fy_exception *exception);
 void fy_loadEnd(struct fy_context *context, void *loader_,
 		fy_exception *exception);
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* DATALOADER_H_ */

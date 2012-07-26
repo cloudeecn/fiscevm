@@ -27,7 +27,9 @@
 #include "ClassLoader.h"
 #include "Heap.h"
 #include "CoreHandlers.h"
-
+#ifdef	__cplusplus
+extern "C" {
+#endif
 void fy_vmContextInit(fy_context *context, fy_exception *exception);
 void fy_vmContextDestroy(fy_context *context);
 
@@ -80,4 +82,7 @@ fy_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
 		fy_exception *exception);
 fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 		fy_exception *exception);
+#ifdef	__cplusplus
+}
+#endif
 #endif /* FY_VMCONTEXT_H_ */

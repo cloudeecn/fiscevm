@@ -19,7 +19,9 @@
 #define FY_THREADMANAGER_H_
 
 #include "VMContext.h"
-
+#ifdef	__cplusplus
+extern "C" {
+#endif
 void fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
 		fy_uint monitorId);
 void fy_tmMonitorExit(fy_context *context, fy_thread *thread, fy_uint monitorId,
@@ -42,5 +44,8 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 		fy_exception *exception);
 void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception);
 
+#ifdef	__cplusplus
+}
+#endif
 #endif /* FY_THREADMANAGER_H_ */
 

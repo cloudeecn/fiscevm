@@ -84,7 +84,7 @@ typedef struct fy_port {
 	LARGE_INTEGER lpPerfCountBegin;
 	double perfIdv;
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
-struct timeval tvBeginTime;
+	struct timeval tvBeginTime;
 #endif
 } fy_port;
 #ifdef _MSC_VER

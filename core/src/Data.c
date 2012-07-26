@@ -18,8 +18,9 @@
 #include "fyc/Data.h"
 
 /*****************public*********************/
-fy_ubyte fy_dataRead(fy_context *context, void *is, fy_exception *exception) {
-	fy_int ret = context->isRead(context, is, exception);
+fy_ubyte fy_dataRead(fy_context *context, fy_inputStream *is,
+		fy_exception *exception) {
+	fy_int ret = is->isRead(context, is, exception);
 	FYEH()0;
 	if (ret < 0) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
@@ -28,12 +29,13 @@ fy_ubyte fy_dataRead(fy_context *context, void *is, fy_exception *exception) {
 	return ret;
 }
 
-fy_char fy_dataRead2(fy_context *context, void *is, fy_exception *exception) {
+fy_char fy_dataRead2(fy_context *context, fy_inputStream *is,
+		fy_exception *exception) {
 	int i;
 	fy_char ret = 0;
 	fy_int value;
 	for (i = 0; i < 2; i++) {
-		value = context->isRead(context, is, exception);
+		value = is->isRead(context, is, exception);
 		FYEH()0;
 		if (value < 0) {
 			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
@@ -44,12 +46,13 @@ fy_char fy_dataRead2(fy_context *context, void *is, fy_exception *exception) {
 	return ret;
 }
 
-fy_uint fy_dataRead4(fy_context *context, void *is, fy_exception *exception) {
+fy_uint fy_dataRead4(fy_context *context, fy_inputStream *is,
+		fy_exception *exception) {
 	int i;
 	fy_uint ret = 0;
 	fy_int value;
 	for (i = 0; i < 4; i++) {
-		value = context->isRead(context, is, exception);
+		value = is->isRead(context, is, exception);
 		FYEH()0;
 		if (value < 0) {
 			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
@@ -60,12 +63,13 @@ fy_uint fy_dataRead4(fy_context *context, void *is, fy_exception *exception) {
 	return ret;
 }
 
-fy_ulong fy_dataRead8(fy_context *context, void *is, fy_exception *exception) {
+fy_ulong fy_dataRead8(fy_context *context, fy_inputStream *is,
+		fy_exception *exception) {
 	int i;
 	fy_ulong ret = 0;
 	fy_int value;
 	for (i = 0; i < 8; i++) {
-		value = context->isRead(context, is, exception);
+		value = is->isRead(context, is, exception);
 		FYEH()0;
 		if (value < 0) {
 			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
@@ -75,12 +79,12 @@ fy_ulong fy_dataRead8(fy_context *context, void *is, fy_exception *exception) {
 	}
 	return ret;
 }
-void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT void* is,
+void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT fy_inputStream* is,
 		FY_ATTR_RESTRICT void* buffer, fy_int size, fy_exception *exception) {
 	fy_int read;
 	fy_int pos = 0;
-	while ((read = context->isReadBlock(context, is, (fy_byte*) buffer + pos,
-			size, exception)) >= 0 && size > 0) {
+	while ((read = is->isReadBlock(context, is, (fy_byte*) buffer + pos, size,
+			exception)) >= 0 && size > 0) {
 		size -= read;
 		pos += read;
 	}
@@ -89,11 +93,10 @@ void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT void* is,
 		return;
 	}
 }
-void fy_dataSkip(fy_context *context, void *is, int size,
+void fy_dataSkip(fy_context *context, fy_inputStream *is, int size,
 		fy_exception *exception) {
 	fy_int read;
-	while ((read = context->isSkip(context, is, size, exception)) >= 0
-			&& size > 0) {
+	while ((read = is->isSkip(context, is, size, exception)) >= 0 && size > 0) {
 		size -= read;
 	}
 	if (size != 0) {

@@ -26,7 +26,9 @@
 #include "../fy_util/Debug.h"
 #include "ThreadManager.h"
 #include "Preverifier.h"
-
+#ifdef	__cplusplus
+extern "C" {
+#endif
 void fy_threadSetCurrentThrowable(fy_context *context, fy_thread *thread,
 		fy_int handle, fy_exception *exception);
 
@@ -76,4 +78,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *mask);
 
 #define fy_threadReturnDouble(C,T,V) fy_threadReturnLong(C,T,fy_doubleToLong(V))
 
+#ifdef	__cplusplus
+}
+#endif
 #endif /* FY_HEAP_H_ */

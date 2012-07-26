@@ -154,7 +154,7 @@ static void StringIntern(struct fy_context *context, struct fy_thread *thread,
 static void doubleLongBitsToDouble(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_message *message, fy_exception *exception) {
-	fy_nativeReturnLong(context, thread, fy_I2TOL(args[0],args[1]));
+	fy_nativeReturnLong(context, thread, fy_I2TOL(args[0],args[1]) );
 }
 static void floatIntBitsToFloat(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
@@ -242,7 +242,7 @@ static void ThreadSetPriority(struct fy_context *context,
 	fy_thread *target;
 	fy_object *obj = context->objects + args[0];
 	target = context->threads[obj->object_data->attachedId];
-	if (target != NULL) {
+	if (target != NULL ) {
 		target->priority = args[1];
 	}
 }
@@ -277,7 +277,7 @@ static void ThreadStart(struct fy_context *context, struct fy_thread *thread,
 static void ThreadSleep(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
-	fy_tmSleep(context, thread, fy_I2TOL(args[0],args[1]));
+	fy_tmSleep(context, thread, fy_I2TOL(args[0],args[1]) );
 }
 
 static void ThreadYield(struct fy_context *context, struct fy_thread *thread,
@@ -333,7 +333,7 @@ static void VMDebugOutJ(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
 	context->logDVar(context, "VMDebugOutI: %"FY_PRINT64"d\n",
-			fy_I2TOL(args[0],args[1]));
+			fy_I2TOL(args[0],args[1]) );
 }
 
 static void VMDebugOutF(struct fy_context *context, struct fy_thread *thread,
@@ -346,7 +346,7 @@ static void VMDebugOutD(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
 	context->logDVar(context, "VMDebugOutI: %f\n",
-			fy_longToDouble(fy_I2TOL(args[0],args[1])));
+			fy_longToDouble(fy_I2TOL(args[0],args[1]) ));
 }
 
 static void VMThrowOut(struct fy_context *context, struct fy_thread *thread,
@@ -767,7 +767,7 @@ static void methodIsBridge(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -780,7 +780,7 @@ static void methodIsVarArgs(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -793,7 +793,7 @@ static void methodIsSynthetic(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -806,7 +806,7 @@ static void methodGetDeclaringClass(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -822,7 +822,7 @@ static void methodExceptionTypes(struct fy_context *context,
 	fy_class *handlerClass, *classClass;
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -850,7 +850,7 @@ static void methodGetModifiers(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -863,7 +863,7 @@ static void methodGetName(struct fy_context *context, struct fy_thread *thread,
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	fy_int ret;
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -879,7 +879,7 @@ static void methodGetParameterTypes(struct fy_context *context,
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
 	fy_class *clazz;
 	fy_int ret, i, max, handle;
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -903,7 +903,7 @@ static void methodGetReturnType(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -925,7 +925,7 @@ static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 	fy_uint paramHandle;
 	FYEH();
 
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1011,7 +1011,7 @@ static void methodGetUniqueName(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *methodObj = fy_heapGetObject(context,args[0]);
 	fy_method *method = context->methods[methodObj->object_data->attachedId];
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1109,7 +1109,7 @@ static void constructorNewInstance(struct fy_context *context,
 	fy_uint paramHandle;
 	FYEH();
 
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1253,7 +1253,7 @@ static void fieldIsSynthetic(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1265,7 +1265,7 @@ static void fieldIsEnumconstant(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1279,7 +1279,7 @@ static void fieldGetObject(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1322,7 +1322,7 @@ static void fieldGetBoolean(struct fy_context *context,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1357,7 +1357,7 @@ static void fieldGetByte(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1392,7 +1392,7 @@ static void fieldGetShort(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1428,7 +1428,7 @@ static void fieldGetChar(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1463,7 +1463,7 @@ static void fieldGetInt(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1498,7 +1498,7 @@ static void fieldGetFloat(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1533,7 +1533,7 @@ static void fieldGetLong(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1568,7 +1568,7 @@ static void fieldGetDouble(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_class *type;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1602,7 +1602,7 @@ static void fieldGetModifiers(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1615,7 +1615,7 @@ static void fieldGetName(struct fy_context *context, struct fy_thread *thread,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_uint ret;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1629,7 +1629,7 @@ static void fieldGetType(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1642,7 +1642,7 @@ static void fieldGetDeclaringClass(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1655,7 +1655,7 @@ static void fieldSetObject(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1675,7 +1675,7 @@ static void fieldSetPrim(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1696,7 +1696,7 @@ static void fieldSetWidePrim(struct fy_context *context,
 		fy_message *message, fy_exception *exception) {
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Field not found!");
 		FYEH();
 	}
@@ -1720,7 +1720,7 @@ static void fieldGetUniqueName(struct fy_context *context,
 	fy_object *fieldObj = fy_heapGetObject(context,args[0]);
 	fy_field *field = context->fields[fieldObj->object_data->attachedId];
 	fy_uint ret;
-	if (field == NULL) {
+	if (field == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH();
 	}
@@ -1929,7 +1929,7 @@ static void classInvokeMethod(struct fy_context *context,
 	method = fy_vmLookupMethodVirtual(context, clazz, &methodName, exception);
 	fy_strDestroy(context->memblocks, &methodName);
 	FYEH();
-	if (method == NULL) {
+	if (method == NULL ) {
 		fy_fault(exception, FY_EXCEPTION_ITE, "Method not found!");
 		return;
 	}
@@ -2195,6 +2195,7 @@ static void registerClasses(fy_context *context, fy_exception *exception) {
 			FY_BASE_CLASS".getInterfaces.()[L"FY_BASE_CLASS";", NULL,
 			classGetInterfaces, exception);
 	FYEH();
+
 }
 
 static void arrayNewInstance(struct fy_context *context,
@@ -2229,7 +2230,7 @@ static void arrayNewInstance(struct fy_context *context,
 		fy_strDestroy(context->memblocks, name);
 		FYEH();
 		break;
-	case primitive_class:
+		case primitive_class:
 		fy_strInit(context->memblocks, name, clazz->className->length + len,
 				exception);
 		FYEH();
@@ -2242,7 +2243,7 @@ static void arrayNewInstance(struct fy_context *context,
 		fy_strDestroy(context->memblocks, name);
 		FYEH();
 		break;
-	case array_class:
+		case array_class:
 		fy_strInit(context->memblocks, name, clazz->className->length + len,
 				exception);
 		FYEH();
@@ -2254,7 +2255,7 @@ static void arrayNewInstance(struct fy_context *context,
 		fy_strDestroy(context->memblocks, name);
 		FYEH();
 		break;
-	default:
+		default:
 		fy_fault(exception, "", "Illegal class type %d", clazz->type);
 		FYEH();
 		break;
@@ -2262,6 +2263,14 @@ static void arrayNewInstance(struct fy_context *context,
 
 	fy_nativeReturnHandle(context, thread,
 			fy_heapMultiArray(context, targetClass, len, sizes, exception));
+}
+
+static void proxyDefineClassImpl(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_int classNameHandle = args[1];
+	fy_int dataHandle = args[1];
+
 }
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
@@ -2504,6 +2513,11 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	registerFields(context, exception);
+	FYEH();
+
+	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_PROXY".defineClassImpl.(L"FY_BASE_CLASSLOADER";L"FY_BASE_STRING";[B)L"FY_BASE_CLASS";",
+			NULL, proxyDefineClassImpl, exception);
 	FYEH();
 
 }

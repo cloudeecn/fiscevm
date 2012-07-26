@@ -22,7 +22,13 @@
 #include "../fiscedev.h"
 #include "../fy_util/Debug.h"
 #include "VMContext.h"
-
-void fy_preverify(fy_context *context, fy_method *method, fy_exception *exception);
+#ifdef	__cplusplus
+extern "C" {
+#endif
+void fy_preverify(fy_context *context, fy_method *method,
+		fy_exception *exception);
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* PREVERIFER_H_ */

@@ -50,6 +50,7 @@
 #define FY_BASE_STRING_BUILDER "java/lang/StringBuilder"
 #define FY_BASE_OBJECT "java/lang/Object"
 #define FY_BASE_CLASS "java/lang/Class"
+#define FY_BASE_CLASSLOADER "java/lang/ClassLoader"
 #define FY_BASE_THROWABLE "java/lang/Throwable"
 #define FY_BASE_THREAD "java/lang/Thread"
 #define FY_BASE_SYSTEM "java/lang/System"
@@ -65,12 +66,16 @@
 #define FY_BASE_MATH "java/lang/Math"
 #define FY_BASE_FINALIZER "java/lang/Finalizer"
 #define FY_BASE_RUNTIME "java/lang/Runtime"
+
 #define FY_IO_INPUTSTREAM "java/io/InputStream"
 #define FY_IO_PRINTSTREAM "java/io/PrintStream"
-#define FY_REFLECT_ARRAY "java/lang/reflect/Array"
-#define FY_REFLECT_CONSTRUCTOR "java/lang/reflect/Constructor"
-#define FY_REFLECT_FIELD "java/lang/reflect/Field"
-#define FY_REFLECT_METHOD "java/lang/reflect/Method"
+
+#define FY_REFLECT_ARRAY 		"java/lang/reflect/Array"
+#define FY_REFLECT_CONSTRUCTOR 	"java/lang/reflect/Constructor"
+#define FY_REFLECT_FIELD 		"java/lang/reflect/Field"
+#define FY_REFLECT_METHOD 		"java/lang/reflect/Method"
+#define FY_REFLECT_PROXY 		"java/lang/reflect/Proxy"
+
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
 
 #define FY_BOX_BOOLEAN FY_BASE_BOOLEAN".valueOf.(Z).L"FY_BASE_BOOLEAN";"

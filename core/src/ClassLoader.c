@@ -64,8 +64,8 @@ static int getSizeFromDescriptor(fy_str *descriptor) {
 }
 #endif
 
-static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
-		fy_exception *exception) {
+static void fillConstantContent(fy_context *context, fy_class *ret,
+		fy_inputStream *is, fy_exception *exception) {
 	int i, imax, j;
 	int cpSkip;
 	int tag;
@@ -108,7 +108,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 
 			tmp = tmpConstantClass;
 			break;
-		case CONSTANT_Fieldref:
+			case CONSTANT_Fieldref:
 			tmpConstantFieldRef = fy_mmAllocatePerm(block,
 					sizeof(ConstantFieldRef), exception);
 			FYEH();
@@ -120,8 +120,8 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			FYEH();
 			tmp = tmpConstantFieldRef;
 			break;
-		case CONSTANT_Methodref:
-		case CONSTANT_InterfaceMethodref:
+			case CONSTANT_Methodref:
+			case CONSTANT_InterfaceMethodref:
 			tmpConstantMethodRef = fy_mmAllocatePerm(block,
 					sizeof(ConstantMethodRef), exception);
 			FYEH();
@@ -133,7 +133,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			FYEH();
 			tmp = tmpConstantMethodRef;
 			break;
-		case CONSTANT_String:
+			case CONSTANT_String:
 			tmpConstantStringInfo = fy_mmAllocatePerm(block,
 					sizeof(ConstantStringInfo), exception);
 			FYEH();
@@ -142,8 +142,8 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			FYEH();
 			tmp = tmpConstantStringInfo;
 			break;
-		case CONSTANT_Integer:
-		case CONSTANT_Float:
+			case CONSTANT_Integer:
+			case CONSTANT_Float:
 			tmpConstantIntegerFloatInfo = fy_mmAllocatePerm(block,
 					sizeof(ConstantIntegerFloatInfo), exception);
 			FYEH();
@@ -152,8 +152,8 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			FYEH();
 			tmp = tmpConstantIntegerFloatInfo;
 			break;
-		case CONSTANT_Double:
-		case CONSTANT_Long:
+			case CONSTANT_Double:
+			case CONSTANT_Long:
 			cpSkip = 1;
 			tmpConstantLongDoubleInfo = fy_mmAllocatePerm(block,
 					sizeof(ConstantLongDoubleInfo), exception);
@@ -163,7 +163,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			FYEH();
 			tmp = tmpConstantLongDoubleInfo;
 			break;
-		case CONSTANT_NameAndType:
+			case CONSTANT_NameAndType:
 			tmpConstantNameAndTypeInfo = fy_mmAllocatePerm(block,
 					sizeof(ConstantNameAndTypeInfo), exception);
 			FYEH();
@@ -175,7 +175,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			FYEH();
 			tmp = tmpConstantNameAndTypeInfo;
 			break;
-		case CONSTANT_Utf8:
+			case CONSTANT_Utf8:
 			tmpConstantUtf8Info = fy_mmAllocatePerm(block,
 					sizeof(ConstantUtf8Info), exception);
 			FYEH();
@@ -194,7 +194,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 			FYEH();
 			tmp = tmpConstantUtf8Info;
 			break;
-		default:
+			default:
 			fy_fault(exception, NULL, "Unknown constant pool type %d", tag);
 			/*make compiler happy*/
 			return;
@@ -279,19 +279,19 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 					exception);
 			FYEH();
 			break;
-		case CONSTANT_Methodref:
-		case CONSTANT_InterfaceMethodref:
+			case CONSTANT_Methodref:
+			case CONSTANT_InterfaceMethodref:
 			tmpConstantMethodRef = (ConstantMethodRef*) tmp;
 			tmpConstantMethodRef->constantClass =
-					(ConstantClass*) (constantPools[tmpConstantMethodRef->class_index]);
+			(ConstantClass*) (constantPools[tmpConstantMethodRef->class_index]);
 			tmpConstantMethodRef->constantNameType =
-					(ConstantNameAndTypeInfo*) (constantPools[tmpConstantMethodRef->name_type_index]);
+			(ConstantNameAndTypeInfo*) (constantPools[tmpConstantMethodRef->name_type_index]);
 			tmpConstantMethodRef->nameType =
-					fy_strCreatePerm(block,
-							2
-									+ tmpConstantMethodRef->constantNameType->name->length
-									+ tmpConstantMethodRef->constantNameType->descriptor->length,
-							exception);
+			fy_strCreatePerm(block,
+					2
+					+ tmpConstantMethodRef->constantNameType->name->length
+					+ tmpConstantMethodRef->constantNameType->descriptor->length,
+					exception);
 			FYEH();
 			fy_strAppendUTF8(block, tmpConstantMethodRef->nameType, ".", 1,
 					exception);
@@ -307,26 +307,26 @@ static void fillConstantContent(fy_context *context, fy_class *ret, void *is,
 					exception);
 			FYEH();
 			break;
-		case CONSTANT_String:
-		case CONSTANT_Integer:
-		case CONSTANT_Float:
+			case CONSTANT_String:
+			case CONSTANT_Integer:
+			case CONSTANT_Float:
 			break;
-		case CONSTANT_Double:
-		case CONSTANT_Long:
+			case CONSTANT_Double:
+			case CONSTANT_Long:
 			i++;
 			break;
-		case CONSTANT_NameAndType:
-		case CONSTANT_Utf8:
+			case CONSTANT_NameAndType:
+			case CONSTANT_Utf8:
 			break;
-		default:
+			default:
 			fy_fault(exception, NULL, "Unknown constant pool type %d", tag);
 			break;
 		}
 	}
 }
 
-static void loadInterfaces(fy_context *context, fy_class *clazz, void *is,
-		fy_exception *exception) {
+static void loadInterfaces(fy_context *context, fy_class *clazz,
+		fy_inputStream *is, fy_exception *exception) {
 	int i, count;
 	fy_memblock *block = context->memblocks;
 	clazz->interfacesCount = count = fy_dataRead2(context, is, exception);
@@ -343,7 +343,7 @@ static void loadInterfaces(fy_context *context, fy_class *clazz, void *is,
 	}
 }
 
-static void loadFields(fy_context *context, fy_class *clazz, void *is,
+static void loadFields(fy_context *context, fy_class *clazz, fy_inputStream *is,
 		fy_exception *exception) {
 	int i, count, j, countj;
 	int length;
@@ -479,7 +479,7 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 #endif
 	clazz = fy_vmLookupClass(context, className, exception);
 	FYEH()0;
-	if (clazz == NULL) {
+	if (clazz == NULL ) {
 		fy_fault(exception, NULL, "Bad descriptor");
 		FYEH()0;
 	}
@@ -544,7 +544,7 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 					break;
 				default:
 					msg[0] = 0;
-					if (method != NULL) {
+					if (method != NULL ) {
 						fy_strSPrint(msg, sizeof(msg), method->uniqueName);
 					} else {
 						fy_strSPrint(msg, sizeof(msg), desc);
@@ -563,24 +563,24 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 				break;
 			} else {
 				switch (ch) {
-				case 'B':
-				case 'C':
-				case 'F':
-				case 'I':
-				case 'S':
-				case 'Z':
+					case 'B':
+					case 'C':
+					case 'F':
+					case 'I':
+					case 'S':
+					case 'Z':
 					beginClass = i;
 					endClass = 0;
 					temp[pc++] = FY_TYPE_INT;
 					break;
-				case 'D':
-				case 'J':
+					case 'D':
+					case 'J':
 					beginClass = i;
 					endClass = 0;
 					temp[pc++] = FY_TYPE_WIDE;
 					temp[pc++] = FY_TYPE_WIDE2;
 					break;
-				case '[':
+					case '[':
 					beginClass = i;
 					while ((ch = desc->content[++i]) == '[') {
 					}
@@ -591,14 +591,14 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 					endClass = i + 1;
 					temp[pc++] = FY_TYPE_HANDLE;
 					break;
-				case 'L':
+					case 'L':
 					beginClass = i;
 					while ((ch = desc->content[++i]) != ';')
-						;
+					;
 					endClass = i + 1;
 					temp[pc++] = FY_TYPE_HANDLE;
 					break;
-				default:
+					default:
 					msg[0] = 0;
 					if (method != NULL) {
 						fy_strSPrint(msg, sizeof(msg), method->uniqueName);
@@ -617,19 +617,19 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 			}
 		}
 	}
-	if (method != NULL) {
+	if (method != NULL ) {
 		method->parameterTypes = fy_arrayListCreatePerm(context->memblocks,
 				sizeof(fy_class*), tmpList->length, exception);
 		method->parameterCount = maxi = tmpList->length;
 		for (i = 0; i < maxi; i++) {
 			fy_arrayListAdd(context->memblocks, method->parameterTypes,
-					fy_arrayListGet(context->memblocks, tmpList, i, NULL),
+					fy_arrayListGet(context->memblocks, tmpList, i, NULL ),
 					exception);
 			FYEH();
 		}
 	}
 	fy_arrayListDestroy(context->memblocks, tmpList);
-	if (method != NULL) {
+	if (method != NULL ) {
 		method->paramTypes = fy_mmAllocatePerm(context->memblocks,
 				pc * sizeof(fy_byte), exception);
 		FYEH();
@@ -640,8 +640,8 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	fy_free(temp);
 }
 
-static void loadMethods(fy_context *context, fy_class *clazz, void *is,
-		fy_exception *exception) {
+static void loadMethods(fy_context *context, fy_class *clazz,
+		fy_inputStream *is, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	fy_char i, count, j, jcount, k, kcount, l, lcount;
 	fy_str *attrName;
@@ -792,7 +792,7 @@ fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
 	return ((ConstantUtf8Info*) clazz->constantPools[idx])->string;
 }
 
-void *fy_clOpenResource(fy_context *context, fy_str *name,
+fy_inputStream *fy_clOpenResource(fy_context *context, fy_str *name,
 		fy_exception *exception) {
 	int i, max;
 	int size = 0;
@@ -811,7 +811,7 @@ void *fy_clOpenResource(fy_context *context, fy_str *name,
 	return ret;
 }
 
-static fy_class *fy_clLoadclassPriv(fy_context *context, void *is,
+static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
 		fy_exception *exception) {
 	fy_char i, icount;
 	fy_str *attrName;
@@ -909,11 +909,11 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 
 				} else {
 					clazz->fields[i]->posAbs = clazz->super->sizeAbs
-							+ clazz->fields[i]->posRel;
+					+ clazz->fields[i]->posRel;
 				}
 			}
 			if (fy_vmLookupMethodVirtual(context, clazz, context->sMFinalize,
-					exception)
+							exception)
 					!= fy_vmLookupMethodVirtual(context,
 							fy_vmLookupClass(context, context->sTopClass,
 									exception), context->sMFinalize,
@@ -971,11 +971,11 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				clazz->fieldAbs[pos] = field;
 			}
 			switch (field->descriptor->content[0]) {
-			case '[':
+				case '[':
 				field->type = fy_vmLookupClass(context, field->descriptor,
 						exception);
 				break;
-			case 'L':
+				case 'L':
 				str->content = NULL;
 				fy_strInit(context->memblocks, str, field->descriptor->length,
 						exception);
@@ -988,19 +988,19 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				fy_strDestroy(context->memblocks, str);
 				FYEH();
 				break;
-			case 'Z':
-			case 'B':
-			case 'S':
-			case 'C':
-			case 'I':
-			case 'F':
-			case 'J':
-			case 'D':
+				case 'Z':
+				case 'B':
+				case 'S':
+				case 'C':
+				case 'I':
+				case 'F':
+				case 'J':
+				case 'D':
 				field->type = fy_vmLookupClass(context,
 						context->primitives[field->descriptor->content[0]],
 						exception);
 				break;
-			default:
+				default:
 				fy_fault(exception, NULL, "Illegal descriptor of field");
 				break;
 			}
@@ -1009,30 +1009,30 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				if ((field->access_flags & FY_ACC_STATIC)
 						&& (field->access_flags & FY_ACC_FINAL)) {
 					switch (field->descriptor->content[0]) {
-					case FY_TYPE_BOOLEAN:
-					case FY_TYPE_BYTE:
-					case FY_TYPE_SHORT:
-					case FY_TYPE_CHAR:
-					case FY_TYPE_INT:
-					case FY_TYPE_FLOAT: {
-						clazz->staticArea[field->posAbs] =
-								((ConstantIntegerFloatInfo*) clazz->constantPools[field->constant_value_index])->value;
-						break;
-					}
-					case FY_TYPE_LONG:
-					case FY_TYPE_DOUBLE: {
-						clazz->staticArea[field->posAbs] =
-								fy_HOFL(
-										((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
-						clazz->staticArea[field->posAbs + 1] =
-								fy_LOFL(
-										((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
-						break;
-					}
-					case FY_TYPE_HANDLE: {
-						/*Will be lazy loaded in Field.get()*/
-						break;
-					}
+						case FY_TYPE_BOOLEAN:
+						case FY_TYPE_BYTE:
+						case FY_TYPE_SHORT:
+						case FY_TYPE_CHAR:
+						case FY_TYPE_INT:
+						case FY_TYPE_FLOAT: {
+							clazz->staticArea[field->posAbs] =
+							((ConstantIntegerFloatInfo*) clazz->constantPools[field->constant_value_index])->value;
+							break;
+						}
+						case FY_TYPE_LONG:
+						case FY_TYPE_DOUBLE: {
+							clazz->staticArea[field->posAbs] =
+							fy_HOFL(
+									((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
+							clazz->staticArea[field->posAbs + 1] =
+							fy_LOFL(
+									((ConstantLongDoubleInfo*) clazz->constantPools[field->constant_value_index])->value);
+							break;
+						}
+						case FY_TYPE_HANDLE: {
+							/*Will be lazy loaded in Field.get()*/
+							break;
+						}
 					}
 				} else {
 					/*Ignore it since it will be proceed in default <init>*/
@@ -1042,17 +1042,17 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 		}
 
 		break;
-	case primitive_class:
+		case primitive_class:
 		break;
 	}
 	clazz->phase = 2;
 }
-fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
+fy_class *fy_clLoadclass(fy_context *context, fy_str *name, fy_inputStream *is,
 		fy_exception *exception) {
 
-	void *is;
 	fy_class *clazz;
 	fy_memblock *block = context->memblocks;
+	fy_int isManaged = 0;
 	fy_str str[1];
 	str->content = NULL;
 
@@ -1081,7 +1081,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 					exception);
 			fy_strDestroy(block, str);
 			break;
-		case FY_TYPE_HANDLE:
+			case FY_TYPE_HANDLE:
 			fy_strInit(block, str, clazz->className->length, exception);
 			FYEH()NULL;
 			str->length = clazz->className->length - 3;
@@ -1091,7 +1091,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 					exception);
 			fy_strDestroy(block, str);
 			break;
-		default:
+			default:
 			clazz->ci.arr.contentClass = fy_vmLookupClass(context,
 					context->primitives[clazz->className->content[1]],
 					exception);
@@ -1108,8 +1108,11 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(block,
 				context->mapPrimitivesRev, name);
 	} else {
-		is = fy_clOpenResource(context, name, exception);
-		FYEH()NULL;
+		if(is==NULL) {
+			isManaged=1;
+			is = fy_clOpenResource(context, name, exception);
+			FYEH()NULL;
+		}
 		if (is == NULL) {
 			exception->exceptionType = exception_normal;
 			sprintf_s(exception->exceptionName,
@@ -1121,7 +1124,10 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		}
 
 		clazz = fy_clLoadclassPriv(context, is, exception);
-		context->isClose(context, is);
+		if(isManaged) {
+			is->isClose(context, is);
+			fy_mmFree(context->memblocks,is);
+		}
 		FYEH()NULL;
 		if (clazz->superClass != NULL) {
 			clazz->super = fy_vmLookupClassFromConstant(context,

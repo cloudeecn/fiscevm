@@ -45,7 +45,8 @@ FY_SRC = \
         ../src/FiScE.c \
         ../src/FileInputStream.c \
         ../src/BinarySaver.c \
-		../src/DataLoader.c
+		../src/DataLoader.c \
+		../src/BAIS.c
 
 if FY_BUILD_TEST
 noinst_LTLIBRARIES = libfytst.la

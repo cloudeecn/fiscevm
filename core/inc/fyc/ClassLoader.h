@@ -26,12 +26,16 @@
 #include "VMContext.h"
 #include "Class.h"
 #include "Data.h"
-
+#ifdef	__cplusplus
+extern "C" {
+#endif
 fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
 		fy_char idx);
-fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
+fy_class *fy_clLoadclass(fy_context *context, fy_str *name,fy_inputStream *is,
 		fy_exception *exception);
 void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception);
-
+#ifdef	__cplusplus
+}
+#endif
 #endif	/* FY_CLASSLOADER_H */
 

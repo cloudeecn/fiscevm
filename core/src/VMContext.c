@@ -20,6 +20,7 @@
 #include "fyc/FileInputStream.h"
 #include "fyc/NConfig.h"
 #include "fyc/BinarySaver.h"
+#include "fyc/BAIS.h"
 
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
@@ -464,11 +465,12 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	 fy_hashMap *mapPrimitivesRev;
 	 */
 	fy_debugInit(context);
-	ILOG(context,
+	ILOG(
+			context,
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
-			MAX_OBJECTS * (fy_int) sizeof(fy_object));
-	fy_fisInitInputStream(context);
+			MAX_OBJECTS * (fy_int) sizeof(fy_object))
+;	fy_fisInitInputStream(context);
 	fy_bsRegisterBinarySaver(context);
 	fy_mmInit(context->memblocks, exception);
 	FYEH();
@@ -501,11 +503,11 @@ static fy_class* getClass(fy_context *context, fy_str *name) {
 	int *pFid;
 	fy_class *ret;
 	pFid = fy_hashMapGet(context->memblocks, context->mapClassNameToId, name);
-	if (pFid == NULL) {
-		return NULL;
+	if (pFid == NULL ) {
+		return NULL ;
 	}
-	if (pFid == NULL || (ret = context->classes[*pFid]) == NULL) {
-		return NULL;
+	if (pFid == NULL || (ret = context->classes[*pFid]) == NULL ) {
+		return NULL ;
 	}
 	return ret;
 }
@@ -533,7 +535,7 @@ void fy_vmContextDestroy(fy_context *context) {
 	const char *c, *c2;
 	imax = 256;
 #endif
-	context->logDVar(context,"Destroying vm\n");
+	context->logDVar(context, "Destroying vm\n");
 #ifdef FY_PROFILE
 	context->logDVar(context,"Op usage top 10:\n");
 	for (i = 0; i < imax; i++) {
@@ -577,7 +579,7 @@ void fy_vmRegisterField(fy_context *context, fy_field *field,
 	int *pFid;
 	fy_memblock *block = context->memblocks;
 	pFid = fy_hashMapGet(block, context->mapFieldNameToId, field->uniqueName);
-	if (pFid == NULL) {
+	if (pFid == NULL ) {
 		pFid = fy_mmAllocatePerm(block, sizeof(int), exception);
 		FYEH();
 		field->field_id = *pFid = context->fieldsCount++;
@@ -591,8 +593,8 @@ void fy_vmRegisterField(fy_context *context, fy_field *field,
 fy_field *fy_vmGetField(fy_context *context, fy_str *uniqueName) {
 	int *pMid = fy_hashMapGet(context->memblocks, context->mapFieldNameToId,
 			uniqueName);
-	if (pMid == NULL) {
-		return NULL;
+	if (pMid == NULL ) {
+		return NULL ;
 	}
 	return context->fields[*pMid];
 }
@@ -621,14 +623,14 @@ fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
 	FYEH()NULL;
 	fy_strAppend(block, uniqueName, fieldName, exception);
 	FYEH()NULL;
-	while (clazz != NULL) {
+	while (clazz != NULL ) {
 		fy_strClear(uniqueNameTmp);
 		fy_strAppend(block, uniqueNameTmp, clazz->className, exception);
 		FYEH()NULL;
 		fy_strAppend(block, uniqueNameTmp, fieldName, exception);
 		FYEH()NULL;
 		pFid = fy_hashMapGet(block, context->mapFieldNameToId, uniqueNameTmp);
-		if (pFid != NULL) {
+		if (pFid != NULL ) {
 			fy_hashMapPut(block, context->mapFieldNameToId, uniqueName, pFid,
 					exception);
 			FYEH()NULL;
@@ -649,7 +651,7 @@ int fy_vmGetMethodId(fy_context *context, fy_str *uniqueName,
 	int *pMid;
 	pMid = fy_hashMapGet(context->memblocks, context->mapMethodNameToId,
 			uniqueName);
-	if (pMid == NULL) {
+	if (pMid == NULL ) {
 		fy_fault(exception, NULL, "Can't find method!");
 	}
 	return *pMid;
@@ -661,7 +663,7 @@ void fy_vmRegisterMethod(fy_context *context, fy_method *method,
 	fy_memblock *block = context->memblocks;
 	pMid = fy_hashMapGet(context->memblocks, context->mapMethodNameToId,
 			method->uniqueName);
-	if (pMid == NULL) {
+	if (pMid == NULL ) {
 		pMid = fy_mmAllocatePerm(block, sizeof(int), exception);
 		FYEH();
 		method->method_id = *pMid = context->methodsCount++;
@@ -675,8 +677,8 @@ void fy_vmRegisterMethod(fy_context *context, fy_method *method,
 fy_method *fy_vmGetMethod(fy_context *context, fy_str *uniqueName) {
 	int *pMid = fy_hashMapGet(context->memblocks, context->mapMethodNameToId,
 			uniqueName);
-	if (pMid == NULL) {
-		return NULL;
+	if (pMid == NULL ) {
+		return NULL ;
 	}
 	return context->methods[*pMid];
 }
@@ -693,20 +695,20 @@ fy_method *fy_vmLookupMethodVirtualByMethod(fy_context *context,
 				method->fullName, exception);
 		FYEH()NULL;
 
-		if (actureMethod == NULL) {
+		if (actureMethod == NULL ) {
 			fy_strSPrint(msg, 256, method->uniqueName);
 			fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", msg);
-			return NULL;
+			return NULL ;
 		}
 		if (actureMethod->access_flags & FY_ACC_STATIC) {
 			fy_strSPrint(msg, 256, method->uniqueName);
 			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s", msg);
-			return NULL;
+			return NULL ;
 		}
 		if ((actureMethod->access_flags & FY_ACC_ABSTRACT)) {
 			fy_strSPrint(msg, 256, method->uniqueName);
 			fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", msg);
-			return NULL;
+			return NULL ;
 		}
 		fy_hashMapIPut(context->memblocks, clazz->virtualTable,
 				method->method_id, actureMethod->method_id, exception);
@@ -737,14 +739,14 @@ fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 	FYEH()NULL;
 	fy_strAppend(block, uniqueName, methodName, exception);
 	FYEH()NULL;
-	while (clazz != NULL) {
+	while (clazz != NULL ) {
 		fy_strClear(uniqueNameTmp);
 		fy_strAppend(block, uniqueNameTmp, clazz->className, exception);
 		FYEH()NULL;
 		fy_strAppend(block, uniqueNameTmp, methodName, exception);
 		FYEH()NULL;
 		pMid = fy_hashMapGet(block, context->mapMethodNameToId, uniqueNameTmp);
-		if (pMid != NULL) {
+		if (pMid != NULL ) {
 			fy_hashMapPut(block, context->mapMethodNameToId, uniqueName, pMid,
 					exception);
 			FYEH()NULL;
@@ -765,7 +767,7 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 	int *pCid;
 	fy_memblock *block = context->memblocks;
 	pCid = fy_hashMapGet(block, context->mapClassNameToId, clazz->className);
-	if (pCid == NULL) {
+	if (pCid == NULL ) {
 		pCid = fy_mmAllocatePerm(block, sizeof(int), exception);
 		FYEH();
 		*pCid = (context->classesCount++) + 1;
@@ -781,27 +783,44 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 	clazz->classId = *pCid;
 }
 
-fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
-		fy_exception *exception) {
+fy_class *fy_vmLoadClassEX(fy_context *context, fy_str *name,
+		fy_inputStream *is, fy_exception *exception) {
 	fy_class *clazz;
 	clazz = getClass(context, name);
-	if (clazz == NULL) {
-		clazz = fy_clLoadclass(context, name, exception);
+	if (clazz == NULL ) {
+		clazz = fy_clLoadclass(context, name, is, exception);
 		if (exception->exceptionType != exception_none) {
-			return NULL;
+			return NULL ;
 		}
 		fy_vmRegisterClass(context, clazz, exception);
 		FYEH()NULL;
 		fy_clPhase2(context, clazz, exception);
 		if (exception->exceptionType != exception_none) {
-			return NULL;
+			return NULL ;
 		}
 		fy_vmLookupClass(context, context->sClassClass, exception);
 		if (exception->exceptionType != exception_none) {
-			return NULL;
+			return NULL ;
 		}
 	}
 	return clazz;
+}
+
+fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
+		fy_exception *exception) {
+	return fy_vmLoadClassEX(context, name, NULL, exception);
+}
+
+fy_class *fy_vmDefineClass(fy_context *context, fy_str *name, fy_byte *data,
+		fy_int dataLen, fy_exception *exception) {
+	fy_class *ret;
+	fy_inputStream *is;
+	is = fy_baisOpenByteArrayInputStream(context, data, dataLen, exception);
+	FYEH()NULL;
+	ret = fy_vmLoadClassEX(context, name, is, exception);
+	is->isClose(context, is);
+	fy_mmFree(context->memblocks, is);
+	return ret;
 }
 
 /*Likes com.cirnoworks.fisce.vm.VMContext.getClass(String name)*/
@@ -819,7 +838,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 	FYEH()NULL;
 	classClass = fy_vmLookupClass(context, context->sClassClass, exception);
 	if (exception->exceptionType != exception_none) {
-		return NULL;
+		return NULL ;
 	}
 	if (inputClass != classClass) {
 		exception->exceptionType = exception_normal;
@@ -827,7 +846,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 				FY_EXCEPTION_VM);
 		strcpy_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"Get class ID for non-class object");
-		return NULL;
+		return NULL ;
 	}
 	classId = context->objects[handle].object_data->attachedId;
 	return context->classes[classId];
@@ -839,7 +858,7 @@ fy_class *fy_vmLookupClassFromConstant(fy_context *context,
 		classInfo->ci.clazz = fy_vmLookupClass(context, classInfo->ci.className,
 				exception);
 		if (exception->exceptionType != exception_none) {
-			return NULL;
+			return NULL ;
 		}
 		classInfo->derefed = 1;
 	}
@@ -853,14 +872,14 @@ fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 		fieldInfo->clazz = fy_vmLookupClassFromConstant(context,
 				fieldInfo->constantClass, exception);
 		if (exception->exceptionType != exception_none) {
-			return NULL;
+			return NULL ;
 		}
 		field = fy_vmLookupFieldVirtual(context, fieldInfo->clazz,
 				fieldInfo->nameType, exception);
 		FYEH()NULL;
-		if (field == NULL) {
+		if (field == NULL ) {
 			fy_fault(exception, NULL, "Field not found");
-			return NULL;
+			return NULL ;
 		}
 		fieldInfo->derefed = 1;
 		fieldInfo->field = field;
@@ -877,14 +896,14 @@ fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 		methodInfo->clazz = fy_vmLookupClassFromConstant(context,
 				methodInfo->constantClass, exception);
 		if (exception->exceptionType != exception_none) {
-			return NULL;
+			return NULL ;
 		}
 		method = fy_vmLookupMethodVirtual(context, methodInfo->clazz,
 				methodInfo->nameType, exception);
 		FYEH()NULL;
-		if (method == NULL) {
+		if (method == NULL ) {
 			fy_fault(exception, NULL, "Method not found");
-			return NULL;
+			return NULL ;
 		}
 		methodInfo->derefed = 1;
 		methodInfo->method = method;
@@ -901,7 +920,7 @@ void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 	fy_memblock *block = context->memblocks;
 	str = fy_strCreatePermFromUTF8(block, name, 0, exception);
 	FYEH();
-	if (fy_hashMapGet(block, context->mapMUNameToNH, str) != NULL) {
+	if (fy_hashMapGet(block, context->mapMUNameToNH, str) != NULL ) {
 		fy_fault(exception, NULL, "Native handler conflict %s", name);
 	}
 	nh = fy_mmAllocatePerm(block, sizeof(fy_nh), exception);
@@ -920,7 +939,7 @@ void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
 	str->content = NULL;
 	fy_strInitWithUTF8(block, str, name, exception);
 	FYEH();
-	if ((nh = fy_hashMapGet(block, context->mapMUNameToNH, str)) != NULL) {
+	if ((nh = fy_hashMapGet(block, context->mapMUNameToNH, str)) != NULL ) {
 		fy_hashMapPut(block, context->mapMUNameToNH, str, NULL, exception);
 		/*fy_mmFree(block, nh);*/
 	}
@@ -934,7 +953,7 @@ fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 		clazz = fy_vmLookupClassFromConstant(context,
 				exceptionHandler->ci.constantClass, exception);
 		if (exception->exceptionType != exception_none) {
-			return NULL;
+			return NULL ;
 		}
 	} else {
 		clazz = exceptionHandler->ci.clazz;
@@ -1026,7 +1045,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 	/*Objects*/
 	count = 0;
 	for (i = 1; i < MAX_OBJECTS; i++) {
-		if (fy_heapGetObject(context,i)->object_data != NULL) {
+		if (fy_heapGetObject(context,i)->object_data != NULL ) {
 			count++;
 		}
 	}
@@ -1079,7 +1098,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 				thread->priority, thread->daemon, thread->destroyPending,
 				thread->interrupted, thread->nextWakeTime,
 				thread->pendingLockCount, thread->waitForLockId,
-				thread->waitForNotifyId, FY_GET_FRAME(thread,jmax-1)->sp,
+				thread->waitForNotifyId, FY_GET_FRAME(thread,jmax-1) ->sp,
 				thread->stack, thread->typeStack, exception);
 		FYEH();
 		context->savePrepareFrame(context, saver, jmax, exception);

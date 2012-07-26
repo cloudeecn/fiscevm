@@ -24,9 +24,14 @@
 #include "VMContext.h"
 #include "Thread.h"
 #include "Heap.h"
-
+#ifdef	__cplusplus
+extern "C" {
+#endif
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception);
 
 void fy_coreRegisterMathHandlers(fy_context *context, fy_exception *exception);
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* FY_COREHANDLERS_H_ */

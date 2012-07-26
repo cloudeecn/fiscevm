@@ -19,7 +19,12 @@
 #define FILEINPUTSTREAM_H_
 
 #include "../fiscestu.h"
-
+#ifdef	__cplusplus
+extern "C" {
+#endif
 void fy_fisInitInputStream(fy_context *context);
 
+#ifdef	__cplusplus
+}
+#endif
 #endif /* FILEINPUTSTREAM_H_ */

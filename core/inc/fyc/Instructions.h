@@ -245,5 +245,4 @@
 
 extern const char *FY_OP_NAME[256];
 
-
 #endif /* INSTRUCTIONS_H_ */

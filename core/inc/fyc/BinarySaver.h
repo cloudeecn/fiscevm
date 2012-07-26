@@ -19,7 +19,11 @@
 #define BINARYSAVER_H_
 
 #include "../fiscestu.h"
-
+#ifdef	__cplusplus
+extern "C" {
+#endif
 void fy_bsRegisterBinarySaver(fy_context *context);
-
+#ifdef	__cplusplus
+}
+#endif
 #endif /* BINARYSAVER_H_ */
