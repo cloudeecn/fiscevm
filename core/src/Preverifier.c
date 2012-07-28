@@ -299,6 +299,19 @@ void fy_preverify(fy_context *context, fy_method *method,
 	fy_int target;
 
 	fy_uint ivalue3, ivalue, ivalue2, ivalue4;
+#ifdef FY_VERBOSE
+	fy_class *owner = method->owner;
+	context->logDVar(context, "Preverifing [");
+	context->logDStr(context, method->uniqueName);
+	context->logDVarLn(context, "]");
+	/*
+	 imax=owner->fieldCount;
+	 for(i=0;i<imax;i++){
+	 context->logDStr(context,owner->fields[i]->uniqueName);
+	 context->logDVarLn(context," ###");
+	 }
+	 */
+#endif
 	if (method->access_flags & FY_ACC_VERIFIED) {
 		fy_fault(exception, NULL, "Method already preverified");
 		FYEH();
@@ -331,8 +344,10 @@ void fy_preverify(fy_context *context, fy_method *method,
 			pc++;
 			ivalue3 = (65536 - pc) % 4;
 			pc += ivalue3;
-			ivalue = fy_nextS4(code);/*db*/
-			ivalue2 = fy_nextS4(code);/*np*/
+			ivalue = fy_nextS4(code)
+			;/*db*/
+			ivalue2 = fy_nextS4(code)
+			;/*np*/
 			switchLookup = fy_mmAllocatePerm(context->memblocks,
 					sizeof(fy_switch_lookup)
 							+ sizeof(struct fy_switch_target) * ivalue2,
@@ -344,7 +359,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 			switchLookup->defaultJump = ivalue;
 			switchLookup->count = ivalue2;
 			for (i = 0; i < ivalue2; i++) {
-				switchLookup->targets[i].value = fy_nextS4(code);
+				switchLookup->targets[i].value = fy_nextS4(code)
+				;
 				switchLookup->targets[i].target = fy_nextS4(code)
 				;
 			}
@@ -357,9 +373,12 @@ void fy_preverify(fy_context *context, fy_method *method,
 			pc++;
 			ivalue3 = (65536 - pc) % 4;
 			pc += ivalue3;
-			ivalue = fy_nextS4(code);/*db*/
-			ivalue2 = fy_nextS4(code);/*lb*/
-			ivalue3 = fy_nextS4(code);/*hb*/
+			ivalue = fy_nextS4(code)
+			;/*db*/
+			ivalue2 = fy_nextS4(code)
+			;/*lb*/
+			ivalue3 = fy_nextS4(code)
+			;/*hb*/
 			ivalue4 = ivalue3 - ivalue2 + 1;/*count*/
 			switchTable = fy_mmAllocatePerm(context->memblocks,
 					sizeof(fy_switch_table) + sizeof(fy_uint) * ivalue4,
@@ -583,7 +602,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case LDC2_W: /*constant id*/
 		{
 			instruction->params.ldc.derefed = FALSE;
-			instruction->params.ldc.value = fy_nextU2(code);
+			instruction->params.ldc.value = fy_nextU2(code)
+			;
 			break;
 		}
 
@@ -597,7 +617,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 		case SIPUSH: {
-			instruction->params.int_params.param1 = fy_nextS2(code); /*value*/
+			instruction->params.int_params.param1 = fy_nextS2(code)
+			; /*value*/
 			break;
 		}
 		case ANEWARRAY: /*Constant id -> class constant*/
@@ -605,7 +626,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case INSTANCEOF: /*Constant id -> class constant*/
 
 		case NEW: {
-			target = fy_nextU2(code);
+			target = fy_nextU2(code)
+			;
 			instruction->params.clazz = fy_vmLookupClassFromConstant(context,
 					method->owner->constantPools[target], exception);
 			FYEH();
@@ -616,7 +638,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case PUTFIELD: /*Constant id -> field constant*/
 		case PUTSTATIC: /*Constant id -> field constant*/
 		{
-			target = fy_nextU2(code);
+			target = fy_nextU2(code)
+			;
 			instruction->params.field = fy_vmLookupFieldFromConstant(context,
 					method->owner->constantPools[target], exception);
 			FYEH();
@@ -626,14 +649,16 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case INVOKESTATIC:/*Constant id -> method constant*/
 		case INVOKEVIRTUAL: /*Constant id -> method constant*/
 		{
-			target = fy_nextU2(code);
+			target = fy_nextU2(code)
+			;
 			instruction->params.method = fy_vmLookupMethodFromConstant(context,
 					method->owner->constantPools[target], exception);
 			FYEH();
 			break;
 		}
 		case INVOKEINTERFACE: {
-			target = fy_nextU2(code);
+			target = fy_nextU2(code)
+			;
 			instruction->params.method = fy_vmLookupMethodFromConstant(context,
 					method->owner->constantPools[target], exception);
 			FYEH();
@@ -657,28 +682,32 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case IFNE:
 		case IFNONNULL:
 		case IFNULL: {
-			target = pc - 1 + fy_nextS2(code);
+			target = pc - 1 + fy_nextS2(code)
+			;
 			instruction->params.int_params.param1 = getIcFromPc(context, target,
 					tmpPcIcMap, exception);
 			FYEH();
 			break;
 		}
 		case GOTO_W: {
-			target = pc - 1 + fy_nextS4(code); /*jump*/
+			target = pc - 1 + fy_nextS4(code)
+			; /*jump*/
 			instruction->params.int_params.param1 = getIcFromPc(context, target,
 					tmpPcIcMap, exception);
 			FYEH();
 			break;
 		}
 		case JSR: {
-			target = pc - 1 + fy_nextS2(code); /*jump*/
+			target = pc - 1 + fy_nextS2(code)
+			; /*jump*/
 			instruction->params.int_params.param1 = getIcFromPc(context, target,
 					tmpPcIcMap, exception);
 			FYEH();
 			break;
 		}
 		case JSR_W: {
-			target = pc - 1 + fy_nextS4(code); /*jump*/
+			target = pc - 1 + fy_nextS4(code)
+			; /*jump*/
 			instruction->params.int_params.param1 = getIcFromPc(context, target,
 					tmpPcIcMap, exception);
 			FYEH();
@@ -690,7 +719,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 		case MULTIANEWARRAY: {
-			instruction->params.int_params.param1 = fy_nextU2(code); /*Constant id-> class Constant*/
+			instruction->params.int_params.param1 = fy_nextU2(code)
+			; /*Constant id-> class Constant*/
 			instruction->params.int_params.param2 = fy_nextU1(code); /*count*/
 			break;
 		}
@@ -705,6 +735,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 					&switchLookup);
 			instruction->params.swlookup = switchLookup;
 			imax = switchLookup->count;
+			switchLookup->defaultJump = getIcFromPc(context,
+					pc - 1 + switchLookup->defaultJump, tmpPcIcMap, exception);
 			for (i = 0; i < imax; i++) {
 				(switchLookup->targets + i)->target = getIcFromPc(context,
 						pc - 1 + (switchLookup->targets + i)->target,
@@ -724,6 +756,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 					&switchTable);
 			instruction->params.swtable = switchTable;
 			imax = switchTable->highest - switchTable->lowest;
+			switchTable->defaultJump = getIcFromPc(context,
+					pc - 1 + switchTable->defaultJump, tmpPcIcMap, exception);
 			for (i = 0; i <= imax; i++) {
 				switchTable->targets[i] = getIcFromPc(context,
 						pc - 1 + switchTable->targets[i], tmpPcIcMap,
@@ -733,7 +767,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 		case WIDE: {
-			switch (instruction->op = fy_nextU1(code)) {
+			switch (instruction->op = fy_nextU1(code) ) {
 			case ALOAD: /*local var id*/
 			case ASTORE:/*local var id*/
 			case DLOAD:/*local var id*/
@@ -746,12 +780,15 @@ void fy_preverify(fy_context *context, fy_method *method,
 			case LSTORE:/*local var id*/
 			case RET:/*local var id*/
 			{
-				instruction->params.int_params.param1 = fy_nextU2(code);
+				instruction->params.int_params.param1 = fy_nextU2(code)
+				;
 				break;
 			}
 			case IINC: {
-				instruction->params.int_params.param1 = fy_nextU2(code);
-				instruction->params.int_params.param2 = fy_nextS2(code);
+				instruction->params.int_params.param1 = fy_nextU2(code)
+				;
+				instruction->params.int_params.param2 = fy_nextS2(code)
+				;
 				break;
 			}
 			default: {
