@@ -5,14 +5,33 @@ import java.util.HashMap;
 
 import com.cirnoworks.fisce.privat.FiScEVM;
 
+interface IF1 {
+	final char[] c = { 'a', 'b', 'c' };
+}
+
+interface IF2 {
+	final char[] c = { 'a', 'd', 'e' };
+}
+
+class P {
+	final char[] c = { 'a', 'f', 'g' };
+}
+
 /**
  * Test if the basic architecture of the VM works well
- *
+ * 
  * @author cloudee
- *
+ * 
  */
-public class ArchitectureTest extends TestService {
+public class ArchitectureTest implements IF1 {
+	private final char[] chars = { '<', 'i', 'n', 'i', 't', '>' };
+
+	public void run() {
+		System.out.println(new String(c));
+	}
+
 	public static void main(String[] args) {
+		new ArchitectureTest().run();
 		FiScEVM.infoOut("Begin!");
 		FiScEVM.infoOut(ArchitectureTest.class.getName());
 		try {
@@ -39,26 +58,26 @@ public class ArchitectureTest extends TestService {
 		double d3 = 2f;
 		double d4 = 3f;
 		if (a + b != 11000) {
-			fail("mistake in adding two integers");
+			TestService.fail("mistake in adding two integers");
 		}
 		if (a - b != -1000) {
-			fail("mistake in subing two integers");
+			TestService.fail("mistake in subing two integers");
 		}
 		if (a * b != 30000000) {
-			fail("mistake in muling two integers");
+			TestService.fail("mistake in muling two integers");
 		}
 		if (b / a != 1) {
-			fail("mistake in diving two integers 1");
+			TestService.fail("mistake in diving two integers 1");
 		}
 		if (a / b != 0) {
-			fail("mistake in diving two integers 2");
+			TestService.fail("mistake in diving two integers 2");
 		}
 		try {
 			c = a / c;
-			fail("mistake in invoking divided by zero");
+			TestService.fail("mistake in invoking divided by zero");
 		} catch (ArithmeticException ae) {
 			if (ae == null) {
-				fail("mistake in exception throw");
+				TestService.fail("mistake in exception throw");
 			}
 			ae.printStackTrace();
 		}

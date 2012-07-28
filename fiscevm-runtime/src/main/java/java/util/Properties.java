@@ -18,24 +18,31 @@
 package java.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
+
+import org.apache.harmony.luni.internal.nls.Messages;
 
 /**
  * A {@code Properties} object is a {@code Hashtable} where the keys and values
  * must be {@code String}s. Each property can have a default {@code Properties}
  * list which specifies the default values to be used when a given key is not
  * found in this {@code Properties} instance.
- *
+ * 
  * @see Hashtable
  * @see java.lang.System#getProperties
  */
 public class Properties extends Hashtable<Object, Object> {
+
+	private static final long serialVersionUID = 4112578634029874840L;
 
 	/**
 	 * The default values for keys not found in this {@code Properties}
@@ -56,7 +63,7 @@ public class Properties extends Hashtable<Object, Object> {
 	/**
 	 * Constructs a new {@code Properties} object using the specified default
 	 * {@code Properties}.
-	 *
+	 * 
 	 * @param properties
 	 *            the default {@code Properties}.
 	 */
@@ -64,7 +71,8 @@ public class Properties extends Hashtable<Object, Object> {
 		defaults = properties;
 	}
 
-	private void dumpString(StringBuilder buffer, String string, boolean isKey) {
+	private void dumpString(StringBuilder buffer, String string, boolean isKey,
+			boolean toHexaDecimal) {
 		int index = 0, length = string.length();
 		if (!isKey && index < length && string.charAt(index) == ' ') {
 			buffer.append("\\ "); //$NON-NLS-1$
@@ -93,7 +101,11 @@ public class Properties extends Hashtable<Object, Object> {
 				if (ch >= ' ' && ch <= '~') {
 					buffer.append(ch);
 				} else {
-					buffer.append(toHexaDecimal(ch));
+					if (toHexaDecimal) {
+						buffer.append(toHexaDecimal(ch));
+					} else {
+						buffer.append(ch);
+					}
 				}
 			}
 		}
@@ -118,7 +130,7 @@ public class Properties extends Hashtable<Object, Object> {
 	 * Searches for the property with the specified name. If the property is not
 	 * found, the default {@code Properties} are checked. If the property is not
 	 * found in the default {@code Properties}, {@code null} is returned.
-	 *
+	 * 
 	 * @param name
 	 *            the name of the property to find.
 	 * @return the named property value, or {@code null} if it can't be found.
@@ -137,7 +149,7 @@ public class Properties extends Hashtable<Object, Object> {
 	 * found, it looks in the default {@code Properties}. If the property is not
 	 * found in the default {@code Properties}, it returns the specified
 	 * default.
-	 *
+	 * 
 	 * @param name
 	 *            the name of the property to find.
 	 * @param defaultValue
@@ -159,7 +171,7 @@ public class Properties extends Hashtable<Object, Object> {
 	/**
 	 * Lists the mappings in this {@code Properties} to the specified
 	 * {@code PrintStream} in a human readable form.
-	 *
+	 * 
 	 * @param out
 	 *            the {@code PrintStream} to write the content to in human
 	 *            readable form.
@@ -194,7 +206,7 @@ public class Properties extends Hashtable<Object, Object> {
 	/**
 	 * Lists the mappings in this {@code Properties} to the specified
 	 * {@code PrintWriter} in a human readable form.
-	 *
+	 * 
 	 * @param writer
 	 *            the {@code PrintWriter} to write the content to in human
 	 *            readable form.
@@ -228,8 +240,52 @@ public class Properties extends Hashtable<Object, Object> {
 
 	/**
 	 * Loads properties from the specified {@code InputStream}. The encoding is
-	 * ISO8859-1. The {@code Properties} file is interpreted according to the
-	 * following rules:
+	 * ISO8859-1.
+	 * 
+	 * @param in
+	 *            the {@code InputStream}.
+	 * @throws IOException
+	 *             if error occurs during reading from the {@code InputStream}.
+	 */
+	public synchronized void load(InputStream in) throws IOException {
+		if (in == null) {
+			throw new NullPointerException();
+		}
+		BufferedInputStream bis = new BufferedInputStream(in);
+		bis.mark(Integer.MAX_VALUE);
+		boolean isEbcdic = isEbcdic(bis);
+		bis.reset();
+
+		if (!isEbcdic) {
+			loadImpl(new InputStreamReader(bis, "ISO8859-1")); //$NON-NLS-1$
+		} else {
+			loadImpl(new InputStreamReader(bis)); //$NON-NLS-1$
+		}
+	}
+
+	private boolean isEbcdic(BufferedInputStream in) throws IOException {
+		byte b;
+		while ((b = (byte) in.read()) != -1) {
+			if (b == 0x23 || b == 0x0a || b == 0x3d) {// ascii: newline/#/=
+				return false;
+			}
+			if (b == 0x15) {// EBCDIC newline
+				return true;
+			}
+		}
+		// we found no ascii newline, '#', neither '=', relative safe to
+		// consider it
+		// as non-ascii, the only exception will be a single line with only
+		// key(no value and '=')
+		// in this case, it should be no harm to read it in default charset
+		return false;
+	}
+
+	/**
+	 * Loads properties from the specified InputStream. The properties are of
+	 * the form <code>key=value</code>, one property per line. It may be not
+	 * encode as 'ISO-8859-1'.The {@code Properties} file is interpreted
+	 * according to the following rules:
 	 * <ul>
 	 * <li>Empty lines are ignored.</li>
 	 * <li>Lines starting with either a "#" or a "!" are comment lines and are
@@ -247,41 +303,28 @@ public class Properties extends Hashtable<Object, Object> {
 	 * <li>Following escape sequences are recognized: "\ ", "\\", "\r", "\n",
 	 * "\!", "\#", "\t", "\b", "\f", and "&#92;uXXXX" (unicode character).</li>
 	 * </ul>
-	 *
-	 * @param in
-	 *            the {@code InputStream}.
+	 * 
+	 * @param reader
+	 *            the input reader
 	 * @throws IOException
-	 *             if error occurs during reading from the {@code InputStream}.
+	 * @since 1.6
 	 */
-	@SuppressWarnings("fallthrough")
-	public synchronized void load(InputStream in) throws IOException {
-		if (in == null) {
-			throw new NullPointerException();
-		}
+	public synchronized void load(Reader reader) throws IOException {
+		loadImpl(reader);
+	}
+
+	private void loadImpl(Reader reader) throws IOException {
 		int mode = NONE, unicode = 0, count = 0;
 		char nextChar, buf[] = new char[40];
 		int offset = 0, keyLength = -1, intVal;
 		boolean firstChar = true;
-		BufferedInputStream bis = new BufferedInputStream(in);
+		BufferedReader br = new BufferedReader(reader);
 
 		while (true) {
-			intVal = bis.read();
-			if (intVal == -1) {
-				// if mode is UNICODE but has less than 4 hex digits, should
-				// throw an IllegalArgumentException
-				// luni.08=Invalid Unicode sequence: expected format \\uxxxx
-				if (mode == UNICODE && count < 4) {
-					throw new IllegalArgumentException(
-							"Invalid Unicode sequence: expected format \\uxxxx"); //$NON-NLS-1$
-				}
-				// if mode is SLASH and no data is read, should append '\u0000'
-				// to buf
-				if (mode == SLASH) {
-					buf[offset++] = '\u0000';
-				}
+			intVal = br.read();
+			if (intVal == -1)
 				break;
-			}
-			nextChar = (char) (intVal & 0xff);
+			nextChar = (char) intVal;
 
 			if (offset == buf.length) {
 				char[] newBuf = new char[buf.length * 2];
@@ -298,11 +341,11 @@ public class Properties extends Hashtable<Object, Object> {
 				} else if (count <= 4) {
 					// luni.09=Invalid Unicode sequence: illegal character
 					throw new IllegalArgumentException(
-							"Invalid Unicode sequence: illegal character"); //$NON-NLS-1$
+							Messages.getString("luni.09"));
 				}
 				mode = NONE;
 				buf[offset++] = (char) unicode;
-				if (nextChar != '\n') {
+				if (nextChar != '\n' && nextChar != '\u0085') {
 					continue;
 				}
 			}
@@ -312,6 +355,7 @@ public class Properties extends Hashtable<Object, Object> {
 				case '\r':
 					mode = CONTINUE; // Look for a following \n
 					continue;
+				case '\u0085':
 				case '\n':
 					mode = IGNORE; // Ignore whitespace on the next line
 					continue;
@@ -341,13 +385,14 @@ public class Properties extends Hashtable<Object, Object> {
 				case '!':
 					if (firstChar) {
 						while (true) {
-							intVal = bis.read();
-							if (intVal == -1) {
+							intVal = br.read();
+							if (intVal == -1)
 								break;
-							}
-							// & 0xff not required
-							nextChar = (char) intVal;
-							if (nextChar == '\r' || nextChar == '\n') {
+							nextChar = (char) intVal; // & 0xff
+														// not
+														// required
+							if (nextChar == '\r' || nextChar == '\n'
+									|| nextChar == '\u0085') {
 								break;
 							}
 						}
@@ -360,6 +405,7 @@ public class Properties extends Hashtable<Object, Object> {
 						continue;
 					}
 					// fall into the next case
+				case '\u0085':
 				case '\r':
 					mode = NONE;
 					firstChar = true;
@@ -413,33 +459,77 @@ public class Properties extends Hashtable<Object, Object> {
 			}
 			buf[offset++] = nextChar;
 		}
+		if (mode == UNICODE && count <= 4) {
+			// luni.08=Invalid Unicode sequence: expected format \\uxxxx
+			throw new IllegalArgumentException(Messages.getString("luni.08"));
+		}
 		if (keyLength == -1 && offset > 0) {
 			keyLength = offset;
 		}
 		if (keyLength >= 0) {
 			String temp = new String(buf, 0, offset);
-			put(temp.substring(0, keyLength), temp.substring(keyLength));
+			String key = temp.substring(0, keyLength);
+			String value = temp.substring(keyLength);
+			if (mode == SLASH) {
+				value += "\u0000";
+			}
+			put(key, value);
 		}
 	}
 
 	/**
 	 * Returns all of the property names that this {@code Properties} object
 	 * contains.
-	 *
+	 * 
 	 * @return an {@code Enumeration} containing the names of all properties
 	 *         that this {@code Properties} object contains.
 	 */
 	public Enumeration<?> propertyNames() {
 		Hashtable<Object, Object> selected = new Hashtable<Object, Object>();
-		selectProperties(selected);
+		selectProperties(selected, false);
 		return selected.keys();
 	}
 
-	private void selectProperties(Hashtable<Object, Object> selected) {
+	/**
+	 * Answers a set of keys in this property list whose key and value are
+	 * strings.
+	 * 
+	 * @return a set of keys in the property list
+	 * 
+	 * @since 1.6
+	 */
+	public Set<String> stringPropertyNames() {
+		Hashtable<String, String> stringProperties = new Hashtable<String, String>();
+		selectProperties(stringProperties, true);
+		return Collections.unmodifiableSet(stringProperties.keySet());
+	}
+
+	/*
+	 * Select properties including defaults according to requirements
+	 */
+	private void selectProperties(Hashtable selectProperties,
+			final boolean isStringOnly) {
 		if (defaults != null) {
-			defaults.selectProperties(selected);
+			defaults.selectProperties(selectProperties, isStringOnly);
 		}
-		selected.putAll(this);
+
+		Enumeration<?> keys = keys();
+		Object key, value;
+		while (keys.hasMoreElements()) {
+			key = keys.nextElement();
+			if (isStringOnly) {
+				// Only select property with string key and value
+				if (key instanceof String) {
+					value = get(key);
+					if (value instanceof String) {
+						selectProperties.put(key, value);
+					}
+				}
+			} else {
+				value = get(key);
+				selectProperties.put(key, value);
+			}
+		}
 	}
 
 	/**
@@ -447,7 +537,7 @@ public class Properties extends Hashtable<Object, Object> {
 	 * {@code OutputStream}, putting the specified comment at the beginning. The
 	 * output from this method is suitable for being read by the
 	 * {@link #load(InputStream)} method.
-	 *
+	 * 
 	 * @param out
 	 *            the {@code OutputStream} to write to.
 	 * @param comment
@@ -458,6 +548,7 @@ public class Properties extends Hashtable<Object, Object> {
 	 *             writing -- use {@link #store} instead for better exception
 	 *             handling.
 	 */
+	@Deprecated
 	public void save(OutputStream out, String comment) {
 		try {
 			store(out, comment);
@@ -468,7 +559,7 @@ public class Properties extends Hashtable<Object, Object> {
 	/**
 	 * Maps the specified key to the specified value. If the key already exists,
 	 * the old value is replaced. The key and value cannot be {@code null}.
-	 *
+	 * 
 	 * @param name
 	 *            the key.
 	 * @param value
@@ -482,27 +573,64 @@ public class Properties extends Hashtable<Object, Object> {
 	private static String lineSeparator;
 
 	/**
-	 * Stores the mappings in this {@code Properties} to the specified
-	 * {@code OutputStream}, putting the specified comment at the beginning. The
-	 * output from this method is suitable for being read by the
-	 * {@link #load(InputStream)} method.
-	 *
+	 * Stores the mappings in this Properties to the specified OutputStream,
+	 * putting the specified comment at the beginning. The output from this
+	 * method is suitable for being read by the load() method.
+	 * 
 	 * @param out
-	 *            the {@code OutputStream} to write to.
+	 *            the OutputStream
 	 * @param comments
-	 *            the comments to put at the beginning.
+	 *            the comments
 	 * @throws IOException
-	 *             if an error occurs during the write to the
-	 *             {@code OutputStream}.
-	 * @throws ClassCastException
-	 *             if the key or value of a mapping is not a {@code String}.
+	 * 
+	 * @exception ClassCastException
+	 *                when the key or value of a mapping is not a String
 	 */
 	public synchronized void store(OutputStream out, String comments)
 			throws IOException {
 		if (lineSeparator == null) {
+			lineSeparator = "\n";
+		}
+
+		StringBuilder buffer = new StringBuilder(200);
+		OutputStreamWriter writer = new OutputStreamWriter(out, "utf-8"); //$NON-NLS-1$
+		if (comments != null) {
+			writeComments(writer, comments);
+		}
+		writer.write('#');
+		writer.write(new Date().toString());
+		writer.write(lineSeparator);
+
+		for (Map.Entry<Object, Object> entry : entrySet()) {
+			String key = (String) entry.getKey();
+			dumpString(buffer, key, true, true);
+			buffer.append('=');
+			dumpString(buffer, (String) entry.getValue(), false, true);
+			buffer.append(lineSeparator);
+			writer.write(buffer.toString());
+			buffer.setLength(0);
+		}
+		writer.flush();
+	}
+
+	/**
+	 * Stores the mappings in this Properties to the specified OutputStream,
+	 * putting the specified comment at the beginning. The output from this
+	 * method is suitable for being read by the load() method.
+	 * 
+	 * @param writer
+	 *            the writer
+	 * @param comments
+	 *            the comments
+	 * @throws IOException
+	 *             if any I/O exception occurs
+	 * @since 1.6
+	 */
+	public synchronized void store(Writer writer, String comments)
+			throws IOException {
+		if (lineSeparator == null) {
 			lineSeparator = "\n"; //$NON-NLS-1$
 		}
-		OutputStreamWriter writer = new OutputStreamWriter(out, "ISO8859_1"); //$NON-NLS-1$
 		if (comments != null) {
 			writeComments(writer, comments);
 		}
@@ -513,9 +641,9 @@ public class Properties extends Hashtable<Object, Object> {
 		StringBuilder buffer = new StringBuilder(200);
 		for (Map.Entry<Object, Object> entry : entrySet()) {
 			String key = (String) entry.getKey();
-			dumpString(buffer, key, true);
+			dumpString(buffer, key, true, false);
 			buffer.append('=');
-			dumpString(buffer, (String) entry.getValue(), false);
+			dumpString(buffer, (String) entry.getValue(), false, false);
 			buffer.append(lineSeparator);
 			writer.write(buffer.toString());
 			buffer.setLength(0);
@@ -528,25 +656,104 @@ public class Properties extends Hashtable<Object, Object> {
 		writer.write('#');
 		char[] chars = comments.toCharArray();
 		for (int index = 0; index < chars.length; index++) {
-			if (chars[index] == '\r' || chars[index] == '\n') {
-				int indexPlusOne = index + 1;
-				if (chars[index] == '\r' && indexPlusOne < chars.length
-						&& chars[indexPlusOne] == '\n') {
-					// "\r\n"
-					continue;
+			if (chars[index] < 256) {
+				if (chars[index] == '\r' || chars[index] == '\n') {
+					int indexPlusOne = index + 1;
+					if (chars[index] == '\r' && indexPlusOne < chars.length
+							&& chars[indexPlusOne] == '\n') {
+						// "\r\n"
+						continue;
+					}
+					writer.write(lineSeparator);
+					if (indexPlusOne < chars.length
+							&& (chars[indexPlusOne] == '#' || chars[indexPlusOne] == '!')) {
+						// return char with either '#' or '!' afterward
+						continue;
+					}
+					writer.write('#');
+				} else {
+					writer.write(chars[index]);
 				}
-				writer.write(lineSeparator);
-				if (indexPlusOne < chars.length
-						&& (chars[indexPlusOne] == '#' || chars[indexPlusOne] == '!')) {
-					// return char with either '#' or '!' afterward
-					continue;
-				}
-				writer.write('#');
 			} else {
-				writer.write(chars[index]);
+				writer.write(toHexaDecimal(chars[index]));
 			}
 		}
 		writer.write(lineSeparator);
 	}
 
+	/**
+	 * Loads the properties from an {@code InputStream} containing the
+	 * properties in XML form. The XML document must begin with (and conform to)
+	 * following DOCTYPE:
+	 * 
+	 * <pre>
+	 * &lt;!DOCTYPE properties SYSTEM &quot;http://java.sun.com/dtd/properties.dtd&quot;&gt;
+	 * </pre>
+	 * 
+	 * Also the content of the XML data must satisfy the DTD but the xml is not
+	 * validated against it. The DTD is not loaded from the SYSTEM ID. After
+	 * this method returns the InputStream is not closed.
+	 * 
+	 * @param in
+	 *            the InputStream containing the XML document.
+	 * @throws IOException
+	 *             in case an error occurs during a read operation.
+	 * @throws InvalidPropertiesFormatException
+	 *             if the XML data is not a valid properties file.
+	 */
+	public synchronized void loadFromXML(InputStream in) throws IOException,
+			InvalidPropertiesFormatException {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Writes all properties stored in this instance into the
+	 * {@code OutputStream} in XML representation. The DOCTYPE is
+	 * 
+	 * <pre>
+	 * &lt;!DOCTYPE properties SYSTEM &quot;http://java.sun.com/dtd/properties.dtd&quot;&gt;
+	 * </pre>
+	 * 
+	 * If the comment is null, no comment is added to the output. UTF-8 is used
+	 * as the encoding. The {@code OutputStream} is not closed at the end. A
+	 * call to this method is the same as a call to {@code storeToXML(os,
+	 * comment, "UTF-8")}.
+	 * 
+	 * @param os
+	 *            the {@code OutputStream} to write to.
+	 * @param comment
+	 *            the comment to add. If null, no comment is added.
+	 * @throws IOException
+	 *             if an error occurs during writing to the output.
+	 */
+	public void storeToXML(OutputStream os, String comment) throws IOException {
+		storeToXML(os, comment, "UTF-8"); //$NON-NLS-1$
+	}
+
+	/**
+	 * Writes all properties stored in this instance into the
+	 * {@code OutputStream} in XML representation. The DOCTYPE is
+	 * 
+	 * <pre>
+	 * &lt;!DOCTYPE properties SYSTEM &quot;http://java.sun.com/dtd/properties.dtd&quot;&gt;
+	 * </pre>
+	 * 
+	 * If the comment is null, no comment is added to the output. The parameter
+	 * {@code encoding} defines which encoding should be used. The
+	 * {@code OutputStream} is not closed at the end.
+	 * 
+	 * @param os
+	 *            the {@code OutputStream} to write to.
+	 * @param comment
+	 *            the comment to add. If null, no comment is added.
+	 * @param encoding
+	 *            the code identifying the encoding that should be used to write
+	 *            into the {@code OutputStream}.
+	 * @throws IOException
+	 *             if an error occurs during writing to the output.
+	 */
+	public synchronized void storeToXML(OutputStream os, String comment,
+			String encoding) throws IOException {
+		throw new UnsupportedOperationException();
+	}
 }

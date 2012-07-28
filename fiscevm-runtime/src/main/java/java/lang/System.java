@@ -98,4 +98,8 @@ public final class System {
 	public static native void gc();
 
 	public static native long nanoTime();
+
+	public static SecurityManager getSecurityManager() {
+		return null;
+	}
 }
