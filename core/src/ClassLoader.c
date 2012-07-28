@@ -1047,12 +1047,12 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 	}
 	clazz->phase = 2;
 }
-fy_class *fy_clLoadclass(fy_context *context, fy_str *name, fy_inputStream *is,
+fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		fy_exception *exception) {
-
+	fy_inputStream *is;
+	fy_classDefine *cd;
 	fy_class *clazz;
 	fy_memblock *block = context->memblocks;
-	fy_int isManaged = 0;
 	fy_str str[1];
 	str->content = NULL;
 
@@ -1108,9 +1108,12 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name, fy_inputStream *is,
 		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(block,
 				context->mapPrimitivesRev, name);
 	} else {
-		if(is==NULL) {
-			isManaged=1;
+		cd=fy_hashMapGet(context->memblocks,context->customClassData,name);
+		if(cd==NULL) {
 			is = fy_clOpenResource(context, name, exception);
+			FYEH()NULL;
+		} else {
+			is=fy_baisOpenByteArrayInputStream(context,cd->data,cd->size,exception);
 			FYEH()NULL;
 		}
 		if (is == NULL) {
@@ -1124,10 +1127,8 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name, fy_inputStream *is,
 		}
 
 		clazz = fy_clLoadclassPriv(context, is, exception);
-		if(isManaged) {
-			is->isClose(context, is);
-			fy_mmFree(context->memblocks,is);
-		}
+		is->isClose(context, is);
+		fy_mmFree(context->memblocks,is);
 		FYEH()NULL;
 		if (clazz->superClass != NULL) {
 			clazz->super = fy_vmLookupClassFromConstant(context,

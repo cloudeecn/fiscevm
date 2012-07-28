@@ -407,6 +407,9 @@ static void initStructClassloader(fy_context *context, fy_exception *exception) 
 
 	fy_hashMapIInitPerm(block, context->constructorObjIds, 7, -1, exception);
 	FYEH();
+
+	fy_hashMapInitPerm(block, context->customClassData, 128, exception);
+	FYEH();
 }
 
 static void initThreadManager(fy_context *context, fy_exception *exception) {
@@ -470,7 +473,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
 			MAX_OBJECTS * (fy_int) sizeof(fy_object))
-;	fy_fisInitInputStream(context);
+;
+	fy_fisInitInputStream(context);
 	fy_bsRegisterBinarySaver(context);
 	fy_mmInit(context->memblocks, exception);
 	FYEH();
@@ -602,11 +606,12 @@ fy_field *fy_vmGetField(fy_context *context, fy_str *uniqueName) {
 fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
 		fy_str *fieldName, fy_exception *exception) {
 	/*TODO Maybe wrong!!! need to check*/
-	int *pFid;
+	int *pFid, i, imax;
 	fy_field *field = NULL;
 	fy_str *uniqueName;
 	fy_str *uniqueNameTmp;
 	fy_memblock *block = context->memblocks;
+	fy_class *intf;
 
 	uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
 	FYEH()NULL;
@@ -623,22 +628,70 @@ fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
 	FYEH()NULL;
 	fy_strAppend(block, uniqueName, fieldName, exception);
 	FYEH()NULL;
+#ifdef FY_VERBOSE
+	context->logDVar(context, "Looking up field ");
+	context->logDStr(context, uniqueName);
+	context->logDVarLn(context, "");
+#endif
+
+	imax = clazz->interfacesCount;
+	for (i = 0; i < imax; i++) {
+		intf = clazz->interfaces[i];
+		fy_strClear(uniqueNameTmp);
+		fy_strAppend(block, uniqueNameTmp, intf->className, exception);
+		FYEH()NULL;
+		fy_strAppend(block, uniqueNameTmp, fieldName, exception);
+		FYEH()NULL;
+#ifdef FY_VERBOSE
+		context->logDVar(context, "++Trying ");
+		context->logDStr(context, uniqueNameTmp);
+#endif
+		pFid = fy_hashMapGet(block, context->mapFieldNameToId, uniqueNameTmp);
+		if (pFid != NULL ) {
+#ifdef FY_VERBOSE
+			context->logDVarLn(context, "...Succeed!");
+#endif
+			fy_hashMapPut(block, context->mapFieldNameToId, uniqueName, pFid,
+					exception);
+			FYEH()NULL;
+			field = context->fields[*pFid];
+			clazz = NULL;
+			break;
+		} else {
+#ifdef FY_VERBOSE
+			context->logDVarLn(context, "...");
+#endif
+		}
+	}
+
 	while (clazz != NULL ) {
 		fy_strClear(uniqueNameTmp);
 		fy_strAppend(block, uniqueNameTmp, clazz->className, exception);
 		FYEH()NULL;
 		fy_strAppend(block, uniqueNameTmp, fieldName, exception);
 		FYEH()NULL;
+#ifdef FY_VERBOSE
+		context->logDVar(context, "++Trying ");
+		context->logDStr(context, uniqueNameTmp);
+#endif
 		pFid = fy_hashMapGet(block, context->mapFieldNameToId, uniqueNameTmp);
 		if (pFid != NULL ) {
+#ifdef FY_VERBOSE
+			context->logDVarLn(context, "...Succeed!");
+#endif
 			fy_hashMapPut(block, context->mapFieldNameToId, uniqueName, pFid,
 					exception);
 			FYEH()NULL;
 			field = context->fields[*pFid];
 			break;
+		} else {
+#ifdef FY_VERBOSE
+			context->logDVarLn(context, "...");
+#endif
 		}
 		clazz = clazz->super;
 	}
+
 	fy_strDestroy(block, uniqueNameTmp);
 	fy_mmFree(block, uniqueNameTmp);
 	fy_strDestroy(block, uniqueName);
@@ -783,12 +836,12 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 	clazz->classId = *pCid;
 }
 
-fy_class *fy_vmLoadClassEX(fy_context *context, fy_str *name,
-		fy_inputStream *is, fy_exception *exception) {
+fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
+		fy_exception *exception) {
 	fy_class *clazz;
 	clazz = getClass(context, name);
 	if (clazz == NULL ) {
-		clazz = fy_clLoadclass(context, name, is, exception);
+		clazz = fy_clLoadclass(context, name, exception);
 		if (exception->exceptionType != exception_none) {
 			return NULL ;
 		}
@@ -806,21 +859,22 @@ fy_class *fy_vmLoadClassEX(fy_context *context, fy_str *name,
 	return clazz;
 }
 
-fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
-		fy_exception *exception) {
-	return fy_vmLoadClassEX(context, name, NULL, exception);
-}
-
-fy_class *fy_vmDefineClass(fy_context *context, fy_str *name, fy_byte *data,
+void fy_vmDefineClass(fy_context *context, fy_str *name, fy_byte *data,
 		fy_int dataLen, fy_exception *exception) {
-	fy_class *ret;
-	fy_inputStream *is;
-	is = fy_baisOpenByteArrayInputStream(context, data, dataLen, exception);
-	FYEH()NULL;
-	ret = fy_vmLoadClassEX(context, name, is, exception);
-	is->isClose(context, is);
-	fy_mmFree(context->memblocks, is);
-	return ret;
+	fy_classDefine *cd;
+	cd = fy_hashMapGet(context->memblocks, context->customClassData, name);
+	if (cd == NULL ) {
+		cd = fy_mmAllocatePerm(context->memblocks, sizeof(fy_int) + dataLen,
+				exception);
+		FYEH();
+		cd->size = dataLen;
+		memcpy(cd->data, data, dataLen);
+		fy_hashMapPut(context->memblocks, context->customClassData, name, cd,
+				exception);
+		FYEH();
+	} else {
+		fy_fault(exception,FY_EXCEPTION_INCOMPAT_CHANGE,"Class define dup.");
+	}
 }
 
 /*Likes com.cirnoworks.fisce.vm.VMContext.getClass(String name)*/
@@ -868,6 +922,7 @@ fy_class *fy_vmLookupClassFromConstant(fy_context *context,
 fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 		ConstantFieldRef *fieldInfo, fy_exception *exception) {
 	fy_field *field;
+
 	if (fieldInfo->derefed == 0) {
 		fieldInfo->clazz = fy_vmLookupClassFromConstant(context,
 				fieldInfo->constantClass, exception);

@@ -2269,8 +2269,34 @@ static void proxyDefineClassImpl(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_message *message, fy_exception *exception) {
 	fy_int classNameHandle = args[1];
-	fy_int dataHandle = args[1];
-
+	fy_int dataHandle = args[2];
+	fy_byte *buf;
+	fy_str str[1];
+	fy_class *clazz;
+	fy_int ret;
+	fy_int len = fy_heapArrayLength(context, dataHandle, exception);
+	FYEH();
+	buf = fy_heapGetArrayBytes(context, dataHandle, exception);
+	FYEH();
+	str->content = NULL;
+	fy_strInit(context->memblocks, str, 128, exception);
+	FYEH();
+	fy_heapGetString(context, classNameHandle, str, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, str);
+		return;
+	}
+	fy_vmDefineClass(context, str, buf, len, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_strDestroy(context->memblocks, str);
+		return;
+	}
+	clazz = fy_vmLookupClass(context, str, exception);
+	fy_strDestroy(context->memblocks, str);
+	FYEH();
+	ret = fy_vmGetClassObjHandle(context, clazz, exception);
+	FYEH();
+	fy_nativeReturnHandle(context, thread, ret);
 }
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {

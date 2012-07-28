@@ -367,6 +367,10 @@ void testReflection() {
 	hltest("EXCLUDE/fisce/test/ReflectionTest");
 }
 
+void testProxy() {
+	hltest("EXCLUDE/fisce/test/ProxyTest");
+}
+
 void testLoad() {
 	hltest(NULL);
 }
@@ -456,10 +460,11 @@ FY_TEST_FUN testcases[] = { //
 				{ "ComplexClassStructor", testComplex }, //
 				{ "TableSwitch", testTableSwitch }, //
 				{ "LookupSwitch", testLookupSwitch }, //
-				{ "Save", testSave }, //
-				{ "Load", testLoad }, //
 				{ "StoreParamsToArray", testStore }, //
 				{ "Reflection", testReflection }, //
+				{ "Proxy", testProxy }, //
+				{ "Save", testSave }, //
+				{ "Load", testLoad }, //
 				{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {

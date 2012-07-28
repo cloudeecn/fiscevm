@@ -391,6 +391,11 @@ extern "C" {
 		fy_int count;
 	}fy_profile_data;
 
+	typedef struct fy_classDefine {
+		fy_int size;
+		FY_VLS(fy_byte,data);
+	}fy_classDefine;
+
 	struct fy_context;
 
 	typedef struct fy_inputStream {
@@ -594,6 +599,8 @@ extern "C" {
 		fy_hashMapI methodObjIds[1];
 		fy_hashMapI fieldObjIds[1];
 		fy_hashMapI constructorObjIds[1];
+
+		fy_hashMap customClassData[1];
 
 		/* #BEGIN GLOBAL*/
 		fy_arrayList switchTargets[1];
