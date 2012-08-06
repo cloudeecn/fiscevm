@@ -868,6 +868,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 	fy_field *field;
 	fy_method *method;
 	fy_str str[1];
+	fy_class *tmp;
 #ifdef FY_DEBUG
 	char buf[255];
 #endif
@@ -903,7 +904,24 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			}
 #endif
 
+			/*貌似加载顺序的问题会导致父类的sizeAbs不正确，我们暂时枚举所有的父类把sizeRel加起来
 			clazz->sizeAbs = clazz->super->sizeAbs + clazz->sizeRel;
+			*/
+			tmp=clazz;
+			clazz->sizeAbs=0;
+			while(tmp!=NULL) {
+				clazz->sizeAbs+=tmp->sizeRel;
+				tmp=tmp->super;
+			}
+#ifdef FY_VERBOSE
+			context->logDVar(context,"#CL#");
+			context->logDStr(context,clazz->className);
+			context->logDVar(context," sizeAbs=%d sizeRel=%d\n",clazz->sizeAbs,clazz->sizeRel);
+
+			context->logDVar(context,"   +");
+			context->logDStr(context,clazz->super->className);
+			context->logDVar(context," sizeAbs=%d sizeRel=%d\n",clazz->super->sizeAbs,clazz->super->sizeRel);
+#endif
 			for (i = 0; i < clazz->fieldCount; i++) {
 				if (clazz->fields[i]->access_flags & FY_ACC_STATIC) {
 
