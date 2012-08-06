@@ -367,6 +367,10 @@ void testReflection() {
 	hltest("EXCLUDE/fisce/test/ReflectionTest");
 }
 
+void testBasicRegex() {
+	hltest("EXCLUDE/fisce/test/BasicRegexTest");
+}
+
 void testProxy() {
 	hltest("EXCLUDE/fisce/test/ProxyTest");
 }
@@ -462,6 +466,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "LookupSwitch", testLookupSwitch }, //
 				{ "StoreParamsToArray", testStore }, //
 				{ "Reflection", testReflection }, //
+				{ "BasicRegex", testBasicRegex }, //
 				{ "Proxy", testProxy }, //
 				{ "Save", testSave }, //
 				{ "Load", testLoad }, //

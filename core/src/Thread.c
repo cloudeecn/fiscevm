@@ -3444,7 +3444,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_VERBOSE
 					context->logDVar(context,"Long field:[");
 					context->logDStr(context, field->uniqueName);
-					context->logDVar(context,"] = %"FY_PRINT64"d\n", lvalue);
+					context->logDVar(context,"] = %"FY_PRINT64"d(%"FY_PRINT64"x)\n", lvalue,lvalue);
 #endif
 					break;
 				default:
@@ -3453,7 +3453,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_VERBOSE
 					context->logDVar(context,"Field:[");
 					context->logDStr(context, field->uniqueName);
-					context->logDVar(context,"] = %d\n", ivalue);
+					context->logDVar(context,"] = %d(%x)\n", ivalue,ivalue);
 #endif
 					break;
 				}
