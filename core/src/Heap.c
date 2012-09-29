@@ -36,8 +36,7 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 				return 0;
 			} else {
 				DLOG(context, "Call GC due to handle full\n")
-;
-				fy_heapGC(context, exception);
+;				fy_heapGC(context, exception);
 				return fetchNextHandle(context, TRUE, exception);
 			}
 		}
@@ -669,7 +668,7 @@ void fy_heapPutFieldBoolean(fy_context *context, fy_int handle, fy_field *field,
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -680,7 +679,7 @@ void fy_heapPutFieldHandle(fy_context *context, fy_int handle, fy_field *field,
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -691,7 +690,7 @@ void fy_heapPutFieldByte(fy_context *context, fy_int handle, fy_field *field,
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -702,7 +701,7 @@ void fy_heapPutFieldShort(fy_context *context, fy_int handle, fy_field *field,
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -713,7 +712,7 @@ void fy_heapPutFieldChar(fy_context *context, fy_int handle, fy_field *field,
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -724,7 +723,7 @@ void fy_heapPutFieldInt(fy_context *context, fy_int handle, fy_field *field,
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -737,7 +736,7 @@ void fy_heapPutFieldLong(fy_context *context, fy_int handle, fy_field *field,
 	context->logDVar(context, "value=%"FY_PRINT64"d\nhigh=%ud\nlow=%ud\n",
 			value, fy_HOFL(value), fy_LOFL(value) );
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = fy_HOFL(value);
 	((fy_int*) obj->object_data->data)[field->posAbs + 1] = fy_LOFL(value);
@@ -749,7 +748,7 @@ void fy_heapPutFieldFloat(fy_context *context, fy_int handle, fy_field *field,
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = fy_floatToInt(value);
 }
@@ -761,7 +760,7 @@ void fy_heapPutFieldDouble(fy_context *context, fy_int handle, fy_field *field,
 	ASSERT(validate(context,handle,field));
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*)obj->object_data->data + field->posAbs));
+			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
 #endif
 	longValue = fy_doubleToLong(value);
 	((fy_int*) obj->object_data->data)[field->posAbs] = fy_HOFL(longValue);
@@ -917,14 +916,16 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 	imax = context->classesCount;
 	for (i = 1; i <= imax; i++) {
 		clazz = context->classes[i];
-		FYEH();
-		jmax = clazz->staticSize;
-		for (j = 0; j < jmax; j++) {
-			field = clazz->fieldStatic[j];
-			if (field != NULL
-					&& (field->descriptor->content[0] == FY_TYPE_HANDLE
-							|| field->descriptor->content[0] == FY_TYPE_ARRAY)) {
-				fy_bitSet(marks, clazz->staticArea[j]);
+		if (clazz->phase == 2) {
+			jmax = clazz->staticSize;
+			for (j = 0; j < jmax; j++) {
+				field = clazz->fieldStatic[j];
+				if (field != NULL
+						&& (field->descriptor->content[0] == FY_TYPE_HANDLE
+								|| field->descriptor->content[0]
+										== FY_TYPE_ARRAY)) {
+					fy_bitSet(marks, clazz->staticArea[j]);
+				}
 			}
 		}
 	}

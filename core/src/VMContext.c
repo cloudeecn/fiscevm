@@ -772,6 +772,59 @@ fy_method *fy_vmLookupMethodVirtualByMethod(fy_context *context,
 	return actureMethod;
 }
 
+fy_method *fy_vmLookupMethodFromInterfaces(fy_context *context, fy_class *clazz,
+		fy_str *methodName, fy_exception *exception) {
+	int *pMid;
+	fy_class *intf;
+	fy_int i, imax;
+	fy_method *method = NULL;
+	fy_memblock *block = context->memblocks;
+	fy_str *uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
+	FYEH()NULL;
+	fy_str *uniqueNameTmp = fy_mmAllocate(block, sizeof(fy_str), exception);
+	FYEH()NULL;
+	fy_strInit(block, uniqueName,
+			clazz->className->length + methodName->length + 1, exception);
+	FYEH()NULL;
+	fy_strInit(block, uniqueNameTmp,
+			clazz->className->length + methodName->length + 1, exception);
+	FYEH()NULL;
+
+	fy_strAppend(block, uniqueName, clazz->className, exception);
+	FYEH()NULL;
+	fy_strAppend(block, uniqueName, methodName, exception);
+	FYEH()NULL;
+	while (clazz != NULL ) {
+		imax = clazz->interfacesCount;
+		for (i = 0; i < imax; i++) {
+			intf = clazz->interfaces[i];
+			fy_strClear(uniqueNameTmp);
+			fy_strAppend(block, uniqueNameTmp, intf->className, exception);
+			FYEH()NULL;
+			fy_strAppend(block, uniqueNameTmp, methodName, exception);
+			FYEH()NULL;
+			pMid = fy_hashMapGet(block, context->mapMethodNameToId,
+					uniqueNameTmp);
+			if (pMid != NULL ) {
+				fy_hashMapPut(block, context->mapMethodNameToId, uniqueName,
+						pMid, exception);
+				FYEH()NULL;
+				method = context->methods[*pMid];
+				break;
+			}
+		}
+		if (method != NULL ) {
+			break;
+		}
+		clazz = clazz->super;
+	}
+	fy_strDestroy(block, uniqueNameTmp);
+	fy_mmFree(block, uniqueNameTmp);
+	fy_strDestroy(block, uniqueName);
+	fy_mmFree(block, uniqueName);
+	return method;
+}
+
 fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 		fy_str *methodName, fy_exception *exception) {
 	int *pMid;
@@ -956,11 +1009,17 @@ fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 		method = fy_vmLookupMethodVirtual(context, methodInfo->clazz,
 				methodInfo->nameType, exception);
 		FYEH()NULL;
+		if (method == NULL
+				&& (methodInfo->clazz->accessFlags & FY_ACC_ABSTRACT)) {
+			method = fy_vmLookupMethodFromInterfaces(context, methodInfo->clazz,
+					methodInfo->nameType, exception);
+			FYEH()NULL;
+		}
 		if (method == NULL ) {
-			context->logEVar(context,"Method [");
-			context->logEStr(context,methodInfo->clazz->className);
-			context->logEStr(context,methodInfo->nameType);
-			context->logEVarLn(context,"] not found!");
+			context->logEVar(context, "Method not found:");
+			context->logEStr(context, methodInfo->clazz->className);
+			context->logEStr(context, methodInfo->nameType);
+			context->logEVarLn(context, "");
 			fy_fault(exception, NULL, "Method not found");
 			return NULL ;
 		}
