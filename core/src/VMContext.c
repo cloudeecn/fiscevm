@@ -957,6 +957,10 @@ fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 				methodInfo->nameType, exception);
 		FYEH()NULL;
 		if (method == NULL ) {
+			context->logEVar(context,"Method [");
+			context->logEStr(context,methodInfo->clazz->className);
+			context->logEStr(context,methodInfo->nameType);
+			context->logEVarLn(context,"] not found!");
 			fy_fault(exception, NULL, "Method not found");
 			return NULL ;
 		}

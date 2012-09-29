@@ -80,6 +80,7 @@ FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 			printf("Fatal error occored: %s\n", exception->exceptionDesc);
 			i++;
 			i++;
+			exit(-1);
 		}
 	}
 }
