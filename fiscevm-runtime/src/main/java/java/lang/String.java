@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import com.cirnoworks.fisce.privat.FiScEVM;
-import com.cirnoworks.fisce.privat.StringUtils;
 
 /**
  * An immutable sequence of characters/code units ({@code char}s). A

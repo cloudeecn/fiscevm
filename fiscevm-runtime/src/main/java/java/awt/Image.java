@@ -5,6 +5,6 @@ package java.awt;
  * @author cloudee
  *
  */
-public interface Image {
+public abstract class Image {
 
 }

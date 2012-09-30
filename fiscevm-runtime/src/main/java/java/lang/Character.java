@@ -22,8 +22,6 @@ import java.util.TreeMap;
 
 import org.apache.harmony.luni.util.BinarySearch;
 
-import com.cirnoworks.fisce.privat.StringUtils;
-
 /**
  * The wrapper for the primitive type {@code char}. This class also provides a
  * number of utility methods for working with characters.
@@ -3047,7 +3045,11 @@ public final class Character implements Comparable<Character> {
 	 *         -1 otherwise.
 	 */
 	public static int digit(int codePoint, int radix) {
-		return StringUtils.digit(codePoint, radix);
+		if (codePoint < MAX_VALUE) {
+			return digit((char) codePoint, radix);
+		} else {
+			return -1;
+		}
 	}
 
 	/**
@@ -3140,7 +3142,11 @@ public final class Character implements Comparable<Character> {
 	 *         with an integer.
 	 */
 	public static int getNumericValue(int codePoint) {
-		return StringUtils.getNumericValue(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return getNumericValue((char) codePoint);
+		} else {
+			return -1;
+		}
 	}
 
 	/**
@@ -3174,7 +3180,11 @@ public final class Character implements Comparable<Character> {
 	 * @return the Unicode category of {@code codePoint}.
 	 */
 	public static int getType(int codePoint) {
-		return StringUtils.getType(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return getType((char) codePoint);
+		} else {
+			return UNASSIGNED;
+		}
 	}
 
 	/**
@@ -3205,7 +3215,11 @@ public final class Character implements Comparable<Character> {
 	 * @return the Unicode directionality of {@code codePoint}.
 	 */
 	public static byte getDirectionality(int codePoint) {
-		return StringUtils.getDirectionality(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return getDirectionality((char) codePoint);
+		} else {
+			return DIRECTIONALITY_UNDEFINED;
+		}
 	}
 
 	/**
@@ -3233,7 +3247,11 @@ public final class Character implements Comparable<Character> {
 	 *         otherwise.
 	 */
 	public static boolean isMirrored(int codePoint) {
-		return StringUtils.isMirrored(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isMirrored((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	@Override
@@ -3264,7 +3282,11 @@ public final class Character implements Comparable<Character> {
 	 *         not {@code UNASSIGNED}; {@code false} otherwise.
 	 */
 	public static boolean isDefined(int codePoint) {
-		return StringUtils.isDefined(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isDefined((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3294,7 +3316,11 @@ public final class Character implements Comparable<Character> {
 	 *         otherwise.
 	 */
 	public static boolean isDigit(int codePoint) {
-		return StringUtils.isDigit(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isDigit((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3320,7 +3346,11 @@ public final class Character implements Comparable<Character> {
 	 *         otherwise.
 	 */
 	public static boolean isIdentifierIgnorable(int codePoint) {
-		return StringUtils.isIdentifierIgnorable(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isIdentifierIgnorable((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3478,7 +3508,11 @@ public final class Character implements Comparable<Character> {
 	 *         otherwise.
 	 */
 	public static boolean isLetter(int codePoint) {
-		return StringUtils.isLetter(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isLetter((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3504,7 +3538,11 @@ public final class Character implements Comparable<Character> {
 	 *         {@code false} otherwise.
 	 */
 	public static boolean isLetterOrDigit(int codePoint) {
-		return StringUtils.isLetterOrDigit(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isLetterOrDigit((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3536,7 +3574,11 @@ public final class Character implements Comparable<Character> {
 	 *         {@code false} otherwise.
 	 */
 	public static boolean isLowerCase(int codePoint) {
-		return StringUtils.isLowerCase(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isLowerCase((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3584,7 +3626,11 @@ public final class Character implements Comparable<Character> {
 	 *         {@code false} otherwise.
 	 */
 	public static boolean isSpaceChar(int codePoint) {
-		return StringUtils.isSpaceChar(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isSpaceChar((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3619,7 +3665,11 @@ public final class Character implements Comparable<Character> {
 	 *         {@code false} otherwise.
 	 */
 	public static boolean isTitleCase(int codePoint) {
-		return StringUtils.isTitleCase(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isTitleCase((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3650,7 +3700,11 @@ public final class Character implements Comparable<Character> {
 	 *         identifier; {@code false} otherwise.
 	 */
 	public static boolean isUnicodeIdentifierPart(int codePoint) {
-		return StringUtils.isUnicodeIdentifierPart(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isUnicodeIdentifierPart((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3678,7 +3732,11 @@ public final class Character implements Comparable<Character> {
 	 *         a Unicode identifier; {@code false} otherwise.
 	 */
 	public static boolean isUnicodeIdentifierStart(int codePoint) {
-		return StringUtils.isUnicodeIdentifierStart(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isUnicodeIdentifierStart((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3710,7 +3768,11 @@ public final class Character implements Comparable<Character> {
 	 *         {@code false} otherwise.
 	 */
 	public static boolean isUpperCase(int codePoint) {
-		return StringUtils.isUpperCase(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return isUpperCase((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3746,9 +3808,11 @@ public final class Character implements Comparable<Character> {
 	 *         in Java; {@code false} otherwise.
 	 */
 	public static boolean isWhitespace(int codePoint) {
-		// FIXME depends on ICU when the codePoint is '\u2007'
-		return StringUtils.isWhitespace(codePoint);
-
+		if (codePoint < MAX_VALUE) {
+			return isWhitespace((char) codePoint);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -3816,7 +3880,11 @@ public final class Character implements Comparable<Character> {
 	 *         case counterpart, otherwise just {@code codePoint}.
 	 */
 	public static int toLowerCase(int codePoint) {
-		return StringUtils.toLowerCase(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return toLowerCase((char) codePoint);
+		} else {
+			return codePoint;
+		}
 	}
 
 	@Override
@@ -3865,7 +3933,11 @@ public final class Character implements Comparable<Character> {
 	 *         otherwise {@code codePoint}.
 	 */
 	public static int toTitleCase(int codePoint) {
-		return StringUtils.toTitleCase(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return toTitleCase((char) codePoint);
+		} else {
+			return codePoint;
+		}
 	}
 
 	/**
@@ -3920,7 +3992,11 @@ public final class Character implements Comparable<Character> {
 	 *         case counterpart, otherwise just {@code codePoint}.
 	 */
 	public static int toUpperCase(int codePoint) {
-		return StringUtils.toUpperCase(codePoint);
+		if (codePoint < MAX_VALUE) {
+			return toUpperCase((char) codePoint);
+		} else {
+			return codePoint;
+		}
 	}
 
 }
