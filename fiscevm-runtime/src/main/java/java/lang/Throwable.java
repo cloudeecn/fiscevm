@@ -120,6 +120,7 @@ public class Throwable {
 
 	public synchronized Throwable fillInStackTrace() {
 		fillInStackTrace0();
+
 		return this;
 	}
 
@@ -129,8 +130,41 @@ public class Throwable {
 		return (StackTraceElement[]) getOurStackTrace().clone();
 	}
 
+	private StackTraceElement[] ourStackTrace;
+
 	private synchronized StackTraceElement[] getOurStackTrace() {
-		return stackTrace;
+		if (ourStackTrace == null && stackTrace != null) {
+			int pos = -1;
+			Class cl = this.getClass();
+			String cn = cl.getName();
+			for (int i = 0, max = stackTrace.length; i < max; i++) {
+				FiScEVM.debug.println("$$$$" + stackTrace[i].getClassName()
+						+ " " + cn);
+				if (stackTrace[i] != null
+						&& cn.equals(stackTrace[i].getClassName())) {
+					pos = i;
+				} else {
+					try {
+						Class clazz = Class.forName(stackTrace[i]
+								.getClassName());
+						if (!clazz.isAssignableFrom(cl)) {
+							break;
+						}
+					} catch (Throwable t) {
+
+					}
+				}
+			}
+			FiScEVM.debug.println("pos=" + pos);
+			if (pos >= 0 && pos < stackTrace.length - 1) {
+				int len = stackTrace.length - 1 - pos;
+				ourStackTrace = new StackTraceElement[len];
+				System.arraycopy(stackTrace, pos + 1, ourStackTrace, 0, len);
+			} else {
+				ourStackTrace = stackTrace;
+			}
+		}
+		return ourStackTrace;
 	}
 
 	public void setStackTrace(StackTraceElement[] stackTrace) {

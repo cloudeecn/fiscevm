@@ -612,7 +612,7 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 	}
 
 	public boolean isLocalClass() {
-		return true;
+		return false;
 	}
 
 	public boolean isAnonymousClass() {
