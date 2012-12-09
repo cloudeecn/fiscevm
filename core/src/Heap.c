@@ -182,6 +182,7 @@ fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle,
 		fy_exception *exception) {
 	if (handle == 0) {
 		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return 0;
 	}
 	return fy_heapGetObject(context, handle)->object_data->clazz;
 }

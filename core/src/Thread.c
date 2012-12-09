@@ -31,12 +31,13 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_int target = -1;
 	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 #ifdef FY_DEBUG
-	context->logDVar(context,"Exception:");
+	context->logDVar(context,"Exception: ");
 	context->logDStr(context,
 			fy_heapGetClassOfObject(context, handle, exception)->className);
 	context->logDVar(context,"\nat ");
 	context->logDStr(context, frame->method->uniqueName);
 	context->logDVar(context,"\n");
+	context->logDVar(context,"LPC=%"FY_PRINT32"d ", lpc);
 #endif
 	throwableClass = fy_heapGetClassOfObject(context, handle, exception);
 	FYEH()0;
@@ -62,6 +63,9 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 			}
 		}
 	}
+#ifdef FY_DEBUG
+	context->logDVarLn(context,"target=%"FY_PRINT32"d", target);
+#endif
 	return target;
 	//Jump after found the target is move to run() for further optimize
 }
