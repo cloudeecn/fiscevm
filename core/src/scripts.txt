@@ -1,0 +1,11 @@
+#build for android x86
+cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON -DCMAKE_TOOLCHAIN_FILE=../../src/main/c/android.toolchain.cmake -DLIBRARY_OUTPUT_PATH_ROOT=. -DANDROID_ABI=x86 -DANDROID_NATIVE_API_LEVEL=android-9 ../../src/main/c
+
+#build for android arm
+cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON -DCMAKE_TOOLCHAIN_FILE=../../src/main/c/android.toolchain.cmake -DLIBRARY_OUTPUT_PATH_ROOT=. -DANDROID_ABI=armeabi -DANDROID_NATIVE_API_LEVEL=android-4 ../../src/main/c
+
+#build for host
+cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON ../../src/main/c
+
+#build for mingw32
+cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON -DCMAKE_TOOLCHAIN_FILE=../../src/main/c/mingw32.toolchain.cmake -DCOMPILER_PREFIX="i486-mingw32" ../../src/main/c

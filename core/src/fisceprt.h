@@ -25,9 +25,14 @@
 
 #if defined(_WIN32)
 # include <windows.h>
-#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+# define FY_PRT_WIN32 1
+#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE) \
+	|| defined(__linux) || defined(__unix) || defined(__posix)
 # include <sys/time.h>
 # include <errno.h>
+# define FY_PRT_POSIX 1
+#else
+# error "Unsupported system"
 #endif
 
 #include <time.h>
@@ -79,11 +84,11 @@ typedef struct fy_exception {
 #define FYEH() fy_exceptionCheckAndReturn(exception)
 typedef struct fy_port {
 	fy_long initTimeInMillSec;
-#if defined(_WIN32)
+#if defined(FY_PRT_WIN32)
 	LARGE_INTEGER lpFreq;
 	LARGE_INTEGER lpPerfCountBegin;
 	double perfIdv;
-#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(FY_PRT_POSIX)
 	struct timeval tvBeginTime;
 #endif
 } fy_port;
@@ -93,7 +98,7 @@ typedef struct fy_port {
 # define sprintf_s snprintf
 # define vsprintf_s vsnprintf
 #endif
-#if defined(_WIN32)
+#if defined(FY_PRT_WIN32)
 # if defined(__GNUC__)
 #  if defined(FY_EXPORT) && defined(DLL_EXPORT)
 #   define FY_ATTR_EXPORT __attribute__((externally_visible)) __attribute__((dllexport))
