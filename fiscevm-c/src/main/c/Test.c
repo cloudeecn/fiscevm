@@ -139,7 +139,6 @@ void testClassMethod() {
 	sComplex->content = NULL;
 	fy_strInitWithUTF8(block, sComplex, "complex", exception);
 	TEST_EXCEPTION(exception);
-	lookup(context, "com/cirnoworks/fisce/privat/StringUtils", exception);
 
 	lookup(context, "EXCLUDE/fisce/test/ITester", exception);
 	t = lookup(context, "EXCLUDE/fisce/test/Tester", exception);
@@ -466,7 +465,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "LookupSwitch", testLookupSwitch }, //
 				{ "StoreParamsToArray", testStore }, //
 				{ "Reflection", testReflection }, //
-				{ "BasicRegex", testBasicRegex }, //
+				// { "BasicRegex", testBasicRegex }, //
 				{ "Proxy", testProxy }, //
 				{ "Save", testSave }, //
 				{ "Load", testLoad }, //

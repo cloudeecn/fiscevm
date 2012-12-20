@@ -47,64 +47,136 @@ configure_file (
 #include_directories("src/main/inc")
 include_directories("${PROJECT_BINARY_DIR}")
 
-option (ENABLE_DEBUG "Debug mode" OFF)
-option (ENABLE_LIGHT_DEBUG "Light debug mode" OFF)
-option (ENABLE_LTO "Use link-time optimization" ON)
 option (ENABLE_VERBOSE "Verbose output" OFF)
+option (ENABLE_TEST "Generate test binary" OFF)
 
-ADD_LIBRARY(fisce STATIC ${SRC_LIST_LIB})
-ADD_EXECUTABLE(fisce-test ${SRC_LIST_TEST})
-ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+if(ANDROID)
+    set(HAS_MATH ON)
+    set(HAS_LTO ON)
+else(ANDROID)
+    try_compile(HAS_M32 ${PROJECT_BINARY_DIR}/detectors/params32 ${PROJECT_SOURCE_DIR}/detectors/params
+    	params-test
+    	CMAKE_FLAGS "-DTEST_PARAM=-m32"
+    )
+    
+    try_compile(HAS_M64 ${PROJECT_BINARY_DIR}/detectors/params64 ${PROJECT_SOURCE_DIR}/detectors/params
+    	params-test
+    	CMAKE_FLAGS "-DTEST_PARAM=-m64"
+    )
+    
+    try_compile(HAS_MATH ${PROJECT_BINARY_DIR}/detectors/paramsm ${PROJECT_SOURCE_DIR}/detectors/params
+        params-test
+        CMAKE_FLAGS "-DTEST_PARAM=-lm"
+    )
+    
+    try_compile(HAS_LTO ${PROJECT_BINARY_DIR}/detectors/paramslto ${PROJECT_SOURCE_DIR}/detectors/params
+        params-test
+        CMAKE_FLAGS "-DTEST_PARAM=-flto"
+    )
+        
+    try_compile(HAS_WIN32 ${PROJECT_BINARY_DIR}/detectors/win32 ${PROJECT_SOURCE_DIR}/detectors/win32
+        win32-test
+    )
 
-set(FY_COPT "")
-set(FY_LOPT "")
-if(ENABLE_DEBUG)
-	set(FY_COPT "${FY_COPT} -g3 -O0")
-	set(FY_LOPT "${FY_LOPT} -O0")
-	set(FY_CDEF ${FY_CDEF} FY_DEBUG)
-elseif(ENABLE_LIGHT_DEBUG)
-	set(FY_COPT "${FY_COPT} -g3 -O2")
-	set(FY_LOPT "${FY_LOPT} -O2")
-elseif(ENABLE_LTO)
-	set(FY_COPT "${FY_LOPT} -flto")
-	set(FY_LOPT "${FY_LOPT} -O3 -flto")
-else(ENABLE_DEBUG)
-	set(FY_COPT "${FY_COPT} -O3")
-	set(FY_LOPT "${FY_LOPT} -O3")
-endif(ENABLE_DEBUG)
+endif(ANDROID)
 
-if(ENABLE_VERBOSE)
-	set(FY_CDEF ${FY_CDEF} FY_VERBOSE)
-endif(ENABLE_VERBOSE)
+if(HAS_LTO)
+    message("Link time optimization supported")
+    set(FLAG_LTO "-flto")
+endif(HAS_LTO)
+        
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3 -O0")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 ${FLAG_LTO}")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3 -O2 ${FLAG_LTO}")
 
-set(FY_CDEF_STATIC ${FY_CDEF} FY_STATIC)
-set(FY_CDEF_EXPORT ${FY_CDEF} FY_EXPORT)
+set(CMAKE_LINK_FLAGS_DEBUG "${CMAKE_LINK_FLAGS_DEBUG}")
+set(CMAKE_LINK_FLAGS_RELEASE "${CMAKE_LINK_FLAGS_RELEASE} -O3 ${FLAG_LTO}")
+set(CMAKE_LINK_FLAGS_RELWITHDEBINFO "${CMAKE_LINK_FLAGS_RELWITHDEBINFO} -O2     ${FLAG_LTO}")
 
-set_property(TARGET fisce fisce-test
-	APPEND PROPERTY
-		COMPILE_DEFINITIONS ${FY_CDEF_STATIC}
-)
+if(HAS_WIN32)
+    message("Using win32 params")
+    set(W32_ADD_FLAGS "-Wl,--kill-at")
+endif(HAS_WIN32)
 
-set_property(TARGET fyjni
-	APPEND PROPERTY
-		COMPILE_DEFINITIONS ${FY_CDEF_EXPORT}
-)
+if(HAS_MATH)
+    message("Using external math library")
+endif(HAS_MATH)
 
-if(WIN32)
-	set(FY_LOPT "${FY_LOPT} -Wl,--kill-at")
-endif(WIN32)
+if(ENABLE_TEST)
+    message("Will generate test binary")
+    ADD_EXECUTABLE(fisce-test ${SRC_LIST_LIB} ${SRC_LIST_TEST})
+    if(HAS_MATH)
+    	TARGET_LINK_LIBRARIES(fisce-test m)
+    endif(HAS_MATH)
+    set_property(TARGET fisce-test
+    	APPEND PROPERTY
+    		COMPILE_DEFINITIONS FY_STATIC
+    )
+endif(ENABLE_TEST)
 
-IF(UNIX)
-	TARGET_LINK_LIBRARIES(fisce-test m)
-	TARGET_LINK_LIBRARIES(fyjni m)
-ENDIF(UNIX)
-TARGET_LINK_LIBRARIES(fisce-test fisce)
+if(NOT (HAS_M32 OR HAS_M64))
+    message("Will generate default binary")
+    ADD_LIBRARY(fisce MODULE ${SRC_LIST_LIB})
+    ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+    if(HAS_MATH)
+    	TARGET_LINK_LIBRARIES(fisce m)
+	    TARGET_LINK_LIBRARIES(fyjni m)
+    endif(HAS_MATH)
+    set_property(TARGET fisce fyjni
+    	APPEND PROPERTY
+    		COMPILE_DEFINITIONS FY_EXPORT
+    )
+    set_target_properties(fyjni
+        PROPERTIES
+		    LINK_FLAGS "${W32_ADD_FLAGS} -Wl,--no-undefined"
+    )
+endif(NOT (HAS_M32 OR HAS_M64))
 
-set(FY_COPT "${FY_COPT} -Wall")
+if(HAS_M32)
+    message("Will generate 32bit binary")
+    ADD_LIBRARY(fisce MODULE ${SRC_LIST_LIB})
+    ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+    if(HAS_MATH)
+    	TARGET_LINK_LIBRARIES(fisce m)
+	    TARGET_LINK_LIBRARIES(fyjni m)
+    endif(HAS_MATH)
+    set_property(TARGET fisce fyjni
+    	APPEND PROPERTY
+    		COMPILE_DEFINITIONS FY_EXPORT
+    )
+    set_target_properties(fisce
+        PROPERTIES
+    		COMPILE_FLAGS "-m32"
+		    LINK_FLAGS "-m32 -Wl,--no-undefined"
+    )
+    set_target_properties(fyjni
+        PROPERTIES
+		    COMPILE_FLAGS "-m32"
+		    LINK_FLAGS "-m32 ${W32_ADD_FLAGS} -Wl,--no-undefined"
+    )
+endif(HAS_M32)
 
-set_target_properties(fisce fisce-test fyjni
-    PROPERTIES
-	COMPILE_FLAGS "${FY_COPT}"
-	LINK_FLAGS "${FY_LOPT}"
-)
-
+if(HAS_M64)
+    message("Will generate 64bit binary")
+    ADD_LIBRARY(fisce64 MODULE ${SRC_LIST_LIB})
+    ADD_LIBRARY(fyjni64 MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+    if(HAS_MATH)
+    	TARGET_LINK_LIBRARIES(fisce64 m)
+	    TARGET_LINK_LIBRARIES(fyjni64 m)
+    endif(HAS_MATH)
+    set_property(TARGET fisce64 fyjni64
+    	APPEND PROPERTY
+    		COMPILE_DEFINITIONS FY_EXPORT
+    )
+    set_target_properties(fisce64
+        PROPERTIES
+    		COMPILE_FLAGS "-m64"
+		    LINK_FLAGS "-m64 -Wl,--no-undefined"
+    )
+    set_target_properties(fyjni64
+        PROPERTIES
+		    COMPILE_FLAGS "-m64"
+		    LINK_FLAGS "-m64 ${W32_ADD_FLAGS} -Wl,--no-undefined"
+    )
+endif(HAS_M64)

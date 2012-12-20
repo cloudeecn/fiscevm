@@ -129,11 +129,11 @@ FY_ATTR_EXPORT fy_boolean fy_isnanf(fy_float f) {
 
 FY_ATTR_EXPORT void fy_portInit(fy_port *data) {
 	data->initTimeInMillSec = (fy_long) time(NULL) * 1000;
-#if defined(_WIN32)
+#if defined(FY_PRT_WIN32)
 	QueryPerformanceFrequency(&(data->lpFreq));
 	QueryPerformanceCounter(&(data->lpPerfCountBegin));
 	data->perfIdv = 1000000000.0 / data->lpFreq.QuadPart;
-#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(FY_PRT_POSIX)
 	gettimeofday(&(data->tvBeginTime), NULL);
 #endif
 }
@@ -141,14 +141,14 @@ FY_ATTR_EXPORT void fy_portDestroy(fy_port *data) {
 	/*No code need yet*/
 }
 FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
-#if defined(_WIN32)
+#if defined(FY_PRT_WIN32)
 	fy_long timeDelta;
 	LARGE_INTEGER lPerfCount;
 	QueryPerformanceCounter(&lPerfCount);
 	timeDelta = lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart;
 	timeDelta = timeDelta * 1000 / pd->lpFreq.QuadPart;
 	return timeDelta + pd->initTimeInMillSec;
-#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(FY_PRT_POSIX)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return ((fy_long) tv.tv_sec) * 1000 + ((fy_long) tv.tv_usec) / 1000;
@@ -156,12 +156,12 @@ FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
 	return 0;
 }
 FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd) {
-#if defined(_WIN32)
+#if defined(FY_PRT_WIN32)
 	LARGE_INTEGER lPerfCount;
 	QueryPerformanceCounter(&lPerfCount);
 	return (fy_long) ((lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart)
 			* pd->perfIdv);
-#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE)
+#elif defined(FY_PRT_POSIX)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return ((fy_long) tv.tv_sec) * 1000000000 + ((fy_long) tv.tv_usec) * 1000;
