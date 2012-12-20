@@ -117,7 +117,7 @@
 							</vars>
 						</configuration>
 					</execution>
-					
+					<!-- 
 					<execution>
 						<id>cmake-generate-android-linux-test</id>
 						<phase>process-sources</phase>
@@ -125,12 +125,12 @@
 							<goal>test</goal>
 						</goals>
 						<configuration>
-							<binary>${project.build.directory}/output/linux</binary>
+							<binary>${project.build.directory}/output/linux/fisce-test</binary>
 							<testName>fisce-test</testName>
 							<results>${project.build.directory}/results</results>
 						</configuration>
 					</execution>
-					
+					 -->
 					
 					<!-- 
 					<execution>
