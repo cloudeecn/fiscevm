@@ -20,7 +20,7 @@
 	    <dependencySet>
 	        <unpack>true</unpack>
 	        <scope>test</scope>
-	        <outputDirectory>.</outputDirectory>
+	        <outputDirectory>./runtime/</outputDirectory>
 	    </dependencySet>
 	</dependencySets>
 </assembly>
