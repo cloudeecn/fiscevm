@@ -2,7 +2,7 @@
 	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-	<id>linux</id>
+	<id>android</id>
 	<formats>
 		<format>zip</format>
 	</formats>
@@ -10,7 +10,7 @@
 	<fileSets>
 		<!-- 直接拷贝mydate97的皮肤和多国语言文件 -->
 		<fileSet>
-			<directory>output/android-arm/libs/armeabi</directory>
+			<directory>${project.build.directory}/output/android-arm/libs/armeabi</directory>
 			<includes>
 			    <include>**/*.so</include>
 			</includes>
@@ -18,7 +18,7 @@
 		</fileSet>
 		<!-- 直接拷贝mydate97的皮肤和多国语言文件 -->
 		<fileSet>
-			<directory>output/android-x86/libs/armeabi</directory>
+			<directory>${project.build.directory}/output/android-x86/libs/x86</directory>
 			<includes>
 			    <include>**/*.so</include>
 			</includes>
