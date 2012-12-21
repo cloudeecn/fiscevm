@@ -35,18 +35,9 @@
 				<artifactId>cmake-ng</artifactId>
 				<version>1.0</version>
 				<executions>
-				    <!-- 
-					<execution>
-						<id>cmake-clean</id>
-						<phase>clean</phase>
-						<goals>
-							<goal>clean</goal>
-						</goals>
-						<configuration>
-							<output>${project.build.directory}/output</output>
-						</configuration>
-					</execution>
-					 -->
+					<!-- <execution> <id>cmake-clean</id> <phase>clean</phase> <goals> <goal>clean</goal> 
+						</goals> <configuration> <output>${project.build.directory}/output</output> 
+						</configuration> </execution> -->
 					<execution>
 						<id>cmake-generate-linux</id>
 						<phase>process-sources</phase>
@@ -62,7 +53,7 @@
 							</vars>
 						</configuration>
 					</execution>
-					
+
 					<execution>
 						<id>cmake-generate-win32</id>
 						<phase>process-sources</phase>
@@ -79,7 +70,7 @@
 							</vars>
 						</configuration>
 					</execution>
-					
+
 					<execution>
 						<id>cmake-generate-android-arm</id>
 						<phase>process-sources</phase>
@@ -98,7 +89,7 @@
 							</vars>
 						</configuration>
 					</execution>
-					
+
 					<execution>
 						<id>cmake-generate-android-x86</id>
 						<phase>process-sources</phase>
@@ -106,7 +97,7 @@
 							<goal>compile</goal>
 						</goals>
 						<configuration>
-							<output>${project.build.directory}/output/android-86</output>
+							<output>${project.build.directory}/output/android-x86</output>
 							<source>${basedir}/src/main/c</source>
 							<vars>
 								<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
@@ -117,7 +108,6 @@
 							</vars>
 						</configuration>
 					</execution>
-					<!-- 
 					<execution>
 						<id>cmake-generate-android-linux-test</id>
 						<phase>process-sources</phase>
@@ -130,145 +120,33 @@
 							<results>${project.build.directory}/results</results>
 						</configuration>
 					</execution>
-					 -->
-					
-					<!-- 
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
 					<execution>
-						<id>cmake-generate-linux</id>
-						<phase>process-sources</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
 						<configuration>
-							<output>${project.build.directory}/output/linux</output>
-							<source>${basedir}/src/main/c</source>
-							<vars>
-								<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
-							</vars>
+							<descriptors>
+								<descriptor>assembly-linux.xml</descriptor>
+								<descriptor>assembly-win32.xml</descriptor>
+								<descriptor>assembly-android.xml</descriptor>
+							</descriptors>
 						</configuration>
-					</execution>
-					<execution>
-						<id>cmake-compile</id>
-						<phase>compile</phase>
+						<id>make-assembly</id>
+						<phase>package</phase>
 						<goals>
-							<goal>compile</goal>
+							<goal>single</goal>
 						</goals>
-						<configuration>
-							<target>all</target>
-							<output>${project.build.directory}/output</output>
-						</configuration>
 					</execution>
-					<execution>
-						<id>cmake-passing-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<binary>${project.build.directory}/output/passingTest</binary>
-							<args>
-								<arg1>arg1</arg1>
-								<arg2>arg2</arg2>
-							</args>
-							<timeout>120</timeout>
-							<results>${project.build.directory}/results</results>
-							<preconditions>
-								<and>true</and>
-								<andNot>false</andNot>
-								<and>true</and>
-							</preconditions>
-						</configuration>
-					</execution>
-					<execution>
-						<id>cmake-failing-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<binary>${project.build.directory}/output/sleepTest</binary>
-							<testName>myFailingTest</testName>
-							<results>${project.build.directory}/results</results>
-							<timeout>1</timeout>
-							<env>
-								<TEST_SLEEP>100</TEST_SLEEP>
-							</env>
-							<expectedResult>failure</expectedResult>
-							<preconditions>
-								<andNot>${you.must.not.set.this.maven.system.variable.i.beg.of.you}</andNot>
-							</preconditions>
-						</configuration>
-					</execution>
-					<execution>
-						<id>cmake-return-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<binary>${project.build.directory}/output/returnTest</binary>
-							<results>${project.build.directory}/results</results>
-							<testName>myReturnTest</testName>
-							<args>
-								<arg1>2</arg1>
-							</args>
-							<expectedResult>failure</expectedResult>
-						</configuration>
-					</execution>
-					<execution>
-						<id>cmake-skipped-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<binary>${project.build.directory}/output/returnTest</binary>
-							<results>${project.build.directory}/results</results>
-							<testName>mySkippedTest</testName>
-							<preconditions>
-								<and>true</and>
-								<andNot>true</andNot>
-							</preconditions>
-						</configuration>
-					</execution>
-					<execution>
-						<id>cmake-skipped-test2</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<binary>${project.build.directory}/output/returnTest</binary>
-							<results>${project.build.directory}/results</results>
-							<testName>mySkippedTest2</testName>
-							<preconditions>
-								<and>true</and>
-								<andNot>false</andNot>
-								<andNot>false</andNot>
-								<and>${you.must.not.set.this.maven.system.variable.i.beg.of.you}</and>
-							</preconditions>
-						</configuration>
-					</execution>
-					<execution>
-						<id>cmake-missing-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<binary>${project.build.directory}/output/missingTest</binary>
-							<results>${project.build.directory}/results</results>
-							<testName>myMissingTest</testName>
-							<skipIfMissing>true</skipIfMissing>
-						</configuration>
-					</execution>
-			 -->
 				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -303,5 +181,13 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.cirnoworks.fisce</groupId>
+			<artifactId>fiscevm-runtime</artifactId>
+			<version>2.0.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>
 
