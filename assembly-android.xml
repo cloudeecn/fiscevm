@@ -16,8 +16,6 @@
 			</includes>
 			<outputDirectory>libs/armeabi</outputDirectory>
 		</fileSet>
-	</fileSets>
-	<fileSets>
 		<!-- 直接拷贝mydate97的皮肤和多国语言文件 -->
 		<fileSet>
 			<directory>output/android-x86/libs/armeabi</directory>

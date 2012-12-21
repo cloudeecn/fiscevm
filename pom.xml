@@ -108,6 +108,7 @@
 							</vars>
 						</configuration>
 					</execution>
+					<!-- 
 					<execution>
 						<id>cmake-generate-android-linux-test</id>
 						<phase>process-sources</phase>
@@ -120,6 +121,7 @@
 							<results>${project.build.directory}/results</results>
 						</configuration>
 					</execution>
+					-->
 				</executions>
 			</plugin>
 			<plugin>
