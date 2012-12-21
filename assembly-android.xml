@@ -25,4 +25,19 @@
 			<outputDirectory>libs/x86</outputDirectory>
 		</fileSet>
 	</fileSets>
+	<files>
+		<file>
+			<source>${basedir}/src/main/c/README</source>
+			<outputDirectory>libs</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/src/main/c/COPYING</source>
+			<outputDirectory>libs</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/src/main/c/COPYING.LESSER</source>
+			<outputDirectory>libs</outputDirectory>
+		</file>
+	</files>
+	
 </assembly>

@@ -7,14 +7,28 @@
 		<format>zip</format>
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
-	<fileSets>
-		<!-- 直接拷贝mydate97的皮肤和多国语言文件 -->
-		<fileSet>
-			<directory>${project.build.directory}/output/win32</directory>
-			<includes>
-			    <include>**/*.dll</include>
-			</includes>
+	<files>
+	    <file>
+	        <source>${project.build.directory}/output/win32/libfisce.dll</source>
+	        <destName>fisce.dll</destName>
+	        <outputDirectory>com/cirnoworks/libfisce/jni</outputDirectory>
+	    </file>
+	    <file>
+	        <source>${project.build.directory}/output/win32/libfyjni.dll</source>
+	        <destName>fyjni.dll</destName>
+	        <outputDirectory>com/cirnoworks/libfisce/jni</outputDirectory>
+	    </file>
+		<file>
+			<source>${basedir}/src/main/c/README</source>
 			<outputDirectory>com/cirnoworks/libfisce/jni</outputDirectory>
-		</fileSet>
-	</fileSets>
+		</file>
+		<file>
+			<source>${basedir}/src/main/c/COPYING</source>
+			<outputDirectory>com/cirnoworks/libfisce/jni</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/src/main/c/COPYING.LESSER</source>
+			<outputDirectory>com/cirnoworks/libfisce/jni</outputDirectory>
+		</file>
+	</files>
 </assembly>

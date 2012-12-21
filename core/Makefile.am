@@ -1,2 +1,0 @@
-SUBDIRS= make
-ACLOCAL_AMFLAGS = -I m4

@@ -1,9 +1,0 @@
-echo $ANDROID_ROOT
-export CFLAGS="-I$ANDROID_NDK/platforms/android-4/arch-arm/usr/include -nostdlib" 
-export LDFLAGS="-Wl,-rpath-link=$ANDROID_NDK/platforms/android-4/arch-arm/usr/lib -L$ANDROID_NDK/platforms/android-4/arch-arm/usr/lib" 
-export LIBS="-lc -lgcc" 
-./configure --prefix=$PWD/dist/android-arm --host=arm-linux-androideabi $@
-make clean
-cd src
-ln -s $ANDROID_NDK/platforms/android-4/arch-arm/usr/lib/crtbegin_so.o
-ln -s $ANDROID_NDK/platforms/android-4/arch-arm/usr/lib/crtend_so.o

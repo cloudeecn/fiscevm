@@ -1,3 +1,0 @@
-./configure --enable-debug
-make clean all
-
