@@ -50,7 +50,6 @@
 							</vars>
 						</configuration>
 					</execution>
-
 					<execution>
 						<id>cmake-generate-win32</id>
 						<phase>process-sources</phase>
@@ -67,7 +66,6 @@
 							</vars>
 						</configuration>
 					</execution>
-
 					<execution>
 						<id>cmake-generate-android-arm</id>
 						<phase>process-sources</phase>
@@ -86,7 +84,6 @@
 							</vars>
 						</configuration>
 					</execution>
-
 					<execution>
 						<id>cmake-generate-android-x86</id>
 						<phase>process-sources</phase>
@@ -105,16 +102,22 @@
 							</vars>
 						</configuration>
 					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<executions>
 					<execution>
-						<id>cmake-generate-android-linux-test</id>
+						<id>android-linux-test</id>
 						<phase>test</phase>
 						<goals>
-							<goal>test</goal>
+							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<binary>${project.build.directory}/fisce-test/fisce-test</binary>
-							<testName>fisce-test</testName>
-							<results>${project.build.directory}/results</results>
+							<executable>${project.build.directory}/fisce-test/fisce-test</executable>
+							<workingDirectory>${project.build.directory}/fisce-test/</workingDirectory>
 						</configuration>
 					</execution>
 				</executions>
