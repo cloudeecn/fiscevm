@@ -9,7 +9,7 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
-			<directory>${project.build.directory}/output/linux</directory>
+			<directory>${project.build.directory}/test-bin</directory>
 			<includes>
 			    <include>fisce-test</include>
 			</includes>

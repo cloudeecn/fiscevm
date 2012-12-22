@@ -29,6 +29,19 @@
 		</repository>
 	</repositories>
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*.so</include>
+					<include>**/*.dll</include>
+					<include>**/README</include>
+					<include>**/AUTHORS</include>
+					<include>**/COPYING</include>
+					<include>**/COPYING.*</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugin.cmake.ng</groupId>
@@ -37,12 +50,26 @@
 				<executions>
 					<execution>
 						<id>cmake-generate-linux</id>
-						<phase>process-sources</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>compile</goal>
 						</goals>
 						<configuration>
-							<output>${project.build.directory}/output/linux</output>
+							<output>${basedir}/src/main/resources/com/cirnoworks/libfisce/linux</output>
+							<source>${basedir}/src/main/c</source>
+							<vars>
+								<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
+							</vars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>cmake-generate-test</id>
+						<phase>generate-test-resources</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<output>${project.build.directory}/test-bin</output>
 							<source>${basedir}/src/main/c</source>
 							<vars>
 								<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
@@ -52,12 +79,12 @@
 					</execution>
 					<execution>
 						<id>cmake-generate-win32</id>
-						<phase>process-sources</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>compile</goal>
 						</goals>
 						<configuration>
-							<output>${project.build.directory}/output/win32</output>
+							<output>${basedir}/src/main/resources/com/cirnoworks/libfisce/win32</output>
 							<source>${basedir}/src/main/c</source>
 							<vars>
 								<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
@@ -68,7 +95,7 @@
 					</execution>
 					<execution>
 						<id>cmake-generate-android-arm</id>
-						<phase>process-sources</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>compile</goal>
 						</goals>
@@ -86,7 +113,7 @@
 					</execution>
 					<execution>
 						<id>cmake-generate-android-x86</id>
-						<phase>process-sources</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>compile</goal>
 						</goals>
@@ -129,8 +156,6 @@
 					<execution>
 						<configuration>
 							<descriptors>
-								<descriptor>assembly-linux.xml</descriptor>
-								<descriptor>assembly-win32.xml</descriptor>
 								<descriptor>assembly-android.xml</descriptor>
 							</descriptors>
 						</configuration>
