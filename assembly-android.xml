@@ -26,16 +26,20 @@
 		</fileSet>
 	</fileSets>
 	<files>
-		<file>
-			<source>${basedir}/src/main/c/README</source>
+	    <file>
+			<source>${basedir}/src/main/resources/AUTHORS</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/c/COPYING</source>
+			<source>${basedir}/src/main/resources/README</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/c/COPYING.LESSER</source>
+			<source>${basedir}/src/main/resources/COPYING</source>
+			<outputDirectory>libs</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/src/main/resources/COPYING.LESSER</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 	</files>
