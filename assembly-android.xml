@@ -27,19 +27,19 @@
 	</fileSets>
 	<files>
 	    <file>
-			<source>${basedir}/src/main/resources/AUTHORS</source>
+			<source>${basedir}/src/main/resources/com/cirnoworks/libfisce/AUTHORS</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/resources/README</source>
+			<source>${basedir}/src/main/resources/com/cirnoworks/libfisce/README</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/resources/COPYING</source>
+			<source>${basedir}/src/main/resources/com/cirnoworks/libfisce/COPYING</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/resources/COPYING.LESSER</source>
+			<source>${basedir}/src/main/resources/com/cirnoworks/libfisce/COPYING.LESSER</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 	</files>
