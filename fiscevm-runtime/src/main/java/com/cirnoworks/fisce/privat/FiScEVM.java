@@ -166,6 +166,9 @@ public class FiScEVM {
 			int pos, int count);
 
 	public static Object wide(Object from, Class<?> type) {
+		if(from==null){
+			return null;
+		}
 		Class<?> argType = from.getClass();
 		if (type.isAssignableFrom(argType)) {
 			return from;
