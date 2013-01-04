@@ -25,4 +25,18 @@ public class TestService {
 			}
 		}
 	}
+
+	public static void assertEqual(Object expected, Object actual) {
+		if (expected == null) {
+			if (actual != null) {
+				fail("Assertion error: expected[" + expected + "] but actual["
+						+ actual + "]");
+			}
+		} else {
+			if (!expected.equals(actual)) {
+				fail("Assertion error: expected[" + expected + "] but actual["
+						+ actual + "]");
+			}
+		}
+	}
 }
