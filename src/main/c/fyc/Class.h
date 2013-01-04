@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
-		fy_class *other);
+		fy_class *other, fy_boolean processInterface);
 fy_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
 		fy_class *other);
 

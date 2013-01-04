@@ -190,6 +190,7 @@ FY_ATTR_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception);
 FY_ATTR_EXPORT void fy_free(void *target);
 FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 		const char *msg, ...);
+FY_ATTR_EXPORT int fy_breakpoint();
 FY_ATTR_EXPORT long int fy_getAllocated();
 
 FY_ATTR_EXPORT void fy_portInit(fy_port *pd);

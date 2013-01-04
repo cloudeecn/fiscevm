@@ -124,8 +124,8 @@ void testClassLoaderFull() {
 	clStr = lookup(context, FY_BASE_STRING, exception);
 	clObj = lookup(context, FY_BASE_OBJECT, exception);
 	clazz = lookup(context, FY_BASE_INT, exception);
-	FY_ASSERT(fy_classCanCastTo(context, clStr, clObj));
-	FY_ASSERT(!fy_classCanCastTo(context, clStr, clazz));
+	FY_ASSERT(fy_classCanCastTo(context, clStr, clObj, TRUE));
+	FY_ASSERT(!fy_classCanCastTo(context, clStr, clazz, TRUE));
 }
 
 void testClassMethod() {
@@ -163,14 +163,14 @@ void testClassMethod() {
 	class5 = lookup(context, "[[LEXCLUDE/fisce/test/ITester;", exception);
 	class6 = lookup(context, "[[LEXCLUDE/fisce/test/Tester;", exception);
 	lookup(context, "[[LEXCLUDE/fisce/test/TesterChild;", exception);
-	FY_ASSERT(!fy_classCanCastTo(context, class1, class2));
-	FY_ASSERT(!fy_classCanCastTo(context, class1, class3));
-	FY_ASSERT(fy_classCanCastTo(context, class1, class0));
-	FY_ASSERT(fy_classCanCastTo(context, class3, class4));
-	FY_ASSERT(fy_classCanCastTo(context, class6, class5));
-	FY_ASSERT(fy_classCanCastTo(context, class6, class4));
-	FY_ASSERT(!fy_classCanCastTo(context, class6, class3));
-	FY_ASSERT(!fy_classCanCastTo(context, class6, class2));
+	FY_ASSERT(!fy_classCanCastTo(context, class1, class2, TRUE));
+	FY_ASSERT(!fy_classCanCastTo(context, class1, class3, TRUE));
+	FY_ASSERT(fy_classCanCastTo(context, class1, class0, TRUE));
+	FY_ASSERT(fy_classCanCastTo(context, class3, class4, TRUE));
+	FY_ASSERT(fy_classCanCastTo(context, class6, class5, TRUE));
+	FY_ASSERT(fy_classCanCastTo(context, class6, class4, TRUE));
+	FY_ASSERT(!fy_classCanCastTo(context, class6, class3, TRUE));
+	FY_ASSERT(!fy_classCanCastTo(context, class6, class2, TRUE));
 	FY_ASSERT(class3->ci.arr.contentClass == class1);
 }
 
@@ -300,6 +300,10 @@ void testArray() {
 
 void testArch() {
 	hltest("EXCLUDE/fisce/test/ArchitectureTest");
+}
+
+void testHierarchy() {
+	hltest("EXCLUDE/fisce/test/HierarchyTest");
 }
 
 void testDebugPrintStream() {
@@ -447,6 +451,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "heap", testHeap }, //
 				{ "cleanup1", testCleanup1 }, //
 				{ "Arch", testArch }, //
+				{ "Hierarchy", testHierarchy }, //
 				{ "Unicode", testUnicode }, //
 				{ "DebugPrintStream", testDebugPrintStream }, //
 				{ "Static", testStatic }, //

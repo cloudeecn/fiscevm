@@ -21,12 +21,13 @@ fy_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
 	if (this == other) {
 		return FALSE;
 	}
-	return fy_classCanCastTo(context, other, this);
+	return fy_classCanCastTo(context, other, this, TRUE);
 }
 
 fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
-		fy_class *other) {
+		fy_class *other,fy_boolean processInterface) {
 	fy_class **interfaces;
+	fy_class *interface;
 	int i, max;
 #ifdef FY_VERBOSE
 	context->logDVar(context,"##CAST ");
@@ -50,18 +51,21 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 #endif
 		switch (this->type) {
 		case object_class: {
-			interfaces = this->interfaces;
-			for (i = 0, max = this->interfacesCount; i < max; i++) {
-				if (other == interfaces[i]) {
+			if(processInterface){
+				interfaces = this->interfaces;
+				for (i = 0, max = this->interfacesCount; i < max; i++) {
+					interface=interfaces[i];
+					if (fy_classCanCastTo(context, interface, other, processInterface)) {
 #ifdef FY_VERBOSE
-					context->logDVar(context,"=TRUE\n");
+						context->logDVar(context,"=TRUE\n");
 #endif
-					return TRUE;
+						return TRUE;
+					}
 				}
 			}
 
 			if (this->super != NULL
-					&& fy_classCanCastTo(context, this->super, other)) {
+					&& fy_classCanCastTo(context, this->super, other, processInterface)) {
 #ifdef FY_VERBOSE
 				context->logDVar(context,"=TRUE\n");
 #endif
@@ -82,7 +86,7 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 #ifdef FY_VERBOSE
 					context->logDVar(context,"PENDING\n|--");
 #endif
-					return fy_classCanCastTo(context, thisContent, otherContent);
+					return fy_classCanCastTo(context, thisContent, otherContent, processInterface);
 				} else {
 #ifdef FY_VERBOSE
 					context->logDVar(context,"=FALSE\n");

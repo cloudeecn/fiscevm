@@ -56,7 +56,7 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 					target = -1;
 					break;
 				}
-				if (fy_classCanCastTo(context, throwableClass, handlerClass)) {
+				if (fy_classCanCastTo(context, throwableClass, handlerClass, TRUE)) {
 					target = handler->handler_pc;
 					break;
 				}
@@ -670,7 +670,7 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	FYEH();
 	threadClass = fy_vmLookupClass(context, context->sThread, exception);
 	FYEH();
-	if (!fy_classCanCastTo(context, handleClass, threadClass)) {
+	if (!fy_classCanCastTo(context, handleClass, threadClass, TRUE)) {
 		fy_fault(exception, NULL,
 				"The create(int) is used to start a "FY_BASE_THREAD"!");
 		return;
@@ -795,7 +795,7 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 	}
 	object = fy_heapGetObject(context,stack[sp]);
 	if (!fy_classCanCastTo(context, object->object_data->clazz,
-			method->owner)) {
+			method->owner, TRUE)) {
 		fy_fault(exception, FY_EXCEPTION_CAST, "");
 		return;
 	}
@@ -1081,7 +1081,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				if (ivalue != 0
 						&& !fy_classCanCastTo(context,
 								fy_heapGetClassOfObject(context, ivalue,
-										exception), clazz2)) {
+										exception), clazz2, TRUE)) {
 					exception->exceptionType = exception_normal;
 					strcpy_s(exception->exceptionName,
 							sizeof(exception->exceptionName),
@@ -1567,7 +1567,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						FY_FALLOUT_NOINVOKE
 						break;
 					}
-					if (!fy_classCanCastTo(context, clazz1, clazz2)) {
+					if (!fy_classCanCastTo(context, clazz1, clazz2, TRUE)) {
 						message->messageType = message_exception;
 						strcpy_s( exception->exceptionName,
 								sizeof(exception->exceptionName),
@@ -2525,7 +2525,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				fy_threadPushInt(
-						fy_classCanCastTo(context, clazz1, clazz2) ? 1 : 0);
+						fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0);
 				break;
 			}
 			case INVOKESPECIAL: {
@@ -3739,7 +3739,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 		return 0;
 	}
 
-	if (!fy_classCanCastTo(context, clazz1, context->TOP_THROWABLE)) {
+	if (!fy_classCanCastTo(context, clazz1, context->TOP_THROWABLE, TRUE)) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
 				FY_EXCEPTION_CAST);

@@ -968,11 +968,11 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			memcpy(clazz->fieldAbs, clazz->super->fieldAbs,
 					i * sizeof(fy_field*));
 		}
-		if (fy_classCanCastTo(context, clazz, enumClazz)
+		if (fy_classCanCastTo(context, clazz, enumClazz, FALSE)
 				&& fy_strCmp(clazz->className, context->sEnum)) {
 			clazz->accessFlags |= FY_ACC_ENUM;
 		}
-		if (fy_classCanCastTo(context, clazz, annotationClazz)
+		if (fy_classCanCastTo(context, clazz, annotationClazz, FALSE)
 				&& fy_strCmp(clazz->className, context->sAnnotation)) {
 			clazz->accessFlags |= FY_ACC_ANNOTATION;
 		}

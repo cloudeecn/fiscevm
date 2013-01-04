@@ -26,6 +26,7 @@
 #include "VMContext.h"
 #include "Class.h"
 #include "Data.h"
+#include "BAIS.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif

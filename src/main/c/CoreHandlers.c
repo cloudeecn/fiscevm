@@ -568,6 +568,12 @@ static void VMFloatToString(struct fy_context *context,
 	fy_nativeReturnHandle(context, thread, handleRet);
 }
 
+static void VMBreakpoint(struct fy_context *context,
+		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
+		fy_message *message, fy_exception *exception) {
+	fy_breakpoint();
+}
+
 static void throwableFillInStackTrace(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
 		fy_message *message, fy_exception *exception) {
@@ -1307,7 +1313,7 @@ static void fieldGetObject(struct fy_context *context, struct fy_thread *thread,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -1342,7 +1348,7 @@ static void fieldGetBoolean(struct fy_context *context,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -1377,7 +1383,7 @@ static void fieldGetByte(struct fy_context *context, struct fy_thread *thread,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -1412,7 +1418,7 @@ static void fieldGetShort(struct fy_context *context, struct fy_thread *thread,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -1448,7 +1454,7 @@ static void fieldGetChar(struct fy_context *context, struct fy_thread *thread,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -1483,7 +1489,7 @@ static void fieldGetInt(struct fy_context *context, struct fy_thread *thread,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -1518,7 +1524,7 @@ static void fieldGetFloat(struct fy_context *context, struct fy_thread *thread,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -1553,7 +1559,7 @@ static void fieldGetLong(struct fy_context *context, struct fy_thread *thread,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -1588,7 +1594,7 @@ static void fieldGetDouble(struct fy_context *context, struct fy_thread *thread,
 	} else {
 		type = fy_heapGetClassOfObject(context, args[1], exception);
 		FYEH();
-		if (!fy_classCanCastTo(context, type, field->owner)) {
+		if (!fy_classCanCastTo(context, type, field->owner, TRUE)) {
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH();
 		}
@@ -2036,7 +2042,7 @@ static void classIsInstance(struct fy_context *context,
 	fy_class *objClazz = fy_heapGetObject(context,args[1])->object_data->clazz;
 	FYEH();
 	fy_nativeReturnInt(context, thread,
-			fy_classCanCastTo(context, objClazz, clazz) ? 1 : 0);
+			fy_classCanCastTo(context, objClazz, clazz, TRUE) ? 1 : 0);
 }
 
 static void classIsAssignableFrom(struct fy_context *context,
@@ -2047,7 +2053,7 @@ static void classIsAssignableFrom(struct fy_context *context,
 			exception);
 	FYEH();
 	fy_nativeReturnInt(context, thread,
-			fy_classCanCastTo(context, targetClazz, clazz) ? 1 : 0);
+			fy_classCanCastTo(context, targetClazz, clazz, TRUE) ? 1 : 0);
 }
 
 static void classIsInterface(struct fy_context *context,
@@ -2508,6 +2514,10 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			"com/cirnoworks/fisce/privat/FiScEVM.floatToString.(F)L"FY_BASE_STRING";",
 			NULL, VMFloatToString, exception);
 	FYEH();
+	fy_vmRegisterNativeHandler(context,
+				"com/cirnoworks/fisce/privat/FiScEVM.breakpoint.()V",
+				NULL, VMBreakpoint, exception);
+		FYEH();
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V",
 			NULL, SOSWrite, exception);

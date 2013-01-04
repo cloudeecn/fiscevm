@@ -82,6 +82,8 @@ fy_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
 		fy_exception *exception);
 fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 		fy_exception *exception);
+void fy_vmDefineClass(fy_context *context, fy_str *name, fy_byte *data,
+		fy_int dataLen, fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif
