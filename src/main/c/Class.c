@@ -27,7 +27,7 @@ fy_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
 fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 		fy_class *other,fy_boolean processInterface) {
 	fy_class **interfaces;
-	fy_class *interface;
+	fy_class *intf;
 	int i, max;
 #ifdef FY_VERBOSE
 	context->logDVar(context,"##CAST ");
@@ -54,8 +54,8 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 			if(processInterface){
 				interfaces = this->interfaces;
 				for (i = 0, max = this->interfacesCount; i < max; i++) {
-					interface=interfaces[i];
-					if (fy_classCanCastTo(context, interface, other, processInterface)) {
+					intf = interfaces[i];
+					if (fy_classCanCastTo(context, intf, other, processInterface)) {
 #ifdef FY_VERBOSE
 						context->logDVar(context,"=TRUE\n");
 #endif
