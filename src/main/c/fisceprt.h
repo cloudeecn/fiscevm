@@ -172,6 +172,15 @@ typedef struct fy_port {
 #else
 # define FY_PRINT32 ""
 #endif
+
+#ifdef AAAA
+# define likely(x) __builtin_expect(!!(x),1)
+# define unlikely(x) __builtin_expect((x),0)
+#else
+# define likely(x) x
+# define unlikely(x) x
+#endif
+
 #define fy_I2TOL(I1,I2) ((fy_long)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
 #define fy_I2TOUL(I1,I2) ((fy_ulong)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
 #define fy_B2TOUI(B1,B2) ((((fy_uint)(fy_ubyte)(B1))<<8)|((fy_uint)(fy_ubyte)(B2)))

@@ -529,7 +529,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 
 fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 	fy_uint frameCount = thread->frameCount;
-	if (frameCount == 0) {
+	if (unlikely(frameCount == 0)) {
 		return NULL;
 	} else {
 		return FY_GET_FRAME(thread,thread->frameCount-1);
@@ -920,7 +920,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 
 	frame = fy_threadCurrentFrame(context, thread);
 	while (opCount < ops) {
-		if (frame == NULL) {
+		if (unlikely(frame == NULL)) {
 			/*Time to quit!*/
 			if (thread->currentThrowable) {
 				DLOG(context, "XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX");
@@ -943,7 +943,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		}
 		/**/
 		fy_frameToLocal(frame);
-		if (thread->currentThrowable) {
+		if (unlikely(thread->currentThrowable)) {
 #ifdef FY_LATE_DECLARATION
 			fy_uint ivalue, ivalue2;
 #endif
@@ -991,7 +991,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		fallout = fallout_none;
 #endif
 		lpc = pc;
-		if (method->access_flags & FY_ACC_CLINIT) {
+		if (unlikely(method->access_flags & FY_ACC_CLINIT)) {
 #ifdef FY_LATE_DECLARATION
 			fy_class *clinitClazz;
 #endif
@@ -1045,7 +1045,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				fy_threadPushHandle(
 						fy_heapGetArrayHandle(context, ivalue2, ivalue, exception));
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1061,7 +1061,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				fy_threadPushInt(
 						fy_heapGetArrayHandle(context, ivalue2, ivalue, exception));
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1078,10 +1078,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue3);
 				clazz1 = fy_heapGetClassOfObject(context, ivalue3, exception);
 				clazz2 = clazz1->ci.arr.contentClass;
-				if (ivalue != 0
+				if (unlikely(ivalue != 0
 						&& !fy_classCanCastTo(context,
 								fy_heapGetClassOfObject(context, ivalue,
-										exception), clazz2, TRUE)) {
+										exception), clazz2, TRUE))) {
 					exception->exceptionType = exception_normal;
 					strcpy_s(exception->exceptionName,
 							sizeof(exception->exceptionName),
@@ -1095,7 +1095,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				fy_heapPutArrayHandle(context, ivalue3, ivalue2, ivalue,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
@@ -1112,7 +1112,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue3);
 				fy_heapPutArrayInt(context, ivalue3, ivalue2, ivalue,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
@@ -1221,7 +1221,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_str str1;
 #endif
 				fy_threadPopInt(ivalue);
-				if (((fy_int)ivalue) < 0) {
+				if (unlikely(((fy_int)ivalue) < 0)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -1234,7 +1234,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 
 				clazz1 = instruction->params.clazz;
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
@@ -1248,39 +1248,39 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				}
 				if (clazz1->type == object_class) {
 					fy_strAppendUTF8(block, &str1, "[L", 3, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
 					}
 					fy_strAppend(block, &str1, clazz1->className, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
 					}
 					fy_strAppendUTF8(block, &str1, ";", 3, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
 					}
 				} else if (clazz1->type == array_class) {
 					fy_strAppendUTF8(block, &str1, "[", 3, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
 					}
 					fy_strAppend(block, &str1, clazz1->className, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
 					}
 				}
 				clazz2 = fy_vmLookupClass(context, &str1, exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1288,7 +1288,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_strDestroy(block, &str1);
 				fy_threadPushHandle(
 						fy_heapAllocateArray(context, clazz2, ivalue, exception));
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
@@ -1301,7 +1301,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopInt(ivalue);
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+				if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
 					if (method->access_flags & FY_ACC_STATIC) {
 						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
 								exception);
@@ -1317,7 +1317,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_threadMonitorExit(context, thread, stack[sb],
 								exception);
 					}
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
@@ -1335,7 +1335,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_uint ivalue, ivalue2;
 #endif
 				fy_threadPopHandle(ivalue);
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+				if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
 					if (method->access_flags & FY_ACC_STATIC) {
 						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
 								exception);
@@ -1350,7 +1350,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_threadMonitorExit(context, thread, stack[sb],
 								exception);
 					}
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
@@ -1372,7 +1372,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_VERBOSE
 				context->logDVar(context,"%d\n", ivalue2);
 #endif
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1490,7 +1490,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				ivalue = fy_heapGetArrayByte(context, ivalue2, ivalue3,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1507,7 +1507,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				fy_heapPutArrayByte(context, ivalue2, ivalue3, (fy_byte) ivalue,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1526,7 +1526,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				ivalue = fy_heapGetArrayChar(context, ivalue2, ivalue3,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1543,7 +1543,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				fy_heapPutArrayChar(context, ivalue2, ivalue3, ivalue,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1558,16 +1558,16 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				/*CUSTOM*/
 				ivalue2 = stack[sp - 1];
-				if (ivalue2 != 0) {
+				if (likely(ivalue2 != 0)) {
 					clazz1 = fy_heapGetClassOfObject(context, ivalue2,
 							exception);
 					clazz2 = instruction->params.clazz;
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;
 					}
-					if (!fy_classCanCastTo(context, clazz1, clazz2, TRUE)) {
+					if (unlikely(!fy_classCanCastTo(context, clazz1, clazz2, TRUE))) {
 						message->messageType = message_exception;
 						strcpy_s( exception->exceptionName,
 								sizeof(exception->exceptionName),
@@ -1637,7 +1637,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				lvalue = fy_heapGetArrayLong(context, ivalue2, ivalue3,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1656,7 +1656,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				fy_heapPutArrayLong(context, ivalue2, ivalue3, lvalue,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -1757,7 +1757,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_uint ivalue2;
 #endif
 				fy_threadPopDouble(dvalue);
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+				if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
 					if (method->access_flags & FY_ACC_STATIC) {
 						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
 								exception);
@@ -1772,7 +1772,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_threadMonitorExit(context, thread, stack[sb],
 								exception);
 					}
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
@@ -2018,12 +2018,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopHandle(ivalue2);
 				field = instruction->params.field;
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (field->access_flags & FY_ACC_STATIC) {
+				if (unlikely(field->access_flags & FY_ACC_STATIC)) {
 #ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
@@ -2048,7 +2048,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 					lvalue = fy_heapGetFieldLong(context, ivalue2, field,
 							exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;
@@ -2068,7 +2068,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 					ivalue = fy_heapGetFieldHandle(context, ivalue2, field,
 							exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;
@@ -2087,7 +2087,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 					ivalue = fy_heapGetFieldInt(context, ivalue2, field,
 							exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;
@@ -2111,7 +2111,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 
 				field = instruction->params.field;
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -2119,14 +2119,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				clazz1 = field->owner;
 				{
 					clinitClazz = clinit(context, thread, clazz1);
-					if (clinitClazz) {
+					if (unlikely(clinitClazz)) {
 						if (clinitClazz->clinitThreadId == 0) {
 							pc = lpc;
 							fy_localToFrame(frame);
 							clinitClazz->clinitThreadId = thread->threadId;
 							frame = fy_threadPushFrame(context, thread,
 									clinitClazz->clinit, exception);
-							if (exception->exceptionType != exception_none) {
+							if (unlikely(exception->exceptionType != exception_none)) {
 								message->messageType = message_exception;
 								FY_FALLOUT_NOINVOKE
 								break;/*EXCEPTION_THROWN*/
@@ -2149,7 +2149,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_ulong lvalue;
 #endif
 					lvalue = fy_heapGetStaticLong(context, field, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;
@@ -2164,7 +2164,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_uint ivalue2;
 #endif
 					ivalue2 = fy_heapGetStaticInt(context, field, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;
@@ -2178,7 +2178,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_uint ivalue;
 #endif
 					ivalue = fy_heapGetStaticInt(context, field, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;
@@ -2519,7 +2519,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				clazz1 = fy_heapGetClassOfObject(context, ivalue2, exception);
 				clazz2 = instruction->params.clazz;
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -2550,13 +2550,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						&& fy_strCmp(mvalue->name, context->sInit)) {
 					mvalue = fy_vmLookupMethodVirtualByMethod(context,
 							clazz1->super, mvalue, exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;
 					}
 				}
-				if (mvalue == NULL) {
+				if (unlikely(mvalue == NULL)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2566,8 +2566,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (fy_strCmp(mvalue->name, context->sInit) > 0
-						&& mvalue->owner != clazz2) {
+				if (unlikely(fy_strCmp(mvalue->name, context->sInit) > 0
+						&& mvalue->owner != clazz2)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2579,7 +2579,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (mvalue->access_flags & FY_ACC_STATIC) {
+				if (unlikely(mvalue->access_flags & FY_ACC_STATIC)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2591,7 +2591,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (mvalue->access_flags & FY_ACC_ABSTRACT) {
+				if (unlikely(mvalue->access_flags & FY_ACC_ABSTRACT)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2636,7 +2636,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				} else {
 					fy_threadPushMethod(context, thread, mvalue, &frame,
 							exception);
-					if (exception->exceptionType != exception_none) {
+					if (unlikely(exception->exceptionType != exception_none)) {
 						message->messageType = message_exception;
 						FY_FALLOUT_NOINVOKE
 						break;/*EXCEPTION_THROWN*/
@@ -2650,7 +2650,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				invokeStatic(context, thread, frame, instruction->params.method,
 						exception, message);
 				frame = fy_threadCurrentFrame(context, thread);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 				}
 				FY_FALLOUT_INVOKE
@@ -2662,7 +2662,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				invokeVirtual(context, thread, frame,
 						instruction->params.method, exception, message);
 				frame = fy_threadCurrentFrame(context, thread);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 				}
 				FY_FALLOUT_INVOKE
@@ -2676,7 +2676,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopInt(ivalue);
 				fy_threadPushInt(ivalue|ivalue2);
 				break;
-				break;
 			}
 			case IREM: {
 #ifdef FY_LATE_DECLARATION
@@ -2684,7 +2683,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
-				if (ivalue2 == 0) {
+				if (unlikely(ivalue2 == 0)) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2829,7 +2828,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				ivalue = opLDC(context, method->owner,
 						instruction->params.ldc.value, &type, exception);
 
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -2845,7 +2844,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				ivalue = opLDC(context, method->owner,
 						instruction->params.ldc.value, &type, exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -2859,7 +2858,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				lvalue = opLDC2(context, method->owner,
 						instruction->params.ldc.value, exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3030,7 +3029,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_uint ivalue2;
 #endif
 				fy_threadPopLong(lvalue);
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+				if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
 					if (method->access_flags & FY_ACC_STATIC) {
 						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
 								exception);
@@ -3047,7 +3046,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 								exception);
 					}
 				}
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
@@ -3191,7 +3190,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopHandle(ivalue);
 				fy_threadMonitorExit(context, thread, ivalue, exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
@@ -3210,13 +3209,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				clazz1 = fy_vmLookupClassFromConstant(context,
 						(ConstantClass*) method->owner->constantPools[ivalue3],
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
 				pivalue = /*TEMP*/fy_allocate(sizeof(int) * ivalue, exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
@@ -3227,7 +3226,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_heapBeginProtect(context);
 				ivalue2 = fy_heapMultiArray(context, clazz1, ivalue, pivalue,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3242,7 +3241,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_class *clazz1, *clinitClazz;
 #endif
 				clazz1 = instruction->params.clazz;
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3266,7 +3265,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 							clinitClazz->clinitThreadId = thread->threadId;
 							frame = fy_threadPushFrame(context, thread,
 									clinitClazz->clinit, exception);
-							if (exception->exceptionType != exception_none) {
+							if (unlikely(exception->exceptionType != exception_none)) {
 								message->messageType = message_exception;
 								FY_FALLOUT_NOINVOKE
 								break;/*EXCEPTION_THROWN*/
@@ -3282,7 +3281,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					}
 				}
 				ivalue = fy_heapAllocate(context, clazz1, exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3347,18 +3346,18 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if (message->messageType == message_exception) {
+				if (unlikely(message->messageType == message_exception)) {
 					break;
 				}
 				clazz1 = fy_vmLookupClass(context, pstr1, exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
 				ivalue2 = fy_heapAllocateArray(context, clazz1, ivalue3,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3386,7 +3385,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_field *field;
 #endif
 				field = instruction->params.field;
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3405,7 +3404,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_threadPopInt(ivalue);
 				}
 				fy_threadPopHandle(ivalue2);
-				if (field->access_flags & FY_ACC_STATIC) {
+				if (unlikely(field->access_flags & FY_ACC_STATIC)) {
 #ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
@@ -3422,8 +3421,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 
-				if ((field->access_flags & FY_ACC_FINAL)
-						&& method->owner != field->owner) {
+				if (unlikely((field->access_flags & FY_ACC_FINAL)
+						&& method->owner != field->owner)) {
 #ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
@@ -3461,7 +3460,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 					break;
 				}
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3475,13 +3474,13 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_class *clazz1, *clinitClazz;
 #endif
 				field = instruction->params.field;
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				if ((field->access_flags & FY_ACC_FINAL)
-						&& (field->owner != method->owner)) {
+				if (unlikely((field->access_flags & FY_ACC_FINAL)
+						&& (field->owner != method->owner))) {
 #ifdef FY_LATE_DECLARATION
 					char msg[256];
 #endif
@@ -3566,7 +3565,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue2;
 #endif
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+				if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
 					if (method->access_flags & FY_ACC_STATIC) {
 						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
 								exception);
@@ -3587,7 +3586,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						break;/*EXCEPTION_THROWN*/
 					}
 				}
-				if (method->access_flags & FY_ACC_CLINIT) {
+				if (unlikely(method->access_flags & FY_ACC_CLINIT)) {
 					method->owner->clinitThreadId = -1;
 				}
 				frame = fy_threadPopFrame(context, thread);
@@ -3602,7 +3601,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				ivalue = fy_heapGetArrayShort(context, ivalue2, ivalue3,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3619,7 +3618,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue2);
 				fy_heapPutArrayShort(context, ivalue2, ivalue3, (short) ivalue,
 						exception);
-				if (exception->exceptionType != exception_none) {
+				if (unlikely(exception->exceptionType != exception_none)) {
 					message->messageType = message_exception;
 					FY_FALLOUT_NOINVOKE
 					break;
@@ -3681,8 +3680,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 	}
 #endif
 
-		if (message->messageType == message_continue) {
-			if (thread->yield) {
+		if (likely(message->messageType == message_continue)) {
+			if (unlikely(thread->yield)) {
 				thread->yield = FALSE;
 				message->messageType = message_none;
 				break;
@@ -3715,7 +3714,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					message->messageType);
 		}
 	}
-	if (message->messageType == message_continue) {
+	if (likely(message->messageType == message_continue)) {
 		message->messageType = message_none;
 	}
 }
