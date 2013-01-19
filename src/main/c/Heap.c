@@ -45,7 +45,7 @@ static int fetchNextHandle(fy_context *context, fy_boolean gced,
 }
 
 static int allocate(fy_context *context, fy_int size, fy_class *clazz,
-		fy_int length, fy_uint toHandle, enum fy_heapPos pos,
+		fy_int multiUsageData, fy_uint toHandle, enum fy_heapPos pos,
 		fy_exception *exception) {
 	int handle;
 	fy_object *obj;
@@ -104,7 +104,7 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 		return 0;
 	}
 	FYEH()0;
-	obj->object_data->length = length;
+	obj->object_data->multiUsageData = multiUsageData;
 	obj->object_data->clazz = clazz;
 	if (context->protectMode) {
 		fy_arrayListAdd(context->memblocks, context->protected, &handle,
@@ -115,14 +115,14 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 }
 
 fy_uint fy_heapAllocateDirect(fy_context *context, fy_int size, fy_class *clazz,
-		fy_int length, fy_uint toHandle, enum fy_heapPos pos,
+		fy_int multiUsageData, fy_uint toHandle, enum fy_heapPos pos,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context,toHandle);
 	if (obj->object_data != NULL ) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
 				"Handle %d already allocated.", toHandle);
 	}
-	return allocate(context, size, clazz, length, toHandle, pos, exception);
+	return allocate(context, size, clazz, multiUsageData, toHandle, pos, exception);
 }
 
 fy_uint fy_heapAllocate(fy_context *context, fy_class *clazz,
@@ -300,8 +300,8 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 	sObject = fy_heapGetObject(context, src);
 	dObject = fy_heapGetObject(context, dest);
 	if (srcPos < 0 || destPos < 0 || len < 0
-			|| (srcPos + len > sObject->object_data->length)
-			|| (destPos + len > dObject->object_data->length)) {
+			|| (srcPos + len > sObject->object_data->arrayLength)
+			|| (destPos + len > dObject->object_data->arrayLength)) {
 		fy_fault(exception, FY_EXCEPTION_AIOOB, "0");
 		return;
 	}
@@ -355,26 +355,26 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 		memcpy(dobj->object_data, sobj->object_data,
 				sizeof(fy_object_data) + (clazz->sizeAbs << 2));
 	} else if (clazz->type == array_class) {
-		ret = fy_heapAllocateArray(context, clazz, sobj->object_data->length,
+		ret = fy_heapAllocateArray(context, clazz, sobj->object_data->arrayLength,
 				exception);
 		FYEH()0;
 		dobj = fy_heapGetObject(context,ret);
 		switch (clazz->ci.arr.arrayType) {
 		case fy_at_byte:
 			memcpy(dobj->object_data->data, sobj->object_data->data,
-					sobj->object_data->length);
+					sobj->object_data->arrayLength);
 			break;
 		case fy_at_short:
 			memcpy(dobj->object_data->data, sobj->object_data->data,
-					sobj->object_data->length << 1);
+					sobj->object_data->arrayLength << 1);
 			break;
 		case fy_at_int:
 			memcpy(dobj->object_data->data, sobj->object_data->data,
-					sobj->object_data->length << 2);
+					sobj->object_data->arrayLength << 2);
 			break;
 		case fy_at_long:
 			memcpy(dobj->object_data->data, sobj->object_data->data,
-					sobj->object_data->length << 3);
+					sobj->object_data->arrayLength << 3);
 			break;
 		}
 	} else {
@@ -392,11 +392,11 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 		return X; \
 	} else ASSERT(obj->object_data!=NULL);
 
-#define CHECK_IOOB(X) if (index < 0 || index >= obj->object_data->length) {\
+#define CHECK_IOOB(X) if (index < 0 || index >= obj->object_data->arrayLength) {\
 		exception->exceptionType = exception_normal;\
 		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_AIOOB);\
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),\
-				"%"FY_PRINT32"d / %"FY_PRINT32"d", index, obj->object_data->length);\
+				"%"FY_PRINT32"d / %"FY_PRINT32"d", index, obj->object_data->arrayLength);\
 		return X;\
 	}
 
@@ -420,7 +420,7 @@ fy_int fy_heapArrayLength(fy_context *context, fy_int handle,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)
-	return obj->object_data->length;
+	return obj->object_data->arrayLength;
 }
 
 fy_boolean fy_heapGetArrayBoolean(fy_context *context, fy_int handle,
@@ -997,7 +997,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 		switch (clazz->type) {
 		case array_class:
 			if (clazz->ci.arr.contentClass->type != primitive_class) {
-				for (i = object->object_data->length - 1; i >= 0; i--) {
+				for (i = object->object_data->arrayLength - 1; i >= 0; i--) {
 					handle2 = fy_heapGetArrayHandle(context, handle, i,
 							exception);
 					FYEH();
@@ -1052,7 +1052,7 @@ static fy_int getSizeFromObject(fy_context *context, fy_object *object) {
 	fy_class *clazz = object->object_data->clazz;
 	switch (clazz->type) {
 	case array_class:
-		return fy_heapGetArraySizeFromLength(clazz, object->object_data->length)
+		return fy_heapGetArraySizeFromLength(clazz, object->object_data->arrayLength)
 				+ ((sizeof(fy_object_data) + 3) >> 2);
 		break;
 	case object_class:

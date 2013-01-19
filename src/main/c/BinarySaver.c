@@ -64,7 +64,6 @@ int objectCount
 	int finalizeStatus
 	int monitorOwner
 	int mouitorCount
-	int attachedId
 	int len
 	int dataSize
 	int[] data
@@ -222,7 +221,7 @@ static void savePrepareObjects(struct fy_context *context, void *saver,
 }
 static void saveObject(struct fy_context *context, void *saver, fy_uint handle,
 		fy_uint classId, fy_int posInHeap, fy_int gen, fy_int finalizeStatus,
-		fy_uint monitorOwner, fy_uint monitorCount, fy_uint attachedId,
+		fy_uint monitorOwner, fy_uint monitorCount,
 		fy_uint length, fy_uint dataSize, fy_uint *data,
 		fy_exception *exception) {
 	FILE *fp = saver;
@@ -235,7 +234,6 @@ static void saveObject(struct fy_context *context, void *saver, fy_uint handle,
 	writeInt(fp, finalizeStatus, exception);
 	writeInt(fp, monitorOwner, exception);
 	writeInt(fp, monitorCount, exception);
-	writeInt(fp, attachedId, exception);
 	writeInt(fp, length, exception);
 	writeInt(fp, dataSize, exception);
 	for (i = 0; i < dataSize; i++) {
@@ -432,7 +430,6 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	fy_int finalizeStatus;
 	fy_int monitorOwner;
 	fy_int monitorCount;
-	fy_int attachedId;
 	fy_int len;
 	fy_int dataSize;
 
@@ -556,8 +553,6 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		FYEH();
 		monitorCount = readInt(fp, exception);
 		FYEH();
-		attachedId = readInt(fp, exception);
-		FYEH();
 		len = readInt(fp, exception);
 		FYEH();
 		dataSize = readInt(fp, exception);
@@ -565,7 +560,7 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		readIntBlock(context, fp, &intbufSize, &intbuf, dataSize, exception);
 		FYEH();
 		fy_loadObject(context, loader, handle, classId, posInHeap, gen,
-				finalizeStatus, monitorOwner, monitorCount, attachedId, len,
+				finalizeStatus, monitorOwner, monitorCount, len,
 				dataSize, intbuf, exception);
 		FYEH();
 	}

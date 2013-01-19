@@ -225,7 +225,7 @@ extern "C" {
 		fy_boolean clinit;
 
 		/*Used by reflection, contents refrences of class*/
-		/*Because will be wiped in save and load, and Class objects */
+		/*Will not be saved in save-status, as it will be re-initialized when the class is reloaded */
 		fy_uint parameterCount;
 		fy_arrayList* parameterTypes;
 		struct fy_class *returnTypeClass;
@@ -305,10 +305,26 @@ extern "C" {
 			not_finalized, in_finalize_array, finalized
 		}finalizeStatus :2;
 		fy_int gen :8;
-		fy_int length;
+		/*Union data for different class types (array/normal object/references)*/
+		union {
+			fy_int multiUsageData;
+			/*Length of the array object*/
+			fy_int arrayLength;
+			/*The first byte of this will be the reference type,
+			 * 0 - WeakReference/PhantomReference, this two types
+			 * 	   of reference will be cleared on any phase of gc
+			 * 1 - SoftReference, this type of reference will be
+			 *     cleared on old area compressing phase of gc
+			 * */
+			fy_int referenceReferent;
+			fy_int threadId;
+			fy_int methodId;
+			fy_int fieldId;
+			fy_int classId;
+
+		};
 		fy_uint monitorOwnerId;
 		fy_int monitorOwnerTimes;
-		fy_uint attachedId;
 		FY_VLS(fy_byte,data);
 	}fy_object_data;
 
@@ -443,7 +459,7 @@ extern "C" {
 		void (*saveObject)(struct fy_context *context, void *saver, fy_uint handle,
 				fy_uint classId, fy_int posInHeap, fy_int gen,
 				fy_int finalizeStatus, fy_uint monitorOwner, fy_uint monitorCount,
-				fy_uint attachedId, fy_uint length, fy_uint dataLength,
+				fy_uint multiUsageData, fy_uint dataLength,
 				fy_uint *data, fy_exception *exception);
 		void (*saveEndObject)(struct fy_context *context, void *saver,
 				fy_exception *exception);

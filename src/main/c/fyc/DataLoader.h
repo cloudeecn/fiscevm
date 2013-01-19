@@ -46,7 +46,7 @@ void fy_loadPrepareObjects(struct fy_context *context, void *loader_,
 		fy_uint nextHandle, fy_uint objectCount, fy_exception *exception);
 void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 		fy_uint classId, fy_int posInHeap, fy_int gen, fy_int finalizeStatus,
-		fy_uint monitorOwner, fy_uint monitorCount, fy_uint attachedId,
+		fy_uint monitorOwner, fy_uint monitorCount,
 		fy_uint length, fy_uint dataLength, fy_uint *data,
 		fy_exception *exception);
 void fy_loadEndObject(struct fy_context *context, void *loader_,

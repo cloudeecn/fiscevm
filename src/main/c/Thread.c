@@ -138,7 +138,7 @@ void fy_threadDestroy(fy_context *context, fy_thread *thread) {
 	fy_uint handle;
 	fy_object *obj;
 	obj = context->objects + thread->handle;
-	obj->object_data->attachedId = 0;
+	obj->object_data->threadId = 0;
 	thread->handle = 0;
 
 	thread->waitForLockId = 0;
@@ -645,7 +645,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 		return;
 	}
 	thread->handle = threadHandle;
-	obj->object_data->attachedId = thread->threadId;
+	obj->object_data->threadId = thread->threadId;
 	fy_threadPushFrame(context, thread, method, exception);
 	FYEH();
 	clazz = fy_vmLookupClass(context, context->sStringArray, exception);
@@ -681,7 +681,7 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 
 	obj = context->objects + handle;
 	thread->handle = handle;
-	obj->object_data->attachedId = thread->threadId;
+	obj->object_data->threadId = thread->threadId;
 	fy_threadPushFrame(context, thread, runner, exception);
 	FYEH();
 	thread->stack[0] = handle;

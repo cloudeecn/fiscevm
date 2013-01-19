@@ -955,7 +955,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 				"Get class ID for non-class object");
 		return NULL ;
 	}
-	classId = context->objects[handle].object_data->attachedId;
+	classId = context->objects[handle].object_data->classId;
 	return context->classes[classId];
 }
 
@@ -1178,12 +1178,11 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 					object->object_data->finalizeStatus,
 					object->object_data->monitorOwnerId,
 					object->object_data->monitorOwnerTimes,
-					object->object_data->attachedId,
-					object->object_data->length,
+					object->object_data->multiUsageData,
 					object->object_data->clazz->type == array_class ?
 							fy_heapGetArraySizeFromLength(
 									object->object_data->clazz,
-									object->object_data->length) :
+									object->object_data->arrayLength) :
 							object->object_data->clazz->sizeAbs,
 					(void*) object->object_data->data, exception);
 			count++;
@@ -1257,7 +1256,7 @@ fy_int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
 	if (handle == -1) {
 		fy_heapBeginProtect(context);
 		handle = fy_heapAllocate(context, clcl, exception);
-		fy_heapGetObject(context,handle)->object_data->attachedId =
+		fy_heapGetObject(context,handle)->object_data->classId =
 				clazz->classId;
 		fy_hashMapIPut(context->memblocks, context->classObjIds, clazz->classId,
 				handle, exception);
@@ -1283,7 +1282,7 @@ fy_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
 			handle = fy_heapAllocate(context, mecl, exception);
 		}
 		FYEH()-1;
-		fy_heapGetObject(context,handle)->object_data->attachedId =
+		fy_heapGetObject(context,handle)->object_data->methodId =
 				method->method_id;
 		fy_hashMapIPut(context->memblocks, context->methodObjIds,
 				method->method_id, handle, exception);
@@ -1300,7 +1299,7 @@ fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 	if (handle == -1) {
 		fy_heapBeginProtect(context);
 		handle = fy_heapAllocate(context, ficl, exception);
-		fy_heapGetObject(context,handle)->object_data->attachedId =
+		fy_heapGetObject(context,handle)->object_data->fieldId =
 				field->field_id;
 		fy_hashMapIPut(context->memblocks, context->fieldObjIds,
 				field->field_id, handle, exception);

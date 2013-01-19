@@ -22,7 +22,7 @@ static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 		fy_exception *exception) {
 	//TODO
 	fy_object *obj = context->objects + targetHandle;
-	fy_uint threadId = obj->object_data->attachedId;
+	fy_uint threadId = obj->object_data->threadId;
 	if (threadId == 0) {
 		return NULL;
 	} //

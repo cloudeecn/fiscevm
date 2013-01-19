@@ -534,7 +534,7 @@ jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_validClassId(
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getIdFromHandle(
 		JNIEnv *env, jclass self, jobject buf, jint handle) {
 	GENERIC_HEADER
-	return context->objects[handle].object_data->attachedId;
+	return context->objects[handle].object_data->classId;
 }
 
 /*
@@ -922,7 +922,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassOfHandle(
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayLength(
 		JNIEnv *env, jclass self, jobject buf, jint handle) {
 	GENERIC_HEADER
-	return context->objects[handle].object_data->length;
+	return context->objects[handle].object_data->arrayLength;
 }
 
 /*
