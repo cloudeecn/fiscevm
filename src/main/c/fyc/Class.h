@@ -39,8 +39,20 @@ extern "C" {
 
 fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 		fy_class *other, fy_boolean processInterface);
-fy_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
-		fy_class *other);
+fy_boolean fy_classIsSuperClassOf(fy_context * context, fy_class * this,
+		fy_class * other);
+
+fy_boolean fy_classExtendsThrowable(fy_context *context, fy_class *clazz);
+
+fy_boolean fy_classExtendsAnnotation(fy_context *context, fy_class *clazz);
+
+fy_boolean fy_classExtendsEnum(fy_context *context, fy_class *clazz);
+
+fy_boolean fy_classExtendsSoftRef(fy_context *context, fy_class *clazz);
+
+fy_boolean fy_classExtendsWeakRef(fy_context *context, fy_class *clazz);
+
+fy_boolean fy_classExtendsPhantomRef(fy_context *context, fy_class *clazz);
 
 #ifdef	__cplusplus
 }

@@ -53,8 +53,11 @@
 #define FY_ACC_SYNTHETIC	0x00001000
 #define FY_ACC_ANNOTATION	0x00002000
 #define FY_ACC_ENUM			0x00004000
-#define FY_ACC_CONSTRUCTOR	0x00010000
-#define FY_ACC_CLINIT		0x00020000
+#define FY_ACC_SOFT_REF		0x00008000
+#define FY_ACC_WEAK_REF		0x00010000
+#define FY_ACC_PHANTOM_REF		0x00020000
+#define FY_ACC_CONSTRUCTOR	0x00100000
+#define FY_ACC_CLINIT		0x00200000
 #define FY_ACC_VERIFIED		0x80000000
 
 #define FY_TM_STATE_NEW  0
@@ -315,8 +318,8 @@ extern "C" {
 			 * 	   of reference will be cleared on any phase of gc
 			 * 1 - SoftReference, this type of reference will be
 			 *     cleared on old area compressing phase of gc
-			 * */
 			fy_int referenceReferent;
+			 * */
 			fy_int threadId;
 			fy_int methodId;
 			fy_int fieldId;
@@ -592,6 +595,11 @@ extern "C" {
 
 		fy_class *TOP_THROWABLE;
 		fy_class *TOP_CLASS;
+		fy_class *TOP_ENUM;
+		fy_class *TOP_ANNOTATION;
+		fy_class *TOP_WEAK_REF;
+		fy_class *TOP_SOFT_REF;
+		fy_class *TOP_PHANTOM_REF;
 
 		fy_str *primitives[128];
 		fy_hashMap mapPrimitivesRev[1];
@@ -649,6 +657,8 @@ extern "C" {
 		fy_boolean protectMode;
 		fy_arrayList protected[1];
 		fy_hashMap literals[1];
+		fy_hashMapI references[1];
+		fy_arrayList toEnqueue[1];
 		fy_uint nextHandle;
 		fy_object objects[MAX_OBJECTS];
 		/* #END HEAP*/

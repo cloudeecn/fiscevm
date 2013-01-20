@@ -421,6 +421,9 @@ static void initStructClassloader(fy_context *context, fy_exception *exception) 
 
 	fy_hashMapInitPerm(block, context->customClassData, 128, exception);
 	FYEH();
+
+	fy_hashMapIInit(block, context->references, 128, 13, 0, exception);
+	FYEH();
 }
 
 static void initThreadManager(fy_context *context, fy_exception *exception) {
@@ -461,23 +464,13 @@ static void initHeap(fy_context *context, fy_exception *exception) {
 	fy_arrayListInit(block, context->protected, sizeof(fy_uint), 128,
 			exception);
 	FYEH();
+
+	fy_arrayListInit(block, context->toEnqueue, sizeof(fy_uint), 256, exception);
+	FYEH();
 }
 /************public***************/
 
 void fy_vmContextInit(fy_context *context, fy_exception *exception) {
-	/*
-	 fy_str *sBoolean;
-	 fy_str *sByte;
-	 fy_str *sShort;
-	 fy_str *sChar;
-	 fy_str *sInt;
-	 fy_str *sFloat;
-	 fy_str *sLong;
-	 fy_str *sDouble;
-
-	 fy_str *primitives[128];
-	 fy_hashMap *mapPrimitivesRev;
-	 */
 	fy_debugInit(context);
 	ILOG(context,
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
@@ -1092,13 +1085,15 @@ void fy_vmBootup(fy_context *context, const char* bootStrapClass,
 		fy_exception *exception) {
 	fy_str name;
 	fy_class *clazz;
-	context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,
-			exception);
-	FYEH();
+	/*
+	 context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,
+	 exception);
+	 FYEH();
 
-	context->TOP_THROWABLE = fy_vmLookupClass(context, context->sClassThrowable,
-			exception);
-	FYEH();
+	 context->TOP_THROWABLE = fy_vmLookupClass(context, context->sClassThrowable,
+	 exception);
+	 FYEH();
+	 */
 	name.content = NULL;
 	fy_strInitWithUTF8(context->memblocks, &name, bootStrapClass, exception);
 	FYEH();
@@ -1244,13 +1239,15 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 void fy_vmBootFromData(fy_context *context, fy_exception *exception) {
 
 	context->loadData(context, exception);
-	context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,
-			exception);
-	FYEH();
+	/*
+	 context->TOP_CLASS = fy_vmLookupClass(context, context->sTopClass,
+	 exception);
+	 FYEH();
 
-	context->TOP_THROWABLE = fy_vmLookupClass(context, context->sClassThrowable,
-			exception);
-	FYEH();
+	 context->TOP_THROWABLE = fy_vmLookupClass(context, context->sClassThrowable,
+	 exception);
+	 FYEH();
+	 */
 	context->state = FY_TM_STATE_RUN_PENDING;
 	context->nextGCTime = fy_portTimeMillSec(context->port) + FY_GC_IDV;
 	context->nextForceGCTime = context->nextGCTime + FY_GC_FORCE_IDV;

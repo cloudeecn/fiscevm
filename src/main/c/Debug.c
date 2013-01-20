@@ -85,7 +85,7 @@ static void stderrLogVarLn(struct fy_context *context, const char *format, ...) 
 	fprintf(stderr, "\n");
 }
 #ifndef FY_DEBUG
-static void nullLogStr(struct fy_context *context, fy_str *str) {
+static void nullLogStr(struct fy_context *context, const fy_str *str) {
 }
 
 static void nullLogVar(struct fy_context *context, const char *format, ...) {

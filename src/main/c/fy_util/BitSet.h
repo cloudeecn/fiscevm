@@ -27,9 +27,9 @@ extern "C" {
 #define fy_bitSHIFT 5
 #define fy_bitMASK 31/*((1<<fy_bitSHIFT)-1)*/
 #define fy_bitSizeToInt(X) (((X)+fy_bitMASK)>>fy_bitSHIFT)
-#define fy_bitSet(BS,POS)	BS[(POS) >> fy_bitSHIFT] |= fy_bits[(POS) & fy_bitMASK]
-#define fy_bitClear(BS,POS) BS[(POS) >> fy_bitSHIFT] &= fy_nbits[(POS) & fy_bitMASK]
-#define fy_bitGet(BS,POS) ((BS[(POS) >> fy_bitSHIFT] >> ((POS) & fy_bitMASK)) & 1)
+#define fy_bitSet(BS,POS)	(BS)[(POS) >> fy_bitSHIFT] |= fy_bits[(POS) & fy_bitMASK]
+#define fy_bitClear(BS,POS) (BS)[(POS) >> fy_bitSHIFT] &= fy_nbits[(POS) & fy_bitMASK]
+#define fy_bitGet(BS,POS) (((BS)[(POS) >> fy_bitSHIFT] >> ((POS) & fy_bitMASK)) & 1)
 
 extern fy_uint fy_bits[32];
 extern fy_uint fy_nbits[32];

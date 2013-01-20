@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 typedef struct fy_memblock {
-	void (*gcProvider)(void *context, fy_exception *exception);
+	void (*gcProvider)(void *context,fy_boolean memoryStressed, fy_exception *exception);
 	void *first;
 	void *last;
 	fy_int blocks;

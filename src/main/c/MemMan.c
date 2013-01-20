@@ -82,7 +82,7 @@ void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
 		fy_exception *exception) {
 	fy_int blocks = (size + 3) >> 2;
 	if (block->posInOld >= block->oldTop - blocks) {
-		block->gcProvider(block->gcContext, exception);
+		block->gcProvider(block->gcContext, TRUE, exception);
 		FYEH()NULL;
 	}
 	if (block->posInOld >= block->oldTop - blocks) {
@@ -108,7 +108,7 @@ void *fy_mmAllocateInEden(fy_memblock *block, fy_uint handle, fy_int size,
 					COPY_ENTRIES, block->posInOld, block->oldTop);
 			return NULL;
 		} else {
-			block->gcProvider(block->gcContext, exception);
+			block->gcProvider(block->gcContext, FALSE, exception);
 			FYEH()NULL;
 			return fy_mmAllocateInEden(block, handle, size, TRUE, exception);
 		}
@@ -130,7 +130,7 @@ void *fy_mmAllocateInOld(fy_memblock *block, fy_uint handle, fy_int size,
 					COPY_ENTRIES, block->posInOld, block->oldTop);
 			return NULL;
 		} else {
-			block->gcProvider(block->gcContext, exception);
+			block->gcProvider(block->gcContext, TRUE, exception);
 			return fy_mmAllocateInOld(block, handle, size, TRUE, exception);
 		}
 	}

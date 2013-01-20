@@ -46,7 +46,7 @@ static void isClose(struct fy_context *context, fy_inputStream *is) {
 	fclose(is->data);
 }
 
-static fy_inputStream* isOpen(struct fy_context *context, const char *name,
+static void* isOpen(struct fy_context *context, const char *name,
 		fy_exception *exception) {
 	FILE *fp;
 	fy_inputStream *ret = fy_mmAllocate(context->memblocks,
