@@ -76,10 +76,6 @@
 #define FY_REFLECT_METHOD 		"java/lang/reflect/Method"
 #define FY_REFLECT_PROXY 		"java/lang/reflect/Proxy"
 
-#define FY_REF_SOFT 		"java/lang/ref/SoftReference"
-#define FY_REF_WEAK 		"java/lang/ref/WeakReference"
-#define FY_REF_PHANTOM 		"java/lang/ref/PhantomReference"
-
 #define FY_BASE_STACKTHREADELEMENT "java/lang/StackTraceElement"
 
 #define FY_BOX_BOOLEAN FY_BASE_BOOLEAN".valueOf.(Z).L"FY_BASE_BOOLEAN";"

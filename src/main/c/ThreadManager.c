@@ -413,11 +413,11 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 			fy_uint lockId;
 			fy_object *lock;
 #endif
-			if (likely(running->length > 0)) {
-				if (likely(context->runningThreadPos < running->length)) {
+			if (running->length > 0) {
+				if (context->runningThreadPos < running->length) {
 					fy_arrayListGet(context->memblocks, running,
 							context->runningThreadPos, &thread);
-					if (unlikely(thread->destroyPending)) {
+					if (thread->destroyPending) {
 						fy_threadDestroy(context, thread);
 						fy_arrayListRemove(context->memblocks, running,
 								context->runningThreadPos, exception);
@@ -428,7 +428,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 						break;
 					}
 					context->runningThreadPos++;
-					if (likely(!thread->daemon)) {
+					if (!thread->daemon) {
 						context->run = TRUE;
 					}
 					nextWakeUpTime = thread->nextWakeTime;
@@ -441,7 +441,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 					thread->nextWakeTime = 0;
 					context->nextWakeUpTimeTotal = 0;
 					lockId = thread->waitForLockId;
-					if (unlikely(lockId > 0)) {
+					if (lockId > 0) {
 						lock = context->objects + lockId;
 						if (lock->object_data->monitorOwnerId <= 0) {
 							lock->object_data->monitorOwnerId =
@@ -455,7 +455,6 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 					}
 					fy_threadRun(context, thread, message,
 							context->pricmds[thread->priority]);
-
 					fy_heapEndProtect(context);
 					switch (message->messageType) {
 					case message_continue:
@@ -485,6 +484,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 								message->messageType);
 						return;
 					}
+
 				} else {
 					if (!context->run) {
 						context->state = FY_TM_STATE_DEAD;

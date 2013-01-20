@@ -557,9 +557,6 @@ extern "C" {
 		fy_str *sStringCount;
 		fy_str *sEnum;
 		fy_str *sAnnotation;
-		fy_str *sPhantomReference;
-		fy_str *sSoftReference;
-		fy_str *sWeakReference;
 
 		fy_str *sArrayBoolean;
 		fy_str *sArrayChar;
@@ -631,7 +628,6 @@ extern "C" {
 		/* #BEGIN THREAD MANAGER*/
 		fy_int pricmds[11];
 		fy_thread *threads[MAX_THREADS];
-		fy_thread *currentThread;
 		fy_arrayList *runningThreads;
 		fy_int runningThreadPos;
 		fy_int run;
