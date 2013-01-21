@@ -660,6 +660,7 @@ extern "C" {
 		fy_hashMapI references[1];
 		fy_arrayList toEnqueue[1];
 		fy_uint nextHandle;
+		fy_uint totalObjects;
 		fy_object objects[MAX_OBJECTS];
 		/* #END HEAP*/
 
