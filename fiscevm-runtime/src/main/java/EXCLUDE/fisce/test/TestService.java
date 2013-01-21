@@ -14,7 +14,7 @@ public class TestService {
 	public static void assertTrue(boolean value, String failMessage) {
 		if (!value) {
 			try {
-				throw new AssertionError();
+				throw new AssertionError(failMessage);
 			} catch (AssertionError e) {
 				e.printStackTrace(FiScEVM.debug);
 			}
