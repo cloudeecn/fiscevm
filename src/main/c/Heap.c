@@ -413,7 +413,7 @@ static fy_boolean validate(fy_context *context, fy_int handle, fy_field *field) 
 	fy_class *handleClass =
 	fy_heapGetObject(context, handle)->object_data->clazz;
 	fy_class *fieldClass = field->owner;
-	return fy_classCanCastTo(context, handleClass, fieldClass);
+	return fy_classCanCastTo(context, handleClass, fieldClass, TRUE);
 }
 #endif
 
@@ -881,9 +881,23 @@ static void fillLiterals(fy_str *key, void *value, void *data) {
 	fy_bitSet(ffld->makrs, handle);
 }
 
+struct gc_data {
+	fy_context *context;
+	fy_uint *marks;
+	fy_exception *exception;
+};
+
 static void markSoftReference(fy_int reference, fy_int referent,
 		fy_int nullValue, void *addition) {
-	fy_bitSet((fy_uint*)addition, referent);
+	struct gc_data *data = addition;
+	fy_context *context = data->context;
+	fy_exception *exception = data->exception;
+	fy_uint *marks = data->marks;
+	fy_object *reference_object = fy_heapGetObject(context,reference);
+	fy_uint access = reference_object->object_data->clazz->accessFlags;
+	if (access & FY_ACC_SOFT_REF) {
+		fy_bitSet((fy_uint*)marks, referent);
+	}
 }
 
 static void clearAndEnqueue(fy_context *context, fy_int reference,
@@ -893,12 +907,6 @@ static void clearAndEnqueue(fy_context *context, fy_int reference,
 	FYEH();
 	fy_hashMapIRemove(context->memblocks, context->references, reference);
 }
-
-struct gc_data {
-	fy_context *context;
-	fy_uint *marks;
-	fy_exception *exception;
-};
 
 /*
  * Clean and enqueue SoftRef and WeakRef, launched before finalize scan.
@@ -940,6 +948,11 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 	fy_thread *thread;
 	fy_class *classClass, *classMethod, *classField, *classConstructor;
 	fy_object *object;
+	struct gc_data gc_data;
+
+	gc_data.context = context;
+	gc_data.exception = exception;
+	gc_data.marks = marks;
 
 	classClass = fy_vmLookupClass(context, context->sClassClass, exception);
 	FYEH();
@@ -1024,7 +1037,7 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 
 	if (processSoft) {
 		fy_hashMapIEachValue(context->memblocks, context->references,
-				markSoftReference, marks);
+				markSoftReference, &gc_data);
 	}
 
 	/*clear NULL*/

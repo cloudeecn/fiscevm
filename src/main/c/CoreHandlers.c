@@ -104,7 +104,6 @@ static void SystemSetProperty(struct fy_context *context,
 static void SystemGC(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
-	context->logDVarLn(context,"Call gc");
 	fy_heapGC(context, FALSE, exception);
 }
 
@@ -2268,7 +2267,7 @@ static void registerReference(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context, FY_REF".clear0.()V", NULL, refClear,
 			exception);
 	FYEH();
-	fy_vmRegisterNativeHandler(context, FY_REF".get.()L"FY_BASE_OBJECT";", NULL,
+	fy_vmRegisterNativeHandler(context, FY_REF".get0.()L"FY_BASE_OBJECT";", NULL,
 			refGet, exception);
 	FYEH();
 }
