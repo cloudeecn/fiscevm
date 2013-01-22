@@ -31,13 +31,13 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_int target = -1;
 	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 #ifdef FY_DEBUG
-	context->logDVar(context,"Exception: ");
+	context->logDVar(context, "Exception: ");
 	context->logDStr(context,
 			fy_heapGetClassOfObject(context, handle, exception)->className);
-	context->logDVar(context,"\nat ");
+	context->logDVar(context, "\nat ");
 	context->logDStr(context, frame->method->uniqueName);
-	context->logDVar(context,"\n");
-	context->logDVar(context,"LPC=%"FY_PRINT32"d ", lpc);
+	context->logDVar(context, "\n");
+	context->logDVar(context, "LPC=%"FY_PRINT32"d ", lpc);
 #endif
 	throwableClass = fy_heapGetClassOfObject(context, handle, exception);
 	FYEH()0;
@@ -56,7 +56,8 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 					target = -1;
 					break;
 				}
-				if (fy_classCanCastTo(context, throwableClass, handlerClass, TRUE)) {
+				if (fy_classCanCastTo(context, throwableClass, handlerClass,
+						TRUE)) {
 					target = handler->handler_pc;
 					break;
 				}
@@ -64,7 +65,7 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 		}
 	}
 #ifdef FY_DEBUG
-	context->logDVarLn(context,"target=%"FY_PRINT32"d", target);
+	context->logDVarLn(context, "target=%"FY_PRINT32"d", target);
 #endif
 	return target;
 	//Jump after found the target is move to run() for further optimize
@@ -709,6 +710,7 @@ static void doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 			(nh->handler)(context, thread, nh->data, thread->stack + frame->sp,
 					paramsCount, message, exception);
 			FYEH();
+			fy_heapEndProtect(context);
 		}
 	} else {
 		fy_threadPushMethod(context, thread, method, &frame, exception);
@@ -794,8 +796,8 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 		return;
 	}
 	object = fy_heapGetObject(context,stack[sp]);
-	if (!fy_classCanCastTo(context, object->object_data->clazz,
-			method->owner, TRUE)) {
+	if (!fy_classCanCastTo(context, object->object_data->clazz, method->owner,
+			TRUE)) {
 		fy_fault(exception, FY_EXCEPTION_CAST, "");
 		return;
 	}
@@ -1221,7 +1223,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_str str1;
 #endif
 				fy_threadPopInt(ivalue);
-				if (((fy_int)ivalue) < 0) {
+				if (((fy_int) ivalue) < 0) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -2626,6 +2628,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						fy_heapBeginProtect(context);
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, message, exception);
+						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
 							message->messageType = message_exception;
 							FY_FALLOUT_NOINVOKE
@@ -3299,7 +3302,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				type = instruction->params.int_params.param1;
 				fy_threadPopInt(ivalue3);
-				if (((fy_int)ivalue3) < 0) {
+				if (((fy_int) ivalue3) < 0) {
 					message->messageType = message_exception;
 					exception->exceptionType = exception_normal;
 					strcpy_s( exception->exceptionName,
@@ -3815,7 +3818,8 @@ void fy_threadReturnLong(fy_context *context, fy_thread *thread, fy_long value) 
 	frame->sp = sp + 2;
 }
 
-void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *marks) {
+void fy_threadScanRef(fy_context *context, fy_thread *thread,
+		fy_arrayList *from, fy_exception *exception) {
 	fy_uint i, imax, handle;
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	fy_uint *stack = thread->stack;
@@ -3844,7 +3848,8 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread, fy_uint *marks) {
 				if (object->object_data != NULL
 						&& object->object_data->data != NULL) {
 					/*Valid handle*/
-					fy_bitSet(marks, handle);
+					fy_arrayListAdd(context->memblocks,from,&handle,exception);
+					FYEH();
 				}
 			}
 		}

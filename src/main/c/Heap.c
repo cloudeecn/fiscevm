@@ -892,25 +892,29 @@ fy_int fy_heapGetReferent(fy_context *context, fy_int reference) {
 	return fy_hashMapIGet(context->memblocks, context->references, reference);
 }
 
-static void markObjectUsing(fy_uint *marks, fy_uint handle) {
-	fy_bitSet(marks, handle);
+static void markObjectInitialUsing(fy_context *context, fy_arrayList *from,
+		fy_uint handle, fy_exception *exception) {
+	if (handle != 0) {
+		fy_arrayListAdd(context->memblocks, from, &handle, exception);
+	}
 }
 
 typedef struct fy_fill_literals_data {
 	fy_context *context;
-	fy_uint *makrs;
+	fy_arrayList *from;
 	fy_exception *exception;
 } fy_fill_literals_data;
 
 static void fillLiterals(fy_str *key, void *value, void *data) {
 	fy_fill_literals_data *ffld = (fy_fill_literals_data*) data;
 	fy_uint handle = *(fy_uint*) value;
-	markObjectUsing(ffld->makrs, handle);
+	markObjectInitialUsing(ffld->context, ffld->from, handle, ffld->exception);
 }
 
 struct gc_data {
 	fy_context *context;
 	fy_uint *marks;
+	fy_arrayList *from;
 	fy_exception *exception;
 };
 
@@ -919,11 +923,11 @@ static void markSoftReference(fy_int reference, fy_int referent,
 	struct gc_data *data = addition;
 	fy_context *context = data->context;
 	fy_exception *exception = data->exception;
-	fy_uint *marks = data->marks;
+	fy_arrayList *from = data->from;
 	fy_object *reference_object = fy_heapGetObject(context,reference);
 	fy_uint access = reference_object->object_data->clazz->accessFlags;
 	if (access & FY_ACC_SOFT_REF) {
-		markObjectUsing((fy_uint*) marks, referent);
+		markObjectInitialUsing(context, from, referent, exception);
 	}
 }
 
@@ -944,13 +948,16 @@ static void processReferencePhase1(fy_int reference, fy_int referent,
 	fy_context *context = data->context;
 	fy_uint *marks = data->marks;
 	fy_exception *exception = data->exception;
+	fy_arrayList *from = data->from;
 	fy_object *obj_reference = fy_heapGetObject(context, reference);
 	fy_object *obj_referent = fy_heapGetObject(context, referent);
 	if (obj_referent->object_data == NULL || !fy_bitGet(marks,referent)) {
+		fy_arrayListAdd(context->memblocks, from, &reference, exception);
 		clearAndEnqueue(context, reference, exception);
 	} else if (obj_referent->object_data->finalizeStatus == in_finalize_array
-			&& !(obj_reference->object_data->clazz->accessFlags
-					& FY_ACC_PHANTOM_REF)) {
+			&& (obj_reference->object_data->clazz->accessFlags
+					& FY_ACC_PHANTOM_REF) == 0) {
+		fy_arrayListAdd(context->memblocks, from, &reference, exception);
 		clearAndEnqueue(context, reference, exception);
 	}
 }
@@ -959,14 +966,15 @@ static void processReferencePhase2(fy_int reference, fy_int referent,
 		fy_int nullValue, void *addition) {
 	struct gc_data *data = addition;
 	fy_context *context = data->context;
+	fy_uint *marks = data->marks;
 	fy_exception *exception = data->exception;
 	fy_object *obj_referent = fy_heapGetObject(context, referent);
-	if (obj_referent->object_data == NULL) {
+	if (obj_referent->object_data == NULL && fy_bitGet(marks,reference)) {
 		clearAndEnqueue(context, reference, exception);
 	}
 }
 
-static void fillInitialHandles(fy_context *context, fy_uint *marks,
+static void fillInitialHandles(fy_context *context, fy_arrayList *from,
 		fy_boolean processSoft, fy_exception *exception) {
 	fy_uint i, imax, j, jmax;
 	fy_class *clazz;
@@ -979,7 +987,7 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 
 	gc_data.context = context;
 	gc_data.exception = exception;
-	gc_data.marks = marks;
+	gc_data.from = from;
 
 	classClass = fy_vmLookupClass(context, context->sClassClass, exception);
 	FYEH();
@@ -999,7 +1007,8 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 			clazz = object->object_data->clazz;
 			if (clazz == classClass || clazz == classMethod
 					|| clazz == classField || clazz == classConstructor) {
-				markObjectUsing(marks, i);
+				markObjectInitialUsing(context, from, i, exception);
+				FYEH();
 			}
 		}
 	}
@@ -1016,7 +1025,9 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 						&& (field->descriptor->content[0] == FY_TYPE_HANDLE
 								|| field->descriptor->content[0]
 										== FY_TYPE_ARRAY)) {
-					markObjectUsing(marks, clazz->staticArea[j]);
+					markObjectInitialUsing(context, from, clazz->staticArea[j],
+							exception);
+					FYEH();
 				}
 			}
 		}
@@ -1025,7 +1036,7 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 	/*Literals*/
 	{
 		ffld.context = context;
-		ffld.makrs = marks;
+		ffld.from = from;
 		ffld.exception = exception;
 
 		fy_hashMapEachValue(context->memblocks, context->literals, fillLiterals,
@@ -1035,43 +1046,47 @@ static void fillInitialHandles(fy_context *context, fy_uint *marks,
 	for (i = 1; i < MAX_THREADS; i++) {
 		thread = context->threads[i];
 		if (thread != NULL) {
-			markObjectUsing(marks, thread->handle);
-			markObjectUsing(marks, thread->waitForLockId);
-			markObjectUsing(marks, thread->waitForNotifyId);
-			markObjectUsing(marks, thread->currentThrowable);
-			fy_threadScanRef(context, thread, marks);
+			markObjectInitialUsing(context, from, thread->handle, exception);
+			FYEH();
+			markObjectInitialUsing(context, from, thread->waitForLockId,
+					exception);
+			FYEH();
+			markObjectInitialUsing(context, from, thread->waitForNotifyId,
+					exception);
+			FYEH();
+			markObjectInitialUsing(context, from, thread->currentThrowable,
+					exception);
+			FYEH();
+			fy_threadScanRef(context, thread, from, exception);
 			FYEH();
 		}
 	}
 
 	imax = context->toFinalize->length;
 	for (i = 0; i < imax; i++) {
-		markObjectUsing(marks,
+		markObjectInitialUsing(context, from,
 				*(fy_int*) fy_arrayListGet(context->memblocks,
-						context->toFinalize, i, NULL));
+						context->toFinalize, i, NULL), exception);
 	}
 
 	imax = context->protected->length;
 	for (i = 0; i < imax; i++) {
-		markObjectUsing(marks,
+		markObjectInitialUsing(context, from,
 				*(fy_int*) fy_arrayListGet(context->memblocks,
-						context->protected, i, NULL));
+						context->protected, i, NULL), exception);
 	}
 
 	imax = context->toEnqueue->length;
 	for (i = 0; i < imax; i++) {
-		markObjectUsing(marks,
+		markObjectInitialUsing(context, from,
 				*(fy_int*) fy_arrayListGet(context->memblocks,
-						context->toEnqueue, i, NULL));
+						context->toEnqueue, i, NULL), exception);
 	}
 
 	if (processSoft) {
 		fy_hashMapIEachValue(context->memblocks, context->references,
 				markSoftReference, &gc_data);
 	}
-
-	/*clear NULL*/
-	fy_bitClear(marks, 0);
 }
 
 static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
@@ -1096,6 +1111,11 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 		fy_char fieldType;
 #endif
 		ASSERT(handle>0 && handle<MAX_OBJECTS);
+		if (fy_bitGet(marks,handle)) {
+			continue;
+		} else {
+			fy_bitSet(marks, handle);
+		}
 		object = context->objects + handle;
 		clazz = object->object_data->clazz;
 		ASSERT(clazz!=NULL);
@@ -1112,7 +1132,9 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 					ASSERT(
 							handle2 > 0 && handle2 < MAX_OBJECTS && fy_heapGetObject(context,handle2)->object_data != NULL);
 					if (!fy_bitGet(marks, handle2)) {
-						markObjectUsing(marks, handle2);
+						/*
+						 markObjectUsing(context, marks, handle2);
+						 */
 						fy_arrayListAdd(context->memblocks, from, &handle2,
 								exception);
 						FYEH();
@@ -1137,7 +1159,9 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 					ASSERT(
 							handle2 > 0 && handle2 < MAX_OBJECTS && fy_heapGetObject(context,handle2)->object_data != NULL);
 					if (!fy_bitGet(marks, handle2)) {
-						markObjectUsing(marks, handle2);
+						/*
+						 markObjectUsing(context, marks, handle2);
+						 */
 						fy_arrayListAdd(context->memblocks, from, &handle2,
 								exception);
 						FYEH();
@@ -1180,9 +1204,7 @@ static void release(fy_context *context, fy_uint handle) {
 	if (object->object_data->position == old) {
 		block->oldReleasedSize += getSizeFromObject(context, object) + 1;
 	}
-	/* Not needed since references will not be released until its handle leaves this map
-	 fy_hashMapIRemove(context->memblocks, context->references, handle);
-	 */
+	fy_hashMapIRemove(context->memblocks, context->references, handle);
 	memset(object->object_data, 0, sizeof(fy_object_data));
 	object->object_data = NULL;
 	context->totalObjects--;
@@ -1348,45 +1370,29 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 #endif
 
 	timeStamp = fy_portTimeMillSec(context->port);
-	marks = /*TEMP*/fy_allocate(
-			(fy_bitSizeToInt(MAX_OBJECTS) << fy_bitSHIFT) * 2, exception);
+	marks = /*TEMP*/fy_allocate(fy_bitSizeToInt(MAX_OBJECTS), exception);
 	FYEH();
+	fy_arrayListInit(context->memblocks, &from, sizeof(fy_uint),
+			context->totalObjects, exception);
+	if (exception->exceptionType != exception_none) {
+		fy_free(marks);
+		return;
+	}
 	gc_data.context = context;
 	gc_data.marks = marks;
 	gc_data.exception = exception;
 
 	t1 = fy_portTimeMillSec(context->port);
-	fillInitialHandles(context, marks, !memoryStressed, exception);
+	fillInitialHandles(context, &from, !memoryStressed, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
+		fy_arrayListDestroy(context->memblocks, &from);
 		return;
 	}
 
-	fy_arrayListInit(context->memblocks, &from, sizeof(fy_uint), 1024,
-			exception);
-	if (exception->exceptionType != exception_none) {
-		fy_free(marks);
-		return;
-	}
+	gc_data.from = &from;
 
 	t2 = fy_portTimeMillSec(context->port);
-	/*push initial handles*/
-	for (i = fy_bitSizeToInt(MAX_OBJECTS); i >= 0; i--) {
-		if (marks[i]) {
-			for (j = fy_bitMASK; j >= 0; j--) {
-				if (marks[i] & (1 << j)) {
-					handle = (i << fy_bitSHIFT) + j;
-					fy_arrayListAdd(context->memblocks, &from, &handle,
-							exception);
-					if (exception->exceptionType != exception_none) {
-						fy_free(marks);
-						fy_arrayListDestroy(context->memblocks, &from);
-						return;
-					}
-				}
-			}
-		}
-	}
 
 	t3 = fy_portTimeMillSec(context->port);
 	scanRef(context, &from, marks, exception);
@@ -1404,8 +1410,10 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 				&& object->object_data->clazz->needFinalize
 				&& object->object_data->finalizeStatus == not_finalized) {
 			clazz = object->object_data->clazz;
-//			context->logDVar(context,"ADD %d need finalize\n", i);
-			markObjectUsing(marks, i);
+			/*
+			 context->logDVar(context,"ADD %d need finalize\n", i);
+			 markObjectUsing(context, marks, i);
+			 */
 			fy_arrayListAdd(context->memblocks, context->toFinalize, &i,
 					exception);
 			if (exception->exceptionType != exception_none) {
