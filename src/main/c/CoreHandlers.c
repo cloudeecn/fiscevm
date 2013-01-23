@@ -774,7 +774,7 @@ static void finalizerGetReferencesToEnqueue(struct fy_context *context,
 			exception);
 	FYEH();
 
-#if 1
+#if 0
 	if (len > 0) {
 		context->logDVar(context, "#Finalizer %d references need enqueue\n",
 				len);

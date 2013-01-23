@@ -16,6 +16,12 @@
  */
 #include "fyc/ClassLoader.h"
 
+#if 0 || FY_VERBOSE
+# ifndef FY_CL_DEBUG
+#  define FY_CL_DEBUG
+# endif
+#endif
+
 #ifdef FY_DEBUG
 static int checkConstantBonud(fy_class *clazz, int idx, fy_exception *exception) {
 	if (idx > clazz->constantPoolCount) {
@@ -819,6 +825,7 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
 	fy_memblock *block = context->memblocks;
 	fy_class *clazz = fy_mmAllocatePerm(block, sizeof(fy_class), exception);
 	FYEH()NULL;
+
 	clazz->type = object_class;
 	fy_dataSkip(context, is, 8, exception);
 	FYEH()NULL;
@@ -832,6 +839,11 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
 			exception)];
 	FYEH()NULL;
 	clazz->className = clazz->thisClass->ci.className;
+#ifdef FY_CL_DEBUG
+	context->logDVar(context, "#CL Phase1: ");
+	context->logDStr(context, clazz->className);
+	context->logDVarLn(context, "...");
+#endif
 	clazz->superClass = clazz->constantPools[fy_dataRead2(context, is,
 			exception)];
 	FYEH()NULL;
@@ -862,27 +874,59 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
 
 	if (context->TOP_CLASS == NULL
 			&& fy_strCmp(clazz->className, context->sTopClass) == 0) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is TOP_CLASS");
+#endif
 		context->TOP_CLASS = clazz;
 	} else if (context->TOP_THROWABLE == NULL
 			&& fy_strCmp(clazz->className, context->sClassThrowable) == 0) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is TOP_THROWABLE");
+#endif
 		context->TOP_THROWABLE = clazz;
 	} else if (context->TOP_ENUM == NULL
 			&& fy_strCmp(clazz->className, context->sEnum) == 0) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is TOP_ENUM");
+#endif
 		context->TOP_ENUM = clazz;
 	} else if (context->TOP_ANNOTATION == NULL
 			&& fy_strCmp(clazz->className, context->sAnnotation) == 0) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is TOP_ANNOTATION");
+#endif
 		context->TOP_ANNOTATION = clazz;
 	} else if (context->TOP_SOFT_REF == NULL
 			&& fy_strCmp(clazz->className, context->sSoftReference) == 0) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is TOP_SOFT_REF");
+#endif
 		context->TOP_SOFT_REF = clazz;
 	} else if (context->TOP_WEAK_REF == NULL
 			&& fy_strCmp(clazz->className, context->sWeakReference) == 0) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is TOP_WEAK_REF");
+#endif
 		context->TOP_WEAK_REF = clazz;
 	} else if (context->TOP_PHANTOM_REF == NULL
 			&& fy_strCmp(clazz->className, context->sPhantomReference) == 0) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is TOP_PHANTOM_REF");
+#endif
 		context->TOP_PHANTOM_REF = clazz;
 	}
-
+#ifdef FY_CL_DEBUG
+	context->logDVar(context, "#CL Phase1: ");
+	context->logDStr(context, clazz->className);
+	context->logDVarLn(context, "...OK");
+#endif
 	return clazz;
 }
 void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) {
@@ -892,6 +936,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 	fy_method *method;
 	fy_str str[1];
 	fy_class *tmp;
+	fy_method *finalizeMethod;
 #ifdef FY_DEBUG
 	char buf[255];
 #endif
@@ -903,6 +948,11 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 	 enumClazz = fy_vmLookupClass(context, context->sEnum, exception);
 	 FYEH();
 	 */
+#ifdef FY_CL_DEBUG
+	context->logDVar(context, "#CL Phase2: ");
+	context->logDStr(context, clazz->className);
+	context->logDVarLn(context, "...");
+#endif
 	switch (clazz->type) {
 	case array_class:
 
@@ -938,14 +988,16 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				clazz->sizeAbs += tmp->sizeRel;
 				tmp = tmp->super;
 			}
-#ifdef FY_VERBOSE
-			context->logDVar(context,"#CL#");
-			context->logDStr(context,clazz->className);
-			context->logDVar(context," sizeAbs=%d sizeRel=%d\n",clazz->sizeAbs,clazz->sizeRel);
+#ifdef FY_CL_DEBUG
+			context->logDVar(context, "#CL#");
+			context->logDStr(context, clazz->className);
+			context->logDVar(context, " sizeAbs=%d sizeRel=%d\n",
+					clazz->sizeAbs, clazz->sizeRel);
 
-			context->logDVar(context,"   +");
-			context->logDStr(context,clazz->super->className);
-			context->logDVar(context," sizeAbs=%d sizeRel=%d\n",clazz->super->sizeAbs,clazz->super->sizeRel);
+			context->logDVar(context, "   +");
+			context->logDStr(context, clazz->super->className);
+			context->logDVar(context, " sizeAbs=%d sizeRel=%d\n",
+					clazz->super->sizeAbs, clazz->super->sizeRel);
 #endif
 			for (i = 0; i < clazz->fieldCount; i++) {
 				if (clazz->fields[i]->access_flags & FY_ACC_STATIC) {
@@ -955,17 +1007,21 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 							+ clazz->fields[i]->posRel;
 				}
 			}
-			if (fy_vmLookupMethodVirtual(context, clazz, context->sMFinalize,
-					exception)
+			finalizeMethod = fy_vmLookupMethodVirtual(context, clazz,
+					context->sMFinalize, exception);
+			FYEH();
+			if (finalizeMethod
 					!= fy_vmLookupMethodVirtual(context,
 							fy_vmLookupClass(context, context->sTopClass,
-									exception), context->sMFinalize,
-							exception)) {
+									exception), context->sMFinalize, exception)
+					&& /*More than just a "RETURN"*/finalizeMethod->codeLength
+							> 1) {
 				clazz->needFinalize = 1;
 #ifdef FY_DEBUG
 				fy_strSPrint(buf, 255, clazz->className);
 				DLOG
-				(context, "%s needs finalize!", buf);
+				(context, "%s needs finalize! %"FY_PRINT32"d", buf,
+						finalizeMethod->codeLength);
 #endif
 			}
 		} else {
@@ -994,14 +1050,34 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 					i * sizeof(fy_field*));
 		}
 		if (fy_classExtendsAnnotation(context, clazz)) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is Annotation");
+#endif
 			clazz->accessFlags |= FY_ACC_ANNOTATION;
 		} else if (fy_classExtendsEnum(context, clazz)) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is Enum");
+#endif
 			clazz->accessFlags |= FY_ACC_ENUM;
 		} else if (fy_classExtendsPhantomRef(context, clazz)) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is PhantomReference");
+#endif
 			clazz->accessFlags |= FY_ACC_PHANTOM_REF;
 		} else if (fy_classExtendsWeakRef(context, clazz)) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is WeakReference");
+#endif
 			clazz->accessFlags |= FY_ACC_WEAK_REF;
 		} else if (fy_classExtendsSoftRef(context, clazz)) {
+#ifdef FY_CL_DEBUG
+		context->logDStr(context, clazz->className);
+		context->logDVarLn(context, " is SoftReference");
+#endif
 			clazz->accessFlags |= FY_ACC_SOFT_REF;
 		}
 
@@ -1092,6 +1168,11 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 		break;
 	}
 	clazz->phase = 2;
+#ifdef FY_CL_DEBUG
+	context->logDVar(context, "#CL Phase2: ");
+	context->logDStr(context, clazz->className);
+	context->logDVarLn(context, "...OK");
+#endif
 }
 fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		fy_exception *exception) {

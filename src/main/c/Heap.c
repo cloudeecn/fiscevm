@@ -18,8 +18,10 @@
 #include "fyc/Heap.h"
 #include "fyc/NConfig.h"
 
-#if 1
-# define FY_GC_DEBUG
+#if 0
+# ifndef FY_GC_DEBUG
+#  define FY_GC_DEBUG
+# endif
 #endif
 
 static int fetchNextHandle(fy_context *context, fy_boolean gced,
@@ -894,6 +896,9 @@ fy_int fy_heapGetReferent(fy_context *context, fy_int reference) {
 
 static void markObjectInitialUsing(fy_context *context, fy_arrayList *from,
 		fy_uint handle, fy_exception *exception) {
+	if(handle==3395){
+		handle=3395;
+	}
 	if (handle != 0) {
 		fy_arrayListAdd(context->memblocks, from, &handle, exception);
 	}
@@ -951,12 +956,15 @@ static void processReferencePhase1(fy_int reference, fy_int referent,
 	fy_arrayList *from = data->from;
 	fy_object *obj_reference = fy_heapGetObject(context, reference);
 	fy_object *obj_referent = fy_heapGetObject(context, referent);
-	if (obj_referent->object_data == NULL || !fy_bitGet(marks,referent)) {
-		fy_arrayListAdd(context->memblocks, from, &reference, exception);
-		clearAndEnqueue(context, reference, exception);
-	} else if (obj_referent->object_data->finalizeStatus == in_finalize_array
-			&& (obj_reference->object_data->clazz->accessFlags
-					& FY_ACC_PHANTOM_REF) == 0) {
+#if 0
+	context->logDVar(context,"#GC Processing reference=%"FY_PRINT32"d class=",reference);
+	context->logDStr(context,obj_reference->object_data->clazz->className);
+	context->logDVarLn(context," flag=%x",obj_reference->object_data->clazz->accessFlags);
+#endif
+	if (obj_referent->object_data == NULL
+			|| (!fy_bitGet(marks,referent)
+					&& (obj_reference->object_data->clazz->accessFlags
+							& FY_ACC_PHANTOM_REF) == 0)) {
 		fy_arrayListAdd(context->memblocks, from, &reference, exception);
 		clearAndEnqueue(context, reference, exception);
 	}
@@ -1197,8 +1205,10 @@ static fy_int getSizeFromObject(fy_context *context, fy_object *object) {
 static void release(fy_context *context, fy_uint handle) {
 	fy_memblock *block = context->memblocks;
 	fy_object *object = fy_heapGetObject(context,handle);
-	fy_class *clazz = object->object_data->clazz;
-#if 1
+	/*
+	 fy_class *clazz = object->object_data->clazz;
+	 */
+#if 0
 	context->logDVarLn(context, "release handle: %"FY_PRINT32"d", handle);
 #endif
 	if (object->object_data->position == old) {
@@ -1394,7 +1404,6 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 
 	t2 = fy_portTimeMillSec(context->port);
 
-	t3 = fy_portTimeMillSec(context->port);
 	scanRef(context, &from, marks, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
@@ -1402,7 +1411,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 		return;
 	}
 
-	t4 = fy_portTimeMillSec(context->port);
+	t3 = fy_portTimeMillSec(context->port);
 	fy_arrayListClear(context->memblocks, &from);
 	for (i = 1; i < MAX_OBJECTS; i++) {
 		object = fy_heapGetObject(context,i);
@@ -1432,7 +1441,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	}
 	fy_hashMapIEachValue(context->memblocks, context->references,
 			processReferencePhase1, &gc_data);
-	t5 = fy_portTimeMillSec(context->port);
+	t4 = fy_portTimeMillSec(context->port);
 	scanRef(context, &from, marks, exception);
 	fy_arrayListDestroy(context->memblocks, &from);
 	if (exception->exceptionType != exception_none) {
@@ -1440,11 +1449,12 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 		return;
 	}
 
-	t6 = fy_portTimeMillSec(context->port);
+	t5 = fy_portTimeMillSec(context->port);
 	if (memoryStressed) {
 		compactOld(context, marks, exception);
 		FYEH();
 	}
+	t6 = fy_portTimeMillSec(context->port);
 	block->posInEden = 0;
 	block->posInYong = 0;
 	block->youngId = youngId = 1 - block->youngId;

@@ -254,7 +254,7 @@ extern "C" {
 		fy_ubyte *constantTypes;
 		void** constantPools;
 
-		fy_char accessFlags;
+		fy_uint accessFlags;
 		ConstantClass* thisClass;
 		fy_str* className;
 		ConstantClass* superClass;
@@ -313,13 +313,6 @@ extern "C" {
 			fy_int multiUsageData;
 			/*Length of the array object*/
 			fy_int arrayLength;
-			/*The first byte of this will be the reference type,
-			 * 0 - WeakReference/PhantomReference, this two types
-			 * 	   of reference will be cleared on any phase of gc
-			 * 1 - SoftReference, this type of reference will be
-			 *     cleared on old area compressing phase of gc
-			fy_int referenceReferent;
-			 * */
 			fy_int threadId;
 			fy_int methodId;
 			fy_int fieldId;
