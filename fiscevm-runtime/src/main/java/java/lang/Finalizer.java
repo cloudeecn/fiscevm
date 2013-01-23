@@ -15,11 +15,13 @@
  */
 package java.lang;
 
+import java.lang.ref.Reference;
+
 import com.cirnoworks.fisce.privat.FiScEVM;
 
 /**
  * @author Cloudee
- *
+ * 
  */
 public final class Finalizer extends Thread {
 
@@ -32,29 +34,38 @@ public final class Finalizer extends Thread {
 	public void run() {
 		try {
 			while (true) {
-				// FiScEVM.infoOut("Finalizer!");
+				Reference<?>[] refs = getReferencesToEnqueue();
+				if (refs != null) {
+					for (int i = 0, max = refs.length; i < max; i++) {
+						Reference<?> ref = refs[i];
+						ref.enqueue();
+						ref = null;
+						refs[i] = null;
+					}
+				}
 				Object[] finalizee = getFinalizee();
-				if (finalizee.length > 0) {
-//					FiScEVM.infoOut("#FINALIZER "
-//							+ System.identityHashCode(Thread.currentThread())
-//							+ ":" + System.identityHashCode(finalizee) + ": "
-//							+ finalizee.length + " objects to finalize...");
+				if (finalizee != null) {
+					// FiScEVM.infoOut("#FINALIZER "
+					// + System.identityHashCode(Thread.currentThread())
+					// + ":" + System.identityHashCode(finalizee) + ": "
+					// + finalizee.length + " objects to finalize...");
 					for (int i = 0, max = finalizee.length; i < max; i++) {
 						Object o = finalizee[i];
 						try {
 
-//							FiScEVM.infoOut("FINALIZE "
-//									+ System.identityHashCode(o));
+							// FiScEVM.infoOut("FINALIZE "
+							// + System.identityHashCode(o));
 
 							o.finalize();
 							// markFinalized(o);
 						} catch (java.lang.Throwable e) {
 							e.printStackTrace();
 						}
+						o = null;
 						finalizee[i] = null;
 					}
-//					FiScEVM.infoOut("#FINALIZER:" + finalizee.length
-//							+ " objects finalized.");
+					// FiScEVM.infoOut("#FINALIZER:" + finalizee.length
+					// + " objects finalized.");
 					finalizee = null;
 				}
 				try {
@@ -70,4 +81,6 @@ public final class Finalizer extends Thread {
 	}
 
 	private static native Object[] getFinalizee();
+
+	private static native Reference<?>[] getReferencesToEnqueue();
 }

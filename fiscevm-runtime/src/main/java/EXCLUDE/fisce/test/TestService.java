@@ -7,6 +7,16 @@ public class TestService {
 
 	public static native void fail(String message);
 
+	public static void fail(String message, Throwable e) {
+		if (nativeFail) {
+			e.printStackTrace(FiScEVM.debug);
+			fail(message);
+		} else {
+			e.printStackTrace();
+			System.err.println("Exception occored: " + message);
+		}
+	}
+
 	public static void assertTrue(boolean value) {
 		assertTrue(value, " no message.");
 	}
@@ -14,7 +24,7 @@ public class TestService {
 	public static void assertTrue(boolean value, String failMessage) {
 		if (!value) {
 			try {
-				throw new AssertionError();
+				throw new AssertionError(failMessage);
 			} catch (AssertionError e) {
 				e.printStackTrace(FiScEVM.debug);
 			}
