@@ -58,15 +58,10 @@ public class GCTest extends TestService {
 			System.gc();
 			System.gc();
 			assertTrue(wr.get() != null, "Weak ref is cleared abnormally");
-			// assertTrue(sr.get() != null, "Soft ref is cleared abnormally");
-			assertTrue(pr.get() != null, "Phantom ref is cleared abnormally");
 			referent = null;
 			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			System.gc();
 			assertTrue(wr.get() == null, "Weak ref is not cleared abnormally");
-			// assertTrue(sr.get() != null, "Soft ref is cleared abnormally");
-			assertTrue(pr.get() == null,
-					"Phantom ref is not cleared abnormally");
 			Thread.sleep(500);
 			assertTrue(weakQueue.poll() == wr);
 			assertTrue(phantomQueue.poll() == pr);
@@ -83,7 +78,7 @@ public class GCTest extends TestService {
 				Reference<Referent> sr = new SoftReference<Referent>(
 						new Referent(), softQueue);
 				clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-//				refs[i] = sr;
+				refs[i] = sr;
 				if (i == 10000) {
 					System.gc();
 					Thread.sleep(500);
@@ -93,8 +88,51 @@ public class GCTest extends TestService {
 				}
 			}
 			Thread.sleep(500);
+			System.gc();
 			assertTrue(softQueue.poll() != null);
-
+			Thread.sleep(500);
+			boolean ok = false;
+			for (int i = 0; i < 2000; i++) {
+				if (refs[i].get() != null) {
+					ok = true;
+				}
+			}
+			assertTrue(ok);
+		}
+		clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		{
+			ReferenceQueue<StrongReferent> weakQueue = new ReferenceQueue<StrongReferent>();
+			ReferenceQueue<StrongReferent> phantomQueue = new ReferenceQueue<StrongReferent>();
+			StrongReferent referent = new StrongReferent();
+			System.gc();
+			System.out.println("Reference test 3##################Referent="
+					+ System.identityHashCode(referent));
+			Reference<StrongReferent> wr = new WeakReference<StrongReferent>(
+					referent, weakQueue);
+			// Reference<Referent> sr = new SoftReference<Referent>(referent,
+			// softQueue);
+			Reference<StrongReferent> pr = new PhantomReference<StrongReferent>(
+					referent, phantomQueue);
+			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			System.gc();
+			System.gc();
+			System.gc();
+			assertTrue(wr.get() != null, "Weak ref is cleared abnormally");
+			referent = null;
+			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			System.gc();
+			assertTrue(wr.get() == null, "Weak ref is not cleared abnormally");
+			Thread.sleep(500);
+			assertTrue(weakQueue.poll() == wr);
+			assertTrue(StrongReferent.holder != null);
+			assertTrue(phantomQueue.poll() == null);
+			StrongReferent.holder = null;
+			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			FiScEVM.breakpoint();
+			System.gc();
+			Thread.sleep(500);
+			assertTrue(weakQueue.poll() == null);
+			assertTrue(phantomQueue.poll() == pr);
 		}
 	}
 
@@ -102,7 +140,7 @@ public class GCTest extends TestService {
 		try {
 			// testGCBase();
 			testReference();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// e.printStackTrace(FiScEVM.debug);
 			fail(e.getMessage(), e);
 		}
@@ -119,13 +157,14 @@ class Referent {
 }
 
 class StrongReferent {
-	private static StrongReferent holder;
+	public static StrongReferent holder;
 	final int[] payload = new int[65536];
 
 	public StrongReferent() {
 	}
 
-	public void finallize() {
+	public void finalize() {
+		System.out.println("Finalize! " + System.identityHashCode(this));
 		holder = this;
 	}
 }

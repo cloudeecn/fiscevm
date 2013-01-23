@@ -39,6 +39,7 @@ public final class Finalizer extends Thread {
 					for (int i = 0, max = refs.length; i < max; i++) {
 						Reference<?> ref = refs[i];
 						ref.enqueue();
+						ref = null;
 						refs[i] = null;
 					}
 				}
@@ -60,6 +61,7 @@ public final class Finalizer extends Thread {
 						} catch (java.lang.Throwable e) {
 							e.printStackTrace();
 						}
+						o = null;
 						finalizee[i] = null;
 					}
 					// FiScEVM.infoOut("#FINALIZER:" + finalizee.length

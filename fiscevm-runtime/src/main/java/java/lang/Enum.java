@@ -83,8 +83,8 @@ public abstract class Enum<E extends Enum<E>> implements Comparable<E> {
 
 	/**
 	 * enum classes cannot have finalize methods.
+	 */
 	@Override
 	protected final void finalize() {
 	}
-	 */
 }
