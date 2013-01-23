@@ -184,8 +184,8 @@ void fy_loadPrepareObjects(struct fy_context *context, void *loader_,
 }
 void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 		fy_uint classId, fy_int posInHeap, fy_int gen, fy_int finalizeStatus,
-		fy_uint monitorOwner, fy_uint monitorCount, fy_uint attachedId,
-		fy_uint length, fy_uint dataLength, fy_uint *data,
+		fy_uint monitorOwner, fy_uint monitorCount,
+		fy_uint multiUsageData, fy_uint dataLength, fy_uint *data,
 		fy_exception *exception) {
 	fy_object *object = context->objects + handle;
 	fy_class *clazz = context->classes[classId];
@@ -199,7 +199,7 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 	context->logDStr(context,clazz->className);
 	context->logDVar(context,"\n");
 #endif
-	fy_heapAllocateDirect(context, dataLength, clazz, length, handle, posInHeap,
+	fy_heapAllocateDirect(context, dataLength, clazz, multiUsageData, handle, posInHeap,
 			exception);
 	if (object->object_data->clazz != clazz) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
@@ -211,8 +211,7 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 	object->object_data->finalizeStatus = finalizeStatus;
 	object->object_data->monitorOwnerId = monitorOwner;
 	object->object_data->monitorOwnerTimes = monitorCount;
-	object->object_data->attachedId = attachedId;
-	object->object_data->length = length;
+	object->object_data->multiUsageData = multiUsageData;
 	memcpy(object->object_data->data, data, dataLength * sizeof(fy_uint));
 }
 void fy_loadEndObject(struct fy_context *context, void *loader_,

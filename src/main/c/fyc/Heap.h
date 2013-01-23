@@ -51,13 +51,14 @@ fy_int fy_heapArrayLength(fy_context *context, fy_int handle,
 void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 		fy_int dest, fy_int destPos, fy_int len, fy_exception *exception);
 fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception);
-void fy_heapGC(void *context, fy_exception *exception);
+void fy_heapGC(void *context,fy_boolean memoryStressed, fy_exception *exception);
 
 fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 		fy_exception *exception);
 fy_int fy_heapMakeString(fy_context *context, fy_str *target,
 		fy_exception *exception);
-fy_int fy_heapLiteral(fy_context *context, fy_str *str, fy_exception *exception);
+fy_int fy_heapLiteral(fy_context *context, fy_str *str,
+		fy_exception *exception);
 
 void fy_heapBeginProtect(fy_context *context);
 
@@ -178,6 +179,11 @@ void fy_heapPutStaticFloat(fy_context *context, fy_field *field, fy_float value,
 		fy_exception *exception);
 void fy_heapPutStaticDouble(fy_context *context, fy_field *field,
 		fy_double value, fy_exception *exception);
+
+void fy_heapRegisterReference(fy_context *context, fy_int reference,
+		fy_int referent, fy_exception *exception);
+
+fy_int fy_heapGetReferent(fy_context *context, fy_int reference);
 
 fy_uint fy_heapWrapBoolean(fy_context *context, fy_boolean value,
 		fy_exception *exception);

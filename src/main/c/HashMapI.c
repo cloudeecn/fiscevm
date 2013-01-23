@@ -150,6 +150,34 @@ FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
 	}
 }
 
+FY_ATTR_EXPORT fy_int fy_hashMapIRemove(fy_memblock *mem, fy_hashMapI *this,
+		int key) {
+	fy_hashMapIEntry *entry;
+	fy_hashMapIEntry *last = NULL;
+	fy_int ret;
+	entry = this->buckets[key & this->bucketsSizeM1];
+	if (entry == NULL) {
+		return this->nullValue;
+	}
+	do {
+		if (entry->key == key) {
+			if (last == NULL) {
+				this->buckets[key & this->bucketsSizeM1] = entry->next;
+			} else {
+				last->next = entry->next;
+			}
+			ret = entry->value;
+			if (!this->perm){
+				fy_mmFree(mem, entry);
+			}
+			this->size--;
+			return ret;
+		}
+		last = entry;
+	} while ((entry = entry->next) != NULL);
+	return this->nullValue;
+}
+
 FY_ATTR_EXPORT fy_int fy_hashMapIGet(fy_memblock *mem, fy_hashMapI *this,
 		fy_int key) {
 	fy_hashMapIEntry *entry = getBucket(mem, this, key);

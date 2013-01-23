@@ -53,8 +53,11 @@
 #define FY_ACC_SYNTHETIC	0x00001000
 #define FY_ACC_ANNOTATION	0x00002000
 #define FY_ACC_ENUM			0x00004000
-#define FY_ACC_CONSTRUCTOR	0x00010000
-#define FY_ACC_CLINIT		0x00020000
+#define FY_ACC_SOFT_REF		0x00008000
+#define FY_ACC_WEAK_REF		0x00010000
+#define FY_ACC_PHANTOM_REF		0x00020000
+#define FY_ACC_CONSTRUCTOR	0x00100000
+#define FY_ACC_CLINIT		0x00200000
 #define FY_ACC_VERIFIED		0x80000000
 
 #define FY_TM_STATE_NEW  0
@@ -225,7 +228,7 @@ extern "C" {
 		fy_boolean clinit;
 
 		/*Used by reflection, contents refrences of class*/
-		/*Because will be wiped in save and load, and Class objects */
+		/*Will not be saved in save-status, as it will be re-initialized when the class is reloaded */
 		fy_uint parameterCount;
 		fy_arrayList* parameterTypes;
 		struct fy_class *returnTypeClass;
@@ -251,7 +254,7 @@ extern "C" {
 		fy_ubyte *constantTypes;
 		void** constantPools;
 
-		fy_char accessFlags;
+		fy_uint accessFlags;
 		ConstantClass* thisClass;
 		fy_str* className;
 		ConstantClass* superClass;
@@ -305,10 +308,19 @@ extern "C" {
 			not_finalized, in_finalize_array, finalized
 		}finalizeStatus :2;
 		fy_int gen :8;
-		fy_int length;
+		/*Union data for different class types (array/normal object/references)*/
+		union {
+			fy_int multiUsageData;
+			/*Length of the array object*/
+			fy_int arrayLength;
+			fy_int threadId;
+			fy_int methodId;
+			fy_int fieldId;
+			fy_int classId;
+
+		};
 		fy_uint monitorOwnerId;
 		fy_int monitorOwnerTimes;
-		fy_uint attachedId;
 		FY_VLS(fy_byte,data);
 	}fy_object_data;
 
@@ -443,7 +455,7 @@ extern "C" {
 		void (*saveObject)(struct fy_context *context, void *saver, fy_uint handle,
 				fy_uint classId, fy_int posInHeap, fy_int gen,
 				fy_int finalizeStatus, fy_uint monitorOwner, fy_uint monitorCount,
-				fy_uint attachedId, fy_uint length, fy_uint dataLength,
+				fy_uint multiUsageData, fy_uint dataLength,
 				fy_uint *data, fy_exception *exception);
 		void (*saveEndObject)(struct fy_context *context, void *saver,
 				fy_exception *exception);
@@ -541,6 +553,9 @@ extern "C" {
 		fy_str *sStringCount;
 		fy_str *sEnum;
 		fy_str *sAnnotation;
+		fy_str *sPhantomReference;
+		fy_str *sSoftReference;
+		fy_str *sWeakReference;
 
 		fy_str *sArrayBoolean;
 		fy_str *sArrayChar;
@@ -573,6 +588,11 @@ extern "C" {
 
 		fy_class *TOP_THROWABLE;
 		fy_class *TOP_CLASS;
+		fy_class *TOP_ENUM;
+		fy_class *TOP_ANNOTATION;
+		fy_class *TOP_WEAK_REF;
+		fy_class *TOP_SOFT_REF;
+		fy_class *TOP_PHANTOM_REF;
 
 		fy_str *primitives[128];
 		fy_hashMap mapPrimitivesRev[1];
@@ -612,6 +632,7 @@ extern "C" {
 		/* #BEGIN THREAD MANAGER*/
 		fy_int pricmds[11];
 		fy_thread *threads[MAX_THREADS];
+		fy_thread *currentThread;
 		fy_arrayList *runningThreads;
 		fy_int runningThreadPos;
 		fy_int run;
@@ -629,7 +650,10 @@ extern "C" {
 		fy_boolean protectMode;
 		fy_arrayList protected[1];
 		fy_hashMap literals[1];
+		fy_hashMapI references[1];
+		fy_arrayList toEnqueue[1];
 		fy_uint nextHandle;
+		fy_uint totalObjects;
 		fy_object objects[MAX_OBJECTS];
 		/* #END HEAP*/
 

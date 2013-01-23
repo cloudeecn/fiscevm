@@ -19,8 +19,8 @@
 #define FY_MEMMAN_H_
 
 #include "../fisceprt.h"
-#define EDEN_ENTRIES 131072
-#define COPY_ENTRIES 262144
+#define EDEN_ENTRIES  32768
+#define COPY_ENTRIES  32768
 #define OLD_ENTRIES 1800000
 
 #ifdef	__cplusplus
@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 typedef struct fy_memblock {
-	void (*gcProvider)(void *context, fy_exception *exception);
+	void (*gcProvider)(void *context,fy_boolean memoryStressed, fy_exception *exception);
 	void *first;
 	void *last;
 	fy_int blocks;

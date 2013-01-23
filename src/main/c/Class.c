@@ -25,7 +25,7 @@ fy_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
 }
 
 fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
-		fy_class *other,fy_boolean processInterface) {
+		fy_class *other, fy_boolean processInterface) {
 	fy_class **interfaces;
 	fy_class *intf;
 	int i, max;
@@ -51,11 +51,12 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 #endif
 		switch (this->type) {
 		case object_class: {
-			if(processInterface){
+			if (processInterface) {
 				interfaces = this->interfaces;
 				for (i = 0, max = this->interfacesCount; i < max; i++) {
 					intf = interfaces[i];
-					if (fy_classCanCastTo(context, intf, other, processInterface)) {
+					if (fy_classCanCastTo(context, intf, other,
+							processInterface)) {
 #ifdef FY_VERBOSE
 						context->logDVar(context,"=TRUE\n");
 #endif
@@ -65,7 +66,8 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 			}
 
 			if (this->super != NULL
-					&& fy_classCanCastTo(context, this->super, other, processInterface)) {
+					&& fy_classCanCastTo(context, this->super, other,
+							processInterface)) {
 #ifdef FY_VERBOSE
 				context->logDVar(context,"=TRUE\n");
 #endif
@@ -86,7 +88,8 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 #ifdef FY_VERBOSE
 					context->logDVar(context,"PENDING\n|--");
 #endif
-					return fy_classCanCastTo(context, thisContent, otherContent, processInterface);
+					return fy_classCanCastTo(context, thisContent, otherContent,
+							processInterface);
 				} else {
 #ifdef FY_VERBOSE
 					context->logDVar(context,"=FALSE\n");
@@ -112,4 +115,34 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 #endif
 		return FALSE;
 	}
+}
+
+static fy_boolean fy_classCanCastToWithNull(fy_context *context,
+		fy_class *clazz, fy_class *other) {
+	return other == NULL ?
+			FALSE : fy_classCanCastTo(context, clazz, other, FALSE);
+}
+
+fy_boolean fy_classExtendsThrowable(fy_context *context, fy_class *clazz) {
+	return fy_classCanCastToWithNull(context, clazz, context->TOP_THROWABLE);
+}
+
+fy_boolean fy_classExtendsAnnotation(fy_context *context, fy_class *clazz) {
+	return fy_classCanCastToWithNull(context, clazz, context->TOP_ANNOTATION);
+}
+
+fy_boolean fy_classExtendsEnum(fy_context *context, fy_class *clazz) {
+	return fy_classCanCastToWithNull(context, clazz, context->TOP_ENUM);
+}
+
+fy_boolean fy_classExtendsSoftRef(fy_context *context, fy_class *clazz) {
+	return fy_classCanCastToWithNull(context, clazz, context->TOP_SOFT_REF);
+}
+
+fy_boolean fy_classExtendsWeakRef(fy_context *context, fy_class *clazz) {
+	return fy_classCanCastToWithNull(context, clazz, context->TOP_WEAK_REF);
+}
+
+fy_boolean fy_classExtendsPhantomRef(fy_context *context, fy_class *clazz) {
+	return fy_classCanCastToWithNull(context, clazz, context->TOP_PHANTOM_REF);
 }
