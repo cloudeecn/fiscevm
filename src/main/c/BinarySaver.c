@@ -416,8 +416,9 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 
 	fy_uint clinited;
 	fy_uint staticSize;
+	/*
 	fy_uint *staticArea;
-
+*/
 	fy_uint methodCount;
 	fy_uint fieldCount;
 

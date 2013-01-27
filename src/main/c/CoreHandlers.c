@@ -50,17 +50,24 @@ static void FiScEVMStoreParams(struct fy_context *context,
 			count * sizeof(fy_int));
 }
 
-static void RISRead0SI(struct fy_context *context, struct fy_thread *thread,
+static void RISCheck0(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
 	/*TODO stub*/
 	fy_nativeReturnInt(context, thread, 0);
 }
 
+static void RISRead0SI(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+		fy_exception *exception) {
+	/*TODO stub*/
+	fy_nativeReturnInt(context, thread, -1);
+}
+
 static void RISRead0SIBII(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {/*TODO stub*/
-	fy_nativeReturnInt(context, thread, 0);
+	fy_nativeReturnInt(context, thread, -1);
 }
 
 static void RISClose0(struct fy_context *context, struct fy_thread *thread,
@@ -2331,8 +2338,7 @@ static void arrayNewInstance(struct fy_context *context,
 		break;
 	default:
 		fy_fault(exception, "", "Illegal class type %d", clazz->type);
-		FYEH();
-		break;
+		return;
 	}
 
 	fy_nativeReturnHandle(context, thread,
@@ -2374,7 +2380,10 @@ static void proxyDefineClassImpl(struct fy_context *context,
 }
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
-
+	fy_vmRegisterNativeHandler(context,
+				"com/cirnoworks/fisce/privat/ResourceInputStream.check0.(L"FY_BASE_STRING";)Z",
+				NULL, RISCheck0, exception);
+		FYEH();
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/ResourceInputStream.read0.(L"FY_BASE_STRING";I)I",
 			NULL, RISRead0SI, exception);

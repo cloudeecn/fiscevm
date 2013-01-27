@@ -767,6 +767,8 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 	doInvoke(context, thread, frame, actureMethod, count, message, exception);
 }
 
+#if 0
+
 static void invokeDirect(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_exception *exception,
 		fy_message *message) {
@@ -808,6 +810,7 @@ static void invokeDirect(fy_context *context, fy_thread *thread,
 #endif
 	doInvoke(context, thread, frame, method, count, message, exception);
 }
+#endif
 
 static void invokeStatic(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_exception *exception,
@@ -2519,15 +2522,20 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_class *clazz1, *clazz2;
 #endif
 				fy_threadPopHandle(ivalue2);
-				clazz1 = fy_heapGetClassOfObject(context, ivalue2, exception);
-				clazz2 = instruction->params.clazz;
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
+				if (ivalue2 == 0) {
+					fy_threadPushInt(0);
+				} else {
+					clazz1 = fy_heapGetClassOfObject(context, ivalue2,
+							exception);
+					clazz2 = instruction->params.clazz;
+					if (exception->exceptionType != exception_none) {
+						message->messageType = message_exception;
+						FY_FALLOUT_NOINVOKE
+						break;
+					}
+					fy_threadPushInt(
+							fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0);
 				}
-				fy_threadPushInt(
-						fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0);
 				break;
 			}
 			case INVOKESPECIAL: {
