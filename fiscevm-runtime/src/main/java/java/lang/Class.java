@@ -459,7 +459,11 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 	}
 
 	public InputStream getResourceAsStream(String name) {
-		return new ResourceInputStream(name);
+		if (ResourceInputStream.check0(name)) {
+			return new ResourceInputStream(name);
+		} else {
+			return null;
+		}
 	}
 
 	public Object[] getSigners() {

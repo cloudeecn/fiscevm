@@ -46,6 +46,8 @@ public class ResourceInputStream extends InputStream {
 	public void close() throws IOException {
 		close0(name);
 	}
+	
+	public static native boolean check0(String name);
 
 	private native int read0(String name, int pos) throws IOException;
 
@@ -53,4 +55,5 @@ public class ResourceInputStream extends InputStream {
 			throws IOException;
 
 	private native void close0(String name) throws IOException;
+	
 }
