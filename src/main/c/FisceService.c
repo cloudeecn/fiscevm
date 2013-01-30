@@ -484,7 +484,7 @@ static void jstrToFyStr(JNIEnv *env, jstring str, fy_str *fstr) {
 	fy_int len = (*env)->GetStringLength(env, str);
 	fstr->length = len;
 	fstr->maxLength = len;
-	fstr->hashed = FALSE;
+	fstr->status &= ~FY_STR_HASHED;
 	fstr->content = (*env)->GetStringChars(env, str, NULL );
 }
 

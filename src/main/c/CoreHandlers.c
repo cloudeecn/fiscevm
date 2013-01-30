@@ -416,7 +416,7 @@ static void VMDecode(struct fy_context *context, struct fy_thread *thread,
 		return;
 	}
 	for (i = 0; i < maxi; i++) {
-		fy_heapPutArrayChar(context, handleRet, i, str->content[i], exception);
+		fy_heapPutArrayChar(context, handleRet, i, fy_strGet(str,i), exception);
 		if (exception->exceptionType != exception_none) {
 			fy_nativeReturnHandle(context, thread, 0);
 			fy_strDestroy(block, str);

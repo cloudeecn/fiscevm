@@ -157,7 +157,7 @@ void testString() {
 	fy_strAppendUTF8(block, js2, cc2, 999, exception);
 	CHECK_EXCEPTION(exception);
 	for (i = 0; i < js->length; i++) {
-		printf("%d ", (fy_uint) js->content[i]);
+		printf("%d ", (fy_uint) fy_strGet(js,i));
 	}
 	printf("\n");
 	fy_strPrint(js);

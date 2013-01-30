@@ -117,7 +117,7 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 		}
 		FYEH()NULL;
 		keyClone =
-				key->perm ?
+				(key->status & FY_STR_PERM) ?
 						key : fy_strCreatePermFromClone(mem, key, 0, exception);
 		FYEH()NULL;
 		entry->key = keyClone;

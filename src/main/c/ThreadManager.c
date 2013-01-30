@@ -267,7 +267,7 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	fy_heapPutArrayChar(context, threadNameHandle, 4, '.', exception);
 	for (i = 0; i < clazz->className->length; i++) {
 		fy_heapPutArrayChar(context, threadNameHandle, i + 5,
-				clazz->className->content[i], exception);
+				fy_strGet(clazz->className,i), exception);
 	}
 	FYEH();
 

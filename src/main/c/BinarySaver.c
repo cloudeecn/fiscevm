@@ -157,7 +157,7 @@ static void saveClass(struct fy_context *context, void *saver, fy_uint classId,
 	writeInt(fp, clinited, exception);
 	writeInt(fp, imax = name->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeChar(fp, name->content[i], exception);
+		writeChar(fp, 	fy_strGet(name,i), exception);
 	}
 	writeInt(fp, imax = staticSize, exception);
 	for (i = 0; i < imax; i++) {
@@ -184,7 +184,7 @@ static void saveMethod(struct fy_context *context, void *saver,
 	writeInt(fp, handle, exception);
 	writeInt(fp, imax = uniqueName->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeChar(fp, uniqueName->content[i], exception);
+		writeChar(fp, fy_strGet(uniqueName,i), exception);
 	}
 }
 static void saveEndMethod(struct fy_context *context, void *saver,
@@ -206,7 +206,7 @@ static void saveField(struct fy_context *context, void *saver, fy_uint fieldId,
 	writeInt(fp, handle, exception);
 	writeInt(fp, imax = uniqueName->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeChar(fp, uniqueName->content[i], exception);
+		writeChar(fp, fy_strGet(uniqueName,i), exception);
 	}
 }
 static void saveEndField(struct fy_context *context, void *saver,

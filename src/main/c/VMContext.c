@@ -499,8 +499,14 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_arrayListInit(context->memblocks, context->switchTargets,
 			sizeof(fy_switch_lookup*), 64, exception);
+	FYEH();
+
+	fy_hashMapInitPerm(context->memblocks, context->stringPool, 16384,
+			exception);
+	FYEH();
 
 	fy_coreRegisterCoreHandlers(context, exception);
+	FYEH();
 	fy_coreRegisterMathHandlers(context, exception);
 	FYEH();
 }

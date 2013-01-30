@@ -80,8 +80,8 @@ typedef struct fy_exception {
 	char exceptionName[64];
 	char exceptionDesc[64];
 } fy_exception;
-#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)!=NULL&&(EXCEPTION)->exceptionType!=exception_none) return
-#define FYEH() fy_exceptionCheckAndReturn(exception)
+/*#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)!=NULL&&(EXCEPTION)->exceptionType!=exception_none) return*/
+#define FYEH() if((exception)!=NULL&&(exception)->exceptionType!=exception_none) return
 typedef struct fy_port {
 	fy_long initTimeInMillSec;
 #if defined(FY_PRT_WIN32)

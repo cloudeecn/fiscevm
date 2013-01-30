@@ -2044,7 +2044,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				type = (fy_byte) field->descriptor->content[0];
+				type = (fy_byte) fy_strGet(field->descriptor,0);
 				switch (type) {
 				case 'D':
 				case 'J': {
@@ -2146,7 +2146,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						}
 					}
 				}
-				type = (fy_byte) field->descriptor->content[0];
+				type = (fy_byte) fy_strGet(field->descriptor,0);
 				switch (type) {
 				case 'D':
 				case 'J': {
@@ -3402,7 +3402,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				type = (fy_byte) field->descriptor->content[0];
+				type = (fy_byte) fy_strGet(field->descriptor,0);
 				switch (type) {
 				case 'D':
 				case 'J':
@@ -3533,7 +3533,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						}
 					}
 				}
-				type = (fy_byte) field->descriptor->content[0];
+				type = (fy_byte) fy_strGet(field->descriptor,0);
 				switch (type) {
 				case 'D':
 				case 'J': {

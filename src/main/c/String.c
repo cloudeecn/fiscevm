@@ -16,6 +16,7 @@
  */
 
 #include "fy_util/String.h"
+#include <stdarg.h>
 FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
 		fy_exception *exception) {
 	fy_str *str = fy_mmAllocatePerm(mem,
@@ -23,11 +24,11 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
 	FYEH()NULL;
 	str->length = 0;
 	str->maxLength = size;
-	str->hashed = FALSE;
-	str->perm = TRUE;
+	str->status = FY_STR_PERM;
 	str->content = str->staticContent;
 	return str;
 }
+
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
 		fy_str *other, fy_int additionalSize, fy_exception *exception) {
 	fy_str *str;
@@ -37,6 +38,24 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
 	fy_strAppend(mem, str, other, exception);
 	FYEH()NULL;
 	return str;
+}
+FY_ATTR_EXPORT fy_str *fy_strCreatePermFromSubstring(fy_memblock *mem,
+		fy_str *other, fy_int begin, fy_int end, fy_exception *exception) {
+	fy_str *ret;
+
+	if (begin < 0 || begin >= other->length || end < begin
+			|| end > other->length) {
+		fy_fault(exception, NULL,
+				"Illegal arguments length=%"FY_PRINT32"d begin=%"FY_PRINT32"d end=%"FY_PRINT32"d",
+				other->length, begin, end);
+		FYEH()NULL;
+	}
+	ret = fy_mmAllocatePerm(mem, sizeof(fy_str), exception);
+	FYEH()NULL;
+	ret->length = end - begin;
+	ret->status &= ~FY_STR_PERM;
+
+	return ret;
 }
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
 		const char *utf8, fy_int additionalSize, fy_exception *exception) {
@@ -58,13 +77,12 @@ FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
 	str->length = 0;
 	str->maxLength = size;
 	str->content = fy_mmAllocate(block, size << 1, exception);
-	str->hashed = FALSE;
-	str->perm = FALSE;
+	str->status = 0;
 	return str;
 }
 
 FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *block, fy_str *string) {
-	if (string->perm) {
+	if (string->status & FY_STR_PERM) {
 		fy_fault(NULL, NULL, "Try to destroy a static string");
 	} else {
 		fy_mmFree(block, string->content);
@@ -90,7 +108,7 @@ static fy_str *ensureSize(fy_memblock *block, fy_str *_this, fy_int size,
 	fy_char *newContent;
 
 	if (_this->maxLength < size) {
-		if (_this->perm) {
+		if (_this->status & FY_STR_PERM) {
 			fy_fault(exception, NULL, "Perm string overflow!");
 			FYEH()NULL;
 		}
@@ -119,22 +137,34 @@ static fy_str *fy_strAppendPriv(fy_memblock *block, fy_str *_this,
 	FYEH()NULL;
 	memcpy(_this->content + _this->length, from, length << 1);
 	_this->length += length;
-	_this->hashed = FALSE;
+	_this->status &= ~FY_STR_HASHED;
 	return _this;
 }
 
 FY_ATTR_EXPORT fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this,
 		fy_int size, fy_exception *exception) {
+	if (_this->status & FY_STR_PERSIST) {
+		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
+		return NULL;
+	}
 	return ensureSize(block, _this, size, exception);
 }
 
 FY_ATTR_EXPORT fy_str *fy_strAppendChar(fy_memblock *block, fy_str *_this,
 		fy_char ch, fy_exception *exception) {
+	if (_this->status & FY_STR_PERSIST) {
+		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
+		return NULL;
+	}
 	return fy_strAppendPriv(block, _this, &ch, 1, exception);
 }
 
 FY_ATTR_EXPORT fy_str *fy_strAppend(fy_memblock *block, fy_str *_this,
 		const fy_str *string, fy_exception *exception) {
+	if (_this->status & FY_STR_PERSIST) {
+		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
+		return NULL;
+	}
 	return fy_strAppendPriv(block, _this, string->content, string->length,
 			exception);
 }
@@ -144,6 +174,10 @@ FY_ATTR_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *block, fy_str *_this,
 	const char *inbuf = utf8;
 	fy_char outbuf;
 	fy_int sl = strlen(utf8);
+	if (_this->status & FY_STR_PERSIST) {
+		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
+		return NULL;
+	}
 	if (size > sl || size < 0) {
 		size = sl;
 	}
@@ -161,15 +195,21 @@ FY_ATTR_EXPORT fy_str *fy_strSubstring(fy_memblock *block, fy_str *_this,
 	int i;
 	if (_this == NULL) {
 		fy_fault(NULL, NULL, "Null pointer exception.");
+		return NULL;
 	}
 	if (begin < 0 || end < 0 || end >= _this->length || begin > end) {
 		fy_fault(NULL, NULL, "Index out of bound exception");
+		return NULL;
+	}
+	if (_this->status & FY_STR_PERSIST) {
+		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
+		return NULL;
 	}
 	_this->length = size;
 	for (i = 0; i < size; i++) {
 		_this->content[i] = _this->content[i + begin];
 	}
-	_this->hashed = FALSE;
+	_this->status &= ~FY_STR_HASHED;
 	return _this;
 }
 
@@ -217,17 +257,25 @@ FY_ATTR_EXPORT fy_boolean fy_strEndsWith(fy_str *_this, fy_str *right) {
 	return TRUE;
 }
 FY_ATTR_EXPORT void fy_strClear(fy_str *_this) {
+	if (_this->status & FY_STR_PERSIST) {
+		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
+		return;
+	}
 	_this->length = 0;
 }
 
 FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to) {
 	int i;
+	if (str->status & FY_STR_PERSIST) {
+		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
+		return NULL;
+	}
 	for (i = str->length - 1; i >= 0; i--) {
 		if (str->content[i] == from) {
 			str->content[i] = to;
 		}
 	}
-	str->hashed = FALSE;
+	str->status &= ~FY_STR_HASHED;
 	return str;
 }
 
@@ -261,7 +309,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *block, fy_str *from,
 	FYEH()NULL;
 	fy_strAppend(block, _this, from, exception);
 	FYEH()NULL;
-	_this->hashed = TRUE;
+	_this->status |= FY_STR_HASHED;
 	_this->hashCode = from->hashCode;
 	return _this;
 }
@@ -276,10 +324,118 @@ static fy_uint hash(fy_str *key) {
 }
 
 FY_ATTR_EXPORT fy_uint fy_strHash(fy_str *str) {
-	if (str->hashed) {
+	if (str->status & FY_STR_HASHED) {
 		return str->hashCode;
 	} else {
-		str->hashed = TRUE;
+		str->status |= FY_STR_HASHED;
 		return str->hashCode = hash(str);
 	}
+}
+
+FY_ATTR_EXPORT fy_char fy_strGet0(fy_str *str, fy_int pos) {
+	return str->content[pos];
+}
+
+union varStorage {
+	char c;
+	char* a;
+	fy_str *s;
+};
+
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
+		fy_exception *exception, const char *pattern, ...) {
+
+	va_list arg_ptr;
+	union varStorage vs[16];
+	char c;
+	fy_str *str;
+	fy_int i = 0, patternLen, size = 0;
+
+	if (strlen(pattern) > 16) {
+		fy_fault(exception, NULL, "Pattern %s too long", pattern);
+		return NULL;
+	}
+
+	va_start(arg_ptr, pattern);
+	while ((c = pattern[i]) != 0) {
+		switch (c) {
+		case 'c':
+			/*(one char)*/
+			vs[i].c = va_arg(arg_ptr,int);
+			size += 1;
+			break;
+		case 'a':
+			/*(char*)*/
+			vs[i].a = va_arg(arg_ptr,char*);
+			size += strlen(vs[i].a);
+			break;
+		case 's':
+			/*(fy_str*)*/
+			vs[i].s = va_arg(arg_ptr,fy_str*);
+			size += vs[i].s->length;
+			break;
+		default:
+			fy_fault(exception, NULL, "Illegal character %c in pattern %s", c,
+					pattern);
+			return NULL;
+		}
+		i++;
+	}
+	va_end(arg_ptr);
+	str = fy_strCreatePerm(mem, size, exception);
+	FYEH()NULL;
+	patternLen = i;
+	for (i = 0; i < patternLen; i++) {
+		switch (c) {
+		case 'c':
+			/*(one char)*/
+			fy_strAppendChar(mem, str, vs[i].c, exception);
+			FYEH()NULL;
+			break;
+		case 'a':
+			/*(char*)*/
+			fy_strAppendUTF8(mem, str, vs[i].a, -1, exception);
+			FYEH()NULL;
+			break;
+		case 's':
+			/*(fy_str*)*/
+			fy_strAppend(mem, str, vs[i].s, exception);
+			FYEH()NULL;
+			break;
+		default:
+			fy_fault(exception, NULL, "Illegal character %c in pattern %s", c,
+					pattern);
+			return NULL;
+		}
+	}
+	str->status |= FY_STR_PERSIST;
+	return str;
+}
+
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,
+		fy_str *from, int begin, int end, fy_exception *exception) {
+	fy_str *str;
+	if (begin < 0) {
+		begin = 0;
+	}
+	if (end < 0) {
+		end = from->length;
+	}
+	if (end < begin || end > from->length) {
+		fy_fault(exception, NULL, "Index out of bound exception");
+		return NULL;
+	}
+	if (from->status & FY_STR_PERSIST) {
+		str = fy_strCreatePerm(mem, 0, exception);
+		FYEH()NULL;
+		str->content = from->content + begin;
+		str->length = end - begin;
+		str->maxLength = end - begin;
+		str->status = FY_STR_PERM & FY_STR_PERSIST;
+	} else {
+		fy_fault(exception, NULL,
+				"Can't make persist substring from non-persisted string.");
+		return NULL;
+	}
+	return str;
 }

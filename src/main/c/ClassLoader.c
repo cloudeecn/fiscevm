@@ -36,7 +36,7 @@ static int checkConstantBonud(fy_class *clazz, int idx, fy_exception *exception)
 
 static fy_arrayType getSizeShiftForArray(fy_str *arrayName,
 		fy_exception *exception) {
-	switch (arrayName->content[1]) {
+	switch (fy_strGet(arrayName,1)) {
 	case FY_TYPE_BOOLEAN:
 	case FY_TYPE_BYTE:
 		return fy_at_byte;
@@ -53,14 +53,14 @@ static fy_arrayType getSizeShiftForArray(fy_str *arrayName,
 		return fy_at_int;
 	default:
 		fy_fault(exception, NULL, "Illegal array type: %c(%d)",
-				arrayName->content[1], arrayName->content[1]);
+				fy_strGet(arrayName,1), fy_strGet(arrayName,1));
 		return 0;
 	}
 }
 
 #if 0
 static int getSizeFromDescriptor(fy_str *descriptor) {
-	switch (descriptor->content[0]) {
+	switch (fy_strGet(descriptor,0)) {
 		case TYPE_LONG:
 		case TYPE_DOUBLE:
 		return 2;
@@ -399,7 +399,7 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_inputStream *is,
 		fy_strAppend(block, field->uniqueName, field->fullName, exception);
 		FYEH();
 
-		switch (field->descriptor->content[0]) {
+		switch (fy_strGet(field->descriptor,0)) {
 		case 'D':
 		case 'J':
 			length = 2;
@@ -460,22 +460,22 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 	if (end == 0) {
 		//Pri
 
-		tmp = context->primitives[desc->content[begin]];
+		tmp = context->primitives[fy_strGet(desc,begin)];
 		className->length = tmp->length;
 		className->maxLength = tmp->maxLength;
 		className->hashCode = tmp->hashCode;
-		className->hashed = tmp->hashed;
+		className->status = tmp->status;
 		className->content = tmp->content;
 	} else {
 		//Class or Array
-		ch = desc->content[begin];
+		ch = fy_strGet(desc,begin);
 		if (ch == 'L') {
 			className->maxLength = className->length = end - begin - 2;
-			className->hashed = 0;
+			className->status &= ~FY_STR_HASHED;
 			className->content = desc->content + begin + 1;
 		} else if (ch == '[') {
 			className->maxLength = className->length = end - begin;
-			className->hashed = 0;
+			className->status &= ~FY_STR_HASHED;
 			className->content = desc->content + begin;
 		}
 	}
@@ -513,14 +513,14 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	FYEH();
 	maxi = desc->length;
 	for (i = 0; i < maxi; i++) {
-		ch = desc->content[i];
+		ch = fy_strGet(desc,i);
 		if (!begin) {
 			if (ch == '(') {
 				begin = TRUE;
 			}
 		} else {
 			if (ch == ')') {
-				switch (desc->content[i + 1]) {
+				switch (fy_strGet(desc,i + 1)) {
 				case 'B':
 				case 'C':
 				case 'F':
@@ -588,10 +588,10 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 					break;
 				case '[':
 					beginClass = i;
-					while ((ch = desc->content[++i]) == '[') {
+					while ((ch = fy_strGet(desc,++i)) == '[') {
 					}
 					if (ch == 'L') {
-						while ((ch = desc->content[++i]) != ';') {
+						while ((ch = fy_strGet(desc,++i)) != ';') {
 						}
 					}
 					endClass = i + 1;
@@ -599,7 +599,7 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 					break;
 				case 'L':
 					beginClass = i;
-					while ((ch = desc->content[++i]) != ';')
+					while ((ch = fy_strGet(desc,++i)) != ';')
 						;
 					endClass = i + 1;
 					temp[pc++] = FY_TYPE_HANDLE;
@@ -806,7 +806,7 @@ fy_inputStream *fy_clOpenResource(fy_context *context, fy_str *name,
 	void *ret;
 
 	for (i = 0, max = name->length; i < max; i++) {
-		size += fy_utf8Size(name->content[i]);
+		size += fy_utf8Size(fy_strGet(name,i));
 	}
 	cname = /*TEMP*/fy_allocate(size + 1, exception);
 	FYEH()NULL;
@@ -1092,7 +1092,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				ASSERT(pos<clazz->sizeAbs);
 				clazz->fieldAbs[pos] = field;
 			}
-			switch (field->descriptor->content[0]) {
+			switch (fy_strGet(field->descriptor,0)) {
 			case '[':
 				field->type = fy_vmLookupClass(context, field->descriptor,
 						exception);
@@ -1119,7 +1119,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			case 'J':
 			case 'D':
 				field->type = fy_vmLookupClass(context,
-						context->primitives[field->descriptor->content[0]],
+						context->primitives[fy_strGet(field->descriptor,0)],
 						exception);
 				break;
 			default:
@@ -1130,7 +1130,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			if (field->constant_value_index > 0) {
 				if ((field->access_flags & FY_ACC_STATIC)
 						&& (field->access_flags & FY_ACC_FINAL)) {
-					switch (field->descriptor->content[0]) {
+					switch (fy_strGet(field->descriptor,0)) {
 					case FY_TYPE_BOOLEAN:
 					case FY_TYPE_BYTE:
 					case FY_TYPE_SHORT:
@@ -1188,7 +1188,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	context->logDVar(context,"\n");
 #endif
 
-	if (name->content[0] == FY_TYPE_ARRAY) {
+	if (fy_strGet(name,0) == FY_TYPE_ARRAY) {
 		clazz = fy_mmAllocatePerm(block, sizeof(fy_class), exception);
 		FYEH()NULL;
 		clazz->type = array_class;
@@ -1197,7 +1197,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		FYEH()NULL;
 		clazz->ci.arr.arrayType = getSizeShiftForArray(name, exception);
 		FYEH()NULL;
-		switch (clazz->className->content[1]) {
+		switch (fy_strGet(clazz->className,1)) {
 		case FY_TYPE_ARRAY:
 			fy_strInit(block, str, clazz->className->length, exception);
 			FYEH()NULL;
@@ -1220,7 +1220,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 			break;
 		default:
 			clazz->ci.arr.contentClass = fy_vmLookupClass(context,
-					context->primitives[clazz->className->content[1]],
+					context->primitives[fy_strGet(clazz->className,1)],
 					exception);
 			break;
 		}

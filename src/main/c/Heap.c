@@ -272,7 +272,7 @@ fy_int fy_heapMakeString(fy_context *context, fy_str *target,
 	fy_heapPutFieldInt(context, ret, offsetField, 0, exception);
 	ASSERT(exception->exceptionType==exception_none);
 	for (i = 0; i < len; i++) {
-		fy_heapPutArrayChar(context, cah, i, target->content[i], exception);
+		fy_heapPutArrayChar(context, cah, i, fy_strGet(target,i), exception);
 	}
 
 	return ret;
@@ -1030,8 +1030,8 @@ static void fillInitialHandles(fy_context *context, fy_arrayList *from,
 			for (j = 0; j < jmax; j++) {
 				field = clazz->fieldStatic[j];
 				if (field != NULL
-						&& (field->descriptor->content[0] == FY_TYPE_HANDLE
-								|| field->descriptor->content[0]
+						&& (fy_strGet(field->descriptor,0) == FY_TYPE_HANDLE
+								|| fy_strGet(field->descriptor,0)
 										== FY_TYPE_ARRAY)) {
 					markObjectInitialUsing(context, from, clazz->staticArea[j],
 							exception);
@@ -1156,7 +1156,7 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 				if (field == NULL) {
 					continue;
 				}
-				fieldType = field->descriptor->content[0];
+				fieldType = fy_strGet(field->descriptor,0);
 				if (fieldType == FY_TYPE_HANDLE || fieldType == FY_TYPE_ARRAY) {
 					handle2 = fy_heapGetFieldHandle(context, handle,
 							clazz->fieldAbs[i], exception);

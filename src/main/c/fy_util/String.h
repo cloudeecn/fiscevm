@@ -26,21 +26,45 @@
 extern "C" {
 #endif
 
+/**
+ * 请用api来修改content中的内容，否则后果自负……
+ */
 typedef struct fy_str {
 	fy_int length;
 	fy_int maxLength;
-	fy_short perm;
-	fy_short hashed;
+	fy_uint status;
 	fy_int hashCode;
 	fy_char* content;
 	FY_VLS(fy_char,staticContent);
 } fy_str;
+/**
+ * 字符串可以append，不能改已经放进去的内容
+ **/
+#define FY_STR_PERSIST 1
+/**
+ * 字符串放到Perm存储区中，不能被释放，append不能超过maxLength
+ **/
+#define FY_STR_PERM 2
+/**
+ * 字符串的Hash值没有变化，可以直接从hashCode中取
+ **/
+#define FY_STR_HASHED 4
+
+/*Set to 1 for eclipse to search all direct usage of string->content*/
+#if 1
+FY_ATTR_EXPORT fy_char fy_strGet0(fy_str *str,fy_int pos);
+# define fy_strGet(STR,POS) fy_strGet0((STR),(POS))
+#else
+# define fy_strGet(STR,POS) (STR)->content[(POS)]
+#endif
 FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 		const char *utf8, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
 		fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
 		fy_str *other, fy_int additionalSize, fy_exception *exception);
+FY_ATTR_EXPORT fy_str *fy_strCreatePermFromSubstring(fy_memblock *mem,
+		fy_str *other, fy_int begin, fy_int end, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
 		const char *utf8, fy_int additionalSize, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
@@ -68,6 +92,11 @@ FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, fy_str *str);
 FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to);
 FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *mem, fy_str *from,
 		fy_exception *exception);
+
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
+		fy_exception *exception, const char *pattern, ...);
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,
+		fy_str *from, int begin, int end, fy_exception *exception);
 
 #ifdef	__cplusplus
 }

@@ -16,6 +16,7 @@
  */
 
 #include "fy_util/Debug.h"
+#include <stdarg.h>
 
 static void fy_strPrint0(FILE *fp, const fy_str *str) {
 	int i, count;
@@ -25,7 +26,7 @@ static void fy_strPrint0(FILE *fp, const fy_str *str) {
 	fy_int left;
 	count = str->length;
 	for (i = 0; i < count; i++) {
-		unicode = str->content[i];
+		unicode = fy_strGet(str,i);
 		tmp = buf;
 		left = 3;
 		fy_utf8Write(unicode, &tmp, &left);
