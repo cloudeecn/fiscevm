@@ -22,6 +22,10 @@
 #include "MemMan.h"
 #include "Utf8.h"
 
+#ifndef FY_STR_MAX_VA
+# define FY_STR_MAX_VA 16
+#endif
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -37,6 +41,19 @@ typedef struct fy_str {
 	fy_char* content;
 	FY_VLS(fy_char,staticContent);
 } fy_str;
+
+typedef union fy_strVarStorage {
+	char c;
+	char* a;
+	fy_str *s;
+} fy_strVarStorage;
+
+typedef struct fy_strVA {
+	fy_int size;
+	char pattern[FY_STR_MAX_VA + 1];
+	fy_int patternLength;
+	fy_strVarStorage vars[FY_STR_MAX_VA];
+} fy_strVA;
 /**
  * 字符串可以append，不能改已经放进去的内容
  **/
@@ -52,11 +69,15 @@ typedef struct fy_str {
 
 /*Set to 1 for eclipse to search all direct usage of string->content*/
 #if 1
-FY_ATTR_EXPORT fy_char fy_strGet0(fy_str *str,fy_int pos);
+FY_ATTR_EXPORT fy_char fy_strGet0(fy_str *str, fy_int pos);
 # define fy_strGet(STR,POS) fy_strGet0((STR),(POS))
 #else
 # define fy_strGet(STR,POS) (STR)->content[(POS)]
 #endif
+FY_ATTR_EXPORT void fy_strParseV(fy_strVA *output, const char *pattern, ...);
+FY_ATTR_EXPORT void fy_strParseVA(fy_strVA *output, const char *pattern,
+		va_list arg_ptr);
+
 FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 		const char *utf8, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
@@ -83,7 +104,7 @@ FY_ATTR_EXPORT fy_str *fy_strSubstring(fy_memblock *mem, fy_str *this,
 FY_ATTR_EXPORT fy_uint fy_strUtf8Count(fy_str *str);
 FY_ATTR_EXPORT fy_uint fy_strHash(fy_str *str);
 
-FY_ATTR_EXPORT int fy_strCmp(fy_str *left, fy_str *right);
+FY_ATTR_EXPORT fy_int fy_strCmp(fy_str *left, fy_str *right);
 FY_ATTR_EXPORT fy_boolean fy_strEndsWith(fy_str *this, fy_str *comp);
 
 FY_ATTR_EXPORT void fy_strClear(fy_str *this);
@@ -93,10 +114,14 @@ FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to);
 FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *mem, fy_str *from,
 		fy_exception *exception);
 
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA va,
+		fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
 		fy_exception *exception, const char *pattern, ...);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,
 		fy_str *from, int begin, int end, fy_exception *exception);
+
+FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va);
 
 #ifdef	__cplusplus
 }

@@ -223,19 +223,66 @@ FY_ATTR_EXPORT fy_uint fy_strUtf8Count(fy_str *str) {
 	return size;
 }
 
-FY_ATTR_EXPORT int fy_strCmp(fy_str *left, fy_str *right) {
-	int resultWhenEqual =
+FY_ATTR_EXPORT fy_int fy_strCmp(fy_str *left, fy_str *right) {
+	fy_int resultWhenEqual =
 			left->length == right->length ?
 					0 : (left->length > right->length ? 1 : -1);
-	int len = left->length > right->length ? right->length : left->length;
-	int i;
+	fy_int len = left->length > right->length ? right->length : left->length;
+	fy_int i;
 	fy_char *lc = left->content;
 	fy_char *rc = right->content;
-	int ret;
+	fy_int ret;
 	for (i = 0; i < len; i++) {
 		ret = lc[i] - rc[i];
 		if (ret != 0) {
 			return ret;
+		}
+	}
+	return resultWhenEqual;
+}
+
+FY_ATTR_EXPORT int fy_strCmpVA(fy_str *left, fy_strVA *va) {
+	fy_int i, pos = 0, ret, j, maxj;
+	fy_int max = va->patternLength;
+	char c;
+	fy_int resultWhenEqual =
+			left->length == va->size ? 0 : (left->length > va->size ? 1 : -1);
+	char *rightArray;
+	fy_char ch;
+	fy_int utf8Left;
+	fy_str *rightStr;
+	for (i = 0; i < max; i++) {
+		c = va->pattern[i];
+		switch (c) {
+		case 'c':
+			ret = left[pos++] - va->vars[i].c;
+			if (ret != 0) {
+				return ret;
+			}
+			break;
+		case 'a':
+			rightArray = va->vars[i].a;
+			utf8Left = strlen(rightArray);
+			while (utf8Left > 0) {
+				ch = fy_utf8Read(&rightArray, &utf8Left);
+				ret = left[pos++] - ch;
+				if (ret != 0) {
+					return ret;
+				}
+			}
+			break;
+		case 's':
+			rightStr = va->vars[i].s;
+			maxj = rightStr->length;
+			for (j = 0; i < maxj; j++) {
+				ret = left[pos++] - rightStr->content[j];
+				if (ret != 0) {
+					return ret;
+				}
+			}
+			break;
+		default:
+			break;
 		}
 	}
 	return resultWhenEqual;
@@ -318,7 +365,7 @@ static fy_uint hash(fy_str *key) {
 	int i, imax;
 	fy_uint ret = 0;
 	for (i = 0, imax = key->length; i < imax; i++) {
-		ret = (ret << 5) + (ret << 2) + ret + key->content[i];
+		ret = (ret << 5) + (ret << 2) + (ret >> 30) + key->content[i];
 	}
 	return ret;
 }
@@ -332,84 +379,99 @@ FY_ATTR_EXPORT fy_uint fy_strHash(fy_str *str) {
 	}
 }
 
+FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va) {
+	int i = 0;
+	fy_uint ret = 0;
+	char c;
+	fy_char value;
+	fy_str *str;
+
+	char *arrayBase;
+	fy_int left;
+	const char *pattern = va->pattern;
+	fy_strVarStorage *vars = va->vars;
+	fy_int pos;
+
+	while ((c = pattern[i]) != 0) {
+		switch (c) {
+		case 'c':
+			ret = (ret << 5) + (ret << 2) + (ret >> 30) + (fy_char) (vars[i].c);
+			pos++;
+			break;
+		case 'a':
+			arrayBase = vars[i].a;
+			left = strlen(arrayBase);
+			while (left > 0) {
+				value = fy_utf8Read(&arrayBase, &left);
+				ret = (ret << 5) + (ret << 2) + (ret >> 30) + value;
+			}
+			break;
+		case 's':
+			str = vars[i].s;
+			for (left = 0; left < str->length; left++) {
+				ret = (ret << 5) + (ret << 2) + (ret >> 30)
+						+ str->content[left];
+			}
+			break;
+		default:
+			fy_fault(NULL, NULL, "Illegal character %c in pattern %s", c,
+					pattern);
+			return 0;
+		}
+		i++;
+	}
+
+	return ret;
+}
+
 FY_ATTR_EXPORT fy_char fy_strGet0(fy_str *str, fy_int pos) {
 	return str->content[pos];
 }
 
-union varStorage {
-	char c;
-	char* a;
-	fy_str *s;
-};
-
-FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
-		fy_exception *exception, const char *pattern, ...) {
-
-	va_list arg_ptr;
-	union varStorage vs[16];
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA va,
+		fy_exception *exception) {
 	char c;
 	fy_str *str;
-	fy_int i = 0, patternLen, size = 0;
-
-	if (strlen(pattern) > 16) {
-		fy_fault(exception, NULL, "Pattern %s too long", pattern);
-		return NULL;
-	}
-
-	va_start(arg_ptr, pattern);
-	while ((c = pattern[i]) != 0) {
-		switch (c) {
-		case 'c':
-			/*(one char)*/
-			vs[i].c = va_arg(arg_ptr,int);
-			size += 1;
-			break;
-		case 'a':
-			/*(char*)*/
-			vs[i].a = va_arg(arg_ptr,char*);
-			size += strlen(vs[i].a);
-			break;
-		case 's':
-			/*(fy_str*)*/
-			vs[i].s = va_arg(arg_ptr,fy_str*);
-			size += vs[i].s->length;
-			break;
-		default:
-			fy_fault(exception, NULL, "Illegal character %c in pattern %s", c,
-					pattern);
-			return NULL;
-		}
-		i++;
-	}
-	va_end(arg_ptr);
-	str = fy_strCreatePerm(mem, size, exception);
+	fy_int i = 0;
+	str = fy_strCreatePerm(mem, va->size, exception);
 	FYEH()NULL;
-	patternLen = i;
-	for (i = 0; i < patternLen; i++) {
+	for (i = 0; i < va->patternLength; i++) {
 		switch (c) {
 		case 'c':
 			/*(one char)*/
-			fy_strAppendChar(mem, str, vs[i].c, exception);
+			fy_strAppendChar(mem, str, va->vars[i].c, exception);
 			FYEH()NULL;
 			break;
 		case 'a':
 			/*(char*)*/
-			fy_strAppendUTF8(mem, str, vs[i].a, -1, exception);
+			fy_strAppendUTF8(mem, str, va->vars[i].a, -1, exception);
 			FYEH()NULL;
 			break;
 		case 's':
 			/*(fy_str*)*/
-			fy_strAppend(mem, str, vs[i].s, exception);
+			fy_strAppend(mem, str, va->vars[i].s, exception);
 			FYEH()NULL;
 			break;
 		default:
 			fy_fault(exception, NULL, "Illegal character %c in pattern %s", c,
-					pattern);
+					va->pattern);
 			return NULL;
 		}
 	}
 	str->status |= FY_STR_PERSIST;
 	return str;
+}
+
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
+		fy_exception *exception, const char *pattern, ...) {
+
+	va_list arg_ptr;
+	fy_strVA va[1];
+
+	va_start(arg_ptr, pattern);
+	fy_strParseVA(va, pattern, arg_ptr);
+	va_end(arg_ptr);
+	return fy_strCreatePermPersistVA(mem, va, exception);
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,
@@ -439,3 +501,48 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,
 	}
 	return str;
 }
+
+FY_ATTR_EXPORT void fy_strParseV(fy_strVA *output, const char *pattern, ...) {
+	va_list arg_ptr;
+	va_start(arg_ptr, pattern);
+	fy_strParseVA(output, pattern, arg_ptr);
+	va_end(arg_ptr);
+}
+FY_ATTR_EXPORT void fy_strParseVA(fy_strVA *output, const char *pattern,
+		va_list arg_ptr) {
+	fy_int i;
+	char c;
+	fy_int size;
+	fy_strVarStorage *vs = output->vars;
+	while ((c = pattern[i]) != 0) {
+		if (i >= FY_STR_MAX_VA) {
+			fy_fault(NULL, NULL, "Too many var args, max is %d", FY_STR_MAX_VA);
+		}
+		switch (c) {
+		case 'c':
+			/*(one char)*/
+			vs[i].c = va_arg(arg_ptr,int);
+			size += 1;
+			break;
+		case 'a':
+			/*(char*)*/
+			vs[i].a = va_arg(arg_ptr,char*);
+			size += fy_utf8SizeS(vs[i].a, -1);
+			break;
+		case 's':
+			/*(fy_str*)*/
+			vs[i].s = va_arg(arg_ptr,fy_str*);
+			size += vs[i].s->length;
+			break;
+		default:
+			fy_fault(NULL, NULL, "Illegal character %c in pattern %s", c,
+					pattern);
+			return;
+		}
+		i++;
+	}
+	memcpy(output->pattern, pattern, i + 1);
+	output->patternLength = i;
+	output->size = size;
+}
+
