@@ -84,7 +84,7 @@ static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 }
 
 static fy_hashMapEntry *getBucketVA(fy_memblock *mem, fy_hashMap *this,
-	fy_strVA *va) {
+		fy_strVA *va) {
 	fy_uint hashCode;
 	fy_hashMapEntry *entry;
 
@@ -135,9 +135,10 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 		}
 		FYEH()NULL;
 		keyClone =
-				(key->status & FY_STR_PERM) ?
+				(key->status & FY_STR_PERSIST) ?
 						key : fy_strCreatePermFromClone(mem, key, 0, exception);
 		FYEH()NULL;
+		keyClone->status |= FY_STR_PERSIST;
 		entry->key = keyClone;
 		entry->keyHash = fy_strHash(keyClone);
 		entry->value = value;
@@ -169,26 +170,59 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 		return ret;
 	}
 }
-
-
-#if 0
-FY_ATTR_EXPORT void *fy_hashMapPutV(fy_memblock *mem, fy_hashMap *this,
-		fy_exception *exception, void *value, const char *pattern, ...) {
-	void *ret;
-	va_list arg_ptr;
-	va_start(arg_ptr, pattern);
-	ret = fy_hashMapPutVA(mem, this, exception, value, pattern, arg_ptr);
-	va_end(arg_ptr);
-	return ret;
-}
-
 FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
-		fy_exception *exception, void *value, const char *pattern,
-		va_list arg_ptr) {
+		fy_strVA *va, void *value, fy_exception *exception) {
+	fy_hashMapEntry *entry;
+	fy_hashMapEntry *tmp;
+	fy_str *keyClone;
+	int pos;
+	void *ret = NULL;
+	entry = getBucketVA(mem, this, va);
+	if (entry == NULL) {
+		if (this->perm) {
+			entry = fy_mmAllocatePerm(mem, sizeof(fy_hashMapEntry), exception);
+		} else {
+			entry = fy_mmAllocate(mem, sizeof(fy_hashMapEntry), exception);
+		}
+		FYEH()NULL;
+		keyClone = fy_mmAllocatePerm(mem,sizeof(fy_str),exception);
+		FYEH()NULL;
+		fy_strInit(mem,keyClone,va->size,exception);
+		FYEH()NULL;
+		fy_strAppendVA(mem,keyClone,va,exception);
+		FYEH()NULL;
+		keyClone->status |= FY_STR_PERSIST;
+		entry->key = keyClone;
+		entry->keyHash = fy_strHash(keyClone);
+		entry->value = value;
 
+		if (!this->perm
+				&& ((this->size + 1) * 16
+						> this->bucketsCount * this->loadFactor)) {
+			expandBuckets(mem, this, this->bucketsCount << 1, exception);
+			FYEH()NULL;
+		}
+
+		pos = entry->keyHash % this->bucketsCount;
+
+		tmp = this->buckets[pos];
+		if (tmp) {
+			while (tmp->next != NULL) {
+				tmp = tmp->next;
+			}
+			tmp->next = entry;
+		} else {
+			this->buckets[pos] = entry;
+		}
+		this->size++;
+
+		return ret;
+	} else {
+		ret = entry->value;
+		entry->value = value;
+		return ret;
+	}
 }
-#endif
-
 
 FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
 		const char *keyUtf8, void *value, fy_exception *exception) {
