@@ -99,14 +99,16 @@ typedef struct ConstantFieldRef {
 
 	fy_ubyte derefed;
 
-	fy_char class_index;
-	ConstantClass *constantClass;
-	struct fy_class *clazz;
-
-	fy_char name_type_index;
-	struct ConstantNameAndTypeInfo *constantNameType;
-	fy_str* nameType;
-
+	union {
+		fy_char class_index;
+		ConstantClass *constantClass;
+		struct fy_class *clazz;
+	};
+	union {
+		fy_char name_type_index;
+		struct ConstantNameAndTypeInfo *constantNameType;
+		fy_str* nameType;
+	};
 	struct fy_field *field;
 } ConstantFieldRef;
 
@@ -155,7 +157,6 @@ typedef struct ConstantNameAndTypeInfo {
 } ConstantNameAndTypeInfo;
 
 typedef struct ConstantUtf8Info {
-
 	fy_str* string;
 } ConstantUtf8Info;
 
@@ -261,7 +262,7 @@ typedef struct fy_class {
 	fy_uint accessFlags;
 	ConstantClass* thisClass;
 	fy_str* className;
-	union{
+	union {
 		ConstantClass* superClass;
 		struct fy_class* super;
 	};

@@ -194,8 +194,9 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 				fy_free(dataBuffer);
 				return;
 			}
-			tmpConstantUtf8Info->string = fy_strCreatePermFromUTF8(block,
-					dataBuffer, 0, exception);
+			tmpConstantUtf8Info->string = fy_vmCreateStringByPoolV(context,
+					exception, "a", dataBuffer);/*fy_strCreatePermFromUTF8(block,
+					 dataBuffer, 0, exception);*/
 			fy_free(dataBuffer);
 			FYEH();
 			tmp = tmpConstantUtf8Info;
@@ -264,12 +265,17 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 					(ConstantClass*) (constantPools[tmpConstantFieldRef->class_index]);
 			tmpConstantFieldRef->constantNameType =
 					(ConstantNameAndTypeInfo*) (constantPools[tmpConstantFieldRef->name_type_index]);
-			tmpConstantFieldRef->nameType =
-					fy_strCreatePerm(block,
-							2
-									+ tmpConstantFieldRef->constantNameType->name->length
-									+ tmpConstantFieldRef->constantNameType->descriptor->length,
-							exception);
+			tmpConstantFieldRef->nameType = fy_vmCreateStringByPoolV(context,
+					exception, "cscs", '.',
+					tmpConstantFieldRef->constantNameType->name, '.',
+					tmpConstantFieldRef->constantNameType->descriptor);
+			FYEH();
+#if 0
+			fy_strCreatePerm(block,
+					2
+					+ tmpConstantFieldRef->constantNameType->name->length
+					+ tmpConstantFieldRef->constantNameType->descriptor->length,
+					exception);
 			FYEH();
 			fy_strAppendUTF8(block, tmpConstantFieldRef->nameType, ".", 1,
 					exception);
@@ -284,6 +290,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 					tmpConstantFieldRef->constantNameType->descriptor,
 					exception);
 			FYEH();
+#endif
 			break;
 		case CONSTANT_Methodref:
 		case CONSTANT_InterfaceMethodref:
@@ -292,12 +299,18 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 					(ConstantClass*) (constantPools[tmpConstantMethodRef->class_index]);
 			tmpConstantMethodRef->constantNameType =
 					(ConstantNameAndTypeInfo*) (constantPools[tmpConstantMethodRef->name_type_index]);
-			tmpConstantMethodRef->nameType =
-					fy_strCreatePerm(block,
-							2
-									+ tmpConstantMethodRef->constantNameType->name->length
-									+ tmpConstantMethodRef->constantNameType->descriptor->length,
-							exception);
+			tmpConstantMethodRef->nameType = fy_vmCreateStringByPoolV(context,
+					exception, "cscs", '.',
+					tmpConstantMethodRef->constantNameType->name, '.',
+					tmpConstantMethodRef->constantNameType->descriptor);
+			FYEH();
+#if 0
+			nameType =
+			fy_strCreatePerm(block,
+					2
+					+ tmpConstantMethodRef->constantNameType->name->length
+					+ tmpConstantMethodRef->constantNameType->descriptor->length,
+					exception);
 			FYEH();
 			fy_strAppendUTF8(block, tmpConstantMethodRef->nameType, ".", 1,
 					exception);
@@ -312,6 +325,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 					tmpConstantMethodRef->constantNameType->descriptor,
 					exception);
 			FYEH();
+#endif
 			break;
 		case CONSTANT_String:
 		case CONSTANT_Integer:
@@ -379,12 +393,18 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_inputStream *is,
 				((ConstantUtf8Info*) clazz->constantPools[fy_dataRead2(context,
 						is, exception)])->string;
 		FYEH();
-		field->fullName = fy_strCreatePerm(block,
-				2 + field->name->length + field->descriptor->length, exception);
+		field->uniqueName = fy_vmCreateStringByPoolV(context, exception,
+				"scscs", clazz->className, '.', field->name, '.',
+				field->descriptor);
 		FYEH();
-		field->uniqueName = fy_strCreatePerm(block,
+		field->fullName = fy_strCreatePermPersistSubstring(context->memblocks,
+				field->uniqueName, clazz->className->length,
+				field->uniqueName->length, exception);
+		FYEH();
+#if 0
+		fy_strCreatePerm(block,
 				clazz->className->length + 2 + field->name->length
-						+ field->descriptor->length, exception);
+				+ field->descriptor->length, exception);
 		FYEH();
 		fy_strAppendUTF8(block, field->fullName, ".", 1, exception);
 		FYEH();
@@ -398,7 +418,7 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_inputStream *is,
 		FYEH();
 		fy_strAppend(block, field->uniqueName, field->fullName, exception);
 		FYEH();
-
+#endif
 		switch (fy_strGet(field->descriptor,0)) {
 		case 'D':
 		case 'J':
@@ -686,13 +706,18 @@ static void loadMethods(fy_context *context, fy_class *clazz,
 		method->descriptor = fy_clGetConstantString(context, clazz,
 				fy_dataRead2(context, is, exception));
 		FYEH();
-		method->fullName = fy_strCreatePerm(block,
-				method->name->length + method->descriptor->length + 2,
-				exception);
+		method->uniqueName = fy_vmCreateStringByPoolV(context, exception,
+				"scscs", clazz->className, '.', method->name, '.',
+				method->descriptor);
 		FYEH();
-		method->uniqueName = fy_strCreatePerm(block,
+		method->fullName = fy_strCreatePermPersistSubstring(context->memblocks,
+				method->uniqueName, clazz->className->length,
+				method->uniqueName->length, exception);
+		FYEH();
+#if 0
+		fy_strCreatePerm(block,
 				method->name->length + method->descriptor->length
-						+ clazz->className->length + 2, exception);
+				+ clazz->className->length + 2, exception);
 		FYEH();
 		fy_strAppendUTF8(block, method->fullName, ".", 1, exception);
 		FYEH();
@@ -706,6 +731,7 @@ static void loadMethods(fy_context *context, fy_class *clazz,
 		FYEH();
 		fy_strAppend(block, method->uniqueName, method->fullName, exception);
 		FYEH();
+#endif
 		jcount = fy_dataRead2(context, is, exception);
 		FYEH();
 		for (j = 0; j < jcount; j++) {
@@ -1051,32 +1077,32 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 		}
 		if (fy_classExtendsAnnotation(context, clazz)) {
 #ifdef FY_CL_DEBUG
-		context->logDStr(context, clazz->className);
-		context->logDVarLn(context, " is Annotation");
+			context->logDStr(context, clazz->className);
+			context->logDVarLn(context, " is Annotation");
 #endif
 			clazz->accessFlags |= FY_ACC_ANNOTATION;
 		} else if (fy_classExtendsEnum(context, clazz)) {
 #ifdef FY_CL_DEBUG
-		context->logDStr(context, clazz->className);
-		context->logDVarLn(context, " is Enum");
+			context->logDStr(context, clazz->className);
+			context->logDVarLn(context, " is Enum");
 #endif
 			clazz->accessFlags |= FY_ACC_ENUM;
 		} else if (fy_classExtendsPhantomRef(context, clazz)) {
 #ifdef FY_CL_DEBUG
-		context->logDStr(context, clazz->className);
-		context->logDVarLn(context, " is PhantomReference");
+			context->logDStr(context, clazz->className);
+			context->logDVarLn(context, " is PhantomReference");
 #endif
 			clazz->accessFlags |= FY_ACC_PHANTOM_REF;
 		} else if (fy_classExtendsWeakRef(context, clazz)) {
 #ifdef FY_CL_DEBUG
-		context->logDStr(context, clazz->className);
-		context->logDVarLn(context, " is WeakReference");
+			context->logDStr(context, clazz->className);
+			context->logDVarLn(context, " is WeakReference");
 #endif
 			clazz->accessFlags |= FY_ACC_WEAK_REF;
 		} else if (fy_classExtendsSoftRef(context, clazz)) {
 #ifdef FY_CL_DEBUG
-		context->logDStr(context, clazz->className);
-		context->logDVarLn(context, " is SoftReference");
+			context->logDStr(context, clazz->className);
+			context->logDVarLn(context, " is SoftReference");
 #endif
 			clazz->accessFlags |= FY_ACC_SOFT_REF;
 		}
@@ -1193,7 +1219,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		FYEH()NULL;
 		clazz->type = array_class;
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
-		clazz->className = fy_strCreatePermFromClone(block, name, 0, exception);
+		clazz->className = fy_vmCreateStringByPool(context, name, exception);/*fy_strCreatePermFromClone(block, name, 0, exception);*/
 		FYEH()NULL;
 		clazz->ci.arr.arrayType = getSizeShiftForArray(name, exception);
 		FYEH()NULL;
@@ -1227,7 +1253,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	} else if (fy_hashMapGet(block, context->mapPrimitivesRev, name) != NULL) {
 		clazz = fy_mmAllocatePerm(block, sizeof(fy_class), exception);
 		FYEH()NULL;
-		clazz->className = fy_strCreatePermFromClone(block, name, 0, exception);
+		clazz->className = fy_vmCreateStringByPool(context, name, exception);/*fy_strCreatePermFromClone(block, name, 0, exception);*/
 		FYEH()NULL;
 		clazz->type = primitive_class;
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);

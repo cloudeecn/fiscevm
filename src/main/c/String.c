@@ -276,6 +276,9 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 		c = va->pattern[i];
 		switch (c) {
 		case 'c':
+			if (pos >= left->length) {
+				return -rightStr->content[j];
+			}
 			ret = left->content[pos++] - (va->vars[i]).c;
 			if (ret != 0) {
 				return ret;
@@ -285,7 +288,10 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 			rightArray = va->vars[i].a;
 			utf8Left = strlen(rightArray);
 			while (utf8Left > 0) {
-				ch = fy_utf8Read((char const **)&rightArray, &utf8Left);
+				if (pos >= left->length) {
+					return -rightStr->content[j];
+				}
+				ch = fy_utf8Read((char const **) &rightArray, &utf8Left);
 				ret = left->content[pos++] - ch;
 				if (ret != 0) {
 					return ret;
@@ -295,7 +301,10 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 		case 's':
 			rightStr = va->vars[i].s;
 			maxj = rightStr->length;
-			for (j = 0; i < maxj; j++) {
+			for (j = 0; j < maxj; j++) {
+				if (pos >= left->length) {
+					return -rightStr->content[j];
+				}
 				ret = left->content[pos++] - rightStr->content[j];
 				if (ret != 0) {
 					return ret;
@@ -423,7 +432,7 @@ FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va) {
 			arrayBase = vars[i].a;
 			left = strlen(arrayBase);
 			while (left > 0) {
-				value = fy_utf8Read((char const **)&arrayBase, &left);
+				value = fy_utf8Read((char const **) &arrayBase, &left);
 				ret = (ret << 5) + (ret << 2) + (ret >> 30) + value;
 			}
 			break;
@@ -532,9 +541,9 @@ FY_ATTR_EXPORT void fy_strParseV(fy_strVA *output, const char *pattern, ...) {
 }
 FY_ATTR_EXPORT void fy_strParseVA(fy_strVA *output, const char *pattern,
 		va_list arg_ptr) {
-	fy_int i;
+	fy_int i = 0;
 	char c;
-	fy_int size;
+	fy_int size = 0;
 	fy_strVarStorage *vs = output->vars;
 	while ((c = pattern[i]) != 0) {
 		if (i >= FY_STR_MAX_VA) {

@@ -24,291 +24,302 @@
 
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
-	fy_memblock *block = context->memblocks;
-
-	context->sAttCode = fy_strCreatePermFromUTF8(block, FY_ATT_CODE, 0,
-			exception);
+	context->sAttCode = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_ATT_CODE);
 	FYEH();
 
-	context->sAttLineNum = fy_strCreatePermFromUTF8(block, FY_ATT_LINENUM, 0,
-			exception);
+	context->sAttLineNum = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_ATT_LINENUM);
 	FYEH();
 
-	context->sAttSynth = fy_strCreatePermFromUTF8(block, FY_ATT_SYNTH, 0,
-			exception);
+	context->sAttSynth = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_ATT_SYNTH);
 	FYEH();
 
-	context->sAttSourceFile = fy_strCreatePermFromUTF8(block,
-			FY_ATT_SOURCE_FILE, 0, exception);
+	context->sAttSourceFile = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_ATT_SOURCE_FILE);
 	FYEH();
-	context->sAttConstantValue = fy_strCreatePermFromUTF8(block,
-			FY_ATT_CONSTANT_VALIE, 0, exception);
+	context->sAttConstantValue = fy_vmCreateStringByPoolV(context, exception,
+			"a", FY_ATT_CONSTANT_VALIE);
 	FYEH();
-	context->sBoolean = fy_strCreatePermFromUTF8(block, "<boolean>", 0,
-			exception);
+	context->sBoolean = fy_vmCreateStringByPoolV(context, exception, "a",
+			"<boolean>");
 	FYEH();
 
-	context->sByte = fy_strCreatePermFromUTF8(block, "<byte>", 0, exception);
+	context->sByte = fy_vmCreateStringByPoolV(context, exception, "a",
+			"<byte>");
 	FYEH();
 
-	context->sShort = fy_strCreatePermFromUTF8(block, "<short>", 0, exception);
+	context->sShort = fy_vmCreateStringByPoolV(context, exception, "a",
+			"<short>");
 	FYEH();
 
-	context->sChar = fy_strCreatePermFromUTF8(block, "<char>", 0, exception);
+	context->sChar = fy_vmCreateStringByPoolV(context, exception, "a",
+			"<char>");
 	FYEH();
 
-	context->sInt = fy_strCreatePermFromUTF8(block, "<int>", 0, exception);
+	context->sInt = fy_vmCreateStringByPoolV(context, exception, "a", "<int>");
 	FYEH();
 
-	context->sFloat = fy_strCreatePermFromUTF8(block, "<float>", 0, exception);
+	context->sFloat = fy_vmCreateStringByPoolV(context, exception, "a",
+			"<float>");
 	FYEH();
 
-	context->sLong = fy_strCreatePermFromUTF8(block, "<long>", 0, exception);
+	context->sLong = fy_vmCreateStringByPoolV(context, exception, "a",
+			"<long>");
 	FYEH();
 
-	context->sDouble = fy_strCreatePermFromUTF8(block, "<double>", 0,
-			exception);
+	context->sDouble = fy_vmCreateStringByPoolV(context, exception, "a",
+			"<double>");
 	FYEH();
 
-	context->sVoid = fy_strCreatePermFromUTF8(block, "<void>", 0, exception);
+	context->sVoid = fy_vmCreateStringByPoolV(context, exception, "a",
+			"<void>");
 	FYEH();
 
-	context->sEnum = fy_strCreatePermFromUTF8(block, FY_BASE_ENUM, 0,
-			exception);
+	context->sEnum = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_ENUM);
 	FYEH();
 
-	context->sAnnotation = fy_strCreatePermFromUTF8(block, FY_BASE_ANNOTATION,
-			0, exception);
+	context->sAnnotation = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_ANNOTATION);
 	FYEH();
 
-	context->sTopClass = fy_strCreatePermFromUTF8(block, FY_BASE_OBJECT, 0,
-			exception);
+	context->sTopClass = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_OBJECT);
 	FYEH();
 
-	context->sClassClass = fy_strCreatePermFromUTF8(block, FY_BASE_CLASS, 0,
-			exception);
+	context->sClassClass = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_CLASS);
 	FYEH();
 
-	context->sClassField = fy_strCreatePermFromUTF8(block, FY_REFLECT_FIELD, 0,
-			exception);
+	context->sClassField = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_REFLECT_FIELD);
 	FYEH();
 
-	context->sClassMethod = fy_strCreatePermFromUTF8(block, FY_REFLECT_METHOD,
-			0, exception);
+	context->sClassMethod = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_REFLECT_METHOD);
 	FYEH();
 
-	context->sClassConstructor = fy_strCreatePermFromUTF8(block,
-			FY_REFLECT_CONSTRUCTOR, 0, exception);
+	context->sClassConstructor = fy_vmCreateStringByPoolV(context, exception,
+			"a", FY_REFLECT_CONSTRUCTOR);
 	FYEH();
 
-	context->sClassThrowable = fy_strCreatePermFromUTF8(block,
-			FY_BASE_THROWABLE, 0, exception);
+	context->sClassThrowable = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_THROWABLE);
 	FYEH();
 
-	context->sString = fy_strCreatePermFromUTF8(block, FY_BASE_STRING, 0,
-			exception);
+	context->sString = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_STRING);
 	FYEH();
 
-	context->sThread = fy_strCreatePermFromUTF8(block, FY_BASE_THREAD, 0,
-			exception);
+	context->sThread = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_THREAD);
 	FYEH();
 
-	context->sStringArray = fy_strCreatePermFromUTF8(block,
-			"[L"FY_BASE_THROWABLE";", 0, exception);
+	context->sStringArray = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[L"FY_BASE_THROWABLE";");
 	FYEH();
 
-	context->sThrowablePrintStacktrace = fy_strCreatePermFromUTF8(block,
-			FY_BASE_THROWABLE".printStackTrace.()V", 0, exception);
+	context->sThrowablePrintStacktrace = fy_vmCreateStringByPoolV(context,
+			exception, "a", FY_BASE_THROWABLE".printStackTrace.()V");
 	FYEH();
 
-	context->sThrowableDetailMessage = fy_strCreatePermFromUTF8(block,
-			FY_BASE_THROWABLE".detailMessage.L"FY_BASE_STRING";", 0, exception);
+	context->sThrowableDetailMessage = fy_vmCreateStringByPoolV(context,
+			exception, "a",
+			FY_BASE_THROWABLE".detailMessage.L"FY_BASE_STRING";");
 	FYEH();
 
-	context->sInit = fy_strCreatePermFromUTF8(block, FY_METHOD_INIT, 0,
-			exception);
+	context->sInit = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_METHOD_INIT);
 	FYEH();
 
-	context->sClinit = fy_strCreatePermFromUTF8(block, FY_METHOD_CLINIT, 0,
-			exception);
+	context->sClinit = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_METHOD_CLINIT);
 	FYEH();
 
-	context->sFMain = fy_strCreatePermFromUTF8(block, FY_METHODF_MAIN, 0,
-			exception);
+	context->sFMain = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_METHODF_MAIN);
 	FYEH();
 
-	context->sFRun = fy_strCreatePermFromUTF8(block, FY_METHODF_RUN, 0,
-			exception);
+	context->sFRun = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_METHODF_RUN);
 	FYEH();
 
-	context->sFName = fy_strCreatePermFromUTF8(block, FY_FIELDF_NAME, 0,
-			exception);
+	context->sFName = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_FIELDF_NAME);
 	FYEH();
 
-	context->sMFinalize = fy_strCreatePermFromUTF8(block, FY_METHODF_FINALIZE,
-			0, exception);
+	context->sMFinalize = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_METHODF_FINALIZE);
 	FYEH();
 
-	context->sFPriority = fy_strCreatePermFromUTF8(block, FY_FIELDF_PRIORITY, 0,
-			exception);
+	context->sFPriority = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_FIELDF_PRIORITY);
 	FYEH();
 
-	context->sFDaemon = fy_strCreatePermFromUTF8(block, FY_FIELDF_DAEMON, 0,
-			exception);
+	context->sFDaemon = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_FIELDF_DAEMON);
 	FYEH();
 
-	context->sStringCount = fy_strCreatePermFromUTF8(block,
-			FY_BASE_STRING".count.I", 0, exception);
+	context->sStringCount = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_STRING".count.I");
 	FYEH();
 
-	context->sStringValue = fy_strCreatePermFromUTF8(block,
-			FY_BASE_STRING".value.[C", 0, exception);
+	context->sStringValue = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_STRING".value.[C");
 	FYEH();
 
-	context->sStringOffset = fy_strCreatePermFromUTF8(block,
-			FY_BASE_STRING".offset.I", 0, exception);
+	context->sStringOffset = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_STRING".offset.I");
 	FYEH();
 
-	context->sStackTraceElement = fy_strCreatePermFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT, 0, exception);
+	context->sStackTraceElement = fy_vmCreateStringByPoolV(context, exception,
+			"a", FY_BASE_STACKTHREADELEMENT);
 	FYEH();
 
-	context->sStackTraceElementArray = fy_strCreatePermFromUTF8(block,
-			"[L"FY_BASE_STACKTHREADELEMENT";", 0, exception);
+	context->sStackTraceElementArray = fy_vmCreateStringByPoolV(context,
+			exception, "a", "[L"FY_BASE_STACKTHREADELEMENT";");
 	FYEH();
 
-	context->sStackTraceElementDeclaringClass = fy_strCreatePermFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT".declaringClass.L"FY_BASE_STRING";", 0,
-			exception);
+	context->sStackTraceElementDeclaringClass = fy_vmCreateStringByPoolV(
+			context, exception, "a",
+			FY_BASE_STACKTHREADELEMENT".declaringClass.L"FY_BASE_STRING";");
 	FYEH();
 
-	context->sStackTraceElementMethodName = fy_strCreatePermFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT".methodName.L"FY_BASE_STRING";", 0,
-			exception);
+	context->sStackTraceElementMethodName = fy_vmCreateStringByPoolV(context,
+			exception, "a",
+			FY_BASE_STACKTHREADELEMENT".methodName.L"FY_BASE_STRING";");
 	FYEH();
 
-	context->sStackTraceElementFileName = fy_strCreatePermFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT".fileName.L"FY_BASE_STRING";", 0,
-			exception);
+	context->sStackTraceElementFileName = fy_vmCreateStringByPoolV(context,
+			exception, "a",
+			FY_BASE_STACKTHREADELEMENT".fileName.L"FY_BASE_STRING";");
 	FYEH();
 
-	context->sStackTraceElementLineNumber = fy_strCreatePermFromUTF8(block,
-			FY_BASE_STACKTHREADELEMENT".lineNumber.I", 0, exception);
+	context->sStackTraceElementLineNumber = fy_vmCreateStringByPoolV(context,
+			exception, "a", FY_BASE_STACKTHREADELEMENT".lineNumber.I");
 	FYEH();
 
-	context->sThrowableStackTrace = fy_strCreatePermFromUTF8(block,
-			FY_BASE_THROWABLE".stackTrace.[L"FY_BASE_STACKTHREADELEMENT";", 0,
-			exception);
+	context->sThrowableStackTrace = fy_vmCreateStringByPoolV(context, exception,
+			"a",
+			FY_BASE_THROWABLE".stackTrace.[L"FY_BASE_STACKTHREADELEMENT";");
 	FYEH();
 
-	context->sArrayBoolean = fy_strCreatePermFromUTF8(block, "[Z", 0,
-			exception);
+	context->sArrayBoolean = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[Z");
 	FYEH();
 
-	context->sArrayChar = fy_strCreatePermFromUTF8(block, "[C", 0, exception);
+	context->sArrayChar = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[C");
 	FYEH();
 
-	context->sArrayFloat = fy_strCreatePermFromUTF8(block, "[F", 0, exception);
+	context->sArrayFloat = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[F");
 	FYEH();
 
-	context->sArrayDouble = fy_strCreatePermFromUTF8(block, "[D", 0, exception);
+	context->sArrayDouble = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[D");
 	FYEH();
 
-	context->sArrayByte = fy_strCreatePermFromUTF8(block, "[B", 0, exception);
+	context->sArrayByte = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[B");
 	FYEH();
 
-	context->sArrayShort = fy_strCreatePermFromUTF8(block, "[S", 0, exception);
+	context->sArrayShort = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[S");
 	FYEH();
 
-	context->sArrayInteger = fy_strCreatePermFromUTF8(block, "[I", 0,
-			exception);
+	context->sArrayInteger = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[I");
 	FYEH();
 
-	context->sArrayLong = fy_strCreatePermFromUTF8(block, "[J", 0, exception);
+	context->sArrayLong = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[J");
 	FYEH();
 
-	context->sArrayObject = fy_strCreatePermFromUTF8(block,
-			"[L"FY_BASE_OBJECT";", 0, exception);
+	context->sArrayObject = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[L"FY_BASE_OBJECT";");
 	FYEH();
 
-	context->sArrayClass = fy_strCreatePermFromUTF8(block, "[L"FY_BASE_CLASS";",
-			0, exception);
+	context->sArrayClass = fy_vmCreateStringByPoolV(context, exception, "a",
+			"[L"FY_BASE_CLASS";");
 	FYEH();
 
-	context->sValueBoolean = fy_strCreatePermFromUTF8(block, FY_VALUE_BOOLEAN,
-			0, exception);
+	context->sValueBoolean = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_VALUE_BOOLEAN);
 	FYEH();
 
-	context->sValueByte = fy_strCreatePermFromUTF8(block, FY_VALUE_BYTE, 0,
-			exception);
+	context->sValueByte = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_VALUE_BYTE);
 	FYEH();
 
-	context->sValueChar = fy_strCreatePermFromUTF8(block, FY_VALUE_CHARACTER, 0,
-			exception);
+	context->sValueChar = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_VALUE_CHARACTER);
 	FYEH();
 
-	context->sValueShort = fy_strCreatePermFromUTF8(block, FY_VALUE_SHORT, 0,
-			exception);
+	context->sValueShort = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_VALUE_SHORT);
 	FYEH();
 
-	context->sValueInt = fy_strCreatePermFromUTF8(block, FY_VALUE_INTEGER, 0,
-			exception);
+	context->sValueInt = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_VALUE_INTEGER);
 	FYEH();
 
-	context->sValueFloat = fy_strCreatePermFromUTF8(block, FY_VALUE_FLOAT, 0,
-			exception);
+	context->sValueFloat = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_VALUE_FLOAT);
 	FYEH();
 
-	context->sValueLong = fy_strCreatePermFromUTF8(block, FY_VALUE_LONG, 0,
-			exception);
+	context->sValueLong = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_VALUE_LONG);
 	FYEH();
 
-	context->sValueDouble = fy_strCreatePermFromUTF8(block, FY_VALUE_DOUBLE, 0,
-			exception);
+	context->sValueDouble = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_VALUE_DOUBLE);
 	FYEH();
 
-	context->sClassBoolean = fy_strCreatePermFromUTF8(block, FY_BASE_BOOLEAN, 0,
-			exception);
+	context->sClassBoolean = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_BOOLEAN);
 	FYEH();
 
-	context->sClassByte = fy_strCreatePermFromUTF8(block, FY_BASE_BYTE, 0,
-			exception);
+	context->sClassByte = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_BYTE);
 	FYEH();
 
-	context->sClassChar = fy_strCreatePermFromUTF8(block, FY_BASE_CHAR, 0,
-			exception);
+	context->sClassChar = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_CHAR);
 	FYEH();
 
-	context->sClassShort = fy_strCreatePermFromUTF8(block, FY_BASE_SHORT, 0,
-			exception);
+	context->sClassShort = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_SHORT);
 	FYEH();
 
-	context->sClassInt = fy_strCreatePermFromUTF8(block, FY_BASE_INT, 0,
-			exception);
+	context->sClassInt = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_INT);
 	FYEH();
 
-	context->sClassFloat = fy_strCreatePermFromUTF8(block, FY_BASE_FLOAT, 0,
-			exception);
+	context->sClassFloat = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_FLOAT);
 	FYEH();
 
-	context->sClassLong = fy_strCreatePermFromUTF8(block, FY_BASE_LONG, 0,
-			exception);
+	context->sClassLong = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_LONG);
 	FYEH();
 
-	context->sClassDouble = fy_strCreatePermFromUTF8(block, FY_BASE_DOUBLE, 0,
-			exception);
+	context->sClassDouble = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_BASE_DOUBLE);
 	FYEH();
 
-	context->sPhantomReference = fy_strCreatePermFromUTF8(block, FY_REF_PHANTOM,
-			0, exception);
+	context->sPhantomReference = fy_vmCreateStringByPoolV(context, exception,
+			"a", FY_REF_PHANTOM);
 	FYEH();
 
-	context->sSoftReference = fy_strCreatePermFromUTF8(block, FY_REF_SOFT, 0,
-			exception);
+	context->sSoftReference = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_REF_SOFT);
 	FYEH();
 
-	context->sWeakReference = fy_strCreatePermFromUTF8(block, FY_REF_WEAK, 0,
-			exception);
+	context->sWeakReference = fy_vmCreateStringByPoolV(context, exception, "a",
+			FY_REF_WEAK);
 	FYEH();
 }
 
@@ -483,6 +494,10 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	FYEH();
 	fy_portInit(context->port);
 
+	fy_hashMapInitPerm(context->memblocks, context->stringPool, 16384,
+			exception);
+	FYEH();
+
 	initHeap(context, exception);
 	FYEH();
 
@@ -500,10 +515,6 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_arrayListInit(context->memblocks, context->switchTargets,
 			sizeof(fy_switch_lookup*), 64, exception);
-	FYEH();
-
-	fy_hashMapInitPerm(context->memblocks, context->stringPool, 16384,
-			exception);
 	FYEH();
 
 	fy_coreRegisterCoreHandlers(context, exception);
@@ -1045,7 +1056,7 @@ void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 	fy_nh* nh;
 	fy_str *str;
 	fy_memblock *block = context->memblocks;
-	str = fy_strCreatePermFromUTF8(block, name, 0, exception);
+	str = fy_vmCreateStringByPoolV(context, exception, "a", name);/*fy_strCreatePermFromUTF8(block, name, 0, exception);*/
 	FYEH();
 	if (fy_hashMapGet(block, context->mapMUNameToNH, str) != NULL) {
 		fy_fault(exception, NULL, "Native handler conflict %s", name);
