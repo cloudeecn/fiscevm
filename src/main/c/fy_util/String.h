@@ -93,6 +93,8 @@ FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
 FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *mem, fy_str *string);
 FY_ATTR_EXPORT fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this,
 		fy_int size, fy_exception *exception);
+FY_ATTR_EXPORT fy_str *fy_strAppendVA(fy_memblock *block, fy_str *_this,
+		fy_strVA *va, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strAppend(fy_memblock *mem, fy_str *this,
 		const fy_str *string, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strAppendChar(fy_memblock *mem, fy_str *this,

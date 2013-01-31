@@ -189,6 +189,27 @@ FY_ATTR_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *block, fy_str *_this,
 	return _this;
 }
 
+FY_ATTR_EXPORT fy_str *fy_strAppendVA(fy_memblock *block, fy_str *_this,
+		fy_strVA *va, fy_exception *exception) {
+	fy_int i, max = va->patternLength;
+	char c;
+	for (i = 0; i < max; i++) {
+		c = va->pattern[i];
+		switch (c) {
+		case 'c':
+			fy_strAppendChar(block, _this, (fy_char) va->vars[i].c, exception);
+			break;
+		case 'a':
+			fy_strAppendUTF8(block, _this, va->vars[i].a, -1, exception);
+			break;
+		case 's':
+			fy_strAppend(block, _this, va->vars[i].s, exception);
+			break;
+		}
+	}
+	return _this;
+}
+
 FY_ATTR_EXPORT fy_str *fy_strSubstring(fy_memblock *block, fy_str *_this,
 		fy_int begin, fy_int end) {
 	int size = end - begin;
