@@ -1341,8 +1341,8 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	fy_arrayList from;
 	/*
 	fy_uint handle;
-	*/
 	fy_int j;
+	*/
 	fy_int i;
 	fy_context *context = ctx;
 	fy_memblock *block = context->memblocks;

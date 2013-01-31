@@ -358,8 +358,36 @@ static fy_char readChar(FILE *fp, fy_exception *exception) {
 	return ret;
 }
 
+#if 0
 static void readIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
 		fy_int **buf, fy_int size, fy_exception *exception) {
+	int i;
+	fy_uint read;
+	if (*bufsize == 0) {
+		*bufsize = 1024;
+		*buf = fy_mmAllocate(context->memblocks, *bufsize * sizeof(fy_int),
+				exception);
+		FYEH();
+	}
+	if (*bufsize < size) {
+		while (*bufsize < size) {
+			*bufsize *= 2;
+		}
+		fy_mmFree(context->memblocks, buf);
+		fy_mmAllocate(context->memblocks, *bufsize * sizeof(fy_int), exception);
+		FYEH();
+	}
+	for (i = 0; i < size; i++) {
+		read = readInt(fp, exception);
+		FYEH();
+		(*buf)[i] = read;
+		FYEH();
+	}
+}
+#endif
+
+static void readUIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
+		fy_uint **buf, fy_int size, fy_exception *exception) {
 	int i;
 	fy_uint read;
 	if (*bufsize == 0) {
@@ -405,10 +433,10 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	fy_uint i, j;
 	fy_uint classCount;
 	fy_str strbuf[1];
-	fy_int intbufSize = 0;
-	fy_int *intbuf;
-	fy_int intbufSize2 = 0;
-	fy_int *intbuf2;
+	fy_int uintbufSize = 0;
+	fy_uint *uintbuf;
+	fy_int uintbufSize2 = 0;
+	fy_uint *uintbuf2;
 
 	fy_uint nameSize;
 	fy_uint id;
@@ -487,9 +515,9 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		readString(context, fp, strbuf, nameSize, exception);
 		FYEH();
 		staticSize = readInt(fp, exception);
-		readIntBlock(context, fp, &intbufSize, &intbuf, staticSize, exception);
+		readUIntBlock(context, fp, &uintbufSize, &uintbuf, staticSize, exception);
 		fy_loadClass(context, loader, id, handle, clinited, strbuf, staticSize,
-				intbuf, exception);
+				uintbuf, exception);
 	}
 	fy_loadEndClass(context, loader, exception);
 
@@ -558,27 +586,27 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		FYEH();
 		dataSize = readInt(fp, exception);
 		FYEH();
-		readIntBlock(context, fp, &intbufSize, &intbuf, dataSize, exception);
+		readUIntBlock(context, fp, &uintbufSize, &uintbuf, dataSize, exception);
 		FYEH();
 		fy_loadObject(context, loader, handle, classId, posInHeap, gen,
 				finalizeStatus, monitorOwner, monitorCount, len,
-				dataSize, intbuf, exception);
+				dataSize, uintbuf, exception);
 		FYEH();
 	}
 	fy_loadEndObject(context, loader, exception);
 
 	FY_ASSERTF(0xF15CE008);
 	literalCount = readInt(fp, exception);
-	readIntBlock(context, fp, &intbufSize, &intbuf, literalCount, exception);
+	readUIntBlock(context, fp, &uintbufSize, &uintbuf, literalCount, exception);
 	FYEH();
-	fy_loadLiterals(context, loader, literalCount, intbuf, exception);
+	fy_loadLiterals(context, loader, literalCount, uintbuf, exception);
 	FYEH();
 
 	FY_ASSERTF(0xF15CE00B);
 	finalizeCount = readInt(fp, exception);
-	readIntBlock(context, fp, &intbufSize, &intbuf, finalizeCount, exception);
+	readUIntBlock(context, fp, &uintbufSize, &uintbuf, finalizeCount, exception);
 	FYEH();
-	fy_loadFinalizes(context, loader, finalizeCount, intbuf, exception);
+	fy_loadFinalizes(context, loader, finalizeCount, uintbuf, exception);
 	FYEH();
 
 	FY_ASSERTF(0xF15CE00C);
@@ -611,15 +639,15 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		FYEH();
 		stackSize = readInt(fp, exception);
 		FYEH();
-		readIntBlock(context, fp, &intbufSize, &intbuf, stackSize, exception);
+		readUIntBlock(context, fp, &uintbufSize, &uintbuf, stackSize, exception);
 		FYEH();
-		readIntBlock(context, fp, &intbufSize2, &intbuf2, (stackSize + 31) / 32,
+		readUIntBlock(context, fp, &uintbufSize2, &uintbuf2, (stackSize + 31) / 32,
 				exception);
 		FYEH();
 		thread = fy_loadThread(context, loader, id, handle, priority, daemon,
 				destroyPending, interrupted,
 				fy_I2TOL(nextWakeUpTimeH,nextWakeUpTimeL), pendingLockCount,
-				waitForLockId, waitForNotifyId, stackSize, intbuf, intbuf2,
+				waitForLockId, waitForNotifyId, stackSize, uintbuf, uintbuf2,
 				exception);
 		FYEH();
 		frameCount = readInt(fp, exception);
@@ -651,11 +679,11 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	fy_strDestroy(context->memblocks, strbuf);
-	if (intbuf != NULL) {
-		fy_mmFree(context->memblocks, intbuf);
+	if (uintbuf != NULL) {
+		fy_mmFree(context->memblocks, uintbuf);
 	}
-	if (intbuf2 != NULL) {
-		fy_mmFree(context->memblocks, intbuf2);
+	if (uintbuf2 != NULL) {
+		fy_mmFree(context->memblocks, uintbuf2);
 	}
 
 	fclose(fp);

@@ -55,7 +55,7 @@ void fy_loadPrepareClass(struct fy_context *context, void *loader_,
 }
 void fy_loadClass(struct fy_context *context, void *loader_, fy_uint classId,
 		fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
-		fy_int *staticArea, fy_exception *exception) {
+		fy_uint *staticArea, fy_exception *exception) {
 	Loader *loader = loader_;
 	ClassTemp *ct = loader->classTemp + classId;
 	fy_uint *pCid = fy_mmAllocate(context->memblocks, sizeof(fy_uint),

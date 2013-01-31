@@ -262,7 +262,7 @@ FY_ATTR_EXPORT fy_int fy_strCmp(fy_str *left, fy_str *right) {
 	return resultWhenEqual;
 }
 
-FY_ATTR_EXPORT int fy_strCmpVA(fy_str *left, fy_strVA *va) {
+FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 	fy_int i, pos = 0, ret, j, maxj;
 	fy_int max = va->patternLength;
 	char c;
@@ -276,7 +276,7 @@ FY_ATTR_EXPORT int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 		c = va->pattern[i];
 		switch (c) {
 		case 'c':
-			ret = left[pos++] - va->vars[i].c;
+			ret = left->content[pos++] - (va->vars[i]).c;
 			if (ret != 0) {
 				return ret;
 			}
@@ -285,8 +285,8 @@ FY_ATTR_EXPORT int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 			rightArray = va->vars[i].a;
 			utf8Left = strlen(rightArray);
 			while (utf8Left > 0) {
-				ch = fy_utf8Read(&rightArray, &utf8Left);
-				ret = left[pos++] - ch;
+				ch = fy_utf8Read((char const **)&rightArray, &utf8Left);
+				ret = left->content[pos++] - ch;
 				if (ret != 0) {
 					return ret;
 				}
@@ -296,7 +296,7 @@ FY_ATTR_EXPORT int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 			rightStr = va->vars[i].s;
 			maxj = rightStr->length;
 			for (j = 0; i < maxj; j++) {
-				ret = left[pos++] - rightStr->content[j];
+				ret = left->content[pos++] - rightStr->content[j];
 				if (ret != 0) {
 					return ret;
 				}
@@ -423,7 +423,7 @@ FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va) {
 			arrayBase = vars[i].a;
 			left = strlen(arrayBase);
 			while (left > 0) {
-				value = fy_utf8Read(&arrayBase, &left);
+				value = fy_utf8Read((char const **)&arrayBase, &left);
 				ret = (ret << 5) + (ret << 2) + (ret >> 30) + value;
 			}
 			break;
@@ -445,11 +445,11 @@ FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va) {
 	return ret;
 }
 
-FY_ATTR_EXPORT fy_char fy_strGet0(fy_str *str, fy_int pos) {
+FY_ATTR_EXPORT fy_char fy_strGet0(const fy_str *str, fy_int pos) {
 	return str->content[pos];
 }
 
-FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA va,
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA *va,
 		fy_exception *exception) {
 	char c;
 	fy_str *str;
@@ -457,6 +457,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA va,
 	str = fy_strCreatePerm(mem, va->size, exception);
 	FYEH()NULL;
 	for (i = 0; i < va->patternLength; i++) {
+		c = va->pattern[i];
 		switch (c) {
 		case 'c':
 			/*(one char)*/

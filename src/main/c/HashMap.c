@@ -257,7 +257,7 @@ FY_ATTR_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this,
 }
 
 FY_ATTR_EXPORT void* fy_hashMapGetVA(fy_memblock *mem, fy_hashMap *map,
-		fy_strVA va) {
+		fy_strVA *va) {
 	fy_hashMapEntry *entry = getBucketVA(mem, map, va);
 	return entry == NULL ? NULL : entry->value;
 }

@@ -27,7 +27,7 @@ void fy_loadPrepareClass(struct fy_context *context, void *loader_,
 		fy_uint classCount, fy_exception *exception);
 void fy_loadClass(struct fy_context *context, void *loader_, fy_uint classId,
 		fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
-		fy_int *staticArea, fy_exception *exception);
+		fy_uint *staticArea, fy_exception *exception);
 void fy_loadEndClass(struct fy_context *context, void *loader_,
 		fy_exception *exception);
 void fy_loadPrepareMethod(struct fy_context *context, void *loader_,

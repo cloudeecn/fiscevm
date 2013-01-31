@@ -69,7 +69,7 @@ typedef struct fy_strVA {
 
 /*Set to 1 for eclipse to search all direct usage of string->content*/
 #if 1
-FY_ATTR_EXPORT fy_char fy_strGet0(fy_str *str, fy_int pos);
+FY_ATTR_EXPORT fy_char fy_strGet0(const fy_str *str, fy_int pos);
 # define fy_strGet(STR,POS) fy_strGet0((STR),(POS))
 #else
 # define fy_strGet(STR,POS) (STR)->content[(POS)]
@@ -107,6 +107,7 @@ FY_ATTR_EXPORT fy_uint fy_strUtf8Count(fy_str *str);
 FY_ATTR_EXPORT fy_uint fy_strHash(fy_str *str);
 
 FY_ATTR_EXPORT fy_int fy_strCmp(fy_str *left, fy_str *right);
+FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va);
 FY_ATTR_EXPORT fy_boolean fy_strEndsWith(fy_str *this, fy_str *comp);
 
 FY_ATTR_EXPORT void fy_strClear(fy_str *this);
@@ -116,7 +117,7 @@ FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to);
 FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *mem, fy_str *from,
 		fy_exception *exception);
 
-FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA va,
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA *va,
 		fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
 		fy_exception *exception, const char *pattern, ...);
