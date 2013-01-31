@@ -84,6 +84,14 @@ fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 		fy_exception *exception);
 void fy_vmDefineClass(fy_context *context, fy_str *name, fy_byte *data,
 		fy_int dataLen, fy_exception *exception);
+
+/*String pool*/
+fy_str *fy_vmCreateStringByPool(fy_context *context, fy_str *tmp,
+		fy_exception *exception);
+fy_str *fy_vmCreateStringByPoolV(fy_context *context, fy_exception *exception,
+		const char *pattern, ...);
+fy_str *fy_vmCreateStringByPoolVA(fy_context *context, fy_strVA *va,
+		fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif

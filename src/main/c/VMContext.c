@@ -465,7 +465,8 @@ static void initHeap(fy_context *context, fy_exception *exception) {
 			exception);
 	FYEH();
 
-	fy_arrayListInit(block, context->toEnqueue, sizeof(fy_uint), 256, exception);
+	fy_arrayListInit(block, context->toEnqueue, sizeof(fy_uint), 256,
+			exception);
 	FYEH();
 }
 /************public***************/
@@ -1318,3 +1319,31 @@ fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 	return handle;
 }
 
+fy_str *fy_vmCreateStringByPool(fy_context *context, fy_str *tmp,
+		fy_exception *exception) {
+	return fy_vmCreateStringByPoolV(context, exception, "s", tmp);
+}
+
+fy_str *fy_vmCreateStringByPoolV(fy_context *context, fy_exception *exception,
+		const char *pattern, ...) {
+	va_list arg_ptr;
+	fy_strVA va[1];
+	va_start(arg_ptr, pattern);
+	fy_strParseVA(va, pattern, arg_ptr);
+	va_end(arg_ptr);
+	return fy_vmCreateStringByPoolVA(context, va, exception);
+}
+
+fy_str *fy_vmCreateStringByPoolVA(fy_context *context, fy_strVA *va,
+		fy_exception *exception) {
+	fy_str *ret;
+	ret = fy_hashMapGetVA(context->memblocks, context->stringPool, va);
+	if (ret == NULL) {
+		ret = fy_strCreatePermPersistVA(context->memblocks, va, exception);
+		FYEH()NULL;
+		fy_hashMapPut(context->memblocks, context->stringPool, ret, ret,
+				exception);
+		FYEH()NULL;
+	}
+	return ret;
+}
