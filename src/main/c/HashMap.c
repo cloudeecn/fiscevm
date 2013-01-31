@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "fy_util/HashMap.h"
+#include <stdarg.h>
 
 typedef struct fy_hashMapEntry {
 	struct fy_str *key;
@@ -75,6 +76,23 @@ static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 	if ((entry = this->buckets[hashCode % this->bucketsCount]) != NULL) {
 		do {
 			if (fy_strCmp(entry->key, key) == 0) {
+				return entry;
+			}
+		} while ((entry = entry->next) != NULL);
+	}
+	return NULL;
+}
+
+static fy_hashMapEntry *getBucketVA(fy_memblock *mem, fy_hashMap *this,
+	fy_strVA *va) {
+	fy_uint hashCode;
+	fy_hashMapEntry *entry;
+
+	hashCode = fy_strHashVA(va);
+
+	if ((entry = this->buckets[hashCode % this->bucketsCount]) != NULL) {
+		do {
+			if (fy_strCmpVA(entry->key, va) == 0) {
 				return entry;
 			}
 		} while ((entry = entry->next) != NULL);
@@ -152,6 +170,26 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 	}
 }
 
+
+#if 0
+FY_ATTR_EXPORT void *fy_hashMapPutV(fy_memblock *mem, fy_hashMap *this,
+		fy_exception *exception, void *value, const char *pattern, ...) {
+	void *ret;
+	va_list arg_ptr;
+	va_start(arg_ptr, pattern);
+	ret = fy_hashMapPutVA(mem, this, exception, value, pattern, arg_ptr);
+	va_end(arg_ptr);
+	return ret;
+}
+
+FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
+		fy_exception *exception, void *value, const char *pattern,
+		va_list arg_ptr) {
+
+}
+#endif
+
+
 FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
 		const char *keyUtf8, void *value, fy_exception *exception) {
 	fy_str *key;
@@ -181,6 +219,12 @@ FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
 FY_ATTR_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this,
 		fy_str *key) {
 	fy_hashMapEntry *entry = getBucket(mem, this, key);
+	return entry == NULL ? NULL : entry->value;
+}
+
+FY_ATTR_EXPORT void* fy_hashMapGetVA(fy_memblock *mem, fy_hashMap *map,
+		fy_strVA va) {
+	fy_hashMapEntry *entry = getBucketVA(mem, map, va);
 	return entry == NULL ? NULL : entry->value;
 }
 
