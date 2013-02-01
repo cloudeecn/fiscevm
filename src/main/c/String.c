@@ -60,7 +60,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermFromSubstring(fy_memblock *mem,
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
 		const char *utf8, fy_int additionalSize, fy_exception *exception) {
 	fy_str *str;
-	fy_int size = (fy_utf8SizeS(utf8, -1) + 1) / 2 + additionalSize;
+	fy_int size = fy_utf8SizeS(utf8, -1) + additionalSize;
 	str = fy_strCreatePerm(mem, size, exception);
 	FYEH()NULL;
 	fy_strAppendUTF8(mem, str, utf8, -1, exception);
@@ -82,7 +82,7 @@ FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
 }
 
 FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *block, fy_str *string) {
-	if (string->status & FY_STR_PERM) {
+	if (string->status & (FY_STR_PERM | FY_STR_PERSIST)) {
 		fy_fault(NULL, NULL, "Try to destroy a static string");
 	} else {
 		fy_mmFree(block, string->content);
@@ -95,7 +95,7 @@ FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *block, fy_str *string) {
 FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 		const char *utf8, fy_exception *exception) {
 	size_t size;
-	size = (fy_utf8SizeS(utf8, -1) + 1) / 2;
+	size = fy_utf8SizeS(utf8, -1);
 	fy_strInit(block, str, size, exception);
 	FYEH();
 	fy_strAppendUTF8(block, str, utf8, -1, exception);
@@ -277,7 +277,7 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 		switch (c) {
 		case 'c':
 			if (pos >= left->length) {
-				return -rightStr->content[j];
+				return -1;
 			}
 			ret = left->content[pos++] - (va->vars[i]).c;
 			if (ret != 0) {
@@ -289,7 +289,7 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 			utf8Left = strlen(rightArray);
 			while (utf8Left > 0) {
 				if (pos >= left->length) {
-					return -rightStr->content[j];
+					return -1;
 				}
 				ch = fy_utf8Read((char const **) &rightArray, &utf8Left);
 				ret = left->content[pos++] - ch;
@@ -303,7 +303,7 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 			maxj = rightStr->length;
 			for (j = 0; j < maxj; j++) {
 				if (pos >= left->length) {
-					return -rightStr->content[j];
+					return -1;
 				}
 				ret = left->content[pos++] - rightStr->content[j];
 				if (ret != 0) {
@@ -420,13 +420,11 @@ FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va) {
 	fy_int left;
 	const char *pattern = va->pattern;
 	fy_strVarStorage *vars = va->vars;
-	fy_int pos;
 
 	while ((c = pattern[i]) != 0) {
 		switch (c) {
 		case 'c':
 			ret = (ret << 5) + (ret << 2) + (ret >> 30) + (fy_char) (vars[i].c);
-			pos++;
 			break;
 		case 'a':
 			arrayBase = vars[i].a;
@@ -462,7 +460,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA *va,
 		fy_exception *exception) {
 	char c;
 	fy_str *str;
-	fy_int i = 0;
+	fy_int i;
 	str = fy_strCreatePerm(mem, va->size, exception);
 	FYEH()NULL;
 	for (i = 0; i < va->patternLength; i++) {
@@ -503,6 +501,25 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
 	fy_strParseVA(va, pattern, arg_ptr);
 	va_end(arg_ptr);
 	return fy_strCreatePermPersistVA(mem, va, exception);
+}
+
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistClone(fy_memblock *mem,
+		fy_str *from, fy_exception *exception) {
+	fy_str *ret;
+	if (from->status & FY_STR_PERSIST) {
+		ret = from;
+#if 1
+		if((fy_ulong)from > 0x7fffffffffff0000ll){
+			int j=0;
+			j++;
+			j++;
+		}
+#endif
+	} else {
+		ret = fy_strCreatePermFromClone(mem, from, 0, exception);
+		ret->status |= FY_STR_PERSIST;
+	}
+	return ret;
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,

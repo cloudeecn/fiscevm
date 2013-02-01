@@ -630,6 +630,9 @@ typedef struct fy_context {
 	fy_hashMap customClassData[1];
 
 	/* #BEGIN GLOBAL*/
+#ifdef FY_DEBUG
+	fy_int stringPoolTimes;
+#endif
 	fy_arrayList switchTargets[1];
 	fy_hashMap stringPool[1];
 #ifdef FY_PROFILE

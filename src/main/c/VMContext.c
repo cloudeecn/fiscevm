@@ -901,6 +901,13 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 			fy_fault(exception, NULL, "Too many classes!");
 			return;
 		}
+#if 0
+		if(*pCid==76){
+			int j;
+			j++;
+			j++;
+		}
+#endif
 		fy_hashMapPut(block, context->mapClassNameToId, clazz->className, pCid,
 				exception);
 		FYEH();
@@ -1330,11 +1337,6 @@ fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 	return handle;
 }
 
-fy_str *fy_vmCreateStringByPool(fy_context *context, fy_str *tmp,
-		fy_exception *exception) {
-	return fy_vmCreateStringByPoolV(context, exception, "s", tmp);
-}
-
 fy_str *fy_vmCreateStringByPoolV(fy_context *context, fy_exception *exception,
 		const char *pattern, ...) {
 	va_list arg_ptr;
@@ -1345,16 +1347,58 @@ fy_str *fy_vmCreateStringByPoolV(fy_context *context, fy_exception *exception,
 	return fy_vmCreateStringByPoolVA(context, va, exception);
 }
 
+fy_str *fy_vmCreateStringByPool(fy_context *context, fy_str *tmp,
+		fy_exception *exception) {
+	fy_str *ret;
+	ret = fy_hashMapGet(context->memblocks, context->stringPool, tmp);
+#ifdef FY_DEBUG
+	context->stringPoolTimes++;
+#endif
+	if (ret == NULL) {
+		ret = fy_strCreatePermPersistClone(context->memblocks, tmp, exception);
+		FYEH()NULL;
+		fy_hashMapPut(context->memblocks, context->stringPool, ret, ret,
+				exception);
+		FYEH()NULL;
+#if 0
+		context->logDVar(context, "Added string to string pool %d/%d: ",
+				context->stringPool->size, context->stringPoolTimes);
+		context->logDStr(context, ret);
+		context->logDVarLn(context, "");
+	} else {
+		context->logDVar(context, "Reusing string from string pool %d/%d: ",
+				context->stringPool->size, context->stringPoolTimes);
+		context->logDStr(context, ret);
+		context->logDVarLn(context, "");
+#endif
+	}
+	return ret;
+}
+
 fy_str *fy_vmCreateStringByPoolVA(fy_context *context, fy_strVA *va,
 		fy_exception *exception) {
 	fy_str *ret;
 	ret = fy_hashMapGetVA(context->memblocks, context->stringPool, va);
+#ifdef FY_DEBUG
+	context->stringPoolTimes++;
+#endif
 	if (ret == NULL) {
 		ret = fy_strCreatePermPersistVA(context->memblocks, va, exception);
 		FYEH()NULL;
 		fy_hashMapPut(context->memblocks, context->stringPool, ret, ret,
 				exception);
 		FYEH()NULL;
+#if 0
+		context->logDVar(context, "Added string to string pool %d/%d: ",
+				context->stringPool->size, context->stringPoolTimes);
+		context->logDStr(context, ret);
+		context->logDVarLn(context, "");
+	} else {
+		context->logDVar(context, "Reusing string from string pool %d/%d: ",
+				context->stringPool->size, context->stringPoolTimes);
+		context->logDStr(context, ret);
+		context->logDVarLn(context, "");
+#endif
 	}
 	return ret;
 }

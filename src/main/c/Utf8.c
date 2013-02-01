@@ -48,12 +48,12 @@ fy_uint fy_utf8SizeS(const char *str, fy_int length) {
 	if (length < 0) {
 		while ((c = str[i]) != 0) {
 			i += fy_utf8SizeU(c);
-			ret += 2;
+			ret += 1;
 		}
 	} else {
 		while (i < length) {
 			i += fy_utf8SizeU(str[i]);
-			ret += 2;
+			ret += 1;
 		}
 	}
 

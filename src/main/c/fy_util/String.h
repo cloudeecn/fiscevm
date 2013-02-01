@@ -121,6 +121,8 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA *va,
 		fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
 		fy_exception *exception, const char *pattern, ...);
+FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistClone(fy_memblock *mem,
+		fy_str *from, fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,
 		fy_str *from, int begin, int end, fy_exception *exception);
 

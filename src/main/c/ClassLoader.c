@@ -471,39 +471,54 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 		fy_int begin, fy_int end, fy_exception *exception) {
 	fy_char ch;
 	fy_class *clazz;
-	fy_str *tmp;
-	fy_str className[1];
+	fy_str tmp[1];
+	fy_str *finalName;
+	fy_int i, max;
 	if (begin <= 0) {
 		fy_fault(exception, NULL, "Bad descriptor");
 		FYEH()0;
 	}
 	if (end == 0) {
 		//Pri
-
-		tmp = context->primitives[fy_strGet(desc,begin)];
-		className->length = tmp->length;
-		className->maxLength = tmp->maxLength;
-		className->hashCode = tmp->hashCode;
-		className->status = tmp->status;
-		className->content = tmp->content;
+		finalName = context->primitives[fy_strGet(desc,begin)];
 	} else {
 		//Class or Array
 		ch = fy_strGet(desc,begin);
 		if (ch == 'L') {
-			className->maxLength = className->length = end - begin - 2;
-			className->status &= ~FY_STR_HASHED;
-			className->content = desc->content + begin + 1;
+			tmp->maxLength = tmp->length = end - begin - 2;
+			tmp->status = 0;
+			tmp->content = desc->content + begin + 1;
+			finalName = fy_hashMapGet(context->memblocks, context->stringPool,
+					tmp);
+			if (finalName == NULL) {
+				/*persist and put to string pool*/
+				finalName = fy_strCreatePermPersistSubstring(context->memblocks,
+						desc, begin + 1, end - 1, exception);
+				FYEH()NULL;
+				finalName = fy_vmCreateStringByPool(context, finalName,
+						exception);
+			}
 		} else if (ch == '[') {
-			className->maxLength = className->length = end - begin;
-			className->status &= ~FY_STR_HASHED;
-			className->content = desc->content + begin;
+			tmp->maxLength = tmp->length = end - begin;
+			tmp->status = 0;
+			tmp->content = desc->content + begin;
+			finalName = fy_hashMapGet(context->memblocks, context->stringPool,
+					tmp);
+			if (finalName == NULL) {
+				/*persist and put to string pool*/
+				finalName = fy_strCreatePermPersistSubstring(context->memblocks,
+						desc, begin, end, exception);
+				FYEH()NULL;
+				finalName = fy_vmCreateStringByPool(context, finalName,
+						exception);
+			}
 		}
 	}
 #if 0
-	context->logDStr(context,className);
-	context->logDVar(context,"\n");
+	context->logDStr(context, finalName);
+	context->logDVar(context, "\n");
 #endif
-	clazz = fy_vmLookupClass(context, className, exception);
+	clazz = fy_vmLookupClass(context, finalName, exception);
 	FYEH()0;
 	if (clazz == NULL) {
 		fy_fault(exception, NULL, "Bad descriptor");
@@ -525,7 +540,12 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	fy_boolean begin = FALSE;
 	fy_arrayList tmpList[1];
 	char msg[256];
-	temp = /*TEMP*/fy_allocate(desc->length * sizeof(temp), exception);
+
+#if 0
+	context->logDStr(context, desc);
+	context->logDVarLn(context, " counting Params");
+#endif
+	temp = /*TEMP*/fy_allocate(desc->length * sizeof(fy_byte), exception);
 	FYEH();
 	fy_arrayListInit(context->memblocks, tmpList, sizeof(fy_class*), 16,
 			exception);
@@ -1221,6 +1241,11 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
 		clazz->className = fy_vmCreateStringByPool(context, name, exception);/*fy_strCreatePermFromClone(block, name, 0, exception);*/
 		FYEH()NULL;
+#if 0
+		if (clazz->className->content == NULL) {
+			fy_fault(NULL, NULL, "!!!!!");
+		}
+#endif
 		clazz->ci.arr.arrayType = getSizeShiftForArray(name, exception);
 		FYEH()NULL;
 		switch (fy_strGet(clazz->className,1)) {

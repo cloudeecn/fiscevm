@@ -896,9 +896,11 @@ fy_int fy_heapGetReferent(fy_context *context, fy_int reference) {
 
 static void markObjectInitialUsing(fy_context *context, fy_arrayList *from,
 		fy_uint handle, fy_exception *exception) {
+#if 0
 	if(handle==3395){
 		handle=3395;
 	}
+#endif
 	if (handle != 0) {
 		fy_arrayListAdd(context->memblocks, from, &handle, exception);
 	}
