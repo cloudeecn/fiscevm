@@ -433,7 +433,7 @@ static void initStructClassloader(fy_context *context, fy_exception *exception) 
 	fy_hashMapInitPerm(block, context->customClassData, 128, exception);
 	FYEH();
 
-	fy_hashMapIInit(block, context->references, 128, 13, 0, exception);
+	fy_hashMapIInit(block, context->references, 7, 13, 0, exception);
 	FYEH();
 }
 
