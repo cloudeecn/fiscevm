@@ -74,6 +74,7 @@
 							<vars>
 								<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
 								<ENABLE_TEST>ON</ENABLE_TEST>
+								<ENABLE_LIBS>OFF</ENABLE_LIBS>
 							</vars>
 						</configuration>
 					</execution>
