@@ -4,6 +4,19 @@
 #include "fiscestu.h"
 #include "fiscedev.h"
 
+static jclass messageClass = NULL;
+
+static jfieldID messageTypeField;
+static jfieldID threadIdField;
+static jfieldID nativeUniqueNameField;
+static jfieldID exceptionNameField;
+static jfieldID exceptionDescField;
+static jfieldID sleepTimeField;
+static jclass fisceService;
+static jmethodID logD, logI, logW, logE;
+static jclass inputStream;
+static jmethodID read0, read1, close;
+
 typedef struct fy_contextData {
 	JNIEnv *env;
 	jobject buf;
@@ -44,22 +57,14 @@ static void fillException(JNIEnv *env, fy_exception *exception) {
 
 #define CHECK_JNI_EXCEPTION if((*env)->ExceptionOccurred(env)) return
 
-static void sendLog(struct fy_context *context, const char* target,
+static void sendLog(struct fy_context *context, jmethodID method,
 		const char* msg) {
 	fy_contextData *cdata = context->additionalData;
 	JNIEnv *env = cdata->env;
-	jclass clazz;
-	jmethodID method;
 	jstring jmsg;
 
-	(*env)->PushLocalFrame(env, 8);
-	clazz = (*env)->FindClass(env,
-			"com/cirnoworks/libfisce/shell/FisceService");
-	method = (*env)->GetStaticMethodID(env, clazz, target,
-			"(Ljava/lang/String;)V");
 	jmsg = (*env)->NewStringUTF(env, msg);
-	(*env)->CallStaticVoidMethod(env, clazz, method, jmsg);
-	(*env)->PopLocalFrame(env, NULL );
+	(*env)->CallStaticVoidMethod(env, fisceService, method, jmsg);
 }
 
 static void dLogStr(struct fy_context *context, const fy_str *str) {
@@ -77,7 +82,7 @@ static void dLogVar(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logD0", msg);
+	sendLog(context, logD, msg);
 }
 
 static void dLogVarLn(struct fy_context *context, const char *format, ...) {
@@ -87,8 +92,8 @@ static void dLogVarLn(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logD0", msg);
-	sendLog(context, "logD0", "\n");
+	sendLog(context, logD, msg);
+	sendLog(context, logD, "\n");
 }
 
 static void iLogStr(struct fy_context *context, const fy_str *str) {
@@ -96,7 +101,7 @@ static void iLogStr(struct fy_context *context, const fy_str *str) {
 
 	fy_strSPrint(msg, sizeof(msg), str);
 	msg[511] = 0;
-	sendLog(context, "logI0", msg);
+	sendLog(context, logI, msg);
 }
 
 static void iLogVar(struct fy_context *context, const char *format, ...) {
@@ -106,7 +111,7 @@ static void iLogVar(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logI0", msg);
+	sendLog(context, logI, msg);
 }
 
 static void iLogVarLn(struct fy_context *context, const char *format, ...) {
@@ -116,8 +121,8 @@ static void iLogVarLn(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logI0", msg);
-	sendLog(context, "logI0", "\n");
+	sendLog(context, logI, msg);
+	sendLog(context, logI, "\n");
 }
 
 static void wLogStr(struct fy_context *context, const fy_str *str) {
@@ -125,7 +130,7 @@ static void wLogStr(struct fy_context *context, const fy_str *str) {
 
 	fy_strSPrint(msg, sizeof(msg), str);
 	msg[511] = 0;
-	sendLog(context, "logW0", msg);
+	sendLog(context, logW, msg);
 }
 
 static void wLogVar(struct fy_context *context, const char *format, ...) {
@@ -135,7 +140,7 @@ static void wLogVar(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logW0", msg);
+	sendLog(context, logW, msg);
 }
 
 static void wLogVarLn(struct fy_context *context, const char *format, ...) {
@@ -145,8 +150,8 @@ static void wLogVarLn(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logW0", msg);
-	sendLog(context, "logW0", "\n");
+	sendLog(context, logW, msg);
+	sendLog(context, logW, "\n");
 }
 
 static void eLogStr(struct fy_context *context, const fy_str *str) {
@@ -154,7 +159,7 @@ static void eLogStr(struct fy_context *context, const fy_str *str) {
 
 	fy_strSPrint(msg, sizeof(msg), str);
 	msg[511] = 0;
-	sendLog(context, "logE0", msg);
+	sendLog(context, logE, msg);
 }
 
 static void eLogVar(struct fy_context *context, const char *format, ...) {
@@ -164,7 +169,7 @@ static void eLogVar(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logE0", msg);
+	sendLog(context, logE, msg);
 }
 
 static void eLogVarLn(struct fy_context *context, const char *format, ...) {
@@ -174,8 +179,8 @@ static void eLogVarLn(struct fy_context *context, const char *format, ...) {
 	vsnprintf(msg, sizeof(msg), format, arg_ptr);
 	va_end(arg_ptr);
 	msg[511] = 0;
-	sendLog(context, "logE0", msg);
-	sendLog(context, "logE0", "\n");
+	sendLog(context, logE, msg);
+	sendLog(context, logE, "\n");
 }
 
 static fy_int isRead(fy_context *context, fy_inputStream *is,
@@ -183,24 +188,13 @@ static fy_int isRead(fy_context *context, fy_inputStream *is,
 	fy_contextData *cdata = context->additionalData;
 	JNIEnv *env = cdata->env;
 	jobject jis = is->data;
-	jclass clazz;
 	jint ret;
-	jmethodID method;
 
-	(*env)->PushLocalFrame(env, 32);
-
-	clazz = (*env)->FindClass(env, "java/io/InputStream");
-	method = (*env)->GetMethodID(env, clazz, "read", "()I");
+	ret = (*env)->CallIntMethod(env, jis, read0);
 	if ((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionDescribe(env);
 		return -1;
 	}
-	ret = (*env)->CallIntMethod(env, jis, method);
-	if ((*env)->ExceptionOccurred(env)) {
-		(*env)->ExceptionDescribe(env);
-		return -1;
-	}
-	(*env)->PopLocalFrame(env, NULL );
 	return ret;
 }
 
@@ -211,21 +205,16 @@ static fy_int isReadBlock(fy_context *context, fy_inputStream *is, void *target,
 	jarray byteBuf;
 	jobject jis = is->data;
 	jint ret;
-	jclass clazz;
-	jmethodID method;
 
-	(*env)->PushLocalFrame(env, 32);
-	clazz = (*env)->FindClass(env, "java/io/InputStream");
-	method = (*env)->GetMethodID(env, clazz, "read", "([BII)I");
 	byteBuf = (*env)->NewByteArray(env, size);
-	ret = (*env)->CallIntMethod(env, jis, method, byteBuf, 0, size);
-	if (target != NULL )
+	ret = (*env)->CallIntMethod(env, jis, read1, byteBuf, 0, size);
+	if (target != NULL)
 		(*env)->GetByteArrayRegion(env, byteBuf, 0, ret, target);
 	if ((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionDescribe(env);
 		return -1;
 	}
-	(*env)->PopLocalFrame(env, NULL );
+	(*env)->PopLocalFrame(env, NULL);
 	return ret;
 }
 
@@ -256,12 +245,7 @@ static void isClose(fy_context *context, fy_inputStream *is) {
 	fy_contextData *cdata = context->additionalData;
 	JNIEnv *env = cdata->env;
 	jobject jis = is->data;
-	jclass clazz = (*env)->FindClass(env, "java/io/InputStream");
-	jmethodID method = (*env)->GetMethodID(env, clazz, "close", "()V");
-	if ((*env)->ExceptionOccurred(env)) {
-		(*env)->ExceptionDescribe(env);
-	}
-	(*env)->CallVoidMethod(env, jis, method);
+	(*env)->CallVoidMethod(env, jis, close);
 	(*env)->ExceptionClear(env);
 	(*env)->DeleteGlobalRef(env, jis);
 }
@@ -280,11 +264,11 @@ static fy_inputStream* isOpen(fy_context *context, const char *name,
 	jstring jname = (*env)->NewStringUTF(env, name);
 	if ((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionDescribe(env);
-		return NULL ;
+		return NULL;
 	}
 	is = (*env)->CallStaticObjectMethod(env, clazz, method, buf, jname);
-	if (is == NULL ) {
-		return NULL ;
+	if (is == NULL) {
+		return NULL;
 	} else {
 		ret = fy_mmAllocate(context->memblocks, sizeof(fy_inputStream),
 				exception);
@@ -298,37 +282,111 @@ static fy_inputStream* isOpen(fy_context *context, const char *name,
 	}
 }
 
-static jclass messageClass = NULL;
-
-static jfieldID messageTypeField;
-static jfieldID threadIdField;
-static jfieldID nativeUniqueNameField;
-static jfieldID exceptionNameField;
-static jfieldID exceptionDescField;
-static jfieldID sleepTimeField;
-
 JNIEXPORT
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		JNIEnv *env, jclass self, jobject buf) {
 	INIT_HEADER
 
 	setvbuf(stdout, NULL, _IONBF, 1024);
-	if (messageClass == NULL ) {
-		messageClass = (*env)->FindClass(env,
-				"com/cirnoworks/fisce/intf/idata/Message");
+	if (messageClass == NULL) {
+		messageClass = (*env)->NewGlobalRef(env,
+				(*env)->FindClass(env,
+						"com/cirnoworks/fisce/intf/idata/Message"));
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
 
 		messageTypeField = (*env)->GetFieldID(env, messageClass, "messageType",
 				"I");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
 		threadIdField = (*env)->GetFieldID(env, messageClass, "threadId", "I");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
 
 		nativeUniqueNameField = (*env)->GetFieldID(env, messageClass,
 				"nativeUniqueName", "Ljava/lang/String;");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
 		exceptionNameField = (*env)->GetFieldID(env, messageClass,
 				"exceptionName", "Ljava/lang/String;");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
 		exceptionDescField = (*env)->GetFieldID(env, messageClass,
 				"exceptionDesc", "Ljava/lang/String;");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
 		sleepTimeField = (*env)->GetFieldID(env, messageClass, "sleepTime",
 				"J");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+
+		fisceService = (*env)->NewGlobalRef(env,
+				(*env)->FindClass(env,
+						"com/cirnoworks/libfisce/shell/FisceService"));
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+		logD = (*env)->GetStaticMethodID(env, fisceService, "logD0",
+				"(Ljava/lang/String;)V");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+		logI = (*env)->GetStaticMethodID(env, fisceService, "logI0",
+				"(Ljava/lang/String;)V");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+		logW = (*env)->GetStaticMethodID(env, fisceService, "logW0",
+				"(Ljava/lang/String;)V");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+		logE = (*env)->GetStaticMethodID(env, fisceService, "logE0",
+				"(Ljava/lang/String;)V");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+		inputStream = (*env)->NewGlobalRef(env,
+				(*env)->FindClass(env, "java/io/InputStream"));
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+		read0 = (*env)->GetMethodID(env, inputStream, "read", "()I");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+		read1 = (*env)->GetMethodID(env, inputStream, "read", "([BII)I");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+		close = (*env)->GetMethodID(env, inputStream, "close", "()V");
+
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
 	}
 
 	ex.exceptionType = exception_none;
@@ -392,7 +450,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 	case message_invoke_native: {
 		obj = fy_hashMapGet(context->memblocks, cdata->nativeCache,
 				message->body.call.method->uniqueName);
-		if (obj == NULL ) {
+		if (obj == NULL) {
 			obj = (*env)->NewString(env,
 					message->body.call.method->uniqueName->content,
 					message->body.call.method->uniqueName->length);
@@ -485,7 +543,7 @@ static void jstrToFyStr(JNIEnv *env, jstring str, fy_str *fstr) {
 	fstr->length = len;
 	fstr->maxLength = len;
 	fstr->status &= ~FY_STR_HASHED;
-	fstr->content = (*env)->GetStringChars(env, str, NULL );
+	fstr->content = (*env)->GetStringChars(env, str, NULL);
 }
 
 static void releaseStrJstr(JNIEnv *env, jstring str, fy_str *fstr) {
@@ -552,7 +610,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldByUniqueNam
 	jstrToFyStr(env, name, &str);
 	field = fy_nativeGetField(context, &str);
 	releaseStrJstr(env, name, &str);
-	if (field == NULL ) {
+	if (field == NULL) {
 		return -1;
 	} else {
 		return field->field_id;
@@ -579,7 +637,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_lookupField(
 		fillException(env, exception);
 		return 0;
 	}
-	if (field == NULL ) {
+	if (field == NULL) {
 		return -1;
 	} else {
 		return field->field_id;
@@ -601,7 +659,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getMethodByUniqueNa
 	jstrToFyStr(env, name, &str);
 	method = fy_nativeGetMethod(context, &str);
 	releaseStrJstr(env, name, &str);
-	if (method == NULL ) {
+	if (method == NULL) {
 		return -1;
 	} else {
 		return method->method_id;
@@ -628,7 +686,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_lookupMethod(
 		fillException(env, exception);
 		return 0;
 	}
-	if (method == NULL ) {
+	if (method == NULL) {
 		return -1;
 	} else {
 		return method->method_id;
@@ -662,7 +720,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassSuper(
 	GENERIC_HEADER
 
 	clazz = context->classes[classId]->super;
-	if (clazz == NULL ) {
+	if (clazz == NULL) {
 		return -1;
 	} else {
 		return clazz->classId;
@@ -746,8 +804,8 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getThreadHandle(
 	const char *jcDesc;
 	GENERIC_HEADER
 
-	jcName = (*env)->GetStringUTFChars(env, name, NULL );
-	jcDesc = (*env)->GetStringUTFChars(env, name, NULL );
+	jcName = (*env)->GetStringUTFChars(env, name, NULL);
+	jcDesc = (*env)->GetStringUTFChars(env, name, NULL);
 	toPrepare.exceptionType = exception_normal;
 	strcpy_s(toPrepare.exceptionName, sizeof(toPrepare.exceptionName), jcName);
 	strcpy_s(toPrepare.exceptionDesc, sizeof(toPrepare.exceptionDesc), jcDesc);
@@ -866,13 +924,13 @@ jstring JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getString(
 	fy_strInit(context->memblocks, &str, 32, exception);
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
-		return NULL ;
+		return NULL;
 	}
 	fy_nativeGetString(context, handle, &str, exception);
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
 		fy_strDestroy(context->memblocks, &str);
-		return NULL ;
+		return NULL;
 	}
 	ret = (*env)->NewString(env, str.content, str.length);
 	fy_strDestroy(context->memblocks, &str);
@@ -889,13 +947,13 @@ jcharArray JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getStringChar
 	fy_strInit(context->memblocks, &str, 32, exception);
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
-		return NULL ;
+		return NULL;
 	}
 	fy_nativeGetString(context, handle, &str, exception);
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
 		fy_strDestroy(context->memblocks, &str);
-		return NULL ;
+		return NULL;
 	}
 	ret = (*env)->NewCharArray(env, str.length);
 	(*env)->SetCharArrayRegion(env, ret, 0, str.length, str.content);
@@ -2171,7 +2229,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_setStaticLong(
 	void *value;
 	void *pDst;
 	GENERIC_HEADER
-	if (srcHandle == 0 || dst == NULL ) {
+	if (srcHandle == 0 || dst == NULL) {
 		fy_fault(exception, FY_EXCEPTION_NPT, "");
 		return;
 	}
