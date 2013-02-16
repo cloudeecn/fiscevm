@@ -20,6 +20,7 @@ static jmethodID read0, read1, close;
 typedef struct fy_contextData {
 	JNIEnv *env;
 	jobject buf;
+	jarray bytes;
 	fy_hashMap nativeCache[1];
 } fy_contextData;
 
@@ -72,7 +73,7 @@ static void dLogStr(struct fy_context *context, const fy_str *str) {
 
 	fy_strSPrint(msg, sizeof(msg), str);
 	msg[511] = 0;
-	sendLog(context, "logD0", msg);
+	sendLog(context, logD, msg);
 }
 
 static void dLogVar(struct fy_context *context, const char *format, ...) {
@@ -202,14 +203,18 @@ static fy_int isReadBlock(fy_context *context, fy_inputStream *is, void *target,
 		fy_int size, fy_exception *exception) {
 	fy_contextData *cdata = context->additionalData;
 	JNIEnv *env = cdata->env;
-	jarray byteBuf;
 	jobject jis = is->data;
 	jint ret;
 
-	byteBuf = (*env)->NewByteArray(env, size);
-	ret = (*env)->CallIntMethod(env, jis, read1, byteBuf, 0, size);
+	if ((*env)->GetArrayLength(env, cdata->bytes) < size) {
+		(*env)->DeleteGlobalRef(env, cdata->bytes);
+		cdata->bytes = (*env)->NewGlobalRef(env,
+				(*env)->NewByteArray(env, size));
+	}
+
+	ret = (*env)->CallIntMethod(env, jis, read1, cdata->bytes, 0, size);
 	if (target != NULL)
-		(*env)->GetByteArrayRegion(env, byteBuf, 0, ret, target);
+		(*env)->GetByteArrayRegion(env, cdata->bytes, 0, ret, target);
 	if ((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionDescribe(env);
 		return -1;
@@ -256,14 +261,18 @@ static fy_inputStream* isOpen(fy_context *context, const char *name,
 	jobject buf = cdata->buf;
 	jobject is;
 	JNIEnv *env = cdata->env;
-	jstring jname = (*env)->NewStringUTF(env, name);
+	jstring jname;
+	(*env)->PushLocalFrame(env, 4);
+	jname = (*env)->NewStringUTF(env, name);
 	if ((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionDescribe(env);
+		(*env)->PopLocalFrame(env, NULL);
 		return NULL;
 	}
 	is = (*env)->CallStaticObjectMethod(env, fisceService, getInputStream, buf,
 			jname);
 	if (is == NULL) {
+		(*env)->PopLocalFrame(env, NULL);
 		return NULL;
 	} else {
 		ret = fy_mmAllocate(context->memblocks, sizeof(fy_inputStream),
@@ -274,6 +283,7 @@ static fy_inputStream* isOpen(fy_context *context, const char *name,
 		ret->isRead = isRead;
 		ret->isReadBlock = isReadBlock;
 		ret->isSkip = isSkip;
+		(*env)->PopLocalFrame(env, NULL);
 		return ret;
 	}
 }
@@ -412,6 +422,11 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		fillException(env, exception);
 		return;
 	}
+	cdata->bytes = (*env)->NewGlobalRef(env, (*env)->NewByteArray(env, 4096));
+	if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+		return;
+	}
 	context->additionalData = cdata;
 	context->isOpen = isOpen;
 	context->logDStr = dLogStr;
@@ -520,6 +535,7 @@ static void destroyNativeCache(fy_str *key, void *value, void *addition) {
 
 	fy_hashMapEachValue(context->memblocks, cdata->nativeCache,
 			destroyNativeCache, env);
+	(*env)->DeleteGlobalRef(env, cdata->bytes);
 
 	fisceDestroyContext(context);
 }
