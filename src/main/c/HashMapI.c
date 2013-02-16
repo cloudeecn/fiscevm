@@ -15,6 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "fy_util/HashMapI.h"
+#define FY_MEM_LOG_TO_CONTEXT 0
+#if FY_MEM_LOG_TO_CONTEXT
+# include "fiscestu.h"
+#endif
 
 typedef struct fy_hashMapIEntry {
 	fy_int key;
@@ -30,6 +34,11 @@ static void expandBuckets(fy_memblock *mem, fy_hashMapI *this,
 	int newPos;
 	fy_hashMapIEntry **newEntries;
 	fy_int targetSizeM1 = (1 << targetFact) - 1;
+#if FY_MEM_LOG_TO_CONTEXT
+	fy_context *context = mem->gcContext;
+	context->logDVarLn(context, "HashMapI.expandBuckets %p to %"FY_PRINT32"d",
+			this, targetSizeM1);
+#endif
 	if (targetFact <= this->bucketsFact) {
 		return;
 	} else {
@@ -66,15 +75,82 @@ static void expandBuckets(fy_memblock *mem, fy_hashMapI *this,
 
 }
 
+/*
+ *
+ #if FY_MEM_LOG_TO_CONTEXT
+ context->logDVarLn(context, "...entry is null");
+ #endif
+ return this->nullValue;
+ }
+ do {
+ #if FY_MEM_LOG_TO_CONTEXT
+ context->logDVarLn(context, "...entry == %p", entry);
+ #endif
+ if (entry->key == key) {
+ #if FY_MEM_LOG_TO_CONTEXT
+ context->logDVarLn(context, "...key matched");
+ #endif
+ if (last == NULL) {
+ #if FY_MEM_LOG_TO_CONTEXT
+ context->logDVarLn(context, "...last == NULL, entry == %p",
+ entry);
+ #endif
+ this->buckets[key & this->bucketsSizeM1] = entry->next;
+ } else {
+ #if FY_MEM_LOG_TO_CONTEXT
+ context->logDVarLn(context, "...last == %p, entry == %p", last,
+ entry);
+ #endif
+ last->next = entry->next;
+ }
+ ret = entry->value;
+ if (!this->perm) {
+ fy_mmFree(mem, entry);
+ }
+ this->size--;
+ return ret;
+ }
+ last = entry;
+ #if FY_MEM_LOG_TO_CONTEXT
+ context->logDVarLn(context, "...entry->next=%p", entry->next);
+ #endif
+ */
 static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
 		fy_int key) {
 	fy_hashMapIEntry *entry;
+#if FY_MEM_LOG_TO_CONTEXT
+	fy_context *context = mem->gcContext;
+	if (this == context->references)
+		context->logDVarLn(context,
+				"HashMapI getBucket %p[%"FY_PRINT32"d]@%"FY_PRINT32"d", this,
+				key, key & this->bucketsSizeM1);
+#endif
 	if ((entry = this->buckets[key & this->bucketsSizeM1]) != NULL) {
 		do {
+#if FY_MEM_LOG_TO_CONTEXT
+			if (this == context->references)
+				context->logDVarLn(context,
+						"...entry == %p key == %"FY_PRINT32"d", entry,
+						entry->key);
+#endif
 			if (entry->key == key) {
+#if FY_MEM_LOG_TO_CONTEXT
+				if (this == context->references)
+					context->logDVarLn(context, "...matched", entry,
+							entry->key);
+#endif
 				return entry;
 			}
+#if FY_MEM_LOG_TO_CONTEXT
+			if (this == context->references)
+				context->logDVarLn(context, "...entry->next=%p", entry->next);
+#endif
 		} while ((entry = entry->next) != NULL);
+	} else {
+#if FY_MEM_LOG_TO_CONTEXT
+		if (this == context->references)
+			context->logDVarLn(context, "...entry is null");
+#endif
 	}
 
 	return NULL;
@@ -83,6 +159,10 @@ static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
 FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
 		fy_uint initFact, fy_uint loadFactor, fy_int nullValue,
 		fy_exception *exception) {
+#if FY_MEM_LOG_TO_CONTEXT
+	fy_int i;
+	fy_context *context = mem->gcContext;
+#endif
 	this->perm = FALSE;
 	this->loadFactor = loadFactor;
 	this->bucketsFact = initFact;
@@ -90,11 +170,27 @@ FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
 	this->bucketsSizeM1 = (1 << initFact) - 1;
 	this->buckets = fy_mmAllocate(mem, sizeof(fy_hashMapIEntry*) << initFact,
 			exception);
+#if FY_MEM_LOG_TO_CONTEXT
+	context->logEVarLn(context,
+			"HashMapI.init %p.buckets[%"FY_PRINT32"d bytes] == %p", this,
+			sizeof(fy_hashMapIEntry*) << initFact, this->buckets);
+	for (i = 0; i < (1 << initFact); i++) {
+		if (this->buckets[i] != NULL) {
+			context->logEVarLn(context,
+					"HashMapI.init %p.buckets[%"FY_PRINT32"d] is not NULL",
+					this, i);
+		}
+	}
+#endif
 	this->size = 0;
 }
 
 FY_ATTR_EXPORT void fy_hashMapIInitPerm(fy_memblock *mem, fy_hashMapI *this,
 		fy_uint initFact, fy_int nullValue, fy_exception *exception) {
+#if FY_MEM_LOG_TO_CONTEXT
+	fy_int i;
+	fy_context *context = mem->gcContext;
+#endif
 	this->perm = TRUE;
 	this->bucketsFact = initFact;
 	this->nullValue = nullValue;
@@ -102,14 +198,36 @@ FY_ATTR_EXPORT void fy_hashMapIInitPerm(fy_memblock *mem, fy_hashMapI *this,
 	this->buckets = fy_mmAllocatePerm(mem,
 			sizeof(fy_hashMapIEntry*) << initFact, exception);
 	this->size = 0;
+#if FY_MEM_LOG_TO_CONTEXT
+	/*
+	 context->logEVarLn(context,
+	 "HashMapI.initPerm %p.buckets[%"FY_PRINT32"d bytes] == %p", this,
+	 sizeof(fy_hashMapIEntry*) << initFact, this->buckets);
+	 */
+	for (i = 0; i < (1 << initFact); i++) {
+		if (this->buckets[i] != NULL) {
+			context->logEVarLn(context,
+					"HashMapI.init %p.buckets[%"FY_PRINT32"d] is not NULL",
+					this, i);
+		}
+	}
+#endif
 }
 
 FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
-		int key, int value, fy_exception *exception) {
+		fy_int key, fy_int value, fy_exception *exception) {
 	fy_hashMapIEntry *entry;
 	fy_hashMapIEntry *tmp;
 	int pos;
 	fy_int ret = this->nullValue;
+#if FY_MEM_LOG_TO_CONTEXT
+	fy_context *context = mem->gcContext;
+	if (this == context->references)
+		context->logDVarLn(context,
+				"HashMapI put %p[%"FY_PRINT32"d]@%"FY_PRINT32"d <<< %"FY_PRINT32"d",
+				this, key, key & this->bucketsSizeM1, value);
+#endif
+
 	entry = getBucket(mem, this, key);
 	if (entry == NULL) {
 		if (this->perm) {
@@ -151,29 +269,58 @@ FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
 }
 
 FY_ATTR_EXPORT fy_int fy_hashMapIRemove(fy_memblock *mem, fy_hashMapI *this,
-		int key) {
+		fy_int key) {
 	fy_hashMapIEntry *entry;
 	fy_hashMapIEntry *last = NULL;
 	fy_int ret;
+#if FY_MEM_LOG_TO_CONTEXT
+	fy_context *context = mem->gcContext;
+	context->logDVarLn(context,
+			"HashMapI remove %p->%p[%"FY_PRINT32"d]@%"FY_PRINT32"d", this,
+			this->buckets, key, key & this->bucketsSizeM1);
+#endif
+
 	entry = this->buckets[key & this->bucketsSizeM1];
 	if (entry == NULL) {
+#if FY_MEM_LOG_TO_CONTEXT
+		context->logDVarLn(context, "...entry is null");
+#endif
 		return this->nullValue;
 	}
 	do {
+#if FY_MEM_LOG_TO_CONTEXT
+		context->logDVarLn(context, "...entry == %p", entry);
+		context->logDVarLn(context, "...key == %"FY_PRINT32"d", entry->key);
+		context->logDVarLn(context, "...value == %"FY_PRINT32"d", entry->value);
+#endif
 		if (entry->key == key) {
+#if FY_MEM_LOG_TO_CONTEXT
+			context->logDVarLn(context, "...key matched");
+#endif
 			if (last == NULL) {
+#if FY_MEM_LOG_TO_CONTEXT
+				context->logDVarLn(context, "...last == NULL, entry == %p",
+						entry);
+#endif
 				this->buckets[key & this->bucketsSizeM1] = entry->next;
 			} else {
+#if FY_MEM_LOG_TO_CONTEXT
+				context->logDVarLn(context, "...last == %p, entry == %p", last,
+						entry);
+#endif
 				last->next = entry->next;
 			}
 			ret = entry->value;
-			if (!this->perm){
+			if (!this->perm) {
 				fy_mmFree(mem, entry);
 			}
 			this->size--;
 			return ret;
 		}
 		last = entry;
+#if FY_MEM_LOG_TO_CONTEXT
+		context->logDVarLn(context, "...entry->next=%p", entry->next);
+#endif
 	} while ((entry = entry->next) != NULL);
 	return this->nullValue;
 }
@@ -202,6 +349,11 @@ FY_ATTR_EXPORT void fy_hashMapIEachValue(fy_memblock *mem, fy_hashMapI *map,
 FY_ATTR_EXPORT void fy_hashMapIDestroy(fy_memblock *mem, fy_hashMapI *this) {
 	int i, imax;
 	fy_hashMapIEntry *entry, *tmp;
+#if FY_MEM_LOG_TO_CONTEXT
+	fy_context *context = mem->gcContext;
+	context->logEVarLn(context, "HashMapI.destroy %p.buckets == %p", this,
+			this->buckets);
+#endif
 	for (i = 0, imax = 1 << this->bucketsFact; i < imax; i++) {
 		entry = this->buckets[i];
 		while (entry != NULL) {

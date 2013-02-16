@@ -64,8 +64,10 @@ static void sendLog(struct fy_context *context, jmethodID method,
 	JNIEnv *env = cdata->env;
 	jstring jmsg;
 
+	(*env)->PushLocalFrame(env, 4);
 	jmsg = (*env)->NewStringUTF(env, msg);
 	(*env)->CallStaticVoidMethod(env, fisceService, method, jmsg);
+	(*env)->PopLocalFrame(env, NULL);
 }
 
 static void dLogStr(struct fy_context *context, const fy_str *str) {

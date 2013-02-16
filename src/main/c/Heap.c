@@ -897,7 +897,7 @@ fy_int fy_heapGetReferent(fy_context *context, fy_int reference) {
 static void markObjectInitialUsing(fy_context *context, fy_arrayList *from,
 		fy_uint handle, fy_exception *exception) {
 #if 0
-	if(handle==3395){
+	if(handle==3395) {
 		handle=3395;
 	}
 #endif
@@ -943,6 +943,9 @@ static void clearAndEnqueue(fy_context *context, fy_int reference,
 	fy_arrayListAdd(context->memblocks, context->toEnqueue, &reference,
 			exception);
 	FYEH();
+#if 0
+	context->logDVarLn(context, "Clear and enqueue: %"FY_PRINT32"d", reference);
+#endif
 	fy_hashMapIRemove(context->memblocks, context->references, reference);
 }
 
@@ -1216,6 +1219,9 @@ static void release(fy_context *context, fy_uint handle) {
 	if (object->object_data->position == old) {
 		block->oldReleasedSize += getSizeFromObject(context, object) + 1;
 	}
+#if 0
+	context->logDVarLn(context, "Ref release: %"FY_PRINT32"d", handle);
+#endif
 	fy_hashMapIRemove(context->memblocks, context->references, handle);
 	memset(object->object_data, 0, sizeof(fy_object_data));
 	object->object_data = NULL;
@@ -1342,9 +1348,9 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	fy_class *clazz;
 	fy_arrayList from;
 	/*
-	fy_uint handle;
-	fy_int j;
-	*/
+	 fy_uint handle;
+	 fy_int j;
+	 */
 	fy_int i;
 	fy_context *context = ctx;
 	fy_memblock *block = context->memblocks;

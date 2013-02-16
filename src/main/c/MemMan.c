@@ -64,7 +64,7 @@ FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size,
 FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address) {
 
 	fy_memblockNode *base = (fy_memblockNode *) ((fy_byte*) address
-			- (int) ((fy_memblockNode*) 0)->data);
+			- (size_t) ((fy_memblockNode*) 0)->data);
 #ifdef FY_DEBUG
 	block->size -= base->size;
 #endif
@@ -89,6 +89,7 @@ void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
 		fy_fault(exception, NULL, "Out of memory: perm");
 		FYEH()NULL;
 	}
+	/*memset(block->old + (block->oldTop -= blocks), 0, size);*/
 	return block->old + (block->oldTop -= blocks);
 }
 

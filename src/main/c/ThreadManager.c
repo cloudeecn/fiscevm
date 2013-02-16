@@ -495,6 +495,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 #endif
 						now = fy_portTimeMillSec(context->port);
 						sleepTime = context->nextWakeUpTimeTotal - now;
+#if 0 /*GC on time out*/
 						if ((sleepTime > 10 && now > context->nextGCTime)
 								|| now > context->nextForceGCTime) {
 							context->nextGCTime = now + FY_GC_IDV;
@@ -506,6 +507,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 							now = fy_portTimeMillSec(context->port);
 							sleepTime = context->nextWakeUpTimeTotal - now;
 						}
+#endif
 						context->nextWakeUpTimeTotal = 0x7fffffffffffffffLL;
 						context->runningThreadPos = 0;
 						context->run = FALSE;
