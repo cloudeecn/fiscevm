@@ -13,7 +13,7 @@ static jfieldID exceptionNameField;
 static jfieldID exceptionDescField;
 static jfieldID sleepTimeField;
 static jclass fisceService;
-static jmethodID logD, logI, logW, logE;
+static jmethodID logD, logI, logW, logE, getInputStream;
 static jclass inputStream;
 static jmethodID read0, read1, close;
 
@@ -214,7 +214,6 @@ static fy_int isReadBlock(fy_context *context, fy_inputStream *is, void *target,
 		(*env)->ExceptionDescribe(env);
 		return -1;
 	}
-	(*env)->PopLocalFrame(env, NULL);
 	return ret;
 }
 
@@ -257,16 +256,13 @@ static fy_inputStream* isOpen(fy_context *context, const char *name,
 	jobject buf = cdata->buf;
 	jobject is;
 	JNIEnv *env = cdata->env;
-	jclass clazz = (*env)->FindClass(env,
-			"com/cirnoworks/libfisce/shell/FisceService");
-	jmethodID method = (*env)->GetStaticMethodID(env, clazz, "getInputStream",
-			"(Ljava/nio/ByteBuffer;Ljava/lang/String;)Ljava/io/InputStream;");
 	jstring jname = (*env)->NewStringUTF(env, name);
 	if ((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionDescribe(env);
 		return NULL;
 	}
-	is = (*env)->CallStaticObjectMethod(env, clazz, method, buf, jname);
+	is = (*env)->CallStaticObjectMethod(env, fisceService, getInputStream, buf,
+			jname);
 	if (is == NULL) {
 		return NULL;
 	} else {
@@ -365,6 +361,15 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 			(*env)->ExceptionDescribe(env);
 			return;
 		}
+
+		getInputStream =
+				(*env)->GetStaticMethodID(env, fisceService, "getInputStream",
+						"(Ljava/nio/ByteBuffer;Ljava/lang/String;)Ljava/io/InputStream;");
+		if ((*env)->ExceptionOccurred(env)) {
+			(*env)->ExceptionDescribe(env);
+			return;
+		}
+
 		inputStream = (*env)->NewGlobalRef(env,
 				(*env)->FindClass(env, "java/io/InputStream"));
 		if ((*env)->ExceptionOccurred(env)) {
