@@ -212,12 +212,12 @@ public class FYContext implements Runnable, FiScEVM {
 	}
 
 	public void registerNativeHandler(INativeHandler inh) {
-//		if (handlers.containsKey(inh.getUniqueName())) {
-//			throw new VMCriticalException("Dupcated native handler "
-//					+ inh.getUniqueName());
-//		} else {
-			handlers.put(inh.getUniqueName(), inh);
-//		}
+		// if (handlers.containsKey(inh.getUniqueName())) {
+		// throw new VMCriticalException("Dupcated native handler "
+		// + inh.getUniqueName());
+		// } else {
+		handlers.put(inh.getUniqueName(), inh);
+		// }
 	}
 
 	public IHeap getHeap() {
@@ -352,15 +352,7 @@ public class FYContext implements Runnable, FiScEVM {
 			onException(e);
 		} finally {
 			runningCurrent.set(false);
-			onDead();
-		}
-	}
-
-	public void onDead() {
-		System.out.println("over");
-		FisceService.destroyContext(this);
-		for (IStateListener listener : stateListeners) {
-			listener.onVMDead();
+			close();
 		}
 	}
 
@@ -423,6 +415,15 @@ public class FYContext implements Runnable, FiScEVM {
 	@Override
 	public void unregisterNativeHandler(String string) {
 		FisceService.unregisterNativeHandler(context, string);
+	}
+
+	@Override
+	public void close() {
+		System.out.println("over");
+		FisceService.destroyContext(this);
+		for (IStateListener listener : stateListeners) {
+			listener.onVMDead();
+		}
 	}
 
 }

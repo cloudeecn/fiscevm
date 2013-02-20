@@ -16,6 +16,7 @@
  */
 package com.cirnoworks.fisce.intf;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,7 +36,7 @@ import com.cirnoworks.fisce.intf.idata.Message;
  * @author Cloudee
  * 
  */
-public interface FiScEVM {
+public interface FiScEVM extends Closeable {
 
 	Element getSaveData(InputStream is) throws VMCriticalException;
 
@@ -221,4 +222,5 @@ public interface FiScEVM {
 	void logE(String msg, Throwable t);
 
 	void unregisterNativeHandler(String string);
+
 }

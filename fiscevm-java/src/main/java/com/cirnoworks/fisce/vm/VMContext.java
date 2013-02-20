@@ -781,4 +781,9 @@ public class VMContext implements FiScEVM {
 		
 	}
 
+	@Override
+	public void close() throws IOException {
+		// All resources are managed, no close needed
+	}
+
 }
