@@ -287,7 +287,7 @@ fy_int fy_heapLiteral(fy_context *context, fy_str *str, fy_exception *exception)
 		FYEH()0;
 		*pInt = fy_heapMakeString(context, str, exception);
 		if (exception->exceptionType != exception_none) {
-			fy_mmFree(block, pInt);
+			/*fy_mmFree(block, pInt);*/
 			return 0;
 		}
 		fy_hashMapPut(block, context->literals, str, pInt, exception);
