@@ -212,12 +212,14 @@ public class FYContext implements Runnable, FiScEVM {
 	}
 
 	public void registerNativeHandler(INativeHandler inh) {
-		// if (handlers.containsKey(inh.getUniqueName())) {
-		// throw new VMCriticalException("Dupcated native handler "
-		// + inh.getUniqueName());
-		// } else {
-		handlers.put(inh.getUniqueName(), inh);
-		// }
+		if (handlers.containsKey(inh.getUniqueName())) {
+			throw new VMCriticalException(
+					"Dupcated native handler for "
+							+ inh.getUniqueName()
+							+ ". If you really want to register this, unregister first.");
+		} else {
+			handlers.put(inh.getUniqueName(), inh);
+		}
 	}
 
 	public IHeap getHeap() {
