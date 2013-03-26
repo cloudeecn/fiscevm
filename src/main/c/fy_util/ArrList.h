@@ -44,7 +44,7 @@ FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list,
 		void *data, fy_exception *exception);
 
 FY_ATTR_EXPORT void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list,
-		fy_uint pos, void *storage);
+		fy_int pos, void *storage);
 
 FY_ATTR_EXPORT void *fy_arrayListPop(fy_memblock *block, fy_arrayList *list,
 		void *storage);

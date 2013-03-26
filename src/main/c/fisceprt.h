@@ -120,6 +120,8 @@ typedef struct fy_port {
 #   endif
 #  endif
 # endif
+#elif defined(EMSCRIPTEN)
+# define FY_ATTR_EXPORT
 #elif defined(__GNUC__)
 # if defined(FY_EXPORT)
 #  define FY_ATTR_EXPORT __attribute__((externally_visible))
@@ -135,19 +137,25 @@ typedef struct fy_port {
 #else
 # define FY_ATTR_RESTRICT
 #endif
-#if defined(_C99) || defined(__GNUC__)
+
+#if !defined(EMSCRIPTEN) && (defined(_C99) || defined(__GNUC__))
 # define FY_LATE_DECLARATION
 #endif
-#if defined(_C99)
+
+#if defined(EMSCRIPTEN)
+# define FY_VLS(TYPE,X) TYPE X[1]
+#elif defined(_C99)
 # define FY_VLS(TYPE,X) TYPE X[]
 #elif defined(__GNUC__)
 # define FY_VLS(TYPE,X) TYPE X[0]
 #else
 # define FY_VLS(TYPE,X) TYPE X[1]
 #endif
+
 #if 1
 #define FY_GOTO
 #endif
+
 #if 1
 #define FY_FASTCALL __fastcall
 #else

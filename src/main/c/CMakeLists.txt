@@ -50,21 +50,35 @@ include_directories("${PROJECT_BINARY_DIR}")
 option (ENABLE_VERBOSE "Verbose output" OFF)
 option (ENABLE_TEST "Generate test binary" OFF)
 option (ENABLE_LIBS "Generate libraries" ON)
-
+option (ENABLE_32 "Enable 32bit" ON)
+option (ENABLE_64 "Enable 64bit" ON)
+option (ENABLE_JNI "Enable fyjni build" ON)
+if(EMSCRIPTEN)
+    message("Using emscripten default configure...")
+    set(ENABLE_32 ON)
+    set(ENABLE_64 OFF)
+    set(ENABLE_JNI OFF)
+    set(HAS_M32 ON)
+    set(HAS_MATH OFF)
+    set(HAS_WIN32 OFF)
+    set(HAS_LTO ON)
+else(EMSCRIPTEN)
 if(ANDROID)
     set(HAS_MATH ON)
     set(HAS_LTO ON)
 else(ANDROID)
+    if(ENABLE_32)
     try_compile(HAS_M32 ${PROJECT_BINARY_DIR}/detectors/params32 ${PROJECT_SOURCE_DIR}/detectors/params
     	params-test
     	CMAKE_FLAGS "-DTEST_PARAM=-m32"
     )
-    
+    endif(ENABLE_32)
+    if(ENABLE_64)
     try_compile(HAS_M64 ${PROJECT_BINARY_DIR}/detectors/params64 ${PROJECT_SOURCE_DIR}/detectors/params
     	params-test
     	CMAKE_FLAGS "-DTEST_PARAM=-m64"
     )
-    
+    endif(ENABLE_64)
     try_compile(HAS_MATH ${PROJECT_BINARY_DIR}/detectors/paramsm ${PROJECT_SOURCE_DIR}/detectors/params
         params-test
         CMAKE_FLAGS "-DTEST_PARAM=-lm"
@@ -78,8 +92,8 @@ else(ANDROID)
     try_compile(HAS_WIN32 ${PROJECT_BINARY_DIR}/detectors/win32 ${PROJECT_SOURCE_DIR}/detectors/win32
         win32-test
     )
-
-endif(ANDROID)
+    endif(ANDROID)
+endif(EMSCRIPTEN)
 
 if(HAS_LTO)
     message("Link time optimization supported")
@@ -128,30 +142,38 @@ if(ENABLE_LIBS)
     if(NOT (HAS_M32 OR HAS_M64))
         message("Will generate default binary")
         ADD_LIBRARY(fisce MODULE ${SRC_LIST_LIB})
-        ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
         if(HAS_MATH)
-    	    TARGET_LINK_LIBRARIES(fisce m)
-	        TARGET_LINK_LIBRARIES(fyjni m)
+            TARGET_LINK_LIBRARIES(fisce m)
         endif(HAS_MATH)
-        set_property(TARGET fisce fyjni
-        	APPEND PROPERTY
-    		    COMPILE_DEFINITIONS FY_EXPORT
+        set_property(TARGET fisce
+            APPEND PROPERTY
+                COMPILE_DEFINITIONS FY_EXPORT
         )
-        set_target_properties(fyjni
-            PROPERTIES
-		        LINK_FLAGS "${W32_ADD_FLAGS} -Wl,--no-undefined"
-        )
+        
+        if(ENABLE_JNI)
+            message("Will generate default binary with jni")
+            ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+            if(HAS_MATH)
+                TARGET_LINK_LIBRARIES(fyjni m)
+            endif(HAS_MATH)
+            set_property(TARGET fyjni
+                APPEND PROPERTY
+                    COMPILE_DEFINITIONS FY_EXPORT
+            )
+            set_target_properties(fyjni
+                PROPERTIES
+                   LINK_FLAGS "${W32_ADD_FLAGS} -Wl,--no-undefined"
+            )
+        endif(ENABLE_JNI)
     endif(NOT (HAS_M32 OR HAS_M64))
     
     if(HAS_M32)
         message("Will generate 32bit binary")
         ADD_LIBRARY(fisce MODULE ${SRC_LIST_LIB})
-        ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
-        if(HAS_MATH)
+         if(HAS_MATH)
     	    TARGET_LINK_LIBRARIES(fisce m)
-	        TARGET_LINK_LIBRARIES(fyjni m)
         endif(HAS_MATH)
-        set_property(TARGET fisce fyjni
+        set_property(TARGET fisce
         	APPEND PROPERTY
     		    COMPILE_DEFINITIONS FY_EXPORT
         )
@@ -160,22 +182,32 @@ if(ENABLE_LIBS)
     		    COMPILE_FLAGS "-m32"
 		        LINK_FLAGS "-m32 -Wl,--no-undefined"
         )
-        set_target_properties(fyjni
-            PROPERTIES
-		        COMPILE_FLAGS "-m32"
-		        LINK_FLAGS "-m32 ${W32_ADD_FLAGS} -Wl,--no-undefined"
-        )
+        
+        if(ENABLE_JNI)
+            message("Will generate 32bit binary with jni")
+            ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+            if(HAS_MATH)
+	            TARGET_LINK_LIBRARIES(fyjni m)
+            endif(HAS_MATH)
+            set_property(TARGET fyjni
+            	APPEND PROPERTY
+    		        COMPILE_DEFINITIONS FY_EXPORT
+            )
+            set_target_properties(fyjni
+                PROPERTIES
+		            COMPILE_FLAGS "-m32"
+		            LINK_FLAGS "-m32 ${W32_ADD_FLAGS} -Wl,--no-undefined"
+            )
+        endif(ENABLE_JNI)
     endif(HAS_M32)
     
     if(HAS_M64)
         message("Will generate 64bit binary")
         ADD_LIBRARY(fisce64 MODULE ${SRC_LIST_LIB})
-        ADD_LIBRARY(fyjni64 MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
         if(HAS_MATH)
     	    TARGET_LINK_LIBRARIES(fisce64 m)
-	        TARGET_LINK_LIBRARIES(fyjni64 m)
         endif(HAS_MATH)
-        set_property(TARGET fisce64 fyjni64
+        set_property(TARGET fisce64
         	APPEND PROPERTY
     		    COMPILE_DEFINITIONS FY_EXPORT
         )
@@ -184,10 +216,22 @@ if(ENABLE_LIBS)
     		    COMPILE_FLAGS "-m64"
 		        LINK_FLAGS "-m64 -Wl,--no-undefined"
         )
-        set_target_properties(fyjni64
-            PROPERTIES
-		        COMPILE_FLAGS "-m64"
-		        LINK_FLAGS "-m64 ${W32_ADD_FLAGS} -Wl,--no-undefined"
-        )
+        
+        if(ENABLE_JNI)
+            message("Will generate 64brit binary with jni")
+            ADD_LIBRARY(fyjni64 MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+            if(HAS_MATH)
+    	        TARGET_LINK_LIBRARIES(fyjni64 m)
+            endif(HAS_MATH)
+            set_property(TARGET fyjni64
+            	APPEND PROPERTY
+    		        COMPILE_DEFINITIONS FY_EXPORT
+            )
+            set_target_properties(fyjni64
+                PROPERTIES
+		            COMPILE_FLAGS "-m64"
+		            LINK_FLAGS "-m64 ${W32_ADD_FLAGS} -Wl,--no-undefined"
+            )
+        endif(ENABLE_JNI)
     endif(HAS_M64)
 endif(ENABLE_LIBS)

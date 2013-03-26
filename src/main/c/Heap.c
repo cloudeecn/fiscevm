@@ -418,7 +418,7 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 #ifdef FY_DEBUG
 static fy_boolean validate(fy_context *context, fy_int handle, fy_field *field) {
 	fy_class *handleClass =
-			fy_heapGetObject(context, handle)->object_data->clazz;
+	fy_heapGetObject(context, handle)->object_data->clazz;
 	fy_class *fieldClass = field->owner;
 	return fy_classCanCastTo(context, handleClass, fieldClass, TRUE);
 }
@@ -1116,6 +1116,14 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 	fy_char fieldType;
 #endif
 
+#ifdef FY_GC_DEBUG
+	for (i = 0; i < from->length; i++) {
+		fy_arrayListGet(context->memblocks, from, i, &handle);
+	}
+	context->logDVar(context, "#Scanref root=%"FY_PRINT32"d", handle);
+	i = 0;
+	handle = 0;
+#endif
 	while (fy_arrayListPop(context->memblocks, from, &handle)) {
 #ifdef FY_LATE_DECLARATION
 		fy_class *clazz;
@@ -1148,6 +1156,11 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 						/*
 						 markObjectUsing(context, marks, handle2);
 						 */
+#ifdef FY_GC_DEBUG
+						context->logDVar(context,
+								"#Scanref add(%"FY_PRINT32"d) from (%"FY_PRINT32"d)\n",
+								handle2, handle);
+#endif
 						fy_arrayListAdd(context->memblocks, from, &handle2,
 								exception);
 						FYEH();
@@ -1175,6 +1188,11 @@ static void scanRef(fy_context *context, fy_arrayList *from, fy_uint *marks,
 						/*
 						 markObjectUsing(context, marks, handle2);
 						 */
+#ifdef FY_GC_DEBUG
+						context->logDVar(context,
+								"#Scanref add(%"FY_PRINT32"d) from (%"FY_PRINT32"d)\n",
+								handle2, handle);
+#endif
 						fy_arrayListAdd(context->memblocks, from, &handle2,
 								exception);
 						FYEH();
@@ -1358,6 +1376,9 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	struct gc_data gc_data;
 	fy_long timeStamp;
 	fy_long t1, t2, t3, t4, t5, t6, t7;
+#ifdef FY_GC_DEBUG
+	void *tmpPointer;
+#endif
 	if (block->posInOld + block->posInEden + block->posInYong
 			+ context->totalObjects > block->oldTop) {
 #ifdef FY_DEBUG
@@ -1496,7 +1517,11 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 				}
 			} else {
 #ifdef FY_GC_DEBUG
-				context->logDVarLn(context, "#GC release %d.", i);
+				context->logDVarLn(context, "#GC release %d at (%p)->%p.", i,
+						object, object->object_data);
+				tmpPointer = object->object_data;
+				object->object_data = (void*) 1234567890;
+				object->object_data = tmpPointer;
 #endif
 				release(context, i);
 			}
@@ -1518,7 +1543,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
 					* (fy_int) sizeof(fy_uint)), context->memblocks->size,
 			(OLD_ENTRIES - context->memblocks->oldTop)
-					* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
+			* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
 			fy_portTimeMillSec(context->port) - timeStamp);
 	context->logDVar(context, "%d %d %d %d %d %d %d %d\n", t1 - timeStamp,
 			t2 - t1, t3 - t2, t4 - t3, t5 - t4, t6 - t5, t7 - t6,
@@ -1532,7 +1557,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
 					* (fy_int) sizeof(fy_uint)),
 			(OLD_ENTRIES - context->memblocks->oldTop)
-			* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
+					* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
 			fy_portTimeMillSec(context->port) - timeStamp);
 	context->logDVar(context, "%d %d %d %d %d %d %d %d\n", t1 - timeStamp,
 			t2 - t1, t3 - t2, t4 - t3, t5 - t4, t6 - t5, t7 - t6,

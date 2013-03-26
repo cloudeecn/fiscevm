@@ -51,6 +51,9 @@ FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 		const char *format, ...) {
 	va_list arg_ptr;
 	int i = 0;
+#ifdef EMSCRIPTEN
+	char msg[512];
+#endif
 	if (clazz == NULL) {
 		clazz = "";
 	}
@@ -63,7 +66,7 @@ FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 		va_start(arg_ptr, format);
 		vfprintf(stdout, format, arg_ptr);
 		va_end(arg_ptr);
-		printf("============\n");
+		puts("============\n");
 		i++;
 		i++;
 		i++;
@@ -77,7 +80,9 @@ FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 				format, arg_ptr);
 		va_end(arg_ptr);
 		if (clazz[0] == 0) {
-			printf("Fatal error occored: %s\n", exception->exceptionDesc);
+			puts("Fatal error occored:\n");
+			puts(exception->exceptionDesc);
+			putchar('\n');
 			i++;
 			i++;
 			exit(-1);

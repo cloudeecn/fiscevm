@@ -84,7 +84,7 @@ FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list,
 	list->length--;
 }
 
-static void* get(fy_arrayList *list, fy_uint pos, void *storage) {
+static void* get(fy_arrayList *list, fy_int pos, void *storage) {
 	void *ret = (fy_byte*) list->data + pos * list->entrySize;
 	if (storage != NULL) {
 		memcpy(storage, ret, list->entrySize);
@@ -94,7 +94,7 @@ static void* get(fy_arrayList *list, fy_uint pos, void *storage) {
 }
 
 FY_ATTR_EXPORT void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list,
-		fy_uint pos, void *storage) {
+		fy_int pos, void *storage) {
 	if (pos < 0 || pos >= list->length) {
 		return NULL;
 	}

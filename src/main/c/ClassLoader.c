@@ -473,7 +473,6 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 	fy_class *clazz;
 	fy_str tmp[1];
 	fy_str *finalName;
-	fy_int i, max;
 	if (begin <= 0) {
 		fy_fault(exception, NULL, "Bad descriptor");
 		FYEH()0;
@@ -512,6 +511,9 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 				finalName = fy_vmCreateStringByPool(context, finalName,
 						exception);
 			}
+		} else {
+			fy_fault(NULL, NULL, "Illegal status in class loader");
+			finalName = NULL;
 		}
 	}
 #if 0

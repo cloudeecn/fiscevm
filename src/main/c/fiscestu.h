@@ -666,6 +666,7 @@ typedef struct fy_context {
 	fy_uint nextHandle;
 	fy_uint totalObjects;
 	fy_object objects[MAX_OBJECTS];
+	fy_int END_MARK[1];
 /* #END HEAP*/
 
 } fy_context;

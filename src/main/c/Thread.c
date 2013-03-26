@@ -915,7 +915,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 	fy_nh *nh;
 	char msg[256];
 	fy_exception exceptionToPrepare;
-
+	fy_switch_lookup *swlookup = NULL;
 	pstr1 = NULL;
 #endif
 
