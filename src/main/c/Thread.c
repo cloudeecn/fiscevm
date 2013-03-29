@@ -2648,8 +2648,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
-					fy_nh *nh = mvalue->nh;
+					fy_nh *nh;
 #endif
+					nh = mvalue->nh;
 					if (nh == NULL) {
 						nh = fy_hashMapGet(block, context->mapMUNameToNH,
 								mvalue->uniqueName);
