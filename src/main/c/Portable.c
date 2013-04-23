@@ -1,18 +1,20 @@
 /**
- *  Copyright 2010-2011 Yuxuan Huang. All rights reserved.
+ *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This file is part of libfisce.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
+ * libfisce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * libfisce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with libfisce.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "fisceprt.h"
@@ -167,8 +169,9 @@ FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return ((fy_long) tv.tv_sec) * 1000 + ((fy_long) tv.tv_usec) / 1000;
+#else
+#error Unsupported platform
 #endif
-	return 0;
 }
 FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd) {
 #if defined(FY_PRT_WIN32)
@@ -180,6 +183,7 @@ FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return ((fy_long) tv.tv_sec) * 1000000000 + ((fy_long) tv.tv_usec) * 1000;
+#else
+#error Unsupported platform
 #endif
-	return 0;
 }
