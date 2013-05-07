@@ -16,44 +16,49 @@
  */
 package com.cirnoworks.fisce.privat;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ResourceInputStream extends InputStream {
-	private String name;
+public final class ResourceInputStream extends InputStream {
+	private final String name;
 	private int pos;
 
-	public ResourceInputStream(String name) {
+	public ResourceInputStream(String name) throws FileNotFoundException,
+			IOException {
 		if (name == null) {
 			throw new NullPointerException();
 		}
+		bind0(name, 0);
 		this.name = name;
 	}
 
 	@Override
 	public int read() throws IOException {
-		return read0(name, pos++);
+		bind0(name, pos);
+		return read0();
 	}
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		int ret = read0(name, pos, b, off, len);
-		pos += len;
+		bind0(name, pos);
+		int ret = read0(b, off, len);
+		pos += ret;
 		return ret;
 	}
 
 	@Override
 	public void close() throws IOException {
-		close0(name);
+		close0();
 	}
 	
-	public static native boolean check0(String name);
+	private native void bind0(String name, int pos)
+			throws FileNotFoundException, IOException;
 
-	private native int read0(String name, int pos) throws IOException;
+	private native int read0() throws IOException;
 
-	private native int read0(String name, int pos, byte[] b, int off, int len)
-			throws IOException;
+	private native int read0(byte[] b, int off, int len) throws IOException;
 
-	private native void close0(String name) throws IOException;
-	
+	private native void close0() throws IOException;
+
 }

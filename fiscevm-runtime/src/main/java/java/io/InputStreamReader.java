@@ -52,6 +52,12 @@ public class InputStreamReader extends Reader {
 		this.in = in;
 	}
 
+	public InputStreamReader(InputStream in, String o) {
+		super(in);
+		this.in = in;
+
+	}
+	
 	public InputStreamReader(InputStream in, Object o) {
 		super(in);
 		this.in = in;

@@ -349,7 +349,7 @@ public final class FisceService {
 		FYContext jcontext = contextMap.get(context);
 		InputStream is = null;
 		for (IToolkit toolkit : jcontext.getToolkits()) {
-			is = toolkit.getResourceByClassName(name);
+			is = toolkit.getResourceByName(name);
 			if (is != null) {
 				break;
 			}

@@ -36,13 +36,13 @@ public interface IToolkit {
 	void setupContext();
 
 	/**
-	 * 根据类名获得该类的class文件的输入流
+	 * 根据文件名获得输入流
 	 * 
-	 * @param className
-	 *            类名，包名用/隔开（比如java/lang/String）
+	 * @param name
+	 *            文件名
 	 * @return 该类的class文件的输入流
 	 */
-	InputStream getResourceByClassName(String className);
+	InputStream getResourceByName(String name);
 
 	/**
 	 * 保存当前状态

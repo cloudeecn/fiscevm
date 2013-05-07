@@ -17,6 +17,9 @@
 
 package java.lang;
 
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -425,7 +428,7 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 		Class<?> clazz = this;
 		ArrayList<Method> ret = new ArrayList<Method>();
 		do {
-//			System.out.println(clazz.getName());
+			// System.out.println(clazz.getName());
 			for (Method method : clazz.getPrivateDeclaredMethods()) {
 				if ((method.getModifiers() & FiScEVM.ACC_PUBLIC) != 0) {
 					ret.add(method);
@@ -459,9 +462,14 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 	}
 
 	public InputStream getResourceAsStream(String name) {
-		if (ResourceInputStream.check0(name)) {
-			return new ResourceInputStream(name);
-		} else {
+		try {
+			ResourceInputStream ris;
+			ris = new ResourceInputStream(name);
+			return new BufferedInputStream(ris, 4096);
+		} catch (IOException e) {
+			if (!(e instanceof FileNotFoundException)) {
+				e.printStackTrace(FiScEVM.debug);
+			}
 			return null;
 		}
 	}

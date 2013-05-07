@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 
+import com.cirnoworks.fisce.privat.DebugOutOutputStream;
+import com.cirnoworks.fisce.privat.FiScEVM;
 import com.cirnoworks.fisce.privat.SystemInputStream;
 import com.cirnoworks.fisce.privat.SystemOutputStream;
 
@@ -41,10 +43,13 @@ public final class System {
 
 	public static PrintStream err = _err;
 
-	private static final HashMap<String, String> overrideProperties = new HashMap<String, String>();
+	private static final HashMap<String, String> overrideProperties;
 
 	static {
-		System.setProperty("fisce", "true");
+		FiScEVM.debug = new PrintStream(new DebugOutOutputStream());
+		FiScEVM.isFiScE = true;
+		overrideProperties = new HashMap<String, String>();
+		setProperty("fisce", "true");
 	}
 
 	public static void setIn(InputStream in) {

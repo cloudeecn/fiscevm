@@ -3,18 +3,19 @@ package EXCLUDE.fisce.test;
 import com.cirnoworks.fisce.privat.FiScEVM;
 
 public class TestService {
-	public static boolean nativeFail = true;
+	public static native void fail0(String message);
 
-	public static native void fail(String message);
+	public static void fail(String message) {
+		if (FiScEVM.isFiScE) {
+			fail0(message);
+		} else {
+			System.out.println("Test Failed: " + message);
+		}
+	}
 
 	public static void fail(String message, Throwable e) {
-		if (nativeFail) {
-			e.printStackTrace(FiScEVM.debug);
-			fail(message);
-		} else {
-			e.printStackTrace();
-			System.err.println("Exception occored: " + message);
-		}
+		e.printStackTrace(FiScEVM.debug);
+		fail(message);
 	}
 
 	public static void assertTrue(boolean value) {
@@ -28,11 +29,7 @@ public class TestService {
 			} catch (AssertionError e) {
 				e.printStackTrace(FiScEVM.debug);
 			}
-			if (nativeFail) {
-				fail("Assertion error: " + failMessage);
-			} else {
-				System.err.println("Assertion error: " + failMessage);
-			}
+			fail("Assertion error: " + failMessage);
 		}
 	}
 
@@ -48,5 +45,18 @@ public class TestService {
 						+ actual + "]");
 			}
 		}
+	}
+
+	public static boolean equalsArray(byte[] array1, byte[] array2) {
+		int len;
+		if ((len = array1.length) == array2.length) {
+			for (int i = 0; i < len; i++) {
+				if (array1[i] != array2[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 }

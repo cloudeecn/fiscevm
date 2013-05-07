@@ -27,9 +27,9 @@ public class CFiScEFactory implements VMFactory {
 			public void loadData(Element data) throws VMCriticalException {
 			}
 
-			public InputStream getResourceByClassName(String className) {
+			public InputStream getResourceByName(String className) {
 				return this.getClass().getResourceAsStream(
-						"/fisce_scripts/" + className + ".class");
+						"/fisce_scripts/" + className);
 			}
 		});
 		context.addToolkit(new IToolkit() {
@@ -46,9 +46,9 @@ public class CFiScEFactory implements VMFactory {
 			public void loadData(Element data) throws VMCriticalException {
 			}
 
-			public InputStream getResourceByClassName(String className) {
+			public InputStream getResourceByName(String className) {
 				return this.getClass().getResourceAsStream(
-						"/classes/" + className + ".class");
+						"/classes/" + className);
 			}
 		});
 		context.addToolkit(new IToolkit() {
@@ -65,9 +65,8 @@ public class CFiScEFactory implements VMFactory {
 			public void loadData(Element data) throws VMCriticalException {
 			}
 
-			public InputStream getResourceByClassName(String className) {
-				return this.getClass().getResourceAsStream(
-						"/bin/" + className + ".class");
+			public InputStream getResourceByName(String className) {
+				return this.getClass().getResourceAsStream("/bin/" + className);
 			}
 		});
 		return context;

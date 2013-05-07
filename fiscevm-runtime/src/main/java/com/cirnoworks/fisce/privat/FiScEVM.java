@@ -19,7 +19,7 @@ package com.cirnoworks.fisce.privat;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
-public class FiScEVM {
+public final class FiScEVM {
 	/* Access flags */
 	public static final int ACC_ABSTRACT = 1024;
 	public static final int ACC_FINAL = 16;
@@ -51,10 +51,26 @@ public class FiScEVM {
 
 	private static String defaultEncoding = "utf-8";
 
-	public static PrintStream debug = new PrintStream(
-			new DebugOutOutputStream());
+	private FiScEVM() {
+	}
 
-	public static native void logOut(int level, String str);
+	public static boolean isFiScE;
+
+	public static PrintStream debug;
+	
+	static {
+		System.currentTimeMillis();
+	}
+
+	public static void logOut(int level, String str) {
+		if (isFiScE) {
+			logOut0(level, str);
+		} else {
+			System.out.println("fisce[" + level + "]: " + str);
+		}
+	}
+
+	public static native void logOut0(int level, String str);
 
 	public static void debugOut(String str) {
 		logOut(LOG_DEBUG, str);
@@ -166,7 +182,7 @@ public class FiScEVM {
 			int pos, int count);
 
 	public static Object wide(Object from, Class<?> type) {
-		if(from==null){
+		if (from == null) {
 			return null;
 		}
 		Class<?> argType = from.getClass();
@@ -259,6 +275,6 @@ public class FiScEVM {
 					+ " to" + type);
 		}
 	}
-	
+
 	public static native void breakpoint();
 }

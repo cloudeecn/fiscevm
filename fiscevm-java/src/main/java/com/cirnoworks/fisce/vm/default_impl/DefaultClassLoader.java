@@ -527,7 +527,7 @@ public class DefaultClassLoader implements IClassLoader {
 			ClassBase cb = new ClassBase(context, this);
 			boolean found = false;
 			for (IToolkit cp : context.getToolkits()) {
-				InputStream is = cp.getResourceByClassName(className);
+				InputStream is = cp.getResourceByName(className+".class");
 				if (is != null) {
 					try {
 						cb = loadClassFromStream(cb, is, context);

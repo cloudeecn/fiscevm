@@ -33,7 +33,9 @@ class PSuper {
 public class Profile extends PSuper implements Runnable {
 
 	public static void main(String[] args) {
-		new Thread(new Profile()).start();
+		System.out.println("Start!!");
+		new Profile().run();
+//		new Thread(new Profile()).start();
 	}
 
 	int j;
@@ -87,6 +89,7 @@ public class Profile extends PSuper implements Runnable {
 		final int min = 4;
 
 		for (int u = 0; u < max; u++) {
+			debugOut("Profiling ttStack");
 			long t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -95,6 +98,8 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttStack += t2 - t;
 			}
+
+			debugOut("Profiling ttField");
 			t = System.nanoTime();
 			for (j = 0; j < 50000; j++) {
 				k += j;
@@ -103,6 +108,8 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttField += t2 - t;
 			}
+
+			debugOut("Profiling ttStatic");
 			t = System.nanoTime();
 			for (s = 0; s < 50000; s++) {
 				k += s;
@@ -114,6 +121,7 @@ public class Profile extends PSuper implements Runnable {
 			Intf in = new Impl();
 			Impl im = (Impl) in;
 
+			debugOut("Profiling ttIRootI");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -123,8 +131,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttIRootI += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttIFooI");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				in.fooI();
@@ -133,8 +142,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttIFooI += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttRootS");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				im.rootS();
@@ -143,8 +153,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttRootS += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttRootV");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				im.rootV();
@@ -153,8 +164,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttRootV += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttRootF");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				im.rootF();
@@ -163,8 +175,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttRootF += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttRootI");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				im.rootI();
@@ -173,8 +186,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttRootI += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttFooS");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				Impl.fooS();
@@ -183,8 +197,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttFooS += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttFooF");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				im.fooF();
@@ -193,8 +208,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttFooF += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttFooI");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				im.fooI();
@@ -203,8 +219,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttFooI += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttInh");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				im.inh();
@@ -213,8 +230,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttInh += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttPub");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				pub();
@@ -223,8 +241,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttPub += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttFnl");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				fnl();
@@ -233,8 +252,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttFnl += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttPrv");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				prv();
@@ -243,8 +263,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttPrv += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttProt");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				prot();
@@ -253,8 +274,9 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttProt += t2 - t;
 			}
-			t = System.nanoTime();
 
+			debugOut("Profiling ttPf");
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 				pf();
@@ -315,7 +337,7 @@ public class Profile extends PSuper implements Runnable {
 
 	private void debugOut(String v) {
 		FiScEVM.infoOut(v);
-		// System.out.println(v);
+		System.out.println(v);
 	}
 }
 
