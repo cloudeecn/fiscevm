@@ -422,7 +422,7 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 #ifdef FY_DEBUG
 static fy_boolean validate(fy_context *context, fy_int handle, fy_field *field) {
 	fy_class *handleClass =
-	fy_heapGetObject(context, handle)->object_data->clazz;
+			fy_heapGetObject(context, handle)->object_data->clazz;
 	fy_class *fieldClass = field->owner;
 	return fy_classCanCastTo(context, handleClass, fieldClass, TRUE);
 }
@@ -1547,7 +1547,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
 					* (fy_int) sizeof(fy_uint)), context->memblocks->size,
 			(OLD_ENTRIES - context->memblocks->oldTop)
-			* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
+					* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
 			fy_portTimeMillSec(context->port) - timeStamp);
 	context->logDVar(context, "%d %d %d %d %d %d %d %d\n", t1 - timeStamp,
 			t2 - t1, t3 - t2, t4 - t3, t5 - t4, t6 - t5, t7 - t6,
@@ -1561,7 +1561,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 			(fy_int) ((block->posInEden + block->posInYong + block->posInOld)
 					* (fy_int) sizeof(fy_uint)),
 			(OLD_ENTRIES - context->memblocks->oldTop)
-					* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
+			* (fy_int) sizeof(fy_uint), (fy_int) sizeof(fy_context),
 			fy_portTimeMillSec(context->port) - timeStamp);
 	context->logDVar(context, "%d %d %d %d %d %d %d %d\n", t1 - timeStamp,
 			t2 - t1, t3 - t2, t4 - t3, t5 - t4, t6 - t5, t7 - t6,
