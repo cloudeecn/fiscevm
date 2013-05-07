@@ -135,17 +135,19 @@ fy_uint fy_heapAllocateDirect(fy_context *context, fy_int size, fy_class *clazz,
 			exception);
 }
 
+/**
+ * Allocate object
+ */
 fy_uint fy_heapAllocate(fy_context *context, fy_class *clazz,
 		fy_exception *exception) {
-	fy_int length = clazz->sizeAbs;
-	fy_int size = length;
+	fy_int size = clazz->sizeAbs;
 
 	if (clazz->type != object_class) {
 		fy_fault(exception, NULL, "Cannot instance Array without size");
 		return 0;
 	}
 
-	return allocate(context, size, clazz, length, 0, automatic, exception);
+	return allocate(context, size, clazz, 0, 0, automatic, exception);
 }
 
 void fy_heapBeginProtect(fy_context *context) {
