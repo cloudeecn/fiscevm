@@ -19,8 +19,6 @@
 #ifndef _FY_FISCEPRT_H
 #define _FY_FISCEPRT_H
 
-#include "fiscecon.h"
-
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif

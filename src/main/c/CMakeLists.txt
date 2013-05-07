@@ -59,10 +59,10 @@ SET(SRC_LIST_TEST
 	Test.c
 )
 
-configure_file (
-	"fiscecon.h.in"
-	"${PROJECT_BINARY_DIR}/fiscecon.h"
-)
+#configure_file (
+#	"fiscecon.h.in"
+#	"${PROJECT_BINARY_DIR}/fiscecon.h"
+#)
 
 #include_directories("src/main/inc")
 include_directories("${PROJECT_BINARY_DIR}")

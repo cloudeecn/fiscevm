@@ -20,8 +20,6 @@
 #ifndef DUMMY_THREAD_H_
 #define DUMMY_THREAD_H_
 
-#include "fiscecon.h"
-
 #ifndef HAVE_PTHREAD_H
 typedef int pthread_t;
 typedef int pthread_mutex_t;
