@@ -58,7 +58,7 @@ static fy_int isSkip(struct fy_context *context, fy_inputStream *is,
 	}
 }
 
-static void isClose(struct fy_context *context, fy_inputStream *is) {
+static void isClose(struct fy_context *context, fy_inputStream *is, fy_exception *exception) {
 	fy_mmFree(context->memblocks, is->data);
 }
 

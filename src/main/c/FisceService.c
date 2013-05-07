@@ -266,7 +266,8 @@ static fy_int isSkip(fy_context *context, fy_inputStream *is, fy_int size,
 #endif
 }
 
-static void isClose(fy_context *context, fy_inputStream *is) {
+static void isClose(fy_context *context, fy_inputStream *is,
+		fy_exception *exception) {
 	fy_contextData *cdata = context->additionalData;
 	JNIEnv *env = cdata->env;
 	jobject jis = is->data;

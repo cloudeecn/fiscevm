@@ -244,7 +244,7 @@ static void hltest(char *name) {
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
 	fy_vmRegisterNativeHandler(context,
-			"EXCLUDE/fisce/test/TestService.fail.(L"FY_BASE_STRING";)V", NULL,
+			"EXCLUDE/fisce/test/TestService.fail0.(L"FY_BASE_STRING";)V", NULL,
 			testFail, exception);
 	TEST_EXCEPTION(exception);
 
@@ -370,8 +370,14 @@ void testLookupSwitch() {
 	hltest("EXCLUDE/fisce/test/SwitchTest2");
 }
 
-void testSave() {
+void testSaveLoad() {
 	hltest("EXCLUDE/fisce/test/SaveTest");
+	hltest(NULL);
+}
+
+void testRIS() {
+	hltest("EXCLUDE/fisce/test/RISTest");
+	hltest(NULL);
 }
 
 void testStore() {
@@ -449,7 +455,9 @@ void testCustom(char *customTest) {
 	} else if (strcmp(customTest, "LOAD") == 0) {
 		testLoad();
 	} else if (strcmp(customTest, "SAVE") == 0) {
-		testSave();
+		testSaveLoad();
+	} else if (strcmp(customTest, "RIS") == 0) {
+		testRIS();
 	} else {
 		hltest(customTest);
 	}
@@ -482,10 +490,10 @@ FY_TEST_FUN testcases[] = { //
 				{ "LookupSwitch", testLookupSwitch }, //
 				{ "StoreParamsToArray", testStore }, //
 				{ "Reflection", testReflection }, //
-				// { "BasicRegex", testBasicRegex }, //
+				// { "BasicRegex", testBasicReLoadgex }, //
 				{ "Proxy", testProxy }, //
-				{ "Save", testSave }, //
-				{ "Load", testLoad }, //
+				{ "SaveLoad", testSaveLoad }, //
+				{ "RIS", testRIS }, //
 				{ "Native", testNative }, //
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {

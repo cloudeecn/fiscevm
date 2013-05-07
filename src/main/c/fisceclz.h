@@ -119,6 +119,7 @@
 #define FY_EXCEPTION_VM "java/lang/VirtualMachineError"
 #define FY_EXCEPTION_CAST "java/lang/ClassCastException"
 #define FY_EXCEPTION_IO "java/io/IOException"
+#define FY_EXCEPTION_FNF "java/io/FileNotFoundException"
 #define FY_EXCEPTION_RT "java/lang/RuntimeException"
 #define FY_EXCEPTION_IOOB "java/lang/IndexOutOfBoundsException"
 #define FY_EXCEPTION_AIOOB "java/lang/ArrayIndexOutOfBoundsException"

@@ -32,6 +32,7 @@
 #define MAX_FIELDS 32768
 #define MAX_OBJECTS 65536
 #define MAX_THREADS 32
+#define MAX_STREAMS 16
 
 #define STACK_SIZE 16384
 
@@ -326,7 +327,7 @@ typedef struct fy_object_data {
 		fy_int methodId;
 		fy_int fieldId;
 		fy_int classId;
-
+		fy_int streamId;
 	};
 	fy_uint monitorOwnerId;
 	fy_int monitorOwnerTimes;
@@ -427,15 +428,19 @@ typedef struct fy_inputStream {
 			void *target, fy_int size, fy_exception *exception);
 	fy_int (*isSkip)(struct fy_context *context, struct fy_inputStream *is,
 			fy_int size, fy_exception *exception);
-	void (*isClose)(struct fy_context *context, struct fy_inputStream *is);
+	void (*isClose)(struct fy_context *context, struct fy_inputStream *is,
+			fy_exception *exception);
 } fy_inputStream;
 
 typedef struct fy_context {
 	/*Service Function Table*/
 	/*INPUTSTREAM*/
-	void* (*isOpen)(struct fy_context *context, const char *name,
+	fy_inputStream* (*isOpen)(struct fy_context *context, const char *name,
 			fy_exception *exception);
-	fy_inputStream defaultInputStream[1];
+
+	/*ResourceInputStream*/
+	fy_inputStream* aliveStreams[MAX_STREAMS];
+
 	/*Status Saver*/
 	void (*callForSave)(struct fy_context *context, fy_exception *exception);
 	void* (*saveBegin)(struct fy_context *context, fy_exception *exception);

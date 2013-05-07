@@ -23,6 +23,7 @@
 #include "fyc/NConfig.h"
 #include "fyc/BinarySaver.h"
 #include "fyc/BAIS.h"
+#include "fyc/RIS.h"
 
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
@@ -521,7 +522,11 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_coreRegisterCoreHandlers(context, exception);
 	FYEH();
+
 	fy_coreRegisterMathHandlers(context, exception);
+	FYEH();
+
+	fy_risInit(context,exception);
 	FYEH();
 }
 
@@ -596,6 +601,7 @@ void fy_vmContextDestroy(fy_context *context) {
 		}
 	}
 #endif
+	fy_risDestroy(context);
 	fy_portDestroy(context->port);
 	fy_mmDestroy(context->memblocks);
 }
@@ -904,7 +910,7 @@ void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
 			return;
 		}
 #if 0
-		if(*pCid==76){
+		if(*pCid==76) {
 			int j;
 			j++;
 			j++;

@@ -25,7 +25,7 @@ fy_ubyte fy_dataRead(fy_context *context, fy_inputStream *is,
 	fy_int ret = is->isRead(context, is, exception);
 	FYEH()0;
 	if (ret < 0) {
-		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+		fy_fault(exception, FY_EXCEPTION_IO, "Unexpected end of file");
 		return 0;
 	}
 	return ret;
@@ -40,7 +40,7 @@ fy_char fy_dataRead2(fy_context *context, fy_inputStream *is,
 		value = is->isRead(context, is, exception);
 		FYEH()0;
 		if (value < 0) {
-			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+			fy_fault(exception, FY_EXCEPTION_IO, "Unexpected end of file");
 			return 0;
 		}
 		ret = (ret << 8) + value;
@@ -57,7 +57,7 @@ fy_uint fy_dataRead4(fy_context *context, fy_inputStream *is,
 		value = is->isRead(context, is, exception);
 		FYEH()0;
 		if (value < 0) {
-			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+			fy_fault(exception, FY_EXCEPTION_IO, "Unexpected end of file");
 			return 0;
 		}
 		ret = (ret << 8) + value;
@@ -74,7 +74,7 @@ fy_ulong fy_dataRead8(fy_context *context, fy_inputStream *is,
 		value = is->isRead(context, is, exception);
 		FYEH()0;
 		if (value < 0) {
-			fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+			fy_fault(exception, FY_EXCEPTION_IO, "Unexpected end of file");
 			return 0;
 		}
 		ret = (ret << 8) + value;
@@ -87,11 +87,12 @@ void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT fy_inputStream* is,
 	fy_int pos = 0;
 	while ((read = is->isReadBlock(context, is, (fy_byte*) buffer + pos, size,
 			exception)) >= 0 && size > 0) {
+		FYEH();
 		size -= read;
 		pos += read;
 	}
 	if (size != 0) {
-		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+		fy_fault(exception, FY_EXCEPTION_IO, "Unexpected end of file");
 		return;
 	}
 }
@@ -99,10 +100,12 @@ void fy_dataSkip(fy_context *context, fy_inputStream *is, int size,
 		fy_exception *exception) {
 	fy_int read;
 	while ((read = is->isSkip(context, is, size, exception)) >= 0 && size > 0) {
+		FYEH();
 		size -= read;
 	}
+	FYEH();
 	if (size != 0) {
-		fy_fault(exception, FY_EXCEPTION_IO, "Buffer overflow");
+		fy_fault(exception, FY_EXCEPTION_IO, "Unexpected end of file");
 		return;
 	}
 }

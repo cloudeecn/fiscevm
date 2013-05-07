@@ -858,9 +858,10 @@ fy_inputStream *fy_clOpenResource(fy_context *context, fy_str *name,
 	for (i = 0, max = name->length; i < max; i++) {
 		size += fy_utf8Size(fy_strGet(name,i));
 	}
-	cname = /*TEMP*/fy_allocate(size + 1, exception);
+	cname = /*TEMP*/fy_allocate(size + 7, exception);
 	FYEH()NULL;
 	fy_strSPrint(cname, size + 1, name);
+	strcat(cname, ".class");
 	ret = context->isOpen(context, cname, exception);
 	fy_free(cname);
 	FYEH()NULL;
@@ -1231,6 +1232,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	fy_class *clazz;
 	fy_memblock *block = context->memblocks;
 	fy_str str[1];
+	fy_exception closeException[1];
 	str->content = NULL;
 
 #if 0
@@ -1310,7 +1312,12 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		}
 
 		clazz = fy_clLoadclassPriv(context, is, exception);
-		is->isClose(context, is);
+		closeException->exceptionType = exception_none;
+		is->isClose(context, is, closeException);
+		if(closeException->exceptionType != exception_none){
+			context->logWVarLn(context, "Error closing stream errno=%s",
+					closeException->exceptionDesc);
+		}
 		fy_mmFree(context->memblocks, is);
 		FYEH()NULL;
 		if (clazz->superClass != NULL) {

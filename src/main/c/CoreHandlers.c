@@ -52,30 +52,6 @@ static void FiScEVMStoreParams(struct fy_context *context,
 			count * sizeof(fy_int));
 }
 
-static void RISCheck0(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	/*TODO stub*/
-	fy_nativeReturnInt(context, thread, 0);
-}
-
-static void RISRead0SI(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	/*TODO stub*/
-	fy_nativeReturnInt(context, thread, -1);
-}
-
-static void RISRead0SIBII(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {/*TODO stub*/
-	fy_nativeReturnInt(context, thread, -1);
-}
-
-static void RISClose0(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {/*TODO stub*/
-}
 
 static void SISRead0(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
@@ -330,32 +306,6 @@ static void VMLogOut(struct fy_context *context, struct fy_thread *thread,
 		break;
 	}
 	fy_strDestroy(block, str);
-}
-
-static void VMDebugOutI(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	context->logDVar(context, "VMDebugOutI: %d\n", args[0]);
-}
-
-static void VMDebugOutJ(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	context->logDVar(context, "VMDebugOutI: %"FY_PRINT64"d\n",
-			fy_I2TOL(args[0],args[1]));
-}
-
-static void VMDebugOutF(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	context->logDVar(context, "VMDebugOutI: %f\n", fy_intToFloat(args[0]));
-}
-
-static void VMDebugOutD(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-		fy_exception *exception) {
-	context->logDVar(context, "VMDebugOutI: %f\n",
-			fy_longToDouble(fy_I2TOL(args[0],args[1])));
 }
 
 static void VMThrowOut(struct fy_context *context, struct fy_thread *thread,
@@ -2276,8 +2226,8 @@ static void registerReference(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context, FY_REF".clear0.()V", NULL, refClear,
 			exception);
 	FYEH();
-	fy_vmRegisterNativeHandler(context, FY_REF".get0.()L"FY_BASE_OBJECT";", NULL,
-			refGet, exception);
+	fy_vmRegisterNativeHandler(context, FY_REF".get0.()L"FY_BASE_OBJECT";",
+			NULL, refGet, exception);
 	FYEH();
 }
 
@@ -2382,22 +2332,6 @@ static void proxyDefineClassImpl(struct fy_context *context,
 }
 
 void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
-	fy_vmRegisterNativeHandler(context,
-				"com/cirnoworks/fisce/privat/ResourceInputStream.check0.(L"FY_BASE_STRING";)Z",
-				NULL, RISCheck0, exception);
-		FYEH();
-	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/ResourceInputStream.read0.(L"FY_BASE_STRING";I)I",
-			NULL, RISRead0SI, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/ResourceInputStream.read0.(L"FY_BASE_STRING";I[BII)I",
-			NULL, RISRead0SIBII, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/ResourceInputStream.close0.(L"FY_BASE_STRING";)V",
-			NULL, RISClose0, exception);
-	FYEH();
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/SystemInputStream.read0.()I", NULL,
 			SISRead0, exception);
@@ -2534,24 +2468,8 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			NULL, FiScEVMStoreParams, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.logOut.(IL"FY_BASE_STRING";)V",
+			"com/cirnoworks/fisce/privat/FiScEVM.logOut0.(IL"FY_BASE_STRING";)V",
 			NULL, VMLogOut, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(I)V", NULL,
-			VMDebugOutI, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(J)V", NULL,
-			VMDebugOutJ, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(F)V", NULL,
-			VMDebugOutF, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.debugOut.(D)V", NULL,
-			VMDebugOutD, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/FiScEVM.throwOut.(L"FY_BASE_THROWABLE";L"FY_BASE_STRING";)V",
@@ -2617,8 +2535,8 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	fy_vmRegisterNativeHandler(context,
-			FY_BASE_FINALIZER".getReferencesToEnqueue.()[L"FY_REF";",
-			NULL, finalizerGetReferencesToEnqueue, exception);
+			FY_BASE_FINALIZER".getReferencesToEnqueue.()[L"FY_REF";", NULL,
+			finalizerGetReferencesToEnqueue, exception);
 	FYEH();
 
 	fy_vmRegisterNativeHandler(context,

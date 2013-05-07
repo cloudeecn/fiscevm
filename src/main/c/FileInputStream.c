@@ -18,10 +18,17 @@
  */
 #include "fyc/FileInputStream.h"
 #include <stdio.h>
+#include <errno.h>
+
+typedef struct {
+	fy_boolean closed;
+	FILE *fp;
+} fisData;
 
 static fy_int isRead(struct fy_context *context, fy_inputStream *is,
 		fy_exception *exception) {
-	int ret = fgetc(is->data);
+	fisData *data = is->data;
+	int ret = fgetc(data->fp);
 #if EOF != -1
 	if (ret == EOF) {
 		return -1;
@@ -32,23 +39,46 @@ static fy_int isRead(struct fy_context *context, fy_inputStream *is,
 
 static fy_int isReadBlock(struct fy_context *context, fy_inputStream *is,
 		void *target, fy_int size, fy_exception *exception) {
-	return fread(target, 1, size, is->data);
+	fisData *data = is->data;
+	fy_int read = fread(target, 1, size, data->fp);
+	fy_int err;
+	if (read == 0) {
+		err = ferror(data->fp);
+		if (err) {
+			fy_fault(exception, FY_EXCEPTION_IO, "Error no: %"FY_PRINT32"d.",
+					err);
+			FYEH()0;
+		} else {
+			return -1;
+		}
+	}
+	return read;
 }
 
 static fy_int isSkip(struct fy_context *context, fy_inputStream *is,
 		fy_int size, fy_exception *exception) {
-	if (fseek(is->data, size, SEEK_CUR)) {
+	fisData *data = is->data;
+	if (data->closed) {
+		fy_fault(exception, FY_EXCEPTION_IO, "closed.");
+		FYEH() 0;
+	}
+	if (fseek(data->fp, size, SEEK_CUR)) {
+		fy_fault(exception, FY_EXCEPTION_IO, "%s", strerror(errno));
 		return 0;
 	} else {
 		return size;
 	}
 }
 
-static void isClose(struct fy_context *context, fy_inputStream *is) {
-	fclose(is->data);
+static void isClose(struct fy_context *context, fy_inputStream *is,
+		fy_exception *exception) {
+	fisData *data = is->data;
+	if (fclose(data->fp)) {
+		fy_fault(exception, FY_EXCEPTION_IO, "%s", strerror(errno));
+	}
 }
 
-static void* isOpen(struct fy_context *context, const char *name,
+static fy_inputStream* isOpen(struct fy_context *context, const char *name,
 		fy_exception *exception) {
 	FILE *fp;
 	fy_inputStream *ret = fy_mmAllocate(context->memblocks,
@@ -56,36 +86,57 @@ static void* isOpen(struct fy_context *context, const char *name,
 	fy_memblock *block = context->memblocks;
 	fy_str localName;
 	char targetName[1024];
+	fisData *data;
 	FYEH()NULL;
 	localName.content = NULL;
 	fy_strInit(block, &localName, 256, exception);
 	if (exception->exceptionType != exception_none) {
-		return NULL ;
+		fy_mmFree(context->memblocks, ret);
+		return NULL;
 	}
-	fy_strAppendUTF8(block, &localName, "runtime/", -1, exception);
+
+	if (name[0] == '/') {
+		fy_strAppendUTF8(block, &localName, "runtime", -1, exception);
+	} else {
+		fy_strAppendUTF8(block, &localName, "runtime/", -1, exception);
+	}
+
 	if (exception->exceptionType != exception_none) {
 		fy_strDestroy(block, &localName);
-		return NULL ;
+		fy_mmFree(context->memblocks, ret);
+		return NULL;
 	}
 	fy_strAppendUTF8(block, &localName, name, -1, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_strDestroy(block, &localName);
-		return NULL ;
+		fy_mmFree(context->memblocks, ret);
+		return NULL;
 	}
-	fy_strAppendUTF8(block, &localName, ".class", 6, exception);
-	if (exception->exceptionType != exception_none) {
-		fy_strDestroy(block, &localName);
-		return NULL ;
-	}
+	/*
+	 fy_strAppendUTF8(block, &localName, ".class", 6, exception);
+	 if (exception->exceptionType != exception_none) {
+	 fy_strDestroy(block, &localName);
+	 return NULL ;
+	 }
+	 */
 	fy_strSPrint(targetName, sizeof(targetName), &localName);
+	fy_strDestroy(block, &localName);
 
 	fp = fopen(targetName, "rb");
-	fy_strDestroy(block, &localName);
-	if (fp == NULL ) {
+	if (fp == NULL) {
 		fy_mmFree(context->memblocks, ret);
-		return NULL ;
+		return NULL;
 	}
-	ret->data = fp;
+
+	data = fy_mmAllocate(context->memblocks, sizeof(fisData), exception);
+	if (exception->exceptionType != exception_none) {
+		fy_mmFree(context->memblocks, ret);
+		fclose(fp);
+		return NULL;
+	}
+	data->closed = FALSE;
+	data->fp = fp;
+	ret->data = data;
 	ret->isClose = isClose;
 	ret->isRead = isRead;
 	ret->isReadBlock = isReadBlock;

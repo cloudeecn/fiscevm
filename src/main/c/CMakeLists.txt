@@ -50,6 +50,7 @@ SET(SRC_LIST_LIB
     BinarySaver.c
 	DataLoader.c
 	BAIS.c
+	RIS.c
 )
 SET(SRC_LIST_JNI
 	FisceService.c
