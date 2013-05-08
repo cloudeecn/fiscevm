@@ -252,33 +252,8 @@ public class Properties extends Hashtable<Object, Object> {
 			throw new NullPointerException();
 		}
 		BufferedInputStream bis = new BufferedInputStream(in);
-		bis.mark(Integer.MAX_VALUE);
-		boolean isEbcdic = isEbcdic(bis);
-		bis.reset();
 
-		if (!isEbcdic) {
-			loadImpl(new InputStreamReader(bis, "ISO8859-1")); //$NON-NLS-1$
-		} else {
-			loadImpl(new InputStreamReader(bis)); //$NON-NLS-1$
-		}
-	}
-
-	private boolean isEbcdic(BufferedInputStream in) throws IOException {
-		byte b;
-		while ((b = (byte) in.read()) != -1) {
-			if (b == 0x23 || b == 0x0a || b == 0x3d) {// ascii: newline/#/=
-				return false;
-			}
-			if (b == 0x15) {// EBCDIC newline
-				return true;
-			}
-		}
-		// we found no ascii newline, '#', neither '=', relative safe to
-		// consider it
-		// as non-ascii, the only exception will be a single line with only
-		// key(no value and '=')
-		// in this case, it should be no harm to read it in default charset
-		return false;
+		loadImpl(new InputStreamReader(bis)); //$NON-NLS-1$
 	}
 
 	/**
