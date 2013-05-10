@@ -184,7 +184,7 @@
 						<version>1.2.1</version>
 						<executions>
 							<execution>
-								<id>native-test</id>
+								<id>win32-test</id>
 								<phase>test</phase>
 								<goals>
 									<goal>exec</goal>
