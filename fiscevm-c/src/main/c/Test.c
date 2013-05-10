@@ -30,6 +30,8 @@
 #include "fyc/ClassLoader.h"
 #include "fyc/Thread.h"
 
+static const char *runtimeDir;
+
 typedef struct FY_TEST_FUN {
 	char *name;
 	void (*fun)();
@@ -70,6 +72,7 @@ static void testAllocate1() {
 	context = fy_allocate(sizeof(fy_context), NULL);
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
+	context->isParam=runtimeDir;
 
 	fy_vmBootup(context, "EXCLUDE/fisce/test/Tester", exception);
 	TEST_EXCEPTION(exception);
@@ -243,6 +246,7 @@ static void hltest(char *name) {
 	dead = FALSE;
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
+	context->isParam=runtimeDir;
 	fy_vmRegisterNativeHandler(context,
 			"EXCLUDE/fisce/test/TestService.fail0.(L"FY_BASE_STRING";)V", NULL,
 			testFail, exception);
@@ -425,7 +429,7 @@ void testNative() {
 	TEST_EXCEPTION(exception);
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
-
+	context->isParam=runtimeDir;
 	while ((className = classes[i++]) != NULL) {
 		clazz = lookup(context, className, exception);
 		TEST_EXCEPTION(exception);
@@ -504,9 +508,15 @@ int main(int argc, char *argv[]) {
 	char *customTest;
 	char *fn;
 	setvbuf(stdout, NULL, _IONBF, 1024);
-	if (argc > 1) {
-		printf("Testing %s:", argv[1]);
-		customTest = argv[1];
+	if (argc < 2) {
+		printf("Usage: fisce_test <base runtime dir> [function to test]\n");
+		return -1;
+	}
+	runtimeDir = argv[1];
+	printf("Base dir: %s\n", runtimeDir);
+	if (argc > 2) {
+		printf("Testing %s:", argv[2]);
+		customTest = argv[2];
 		fn = "test.custom.fail.log";
 	} else {
 		customTest = NULL;
@@ -520,7 +530,7 @@ int main(int argc, char *argv[]) {
 	failCount = 0;
 	fp = fopen(customTest == NULL ? "Test.log" : "Test-custom.log", "w");
 	if (fp == NULL) {
-		printf("Open log file failed");
+		printf("Open log file failed\n");
 		return 1;
 	} else {
 		fy_log("Test begin\n");
