@@ -1,0 +1,5 @@
+/target
+/Build/*
+/.settings
+/.project
+/.cproject
