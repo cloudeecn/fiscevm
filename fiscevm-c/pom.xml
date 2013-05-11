@@ -40,7 +40,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>cmake-generate-test</id>
+								<id>cmake-generate-test-native</id>
 								<phase>generate-test-resources</phase>
 								<goals>
 									<goal>compile</goal>
@@ -133,7 +133,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>cmake-generate-test</id>
+								<id>cmake-generate-test-win32</id>
 								<phase>generate-test-resources</phase>
 								<goals>
 									<goal>compile</goal>
