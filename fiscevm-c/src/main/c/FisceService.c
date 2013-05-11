@@ -234,7 +234,7 @@ static fy_int isReadBlock(fy_context *context, fy_inputStream *is, void *target,
 	}
 
 	ret = (*env)->CallIntMethod(env, jis, read1, cdata->bytes, 0, size);
-	if (target != NULL)
+	if (target != NULL && ret >= 0)
 		(*env)->GetByteArrayRegion(env, cdata->bytes, 0, ret, target);
 	if ((*env)->ExceptionOccurred(env)) {
 		(*env)->ExceptionDescribe(env);
