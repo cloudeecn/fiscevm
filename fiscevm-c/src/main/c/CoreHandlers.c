@@ -1089,6 +1089,10 @@ static void registerMethod(fy_context *context, fy_exception *exception) {
 			NULL, methodInvoke, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
+			FY_REFLECT_METHOD".invokeV.(L"FY_BASE_OBJECT";[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
+			NULL, methodInvoke, exception);
+	FYEH();
+	fy_vmRegisterNativeHandler(context,
 			FY_REFLECT_METHOD".getUniqueName.()L"FY_BASE_STRING";", NULL,
 			methodGetUniqueName, exception);
 	FYEH();

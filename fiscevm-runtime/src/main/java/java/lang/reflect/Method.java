@@ -189,6 +189,9 @@ public final class Method extends AccessibleObject implements Member,
 					return invokeJ(obj, args);
 				} else if (rt == Double.TYPE) {
 					return invokeD(obj, args);
+				} else if (rt == Void.TYPE) {
+					invokeV(obj, args);
+					return null;
 				} else {
 					throw new IllegalArgumentException(
 							"Illegal primitive type " + rt);
@@ -240,6 +243,9 @@ public final class Method extends AccessibleObject implements Member,
 			throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException;
 
+	private native void invokeV(Object obj, Object... args)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException;
 	/**
 	 * @com.intel.drl.spec_ref
 	 */
