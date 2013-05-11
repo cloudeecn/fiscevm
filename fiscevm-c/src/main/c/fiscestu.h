@@ -437,6 +437,7 @@ typedef struct fy_context {
 	/*INPUTSTREAM*/
 	fy_inputStream* (*isOpen)(struct fy_context *context, const char *name,
 			fy_exception *exception);
+	const void *isParam;
 
 	/*ResourceInputStream*/
 	fy_inputStream* aliveStreams[MAX_STREAMS];

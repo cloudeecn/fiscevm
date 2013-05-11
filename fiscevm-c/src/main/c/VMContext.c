@@ -288,7 +288,6 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	context->sClassByte = fy_vmCreateStringByPoolV(context, exception, "a",
 			FY_BASE_BYTE);
 	FYEH();
-
 	context->sClassChar = fy_vmCreateStringByPoolV(context, exception, "a",
 			FY_BASE_CHAR);
 	FYEH();
@@ -491,9 +490,10 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
 			MAX_OBJECTS * (fy_int) sizeof(fy_object));
-	fy_fisInitInputStream(context);
-	fy_bsRegisterBinarySaver(context);
 	fy_mmInit(context->memblocks, exception);
+	FYEH();
+	fy_bsRegisterBinarySaver(context);
+	fy_fisInitInputStream(context, exception);
 	FYEH();
 	fy_portInit(context->port);
 
