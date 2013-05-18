@@ -1353,9 +1353,8 @@ public final class String implements Comparable<String>, CharSequence {
 		char[] chs = new char[count];
 		int pos = 0;
 		for (int i = offset, max = offset + count; i < max; i++) {
-			pos++;
 			char c = value[i];
-			chs[pos] = (c >= 'A' && c <= 'Z') ? (char) (c - 'A' + 'a') : c;
+			chs[pos++] = Character.toLowerCase(c);
 		}
 		return new String(0, count, chs);
 	}
@@ -1381,9 +1380,8 @@ public final class String implements Comparable<String>, CharSequence {
 		char[] chs = new char[count];
 		int pos = 0;
 		for (int i = offset, max = offset + count; i < max; i++) {
-			pos++;
 			char c = value[i];
-			chs[pos] = (c >= 'a' && c <= 'z') ? (char) (c - 'a' + 'A') : c;
+			chs[pos++] = Character.toUpperCase(c);
 		}
 		return new String(0, count, chs);
 	}
