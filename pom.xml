@@ -6,20 +6,17 @@
 	<packaging>pom</packaging>
 	<version>2.0.0-SNAPSHOT</version>
 	<name>FiScE VM Build</name>
-	<url>http://fiscevm.googlecode.com</url>
+	<url>http://code.google.com/p/fiscevm</url>
 	<parent>
 		<groupId>com.cirnoworks</groupId>
 		<artifactId>parent</artifactId>
-		<version>2</version>
+		<version>3</version>
 	</parent>
 	<scm>
-		<connection>scm:svn:http://fiscevm.googlecode.com/svn/trunk</connection>
-		<developerConnection>scm:svn:https://fiscevm.googlecode.com/svn/trunk</developerConnection>
-		<url>http://fiscevm.googlecode.com/svn</url>
+		<connection>scm:git:http://code.google.com/p/fiscevm</connection>
+		<developerConnection>scm:git:https://code.google.com/p/fiscevm</developerConnection>
+		<url>http://code.google.com/p/cw-parent/source/browse/</url>
 	</scm>
-	<properties>
-		<cw.svnbase>https://fiscevm.googlecode.com/svn</cw.svnbase>
-	</properties>
 	<repositories>
 		<repository>
 			<id>cirnoworks</id>
