@@ -55,7 +55,7 @@ import com.cirnoworks.fisce.vm.data.ClassField;
 import com.cirnoworks.fisce.vm.data.ClassMethod;
 
 /**
- *
+ * 
  * @author yuxuanhuang
  */
 public class VMContext implements FiScEVM {
@@ -449,8 +449,9 @@ public class VMContext implements FiScEVM {
 		return toolkits;
 	}
 
-	public void addToolkit(IToolkit toolkit) {
+	public <T extends IToolkit> T addToolkit(T toolkit) {
 		toolkits.add(toolkit);
+		return toolkit;
 	}
 
 	public INativeHandler getNativeHandler(String uniqueName) {
@@ -508,7 +509,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通过类直接找到类的ClassId，如果类还没有被加载，则返回Null
-	 *
+	 * 
 	 * @param clazz
 	 * @return
 	 */
@@ -518,7 +519,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 直接通过ClassId来取得类
-	 *
+	 * 
 	 * @param cid
 	 *            ClassId
 	 * @return 类
@@ -529,7 +530,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 获取正在进行某个类的clinit的线程id
-	 *
+	 * 
 	 * @param clazz
 	 *            类
 	 * @return 正在进行这个类的clinit的线程ID，如果返回CLINIT_FINISHED的话，表示clinit已经执行完成
@@ -542,7 +543,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通告虚拟机，开始进行某个类的clinit
-	 *
+	 * 
 	 * @param clazz
 	 *            开始进行clinit的类
 	 * @param thread
@@ -556,7 +557,7 @@ public class VMContext implements FiScEVM {
 
 	/**
 	 * 通告虚拟机，Class的clinit已经完成。主要由Thread实现类调用。
-	 *
+	 * 
 	 * @param clazz
 	 *            Class对象，必须是对应类（不是数组）的
 	 */
@@ -730,55 +731,55 @@ public class VMContext implements FiScEVM {
 	@Override
 	public void logD(String msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void logD(String msg, Throwable t) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void logI(String msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void logI(String msg, Throwable t) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void logW(String msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void logW(String msg, Throwable t) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void logE(String msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void logE(String msg, Throwable t) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void unregisterNativeHandler(String string) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
