@@ -4,8 +4,8 @@ import java.io.InputStream;
 
 import org.w3c.dom.Element;
 
+import com.cirnoworks.fisce.intf.AbstractToolkit;
 import com.cirnoworks.fisce.intf.FiScEVM;
-import com.cirnoworks.fisce.intf.IToolkit;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMFactory;
 
@@ -13,7 +13,7 @@ public class CFiScEFactory implements VMFactory {
 
 	public FYContext getVM() {
 		FYContext context = new FYContext();
-		context.addToolkit(new IToolkit() {
+		context.addToolkit(new AbstractToolkit() {
 
 			public void setupContext() {
 			}
@@ -32,7 +32,7 @@ public class CFiScEFactory implements VMFactory {
 						"/fisce_scripts/" + className);
 			}
 		});
-		context.addToolkit(new IToolkit() {
+		context.addToolkit(new AbstractToolkit() {
 
 			public void setupContext() {
 			}
@@ -51,7 +51,7 @@ public class CFiScEFactory implements VMFactory {
 						"/classes/" + className);
 			}
 		});
-		context.addToolkit(new IToolkit() {
+		context.addToolkit(new AbstractToolkit() {
 
 			public void setupContext() {
 			}

@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,6 +23,7 @@ import com.cirnoworks.fisce.intf.IThreadManager;
 import com.cirnoworks.fisce.intf.IToolkit;
 import com.cirnoworks.fisce.intf.SaveDataPostProcesser;
 import com.cirnoworks.fisce.intf.SystemDebugConsole;
+import com.cirnoworks.fisce.intf.ToolkitComparator;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IClass;
@@ -45,7 +47,7 @@ public class FYContext implements Runnable, FiScEVM {
 	private final HashMap<String, INativeHandler> handlers = new HashMap<String, INativeHandler>();
 	private final HashMap<String, INativeHandler> optimizedHandlers = new HashMap<String, INativeHandler>();
 	private final LinkedHashSet<IStateListener> stateListeners = new LinkedHashSet<IStateListener>();
-	private final LinkedHashSet<IToolkit> toolkits = new LinkedHashSet<IToolkit>();
+	private final ArrayList<IToolkit> toolkits = new ArrayList<IToolkit>();
 
 	private final AtomicBoolean runningSet = new AtomicBoolean(false);
 	private final AtomicBoolean runningCurrent = new AtomicBoolean(false);
@@ -99,6 +101,7 @@ public class FYContext implements Runnable, FiScEVM {
 	}
 
 	private void initialize() {
+		Collections.sort(toolkits, ToolkitComparator.singleton);
 		for (IToolkit toolkit : toolkits) {
 			toolkit.setContext(this);
 		}
@@ -202,8 +205,9 @@ public class FYContext implements Runnable, FiScEVM {
 		this.stateListeners.add(isl);
 	}
 
-	public void addToolkit(IToolkit toolkit) {
+	public <T extends IToolkit> T addToolkit(T toolkit) {
 		this.toolkits.add(toolkit);
+		return toolkit;
 	}
 
 	public void setConsole(IDebugConsole console) {

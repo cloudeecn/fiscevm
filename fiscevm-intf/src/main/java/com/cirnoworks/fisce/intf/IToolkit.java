@@ -21,6 +21,8 @@ import java.io.InputStream;
 import org.w3c.dom.Element;
 
 public interface IToolkit {
+	
+	float getPriority();
 
 	/**
 	 * 将这个工具包和虚拟机绑定

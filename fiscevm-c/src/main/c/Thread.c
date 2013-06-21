@@ -31,8 +31,8 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_exceptionHandler *handlers;
 	fy_exceptionHandler *handler;
 	fy_int target = -1;
-	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 #ifdef FY_DEBUG
+	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc);
 	context->logDVar(context, "Exception: ");
 	context->logDStr(context,
 			fy_heapGetClassOfObject(context, handle, exception)->className);

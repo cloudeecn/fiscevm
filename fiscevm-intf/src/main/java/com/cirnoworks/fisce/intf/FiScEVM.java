@@ -120,7 +120,7 @@ public interface FiScEVM extends Closeable {
 	 * @param toolkit
 	 *            工具包
 	 */
-	void addToolkit(IToolkit toolkit);
+	<T extends IToolkit> T addToolkit(T toolkit);
 
 	/**
 	 * 设置虚拟机的控制台输出。<br />
