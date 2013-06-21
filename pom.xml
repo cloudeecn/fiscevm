@@ -29,10 +29,11 @@
 		<module>fiscevm-intf</module>
 		<module>fiscevm-runtime</module>
 		<module>fiscevm-rtdist</module>
-		<!-- <module>fiscevm-java</module> -->
+		<module>fiscevm-java</module>
 		<!-- <module>fiscevm-javatoolkit</module> -->
 		<module>fiscevm-c</module>
 		<module>fiscevm-tools</module>
+		<module>fiscevm-js</module>
 		<!-- <module>fiscevm-assemble</module> -->
 	</modules>
 </project>
