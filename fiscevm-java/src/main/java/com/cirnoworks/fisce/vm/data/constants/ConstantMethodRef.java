@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -52,16 +53,18 @@ public class ConstantMethodRef extends Constant implements IReference {
 				+ (int) nameAndTypeIndex;
 	}
 
-	public synchronized ClassMethod getTargetMethod() throws VMException, VMCriticalException {
+	public synchronized ClassMethod getTargetMethod() throws VMException,
+			VMCriticalException {
 		assert owner.isConstantsLoaded();
 		if (targetMethod == null) {
 			AbstractClass cb = clazz.getClazz();
 			targetMethod = context.getMethod(uniqueName);
 			// Already registered!!!
 			if (targetMethod == null) {
-				targetMethod = context.lookupMethodVirtual(cb, nameAndType
-						.getName()
-						+ "." + nameAndType.getDescriptor());
+				targetMethod = context.lookupMethodVirtual(
+						cb,
+						nameAndType.getName() + "."
+								+ nameAndType.getDescriptor());
 			}
 			if (targetMethod == null) {
 				throw new VMException("java/lang/NoSuchMethodError", uniqueName);
@@ -134,4 +137,17 @@ public class ConstantMethodRef extends Constant implements IReference {
 		this.uniqueName = uniqueName;
 	}
 
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(
+				sb,
+				baseIndent + 1,
+				"nameAndType",
+				SimpleJSONUtil.escapeString("." + nameAndType.getName() + "."
+						+ nameAndType.getDescriptor(), true), true);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "uniqueName",
+				SimpleJSONUtil.escapeString(uniqueName, true), false);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
+	}
 }

@@ -27,6 +27,7 @@ import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IMethod;
 import com.cirnoworks.fisce.util.BufferUtil;
+import com.cirnoworks.fisce.util.DescriptorAnalyzer;
 import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.JHeap;
 import com.cirnoworks.fisce.vm.JThread;
@@ -803,10 +804,10 @@ public final class ArrayThread implements JThread {
 				int index = code[this.pc++] & 0xff;
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(index, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(index, aref);
 					break;
 				default:
@@ -824,10 +825,10 @@ public final class ArrayThread implements JThread {
 			case ASTORE_0: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(0, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(0, aref);
 					break;
 				default:
@@ -846,10 +847,10 @@ public final class ArrayThread implements JThread {
 			case ASTORE_1: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(1, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(1, aref);
 					break;
 				default:
@@ -868,10 +869,10 @@ public final class ArrayThread implements JThread {
 			case ASTORE_2: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(2, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(2, aref);
 					break;
 				default:
@@ -890,10 +891,10 @@ public final class ArrayThread implements JThread {
 			case ASTORE_3: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(3, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(3, aref);
 					break;
 				default:
@@ -1619,7 +1620,7 @@ public final class ArrayThread implements JThread {
 				byte bb1 = code[this.pc++];
 				byte bb2 = code[this.pc++];
 				int target = TypeUtil.bytesToSignedInt(bb1, bb2);
-				pushType(this.pc, ClassMethod.TYPE_RETURN);
+				pushType(this.pc, DescriptorAnalyzer.TYPE_RETURN);
 				this.pc = this.lpc + target;
 				break;
 			}
@@ -1629,7 +1630,7 @@ public final class ArrayThread implements JThread {
 				byte bb3 = code[this.pc++];
 				byte bb4 = code[this.pc++];
 				int target = TypeUtil.bytesToSignedInt(bb1, bb2, bb3, bb4);
-				pushType(this.pc, ClassMethod.TYPE_RETURN);
+				pushType(this.pc, DescriptorAnalyzer.TYPE_RETURN);
 				this.pc = this.lpc + target;
 				break;
 			}
@@ -2489,10 +2490,10 @@ public final class ArrayThread implements JThread {
 		case ASTORE: {
 			int aref = popType(tc);
 			switch (tc.type) {
-			case ClassMethod.TYPE_HANDLE:
+			case DescriptorAnalyzer.TYPE_HANDLE:
 				putLocalHandle(index, aref);
 				break;
-			case ClassMethod.TYPE_RETURN:
+			case DescriptorAnalyzer.TYPE_RETURN:
 				putLocalReturn(index, aref);
 				break;
 			default:
@@ -2758,17 +2759,17 @@ public final class ArrayThread implements JThread {
 		int tmp = this.sp++;
 		this.opStacks[tmp] = value;
 		this.opStackTypes[tmp] = type;
-		assert type != ClassMethod.TYPE_HANDLE
+		assert type != DescriptorAnalyzer.TYPE_HANDLE
 				|| (!(value < 0 || value > JHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 	}
 
 	public int popHandle() {
 		int tmp = --this.sp;
-		assert this.opStackTypes[tmp] == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+		assert this.opStackTypes[tmp] == DescriptorAnalyzer.TYPE_HANDLE : "Type mismatch!"
 				+ this.opStackTypes[tmp]
 				+ " should be "
-				+ ClassMethod.TYPE_HANDLE;
+				+ DescriptorAnalyzer.TYPE_HANDLE;
 		return this.opStacks[tmp];
 	}
 
@@ -2776,43 +2777,43 @@ public final class ArrayThread implements JThread {
 		assert !(handle < 0 || handle > JHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ handle;
 		int tmp = this.sp++;
-		this.opStackTypes[tmp] = ClassMethod.TYPE_HANDLE;
+		this.opStackTypes[tmp] = DescriptorAnalyzer.TYPE_HANDLE;
 		this.opStacks[tmp] = handle;
 	}
 
 	public int popInt() {
 		int tmp = --this.sp;
-		assert this.opStackTypes[tmp] == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ this.opStackTypes[tmp] + " should be " + ClassMethod.TYPE_INT;
+		assert this.opStackTypes[tmp] == DescriptorAnalyzer.TYPE_INT : "Type mismatch!"
+				+ this.opStackTypes[tmp] + " should be " + DescriptorAnalyzer.TYPE_INT;
 		return this.opStacks[tmp];
 	}
 
 	public void pushInt(int value) {
 		int tmp = this.sp++;
-		this.opStackTypes[tmp] = ClassMethod.TYPE_INT;
+		this.opStackTypes[tmp] = DescriptorAnalyzer.TYPE_INT;
 		this.opStacks[tmp] = value;
 	}
 
 	public float popFloat() {
 		int tmp = --this.sp;
-		assert this.opStackTypes[tmp] == ClassMethod.TYPE_INT : "Type mismatch!"
-				+ this.opStackTypes[tmp] + " should be " + ClassMethod.TYPE_INT;
+		assert this.opStackTypes[tmp] == DescriptorAnalyzer.TYPE_INT : "Type mismatch!"
+				+ this.opStackTypes[tmp] + " should be " + DescriptorAnalyzer.TYPE_INT;
 		return Float.intBitsToFloat(this.opStacks[tmp]);
 	}
 
 	public void pushFloat(float value) {
 		int tmp = this.sp++;
-		this.opStackTypes[tmp] = ClassMethod.TYPE_INT;
+		this.opStackTypes[tmp] = DescriptorAnalyzer.TYPE_INT;
 		this.opStacks[tmp] = Float.floatToRawIntBits(value);
 
 	}
 
 	public double popDouble() {
 		int tmp = this.sp -= 2;
-		assert this.opStackTypes[tmp] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+		assert this.opStackTypes[tmp] == DescriptorAnalyzer.TYPE_WIDE : "Type mismatch!"
 				+ this.opStackTypes[tmp]
 				+ " should be "
-				+ ClassMethod.TYPE_WIDE;
+				+ DescriptorAnalyzer.TYPE_WIDE;
 		long lvalue = TypeUtil.intToLong(this.opStacks[tmp],
 				this.opStacks[tmp + 1]);
 		return Double.longBitsToDouble(lvalue);
@@ -2822,18 +2823,18 @@ public final class ArrayThread implements JThread {
 		long lvalue = Double.doubleToRawLongBits(value);
 		int tmp = this.sp;
 		this.sp += 2;
-		this.opStackTypes[tmp] = ClassMethod.TYPE_WIDE;
-		this.opStackTypes[tmp + 1] = ClassMethod.TYPE_WIDE2;
+		this.opStackTypes[tmp] = DescriptorAnalyzer.TYPE_WIDE;
+		this.opStackTypes[tmp + 1] = DescriptorAnalyzer.TYPE_WIDE2;
 		this.opStacks[tmp] = TypeUtil.getHighInt(lvalue);
 		this.opStacks[tmp + 1] = TypeUtil.getLowInt(lvalue);
 	}
 
 	public long popLong() {
 		int tmp = this.sp -= 2;
-		assert this.opStackTypes[tmp] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+		assert this.opStackTypes[tmp] == DescriptorAnalyzer.TYPE_WIDE : "Type mismatch!"
 				+ this.opStackTypes[tmp]
 				+ " should be "
-				+ ClassMethod.TYPE_WIDE;
+				+ DescriptorAnalyzer.TYPE_WIDE;
 		long lvalue = TypeUtil.intToLong(this.opStacks[tmp],
 				this.opStacks[tmp + 1]);
 		return lvalue;
@@ -2842,36 +2843,36 @@ public final class ArrayThread implements JThread {
 	public void pushLong(long value) {
 		int tmp = this.sp;
 		this.sp += 2;
-		this.opStackTypes[tmp] = ClassMethod.TYPE_WIDE;
-		this.opStackTypes[tmp + 1] = ClassMethod.TYPE_WIDE2;
+		this.opStackTypes[tmp] = DescriptorAnalyzer.TYPE_WIDE;
+		this.opStackTypes[tmp + 1] = DescriptorAnalyzer.TYPE_WIDE2;
 		this.opStacks[tmp] = (int) (value >>> 32);
 		this.opStacks[tmp + 1] = (int) value;
 
 	}
 
 	public int getLocalReturn(int index) {
-		assert this.localVarTypes[index] == ClassMethod.TYPE_RETURN : "Type mismatch!"
+		assert this.localVarTypes[index] == DescriptorAnalyzer.TYPE_RETURN : "Type mismatch!"
 				+ this.localVarTypes[index]
 				+ " should be "
-				+ ClassMethod.TYPE_RETURN;
+				+ DescriptorAnalyzer.TYPE_RETURN;
 		return this.localVars[index];
 	}
 
 	public void putLocalReturn(int index, int value) {
-		this.localVarTypes[index] = ClassMethod.TYPE_RETURN;
+		this.localVarTypes[index] = DescriptorAnalyzer.TYPE_RETURN;
 		this.localVars[index] = value;
 	}
 
 	public int getLocalHandle(int index) {
-		assert this.localVarTypes[index] == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+		assert this.localVarTypes[index] == DescriptorAnalyzer.TYPE_HANDLE : "Type mismatch!"
 				+ this.localVarTypes[index]
 				+ " should be "
-				+ ClassMethod.TYPE_HANDLE;
+				+ DescriptorAnalyzer.TYPE_HANDLE;
 		return this.localVars[index];
 	}
 
 	public void putLocalHandle(int index, int value) {
-		this.localVarTypes[index] = ClassMethod.TYPE_HANDLE;
+		this.localVarTypes[index] = DescriptorAnalyzer.TYPE_HANDLE;
 		this.localVars[index] = value;
 	}
 
@@ -2881,7 +2882,7 @@ public final class ArrayThread implements JThread {
 	}
 
 	public void putLocalType(int index, int value, byte type) {
-		assert type != ClassMethod.TYPE_HANDLE
+		assert type != DescriptorAnalyzer.TYPE_HANDLE
 				|| (!(value < 0 || value > JHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		this.localVarTypes[index] = type;
@@ -2889,38 +2890,38 @@ public final class ArrayThread implements JThread {
 	}
 
 	public int getLocalInt(int index) {
-		assert this.localVarTypes[index] == ClassMethod.TYPE_INT : "Type mismatch!"
+		assert this.localVarTypes[index] == DescriptorAnalyzer.TYPE_INT : "Type mismatch!"
 				+ this.localVarTypes[index]
 				+ " should be "
-				+ ClassMethod.TYPE_INT;
+				+ DescriptorAnalyzer.TYPE_INT;
 		return this.localVars[index];
 	}
 
 	public void putLocalInt(int index, int value) {
-		this.localVarTypes[index] = ClassMethod.TYPE_INT;
+		this.localVarTypes[index] = DescriptorAnalyzer.TYPE_INT;
 		this.localVars[index] = value;
 	}
 
 	public float getLocalFloat(int index) {
-		assert this.localVarTypes[index] == ClassMethod.TYPE_INT : "Type mismatch!"
+		assert this.localVarTypes[index] == DescriptorAnalyzer.TYPE_INT : "Type mismatch!"
 				+ this.localVarTypes[index]
 				+ " should be "
-				+ ClassMethod.TYPE_INT;
+				+ DescriptorAnalyzer.TYPE_INT;
 		return Float.intBitsToFloat(this.localVars[index]);
 	}
 
 	public void putLocalFloat(int index, float value) {
-		this.localVarTypes[index] = ClassMethod.TYPE_INT;
+		this.localVarTypes[index] = DescriptorAnalyzer.TYPE_INT;
 		this.localVars[index] = Float.floatToIntBits(value);
 	}
 
 	// public synchronized native void foo();
 
 	public long getLocalLong(int index) {
-		assert this.localVarTypes[index] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+		assert this.localVarTypes[index] == DescriptorAnalyzer.TYPE_WIDE : "Type mismatch!"
 				+ this.localVarTypes[index]
 				+ " should be "
-				+ ClassMethod.TYPE_WIDE;
+				+ DescriptorAnalyzer.TYPE_WIDE;
 
 		long lvalue = TypeUtil.intToLong(this.localVars[index],
 				this.localVars[index + 1]);
@@ -2928,17 +2929,17 @@ public final class ArrayThread implements JThread {
 	}
 
 	public void putLocalLong(int index, long value) {
-		this.localVarTypes[index] = ClassMethod.TYPE_WIDE;
-		this.localVarTypes[index + 1] = ClassMethod.TYPE_WIDE2;
+		this.localVarTypes[index] = DescriptorAnalyzer.TYPE_WIDE;
+		this.localVarTypes[index + 1] = DescriptorAnalyzer.TYPE_WIDE2;
 		this.localVars[index] = TypeUtil.getHighInt(value);
 		this.localVars[index + 1] = TypeUtil.getLowInt(value);
 	}
 
 	public double getLocalDouble(int index) {
-		assert this.localVarTypes[index] == ClassMethod.TYPE_WIDE : "Type mismatch!"
+		assert this.localVarTypes[index] == DescriptorAnalyzer.TYPE_WIDE : "Type mismatch!"
 				+ this.localVarTypes[index]
 				+ " should be "
-				+ ClassMethod.TYPE_WIDE;
+				+ DescriptorAnalyzer.TYPE_WIDE;
 
 		long lvalue = TypeUtil.intToLong(this.localVars[index],
 				this.localVars[index + 1]);
@@ -2947,8 +2948,8 @@ public final class ArrayThread implements JThread {
 
 	public void putLocalDouble(int index, double value) {
 		long lvalue = Double.doubleToRawLongBits(value);
-		this.localVarTypes[index] = ClassMethod.TYPE_WIDE;
-		this.localVarTypes[index + 1] = ClassMethod.TYPE_WIDE2;
+		this.localVarTypes[index] = DescriptorAnalyzer.TYPE_WIDE;
+		this.localVarTypes[index + 1] = DescriptorAnalyzer.TYPE_WIDE2;
 		this.localVars[index] = TypeUtil.getHighInt(lvalue);
 		this.localVars[index + 1] = TypeUtil.getLowInt(lvalue);
 	}
@@ -2991,7 +2992,7 @@ public final class ArrayThread implements JThread {
 				out.setLength(0);
 			}
 			for (int i = 0, max = frame.localVars.length; i < max; i++) {
-				if (frame.localVarTypes[i] == ClassMethod.TYPE_HANDLE) {
+				if (frame.localVarTypes[i] == DescriptorAnalyzer.TYPE_HANDLE) {
 					int handle = frame.localVars[i];
 					if (handle > 0) {
 						assert heap.isHandleValid(handle) : handle;
@@ -3003,7 +3004,7 @@ public final class ArrayThread implements JThread {
 			}
 
 			for (int i = 0, max = frame.sp; i < max; i++) {
-				if (frame.opStackTypes[i] == ClassMethod.TYPE_HANDLE) {
+				if (frame.opStackTypes[i] == DescriptorAnalyzer.TYPE_HANDLE) {
 					int handle = frame.opStacks[i];
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);

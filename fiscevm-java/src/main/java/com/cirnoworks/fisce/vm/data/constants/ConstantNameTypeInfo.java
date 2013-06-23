@@ -20,6 +20,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 
@@ -103,5 +104,17 @@ public class ConstantNameTypeInfo extends Constant {
 		hash = 89 * hash
 				+ (this.descriptor != null ? this.descriptor.hashCode() : 0);
 		return hash;
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(
+				sb,
+				baseIndent + 1,
+				"nameAndType",
+				SimpleJSONUtil.escapeString("." + getName() + "."
+						+ getDescriptor(), true), true);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 }

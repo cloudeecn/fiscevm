@@ -16,33 +16,44 @@
  */
 package com.cirnoworks.fisce.vm.data.constants;
 
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import java.io.DataInputStream;
 import java.io.IOException;
 
 /**
- *
+ * 
  * @author cloudee
  */
 public class ConstantLong extends Constant {
 
-    private long data;
+	private long data;
 
-    public ConstantLong(VMContext context, ClassBase owner,
-            DataInputStream dis) throws IOException {
-        super(5, context, owner);
-        data = dis.readLong();
-    }
+	public ConstantLong(VMContext context, ClassBase owner, DataInputStream dis)
+			throws IOException {
+		super(5, context, owner);
+		data = dis.readLong();
+	}
 
-    public void fillConstants() {
-    }
+	public void fillConstants() {
+	}
 
-    public long getData() {
-        return data;
-    }
+	public long getData() {
+		return data;
+	}
 
-    public String toString() {
-        return "ConstantFloat:" + data;
-    }
+	public String toString() {
+		return "ConstantFloat:" + data;
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "valueHigh",
+				String.valueOf(data >>> 32), false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "valueLow",
+				String.valueOf(data & 0xffffffff), false);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
+	}
 }

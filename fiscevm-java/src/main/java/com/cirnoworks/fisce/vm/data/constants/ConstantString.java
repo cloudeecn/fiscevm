@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 
@@ -44,8 +45,8 @@ public class ConstantString extends Constant {
 	 * the object handle in VM that refer to the inner String object.
 	 * 
 	 * @return
-	 * @throws VMException 
-	 * @throws VMCriticalException 
+	 * @throws VMException
+	 * @throws VMCriticalException
 	 */
 	public int getHandle() throws VMException, VMCriticalException {
 		if (handle == 0) {
@@ -61,5 +62,13 @@ public class ConstantString extends Constant {
 	public String toString() {
 		return "ConstantString:" + (int) stringIndex + ":"
 				+ owner.getStringFromUTF8Constant(stringIndex);
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "value",
+				SimpleJSONUtil.escapeString(str, true), false);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 }

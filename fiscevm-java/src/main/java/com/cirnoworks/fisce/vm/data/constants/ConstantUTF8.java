@@ -16,43 +16,57 @@
  */
 package com.cirnoworks.fisce.vm.data.constants;
 
-import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.data.ClassBase;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+
 /**
- *
+ * 
  * @author cloudee
  */
 public class ConstantUTF8 extends Constant {
 
-    private byte[] data;
-    //cache
-    private String string;
+	private byte[] data;
+	// cache
+	private String string;
 
-    public ConstantUTF8(VMContext context, ClassBase owner, DataInputStream dis)
-            throws IOException {
-        super(1, context, owner);
-        char len = dis.readChar();
-        data = new byte[len];
-        dis.readFully(data);
-        string = new String(data, "utf-8");
-    }
+	public ConstantUTF8(VMContext context, ClassBase owner, DataInputStream dis)
+			throws IOException {
+		super(1, context, owner);
+		char len = dis.readChar();
+		data = new byte[len];
+		dis.readFully(data);
+		string = new String(data, "utf-8");
+	}
 
-    public void fillConstants(){
+	public void fillConstants() {
 
-    }
+	}
 
-    public byte[] getData() {
-        return data;
-    }
+	public byte[] getData() {
+		return data;
+	}
 
-    public String getString() {
-        return string;
-    }
+	public String getString() {
+		return string;
+	}
 
-    public String toString() {
-        return "ConstantUTF8:" + string;
-    }
+	public String toString() {
+		return "ConstantUTF8:" + string;
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		if (false) {
+			SimpleJSONUtil.add(sb, baseIndent, "{", false);
+			SimpleJSONUtil.add(sb, baseIndent + 1, "value",
+					SimpleJSONUtil.escapeString(string, true), false);
+			SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
+		} else {
+			SimpleJSONUtil.add(sb, baseIndent, "{}", addComma);
+		}
+	}
 }

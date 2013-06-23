@@ -16,34 +16,49 @@
  */
 package com.cirnoworks.fisce.vm.data.constants;
 
-import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.data.ClassBase;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+
 /**
- *
+ * 
  * @author cloudee
  */
 public class ConstantDouble extends Constant {
 
-    private double data;
+	private double data;
 
-    public ConstantDouble(VMContext context, ClassBase owner,
-            DataInputStream dis) throws IOException {
-        super(6, context, owner);
-        data = dis.readDouble();
-    }
+	public ConstantDouble(VMContext context, ClassBase owner,
+			DataInputStream dis) throws IOException {
+		super(6, context, owner);
+		data = dis.readDouble();
+	}
 
-    public double getData() {
-        return data;
-    }
+	public double getData() {
+		return data;
+	}
 
-    public void fillConstants(){
+	public void fillConstants() {
 
-    }
+	}
 
-    public String toString() {
-        return "ConstantDouble:" + String.valueOf(data);
-    }
+	public String toString() {
+		return "ConstantDouble:" + String.valueOf(data);
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "value", String.valueOf(data),
+				true);
+		long ieeeValue = Double.doubleToLongBits(data);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "ieeeValueHigh",
+				String.valueOf(ieeeValue >>> 32), true);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "ieeeValueLow",
+				String.valueOf(ieeeValue & 0xffffffff), false);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
+	}
 }

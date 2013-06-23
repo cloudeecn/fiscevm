@@ -25,6 +25,7 @@ import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IMethod;
 import com.cirnoworks.fisce.util.BufferUtil;
+import com.cirnoworks.fisce.util.DescriptorAnalyzer;
 import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.JHeap;
 import com.cirnoworks.fisce.vm.JThread;
@@ -51,15 +52,15 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantMethodRef;
 import com.cirnoworks.fisce.vm.data.constants.ConstantString;
 
 /**
- *
+ * 
  * Default thread contains a space for frames. <br />
  * the stack have following content:<br />
  * u4 handle handle to the Thread object.<br />
  * u4 current throwable handle u4 status u4 fp pointer to the last-size pos of
  * the frame<br />
- *
+ * 
  * Each frame have following content:<br />
- *
+ * 
  * u1[] oprand-stack type <br />
  * u1[] local vars type <br />
  * u4[] oprand-stack<br />
@@ -74,10 +75,10 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantString;
  * u4 mid method id of this frame<br />
  * u4 SIZE frame size in bytes(including this size itself)<br />
  * <------------fp point to here
- *
- *
+ * 
+ * 
  * @author cloudee
- *
+ * 
  */
 public final class DefaultThread implements JThread {
 
@@ -569,7 +570,7 @@ public final class DefaultThread implements JThread {
 	}
 
 	/**
-	 *
+	 * 
 	 * @return yield
 	 * @throws VMCriticalException
 	 */
@@ -745,10 +746,10 @@ public final class DefaultThread implements JThread {
 				int index = nextOP() & 0xff;
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(index, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(index, aref);
 					break;
 				default:
@@ -766,10 +767,10 @@ public final class DefaultThread implements JThread {
 			case ASTORE_0: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(0, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(0, aref);
 					break;
 				default:
@@ -788,10 +789,10 @@ public final class DefaultThread implements JThread {
 			case ASTORE_1: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(1, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(1, aref);
 					break;
 				default:
@@ -810,10 +811,10 @@ public final class DefaultThread implements JThread {
 			case ASTORE_2: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(2, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(2, aref);
 					break;
 				default:
@@ -832,10 +833,10 @@ public final class DefaultThread implements JThread {
 			case ASTORE_3: {
 				int aref = popType(tc);
 				switch (tc.type) {
-				case ClassMethod.TYPE_HANDLE:
+				case DescriptorAnalyzer.TYPE_HANDLE:
 					putLocalHandle(3, aref);
 					break;
-				case ClassMethod.TYPE_RETURN:
+				case DescriptorAnalyzer.TYPE_RETURN:
 					putLocalReturn(3, aref);
 					break;
 				default:
@@ -1743,7 +1744,7 @@ public final class DefaultThread implements JThread {
 				byte bb1 = nextOP();
 				byte bb2 = nextOP();
 				int target = TypeUtil.bytesToSignedInt(bb1, bb2);
-				pushType(getPC(), ClassMethod.TYPE_RETURN);
+				pushType(getPC(), DescriptorAnalyzer.TYPE_RETURN);
 				setPC(getLPC() + target);
 				break;
 			}
@@ -1753,7 +1754,7 @@ public final class DefaultThread implements JThread {
 				byte bb3 = nextOP();
 				byte bb4 = nextOP();
 				int target = TypeUtil.bytesToSignedInt(bb1, bb2, bb3, bb4);
-				pushType(getPC(), ClassMethod.TYPE_RETURN);
+				pushType(getPC(), DescriptorAnalyzer.TYPE_RETURN);
 				setPC(getLPC() + target);
 				break;
 			}
@@ -2327,10 +2328,10 @@ public final class DefaultThread implements JThread {
 				case ASTORE: {
 					int aref = popType(tc);
 					switch (tc.type) {
-					case ClassMethod.TYPE_HANDLE:
+					case DescriptorAnalyzer.TYPE_HANDLE:
 						putLocalHandle(index, aref);
 						break;
-					case ClassMethod.TYPE_RETURN:
+					case DescriptorAnalyzer.TYPE_RETURN:
 						putLocalReturn(index, aref);
 						break;
 					default:
@@ -2366,7 +2367,7 @@ public final class DefaultThread implements JThread {
 			}
 
 		} catch (VMException e) {
-			 e.printStackTrace();
+			e.printStackTrace();
 			assert context.getConsole().debug("Exception thrown", e);
 			try {
 				int handle = context.getThrower().prepareThrowable(e, this);
@@ -2418,7 +2419,7 @@ public final class DefaultThread implements JThread {
 	}
 
 	/**
-	 *
+	 * 
 	 * @param targetClass
 	 * @return will break?
 	 */
@@ -2496,7 +2497,7 @@ public final class DefaultThread implements JThread {
 
 	public void pushType(int value, byte type) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		assert type != ClassMethod.TYPE_HANDLE
+		assert type != DescriptorAnalyzer.TYPE_HANDLE
 				|| (!(value < 0 || value > JHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		frames.put(getSTB() + getSR(), type);
@@ -2507,10 +2508,10 @@ public final class DefaultThread implements JThread {
 	public int popHandle() {
 		setSR(getSR() - 1);
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+		assert frames.get(getSTB() + getSR()) == DescriptorAnalyzer.TYPE_HANDLE : "Type mismatch!"
 				+ frames.get(getSTB() + getSR())
 				+ " should be "
-				+ ClassMethod.TYPE_HANDLE;
+				+ DescriptorAnalyzer.TYPE_HANDLE;
 		return frames.getInt(getSB() + (getSR() << 2));
 	}
 
@@ -2518,7 +2519,7 @@ public final class DefaultThread implements JThread {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
 		assert !(handle < 0 || handle > JHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ handle;
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_HANDLE);
+		frames.put(getSTB() + getSR(), DescriptorAnalyzer.TYPE_HANDLE);
 		frames.putInt(getSB() + (getSR() << 2), handle);
 		setSR(getSR() + 1);
 	}
@@ -2526,16 +2527,16 @@ public final class DefaultThread implements JThread {
 	public int popInt() {
 		setSR(getSR() - 1);
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_INT : "Type mismatch!"
+		assert frames.get(getSTB() + getSR()) == DescriptorAnalyzer.TYPE_INT : "Type mismatch!"
 				+ frames.get(getSTB() + getSR())
 				+ " should be "
-				+ ClassMethod.TYPE_INT;
+				+ DescriptorAnalyzer.TYPE_INT;
 		return frames.getInt(getSB() + (getSR() << 2));
 	}
 
 	public void pushInt(int value) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_INT);
+		frames.put(getSTB() + getSR(), DescriptorAnalyzer.TYPE_INT);
 		frames.putInt(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 1);
 
@@ -2543,17 +2544,17 @@ public final class DefaultThread implements JThread {
 
 	public float popFloat() {
 		setSR(getSR() - 1);
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_INT : "Type mismatch!"
+		assert frames.get(getSTB() + getSR()) == DescriptorAnalyzer.TYPE_INT : "Type mismatch!"
 				+ frames.get(getSTB() + getSR())
 				+ " should be "
-				+ ClassMethod.TYPE_INT;
+				+ DescriptorAnalyzer.TYPE_INT;
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
 		return frames.getFloat(getSB() + (getSR() << 2));
 	}
 
 	public void pushFloat(float value) {
 		assert getSR() < getSC() : "Stack overflow!" + getSR() + ">=" + getSC();
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_INT);
+		frames.put(getSTB() + getSR(), DescriptorAnalyzer.TYPE_INT);
 		frames.putFloat(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 1);
 
@@ -2562,18 +2563,18 @@ public final class DefaultThread implements JThread {
 	public double popDouble() {
 		setSR(getSR() - 2);
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_WIDE : "Type mismatch!"
+		assert frames.get(getSTB() + getSR()) == DescriptorAnalyzer.TYPE_WIDE : "Type mismatch!"
 				+ frames.get(getSTB() + getSR())
 				+ " should be "
-				+ ClassMethod.TYPE_WIDE;
+				+ DescriptorAnalyzer.TYPE_WIDE;
 		return frames.getDouble(getSB() + (getSR() << 2));
 	}
 
 	public void pushDouble(double value) {
 		assert getSR() < (getSC() - 1) : "Stack overflow!" + getSR() + ">="
 				+ (getSC() - 1);
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_WIDE);
-		frames.put(getSTB() + getSR() + 1, ClassMethod.TYPE_WIDE2);
+		frames.put(getSTB() + getSR(), DescriptorAnalyzer.TYPE_WIDE);
+		frames.put(getSTB() + getSR() + 1, DescriptorAnalyzer.TYPE_WIDE2);
 		frames.putDouble(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 2);
 
@@ -2582,18 +2583,18 @@ public final class DefaultThread implements JThread {
 	public long popLong() {
 		setSR(getSR() - 2);
 		assert getSR() >= 0 : "Stack underflow!" + getSR() + "<" + 0;
-		assert frames.get(getSTB() + getSR()) == ClassMethod.TYPE_WIDE : "Type mismatch!"
+		assert frames.get(getSTB() + getSR()) == DescriptorAnalyzer.TYPE_WIDE : "Type mismatch!"
 				+ frames.get(getSTB() + getSR())
 				+ " should be "
-				+ ClassMethod.TYPE_WIDE;
+				+ DescriptorAnalyzer.TYPE_WIDE;
 		return frames.getLong(getSB() + (getSR() << 2));
 	}
 
 	public void pushLong(long value) {
 		assert getSR() < getSC() - 1 : "Stack overflow!" + getSR() + ">="
 				+ (getSC() - 1);
-		frames.put(getSTB() + getSR(), ClassMethod.TYPE_WIDE);
-		frames.put(getSTB() + getSR() + 1, ClassMethod.TYPE_WIDE2);
+		frames.put(getSTB() + getSR(), DescriptorAnalyzer.TYPE_WIDE);
+		frames.put(getSTB() + getSR() + 1, DescriptorAnalyzer.TYPE_WIDE2);
 		frames.putLong(getSB() + (getSR() << 2), value);
 		setSR(getSR() + 2);
 
@@ -2603,10 +2604,10 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_RETURN : "Type mismatch!"
+		assert frames.get(getLTB() + index) == DescriptorAnalyzer.TYPE_RETURN : "Type mismatch!"
 				+ frames.get(getLTB() + index)
 				+ " should be "
-				+ ClassMethod.TYPE_RETURN;
+				+ DescriptorAnalyzer.TYPE_RETURN;
 		return frames.getInt(pos);
 	}
 
@@ -2615,7 +2616,7 @@ public final class DefaultThread implements JThread {
 
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		frames.put(getLTB() + index, ClassMethod.TYPE_RETURN);
+		frames.put(getLTB() + index, DescriptorAnalyzer.TYPE_RETURN);
 		frames.putInt(pos, value);
 	}
 
@@ -2623,10 +2624,10 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_HANDLE : "Type mismatch!"
+		assert frames.get(getLTB() + index) == DescriptorAnalyzer.TYPE_HANDLE : "Type mismatch!"
 				+ frames.get(getLTB() + index)
 				+ " should be "
-				+ ClassMethod.TYPE_HANDLE;
+				+ DescriptorAnalyzer.TYPE_HANDLE;
 		return frames.getInt(pos);
 	}
 
@@ -2637,7 +2638,7 @@ public final class DefaultThread implements JThread {
 				+ (getLC() - 1);
 		assert !(value < 0 || value > JHeap.MAX_OBJECTS) : "Put a invalid handle!"
 				+ value + " " + JHeap.MAX_OBJECTS;
-		frames.put(getLTB() + index, ClassMethod.TYPE_HANDLE);
+		frames.put(getLTB() + index, DescriptorAnalyzer.TYPE_HANDLE);
 		frames.putInt(pos, value);
 	}
 
@@ -2653,7 +2654,7 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert type != ClassMethod.TYPE_HANDLE
+		assert type != DescriptorAnalyzer.TYPE_HANDLE
 				|| (!(value < 0 || value > JHeap.MAX_OBJECTS)) : "Put a invalid handle!"
 				+ value;
 		frames.put(getLTB() + index, type);
@@ -2664,10 +2665,10 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_INT : "Type mismatch!"
+		assert frames.get(getLTB() + index) == DescriptorAnalyzer.TYPE_INT : "Type mismatch!"
 				+ frames.get(getLTB() + index)
 				+ " should be "
-				+ ClassMethod.TYPE_INT;
+				+ DescriptorAnalyzer.TYPE_INT;
 		return frames.getInt(pos);
 	}
 
@@ -2675,7 +2676,7 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		frames.put(getLTB() + index, ClassMethod.TYPE_INT);
+		frames.put(getLTB() + index, DescriptorAnalyzer.TYPE_INT);
 		frames.putInt(pos, value);
 	}
 
@@ -2683,10 +2684,10 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_INT : "Type mismatch!"
+		assert frames.get(getLTB() + index) == DescriptorAnalyzer.TYPE_INT : "Type mismatch!"
 				+ frames.get(getLTB() + index)
 				+ " should be "
-				+ ClassMethod.TYPE_INT;
+				+ DescriptorAnalyzer.TYPE_INT;
 		return frames.getFloat(pos);
 	}
 
@@ -2694,7 +2695,7 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() : "Local var overflow!" + pos + ">"
 				+ (getLC() - 1);
-		frames.put(getLTB() + index, ClassMethod.TYPE_INT);
+		frames.put(getLTB() + index, DescriptorAnalyzer.TYPE_INT);
 		frames.putFloat(pos, value);
 	}
 
@@ -2704,10 +2705,10 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
 				+ (getLC() - 2);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_WIDE : "Type mismatch!"
+		assert frames.get(getLTB() + index) == DescriptorAnalyzer.TYPE_WIDE : "Type mismatch!"
 				+ frames.get(getLTB() + index)
 				+ " should be "
-				+ ClassMethod.TYPE_WIDE;
+				+ DescriptorAnalyzer.TYPE_WIDE;
 		return frames.getLong(pos);
 	}
 
@@ -2715,8 +2716,8 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
 				+ (getLC() - 2);
-		frames.put(getLTB() + index, ClassMethod.TYPE_WIDE);
-		frames.put(getLTB() + index + 1, ClassMethod.TYPE_WIDE2);
+		frames.put(getLTB() + index, DescriptorAnalyzer.TYPE_WIDE);
+		frames.put(getLTB() + index + 1, DescriptorAnalyzer.TYPE_WIDE2);
 		frames.putLong(pos, value);
 	}
 
@@ -2724,10 +2725,10 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
 				+ (getLC() - 2);
-		assert frames.get(getLTB() + index) == ClassMethod.TYPE_WIDE : "Type mismatch!"
+		assert frames.get(getLTB() + index) == DescriptorAnalyzer.TYPE_WIDE : "Type mismatch!"
 				+ frames.get(getLTB() + index)
 				+ " should be "
-				+ ClassMethod.TYPE_WIDE;
+				+ DescriptorAnalyzer.TYPE_WIDE;
 		return frames.getDouble(pos);
 	}
 
@@ -2735,8 +2736,8 @@ public final class DefaultThread implements JThread {
 		int pos = getLB() + (index << 2);
 		assert index < getLC() - 1 : "Local var overflow!" + pos + ">"
 				+ (getLC() - 2);
-		frames.put(getLTB() + index, ClassMethod.TYPE_WIDE);
-		frames.put(getLTB() + index + 1, ClassMethod.TYPE_WIDE2);
+		frames.put(getLTB() + index, DescriptorAnalyzer.TYPE_WIDE);
+		frames.put(getLTB() + index + 1, DescriptorAnalyzer.TYPE_WIDE2);
 		frames.putDouble(pos, value);
 	}
 
@@ -2838,7 +2839,7 @@ public final class DefaultThread implements JThread {
 				out.setLength(0);
 			}
 			for (int i = 0, max = getLC(); i < max; i++) {
-				if (frames.get(ltb + i) == ClassMethod.TYPE_HANDLE) {
+				if (frames.get(ltb + i) == DescriptorAnalyzer.TYPE_HANDLE) {
 					int handle = frames.getInt(lb + (i << 2));
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);
@@ -2849,7 +2850,7 @@ public final class DefaultThread implements JThread {
 			}
 
 			for (int i = 0, max = getSR(); i < max; i++) {
-				if (frames.get(stb + i) == ClassMethod.TYPE_HANDLE) {
+				if (frames.get(stb + i) == DescriptorAnalyzer.TYPE_HANDLE) {
 					int handle = frames.getInt(sb + (i << 2));
 					if (handle > 0) {
 						assert heap.isHandleValid(handle);

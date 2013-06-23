@@ -116,8 +116,8 @@ public class DefaultClassLoader implements IClassLoader {
 		}
 	}
 
-	private ClassBase loadClassFromStream(ClassBase cb, InputStream is,
-			VMContext context) throws IOException, VMException {
+	public ClassBase loadClassFromStream(ClassBase cb, InputStream is,
+			VMContext context) throws IOException {
 
 		DataInputStream dis = new DataInputStream(is);
 		cb.setMagic(dis.readInt());
@@ -354,10 +354,12 @@ public class DefaultClassLoader implements IClassLoader {
 			}
 			cb.getMethods()[i] = method;
 		}
+		/*
 		if (usle.size() > 0) {
 			throw new VMException("java/lang/UnsatisfiedLinkError",
 					usle.toString());
 		}
+		*/
 		fetchAttributes(cb, dis, cb);
 
 		AttributeInnerClasses ic = (AttributeInnerClasses) Attribute

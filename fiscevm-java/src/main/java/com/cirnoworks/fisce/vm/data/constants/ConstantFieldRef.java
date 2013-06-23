@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import com.cirnoworks.fisce.vm.data.ClassField;
@@ -51,16 +52,18 @@ public class ConstantFieldRef extends Constant implements IReference {
 				+ (int) nameAndTypeIndex;
 	}
 
-	public synchronized ClassField getTargetField() throws VMException, VMCriticalException {
+	public synchronized ClassField getTargetField() throws VMException,
+			VMCriticalException {
 		assert owner.isConstantsLoaded();
 		if (targetField == null) {
 			ClassBase cb = (ClassBase) clazz.getClazz();
 			targetField = context.getField(uniqueName);
 			// Already registered!
 			if (targetField == null) {
-				targetField = context.lookupFieldVirtual(cb, nameAndType
-						.getName()
-						+ "." + nameAndType.getDescriptor());
+				targetField = context.lookupFieldVirtual(
+						cb,
+						nameAndType.getName() + "."
+								+ nameAndType.getDescriptor());
 			}
 			if (targetField == null) {
 				throw new VMException("java/lang/NoSuchFieldError", uniqueName);
@@ -70,7 +73,7 @@ public class ConstantFieldRef extends Constant implements IReference {
 	}
 
 	public char getClassIndex() {
-		return classIndex; 
+		return classIndex;
 	}
 
 	public char getNameAndTypeIndex() {
@@ -140,6 +143,20 @@ public class ConstantFieldRef extends Constant implements IReference {
 
 	public void setUniqueName(String uniqueName) {
 		this.uniqueName = uniqueName;
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(
+				sb,
+				baseIndent + 1,
+				"nameAndType",
+				SimpleJSONUtil.escapeString("." + nameAndType.getName() + "."
+						+ nameAndType.getDescriptor(), true), true);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "uniqueName",
+				SimpleJSONUtil.escapeString(uniqueName, true), false);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 
 }

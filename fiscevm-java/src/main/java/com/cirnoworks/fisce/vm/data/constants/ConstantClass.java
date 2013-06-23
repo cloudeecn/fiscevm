@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.AbstractClass;
 import com.cirnoworks.fisce.vm.data.ClassBase;
@@ -52,7 +53,8 @@ public class ConstantClass extends Constant {
 		name = owner.getStringFromUTF8Constant(nameIndex);
 	}
 
-	public synchronized AbstractClass getClazz() throws VMException, VMCriticalException {
+	public synchronized AbstractClass getClazz() throws VMException,
+			VMCriticalException {
 		assert owner.isConstantsLoaded();
 		if (clazz == null) {
 			clazz = context.getClass(name);
@@ -87,5 +89,13 @@ public class ConstantClass extends Constant {
 	@Override
 	public String toString() {
 		return "ConstantClass:" + (int) nameIndex + ":" + getName();
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "name",
+				SimpleJSONUtil.escapeString(getName(), true), false);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 }

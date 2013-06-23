@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import com.cirnoworks.fisce.intf.INativeHandler;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IMethod;
+import com.cirnoworks.fisce.util.DescriptorAnalyzer;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.attributes.Attribute;
 import com.cirnoworks.fisce.vm.data.attributes.ExceptionHandler;
@@ -35,14 +36,8 @@ import com.cirnoworks.fisce.vm.data.constants.ConstantClass;
  * @author yuxuanhuang
  */
 public final class ClassMethod implements IAttributesHolder, IMethod {
-	public static final byte TYPE_INT = 'I';
-	public static final byte TYPE_WIDE = 'W';
-	public static final byte TYPE_HANDLE = 'H';
-	public static final byte TYPE_RETURN = 'R';
-	public static final byte TYPE_WIDE2 = '_';
-	public static final byte TYPE_UNKNOWN = 0;
 
-//	private VMContext context;
+	// private VMContext context;
 	private ClassBase owner;
 	private char accessFlags;
 	private char nameIndex;
@@ -68,6 +63,10 @@ public final class ClassMethod implements IAttributesHolder, IMethod {
 	private ConstantClass[] exceptions;
 	private boolean clinit;
 	private INativeHandler nativeHandler;
+
+	private int parameterCount;
+	private String[] parameterTypeClassNames;
+	private String returnTypeClassName;
 
 	public String toString() {
 		StringWriter sw = new StringWriter();
@@ -110,108 +109,25 @@ public final class ClassMethod implements IAttributesHolder, IMethod {
 	}
 
 	public ClassMethod(VMContext context, ClassBase owner) {
-//		this.context = context;
+		// this.context = context;
 		this.owner = owner;
-	}
-
-	public static byte getType2(String type) {
-		switch (type.charAt(0)) {
-		case 'B':
-		case 'C':
-		case 'F':
-		case 'I':
-		case 'S':
-		case 'Z':
-			return TYPE_INT;
-		case 'D':
-		case 'J':
-			return TYPE_WIDE;
-		case '[':
-		case 'L':
-			return TYPE_HANDLE;
-		case 'V':
-			return TYPE_UNKNOWN;
-		default:
-			return TYPE_UNKNOWN;
-		}
 	}
 
 	public static void countParams(String descriptor, ClassMethod method)
 			throws VMException {
-		int pc = 0;
-		ByteArrayOutputStream pt = new ByteArrayOutputStream();
-		StringBuilder sb = new StringBuilder();
 		try {
-			String tmp = descriptor.substring(descriptor.indexOf('(') + 1,
-					descriptor.indexOf(')'));
+			DescriptorAnalyzer da = new DescriptorAnalyzer(descriptor);
 			if (method != null) {
-				method.returnType = getType2(descriptor.substring(descriptor
-						.indexOf(")") + 1));
-			}
-			for (int i = 0, max = tmp.length(); i < max; i++) {
-				char ch;
-				switch (tmp.charAt(i)) {
-				case 'B':
-				case 'C':
-				case 'F':
-				case 'I':
-				case 'S':
-				case 'Z':
-					if (method != null) {
-						pt.write(TYPE_INT);
-					}
-					pc += 1;
-					break;
-				case 'D':
-				case 'J':
-					if (method != null) {
-						pt.write(TYPE_WIDE);
-						pt.write(TYPE_WIDE2);
-					}
-					pc += 2;
-					break;
-				case '[':
-					sb.append('[');
-					while ((ch = tmp.charAt(++i)) == '[') {
-						sb.append(ch);
-					}
-					sb.append(ch);
-					if (ch == 'L') {
-						while ((ch = tmp.charAt(++i)) != ';') {
-							sb.append(ch);
-						}
-						sb.append(ch);
-					}
-					if (method != null) {
-						pt.write(TYPE_HANDLE);
-					}
-					sb.setLength(0);
-					pc += 1;
-					break;
-				case 'L':
-					sb.append('L');
-					while ((ch = tmp.charAt(++i)) != ';') {
-						sb.append(ch);
-					}
-					sb.append(ch);
-					if (method != null) {
-						pt.write(TYPE_HANDLE);
-					}
-					sb.setLength(0);
-					pc += 1;
-					break;
+				method.returnType = da.getReturnType();
+				method.returnTypeClassName = da.getReturnClassName();
 
-				default:
-					throw new VMException("java/lang/LinkageError",
-							"Malformed description data" + method == null ? ""
-									: (" for method " + method.uniqueName));
-				}
+				method.paramCount = da.getParamStackUsage();
+				method.paramType = da.getParamTypes();
+
+				method.parameterCount = da.getParamCount();
+				method.parameterTypeClassNames = da.getParamClassNames();
 			}
-			if (method != null) {
-				method.paramCount = pc;
-				method.paramType = pt.toByteArray();
-			}
-		} catch (IndexOutOfBoundsException e) {
+		} catch (IllegalArgumentException e) {
 			throw new VMException("java/lang/LinkageError", e.toString());
 		}
 	}
@@ -377,6 +293,18 @@ public final class ClassMethod implements IAttributesHolder, IMethod {
 
 	public void setNativeHandler(INativeHandler nativeHandler) {
 		this.nativeHandler = nativeHandler;
+	}
+	
+	public int getParameterCount() {
+		return parameterCount;
+	}
+
+	public String[] getParameterTypeClassNames() {
+		return parameterTypeClassNames;
+	}
+
+	public String getReturnTypeClassName() {
+		return returnTypeClassName;
 	}
 
 	@Override

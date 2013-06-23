@@ -16,33 +16,45 @@
  */
 package com.cirnoworks.fisce.vm.data.constants;
 
-import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.data.ClassBase;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.data.ClassBase;
+
 /**
- *
+ * 
  * @author cloudee
  */
 public class ConstantFloat extends Constant {
 
-    public float data;
+	public float data;
 
-    public ConstantFloat(VMContext context, ClassBase owner, DataInputStream dis)
-            throws IOException {
-        super(4, context, owner);
-        data = dis.readFloat();
-    }
+	public ConstantFloat(VMContext context, ClassBase owner, DataInputStream dis)
+			throws IOException {
+		super(4, context, owner);
+		data = dis.readFloat();
+	}
 
-    public float getData() {
-        return data;
-    }
+	public float getData() {
+		return data;
+	}
 
-    public void fillConstants() {
-    }
+	public void fillConstants() {
+	}
 
-    public String toString() {
-        return "ConstantFloat:" + data;
-    }
+	public String toString() {
+		return "ConstantFloat:" + data;
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "value", String.valueOf(data),
+				true);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "ieeeValue",
+				String.valueOf(Float.floatToIntBits(data)), false);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
+	}
 }

@@ -19,10 +19,11 @@ package com.cirnoworks.fisce.vm.data;
 import com.cirnoworks.fisce.intf.VMException;
 
 /**
- *
+ * 
  * @author cloudee
  */
 public interface IConstantHolder {
 
-    void fillConstants() throws VMException;
+	void fillConstants() throws VMException;
+
 }

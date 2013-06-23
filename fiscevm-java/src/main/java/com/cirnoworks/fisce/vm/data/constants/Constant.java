@@ -58,4 +58,7 @@ public abstract class Constant implements IConstantHolder {
 	public byte getTag() {
 		return tag;
 	}
+
+	public abstract void appendJSON(StringBuilder sb, int baseIndent,
+			boolean addComma);
 }

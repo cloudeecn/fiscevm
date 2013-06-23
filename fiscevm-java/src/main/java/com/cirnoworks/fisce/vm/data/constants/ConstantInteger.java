@@ -16,31 +16,42 @@
  */
 package com.cirnoworks.fisce.vm.data.constants;
 
+import com.cirnoworks.fisce.util.SimpleJSONUtil;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.ClassBase;
 import java.io.DataInputStream;
 import java.io.IOException;
 
 /**
- *
+ * 
  * @author cloudee
  */
 public class ConstantInteger extends Constant {
-    private int data;
+	private int data;
 
-    public ConstantInteger(VMContext context, ClassBase owner,
-            DataInputStream dis) throws IOException {
-        super(3, context, owner);
-        data = dis.readInt();
-    }
+	public ConstantInteger(VMContext context, ClassBase owner,
+			DataInputStream dis) throws IOException {
+		super(3, context, owner);
+		data = dis.readInt();
+	}
 
-    public int getData() {
-        return data;
-    }
-    public void fillConstants(){
+	public int getData() {
+		return data;
+	}
 
-    }
-    public String toString() {
-        return "ConstantFloat:" + data;
-    }
+	public void fillConstants() {
+
+	}
+
+	public String toString() {
+		return "ConstantFloat:" + data;
+	}
+
+	@Override
+	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+		SimpleJSONUtil.add(sb, baseIndent, "{", false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "value", String.valueOf(data),
+				false);
+		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
+	}
 }

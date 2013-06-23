@@ -65,4 +65,5 @@ public abstract class Attribute implements IConstantHolder {
     }
 
     public abstract void fillConstants();
+
 }
