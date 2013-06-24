@@ -128,6 +128,7 @@ public final class ClassMethod implements IAttributesHolder, IMethod {
 				method.parameterTypeClassNames = da.getParamClassNames();
 			}
 		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
 			throw new VMException("java/lang/LinkageError", e.toString());
 		}
 	}

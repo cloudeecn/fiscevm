@@ -16,6 +16,10 @@ public final class SimpleJSONUtil {
 		translateTable['/'] = "\\/";
 	}
 
+	public static String escapeString(String origString) {
+		return escapeString(origString, true);
+	}
+
 	public static String escapeString(String origString, boolean addQuote) {
 		StringBuilder sb = new StringBuilder(origString.length() * 2
 				+ (addQuote ? 2 : 0));

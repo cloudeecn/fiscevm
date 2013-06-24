@@ -95,20 +95,25 @@ public class DescriptorAnalyzer {
 			case '[': {
 				paramTypesList.add(TYPE_HANDLE);
 				int pos0 = pos - 1;
-				while (params.charAt(pos++) == '[')
-					;
-				if (params.charAt(pos++) == 'L') {
-					while (params.charAt(pos++) != ';')
-						;
+				while (params.charAt(pos) == '[') {
+					pos++;
 				}
+				if (params.charAt(pos) == 'L') {
+					while (params.charAt(pos) != ';') {
+						pos++;
+					}
+				}
+				pos++;
 				paramClassNamesList.add(params.substring(pos0, pos));
 				break;
 			}
 			case 'L': {
 				paramTypesList.add(TYPE_HANDLE);
 				int pos0 = pos;
-				while (params.charAt(pos++) != ';')
-					;
+				while (params.charAt(pos) != ';') {
+					pos++;
+				}
+				pos++;
 				paramClassNamesList.add(params.substring(pos0, pos - 1));
 				break;
 			}
