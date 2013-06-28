@@ -217,7 +217,6 @@ public final class Phase0ClassLoader {
 
 		char methodsCount = dis.readChar();
 		cb.setMethods(new MethodData[methodsCount]);
-		ArrayList<String> usle = new ArrayList<String>();
 		for (int i = 0; i < methodsCount; i++) {
 			MethodData method = new MethodData();
 			method.setAccessFlags(dis.readChar());

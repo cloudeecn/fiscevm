@@ -16,14 +16,13 @@
  */
 package com.cirnoworks.fisce.vm.data;
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import com.cirnoworks.fisce.classloader.utils.DescriptorAnalyzer;
 import com.cirnoworks.fisce.intf.INativeHandler;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IMethod;
-import com.cirnoworks.fisce.util.DescriptorAnalyzer;
 import com.cirnoworks.fisce.vm.VMContext;
 import com.cirnoworks.fisce.vm.data.attributes.Attribute;
 import com.cirnoworks.fisce.vm.data.attributes.ExceptionHandler;

@@ -16,11 +16,12 @@
  */
 package com.cirnoworks.fisce.vm.data.constants;
 
-import com.cirnoworks.fisce.util.SimpleJSONUtil;
-import com.cirnoworks.fisce.vm.VMContext;
-import com.cirnoworks.fisce.vm.data.ClassBase;
 import java.io.DataInputStream;
 import java.io.IOException;
+
+import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
+import com.cirnoworks.fisce.vm.VMContext;
+import com.cirnoworks.fisce.vm.data.ClassBase;
 
 /**
  * 
