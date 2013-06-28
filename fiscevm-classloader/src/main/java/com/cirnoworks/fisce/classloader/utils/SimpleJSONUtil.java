@@ -1,4 +1,4 @@
-package com.cirnoworks.fisce.util;
+package com.cirnoworks.fisce.classloader.utils;
 
 public final class SimpleJSONUtil {
 
@@ -10,21 +10,26 @@ public final class SimpleJSONUtil {
 		translateTable['\f'] = "\\f";
 		translateTable['\r'] = "\\r";
 
-		translateTable['\''] = "\\'";
-		translateTable['\"'] = "\\\"";
+		// translateTable['\''] = "\\'";
+		// translateTable['\"'] = "\\\"";
 		translateTable['\\'] = "\\\\";
 		translateTable['/'] = "\\/";
 	}
 
 	public static String escapeString(String origString) {
-		return escapeString(origString, true);
+		return escapeString(origString, '"', true);
 	}
 
 	public static String escapeString(String origString, boolean addQuote) {
+		return escapeString(origString, '"', addQuote);
+	}
+
+	public static String escapeString(String origString, char quote,
+			boolean addQuote) {
 		StringBuilder sb = new StringBuilder(origString.length() * 2
 				+ (addQuote ? 2 : 0));
 		if (addQuote) {
-			sb.append("\"");
+			sb.append(quote);
 		}
 		for (int i = 0, max = origString.length(); i < max; i++) {
 			char c = origString.charAt(i);
@@ -40,16 +45,21 @@ public final class SimpleJSONUtil {
 				}
 				sb.append(Integer.toString(c, 16));
 			} else {
-				String translated = translateTable[c];
-				if (translated == null) {
+				if (c == quote) {
+					sb.append('\\');
 					sb.append(c);
 				} else {
-					sb.append(translated);
+					String translated = translateTable[c];
+					if (translated == null) {
+						sb.append(c);
+					} else {
+						sb.append(translated);
+					}
 				}
 			}
 		}
 		if (addQuote) {
-			sb.append("\"");
+			sb.append(quote);
 		}
 		return sb.toString();
 	}

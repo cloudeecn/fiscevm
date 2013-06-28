@@ -1,4 +1,4 @@
-package com.cirnoworks.fisce.util;
+package com.cirnoworks.fisce.classloader.utils;
 
 import java.util.ArrayList;
 

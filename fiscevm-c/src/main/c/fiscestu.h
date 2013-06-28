@@ -230,7 +230,7 @@ typedef struct fy_method {
 	struct fy_lineNumber* line_number_table;
 
 	/*The count of the parameters (long/double will be counted as 2)*/
-	fy_int paramCount;
+	fy_int paramStackUsage;
 	fy_byte *paramTypes;
 	fy_byte returnType;
 

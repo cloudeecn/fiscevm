@@ -169,7 +169,7 @@ void testClassMethod() {
 	}
 	fy_strDestroy(block, sComplex);
 	FY_ASSERT(target!= NULL);
-	FY_ASSERT(target->paramCount == 8);
+	FY_ASSERT(target->paramStackUsage == 8);
 	class0 = lookup(context, ""FY_BASE_OBJECT"", exception);
 	class1 = lookup(context, "[[B", exception);
 	class2 = lookup(context, "[[C", exception);

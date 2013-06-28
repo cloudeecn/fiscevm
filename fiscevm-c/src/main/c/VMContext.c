@@ -623,12 +623,12 @@ void fy_vmRegisterField(fy_context *context, fy_field *field,
 }
 
 fy_field *fy_vmGetField(fy_context *context, fy_str *uniqueName) {
-	int *pMid = fy_hashMapGet(context->memblocks, context->mapFieldNameToId,
+	int *pFid = fy_hashMapGet(context->memblocks, context->mapFieldNameToId,
 			uniqueName);
-	if (pMid == NULL) {
+	if (pFid == NULL) {
 		return NULL;
 	}
-	return context->fields[*pMid];
+	return context->fields[*pFid];
 }
 
 fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
@@ -725,17 +725,6 @@ fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
 	fy_strDestroy(block, uniqueName);
 	fy_mmFree(block, uniqueName);
 	return field;
-}
-
-int fy_vmGetMethodId(fy_context *context, fy_str *uniqueName,
-		fy_exception *exception) {
-	int *pMid;
-	pMid = fy_hashMapGet(context->memblocks, context->mapMethodNameToId,
-			uniqueName);
-	if (pMid == NULL) {
-		fy_fault(exception, NULL, "Can't find method!");
-	}
-	return *pMid;
 }
 
 void fy_vmRegisterMethod(fy_context *context, fy_method *method,

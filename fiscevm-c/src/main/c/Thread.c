@@ -750,7 +750,7 @@ static void doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 static void invokeVirtual(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_exception *exception,
 		fy_message *message) {
-	fy_int count = method->paramCount + 1;
+	fy_int count = method->paramStackUsage + 1;
 	fy_method *actureMethod;
 	fy_class *clazz;
 	fy_uint *stack;
@@ -801,7 +801,7 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 static void invokeDirect(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_exception *exception,
 		fy_message *message) {
-	fy_int count = method->paramCount + 1;
+	fy_int count = method->paramStackUsage + 1;
 	fy_class *clazz;
 	fy_uint *stack;
 	fy_object *object;
@@ -847,7 +847,7 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 	char msg[256];
 	fy_class *owner = method->owner;
 	fy_class *clinitClazz;
-	fy_uint count = method->paramCount;
+	fy_uint count = method->paramStackUsage;
 #ifdef FY_VERBOSE
 	context->logDVar(context,"Invoke static: ");
 	context->logDStr(context, method->uniqueName);
@@ -2582,7 +2582,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				context->logDVar(context,"\n");
 #endif
 				clazz2 = mvalue->owner;
-				ivalue = mvalue->paramCount + 1;/*count*/
+				ivalue = mvalue->paramStackUsage + 1;/*count*/
 				fy_checkCall(ivalue);
 				sp -= ivalue;
 				if ((clazz1->accessFlags & FY_ACC_SUPER)

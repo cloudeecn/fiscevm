@@ -1943,7 +1943,7 @@ static void classInvokeMethod(struct fy_context *context,
 	count = paramsHandle == 0 ?
 			0 : fy_heapArrayLength(context, paramsHandle, exception);
 	FYEH();
-	if (count != method->paramCount) {
+	if (count != method->paramStackUsage) {
 		fy_fault(exception, FY_EXCEPTION_ITE, "param count not match!");
 		return;
 	}
