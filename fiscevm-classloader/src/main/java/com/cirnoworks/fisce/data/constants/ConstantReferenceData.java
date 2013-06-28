@@ -17,48 +17,20 @@
 package com.cirnoworks.fisce.data.constants;
 
 import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
+import com.cirnoworks.fisce.classloader.utils.StringPool;
 import com.cirnoworks.fisce.data.constants.internal.ConstantNameTypeInfoData;
 
 /**
  * 
  * @author cloudee
  */
-public class ConstantReferenceData implements ConstantData, JSONExportable {
+public class ConstantReferenceData implements ConstantData, JSONExportableConstantData {
 
 	protected int clazzIdx;
-	protected ConstantClassData clazz;
 	protected int nameAndTypeIdx;
-	protected ConstantNameTypeInfoData nameAndType;
-	private String uniqueName;
-
-	public String toString() {
-		return "ConstantRef: " + uniqueName;
-	}
-
-	public void fillUniqueName() {
-		uniqueName = clazz.getName() + "." + nameAndType.getName() + "."
-				+ nameAndType.getDescriptor();
-	}
-
-	public String getUniqueName() {
-		return uniqueName;
-	}
-
-	public void setClazz(ConstantClassData clazz) {
-		this.clazz = clazz;
-	}
-
-	public void setNameAndType(ConstantNameTypeInfoData nameAndType) {
-		this.nameAndType = nameAndType;
-	}
-
-	public ConstantClassData getClazz() {
-		return clazz;
-	}
-
-	public ConstantNameTypeInfoData getNameAndType() {
-		return nameAndType;
-	}
+	protected String className;
+	protected String name;
+	protected String descriptior;
 
 	public int getClazzIdx() {
 		return clazzIdx;
@@ -77,54 +49,62 @@ public class ConstantReferenceData implements ConstantData, JSONExportable {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((className == null) ? 0 : className.hashCode());
+		result = prime * result
+				+ ((descriptior == null) ? 0 : descriptior.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		if (obj == null) {
+		if (this == obj)
+			return true;
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
-		final ConstantReferenceData other = (ConstantReferenceData) obj;
-		if (this.clazz != other.clazz
-				&& (this.clazz == null || !this.clazz.equals(other.clazz))) {
+		ConstantReferenceData other = (ConstantReferenceData) obj;
+		if (className == null) {
+			if (other.className != null)
+				return false;
+		} else if (!className.equals(other.className))
 			return false;
-		}
-		if (this.nameAndType != other.nameAndType
-				&& (this.nameAndType == null || !this.nameAndType
-						.equals(other.nameAndType))) {
+		if (descriptior == null) {
+			if (other.descriptior != null)
+				return false;
+		} else if (!descriptior.equals(other.descriptior))
 			return false;
-		}
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
 		return true;
 	}
 
 	@Override
-	public int hashCode() {
-		int hash = 7;
-		hash = 41 * hash + (this.clazz != null ? this.clazz.hashCode() : 0);
-		hash = 41 * hash
-				+ (this.nameAndType != null ? this.nameAndType.hashCode() : 0);
-		return hash;
-	}
-
-	@Override
-	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
+			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
 		SimpleJSONUtil.add(sb, baseIndent + 1, "\"className\"",
-				SimpleJSONUtil.escapeString(clazz.getName(), true), true);
-		SimpleJSONUtil.add(
-				sb,
-				baseIndent + 1,
-				"\"nameAndType\"",
-				SimpleJSONUtil.escapeString("." + nameAndType.getName() + "."
-						+ nameAndType.getDescriptor(), true), false);
+				spool.poolString(className), true);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "\"nameAndType\"",
+				spool.poolString("." + name + "." + descriptior), false);
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 
 	@Override
 	public void fillConstants(ConstantData[] constantPool) {
-		clazz = (ConstantClassData) constantPool[clazzIdx];
-		nameAndType = (ConstantNameTypeInfoData) constantPool[nameAndTypeIdx];
-		fillUniqueName();
+		ConstantClassData clazz = (ConstantClassData) constantPool[clazzIdx];
+		ConstantNameTypeInfoData nameAndType = (ConstantNameTypeInfoData) constantPool[nameAndTypeIdx];
+		className = clazz.getName();
+		name = nameAndType.getName();
+		descriptior = nameAndType.getDescriptor();
 	}
 
 }

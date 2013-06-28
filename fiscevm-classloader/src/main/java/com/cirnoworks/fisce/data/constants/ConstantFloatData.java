@@ -17,12 +17,13 @@
 package com.cirnoworks.fisce.data.constants;
 
 import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
+import com.cirnoworks.fisce.classloader.utils.StringPool;
 
 /**
  * 
  * @author cloudee
  */
-public class ConstantFloatData implements ConstantData, JSONExportable {
+public class ConstantFloatData implements ConstantData, JSONExportableConstantData {
 
 	protected float data;
 
@@ -58,25 +59,9 @@ public class ConstantFloatData implements ConstantData, JSONExportable {
 	}
 
 	@Override
-	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
+			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		if (Float.isNaN(data)) {
-			SimpleJSONUtil.add(sb, baseIndent + 1, "\"special\"", "\"nan\"",
-					true);
-			SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"", "null", true);
-		} else if (Float.isInfinite(data)) {
-			if (data > 0) {
-				SimpleJSONUtil.add(sb, baseIndent + 1, "\"special\"",
-						"\"inf\"", true);
-			} else {
-				SimpleJSONUtil.add(sb, baseIndent + 1, "\"special\"",
-						"\"-inf\"", true);
-			}
-			SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"", "null", true);
-		} else {
-			SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"",
-					String.valueOf(data), true);
-		}
 		SimpleJSONUtil.add(sb, baseIndent + 1, "\"ieeeValue\"",
 				String.valueOf(Float.floatToIntBits(data)), false);
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);

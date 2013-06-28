@@ -17,12 +17,13 @@
 package com.cirnoworks.fisce.data.constants;
 
 import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
+import com.cirnoworks.fisce.classloader.utils.StringPool;
 
 /**
  * 
  * @author cloudee
  */
-public class ConstantDoubleData implements ConstantData, JSONExportable {
+public class ConstantDoubleData implements ConstantData, JSONExportableConstantData {
 
 	protected double data;
 
@@ -62,25 +63,9 @@ public class ConstantDoubleData implements ConstantData, JSONExportable {
 	}
 
 	@Override
-	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
+	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
+			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		if (Double.isNaN(data)) {
-			SimpleJSONUtil.add(sb, baseIndent + 1, "\"special\"", "\"nan\"",
-					true);
-			SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"", "null", true);
-		} else if (Double.isInfinite(data)) {
-			if (data > 0) {
-				SimpleJSONUtil.add(sb, baseIndent + 1, "\"special\"",
-						"\"inf\"", true);
-			} else {
-				SimpleJSONUtil.add(sb, baseIndent + 1, "\"special\"",
-						"\"-inf\"", true);
-			}
-			SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"", "null", true);
-		} else {
-			SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"",
-					String.valueOf(data), true);
-		}
 		long ieeeValue = Double.doubleToLongBits(data);
 		SimpleJSONUtil.add(sb, baseIndent + 1, "\"ieeeValueHigh\"",
 				String.valueOf(ieeeValue >>> 32), true);

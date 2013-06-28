@@ -16,11 +16,14 @@
  */
 package com.cirnoworks.fisce.data.constants;
 
+import com.cirnoworks.fisce.classloader.utils.StringPool;
+
 /**
  * 
  * @author cloudee
  */
-public interface JSONExportable{
+public interface JSONExportableConstantData extends ConstantData {
 
-	void appendJSON(StringBuilder sb, int baseIndent, boolean addComma);
+	void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
+			boolean addComma);
 }
