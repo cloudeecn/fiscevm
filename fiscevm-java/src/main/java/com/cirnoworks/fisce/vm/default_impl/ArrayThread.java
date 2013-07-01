@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import com.cirnoworks.fisce.classloader.utils.DescriptorAnalyzer;
 import com.cirnoworks.fisce.intf.VMCriticalException;
 import com.cirnoworks.fisce.intf.VMException;
 import com.cirnoworks.fisce.intf.idata.IMethod;
 import com.cirnoworks.fisce.util.BufferUtil;
-import com.cirnoworks.fisce.util.DescriptorAnalyzer;
 import com.cirnoworks.fisce.util.TypeUtil;
 import com.cirnoworks.fisce.vm.JHeap;
 import com.cirnoworks.fisce.vm.JThread;

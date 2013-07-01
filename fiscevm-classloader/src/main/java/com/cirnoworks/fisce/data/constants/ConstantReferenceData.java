@@ -103,8 +103,17 @@ public class ConstantReferenceData implements ConstantData, JSONExportableConsta
 		ConstantClassData clazz = (ConstantClassData) constantPool[clazzIdx];
 		ConstantNameTypeInfoData nameAndType = (ConstantNameTypeInfoData) constantPool[nameAndTypeIdx];
 		className = clazz.getName();
+		if (className == null) {
+			throw new NullPointerException();
+		}
 		name = nameAndType.getName();
+		if (name == null) {
+			throw new NullPointerException();
+		}
 		descriptior = nameAndType.getDescriptor();
+		if (descriptior == null) {
+			throw new NullPointerException();
+		}
 	}
 
 }

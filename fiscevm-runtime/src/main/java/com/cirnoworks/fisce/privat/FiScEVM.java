@@ -56,8 +56,10 @@ public final class FiScEVM {
 
 	public static boolean isFiScE;
 
-	public static PrintStream debug;
-	
+	public static PrintStream debug = System.out;
+
+	private static String[] levels;
+
 	static {
 		System.currentTimeMillis();
 	}
@@ -66,7 +68,10 @@ public final class FiScEVM {
 		if (isFiScE) {
 			logOut0(level, str);
 		} else {
-			System.out.println("fisce[" + level + "]: " + str);
+			if (levels == null) {
+				levels = new String[] { "D", "I", "W", "E" };
+			}
+			System.out.println("F[" + levels[level] + "]: " + str);
 		}
 	}
 

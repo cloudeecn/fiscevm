@@ -51,10 +51,9 @@ public class ConstantLong extends Constant {
 	@Override
 	public void appendJSON(StringBuilder sb, int baseIndent, boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "valueHigh",
-				String.valueOf(data >>> 32), true);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "valueLow",
-				String.valueOf(data & 0xffffffff), false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "value", "["
+				+ (data & 0xffffffff) + ", " + ((data >>> 32) & 0xffffffff)
+				+ "]", false);
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 }

@@ -18,35 +18,3 @@ public class HierarchyTest extends TestService {
 		}
 	}
 }
-
-interface JspTag {
-
-	int method1();
-}
-
-interface Tag extends JspTag {
-	int method2();
-}
-
-interface IterationTag extends Tag {
-	int method3();
-}
-
-class TestTag implements IterationTag {
-
-	@Override
-	public int method2() {
-		return 2;
-	}
-
-	@Override
-	public int method1() {
-		return 1;
-	}
-
-	@Override
-	public int method3() {
-		return 3;
-	}
-
-}

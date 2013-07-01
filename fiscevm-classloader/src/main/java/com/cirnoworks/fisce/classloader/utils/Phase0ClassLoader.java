@@ -93,6 +93,7 @@ public final class Phase0ClassLoader {
 				String string = new String(data, "utf-8");
 				ConstantUTF8Data c = new ConstantUTF8Data();
 				c.setString(string);
+				cb.getConstantPool()[i] = c;
 				break;
 			}
 			case 3: {
@@ -124,6 +125,7 @@ public final class Phase0ClassLoader {
 			case 7: {
 				ConstantClassData c = new ConstantClassData();
 				c.setNameIdx(dis.readChar());
+				cb.getConstantPool()[i] = c;
 				break;
 			}
 			case 8: {
@@ -160,7 +162,26 @@ public final class Phase0ClassLoader {
 		{
 			for (int i = 1, max = constantPoolSize; i < max; i++) {
 				ConstantData c = pool[i];
-				if (c != null) {
+				if (c != null && c instanceof ConstantNameTypeInfoData) {
+					c.fillConstants(pool);
+				}
+			}
+		}
+
+		{
+			for (int i = 1, max = constantPoolSize; i < max; i++) {
+				ConstantData c = pool[i];
+				if (c != null && c instanceof ConstantClassData) {
+					c.fillConstants(pool);
+				}
+			}
+		}
+
+		{
+			for (int i = 1, max = constantPoolSize; i < max; i++) {
+				ConstantData c = pool[i];
+				if (c != null && !(c instanceof ConstantNameTypeInfoData)
+						&& !(c instanceof ConstantClassData)) {
 					c.fillConstants(pool);
 				}
 			}
@@ -169,6 +190,9 @@ public final class Phase0ClassLoader {
 		cb.setAccessFlags(dis.readChar());
 		cb.setThisClassInfoIndex(dis.readChar());
 		cb.setSuperClassInfoIndex(dis.readChar());
+
+		cb.setName(((ConstantClassData) cb.getConstantPool()[cb
+				.getThisClassInfoIndex()]).getName());
 
 		char interfaceCount = dis.readChar();
 		cb.setInterfaceInfoIndexs(new int[interfaceCount]);
@@ -260,9 +284,9 @@ public final class Phase0ClassLoader {
 			} else {
 				method.setExceptionIdxes(ae.exceptionIndexTable);
 			}
-			
+
 			method.countParams();
-			
+
 			cb.getMethods()[i] = method;
 		}
 
@@ -340,8 +364,9 @@ public final class Phase0ClassLoader {
 					ic.innerClassInfoIndex = dis.readChar();
 					ic.outerClassInfoIndex = dis.readChar();
 					int innerNameIndex = dis.readChar();
-					ic.innerName = ((ConstantUTF8Data) (pool[innerNameIndex]))
-							.getString();
+					ic.innerName = innerNameIndex == 0 ? null
+							: ((ConstantUTF8Data) (pool[innerNameIndex]))
+									.getString();
 					ic.innerClassAccessFlag = dis.readChar();
 					a.classes[j] = ic;
 				}

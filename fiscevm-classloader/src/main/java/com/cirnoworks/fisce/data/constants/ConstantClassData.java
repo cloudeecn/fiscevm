@@ -80,6 +80,9 @@ public class ConstantClassData implements ConstantData, JSONExportableConstantDa
 	public void fillConstants(ConstantData[] constantPool) {
 		ConstantUTF8Data data = (ConstantUTF8Data) constantPool[nameIdx];
 		this.name = data.getString();
+		if (name == null) {
+			throw new NullPointerException();
+		}
 	}
 
 }

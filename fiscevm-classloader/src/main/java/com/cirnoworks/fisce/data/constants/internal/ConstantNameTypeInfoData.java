@@ -71,7 +71,13 @@ public class ConstantNameTypeInfoData implements ConstantData {
 		ConstantUTF8Data nameData = (ConstantUTF8Data) constantPool[nameIdx];
 		ConstantUTF8Data descriptorData = (ConstantUTF8Data) constantPool[descriptorIdx];
 		name = nameData.getString();
+		if (name == null) {
+			throw new NullPointerException();
+		}
 		descriptor = descriptorData.getString();
+		if (descriptor == null) {
+			throw new NullPointerException();
+		}
 	}
 
 }

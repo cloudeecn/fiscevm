@@ -23,7 +23,8 @@ import com.cirnoworks.fisce.classloader.utils.StringPool;
  * 
  * @author cloudee
  */
-public class ConstantDoubleData implements ConstantData, JSONExportableConstantData {
+public class ConstantDoubleData implements ConstantData,
+		JSONExportableConstantData {
 
 	protected double data;
 
@@ -67,10 +68,9 @@ public class ConstantDoubleData implements ConstantData, JSONExportableConstantD
 			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
 		long ieeeValue = Double.doubleToLongBits(data);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"ieeeValueHigh\"",
-				String.valueOf(ieeeValue >>> 32), true);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"ieeeValueLow\"",
-				String.valueOf(ieeeValue & 0xffffffff), false);
+		SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"", "["
+				+ (ieeeValue & 0xffffffffl) + ", "
+				+ ((ieeeValue >>> 32) & 0xffffffffl) + "]", false);
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 

@@ -79,6 +79,9 @@ public final class ClassData {
 	 */
 	public static final char ACC_VOLATILE = 64;
 
+	private String name;
+	private String sourceFile;
+
 	private int magic;
 	private char minorVersion;
 	private char majorVersion;
@@ -92,7 +95,6 @@ public final class ClassData {
 	private FieldData[] fields;
 	private MethodData[] methods;
 	private Attribute[] attributes;
-	private String sourceFile;
 
 	protected int sizeInHeap;
 	protected int sizeInStatic;
@@ -207,6 +209,14 @@ public final class ClassData {
 
 	public void setAccessFlags(char accessFlags) {
 		this.accessFlags = accessFlags;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

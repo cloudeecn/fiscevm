@@ -23,7 +23,8 @@ import com.cirnoworks.fisce.classloader.utils.StringPool;
  * 
  * @author cloudee
  */
-public class ConstantFloatData implements ConstantData, JSONExportableConstantData {
+public class ConstantFloatData implements ConstantData,
+		JSONExportableConstantData {
 
 	protected float data;
 
@@ -62,7 +63,7 @@ public class ConstantFloatData implements ConstantData, JSONExportableConstantDa
 	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
 			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"ieeeValue\"",
+		SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"",
 				String.valueOf(Float.floatToIntBits(data)), false);
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
