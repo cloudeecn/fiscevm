@@ -30,7 +30,7 @@
 		<module>fiscevm-runtime</module>
 		<module>fiscevm-rtdist</module>
 		<module>fiscevm-classloader</module>
-		<module>fiscevm-java</module>
+		<!-- <module>fiscevm-java</module> -->
 		<!-- <module>fiscevm-javatoolkit</module> -->
 		<module>fiscevm-c</module>
 		<module>fiscevm-tools</module>
