@@ -121,7 +121,7 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	context->sStringArray = fy_vmCreateStringByPoolV(context, exception, "a",
-			"[L"FY_BASE_THROWABLE";");
+			"[L"FY_BASE_STRING";");
 	FYEH();
 
 	context->sThrowablePrintStacktrace = fy_vmCreateStringByPoolV(context,

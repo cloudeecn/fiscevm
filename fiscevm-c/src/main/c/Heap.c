@@ -162,7 +162,7 @@ void fy_heapEndProtect(fy_context *context) {
 fy_int fy_heapGetArraySizeFromLength(fy_class *clazz, fy_int length) {
 	switch (clazz->ci.arr.arrayType) {
 	case fy_at_long:
-		return length <<= 1;
+		return length << 1;
 	case fy_at_int:
 		return length;
 	case fy_at_byte:
