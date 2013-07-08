@@ -27,7 +27,7 @@
 # include <windows.h>
 # define FY_PRT_WIN32 1
 #elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE) \
-	|| defined(__linux) || defined(__unix) || defined(__posix)
+	|| defined(__linux) || defined(__unix) || defined(__posix) || defined(__APPLE__)
 # include <sys/time.h>
 # include <errno.h>
 # define FY_PRT_POSIX 1
