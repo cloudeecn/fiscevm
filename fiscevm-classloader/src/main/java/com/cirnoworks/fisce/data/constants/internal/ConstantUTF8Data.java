@@ -39,7 +39,6 @@ public class ConstantUTF8Data implements ConstantData {
 		return "ConstantUTF8:" + string;
 	}
 
-	@Override
 	public void fillConstants(ConstantData[] constantPool) {
 	}
 }

@@ -25,26 +25,8 @@ import com.cirnoworks.fisce.data.constants.ConstantData;
  */
 public class ConstantNameTypeInfoData implements ConstantData {
 
-	protected int nameIdx;
 	protected String name;
-	protected int descriptorIdx;
 	protected String descriptor;
-
-	public int getNameIdx() {
-		return nameIdx;
-	}
-
-	public void setNameIdx(int nameIdx) {
-		this.nameIdx = nameIdx;
-	}
-
-	public int getDescriptorIdx() {
-		return descriptorIdx;
-	}
-
-	public void setDescriptorIdx(int descriptorIdx) {
-		this.descriptorIdx = descriptorIdx;
-	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -66,18 +48,8 @@ public class ConstantNameTypeInfoData implements ConstantData {
 		return "ConstantNameType: " + name + "." + descriptor;
 	}
 
-	@Override
 	public void fillConstants(ConstantData[] constantPool) {
-		ConstantUTF8Data nameData = (ConstantUTF8Data) constantPool[nameIdx];
-		ConstantUTF8Data descriptorData = (ConstantUTF8Data) constantPool[descriptorIdx];
-		name = nameData.getString();
-		if (name == null) {
-			throw new NullPointerException();
-		}
-		descriptor = descriptorData.getString();
-		if (descriptor == null) {
-			throw new NullPointerException();
-		}
+		
 	}
 
 }

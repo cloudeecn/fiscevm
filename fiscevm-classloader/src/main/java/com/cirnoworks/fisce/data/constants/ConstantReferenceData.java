@@ -24,20 +24,20 @@ import com.cirnoworks.fisce.data.constants.internal.ConstantNameTypeInfoData;
  * 
  * @author cloudee
  */
-public class ConstantReferenceData implements ConstantData, JSONExportableConstantData {
+public class ConstantReferenceData implements ConstantData,
+		JSONExportableConstantData {
 
-	protected int clazzIdx;
 	protected int nameAndTypeIdx;
 	protected String className;
 	protected String name;
 	protected String descriptior;
 
-	public int getClazzIdx() {
-		return clazzIdx;
+	public String getClassName() {
+		return className;
 	}
 
-	public void setClazzIdx(int clazzIdx) {
-		this.clazzIdx = clazzIdx;
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 	public int getNameAndTypeIdx() {
@@ -46,6 +46,22 @@ public class ConstantReferenceData implements ConstantData, JSONExportableConsta
 
 	public void setNameAndTypeIdx(int nameAndTypeIdx) {
 		this.nameAndTypeIdx = nameAndTypeIdx;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getDescriptior() {
+		return descriptior;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setDescriptior(String descriptior) {
+		this.descriptior = descriptior;
 	}
 
 	@Override
@@ -87,7 +103,6 @@ public class ConstantReferenceData implements ConstantData, JSONExportableConsta
 		return true;
 	}
 
-	@Override
 	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
 			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
@@ -98,14 +113,8 @@ public class ConstantReferenceData implements ConstantData, JSONExportableConsta
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 
-	@Override
 	public void fillConstants(ConstantData[] constantPool) {
-		ConstantClassData clazz = (ConstantClassData) constantPool[clazzIdx];
 		ConstantNameTypeInfoData nameAndType = (ConstantNameTypeInfoData) constantPool[nameAndTypeIdx];
-		className = clazz.getName();
-		if (className == null) {
-			throw new NullPointerException();
-		}
 		name = nameAndType.getName();
 		if (name == null) {
 			throw new NullPointerException();

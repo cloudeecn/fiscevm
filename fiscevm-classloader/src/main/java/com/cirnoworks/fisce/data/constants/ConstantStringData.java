@@ -28,16 +28,7 @@ import com.cirnoworks.fisce.data.constants.internal.ConstantUTF8Data;
 public class ConstantStringData implements ConstantData,
 		JSONExportableConstantData {
 
-	protected int strIdx;
 	protected String str;
-
-	public int getStrIdx() {
-		return strIdx;
-	}
-
-	public void setStrIdx(int strIdx) {
-		this.strIdx = strIdx;
-	}
 
 	public String getStr() {
 		return str;
@@ -73,7 +64,6 @@ public class ConstantStringData implements ConstantData,
 		return "ConstantString: " + str;
 	}
 
-	@Override
 	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
 			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
@@ -82,13 +72,7 @@ public class ConstantStringData implements ConstantData,
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 
-	@Override
 	public void fillConstants(ConstantData[] constantPool) {
-		ConstantUTF8Data data = (ConstantUTF8Data) constantPool[strIdx];
-		str = data.getString();
-		if (str == null) {
-			throw new NullPointerException();
-		}
 	}
 
 }

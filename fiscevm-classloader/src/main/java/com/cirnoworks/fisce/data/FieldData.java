@@ -16,11 +16,19 @@
  */
 package com.cirnoworks.fisce.data;
 
+import org.objectweb.asm.tree.FieldNode;
+
 /**
  * 
  * @author cloudee
  */
 public final class FieldData {
+
+	public final FieldNode node;
+
+	public FieldData(FieldNode node) {
+		this.node = node;
+	}
 
 	/**
 	 * Position in heap memory of this class. filled in the load phase 1. After
@@ -31,9 +39,6 @@ public final class FieldData {
 	 * Length of the class. set after the constant table filled.
 	 */
 	public int length;
-	public char accessFlags;
-	public String name;
-	public String descriptor;
 	public char constantValueIndex;
 
 	public int getPosition() {
@@ -52,28 +57,16 @@ public final class FieldData {
 		this.length = length;
 	}
 
-	public char getAccessFlags() {
-		return accessFlags;
-	}
-
-	public void setAccessFlags(char accessFlags) {
-		this.accessFlags = accessFlags;
+	public int getAccessFlags() {
+		return node.access;
 	}
 
 	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+		return node.name;
 	}
 
 	public String getDescriptor() {
-		return descriptor;
-	}
-
-	public void setDescriptor(String descriptor) {
-		this.descriptor = descriptor;
+		return node.desc;
 	}
 
 	public char getConstantValueIndex() {

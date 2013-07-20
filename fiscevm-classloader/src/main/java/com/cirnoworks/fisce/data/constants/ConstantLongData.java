@@ -60,7 +60,6 @@ public class ConstantLongData implements ConstantData,
 		return "ConstantFloat:" + data;
 	}
 
-	@Override
 	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
 			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
@@ -70,7 +69,6 @@ public class ConstantLongData implements ConstantData,
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 
-	@Override
 	public void fillConstants(ConstantData[] constantPool) {
 
 	}

@@ -18,9 +18,9 @@ package com.cirnoworks.fisce.vm.data.attributes;
 
 public class ExceptionHandler {
 
-	public char startPc;
-	public char endPc;
-	public char handlerPc;
-	public char catchClassIdx;
+	public int startPc;
+	public int endPc;
+	public int handlerPc;
+	public int catchClassIdx;
 
 }

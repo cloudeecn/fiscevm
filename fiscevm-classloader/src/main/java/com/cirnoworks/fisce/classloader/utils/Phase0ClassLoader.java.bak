@@ -83,78 +83,7 @@ public final class Phase0ClassLoader {
 		int constantPoolSize = dis.readChar();
 		cb.setConstantPool(new ConstantData[constantPoolSize]);
 		for (int i = 1; i < constantPoolSize; i++) {
-			int tag = dis.readByte();
-			switch (tag) {
-			case 1: // utf-8;
-			{
-				char len = dis.readChar();
-				byte[] data = new byte[len];
-				dis.readFully(data);
-				String string = new String(data, "utf-8");
-				ConstantUTF8Data c = new ConstantUTF8Data();
-				c.setString(string);
-				cb.getConstantPool()[i] = c;
-				break;
-			}
-			case 3: {
-				ConstantIntegerData c = new ConstantIntegerData();
-				c.setData(dis.readInt());
-				cb.getConstantPool()[i] = c;
-				break;
-			}
-			case 4: {
-				ConstantFloatData c = new ConstantFloatData();
-				c.setData(dis.readFloat());
-				cb.getConstantPool()[i] = c;
-				break;
-			}
-			case 5: {
-				ConstantLongData c = new ConstantLongData();
-				c.setData(dis.readLong());
-				cb.getConstantPool()[i] = c;
-				i++;
-				break;
-			}
-			case 6: {
-				ConstantDoubleData c = new ConstantDoubleData();
-				c.setData(dis.readDouble());
-				cb.getConstantPool()[i] = c;
-				i++;
-				break;
-			}
-			case 7: {
-				ConstantClassData c = new ConstantClassData();
-				c.setNameIdx(dis.readChar());
-				cb.getConstantPool()[i] = c;
-				break;
-			}
-			case 8: {
-				ConstantStringData c = new ConstantStringData();
-				c.setStrIdx(dis.readChar());
-				cb.getConstantPool()[i] = c;
-				break;
-			}
-			case 9:
-			case 10:
-			case 11: {
-				ConstantReferenceData c = new ConstantReferenceData();
-				c.setClazzIdx(dis.readChar());
-				c.setNameAndTypeIdx(dis.readChar());
-				cb.getConstantPool()[i] = c;
-				break;
-			}
-			case 12: {
-				ConstantNameTypeInfoData c = new ConstantNameTypeInfoData();
-				c.setNameIdx(dis.readChar());
-				c.setDescriptorIdx(dis.readChar());
-				cb.getConstantPool()[i] = c;
-				break;
-			}
-			default: {
-				throw new IOException("Unknown tag type " + tag);
-			}
-
-			}
+			//TODO
 		}
 
 		// Fill in the string fields

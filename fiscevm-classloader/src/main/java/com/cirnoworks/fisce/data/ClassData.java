@@ -1,222 +1,279 @@
-/**
- *  Copyright 2013 Yuxuan Huang. All rights reserved.
- *  
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package com.cirnoworks.fisce.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
+
+import com.cirnoworks.fisce.data.constants.ConstantClassData;
 import com.cirnoworks.fisce.data.constants.ConstantData;
-import com.cirnoworks.fisce.vm.data.attributes.Attribute;
+import com.cirnoworks.fisce.data.constants.ConstantDoubleData;
+import com.cirnoworks.fisce.data.constants.ConstantFloatData;
+import com.cirnoworks.fisce.data.constants.ConstantIntegerData;
+import com.cirnoworks.fisce.data.constants.ConstantLongData;
+import com.cirnoworks.fisce.data.constants.ConstantReferenceData;
+import com.cirnoworks.fisce.data.constants.ConstantStringData;
+import com.cirnoworks.fisce.data.constants.internal.ConstantNameTypeInfoData;
 
-/**
- * 
- * @author yuxuanhuang
- */
-public final class ClassData {
+public class ClassData extends ClassNode {
 
-	/**
-	 * Declared abstract; may not be instantiated.
-	 */
-	public static final char ACC_ABSTRACT = 1024;
-	/**
-	 * Declared final; no subclasses allowed.
-	 */
-	public static final char ACC_FINAL = 16;
-	/**
-	 * Is an interface, not a class.
-	 */
-	public static final char ACC_INTERFACE = 512;
-	/**
-	 * Declared native; implemented in a language other than Java.
-	 */
-	public static final char ACC_NATIVE = 256;
-	/**
-	 * Declared private; usable only within the defining class.
-	 */
-	public static final char ACC_PRIVATE = 2;
-	/**
-	 * Declared protected; may be accessed within subclasses.
-	 */
-	public static final char ACC_PROTECTED = 4;
-	/**
-	 * Declared public; may be accessed from outside its package.
-	 */
-	public static final char ACC_PUBLIC = 1;
-	/**
-	 * Declared static.
-	 */
-	public static final char ACC_STATIC = 8;
-	/**
-	 * Declared strictfp, floating-point mode is FP-strict
-	 */
-	public static final char ACC_STRICT = 2048;
-	/**
-	 * Treat superclass methods specially when invoked by the invokespecial
-	 * instruction.
-	 */
-	public static final char ACC_SUPER = 32;
-	/**
-	 * Declared synchronized; invocation is wrapped in a monitor lock.
-	 */
-	public static final char ACC_SYNCHRONIZED = 32;
-	/**
-	 * Declared transient; not written or read by a persistent object manager.
-	 */
-	public static final char ACC_TRANSIENT = 128;
-	/**
-	 * Declared volatile; cannot be cached.
-	 */
-	public static final char ACC_VOLATILE = 64;
+	private static int getSizeFromDescriptor(String descriptor) {
+		switch (descriptor.charAt(0)) {
+		case 'J':
+		case 'D':
+			return 2;
+		default:
+			return 1;
+		}
+	}
 
-	private String name;
-	private String sourceFile;
-
-	private int magic;
-	private char minorVersion;
-	private char majorVersion;
 	private ConstantData[] constantPool;
-
-	protected char accessFlags;
-
-	private int thisClassInfoIndex;
 	private int superClassInfoIndex;
 	private int[] interfaceInfoIndexs;
-	private FieldData[] fields;
-	private MethodData[] methods;
-	private Attribute[] attributes;
+
+	private FieldData[] fieldDatas;
+	private MethodData[] methodDatas;
 
 	protected int sizeInHeap;
 	protected int sizeInStatic;
 
-	public int getMagic() {
-		return magic;
-	}
+	protected final ClassReader cr;
+	private Map<Object, Integer> ldcTable = new HashMap<Object, Integer>();
+	private Map<String, Integer> ldcClassTable = new HashMap<String, Integer>();
+	private Map<ConstantReferenceData, Integer> referenceMap = new HashMap<ConstantReferenceData, Integer>();
 
-	public void setMagic(int magic) {
-		this.magic = magic;
-	}
-
-	public char getMinorVersion() {
-		return minorVersion;
-	}
-
-	public void setMinorVersion(char minorVersion) {
-		this.minorVersion = minorVersion;
-	}
-
-	public char getMajorVersion() {
-		return majorVersion;
-	}
-
-	public void setMajorVersion(char majorVersion) {
-		this.majorVersion = majorVersion;
+	public ClassData(ClassReader cr) {
+		this.cr = cr;
 	}
 
 	public ConstantData[] getConstantPool() {
 		return constantPool;
 	}
 
-	public void setConstantPool(ConstantData[] constantPool) {
-		this.constantPool = constantPool;
-	}
-
-	public int getThisClassInfoIndex() {
-		return thisClassInfoIndex;
-	}
-
-	public void setThisClassInfoIndex(int thisClassInfoIndex) {
-		this.thisClassInfoIndex = thisClassInfoIndex;
-	}
-
-	public int getSuperClassInfoIndex() {
-		return superClassInfoIndex;
-	}
-
-	public void setSuperClassInfoIndex(int superClassInfoIndex) {
-		this.superClassInfoIndex = superClassInfoIndex;
-	}
-
-	public int[] getInterfaceInfoIndexs() {
-		return interfaceInfoIndexs;
-	}
-
-	public void setInterfaceInfoIndexs(int[] interfaceInfoIndexs) {
-		this.interfaceInfoIndexs = interfaceInfoIndexs;
-	}
-
-	public FieldData[] getFields() {
-		return fields;
-	}
-
-	public void setFields(FieldData[] fields) {
-		this.fields = fields;
-	}
-
-	public MethodData[] getMethods() {
-		return methods;
-	}
-
-	public void setMethods(MethodData[] methods) {
-		this.methods = methods;
-	}
-
-	public Attribute[] getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(Attribute[] attributes) {
-		this.attributes = attributes;
+	public String getName() {
+		return name;
 	}
 
 	public String getSourceFile() {
 		return sourceFile;
 	}
 
-	public void setSourceFile(String sourceFile) {
-		this.sourceFile = sourceFile;
+	public void visitEnd() {
+		super.visitEnd();
+		constantPool = new ConstantData[cr.getItemCount()];
+		byte[] b = cr.b;
+		char[] cbuf = new char[cr.getMaxStringLength()];
+		for (int i = 1, max = cr.getItemCount(); i < max; i++) {
+			int begin = cr.getItem(i);
+			int tag = b[begin - 1];
+			switch (tag) {
+			case 1: // utf-8;
+			{
+				break;
+			}
+			case 3: {
+				ConstantIntegerData c = new ConstantIntegerData();
+				c.setData(cr.readInt(begin));
+				constantPool[i] = c;
+				ldcTable.put(c.getData(), i);
+				break;
+			}
+			case 4: {
+				ConstantFloatData c = new ConstantFloatData();
+				c.setData(Float.intBitsToFloat(cr.readInt(begin)));
+				constantPool[i] = c;
+				ldcTable.put(c.getData(), i);
+				break;
+			}
+			case 5: {
+				ConstantLongData c = new ConstantLongData();
+				c.setData(cr.readLong(begin));
+				constantPool[i] = c;
+				i++;
+				ldcTable.put(c.getData(), i);
+				break;
+			}
+			case 6: {
+				ConstantDoubleData c = new ConstantDoubleData();
+				c.setData(Double.longBitsToDouble(cr.readLong(begin)));
+				constantPool[i] = c;
+				i++;
+				ldcTable.put(c.getData(), i);
+				break;
+			}
+			case 7: {
+				ConstantClassData c = new ConstantClassData();
+				c.setName(cr.readUTF8(begin, cbuf));
+				constantPool[i] = c;
+				ldcClassTable.put(c.getName(), i);
+				break;
+			}
+			case 8: {
+				ConstantStringData c = new ConstantStringData();
+				c.setStr(cr.readUTF8(begin, cbuf));
+				constantPool[i] = c;
+				ldcTable.put(c.getStr(), i);
+				break;
+			}
+			case 9:
+			case 10:
+			case 11: {
+				ConstantReferenceData c = new ConstantReferenceData();
+				c.setClassName(cr.readClass(begin, cbuf));
+				c.setNameAndTypeIdx(cr.readUnsignedShort(begin + 2));
+				constantPool[i] = c;
+				break;
+			}
+			case 12: {
+				ConstantNameTypeInfoData c = new ConstantNameTypeInfoData();
+				c.setName(cr.readUTF8(begin, cbuf));
+				c.setDescriptor(cr.readUTF8(begin + 2, cbuf));
+				constantPool[i] = c;
+				break;
+			}
+			default: {
+				throw new RuntimeException("Unknown tag type " + tag);
+			}
+
+			}
+		}
+		for (int i = 1, max = cr.getItemCount(); i < max; i++) {
+			ConstantData cd = constantPool[i];
+			if (cd instanceof ConstantReferenceData) {
+				ConstantReferenceData crd = (ConstantReferenceData) cd;
+				crd.fillConstants(constantPool);
+				if (this.referenceMap.containsKey(crd)) {
+					// throw new
+					// RuntimeException("Duplicated reference constant "
+					// + crd.getClassName() + "." + crd.getName() + "."
+					// + crd.getDescriptior());
+				} else {
+					referenceMap.put(crd, i);
+				}
+			}
+		}
+
+		int superPos = cr.header + 4;
+		int intfPos = cr.header + 6;
+		this.superClassInfoIndex = cr.readUnsignedShort(superPos);
+		this.interfaceInfoIndexs = new int[cr.readUnsignedShort(intfPos)];
+		for (int i = 0, max = this.interfaceInfoIndexs.length; i < max; i++) {
+			this.interfaceInfoIndexs[i] = cr.readUnsignedShort(intfPos + i * 2
+					+ 2);
+		}
+
+		fieldDatas = new FieldData[super.fields.size()];
+
+		int fieldPos = 0;
+		int staticPos = 0;
+		for (int i = 0, max = fieldDatas.length; i < max; i++) {
+			FieldNode node = super.fields.get(i);
+			FieldData field = new FieldData(node);
+
+			int length = getSizeFromDescriptor(field.getDescriptor());
+			field.setLength(length);
+			if ((field.getAccessFlags() & Opcodes.ACC_STATIC) == 0) {
+				field.setPosition(fieldPos);
+				fieldPos += length;
+			} else {
+				field.setPosition(staticPos);
+				staticPos += length;
+			}
+
+			fieldDatas[i] = field;
+		}
+
+		sizeInHeap = fieldPos;
+		sizeInStatic = staticPos;
+
+		methodDatas = new MethodData[methods.size()];
+		for (int i = 0, max = methods.size(); i < max; i++) {
+			MethodNode mn = methods.get(i);
+			MethodData md = new MethodData(this, mn.access, mn.name, mn.desc,
+					mn.signature,
+					mn.exceptions.toArray(new String[mn.exceptions.size()]));
+			mn.accept(md);
+			methodDatas[i] = md;
+		}
+
+	}
+
+	public int getAccessFlags() {
+		return access;
+	}
+
+	public int getSuperClassInfoIndex() {
+		return this.superClassInfoIndex;
+	}
+
+	public int[] getInterfaceInfoIndexs() {
+		return this.interfaceInfoIndexs;
+	}
+
+	public FieldData[] getFields() {
+		return fieldDatas;
 	}
 
 	public int getSizeInHeap() {
 		return sizeInHeap;
 	}
 
-	public void setSizeInHeap(int sizeInHeap) {
-		this.sizeInHeap = sizeInHeap;
-	}
-
 	public int getSizeInStatic() {
 		return sizeInStatic;
 	}
 
-	public void setSizeInStatic(int sizeInStatic) {
-		this.sizeInStatic = sizeInStatic;
+	public MethodData[] getMethods() {
+		return methodDatas;
 	}
 
-	public char getAccessFlags() {
-		return accessFlags;
+	public int getConstantIdByClassName(String className) {
+		Integer ret = ldcClassTable.get(className);
+		if (ret == null) {
+			throw new RuntimeException("Can't find content id for class name "
+					+ className);
+		}
+		return ret;
 	}
 
-	public void setAccessFlags(char accessFlags) {
-		this.accessFlags = accessFlags;
+	public int getConstantIdByReference(ConstantReferenceData crd) {
+		if (!referenceMap.containsKey(crd)) {
+			throw new RuntimeException("Can't find reference constant "
+					+ crd.getClassName() + "." + crd.getName() + "."
+					+ crd.getDescriptior());
+		}
+		return referenceMap.get(crd);
 	}
 
-	public String getName() {
-		return name;
+	public int getConstantId(Object ldcValue) {
+		Integer ret;
+		if (ldcValue instanceof Type) {
+			Type type = (Type) ldcValue;
+			switch (type.getSort()) {
+			case Type.ARRAY:
+			case Type.OBJECT:
+				return getConstantIdByClassName(((Type) ldcValue)
+						.getInternalName());
+			default:
+				throw new RuntimeException("Illegal ldc type sort "
+						+ type.toString() + " " + type.getSort());
+			}
+		} else if (ldcValue instanceof Number || ldcValue instanceof Boolean
+				|| ldcValue instanceof String || ldcValue instanceof Character) {
+			ret = ldcTable.get(ldcValue);
+		} else {
+			throw new RuntimeException("Unknown ldcValue "
+					+ ldcValue.getClass());
+		}
+		if (ret == null) {
+			throw new RuntimeException("Can't find content id for ldc value "
+					+ ldcValue + " " + ldcValue.getClass());
+		} else {
+			return ret;
+		}
 	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 }
