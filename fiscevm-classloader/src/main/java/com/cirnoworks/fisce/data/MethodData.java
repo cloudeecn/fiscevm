@@ -224,6 +224,7 @@ public final class MethodData extends MethodNode {
 						}
 						break;
 					case AbstractInsnNode.METHOD_INSN:
+					case AbstractInsnNode.FIELD_INSN:
 						hintFrame[ip] = true;
 						break;
 					case AbstractInsnNode.LOOKUPSWITCH_INSN:
@@ -315,7 +316,7 @@ public final class MethodData extends MethodNode {
 					case AbstractInsnNode.IINC_INSN:
 						IincInsnNode iin = (IincInsnNode) inst;
 						code[base + 1] = iin.var;
-						code[base + 1] = iin.incr;
+						code[base + 2] = iin.incr;
 						break;
 					case AbstractInsnNode.INT_INSN:
 						IntInsnNode inin = (IntInsnNode) inst;
