@@ -94,16 +94,16 @@ public class ClassData extends ClassNode {
 				ConstantLongData c = new ConstantLongData();
 				c.setData(cr.readLong(begin));
 				constantPool[i] = c;
-				i++;
 				ldcTable.put(c.getData(), i);
+				i++;
 				break;
 			}
 			case 6: {
 				ConstantDoubleData c = new ConstantDoubleData();
 				c.setData(Double.longBitsToDouble(cr.readLong(begin)));
 				constantPool[i] = c;
-				i++;
 				ldcTable.put(c.getData(), i);
+				i++;
 				break;
 			}
 			case 7: {

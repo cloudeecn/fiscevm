@@ -47,7 +47,14 @@ import org.objectweb.asm.tree.analysis.BasicVerifier;
 import org.objectweb.asm.tree.analysis.Frame;
 
 import com.cirnoworks.fisce.classloader.utils.DescriptorAnalyzer;
+import com.cirnoworks.fisce.data.constants.ConstantClassData;
+import com.cirnoworks.fisce.data.constants.ConstantData;
+import com.cirnoworks.fisce.data.constants.ConstantDoubleData;
+import com.cirnoworks.fisce.data.constants.ConstantFloatData;
+import com.cirnoworks.fisce.data.constants.ConstantIntegerData;
+import com.cirnoworks.fisce.data.constants.ConstantLongData;
 import com.cirnoworks.fisce.data.constants.ConstantReferenceData;
+import com.cirnoworks.fisce.data.constants.ConstantStringData;
 import com.cirnoworks.fisce.vm.data.attributes.ExceptionHandler;
 import com.cirnoworks.fisce.vm.data.attributes.LineNumber;
 
@@ -331,6 +338,31 @@ public final class MethodData extends MethodNode {
 					case AbstractInsnNode.LDC_INSN:
 						LdcInsnNode lin = (LdcInsnNode) inst;
 						code[base + 1] = owner.getConstantId(lin.cst);
+						ConstantData cd = owner.getConstantPool()[code[base + 1]];
+						if (cd == null) {
+							throw new IllegalStateException(
+									"LDC with null constant " + code[base + 1]
+											+ "/" + lin.cst.getClass() + ": "
+											+ lin.cst);
+						}
+						if (cd instanceof ConstantIntegerData) {
+							code[base + 2] = 0;
+						} else if (cd instanceof ConstantFloatData) {
+							code[base + 2] = 0;
+						} else if (cd instanceof ConstantLongData) {
+							code[base + 2] = 1;
+						} else if (cd instanceof ConstantDoubleData) {
+							code[base + 2] = 1;
+						} else if (cd instanceof ConstantStringData) {
+							code[base + 2] = 2;
+						} else if (cd instanceof ConstantClassData) {
+							code[base + 2] = 3;
+						} else {
+							throw new IllegalStateException(
+									"LDC with constant "
+											+ cd.getClass().getName()
+											+ " is not supported.");
+						}
 						break;
 					case AbstractInsnNode.METHOD_INSN:
 						MethodInsnNode min = (MethodInsnNode) inst;
