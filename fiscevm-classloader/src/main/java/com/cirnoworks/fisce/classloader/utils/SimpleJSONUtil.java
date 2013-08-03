@@ -33,7 +33,10 @@ public final class SimpleJSONUtil {
 		}
 		for (int i = 0, max = origString.length(); i < max; i++) {
 			char c = origString.charAt(i);
-			if (c < 32 || c > 127) {
+			String translated = c < 128 ? translateTable[c] : null;
+			if (translated != null) {
+				sb.append(translated);
+			} else if (c < 32 || c > 127) {
 				// unicode escape
 				sb.append("\\u");
 				if (c <= 0xff) {
@@ -49,12 +52,7 @@ public final class SimpleJSONUtil {
 					sb.append('\\');
 					sb.append(c);
 				} else {
-					String translated = translateTable[c];
-					if (translated == null) {
-						sb.append(c);
-					} else {
-						sb.append(translated);
-					}
+					sb.append(c);
 				}
 			}
 		}

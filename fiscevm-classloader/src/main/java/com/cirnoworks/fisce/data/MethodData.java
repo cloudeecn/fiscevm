@@ -152,7 +152,7 @@ public final class MethodData extends MethodNode {
 	public void visitEnd() {
 		super.visitEnd();
 
-		System.out.println(owner.name + "." + name + "." + desc);
+//		System.out.println(owner.name + "." + name + "." + desc);
 
 		DescriptorAnalyzer da = new DescriptorAnalyzer(desc);
 		returnType = da.getReturnType();
@@ -213,6 +213,7 @@ public final class MethodData extends MethodNode {
 				int newLength = ip;
 				hintFrame = new boolean[newLength];
 				checkOps = new boolean[newLength];
+				hintFrame[0] = true;
 				for (ip = 0; ip < newLength; ip++) {
 					AbstractInsnNode inst = rawInstructions[ip];
 					if (ip % 50 == 49) {
