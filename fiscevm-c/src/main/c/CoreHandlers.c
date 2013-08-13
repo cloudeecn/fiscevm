@@ -2349,19 +2349,6 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			NULL, floatIntBitsToFloat, exception);
 	FYEH();
 
-	/*vm*/
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_VM".newInstance0.(L"FY_BASE_CLASS";I)[L"FY_BASE_OBJECT";",
-			NULL, classNewInstanceA, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_VM".newInstance0.(L"FY_BASE_CLASS";[L"FY_BASE_CLASS";[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
-			NULL, vmNewInstance, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_VM".newArray0.(L"FY_BASE_CLASS";I)[L"FY_BASE_OBJECT";",
-			NULL, vmNewArray, exception);
-	FYEH();
 	/*String*/
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_STRING".intern.()L"FY_BASE_STRING";", NULL, StringIntern,

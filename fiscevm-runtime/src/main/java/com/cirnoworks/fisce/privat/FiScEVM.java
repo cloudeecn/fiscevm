@@ -140,35 +140,6 @@ public final class FiScEVM {
 
 	public static native String floatToString(float d);
 
-	public static <T> T newInstance(Class<T> clazz, Class<?>[] params,
-			Object[] args) throws InstantiationException,
-			IllegalAccessException {
-		if (params.length != args.length) {
-			throw new RuntimeException("Params and args must have same length"
-					+ params.length + "/" + args.length);
-		}
-		return newInstance0(clazz, params, args);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T newArray(Class<T> clazz, int size)
-			throws InstantiationException, IllegalAccessException {
-		return (T) newInstance0(clazz, size);
-	}
-
-	public static <T> T[] newContentArray(Class<T> clazz, int size) {
-		return (T[]) newArray0(clazz, size);
-	}
-
-	private static native <T> T newInstance0(Class<T> clazz, Class<?>[] params,
-			Object[] args) throws InstantiationException,
-			IllegalAccessException;
-
-	private static native Object[] newArray0(Class<?> clazz, int size);
-
-	private static native Object[] newInstance0(Class<?> clazz, int size)
-			throws InstantiationException, IllegalAccessException;
-
 	public static native void save();
 
 	/**

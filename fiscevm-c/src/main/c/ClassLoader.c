@@ -1009,6 +1009,11 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 
 		break;
 	case object_class:
+		if (clazz->superClass != NULL) {
+			clazz->super = fy_vmLookupClassFromConstant(context,
+					clazz->superClass, exception);
+			FYEH();
+		}
 		pos = clazz->methodCount;
 		for (i = 0; i < pos; i++) {
 			method = clazz->methods[i];
@@ -1320,12 +1325,6 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		}
 		fy_mmFree(context->memblocks, is);
 		FYEH()NULL;
-		if (clazz->superClass != NULL) {
-			clazz->super = fy_vmLookupClassFromConstant(context,
-					clazz->superClass, exception);
-			FYEH()NULL;
-		}
-
 	}
 	fy_hashMapIInitPerm(block, clazz->virtualTable, 3, -1, exception);
 	FYEH()NULL;

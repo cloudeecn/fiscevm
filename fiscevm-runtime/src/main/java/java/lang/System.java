@@ -48,8 +48,9 @@ public final class System {
 	static {
 		FiScEVM.debug = new PrintStream(new DebugOutOutputStream());
 		FiScEVM.isFiScE = true;
-		overrideProperties = new HashMap<String, String>();
-		setProperty("fisce", "true");
+//		overrideProperties = new HashMap<String, String>();
+//		setProperty("fisce", "true");
+		overrideProperties = null;
 	}
 
 	public static void setIn(InputStream in) {
@@ -78,10 +79,11 @@ public final class System {
 	public static native int identityHashCode(Object x);
 
 	public static String getProperty(String key) {
-		String value = overrideProperties.get(key);
-		if (value == null) {
+		String value;
+//		value = overrideProperties.get(key);
+//		if (value == null) {
 			value = getProperty0(key);
-		}
+//		}
 		return value;
 	}
 
@@ -91,9 +93,12 @@ public final class System {
 	}
 
 	public static String setProperty(String key, String value) {
+		/**<code>
 		String ret = getProperty(key);
 		overrideProperties.put(key, value);
 		return ret;
+		*/
+		return null;
 	}
 
 	private static native String getProperty0(String key);

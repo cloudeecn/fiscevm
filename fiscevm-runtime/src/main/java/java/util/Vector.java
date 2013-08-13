@@ -18,6 +18,7 @@
 package java.util;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
 import com.cirnoworks.fisce.privat.FiScEVM;
 
@@ -985,8 +986,8 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
 	public synchronized <T> T[] toArray(T[] contents) {
 		if (elementCount > contents.length) {
 			try {
-				contents = (T[]) FiScEVM.newArray(contents.getClass(),
-						elementCount);
+				contents = (T[]) Array.newInstance(contents.getClass()
+						.getComponentType(), elementCount);
 			} catch (Exception e) {
 				throw new Error(e);
 			}
