@@ -1,9 +1,12 @@
 package EXCLUDE.fisce.test;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
-
 public class HelloWorld {
 	public static void main(String[] args) {
-		FiScEVM.infoOut("Hello world!");
+		try {
+			throw new RuntimeException();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Hello world!");
 	}
 }

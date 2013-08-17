@@ -1300,7 +1300,7 @@ static void fieldGetObject(struct fy_context *context, struct fy_thread *thread,
 								field->owner->constantPools[field->constant_value_index],
 								exception));
 			} else {
-				fy_nativeReturnHandle(context, thread, 0);
+				fy_nativeReturnHandle(context, thread, fy_heapGetStaticHandle(context, field, exception));
 			}
 		} else {
 			fy_nativeReturnHandle(context, thread,
@@ -1708,10 +1708,10 @@ static void fieldSetWidePrim(struct fy_context *context,
 		FYEH();
 	}
 	if (field->access_flags & FY_ACC_STATIC) {
-		fy_heapPutStaticInt(context, field, fy_I2TOL(args[2],args[3]),
+		fy_heapPutStaticLong(context, field, fy_I2TOL(args[2],args[3]),
 				exception);
 	} else {
-		fy_heapPutFieldInt(context, args[1], field, fy_I2TOL(args[2],args[3]),
+		fy_heapPutFieldLong(context, args[1], field, fy_I2TOL(args[2],args[3]),
 				exception);
 	}
 }
@@ -1893,73 +1893,6 @@ static void classGetComponentType(struct fy_context *context,
 	} else {
 		fy_nativeReturnHandle(context, thread, 0);
 	}
-}
-
-static void classInvokeMethod(struct fy_context *context,
-		struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-		fy_message *message, fy_exception *exception) {
-	fy_uint classHandle = args[0];
-	fy_uint methodNameHandle = args[1];
-	/*fy_boolean isStatic = args[2];*/
-	fy_uint paramsHandle = args[3];
-	fy_class *clazz = fy_vmGetClassFromClassObject(context, classHandle,
-			exception);
-	fy_str methodName;
-	FYEH();
-	fy_method *method;
-	fy_byte *paramTypes;
-	fy_uint count, i;
-	fy_frame *currentFrame = FY_GET_FRAME(thread,thread->frameCount-1);
-	fy_uint sp = currentFrame->sp;
-
-	methodName.content = NULL;
-	fy_strInit(context->memblocks, &methodName, 64, exception);
-	FYEH();
-
-	fy_strAppendUTF8(context->memblocks, &methodName, ".", 1, exception);
-	if (exception->exceptionType != exception_none) {
-		fy_strDestroy(context->memblocks, &methodName);
-		return;
-	}
-
-	fy_heapGetString(context, methodNameHandle, &methodName, exception);
-	if (exception->exceptionType != exception_none) {
-		fy_strDestroy(context->memblocks, &methodName);
-		return;
-	}
-
-	method = fy_vmLookupMethodVirtual(context, clazz, &methodName, exception);
-	fy_strDestroy(context->memblocks, &methodName);
-	FYEH();
-	if (method == NULL) {
-		fy_fault(exception, FY_EXCEPTION_ITE, "Method not found!");
-		return;
-	}
-	if (method->returnType != FY_TYPE_HANDLE) {
-		fy_fault(exception, FY_EXCEPTION_ITE, "Return type not Object!");
-		return;
-	}
-	paramTypes = method->paramTypes;
-	count = paramsHandle == 0 ?
-			0 : fy_heapArrayLength(context, paramsHandle, exception);
-	FYEH();
-	if (count != method->paramStackUsage) {
-		fy_fault(exception, FY_EXCEPTION_ITE, "param count not match!");
-		return;
-	}
-	for (i = 0; i < count; i++) {
-		thread->stack[sp + i] = fy_heapGetArrayInt(context, paramsHandle, i,
-				exception);
-		FYEH();
-		fy_bitSet(thread->typeStack, sp+i);
-		if (paramTypes[i] != FY_TYPE_HANDLE) {
-			fy_fault(exception, FY_EXCEPTION_ITE, "param type not all handle");
-			break;
-		}
-	}
-	fy_threadPushMethod(context, thread, method, NULL, exception);
-	FYEH();
-
 }
 
 static void classForName(struct fy_context *context, struct fy_thread *thread,
@@ -2160,10 +2093,6 @@ static void registerClasses(fy_context *context, fy_exception *exception) {
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_CLASS".getComponentType.()L"FY_BASE_CLASS";", NULL,
 			classGetComponentType, exception);
-	FYEH();
-	fy_vmRegisterNativeHandler(context,
-			FY_BASE_CLASS".invokeMethodHandleReturn0.(L"FY_BASE_STRING";Z[L"FY_BASE_OBJECT";)L"FY_BASE_OBJECT";",
-			NULL, classInvokeMethod, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
 			FY_BASE_CLASS".forName0.(L"FY_BASE_STRING";Z)L"FY_BASE_CLASS";",

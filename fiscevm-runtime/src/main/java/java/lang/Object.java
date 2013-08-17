@@ -18,7 +18,6 @@ package java.lang;
 public class Object {
 
 	static {
-		/*
 		Boolean.valueOf("true");
 		Byte.valueOf("1");
 		Short.valueOf("1");
@@ -28,7 +27,6 @@ public class Object {
 		Long.valueOf("1");
 		Double.valueOf("1");
 		new Finalizer().start();
-		*/
 		// FiScEVM.throwOut(new RuntimeException());
 	}
 

@@ -126,25 +126,6 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 
 	public native Class<?> getComponentType();
 
-	private native Object invokeMethodHandleReturn0(String methodName,
-			boolean isStatic, Object... params) throws Throwable;
-
-	private Object invokeMethodHandleReturn(String methodName,
-			boolean isStatic, Object... params)
-			throws InvocationTargetException, NoSuchMethodException {
-		try {
-			Object o = invokeMethodHandleReturn0(methodName, isStatic, params);
-			return o;
-		} catch (InvocationTargetException e) {
-			throw e;
-		} catch (NoSuchMethodException e) {
-			throw e;
-		} catch (Throwable t) {
-			t.printStackTrace();
-			throw new InvocationTargetException(t);
-		}
-	}
-
 	private static final long serialVersionUID = 3206093459760846163L;
 
 	private static final Class<Cloneable> CLONEABLE_CLASS = Cloneable.class;
@@ -533,17 +514,16 @@ public final class Class<T> implements Serializable, AnnotatedElement,
 	private T[] getEnums() {
 		if (enums == null) {
 			try {
-				enums = (T[]) invokeMethodHandleReturn("values.()[L"
-						+ getName().replace('.', '/') + ";", true,
-						(Object[]) null);
+				Method mt = this.getMethod("values");
+				enums = (T[]) mt.invoke(null);
 			} catch (InvocationTargetException e) {
-
-				e.printStackTrace();
-				FiScEVM.throwOut(e);
+				return null;
 			} catch (NoSuchMethodException e) {
-
-				e.printStackTrace();
-				FiScEVM.throwOut(e);
+				return null;
+			} catch (java.lang.IllegalArgumentException e) {
+				return null;
+			} catch (java.lang.IllegalAccessException e) {
+				return null;
 			}
 		}
 		return enums;
