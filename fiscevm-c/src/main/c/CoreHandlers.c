@@ -941,35 +941,42 @@ static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 	fy_uint paramHandle;
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	FYEH();
-
+#ifdef FY_VERBOSE
+	context->logDVarLn(context,
+			"#REFINVOKE# Prepare to invoke method #%"FY_PRINT32"d(@%"FY_PRINT32"d).",
+			methodObj->object_data->methodId, args[0]);
+#endif
 	if (method == NULL) {
-		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+		context->logEVarLn(context,
+				"Can't find method #%"FY_PRINT32"d for handle #%"FY_PRINT32"d",
+				methodObj->object_data->methodId, args[0]);
+		fy_fault(exception, NULL, "Method not found!");
 		FYEH();
 	}
+#ifdef FY_VERBOSE
+	context->logDVar(context, "#REFINVOKE# %s",
+			(method->access_flags & FY_ACC_STATIC) ? "static" : "");
+	context->logDStr(context, method->uniqueName);
+	context->logDVarLn(context, "");
+#endif
 	if (count != method->parameterCount) {
-		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
+		context->logEVar(context, "Error occored in invoking ");
+		context->logEStr(context, method->uniqueName);
+		context->logEVarLn(context, "");
+		context->logEVarLn(context,
+				"Parameter count mismatch method:%"FY_PRINT32"d params:%"FY_PRINT32"d",
+				method->parameterCount, count);
+		fy_fault(exception, NULL, "Method not found!");
 	}
 	if (!(method->access_flags & FY_ACC_STATIC)) {
 		fy_threadReturnHandle(context, thread, args[1]);
 	} else {
-		clinitStatus = fy_threadClinit(context, thread, frame, method->owner,
-				exception);
-		FYEH();
-		switch (clinitStatus) {
-		case 0:
-			break;
-		case 1:
-			//invoke clinit
-			frame->sp += 3;
+		frame->sp += 3;
+		if (fy_threadClinit(context, thread, frame, method->owner, exception)) {
 			return;
-		case -1:
-			//wait
-			return;
-		default:
-			fy_fault(exception, NULL, "Illegal clinit result %"FY_PRINT32"d",
-					clinitStatus);
-			break;
 		}
+		FYEH();
+		frame->sp -= 3;
 	}
 	for (i = 0; i < count; i++) {
 		fy_arrayListGet(context->memblocks, method->parameterTypes, i,

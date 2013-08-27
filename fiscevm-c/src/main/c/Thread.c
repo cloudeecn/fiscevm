@@ -675,7 +675,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	if (!fy_strEndsWith(method->uniqueName, context->sFMain)) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-				FY_EXCEPTION_VM);
+		FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"The boot method must be static void main(String[])");
 		return;
@@ -683,7 +683,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	if ((method->access_flags & FY_ACC_STATIC) == 0) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-				FY_EXCEPTION_VM);
+		FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"The first method of a thread must have no return value.");
 		return;
@@ -727,9 +727,10 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	thread->handle = handle;
 	obj->object_data->threadId = thread->threadId;
 #ifdef FY_VERBOSE
-	context->logDVar(context,"Init thread with class ");
-	context->logDStr(context,obj->object_data->clazz->className);
-	context->logDVarLn(context,"With thread #%"FY_PRINT32"d",thread->threadId);
+	context->logDVar(context, "Init thread with class ");
+	context->logDStr(context, obj->object_data->clazz->className);
+	context->logDVarLn(context, "With thread #%"FY_PRINT32"d",
+			thread->threadId);
 #endif
 	fy_threadPushFrame(context, thread, runner, exception);
 	FYEH();
@@ -775,9 +776,9 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 	fy_uint *stack;
 	fy_uint sp;
 #ifdef FY_VERBOSE
-	context->logDVar(context,"Invoke virtual: ");
+	context->logDVar(context, "Invoke virtual: ");
 	context->logDStr(context, method->uniqueName);
-	context->logDVar(context,"\n");
+	context->logDVar(context, "\n");
 #endif
 #ifdef FY_STRICT_CHECK
 	if (frame->sp - (count) - frame->sb < frame->localCount) {
@@ -804,13 +805,13 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 		FYEH();
 #ifdef FY_VERBOSE
 		context->logDStr(context, actureMethod->uniqueName);
-		context->logDVar(context,"\n");
+		context->logDVar(context, "\n");
 #endif
 	}
 #ifdef FY_VERBOSE
-	context->logDVar(context,"\tmethod is: ");
+	context->logDVar(context, "\tmethod is: ");
 	context->logDStr(context, actureMethod->uniqueName);
-	context->logDVar(context,"\n");
+	context->logDVar(context, "\n");
 #endif
 	doInvoke(context, thread, frame, actureMethod, count, message, exception);
 }
@@ -867,9 +868,9 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 	fy_class *owner = method->owner;
 	fy_uint count = method->paramStackUsage;
 #ifdef FY_VERBOSE
-	context->logDVar(context,"Invoke static: ");
+	context->logDVar(context, "Invoke static: ");
 	context->logDStr(context, method->uniqueName);
-	context->logDVar(context,"\n");
+	context->logDVar(context, "\n");
 #endif
 
 	if (!(method->access_flags & FY_ACC_STATIC)) {
@@ -900,7 +901,7 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 	frame->sp -= count;
 #ifdef FY_VERBOSE
 	context->logDStr(context, method->uniqueName);
-	context->logDVar(context,"\n");
+	context->logDVar(context, "\n");
 #endif
 	doInvoke(context, thread, frame, method, count, message, exception);
 }
@@ -924,7 +925,9 @@ fy_boolean fy_threadClinit(fy_context *context, fy_thread *thread,
 	if (clinitClazz) {
 		if (clinitClazz->clinitThreadId == 0) {
 #ifdef FY_VERBOSE
-			context->logDVar(context,"Prepare invoke <clinit> rollback ip %p %"FY_PRINT32"d => %"FY_PRINT32"d", frame, frame->lpc, frame->pc);
+			context->logDVar(context,
+					"Prepare invoke <clinit> rollback ip %p %"FY_PRINT32"d => %"FY_PRINT32"d",
+					frame, frame->lpc, frame->pc);
 #endif
 			frame->pc = frame->lpc;
 			clinitClazz->clinitThreadId = thread->threadId;
@@ -933,7 +936,9 @@ fy_boolean fy_threadClinit(fy_context *context, fy_thread *thread,
 			return 1;
 		} else {
 #ifdef FY_VERBOSE
-			context->logDVar(context,"Wait for <clinit> thread #%"FY_PRINT32"d rollback ip %p %"FY_PRINT32"d => %"FY_PRINT32"d", clinitClazz->clinitThreadId, frame, frame->lpc, frame->pc);
+			context->logDVar(context,
+					"Wait for <clinit> thread #%"FY_PRINT32"d rollback ip %p %"FY_PRINT32"d => %"FY_PRINT32"d",
+					clinitClazz->clinitThreadId, frame, frame->lpc, frame->pc);
 #endif
 			frame->pc = frame->lpc;
 			thread->yield = TRUE;
@@ -962,7 +967,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 	fy_instruction *instruction;
 	fy_method *method = NULL;
 	fy_frame *frame = NULL;
-	fy_int clinitStatus;
 	fy_uint *stack = thread->stack;
 	fy_uint *typeStack = thread->typeStack;
 	fy_memblock *block = context->memblocks;
@@ -1069,27 +1073,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 		lpc = pc;
 		if ((method->access_flags & FY_ACC_CLINIT) && pc == 0) {
-			fy_localToFrame(context, frame);
 			//!CLINIT
-			clinitStatus = fy_threadClinit(context, thread, frame,
-					method->owner->super, exception);
+			fy_localToFrame(context, frame);
+			if (fy_threadClinit(context, thread, frame, method->owner->super,
+					exception)) {
+				FY_FALLOUT_INVOKE;
+			}
 			if (exception->exceptionType != exception_none) {
 				FY_FALLOUT_NOINVOKE
-			}
-			switch (clinitStatus) {
-			case 0:
-				break;
-			case 1:
-				continue;
-			case -1:
-				thread->yield = TRUE;
-				FY_FALLOUT_NOINVOKE
-				;
-				break;
-			default:
-				fy_fault(exception, NULL,
-						"Illegal clinit result %"FY_PRINT32"d", clinitStatus);
-				break;
 			}
 		}
 
@@ -1111,9 +1102,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			char msg[256];
 #endif
 			fy_strSPrint(msg, 256, method->uniqueName);
-			context->logDVar(context,"##%2d %6d/%6d %s %d %s SB=%d SP=%d\n", thread->threadId,
-					opCount, ops, msg, lpc, FY_OP_NAME[instruction->op], sb,
-					sp);
+			context->logDVar(context, "##%2d %6d/%6d %s %d %s SB=%d SP=%d\n",
+					thread->threadId, opCount, ops, msg, lpc,
+					FY_OP_NAME[instruction->op], sb, sp);
 #endif
 
 			switch (instruction->op) {
@@ -1214,7 +1205,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadGetLocalInt(instruction->params.int_params.param1,
 						ivalue2);
 #ifdef FY_VERBOSE
-				context->logDVarLn(context,"[%"FY_PRINT32"d]: %"FY_PRINT32"d", instruction->params.int_params.param1, ivalue2);
+				context->logDVarLn(context, "[%"FY_PRINT32"d]: %"FY_PRINT32"d",
+						instruction->params.int_params.param1, ivalue2);
 #endif
 				fy_threadPushInt(ivalue2);
 				break;
@@ -1226,7 +1218,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadGetLocalHandle(instruction->params.int_params.param1,
 						ivalue2);
 #ifdef FY_VERBOSE
-				context->logDVarLn(context,"[%"FY_PRINT32"d]: %"FY_PRINT32"d", instruction->params.int_params.param1, ivalue2);
+				context->logDVarLn(context, "[%"FY_PRINT32"d]: %"FY_PRINT32"d",
+						instruction->params.int_params.param1, ivalue2);
 #endif
 				fy_threadPushHandle(ivalue2);
 				break;
@@ -1480,7 +1473,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopHandle(ivalue);
 				ivalue2 = fy_heapArrayLength(context, ivalue, exception);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%d\n", ivalue2);
+				context->logDVar(context, "%d\n", ivalue2);
 #endif
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
@@ -1500,7 +1493,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPutLocalInt(instruction->params.int_params.param1,
 						ivalue2);
 #ifdef FY_VERBOSE
-				context->logDVarLn(context, "[%"FY_PRINT32"d] = %"FY_PRINT32"d",instruction->params.int_params.param1, ivalue2);
+				context->logDVarLn(context, "[%"FY_PRINT32"d] = %"FY_PRINT32"d",
+						instruction->params.int_params.param1, ivalue2);
 #endif
 				break;
 			}
@@ -1511,7 +1505,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopType(ivalue2, type);
 #ifdef FY_VERBOSE
-				context->logDVarLn(context, "[%"FY_PRINT32"d] = %"FY_PRINT32"d",instruction->params.int_params.param1, ivalue2);
+				context->logDVarLn(context, "[%"FY_PRINT32"d] = %"FY_PRINT32"d",
+						instruction->params.int_params.param1, ivalue2);
 #endif
 				fy_threadPutLocalType(instruction->params.int_params.param1,
 						ivalue2, type);
@@ -2203,9 +2198,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					}
 					fy_threadPushLong(lvalue);
 #ifdef FY_VERBOSE
-					context->logDVar(context,"Long field:[");
+					context->logDVar(context, "Long field:[");
 					context->logDStr(context, field->uniqueName);
-					context->logDVar(context,"] = %"FY_PRINT64"d\n", lvalue);
+					context->logDVar(context, "] = %"FY_PRINT64"d\n", lvalue);
 #endif
 					break;
 				}
@@ -2223,9 +2218,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					}
 					fy_threadPushHandle(ivalue);
 #ifdef FY_VERBOSE
-					context->logDVar(context,"Handle field:[");
+					context->logDVar(context, "Handle field:[");
 					context->logDStr(context, field->uniqueName);
-					context->logDVar(context,"] = %d\n", ivalue);
+					context->logDVar(context, "] = %d\n", ivalue);
 #endif
 				}
 					break;
@@ -2242,9 +2237,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					}
 					fy_threadPushInt(ivalue);
 #ifdef FY_VERBOSE
-					context->logDVar(context,"Integer field:[");
+					context->logDVar(context, "Integer field:[");
 					context->logDStr(context, field->uniqueName);
-					context->logDVar(context,"] = %d\n", ivalue);
+					context->logDVar(context, "] = %d\n", ivalue);
 #endif
 					break;
 				}
@@ -2265,31 +2260,19 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				clazz1 = field->owner;
-				{ //!CLINIT
-					clinitStatus = fy_threadClinit(context, thread, frame,
-							clazz1, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-					switch (clinitStatus) {
-					case 0:
-						break;
-					case 1:
-						FY_FALLOUT_INVOKE
-						break;
-					case -1:
-						FY_FALLOUT_NOINVOKE
-						;
-						break;
-					default:
-						fy_fault(exception, NULL,
-								"Illegal clinit result %"FY_PRINT32"d",
-								clinitStatus);
-						break;
-					}
+				//!CLINIT
+				fy_localToFrame(context, frame);
+				if (fy_threadClinit(context, thread, frame, clazz1,
+						exception)) {
+					FY_FALLOUT_INVOKE
+					break;
 				}
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
+
 				type = (fy_byte) fy_strGet(field->descriptor,0);
 				switch (type) {
 				case 'D':
@@ -2401,7 +2384,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopInt(ivalue2);
 				fy_threadPopInt(ivalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%d+%d=%d\n", ivalue, ivalue2, ivalue + ivalue2);
+				context->logDVar(context, "%d+%d=%d\n", ivalue, ivalue2,
+						ivalue + ivalue2);
 #endif
 				fy_threadPushInt(ivalue + ivalue2);
 				break;
@@ -2691,10 +2675,12 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				clazz1 = method->owner;
 				mvalue = instruction->params.method;
 #ifdef FY_VERBOSE
-				context->logDVar(context,"Before: SB=%"FY_PRINT32"d SP=%"FY_PRINT32"d\n",sb,sp);
-				context->logDVar(context,"Invoke special: ");
+				context->logDVar(context,
+						"Before: SB=%"FY_PRINT32"d SP=%"FY_PRINT32"d\n", sb,
+						sp);
+				context->logDVar(context, "Invoke special: ");
 				context->logDStr(context, mvalue->uniqueName);
-				context->logDVar(context,"\n");
+				context->logDVar(context, "\n");
 #endif
 				clazz2 = mvalue->owner;
 				ivalue = mvalue->paramStackUsage + 1;/*count*/
@@ -2761,7 +2747,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_localToFrame(context, frame);
 #ifdef FY_VERBOSE
 				context->logDStr(context, mvalue->uniqueName);
-				context->logDVar(context,"\n");
+				context->logDVar(context, "\n");
 #endif
 				if (mvalue->access_flags & FY_ACC_NATIVE) {
 #ifdef FY_LATE_DECLARATION
@@ -2781,14 +2767,16 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					} else {
 						fy_heapBeginProtect(context);
 #ifdef FY_VERBOSE
-						context->logDVar(context,"Invoke special native: ");
-						context->logDStr(context,mvalue->uniqueName);
-						context->logDVar(context," %p=>%p\n",nh,nh->handler);
+						context->logDVar(context, "Invoke special native: ");
+						context->logDStr(context, mvalue->uniqueName);
+						context->logDVar(context, " %p=>%p\n", nh, nh->handler);
 #endif
 						(nh->handler)(context, thread, nh->data, stack + sp,
 								ivalue, message, exception);
 #ifdef FY_VERBOSE
-						context->logDVar(context,"After: SB=%"FY_PRINT32"d SP=%"FY_PRINT32"d\n",sb,sp);
+						context->logDVar(context,
+								"After: SB=%"FY_PRINT32"d SP=%"FY_PRINT32"d\n",
+								sb, sp);
 #endif
 						fy_heapEndProtect(context);
 						if (exception->exceptionType != exception_none) {
@@ -2809,32 +2797,19 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case INVOKESTATIC: {
+				//!CLINIT
 				fy_localToFrame(context, frame);
-				{ //!CLINIT
-					clinitStatus = fy_threadClinit(context, thread, frame,
-							instruction->params.method->owner, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-					switch (clinitStatus) {
-					case 0:
-						break;
-					case 1:
-						FY_FALLOUT_INVOKE
-						break;
-					case -1:
-						FY_FALLOUT_NOINVOKE
-						;
-						break;
-					default:
-						fy_fault(exception, NULL,
-								"Illegal clinit result %"FY_PRINT32"d",
-								clinitStatus);
-						break;
-					}
+				if (fy_threadClinit(context, thread, frame,
+						instruction->params.method->owner, exception)) {
+					FY_FALLOUT_INVOKE
+					break;
 				}
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
+
 				invokeStatic(context, thread, frame, instruction->params.method,
 						exception, message);
 				if (exception->exceptionType != exception_none) {
@@ -2972,8 +2947,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%"FY_PRINT64"d+%"FY_PRINT64"d=%"FY_PRINT64"d\n", lvalue,
-						lvalue2, lvalue + lvalue2);
+				context->logDVar(context,
+						"%"FY_PRINT64"d+%"FY_PRINT64"d=%"FY_PRINT64"d\n",
+						lvalue, lvalue2, lvalue + lvalue2);
 #endif
 				lvalue += lvalue2;
 				fy_threadPushLong(lvalue);
@@ -3087,7 +3063,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadGetLocalLong(instruction->params.int_params.param1,
 						lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"LOCAL[%d]=%"FY_PRINT64"d\n",
+				context->logDVar(context, "LOCAL[%d]=%"FY_PRINT64"d\n",
 						instruction->params.int_params.param1, lvalue);
 #endif
 				fy_threadPushLong(lvalue);
@@ -3100,7 +3076,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalLong(0, lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"LOCAL[0]=%"FY_PRINT64"d\n", lvalue);
+				context->logDVar(context, "LOCAL[0]=%"FY_PRINT64"d\n", lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -3112,7 +3088,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalLong(1, lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"LOCAL[1]=%"FY_PRINT64"d\n", lvalue);
+				context->logDVar(context, "LOCAL[1]=%"FY_PRINT64"d\n", lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -3124,7 +3100,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalLong(2, lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"LOCAL[2]=%"FY_PRINT64"d\n", lvalue);
+				context->logDVar(context, "LOCAL[2]=%"FY_PRINT64"d\n", lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -3136,7 +3112,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadGetLocalLong(3, lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"LOCAL[3]=%"FY_PRINT64"d\n", lvalue);
+				context->logDVar(context, "LOCAL[3]=%"FY_PRINT64"d\n", lvalue);
 #endif
 				fy_threadPushLong(lvalue);
 				break;
@@ -3288,7 +3264,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
+				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
 						instruction->params.int_params.param1);
 #endif
 				fy_threadPutLocalLong(instruction->params.int_params.param1,
@@ -3302,7 +3278,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 0);
+				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
+						0);
 #endif
 				fy_threadPutLocalLong(0, lvalue);
 				break;
@@ -3314,7 +3291,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 1);
+				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
+						1);
 #endif
 				fy_threadPutLocalLong(1, lvalue);
 				break;
@@ -3326,7 +3304,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 2);
+				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
+						2);
 #endif
 				fy_threadPutLocalLong(2, lvalue);
 				break;
@@ -3338,7 +3317,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #endif
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%"FY_PRINT64"d->LOCAL[%d]\n", lvalue, 3);
+				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
+						3);
 #endif
 				fy_threadPutLocalLong(3, lvalue);
 				break;
@@ -3350,8 +3330,9 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				fy_threadPopLong(lvalue2);
 				fy_threadPopLong(lvalue);
 #ifdef FY_VERBOSE
-				context->logDVar(context,"%"FY_PRINT64"d-%"FY_PRINT64"d=%"FY_PRINT64"d\n", lvalue,
-						lvalue2, lvalue - lvalue2);
+				context->logDVar(context,
+						"%"FY_PRINT64"d-%"FY_PRINT64"d=%"FY_PRINT64"d\n",
+						lvalue, lvalue2, lvalue - lvalue2);
 #endif
 				lvalue -= lvalue2;
 				fy_threadPushLong(lvalue);
@@ -3447,31 +3428,19 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				{ //!CLINIT
-					clinitStatus = fy_threadClinit(context, thread, frame,
-							clazz1, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-					switch (clinitStatus) {
-					case 0:
-						break;
-					case 1:
-						FY_FALLOUT_INVOKE
-						break;
-					case -1:
-						FY_FALLOUT_NOINVOKE
-						;
-						break;
-					default:
-						fy_fault(exception, NULL,
-								"Illegal clinit result %"FY_PRINT32"d",
-								clinitStatus);
-						break;
-					}
+				//!CLINIT
+				fy_localToFrame(context, frame);
+				if (fy_threadClinit(context, thread, frame, clazz1,
+						exception)) {
+					FY_FALLOUT_INVOKE
+					break;
 				}
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
+				}
+
 				ivalue = fy_heapAllocate(context, clazz1, exception);
 				if (exception->exceptionType != exception_none) {
 					message->messageType = message_exception;
@@ -3640,18 +3609,20 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					fy_heapPutFieldLong(context, ivalue2, field, lvalue,
 							exception);
 #ifdef FY_VERBOSE
-					context->logDVar(context,"Long field:[");
+					context->logDVar(context, "Long field:[");
 					context->logDStr(context, field->uniqueName);
-					context->logDVar(context,"] = %"FY_PRINT64"d(%"FY_PRINT64"x)\n", lvalue,lvalue);
+					context->logDVar(context,
+							"] = %"FY_PRINT64"d(%"FY_PRINT64"x)\n", lvalue,
+							lvalue);
 #endif
 					break;
 				default:
 					fy_heapPutFieldInt(context, ivalue2, field, ivalue,
 							exception);
 #ifdef FY_VERBOSE
-					context->logDVar(context,"Field:[");
+					context->logDVar(context, "Field:[");
 					context->logDStr(context, field->uniqueName);
-					context->logDVar(context,"] = %d(%x)\n", ivalue,ivalue);
+					context->logDVar(context, "] = %d(%x)\n", ivalue, ivalue);
 #endif
 					break;
 				}
@@ -3692,30 +3663,17 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;
 				}
 				clazz1 = field->owner;
-				{ //!CLINIT
-					clinitStatus = fy_threadClinit(context, thread, frame,
-							clazz1, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-					switch (clinitStatus) {
-					case 0:
-						break;
-					case 1:
-						FY_FALLOUT_INVOKE
-						break;
-					case -1:
-						FY_FALLOUT_NOINVOKE
-						;
-						break;
-					default:
-						fy_fault(exception, NULL,
-								"Illegal clinit result %"FY_PRINT32"d",
-								clinitStatus);
-						break;
-					}
+				//!CLINIT
+				fy_localToFrame(context, frame);
+				if (fy_threadClinit(context, thread, frame, clazz1,
+						exception)) {
+					FY_FALLOUT_INVOKE
+					break;
+				}
+				if (exception->exceptionType != exception_none) {
+					message->messageType = message_exception;
+					FY_FALLOUT_NOINVOKE
+					break;/*EXCEPTION_THROWN*/
 				}
 				type = (fy_byte) fy_strGet(field->descriptor,0);
 				switch (type) {
@@ -3937,7 +3895,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	if (!fy_classCanCastTo(context, clazz1, context->TOP_THROWABLE, TRUE)) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-				FY_EXCEPTION_CAST);
+		FY_EXCEPTION_CAST);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				clazz1->className);
 		return 0;
@@ -3950,7 +3908,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	if (field == NULL) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-				FY_EXCEPTION_CLASSNOTFOUND);
+		FY_EXCEPTION_CLASSNOTFOUND);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sThrowableDetailMessage);
 		return 0;
