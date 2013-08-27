@@ -28,19 +28,19 @@
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	context->sAttCode = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_ATT_CODE);
+	FY_ATT_CODE);
 	FYEH();
 
 	context->sAttLineNum = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_ATT_LINENUM);
+	FY_ATT_LINENUM);
 	FYEH();
 
 	context->sAttSynth = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_ATT_SYNTH);
+	FY_ATT_SYNTH);
 	FYEH();
 
 	context->sAttSourceFile = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_ATT_SOURCE_FILE);
+	FY_ATT_SOURCE_FILE);
 	FYEH();
 	context->sAttConstantValue = fy_vmCreateStringByPoolV(context, exception,
 			"a", FY_ATT_CONSTANT_VALIE);
@@ -81,27 +81,27 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	context->sEnum = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_ENUM);
+	FY_BASE_ENUM);
 	FYEH();
 
 	context->sAnnotation = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_ANNOTATION);
+	FY_BASE_ANNOTATION);
 	FYEH();
 
 	context->sTopClass = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_OBJECT);
+	FY_BASE_OBJECT);
 	FYEH();
 
 	context->sClassClass = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_CLASS);
+	FY_BASE_CLASS);
 	FYEH();
 
 	context->sClassField = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_REFLECT_FIELD);
+	FY_REFLECT_FIELD);
 	FYEH();
 
 	context->sClassMethod = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_REFLECT_METHOD);
+	FY_REFLECT_METHOD);
 	FYEH();
 
 	context->sClassConstructor = fy_vmCreateStringByPoolV(context, exception,
@@ -109,15 +109,15 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	context->sClassThrowable = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_THROWABLE);
+	FY_BASE_THROWABLE);
 	FYEH();
 
 	context->sString = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_STRING);
+	FY_BASE_STRING);
 	FYEH();
 
 	context->sThread = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_THREAD);
+	FY_BASE_THREAD);
 	FYEH();
 
 	context->sStringArray = fy_vmCreateStringByPoolV(context, exception, "a",
@@ -134,47 +134,47 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	context->sInit = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_METHOD_INIT);
+	FY_METHOD_INIT);
 	FYEH();
 
 	context->sClinit = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_METHOD_CLINIT);
+	FY_METHOD_CLINIT);
 	FYEH();
 
 	context->sFMain = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_METHODF_MAIN);
+	FY_METHODF_MAIN);
 	FYEH();
 
 	context->sFRun = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_METHODF_RUN);
+	FY_METHODF_RUN);
 	FYEH();
 
 	context->sFName = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_FIELDF_NAME);
+	FY_FIELDF_NAME);
 	FYEH();
 
 	context->sMFinalize = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_METHODF_FINALIZE);
+	FY_METHODF_FINALIZE);
 	FYEH();
 
 	context->sFPriority = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_FIELDF_PRIORITY);
+	FY_FIELDF_PRIORITY);
 	FYEH();
 
 	context->sFDaemon = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_FIELDF_DAEMON);
+	FY_FIELDF_DAEMON);
 	FYEH();
 
 	context->sStringCount = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_STRING".count.I");
+	FY_BASE_STRING".count.I");
 	FYEH();
 
 	context->sStringValue = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_STRING".value.[C");
+	FY_BASE_STRING".value.[C");
 	FYEH();
 
 	context->sStringOffset = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_STRING".offset.I");
+	FY_BASE_STRING".offset.I");
 	FYEH();
 
 	context->sStackTraceElement = fy_vmCreateStringByPoolV(context, exception,
@@ -250,66 +250,66 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	context->sValueBoolean = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_VALUE_BOOLEAN);
+	FY_VALUE_BOOLEAN);
 	FYEH();
 
 	context->sValueByte = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_VALUE_BYTE);
+	FY_VALUE_BYTE);
 	FYEH();
 
 	context->sValueChar = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_VALUE_CHARACTER);
+	FY_VALUE_CHARACTER);
 	FYEH();
 
 	context->sValueShort = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_VALUE_SHORT);
+	FY_VALUE_SHORT);
 	FYEH();
 
 	context->sValueInt = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_VALUE_INTEGER);
+	FY_VALUE_INTEGER);
 	FYEH();
 
 	context->sValueFloat = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_VALUE_FLOAT);
+	FY_VALUE_FLOAT);
 	FYEH();
 
 	context->sValueLong = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_VALUE_LONG);
+	FY_VALUE_LONG);
 	FYEH();
 
 	context->sValueDouble = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_VALUE_DOUBLE);
+	FY_VALUE_DOUBLE);
 	FYEH();
 
 	context->sClassBoolean = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_BOOLEAN);
+	FY_BASE_BOOLEAN);
 	FYEH();
 
 	context->sClassByte = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_BYTE);
+	FY_BASE_BYTE);
 	FYEH();
 	context->sClassChar = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_CHAR);
+	FY_BASE_CHAR);
 	FYEH();
 
 	context->sClassShort = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_SHORT);
+	FY_BASE_SHORT);
 	FYEH();
 
 	context->sClassInt = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_INT);
+	FY_BASE_INT);
 	FYEH();
 
 	context->sClassFloat = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_FLOAT);
+	FY_BASE_FLOAT);
 	FYEH();
 
 	context->sClassLong = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_LONG);
+	FY_BASE_LONG);
 	FYEH();
 
 	context->sClassDouble = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_BASE_DOUBLE);
+	FY_BASE_DOUBLE);
 	FYEH();
 
 	context->sPhantomReference = fy_vmCreateStringByPoolV(context, exception,
@@ -317,11 +317,11 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	context->sSoftReference = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_REF_SOFT);
+	FY_REF_SOFT);
 	FYEH();
 
 	context->sWeakReference = fy_vmCreateStringByPoolV(context, exception, "a",
-			FY_REF_WEAK);
+	FY_REF_WEAK);
 	FYEH();
 }
 
@@ -486,10 +486,12 @@ static void initHeap(fy_context *context, fy_exception *exception) {
 
 void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_debugInit(context);
-	ILOG(context,
+	ILOG(
+			context,
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
-			MAX_OBJECTS * (fy_int) sizeof(fy_object));
+			MAX_OBJECTS * (fy_int) sizeof(fy_object))
+;
 	fy_mmInit(context->memblocks, exception);
 	FYEH();
 	fy_bsRegisterBinarySaver(context);
@@ -526,7 +528,7 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_coreRegisterMathHandlers(context, exception);
 	FYEH();
 
-	fy_risInit(context,exception);
+	fy_risInit(context, exception);
 	FYEH();
 }
 

@@ -27,7 +27,8 @@
 extern "C" {
 #endif
 
-FY_ATTR_EXPORT void fisceInitContext(fy_context *context, fy_exception *exception);
+FY_ATTR_EXPORT void fisceInitContext(fy_context *context,
+		fy_exception *exception);
 
 FY_ATTR_EXPORT void fisceDestroyContext(fy_context *context);
 

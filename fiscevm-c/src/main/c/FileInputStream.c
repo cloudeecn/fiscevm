@@ -60,7 +60,7 @@ static fy_int isSkip(struct fy_context *context, fy_inputStream *is,
 	fisData *data = is->data;
 	if (data->closed) {
 		fy_fault(exception, FY_EXCEPTION_IO, "closed.");
-		FYEH() 0;
+		FYEH()0;
 	}
 	if (fseek(data->fp, size, SEEK_CUR)) {
 		fy_fault(exception, FY_EXCEPTION_IO, "%s", strerror(errno));
@@ -100,7 +100,7 @@ static fy_inputStream* isOpen(struct fy_context *context, const char *name,
 
 	if (baseSlash && nameSlash) {
 		strncat(targetName, baseName, sizeof(targetName));
-		strncat(targetName, name+1, sizeof(targetName));
+		strncat(targetName, name + 1, sizeof(targetName));
 	} else if ((!baseSlash) && (!nameSlash)) {
 		strncat(targetName, baseName, sizeof(targetName));
 		strncat(targetName, "/", sizeof(targetName));

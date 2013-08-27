@@ -32,6 +32,4 @@ typedef int pthread_mutex_t;
 #include<pthread.h>
 #endif
 
-
-
 #endif /* DUMMY_THREAD_H_ */

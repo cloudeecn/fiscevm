@@ -128,7 +128,8 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 static fy_boolean fy_classCanCastToWithNull(fy_context *context,
 		fy_class *clazz, fy_class *other) {
 	return other == NULL ?
-			FALSE : fy_classCanCastTo(context, clazz, other, FALSE);
+	FALSE :
+							fy_classCanCastTo(context, clazz, other, FALSE);
 }
 
 fy_boolean fy_classExtendsThrowable(fy_context *context, fy_class *clazz) {

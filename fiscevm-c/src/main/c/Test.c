@@ -437,8 +437,8 @@ void testClassLoaderFull() {
 	fy_class *clObj;
 	exception->exceptionType = exception_none;
 	while ((nm = names[i++]) != NULL) {
-		DLOG(context, "###Full loading class %s\n", nm);
-		snm->content = NULL;
+		DLOG(context, "###Full loading class %s\n", nm)
+;		snm->content = NULL;
 		fy_strInitWithUTF8(block, snm, nm, exception);
 		TEST_EXCEPTION(exception);
 		clazz = fy_vmLookupClass(context, snm, exception);
@@ -512,7 +512,8 @@ void testHeap() {
 	TEST_EXCEPTION(exception);
 
 	sHandle = fy_heapLiteral(context, str, exception);
-	TEST_EXCEPTION(exception);ASSERT(sHandle != 0);
+	TEST_EXCEPTION(exception);
+	ASSERT(sHandle != 0);
 	fy_heapGetString(context, sHandle, compare, exception);
 	TEST_EXCEPTION(exception);
 	FY_ASSERT(fy_strCmp(str, compare) == 0);

@@ -58,16 +58,18 @@ static fy_int isSkip(struct fy_context *context, fy_inputStream *is,
 	}
 }
 
-static void isClose(struct fy_context *context, fy_inputStream *is, fy_exception *exception) {
+static void isClose(struct fy_context *context, fy_inputStream *is,
+		fy_exception *exception) {
 	fy_mmFree(context->memblocks, is->data);
 }
 
-FY_ATTR_EXPORT fy_inputStream *fy_baisOpenByteArrayInputStream(fy_context *context,
-		void *buffer, fy_int bufferLen, fy_exception *exception) {
+FY_ATTR_EXPORT fy_inputStream *fy_baisOpenByteArrayInputStream(
+		fy_context *context, void *buffer, fy_int bufferLen,
+		fy_exception *exception) {
 	baisData *bd;
 	fy_inputStream *is;
-	if (buffer == NULL ) {
-		return NULL ;
+	if (buffer == NULL) {
+		return NULL;
 	}
 	bd = fy_mmAllocate(context->memblocks, sizeof(baisData), exception);
 	FYEH()NULL;
@@ -77,7 +79,7 @@ FY_ATTR_EXPORT fy_inputStream *fy_baisOpenByteArrayInputStream(fy_context *conte
 	is = fy_mmAllocate(context->memblocks, sizeof(fy_inputStream), exception);
 	if (exception->exceptionType != exception_none) {
 		fy_mmFree(context->memblocks, bd);
-		return NULL ;
+		return NULL;
 	}
 	is->data = bd;
 	is->isClose = isClose;

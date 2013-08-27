@@ -123,35 +123,35 @@ static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
 #if FY_MEM_LOG_TO_CONTEXT
 	fy_context *context = mem->gcContext;
 	if (this == context->references)
-		context->logDVarLn(context,
-				"HashMapI getBucket %p[%"FY_PRINT32"d]@%"FY_PRINT32"d", this,
-				key, key & this->bucketsSizeM1);
+	context->logDVarLn(context,
+			"HashMapI getBucket %p[%"FY_PRINT32"d]@%"FY_PRINT32"d", this,
+			key, key & this->bucketsSizeM1);
 #endif
 	if ((entry = this->buckets[key & this->bucketsSizeM1]) != NULL) {
 		do {
 #if FY_MEM_LOG_TO_CONTEXT
 			if (this == context->references)
-				context->logDVarLn(context,
-						"...entry == %p key == %"FY_PRINT32"d", entry,
-						entry->key);
+			context->logDVarLn(context,
+					"...entry == %p key == %"FY_PRINT32"d", entry,
+					entry->key);
 #endif
 			if (entry->key == key) {
 #if FY_MEM_LOG_TO_CONTEXT
 				if (this == context->references)
-					context->logDVarLn(context, "...matched", entry,
-							entry->key);
+				context->logDVarLn(context, "...matched", entry,
+						entry->key);
 #endif
 				return entry;
 			}
 #if FY_MEM_LOG_TO_CONTEXT
 			if (this == context->references)
-				context->logDVarLn(context, "...entry->next=%p", entry->next);
+			context->logDVarLn(context, "...entry->next=%p", entry->next);
 #endif
 		} while ((entry = entry->next) != NULL);
 	} else {
 #if FY_MEM_LOG_TO_CONTEXT
 		if (this == context->references)
-			context->logDVarLn(context, "...entry is null");
+		context->logDVarLn(context, "...entry is null");
 #endif
 	}
 
@@ -225,9 +225,9 @@ FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
 #if FY_MEM_LOG_TO_CONTEXT
 	fy_context *context = mem->gcContext;
 	if (this == context->references)
-		context->logDVarLn(context,
-				"HashMapI put %p[%"FY_PRINT32"d]@%"FY_PRINT32"d <<< %"FY_PRINT32"d",
-				this, key, key & this->bucketsSizeM1, value);
+	context->logDVarLn(context,
+			"HashMapI put %p[%"FY_PRINT32"d]@%"FY_PRINT32"d <<< %"FY_PRINT32"d",
+			this, key, key & this->bucketsSizeM1, value);
 #endif
 
 	entry = getBucket(mem, this, key);

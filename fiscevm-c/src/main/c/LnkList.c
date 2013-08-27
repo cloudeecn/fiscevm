@@ -48,13 +48,14 @@ static void fy_linkedListReleaser(fy_memblock *block, fy_linkedListNode *node,
 	fy_mmFree(block, node);
 }
 
-FY_ATTR_EXPORT void fy_linkedListDestroy(fy_memblock *block, fy_linkedList *list) {
+FY_ATTR_EXPORT void fy_linkedListDestroy(fy_memblock *block,
+		fy_linkedList *list) {
 	fy_linkedListTraverse(block, list, fy_linkedListReleaser, NULL);
 	fy_mmFree(block, list->head);
 }
 
-FY_ATTR_EXPORT void* fy_linkedListRemove(fy_memblock *block, fy_linkedList* list,
-		void* content) {
+FY_ATTR_EXPORT void* fy_linkedListRemove(fy_memblock *block,
+		fy_linkedList* list, void* content) {
 	struct fy_linkedListNode* node = list->head;
 	while (node->next != NULL) {
 		if (node->next->info == content) {
@@ -98,10 +99,9 @@ FY_ATTR_EXPORT fy_linkedListNode* fy_linkedListAppend(fy_memblock *block,
 	return node;
 }
 
-FY_ATTR_EXPORT void fy_linkedListTraverse(
-		fy_memblock *block,
+FY_ATTR_EXPORT void fy_linkedListTraverse(fy_memblock *block,
 		fy_linkedList* list,
-		void(*fun)(fy_memblock *block, struct fy_linkedListNode* node,
+		void (*fun)(fy_memblock *block, struct fy_linkedListNode* node,
 				fy_exception *exception), fy_exception *exception) {
 	struct fy_linkedListNode* node = list->head;
 	struct fy_linkedListNode* next = node->next;

@@ -93,9 +93,9 @@ FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 }
 
 FY_ATTR_EXPORT int fy_breakpoint() {
-	int i=1;
+	int i = 1;
 	i++;
-	if(i==2){
+	if (i == 2) {
 		/*Please place breakpoint here*/
 		i++;
 	}

@@ -186,9 +186,8 @@ void fy_loadPrepareObjects(struct fy_context *context, void *loader_,
 }
 void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 		fy_uint classId, fy_int posInHeap, fy_int gen, fy_int finalizeStatus,
-		fy_uint monitorOwner, fy_uint monitorCount,
-		fy_uint multiUsageData, fy_uint dataLength, fy_uint *data,
-		fy_exception *exception) {
+		fy_uint monitorOwner, fy_uint monitorCount, fy_uint multiUsageData,
+		fy_uint dataLength, fy_uint *data, fy_exception *exception) {
 	fy_object *object = context->objects + handle;
 	fy_class *clazz = context->classes[classId];
 	if (clazz == NULL) {
@@ -197,12 +196,13 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 		return;
 	}
 #ifdef FY_VERBOSE
-	context->logDVar(context,"AllocateDirect object[%"FY_PRINT32"d] class=", handle);
-	context->logDStr(context,clazz->className);
-	context->logDVar(context,"\n");
+	context->logDVar(context, "AllocateDirect object[%"FY_PRINT32"d] class=",
+			handle);
+	context->logDStr(context, clazz->className);
+	context->logDVar(context, "\n");
 #endif
-	fy_heapAllocateDirect(context, dataLength, clazz, multiUsageData, handle, posInHeap,
-			exception);
+	fy_heapAllocateDirect(context, dataLength, clazz, multiUsageData, handle,
+			posInHeap, exception);
 	if (object->object_data->clazz != clazz) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
 				"Object allocate error!", classId);

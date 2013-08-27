@@ -187,11 +187,11 @@ FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
 			entry = fy_mmAllocate(mem, sizeof(fy_hashMapEntry), exception);
 		}
 		FYEH()NULL;
-		keyClone = fy_mmAllocatePerm(mem,sizeof(fy_str),exception);
+		keyClone = fy_mmAllocatePerm(mem, sizeof(fy_str), exception);
 		FYEH()NULL;
-		fy_strInit(mem,keyClone,va->size,exception);
+		fy_strInit(mem, keyClone, va->size, exception);
 		FYEH()NULL;
-		fy_strAppendVA(mem,keyClone,va,exception);
+		fy_strAppendVA(mem, keyClone, va, exception);
 		FYEH()NULL;
 		keyClone->status |= FY_STR_PERSIST;
 		entry->key = keyClone;
@@ -227,32 +227,32 @@ FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
 }
 
 /*
-FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
-		const char *keyUtf8, void *value, fy_exception *exception) {
-	fy_str *key;
-	void *ret;
+ FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
+ const char *keyUtf8, void *value, fy_exception *exception) {
+ fy_str *key;
+ void *ret;
 
-	if (this->perm) {
-		key = fy_strCreatePermFromUTF8(mem, keyUtf8, 0, exception);
-	} else {
-		key = fy_mmAllocate(mem, sizeof(fy_str), exception);
-		FYEH()NULL;
-		fy_strInit(mem, key, (fy_utf8SizeS(keyUtf8, -1) + 1) / 2, exception);
-		FYEH()NULL;
-		fy_strAppendUTF8(mem, key, keyUtf8, -1, exception);
-		FYEH()NULL;
-	}
+ if (this->perm) {
+ key = fy_strCreatePermFromUTF8(mem, keyUtf8, 0, exception);
+ } else {
+ key = fy_mmAllocate(mem, sizeof(fy_str), exception);
+ FYEH()NULL;
+ fy_strInit(mem, key, (fy_utf8SizeS(keyUtf8, -1) + 1) / 2, exception);
+ FYEH()NULL;
+ fy_strAppendUTF8(mem, key, keyUtf8, -1, exception);
+ FYEH()NULL;
+ }
 
-	ret = fy_hashMapPut(mem, this, key, value, exception);
-	FYEH()NULL;
-	if (this->perm) {
-	} else {
-		fy_strDestroy(mem, key);
-		fy_mmFree(mem, key);
-	}
-	return ret;
-}
-*/
+ ret = fy_hashMapPut(mem, this, key, value, exception);
+ FYEH()NULL;
+ if (this->perm) {
+ } else {
+ fy_strDestroy(mem, key);
+ fy_mmFree(mem, key);
+ }
+ return ret;
+ }
+ */
 
 FY_ATTR_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this,
 		fy_str *key) {

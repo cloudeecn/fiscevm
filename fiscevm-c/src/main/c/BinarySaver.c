@@ -160,7 +160,7 @@ static void saveClass(struct fy_context *context, void *saver, fy_uint classId,
 	writeInt(fp, clinited, exception);
 	writeInt(fp, imax = name->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeChar(fp, 	fy_strGet(name,i), exception);
+		writeChar(fp, fy_strGet(name,i), exception);
 	}
 	writeInt(fp, imax = staticSize, exception);
 	for (i = 0; i < imax; i++) {
@@ -224,9 +224,8 @@ static void savePrepareObjects(struct fy_context *context, void *saver,
 }
 static void saveObject(struct fy_context *context, void *saver, fy_uint handle,
 		fy_uint classId, fy_int posInHeap, fy_int gen, fy_int finalizeStatus,
-		fy_uint monitorOwner, fy_uint monitorCount,
-		fy_uint length, fy_uint dataSize, fy_uint *data,
-		fy_exception *exception) {
+		fy_uint monitorOwner, fy_uint monitorCount, fy_uint length,
+		fy_uint dataSize, fy_uint *data, fy_exception *exception) {
 	FILE *fp = saver;
 	fy_uint i;
 	writeInt(fp, 0xF15CE00A, exception);
@@ -448,8 +447,8 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	fy_uint clinited;
 	fy_uint staticSize;
 	/*
-	fy_uint *staticArea;
-*/
+	 fy_uint *staticArea;
+	 */
 	fy_uint methodCount;
 	fy_uint fieldCount;
 
@@ -518,7 +517,8 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		readString(context, fp, strbuf, nameSize, exception);
 		FYEH();
 		staticSize = readInt(fp, exception);
-		readUIntBlock(context, fp, &uintbufSize, &uintbuf, staticSize, exception);
+		readUIntBlock(context, fp, &uintbufSize, &uintbuf, staticSize,
+				exception);
 		fy_loadClass(context, loader, id, handle, clinited, strbuf, staticSize,
 				uintbuf, exception);
 	}
@@ -592,8 +592,8 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		readUIntBlock(context, fp, &uintbufSize, &uintbuf, dataSize, exception);
 		FYEH();
 		fy_loadObject(context, loader, handle, classId, posInHeap, gen,
-				finalizeStatus, monitorOwner, monitorCount, len,
-				dataSize, uintbuf, exception);
+				finalizeStatus, monitorOwner, monitorCount, len, dataSize,
+				uintbuf, exception);
 		FYEH();
 	}
 	fy_loadEndObject(context, loader, exception);
@@ -607,7 +607,8 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 
 	FY_ASSERTF(0xF15CE00B);
 	finalizeCount = readInt(fp, exception);
-	readUIntBlock(context, fp, &uintbufSize, &uintbuf, finalizeCount, exception);
+	readUIntBlock(context, fp, &uintbufSize, &uintbuf, finalizeCount,
+			exception);
 	FYEH();
 	fy_loadFinalizes(context, loader, finalizeCount, uintbuf, exception);
 	FYEH();
@@ -642,10 +643,11 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		FYEH();
 		stackSize = readInt(fp, exception);
 		FYEH();
-		readUIntBlock(context, fp, &uintbufSize, &uintbuf, stackSize, exception);
-		FYEH();
-		readUIntBlock(context, fp, &uintbufSize2, &uintbuf2, (stackSize + 31) / 32,
+		readUIntBlock(context, fp, &uintbufSize, &uintbuf, stackSize,
 				exception);
+		FYEH();
+		readUIntBlock(context, fp, &uintbufSize2, &uintbuf2,
+				(stackSize + 31) / 32, exception);
 		FYEH();
 		thread = fy_loadThread(context, loader, id, handle, priority, daemon,
 				destroyPending, interrupted,

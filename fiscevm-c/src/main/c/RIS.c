@@ -119,7 +119,7 @@ static void RISRead0BII(struct fy_context *context, struct fy_thread *thread,
 	target = fy_heapGetArrayBytes(context, bufHandle, exception);
 	FYEH();
 
-	if(len>=0){
+	if (len >= 0) {
 		memcpy(target + pos, buf, len);
 	}
 	fy_nativeReturnInt(context, thread, len);

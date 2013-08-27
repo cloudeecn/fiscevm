@@ -43,7 +43,7 @@ static fy_int monitorEnter(fy_context *context, fy_thread *thread,
 		monitor->object_data->monitorOwnerId = threadId;
 		monitor->object_data->monitorOwnerTimes = times;
 	} else {
-		ASSERT(thread->waitForLockId==0);
+		ASSERT(thread->waitForLockId == 0);
 		thread->waitForLockId = monitorId;
 		thread->pendingLockCount = 1;
 		thread->yield = TRUE;
@@ -169,7 +169,7 @@ void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
 		fy_long time, fy_exception *exception) {
 	fy_object *monitor;
 
-	ASSERT( thread->waitForNotifyId == 0);
+	ASSERT(thread->waitForNotifyId == 0);
 	monitor = context->objects + monitorId;
 	ASSERT(monitor->object_data!=NULL);
 	if (monitor->object_data->monitorOwnerId != thread->threadId) {
@@ -214,7 +214,7 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 				&target);
 		if (target != NULL && target->waitForNotifyId == monitorId) {
 			target->waitForNotifyId = 0;
-			ASSERT(target->waitForLockId==0);
+			ASSERT(target->waitForLockId == 0);
 			target->waitForLockId = monitorId;
 			target->nextWakeTime = 0;
 			if (!all) {
@@ -269,7 +269,7 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	fy_heapPutArrayChar(context, threadNameHandle, 4, '.', exception);
 	for (i = 0; i < clazz->className->length; i++) {
 		fy_heapPutArrayChar(context, threadNameHandle, i + 5,
-				fy_strGet(clazz->className,i), exception);
+		fy_strGet(clazz->className,i), exception);
 	}
 	FYEH();
 
@@ -502,7 +502,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 								|| now > context->nextForceGCTime) {
 							context->nextGCTime = now + FY_GC_IDV;
 							context->nextForceGCTime = context->nextGCTime
-									+ FY_GC_FORCE_IDV;
+							+ FY_GC_FORCE_IDV;
 							DLOG(context, "Call GC due to time out");
 							fy_heapGC(context, FALSE, exception);
 							FYEH();

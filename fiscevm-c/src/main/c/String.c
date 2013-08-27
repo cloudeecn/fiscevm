@@ -473,17 +473,17 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA *va,
 			fy_strAppendChar(mem, str, va->vars[i].c, exception);
 			FYEH()NULL;
 			break;
-		case 'a':
+			case 'a':
 			/*(char*)*/
 			fy_strAppendUTF8(mem, str, va->vars[i].a, -1, exception);
 			FYEH()NULL;
 			break;
-		case 's':
+			case 's':
 			/*(fy_str*)*/
 			fy_strAppend(mem, str, va->vars[i].s, exception);
 			FYEH()NULL;
 			break;
-		default:
+			default:
 			fy_fault(exception, NULL, "Illegal character %c in pattern %s", c,
 					va->pattern);
 			return NULL;
@@ -511,7 +511,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistClone(fy_memblock *mem,
 	if (from->status & FY_STR_PERSIST) {
 		ret = from;
 #if 0
-		if((fy_ulong)from > 0x7fffffffffff0000ll){
+		if((fy_ulong)from > 0x7fffffffffff0000ll) {
 			int j=0;
 			j++;
 			j++;
