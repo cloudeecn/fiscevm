@@ -58,6 +58,9 @@ void fy_threadPushMethod(fy_context *context, fy_thread *thread,
 void fy_threadInvoke(fy_context *context, fy_thread *thread, fy_method *method,
 		fy_message *message, fy_exception *exception);
 
+fy_boolean fy_threadClinit(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_class *clazz, fy_exception *exception);
+
 void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		fy_int ops);
 
