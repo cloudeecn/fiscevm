@@ -39,11 +39,11 @@ public final class SimpleJSONUtil {
 			} else if (c < 32 || c > 127) {
 				// unicode escape
 				sb.append("\\u");
-				if (c <= 0xff) {
+				if (c <= 0xf) {
 					sb.append("000");
-				} else if (c <= 0xffff) {
+				} else if (c <= 0xff) {
 					sb.append("00");
-				} else if (c <= 0xffffff) {
+				} else if (c <= 0xfff) {
 					sb.append("0");
 				}
 				sb.append(Integer.toString(c, 16));

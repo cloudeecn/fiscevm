@@ -129,6 +129,8 @@ set(CMAKE_LINK_FLAGS_DEBUG "${CMAKE_LINK_FLAGS_DEBUG}")
 set(CMAKE_LINK_FLAGS_RELEASE "${CMAKE_LINK_FLAGS_RELEASE} -O3 ${FLAG_LTO}")
 set(CMAKE_LINK_FLAGS_RELWITHDEBINFO "${CMAKE_LINK_FLAGS_RELWITHDEBINFO} -O2     ${FLAG_LTO}")
 
+#set(NO_UNDEFINED "-Wl,--no-undefined")
+
 IF(CMAKE_COMPILER_IS_GNUCC)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
@@ -182,7 +184,7 @@ if(ENABLE_LIBS)
             )
             set_target_properties(fyjni
                 PROPERTIES
-                   LINK_FLAGS "${W32_ADD_FLAGS} -Wl,--no-undefined"
+                   LINK_FLAGS "${W32_ADD_FLAGS} ${NO_UNDEFINED}"
             )
         endif(ENABLE_JNI)
     endif(NOT (HAS_M32 OR HAS_M64))
@@ -200,7 +202,7 @@ if(ENABLE_LIBS)
         set_target_properties(fisce
             PROPERTIES
     		    COMPILE_FLAGS "-m32"
-		        LINK_FLAGS "-m32 -Wl,--no-undefined"
+		        LINK_FLAGS "-m32 ${NO_UNDEFINED}"
         )
         
         if(ENABLE_JNI)
@@ -216,7 +218,7 @@ if(ENABLE_LIBS)
             set_target_properties(fyjni
                 PROPERTIES
 		            COMPILE_FLAGS "-m32"
-		            LINK_FLAGS "-m32 ${W32_ADD_FLAGS} -Wl,--no-undefined"
+		            LINK_FLAGS "-m32 ${W32_ADD_FLAGS} ${NO_UNDEFINED}"
             )
         endif(ENABLE_JNI)
     endif(HAS_M32)
@@ -234,7 +236,7 @@ if(ENABLE_LIBS)
         set_target_properties(fisce64
             PROPERTIES
     		    COMPILE_FLAGS "-m64"
-		        LINK_FLAGS "-m64 -Wl,--no-undefined"
+		        LINK_FLAGS "-m64 ${NO_UNDEFINED}"
         )
         
         if(ENABLE_JNI)
@@ -250,7 +252,7 @@ if(ENABLE_LIBS)
             set_target_properties(fyjni64
                 PROPERTIES
 		            COMPILE_FLAGS "-m64"
-		            LINK_FLAGS "-m64 ${W32_ADD_FLAGS} -Wl,--no-undefined"
+		            LINK_FLAGS "-m64 ${W32_ADD_FLAGS} ${NO_UNDEFINED}"
             )
         endif(ENABLE_JNI)
     endif(HAS_M64)

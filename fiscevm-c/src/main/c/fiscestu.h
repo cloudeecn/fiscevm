@@ -72,6 +72,10 @@
 #define FY_TM_STATE_DEAD_PENDING  6
 #define FY_TM_STATE_DEAD  7
 
+#define FY_CLINIT_DONE 0
+#define FY_CLINIT_WAIT -1
+#define FY_CLINIT_INVOKE 1
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

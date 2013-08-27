@@ -53,7 +53,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread);
 
 void fy_threadPushMethod(fy_context *context, fy_thread *thread,
-		fy_method *invoke, fy_frame **localFrame, fy_exception *exception);
+		fy_method *invoke, fy_exception *exception);
 
 void fy_threadInvoke(fy_context *context, fy_thread *thread, fy_method *method,
 		fy_message *message, fy_exception *exception);

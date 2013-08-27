@@ -81,5 +81,6 @@ public class ArchitectureTest implements IF1 {
 			}
 			ae.printStackTrace();
 		}
+		
 	}
 }

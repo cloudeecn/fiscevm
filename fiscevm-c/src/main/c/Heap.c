@@ -421,11 +421,24 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 
 #ifdef FY_DEBUG
 static fy_boolean validate(fy_context *context, fy_int handle, fy_field *field) {
+	fy_boolean ret;
 	fy_class *handleClass =
 			fy_heapGetObject(context, handle)->object_data->clazz;
 	fy_class *fieldClass = field->owner;
-	return fy_classCanCastTo(context, handleClass, fieldClass, TRUE);
+	ret = fy_classCanCastTo(context, handleClass, fieldClass, TRUE);
+	if (!ret) {
+		context->logEVar(context,
+				"Validate failed in field operation: Can't cast from ");
+		context->logEStr(context, handleClass->className);
+		context->logEVar(context, " to ");
+		context->logEStr(context, fieldClass->className);
+		context->logEVarLn(context, "");
+	}
+	ASSERT(ret);
+	return ret;
 }
+#else
+#define validate(A,B,C)
 #endif
 
 fy_int fy_heapArrayLength(fy_context *context, fy_int handle,
@@ -597,7 +610,7 @@ fy_boolean fy_heapGetFieldBoolean(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 
 	return (fy_boolean) (((fy_int*) obj->object_data->data)[field->posAbs]);
 }
@@ -605,7 +618,7 @@ fy_int fy_heapGetFieldHandle(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	ASSERT(obj->object_data!=NULL);
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 
 	CHECK_NPT(0)
 	return (fy_int) (((fy_int*) obj->object_data->data)[field->posAbs]);
@@ -614,7 +627,7 @@ fy_byte fy_heapGetFieldByte(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 
 	return (fy_byte) (((fy_int*) obj->object_data->data)[field->posAbs]);
 }
@@ -622,7 +635,7 @@ fy_short fy_heapGetFieldShort(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 
 	return (fy_short) (((fy_int*) obj->object_data->data)[field->posAbs]);
 }
@@ -630,7 +643,7 @@ fy_char fy_heapGetFieldChar(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 
 	return (fy_char) (((fy_int*) obj->object_data->data)[field->posAbs]);
 }
@@ -638,7 +651,7 @@ fy_int fy_heapGetFieldInt(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 
 	return (fy_int) (((fy_int*) obj->object_data->data)[field->posAbs]);
 }
@@ -646,7 +659,7 @@ fy_long fy_heapGetFieldLong(fy_context *context, fy_int handle, fy_field *field,
 		fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVar(context, "high=%ud\nlow=%ud\n",
 			((fy_int*) obj->object_data->data)[field->posAbs],
@@ -660,7 +673,7 @@ fy_float fy_heapGetFieldFloat(fy_context *context, fy_int handle,
 	fy_object *obj = fy_heapGetObject(context, handle);
 #endif
 	CHECK_NPT(0)
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 
 	return fy_intToFloat(fy_heapGetFieldInt(context, handle, field, exception));
 }
@@ -668,7 +681,7 @@ fy_double fy_heapGetFieldDouble(fy_context *context, fy_int handle,
 		fy_field *field, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT(0)
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 
 	return fy_longToDouble(
 			fy_I2TOL(((fy_int*)obj->object_data->data)[field->posAbs],((fy_int*)obj->object_data->data)[field->posAbs+1]));
@@ -678,7 +691,7 @@ void fy_heapPutFieldBoolean(fy_context *context, fy_int handle, fy_field *field,
 		fy_boolean value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
 			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
@@ -689,7 +702,7 @@ void fy_heapPutFieldHandle(fy_context *context, fy_int handle, fy_field *field,
 		fy_int value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
 			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
@@ -700,7 +713,7 @@ void fy_heapPutFieldByte(fy_context *context, fy_int handle, fy_field *field,
 		fy_byte value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
 			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
@@ -711,7 +724,7 @@ void fy_heapPutFieldShort(fy_context *context, fy_int handle, fy_field *field,
 		fy_short value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
 			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
@@ -722,7 +735,7 @@ void fy_heapPutFieldChar(fy_context *context, fy_int handle, fy_field *field,
 		fy_char value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
 			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
@@ -733,7 +746,7 @@ void fy_heapPutFieldInt(fy_context *context, fy_int handle, fy_field *field,
 		fy_int value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
 			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
@@ -744,7 +757,7 @@ void fy_heapPutFieldLong(fy_context *context, fy_int handle, fy_field *field,
 		fy_long value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVar(context, "value=%"FY_PRINT64"d\nhigh=%ud\nlow=%ud\n",
 			value, fy_HOFL(value), fy_LOFL(value) );
@@ -758,7 +771,7 @@ void fy_heapPutFieldFloat(fy_context *context, fy_int handle, fy_field *field,
 		fy_float value, fy_exception *exception) {
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
 			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
@@ -770,7 +783,7 @@ void fy_heapPutFieldDouble(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	fy_long longValue;
 	CHECK_NPT()
-	ASSERT(validate(context,handle,field));
+	validate(context,handle,field);
 #ifdef FY_VERBOSE
 	context->logDVarLn(context, "address=%"FY_PRINT64"x",
 			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));

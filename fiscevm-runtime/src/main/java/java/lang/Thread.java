@@ -130,7 +130,9 @@ public class Thread implements Runnable {
 
 	public final void setPriority(int newPriority) {
 		if (newPriority > MAX_PRIORITY || newPriority < MIN_PRIORITY) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Illegal priority: "
+					+ newPriority + "(" + MIN_PRIORITY + "-" + MAX_PRIORITY
+					+ ")");
 		}
 		setPriority0(priority = newPriority);
 	}
@@ -220,8 +222,8 @@ public class Thread implements Runnable {
 	private native void setPriority0(int newPriority);
 
 	private native void interrupt0();
-	
-	public ClassLoader getContextClassLoader(){
+
+	public ClassLoader getContextClassLoader() {
 		return ClassLoader.getSystemClassLoader();
 	}
 

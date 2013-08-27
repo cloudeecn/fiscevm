@@ -68,8 +68,8 @@ public class ConstantDoubleData implements ConstantData,
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
 		long ieeeValue = Double.doubleToLongBits(data);
 		SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"", "["
-				+ (ieeeValue & 0xffffffffl) + ", "
-				+ ((ieeeValue >>> 32) & 0xffffffffl) + "]", false);
+				+ ((ieeeValue >>> 32) & 0xffffffffl) + ", "
+				+ (ieeeValue & 0xffffffffl) + "]", false);
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
 

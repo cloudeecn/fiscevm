@@ -34,7 +34,7 @@ public class EnumTester extends TestService {
 				fail("switch2");
 			}
 		} catch (Throwable t) {
-			FiScEVM.throwOut(t);
+			fail("Exception occored", t);
 		}
 	}
 }

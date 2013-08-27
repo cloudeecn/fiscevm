@@ -27,7 +27,7 @@ public class RunnerTester extends TestService implements Runnable {
 				}
 			}
 
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 1; i++) {
 				synchronized (lock) {
 					System.out.println("[********]");
 				}
@@ -67,8 +67,9 @@ public class RunnerTester extends TestService implements Runnable {
 				}
 			}
 		} catch (Exception e) {
-			fail(e.toString());
+			System.out.println(e.toString());
 			e.printStackTrace();
+			fail(e.toString());
 		}
 	}
 

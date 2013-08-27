@@ -35,7 +35,7 @@ public class Profile extends PSuper implements Runnable {
 	public static void main(String[] args) {
 		System.out.println("Start!!");
 		new Profile().run();
-//		new Thread(new Profile()).start();
+		// new Thread(new Profile()).start();
 	}
 
 	int j;
@@ -87,19 +87,20 @@ public class Profile extends PSuper implements Runnable {
 
 		final int max = 14;
 		final int min = 4;
-
+		
 		for (int u = 0; u < max; u++) {
-			debugOut("Profiling ttStack");
-			long t = System.nanoTime();
+			Intf in = new Impl();
+			Impl im = (Impl) in;
+			long t, t2;
+			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
 			}
-			long t2 = System.nanoTime();
+			t2 = System.nanoTime();
 			if (u >= min) {
 				ttStack += t2 - t;
 			}
 
-			debugOut("Profiling ttField");
 			t = System.nanoTime();
 			for (j = 0; j < 50000; j++) {
 				k += j;
@@ -109,7 +110,6 @@ public class Profile extends PSuper implements Runnable {
 				ttField += t2 - t;
 			}
 
-			debugOut("Profiling ttStatic");
 			t = System.nanoTime();
 			for (s = 0; s < 50000; s++) {
 				k += s;
@@ -118,9 +118,8 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttStatic += t2 - t;
 			}
-			Intf in = new Impl();
-			Impl im = (Impl) in;
 
+			
 			debugOut("Profiling ttIRootI");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
@@ -153,7 +152,6 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttRootS += t2 - t;
 			}
-
 			debugOut("Profiling ttRootV");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
@@ -284,7 +282,8 @@ public class Profile extends PSuper implements Runnable {
 			t2 = System.nanoTime();
 			if (u >= min) {
 				ttPf += t2 - t;
-			}
+			}/**<code>
+			*/
 
 			String result = "" + u;
 			debugOut(result);

@@ -64,7 +64,7 @@ public class ConstantLongData implements ConstantData,
 			boolean addComma) {
 		SimpleJSONUtil.add(sb, baseIndent, "{", false);
 		SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"", "["
-				+ (data & 0xffffffffl) + ", " + ((data >>> 32) & 0xffffffffl)
+				+ ((data >>> 32) & 0xffffffffl) + ", " + (data & 0xffffffffl)
 				+ "]", false);
 		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
 	}
