@@ -6,7 +6,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import com.cirnoworks.fisce.intf.IDebugConsole;
-import com.cirnoworks.fisce.intf.IToolkit;
 import com.cirnoworks.fisce.intf.SystemDebugConsole;
 import com.cirnoworks.fisce.intf.idata.Message;
 
@@ -347,14 +346,7 @@ public final class FisceService {
 
 	public static InputStream getInputStream(ByteBuffer context, String name) {
 		FYContext jcontext = contextMap.get(context);
-		InputStream is = null;
-		for (IToolkit toolkit : jcontext.getToolkits()) {
-			is = toolkit.getResourceByName(name);
-			if (is != null) {
-				break;
-			}
-		}
-		return is;
+		return jcontext.getInputStream(name);
 	}
 
 	public static native synchronized void unregisterNativeHandler(

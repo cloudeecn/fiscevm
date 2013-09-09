@@ -787,4 +787,10 @@ public class VMContext implements FiScEVM {
 		// All resources are managed, no close needed
 	}
 
+	@Override
+	public InputStream getInputStream(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

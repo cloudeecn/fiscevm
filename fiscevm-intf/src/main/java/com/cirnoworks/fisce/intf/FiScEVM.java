@@ -202,6 +202,8 @@ public interface FiScEVM extends Closeable {
 	INativeHandler getHandler(String nativeUniqueName);
 
 	IThread getThreadById(int threadId);
+	
+	InputStream getInputStream(String name);
 
 	void onException(Throwable e);
 

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.w3c.dom.Element;
 
-import com.cirnoworks.fisce.intf.FiScEVM;
+import com.cirnoworks.fisce.intf.AbstractVM;
 import com.cirnoworks.fisce.intf.IDebugConsole;
 import com.cirnoworks.fisce.intf.IHeap;
 import com.cirnoworks.fisce.intf.INativeHandler;
@@ -31,7 +31,7 @@ import com.cirnoworks.fisce.intf.idata.IClassBase;
 import com.cirnoworks.fisce.intf.idata.IField;
 import com.cirnoworks.fisce.intf.idata.Message;
 
-public class FYContext implements Runnable, FiScEVM {
+public class FYContext extends AbstractVM implements Runnable {
 
 	private final ByteBuffer context;
 	private final Message message = new Message();
