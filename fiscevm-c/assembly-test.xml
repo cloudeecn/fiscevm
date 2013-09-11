@@ -22,7 +22,7 @@
 		<dependencySet>
 			<unpack>true</unpack>
 			<includes>
-				<include>com.cirnoworks.fisce:fiscevm-rtdist:jar:test</include>
+				<include>com.cirnoworks.fisce:fiscevm-runtime:jar:scripts-test</include>
 			</includes>
 			<scope>test</scope>
 			<!-- <outputDirectory>runtime</outputDirectory> -->

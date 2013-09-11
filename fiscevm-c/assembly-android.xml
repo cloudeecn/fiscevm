@@ -28,7 +28,6 @@
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
-		<!-- 直接拷贝mydate97的皮肤和多国语言文件 -->
 		<fileSet>
 			<directory>${project.build.directory}/output/android-arm/libs/armeabi</directory>
 			<includes>
@@ -36,7 +35,6 @@
 			</includes>
 			<outputDirectory>libs/armeabi</outputDirectory>
 		</fileSet>
-		<!-- 直接拷贝mydate97的皮肤和多国语言文件 -->
 		<fileSet>
 			<directory>${project.build.directory}/output/android-x86/libs/x86</directory>
 			<includes>

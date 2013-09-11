@@ -420,15 +420,8 @@
 
 		<dependency>
 			<groupId>com.cirnoworks.fisce</groupId>
-			<artifactId>fiscevm-rtdist</artifactId>
-			<classifier>standalone</classifier>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.cirnoworks.fisce</groupId>
-			<artifactId>fiscevm-rtdist</artifactId>
-			<classifier>test</classifier>
+			<artifactId>fiscevm-runtime</artifactId>
+			<classifier>scripts-test</classifier>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

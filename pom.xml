@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.cirnoworks</groupId>
 		<artifactId>parent</artifactId>
-		<version>4-SNAPSHOT</version>
+		<version>4</version>
 	</parent>
 	<scm>
 		<connection>scm:git:http://code.google.com/p/fiscevm</connection>
@@ -28,7 +28,7 @@
 	<modules>
 		<module>fiscevm-intf</module>
 		<module>fiscevm-runtime</module>
-		<module>fiscevm-rtdist</module>
+		<!-- <module>fiscevm-rtdist</module> -->
 		<module>fiscevm-classloader</module>
 		<!-- <module>fiscevm-java</module> -->
 		<!-- <module>fiscevm-javatoolkit</module> -->
