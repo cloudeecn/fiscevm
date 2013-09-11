@@ -10,7 +10,7 @@
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<properties>
-		<cross.prefix.windows>i486-mingw32</cross.prefix.windows>
+		<cross.prefix.win32>i486-mingw32</cross.prefix.win32>
 	</properties>
 	<profiles>
 		<profile>
@@ -21,38 +21,72 @@
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.apache.maven.plugin.cmake.ng</groupId>
-						<artifactId>cmake-ng</artifactId>
-						<version>1.0</version>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
 						<executions>
 							<execution>
-								<id>cmake-generate-native</id>
+								<id>native-make</id>
 								<phase>generate-resources</phase>
 								<goals>
-									<goal>compile</goal>
+									<goal>run</goal>
 								</goals>
 								<configuration>
-									<output>${project.build.directory}/libfisce-out/native</output>
-									<source>${basedir}/src/main/c</source>
-									<vars>
-										<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
-									</vars>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-out/native" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-out/native"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-out/native"
+											failonerror="true" />
+									</tasks>
 								</configuration>
 							</execution>
 							<execution>
-								<id>cmake-generate-test-native</id>
+								<id>native-make-test</id>
 								<phase>generate-test-resources</phase>
 								<goals>
-									<goal>compile</goal>
+									<goal>run</goal>
 								</goals>
 								<configuration>
-									<output>${project.build.directory}/libfisce-test/native</output>
-									<source>${basedir}/src/main/c</source>
-									<vars>
-										<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
-										<ENABLE_TEST>ON</ENABLE_TEST>
-										<ENABLE_LIBS>OFF</ENABLE_LIBS>
-									</vars>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/native" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/native"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=ON" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/native"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>native-test</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec
+											executable="${project.build.directory}/libfisce-test/native/fisce-test"
+											dir="${project.build.directory}/libfisce-test/native/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
 								</configuration>
 							</execution>
 						</executions>
@@ -76,30 +110,10 @@
 											<includes>
 												<include>*.so</include>
 												<include>*.dll</include>
+												<include>*.jnilib</include>
 											</includes>
 										</resource>
 									</resources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.2.1</version>
-						<executions>
-							<execution>
-								<id>native-test</id>
-								<phase>test</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${project.build.directory}/libfisce-test/native/fisce-test</executable>
-									<arguments>
-										<argument>${project.build.directory}/libfisce-test/fisce_scripts</argument>
-									</arguments>
-									<workingDirectory>${project.build.directory}/libfisce-test/native/</workingDirectory>
 								</configuration>
 							</execution>
 						</executions>
@@ -112,42 +126,79 @@
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.apache.maven.plugin.cmake.ng</groupId>
-						<artifactId>cmake-ng</artifactId>
-						<version>1.0</version>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
 						<executions>
 							<execution>
-								<id>cmake-generate-win32</id>
+								<id>cross-make-win32</id>
 								<phase>generate-resources</phase>
 								<goals>
-									<goal>compile</goal>
+									<goal>run</goal>
 								</goals>
 								<configuration>
-									<output>${project.build.directory}/libfisce-out/win32</output>
-									<source>${basedir}/src/main/c</source>
-									<vars>
-										<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
-										<CMAKE_TOOLCHAIN_FILE>${basedir}/src/main/c/mingw32.toolchain.cmake</CMAKE_TOOLCHAIN_FILE>
-										<COMPILER_PREFIX>i486-mingw32</COMPILER_PREFIX>
-									</vars>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-out/win32" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-out/win32"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-out/win32"
+											failonerror="true" />
+									</tasks>
 								</configuration>
 							</execution>
 							<execution>
-								<id>cmake-generate-test-win32</id>
+								<id>cross-make-win32-test</id>
 								<phase>generate-test-resources</phase>
 								<goals>
-									<goal>compile</goal>
+									<goal>run</goal>
 								</goals>
 								<configuration>
-									<output>${project.build.directory}/libfisce-test/win32</output>
-									<source>${basedir}/src/main/c</source>
-									<vars>
-										<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
-										<ENABLE_TEST>ON</ENABLE_TEST>
-										<ENABLE_LIBS>OFF</ENABLE_LIBS>
-										<CMAKE_TOOLCHAIN_FILE>${basedir}/src/main/c/mingw32.toolchain.cmake</CMAKE_TOOLCHAIN_FILE>
-										<COMPILER_PREFIX>i486-mingw32</COMPILER_PREFIX>
-									</vars>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/win32" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/win32"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=ON" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/win32"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>cross-test-win32</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec executable="wine"
+											dir="${project.build.directory}/libfisce-test/win32/"
+											failonerror="true">
+											<arg
+												value="${project.build.directory}/libfisce-test/win32/fisce-test" />
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
 								</configuration>
 							</execution>
 						</executions>
@@ -171,31 +222,10 @@
 											<includes>
 												<include>*.so</include>
 												<include>*.dll</include>
+												<include>*.jnilib</include>
 											</includes>
 										</resource>
 									</resources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.2.1</version>
-						<executions>
-							<execution>
-								<id>win32-test</id>
-								<phase>test</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>wine</executable>
-									<arguments>
-										<argument>${project.build.directory}/libfisce-test/win32/fisce-test</argument>
-										<argument>${project.build.directory}/libfisce-test/fisce_scripts</argument>
-									</arguments>
-									<workingDirectory>${project.build.directory}/libfisce-test/win32/</workingDirectory>
 								</configuration>
 							</execution>
 						</executions>
@@ -320,6 +350,25 @@
 										</versionRange>
 										<goals>
 											<goal>single</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-antrun-plugin
+										</artifactId>
+										<versionRange>
+											[1.7,)
+										</versionRange>
+										<goals>
+											<goal>run</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>

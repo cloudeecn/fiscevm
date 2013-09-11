@@ -59,20 +59,15 @@ SET(SRC_LIST_TEST
 	Test.c
 )
 
-#configure_file (
-#	"fiscecon.h.in"
-#	"${PROJECT_BINARY_DIR}/fiscecon.h"
-#)
-
-#include_directories("src/main/inc")
 include_directories("${PROJECT_BINARY_DIR}")
 
 option (ENABLE_VERBOSE "Verbose output" OFF)
 option (ENABLE_TEST "Generate test binary" OFF)
-option (ENABLE_LIBS "Generate libraries" ON)
+option (ENABLE_LIBS "Generate shared libraries" ON)
+option (ENABLE_JNI "Enable fyjni build" ON)
 option (ENABLE_32 "Enable 32bit" ON)
 option (ENABLE_64 "Enable 64bit" ON)
-option (ENABLE_JNI "Enable fyjni build" ON)
+
 if(EMSCRIPTEN)
     message("Using emscripten default configure...")
     set(ENABLE_32 ON)
@@ -83,35 +78,32 @@ if(EMSCRIPTEN)
     set(HAS_WIN32 OFF)
     set(HAS_LTO ON)
 else(EMSCRIPTEN)
-if(ANDROID)
-    set(HAS_MATH ON)
-    set(HAS_LTO ON)
-else(ANDROID)
-    if(ENABLE_32)
-    try_compile(HAS_M32 ${PROJECT_BINARY_DIR}/detectors/params32 ${PROJECT_SOURCE_DIR}/detectors/params
-    	params-test
-    	CMAKE_FLAGS "-DTEST_PARAM=-m32"
-    )
-    endif(ENABLE_32)
-    if(ENABLE_64)
-    try_compile(HAS_M64 ${PROJECT_BINARY_DIR}/detectors/params64 ${PROJECT_SOURCE_DIR}/detectors/params
-    	params-test
-    	CMAKE_FLAGS "-DTEST_PARAM=-m64"
-    )
-    endif(ENABLE_64)
-    try_compile(HAS_MATH ${PROJECT_BINARY_DIR}/detectors/paramsm ${PROJECT_SOURCE_DIR}/detectors/params
-        params-test
-        CMAKE_FLAGS "-DTEST_PARAM=-lm"
-    )
+	if(ANDROID)
+    	set(HAS_MATH ON)
+    	set(HAS_LTO ON)
+	else(ANDROID)
+    	if(ENABLE_32)
+    		try_compile(HAS_M32 ${PROJECT_BINARY_DIR}/detectors/params32 ${PROJECT_SOURCE_DIR}/detectors/params
+    			params-test
+    			CMAKE_FLAGS "-DTEST_PARAM=-m32"
+    		)
+    	endif(ENABLE_32)
+    	if(ENABLE_64)
+    		try_compile(HAS_M64 ${PROJECT_BINARY_DIR}/detectors/params64 ${PROJECT_SOURCE_DIR}/detectors/params
+    			params-test
+    			CMAKE_FLAGS "-DTEST_PARAM=-m64"
+    		)
+    	endif(ENABLE_64)
+    	
+	    try_compile(HAS_MATH ${PROJECT_BINARY_DIR}/detectors/paramsm ${PROJECT_SOURCE_DIR}/detectors/params
+    	    params-test
+	        CMAKE_FLAGS "-DTEST_PARAM=-lm"
+    	)
     
-    try_compile(HAS_LTO ${PROJECT_BINARY_DIR}/detectors/paramslto ${PROJECT_SOURCE_DIR}/detectors/params
-        params-test
-        CMAKE_FLAGS "-DTEST_PARAM=-flto"
-    )
-        
-    try_compile(HAS_WIN32 ${PROJECT_BINARY_DIR}/detectors/win32 ${PROJECT_SOURCE_DIR}/detectors/win32
-        win32-test
-    )
+    	try_compile(HAS_LTO ${PROJECT_BINARY_DIR}/detectors/paramslto ${PROJECT_SOURCE_DIR}/detectors/params
+        	params-test
+        	CMAKE_FLAGS "-DTEST_PARAM=-flto"
+    	)
     endif(ANDROID)
 endif(EMSCRIPTEN)
 
@@ -127,7 +119,7 @@ set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3 -O2 ${FLAG
 
 set(CMAKE_LINK_FLAGS_DEBUG "${CMAKE_LINK_FLAGS_DEBUG}")
 set(CMAKE_LINK_FLAGS_RELEASE "${CMAKE_LINK_FLAGS_RELEASE} -O3 ${FLAG_LTO}")
-set(CMAKE_LINK_FLAGS_RELWITHDEBINFO "${CMAKE_LINK_FLAGS_RELWITHDEBINFO} -O2     ${FLAG_LTO}")
+set(CMAKE_LINK_FLAGS_RELWITHDEBINFO "${CMAKE_LINK_FLAGS_RELWITHDEBINFO} -O2 ${FLAG_LTO}")
 
 #set(NO_UNDEFINED "-Wl,--no-undefined")
 
@@ -139,10 +131,32 @@ IF(ENABLE_VERBOSE)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFY_VERBOSE")
 ENDIF(ENABLE_VERBOSE)
 
-if(HAS_WIN32)
-    message("Using win32 params")
-    set(W32_ADD_FLAGS "-Wl,--kill-at")
-endif(HAS_WIN32)
+set(JNI_ADD_FLAGS "")
+
+if(WIN32)
+#######Win32
+    message("###Win32###")
+    set(JNI_ADD_FLAGS "-Wl,--kill-at")
+#######/Win32
+else(WIN32)
+	if(APPLE)
+#######Apple
+	message("###Apple###")
+	set(CUSTOM_JNI_EXT ".jnilib")
+#######/Apple
+	else(APPLE)
+		if(UNIX)
+#######Unix
+	message("###*nix###")
+#######/Unix
+		else(UNIX)
+#######Other
+	message("###Othere###")
+#######/Other
+		endif(UNIX)
+	endif(APPLE)
+endif(WIN32)
+
 
 if(HAS_MATH)
     message("Using external math library")
@@ -171,22 +185,6 @@ if(ENABLE_LIBS)
             APPEND PROPERTY
                 COMPILE_DEFINITIONS FY_EXPORT
         )
-        
-        if(ENABLE_JNI)
-            message("Will generate default binary with jni")
-            ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
-            if(HAS_MATH)
-                TARGET_LINK_LIBRARIES(fyjni m)
-            endif(HAS_MATH)
-            set_property(TARGET fyjni
-                APPEND PROPERTY
-                    COMPILE_DEFINITIONS FY_EXPORT
-            )
-            set_target_properties(fyjni
-                PROPERTIES
-                   LINK_FLAGS "${W32_ADD_FLAGS} ${NO_UNDEFINED}"
-            )
-        endif(ENABLE_JNI)
     endif(NOT (HAS_M32 OR HAS_M64))
     
     if(HAS_M32)
@@ -204,23 +202,6 @@ if(ENABLE_LIBS)
     		    COMPILE_FLAGS "-m32"
 		        LINK_FLAGS "-m32 ${NO_UNDEFINED}"
         )
-        
-        if(ENABLE_JNI)
-            message("Will generate 32bit binary with jni")
-            ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
-            if(HAS_MATH)
-	            TARGET_LINK_LIBRARIES(fyjni m)
-            endif(HAS_MATH)
-            set_property(TARGET fyjni
-            	APPEND PROPERTY
-    		        COMPILE_DEFINITIONS FY_EXPORT
-            )
-            set_target_properties(fyjni
-                PROPERTIES
-		            COMPILE_FLAGS "-m32"
-		            LINK_FLAGS "-m32 ${W32_ADD_FLAGS} ${NO_UNDEFINED}"
-            )
-        endif(ENABLE_JNI)
     endif(HAS_M32)
     
     if(HAS_M64)
@@ -238,22 +219,75 @@ if(ENABLE_LIBS)
     		    COMPILE_FLAGS "-m64"
 		        LINK_FLAGS "-m64 ${NO_UNDEFINED}"
         )
-        
-        if(ENABLE_JNI)
-            message("Will generate 64brit binary with jni")
-            ADD_LIBRARY(fyjni64 MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
-            if(HAS_MATH)
-    	        TARGET_LINK_LIBRARIES(fyjni64 m)
-            endif(HAS_MATH)
-            set_property(TARGET fyjni64
-            	APPEND PROPERTY
-    		        COMPILE_DEFINITIONS FY_EXPORT
-            )
-            set_target_properties(fyjni64
-                PROPERTIES
-		            COMPILE_FLAGS "-m64"
-		            LINK_FLAGS "-m64 ${W32_ADD_FLAGS} ${NO_UNDEFINED}"
-            )
-        endif(ENABLE_JNI)
     endif(HAS_M64)
 endif(ENABLE_LIBS)
+
+if(ENABLE_JNI)
+	if(NOT (HAS_M32 OR HAS_M64))
+        message("Will generate default binary with jni")
+        ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+        if(HAS_MATH)
+            TARGET_LINK_LIBRARIES(fyjni m)
+        endif(HAS_MATH)
+        set_property(TARGET fyjni
+            APPEND PROPERTY
+                COMPILE_DEFINITIONS FY_EXPORT
+        )
+        set_target_properties(fyjni
+            PROPERTIES
+               LINK_FLAGS "${JNI_ADD_FLAGS} ${NO_UNDEFINED}"
+        )
+        if(DEFINED CUSTOM_JNI_EXT)
+     		set_target_properties(fyjni
+            	PROPERTIES
+               		SUFFIX "${CUSTOM_JNI_EXT}"
+        	)
+        endif(DEFINED CUSTOM_JNI_EXT)
+	endif(NOT (HAS_M32 OR HAS_M64))
+    
+	if(HAS_M32)
+		message("Will generate 32bit binary with jni")
+		ADD_LIBRARY(fyjni MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+		if(HAS_MATH)
+			TARGET_LINK_LIBRARIES(fyjni m)
+		endif(HAS_MATH)
+		set_property(TARGET fyjni
+			APPEND PROPERTY
+				COMPILE_DEFINITIONS FY_EXPORT
+		)
+		set_target_properties(fyjni
+			PROPERTIES
+				COMPILE_FLAGS "-m32"
+				LINK_FLAGS "-m32 ${JNI_ADD_FLAGS} ${NO_UNDEFINED}"
+		)
+		if(DEFINED CUSTOM_JNI_EXT)
+     		set_target_properties(fyjni
+            	PROPERTIES
+               		SUFFIX "${CUSTOM_JNI_EXT}"
+        	)
+        endif(DEFINED CUSTOM_JNI_EXT)
+	endif(HAS_M32)
+    
+	if(HAS_M64)
+		message("Will generate 64bit binary with jni")
+		ADD_LIBRARY(fyjni64 MODULE ${SRC_LIST_LIB} ${SRC_LIST_JNI})
+		if(HAS_MATH)
+			TARGET_LINK_LIBRARIES(fyjni64 m)
+		endif(HAS_MATH)
+		set_property(TARGET fyjni64
+			APPEND PROPERTY
+				COMPILE_DEFINITIONS FY_EXPORT
+		)
+		set_target_properties(fyjni64
+			PROPERTIES
+				COMPILE_FLAGS "-m64"
+				LINK_FLAGS "-m64 ${JNI_ADD_FLAGS} ${NO_UNDEFINED}"
+		)
+        if(DEFINED CUSTOM_JNI_EXT)
+     		set_target_properties(fyjni64
+            	PROPERTIES
+               		SUFFIX "${CUSTOM_JNI_EXT}"
+        	)
+        endif(DEFINED CUSTOM_JNI_EXT)
+	endif(HAS_M64)    
+endif(ENABLE_JNI)
