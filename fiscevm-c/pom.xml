@@ -233,48 +233,69 @@
 			</build>
 		</profile>
 		<profile>
-			<id>android</id>
+			<id>cross-android</id>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.apache.maven.plugin.cmake.ng</groupId>
-						<artifactId>cmake-ng</artifactId>
-						<version>1.0</version>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
 						<executions>
 							<execution>
-								<id>cmake-generate-android-arm</id>
+								<id>cross-make-android-arm</id>
 								<phase>generate-resources</phase>
 								<goals>
-									<goal>compile</goal>
+									<goal>run</goal>
 								</goals>
 								<configuration>
-									<output>${project.build.directory}/output/android-arm</output>
-									<source>${basedir}/src/main/c</source>
-									<vars>
-										<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
-										<CMAKE_TOOLCHAIN_FILE>${basedir}/src/main/c/android.toolchain.cmake</CMAKE_TOOLCHAIN_FILE>
-										<LIBRARY_OUTPUT_PATH_ROOT>.</LIBRARY_OUTPUT_PATH_ROOT>
-										<ANDROID_ABI>armeabi</ANDROID_ABI>
-										<ANDROID_NATIVE_API_LEVEL>android-4</ANDROID_NATIVE_API_LEVEL>
-									</vars>
+									<tasks>
+										<mkdir dir="${project.build.directory}/output/android-arm" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/output/android-arm"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/android.toolchain.cmake" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DLIBRARY_OUTPUT_PATH_ROOT=." />
+											<arg value="-DANDROID_ABI=armeabi" />
+											<arg value="-DANDROID_NATIVE_API_LEVEL=android-4" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/output/android-arm"
+											failonerror="true" />
+									</tasks>
 								</configuration>
 							</execution>
 							<execution>
-								<id>cmake-generate-android-x86</id>
+								<id>cross-make-android-arm</id>
 								<phase>generate-resources</phase>
 								<goals>
-									<goal>compile</goal>
+									<goal>run</goal>
 								</goals>
 								<configuration>
-									<output>${project.build.directory}/output/android-x86</output>
-									<source>${basedir}/src/main/c</source>
-									<vars>
-										<CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
-										<CMAKE_TOOLCHAIN_FILE>${basedir}/src/main/c/android.toolchain.cmake</CMAKE_TOOLCHAIN_FILE>
-										<LIBRARY_OUTPUT_PATH_ROOT>.</LIBRARY_OUTPUT_PATH_ROOT>
-										<ANDROID_ABI>x86</ANDROID_ABI>
-										<ANDROID_NATIVE_API_LEVEL>android-9</ANDROID_NATIVE_API_LEVEL>
-									</vars>
+									<tasks>
+										<mkdir dir="${project.build.directory}/output/android-x86" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/output/android-x86"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/android.toolchain.cmake" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DLIBRARY_OUTPUT_PATH_ROOT=." />
+											<arg value="-DANDROID_ABI=x86" />
+											<arg value="-DANDROID_NATIVE_API_LEVEL=android-9" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/output/android-x86"
+											failonerror="true" />
+									</tasks>
 								</configuration>
 							</execution>
 						</executions>
