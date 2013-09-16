@@ -154,8 +154,8 @@ public final class Locale implements Cloneable, Serializable {
 	 * default for the platform.
 	 */
 	private Locale() {
-		languageCode = "un"; //$NON-NLS-1$
-		countryCode = "2D"; //$NON-NLS-1$
+		languageCode = "en"; //$NON-NLS-1$
+		countryCode = "US"; //$NON-NLS-1$
 		variantCode = ""; //$NON-NLS-1$
 	}
 

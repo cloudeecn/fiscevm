@@ -26,7 +26,7 @@ import com.cirnoworks.fisce.privat.UTF8;
  * "file.encoding" system property. {@code OutputStreamWriter} contains a buffer
  * of bytes to be written to target stream and converts these into characters as
  * needed. The buffer size is 8K.
- *
+ * 
  * @see InputStreamReader
  */
 public class OutputStreamWriter extends Writer {
@@ -39,7 +39,7 @@ public class OutputStreamWriter extends Writer {
 	 * Constructs a new OutputStreamWriter using {@code out} as the target
 	 * stream to write converted characters to. The default character encoding
 	 * is used.
-	 *
+	 * 
 	 * @param out
 	 *            the non-null target stream to write converted bytes to.
 	 */
@@ -53,7 +53,7 @@ public class OutputStreamWriter extends Writer {
 	 * stream to write converted characters to and {@code enc} as the character
 	 * encoding. If the encoding cannot be found, an
 	 * UnsupportedEncodingException error is thrown.
-	 *
+	 * 
 	 * @param out
 	 *            the target stream to write converted bytes to.
 	 * @param enc
@@ -63,7 +63,8 @@ public class OutputStreamWriter extends Writer {
 	 * @throws UnsupportedEncodingException
 	 *             if the encoding specified by {@code enc} cannot be found.
 	 */
-	public OutputStreamWriter(OutputStream out, Object o) {
+	public OutputStreamWriter(OutputStream out, Object o)
+			throws UnsupportedEncodingException {
 		super(out);
 		this.out = out;
 	}
@@ -75,7 +76,7 @@ public class OutputStreamWriter extends Writer {
 	 * <p>
 	 * Only the first invocation of this method has any effect. Subsequent calls
 	 * do nothing.
-	 *
+	 * 
 	 * @throws IOException
 	 *             if an error occurs while closing this writer.
 	 */
@@ -88,7 +89,7 @@ public class OutputStreamWriter extends Writer {
 	 * Flushes this writer. This implementation ensures that all buffered bytes
 	 * are written to the target stream. After writing the bytes, the target
 	 * stream is flushed as well.
-	 *
+	 * 
 	 * @throws IOException
 	 *             if an error occurs while flushing this writer.
 	 */
@@ -107,7 +108,7 @@ public class OutputStreamWriter extends Writer {
 	/**
 	 * Gets the name of the encoding that is used to convert characters to
 	 * bytes.
-	 *
+	 * 
 	 * @return the string describing the converter or {@code null} if this
 	 *         writer is closed.
 	 */
@@ -120,7 +121,7 @@ public class OutputStreamWriter extends Writer {
 	 * to this writer. The characters are immediately converted to bytes by the
 	 * character converter and stored in a local buffer. If the buffer gets full
 	 * as a result of the conversion, this writer is flushed.
-	 *
+	 * 
 	 * @param buf
 	 *            the array containing characters to write.
 	 * @param offset
@@ -149,7 +150,7 @@ public class OutputStreamWriter extends Writer {
 	 * of the integer {@code oneChar} are immediately converted to bytes by the
 	 * character converter and stored in a local buffer. If the buffer gets full
 	 * by converting this character, this writer is flushed.
-	 *
+	 * 
 	 * @param oneChar
 	 *            the character to write.
 	 * @throws IOException
@@ -185,7 +186,7 @@ public class OutputStreamWriter extends Writer {
 	 * to this writer. The characters are immediately converted to bytes by the
 	 * character converter and stored in a local buffer. If the buffer gets full
 	 * as a result of the conversion, this writer is flushed.
-	 *
+	 * 
 	 * @param str
 	 *            the string containing characters to write.
 	 * @param offset

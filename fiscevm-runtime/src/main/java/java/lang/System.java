@@ -17,7 +17,7 @@ package java.lang;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.HashMap;
+import java.util.Properties;
 
 import com.cirnoworks.fisce.privat.DebugOutOutputStream;
 import com.cirnoworks.fisce.privat.FiScEVM;
@@ -43,14 +43,14 @@ public final class System {
 
 	public static PrintStream err = _err;
 
-	private static final HashMap<String, String> overrideProperties;
+	private static Properties overrideProperties;
 
 	static {
 		FiScEVM.debug = new PrintStream(new DebugOutOutputStream());
 		FiScEVM.isFiScE = true;
-//		overrideProperties = new HashMap<String, String>();
-//		setProperty("fisce", "true");
-		overrideProperties = null;
+		// overrideProperties = new HashMap<String, String>();
+		// setProperty("fisce", "true");
+		// overrideProperties = null;
 	}
 
 	public static void setIn(InputStream in) {
@@ -78,13 +78,17 @@ public final class System {
 
 	public static native int identityHashCode(Object x);
 
-	public static String getProperty(String key) {
-		String value;
-//		value = overrideProperties.get(key);
-//		if (value == null) {
-			value = getProperty0(key);
-//		}
-		return value;
+	public synchronized static String getProperty(String key) {
+		if (overrideProperties == null) {
+			return getProperty0(key);
+		} else {
+			String value;
+			value = overrideProperties.getProperty(key);
+			if (value == null) {
+				value = getProperty0(key);
+			}
+			return value;
+		}
 	}
 
 	public static String getProperty(String key, String def) {
@@ -92,13 +96,13 @@ public final class System {
 		return ret == null ? def : ret;
 	}
 
-	public static String setProperty(String key, String value) {
-		/**<code>
+	public synchronized static String setProperty(String key, String value) {
+		if (overrideProperties == null) {
+			overrideProperties = new Properties();
+		}
 		String ret = getProperty(key);
 		overrideProperties.put(key, value);
 		return ret;
-		*/
-		return null;
 	}
 
 	private static native String getProperty0(String key);
