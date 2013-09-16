@@ -270,7 +270,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>cross-make-android-arm</id>
+								<id>cross-make-android-x86</id>
 								<phase>generate-resources</phase>
 								<goals>
 									<goal>run</goal>
