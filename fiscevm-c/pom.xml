@@ -233,6 +233,103 @@
 			</build>
 		</profile>
 		<profile>
+			<id>cross-osx</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>cross-make-osx</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-out/osx" />
+										<exec executable="/usr/x86_64-apple-darwin9/bin/x86_64-apple-darwin9-gcc"
+											dir="${project.build.directory}/libfisce-out/osx"
+											failonerror="true">
+											<arg
+												value="-I/usr/x86_64-apple-darwin9/lib/gcc/x86_64-apple-darwin9/4.0.1/include" />
+												<arg
+												value="-I${basedir}/src/main/c" />
+											<arg value="-Wall" />
+											<arg value="-DNDEBUG" />
+											<arg value="-O3" />
+											<arg value="-bundle" />
+											<arg value="-Wl,-headerpad_max_install_names" />
+											<arg value="-m64" />
+											<arg value="-o" />
+											<arg value="libfyjni64.jnilib" />
+											<arg value="${basedir}/src/main/c/Debug.c" />
+											<arg value="${basedir}/src/main/c/HashMap.c" />
+											<arg value="${basedir}/src/main/c/HashMapI.c" />
+											<arg value="${basedir}/src/main/c/ArrList.c" />
+											<arg value="${basedir}/src/main/c/LnkList.c" />
+											<arg value="${basedir}/src/main/c/MemMan.c" />
+											<arg value="${basedir}/src/main/c/Portable.c" />
+											<arg value="${basedir}/src/main/c/String.c" />
+											<arg value="${basedir}/src/main/c/BitSet.c" />
+											<arg value="${basedir}/src/main/c/Utf8.c" />
+											<arg value="${basedir}/src/main/c/Class.c" />
+											<arg value="${basedir}/src/main/c/ClassLoader.c" />
+											<arg value="${basedir}/src/main/c/CoreHandlers.c" />
+											<arg value="${basedir}/src/main/c/MathHandlers.c" />
+											<arg value="${basedir}/src/main/c/Data.c" />
+											<arg value="${basedir}/src/main/c/Heap.c" />
+											<arg value="${basedir}/src/main/c/Instructions.c" />
+											<arg value="${basedir}/src/main/c/Preverifier.c" />
+											<arg value="${basedir}/src/main/c/Thread.c" />
+											<arg value="${basedir}/src/main/c/ThreadManager.c" />
+											<arg value="${basedir}/src/main/c/VMContext.c" />
+											<arg value="${basedir}/src/main/c/ExpDev.c" />
+											<arg value="${basedir}/src/main/c/FiScE.c" />
+											<arg value="${basedir}/src/main/c/FileInputStream.c" />
+											<arg value="${basedir}/src/main/c/BinarySaver.c" />
+											<arg value="${basedir}/src/main/c/DataLoader.c" />
+											<arg value="${basedir}/src/main/c/BAIS.c" />
+											<arg value="${basedir}/src/main/c/RIS.c" />
+											<arg value="${basedir}/src/main/c/FisceService.c" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>2.6</version>
+						<executions>
+							<execution>
+								<id>copy-lib-osx</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/com/cirnoworks/libfisce/shell</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${project.build.directory}/libfisce-out/osx</directory>
+											<filtering>false</filtering>
+											<includes>
+												<include>*.so</include>
+												<include>*.dll</include>
+												<include>*.jnilib</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>cross-android</id>
 			<build>
 				<plugins>
