@@ -34,10 +34,10 @@
 			<name>Cirnoworks Snapshots</name>
 			<url>http://repo1.cirnoworks.com/snapshots/</url>
 			<releases>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
 			</releases>
 			<snapshots>
-				<enabled>false</enabled>
+				<enabled>true</enabled>
 			</snapshots>
 			<layout>default</layout>
 		</repository>
