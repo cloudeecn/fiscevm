@@ -27,10 +27,8 @@ package java.security;
 public final class AccessController {
 	static {
 		// Initialize vm-internal caches
-		initializeInternal();
 	}
 
-	private static native void initializeInternal();
 
 	/**
 	 * Prevents this class from being instantiated.
