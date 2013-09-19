@@ -101,7 +101,7 @@
 									<goal>copy-resources</goal>
 								</goals>
 								<configuration>
-									<outputDirectory>${project.build.directory}/classes/com/cirnoworks/libfisce/shell</outputDirectory>
+									<outputDirectory>${project.build.directory}/native</outputDirectory>
 									<resources>
 										<resource>
 											<directory>${project.build.directory}/libfisce-out/native</directory>
@@ -120,8 +120,11 @@
 				</plugins>
 			</build>
 		</profile>
+
+
+		<!-- Server farm specific configures -->
 		<profile>
-			<id>cross-win32</id>
+			<id>native-linux</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -129,20 +132,65 @@
 						<version>1.7</version>
 						<executions>
 							<execution>
-								<id>cross-make-win32</id>
+								<id>linux-make-test</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/linux" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/linux"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=ON" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/linux"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>linux-test</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux/fisce-test"
+											dir="${project.build.directory}/libfisce-test/linux/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>linux-make</id>
 								<phase>generate-resources</phase>
 								<goals>
 									<goal>run</goal>
 								</goals>
 								<configuration>
 									<tasks>
-										<mkdir dir="${project.build.directory}/libfisce-out/win32" />
+										<mkdir dir="${project.build.directory}/libfisce-out/linux" />
 										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-out/win32"
+											dir="${project.build.directory}/libfisce-out/linux"
 											failonerror="true">
-											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
-											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
@@ -150,11 +198,42 @@
 											<arg value="${basedir}/src/main/c" />
 										</exec>
 										<exec executable="make"
-											dir="${project.build.directory}/libfisce-out/win32"
+											dir="${project.build.directory}/libfisce-out/linux"
 											failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>linux-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-linux.xml</descriptor>
+									</descriptors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>cross-windows</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
 							<execution>
 								<id>cross-make-win32-test</id>
 								<phase>generate-test-resources</phase>
@@ -203,28 +282,52 @@
 						</executions>
 					</plugin>
 					<plugin>
-						<artifactId>maven-resources-plugin</artifactId>
-						<version>2.6</version>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
 						<executions>
 							<execution>
-								<id>copy-lib-win32</id>
-								<phase>process-resources</phase>
+								<id>cross-make-windows</id>
+								<phase>package</phase>
 								<goals>
-									<goal>copy-resources</goal>
+									<goal>run</goal>
 								</goals>
 								<configuration>
-									<outputDirectory>${project.build.directory}/classes/com/cirnoworks/libfisce/shell</outputDirectory>
-									<resources>
-										<resource>
-											<directory>${project.build.directory}/libfisce-out/win32</directory>
-											<filtering>false</filtering>
-											<includes>
-												<include>*.so</include>
-												<include>*.dll</include>
-												<include>*.jnilib</include>
-											</includes>
-										</resource>
-									</resources>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-out/windows" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-out/windows"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-out/windows"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>windows-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-windows.xml</descriptor>
+									</descriptors>
 								</configuration>
 							</execution>
 						</executions>
@@ -254,8 +357,7 @@
 											failonerror="true">
 											<arg
 												value="-I/usr/x86_64-apple-darwin9/lib/gcc/x86_64-apple-darwin9/4.0.1/include" />
-												<arg
-												value="-I${basedir}/src/main/c" />
+											<arg value="-I${basedir}/src/main/c" />
 											<arg value="-Wall" />
 											<arg value="-DNDEBUG" />
 											<arg value="-O3" />
@@ -301,28 +403,19 @@
 						</executions>
 					</plugin>
 					<plugin>
-						<artifactId>maven-resources-plugin</artifactId>
-						<version>2.6</version>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.4</version>
 						<executions>
 							<execution>
-								<id>copy-lib-osx</id>
-								<phase>process-resources</phase>
+								<id>osx-assembly</id>
+								<phase>package</phase>
 								<goals>
-									<goal>copy-resources</goal>
+									<goal>single</goal>
 								</goals>
 								<configuration>
-									<outputDirectory>${project.build.directory}/classes/com/cirnoworks/libfisce/shell</outputDirectory>
-									<resources>
-										<resource>
-											<directory>${project.build.directory}/libfisce-out/osx</directory>
-											<filtering>false</filtering>
-											<includes>
-												<include>*.so</include>
-												<include>*.dll</include>
-												<include>*.jnilib</include>
-											</includes>
-										</resource>
-									</resources>
+									<descriptors>
+										<descriptor>assembly-osx.xml</descriptor>
+									</descriptors>
 								</configuration>
 							</execution>
 						</executions>
@@ -421,10 +514,6 @@
 		</profile>
 	</profiles>
 	<build>
-		<!-- <resources> <resource> <directory>src/main/resources</directory> <includes> 
-			<include>**/*.so</include> <include>**/*.dll</include> <include>**/README</include> 
-			<include>**/AUTHORS</include> <include>**/COPYING</include> <include>**/COPYING.*</include> 
-			</includes> </resource> </resources> -->
 		<pluginManagement>
 			<plugins>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
