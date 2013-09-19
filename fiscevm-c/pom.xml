@@ -172,13 +172,8 @@
 									</tasks>
 								</configuration>
 							</execution>
-						</executions>
-					</plugin>
-					
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.7</version>
-						<executions>
+							
+							
 							<execution>
 								<id>linux-make</id>
 								<phase>generate-resources</phase>
@@ -279,12 +274,8 @@
 									</tasks>
 								</configuration>
 							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.7</version>
-						<executions>
+
+
 							<execution>
 								<id>cross-make-windows</id>
 								<phase>package</phase>
