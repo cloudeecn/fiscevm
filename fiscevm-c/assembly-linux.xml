@@ -29,7 +29,7 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
-			<directory>${project.build.directory}/native</directory>
+			<directory>${project.build.directory}/libfisce-out/linux</directory>
 			<includes>
 			    <include>*.so</include>
 			</includes>
