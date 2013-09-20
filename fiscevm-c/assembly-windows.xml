@@ -29,7 +29,14 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
-			<directory>${project.build.directory}/libfisce-out/windows</directory>
+			<directory>${project.build.directory}/libfisce-out/win32</directory>
+			<includes>
+			    <include>*.dll</include>
+			</includes>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>${project.build.directory}/libfisce-out/win64</directory>
 			<includes>
 			    <include>*.dll</include>
 			</includes>

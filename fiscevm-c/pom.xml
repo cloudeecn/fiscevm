@@ -10,6 +10,7 @@
 	</parent>
 	<properties>
 		<cross.prefix.win32>i486-mingw32</cross.prefix.win32>
+		<cross.prefix.win64>x86_64-w64-mingw32</cross.prefix.win64>
 	</properties>
 	<profiles>
 		<profile>
@@ -172,8 +173,8 @@
 									</tasks>
 								</configuration>
 							</execution>
-							
-							
+
+
 							<execution>
 								<id>linux-make</id>
 								<phase>generate-resources</phase>
@@ -275,6 +276,51 @@
 								</configuration>
 							</execution>
 
+							<execution>
+								<id>cross-make-win64-test</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/win64" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/win64"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=ON" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/win64"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>cross-test-win64</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec executable="wine"
+											dir="${project.build.directory}/libfisce-test/win64/"
+											failonerror="true">
+											<arg
+												value="${project.build.directory}/libfisce-test/win64/fisce-test" />
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
 
 							<execution>
 								<id>cross-make-windows</id>
@@ -284,9 +330,9 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<mkdir dir="${project.build.directory}/libfisce-out/windows" />
+										<mkdir dir="${project.build.directory}/libfisce-out/win32" />
 										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-out/windows"
+											dir="${project.build.directory}/libfisce-out/win32"
 											failonerror="true">
 											<arg
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
@@ -298,7 +344,24 @@
 											<arg value="${basedir}/src/main/c" />
 										</exec>
 										<exec executable="make"
-											dir="${project.build.directory}/libfisce-out/windows"
+											dir="${project.build.directory}/libfisce-out/win32"
+											failonerror="true" />
+											
+										<mkdir dir="${project.build.directory}/libfisce-out/win64" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-out/win64"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-out/win64"
 											failonerror="true" />
 									</tasks>
 								</configuration>
@@ -342,12 +405,59 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<mkdir dir="${project.build.directory}/libfisce-out/osx" />
+										<mkdir dir="${project.build.directory}/libfisce-out/osx64" />
 										<exec executable="/usr/x86_64-apple-darwin9/bin/x86_64-apple-darwin9-gcc"
-											dir="${project.build.directory}/libfisce-out/osx"
+											dir="${project.build.directory}/libfisce-out/osx64"
 											failonerror="true">
 											<arg
 												value="-I/usr/x86_64-apple-darwin9/lib/gcc/x86_64-apple-darwin9/4.0.1/include" />
+											<arg value="-I${basedir}/src/main/c" />
+											<arg value="-Wall" />
+											<arg value="-DNDEBUG" />
+											<arg value="-O3" />
+											<arg value="-bundle" />
+											<arg value="-Wl,-headerpad_max_install_names" />
+											<arg value="-m64" />
+											<arg value="-fPIC" />
+											<arg value="-o" />
+											<arg value="libfyjni64.jnilib" />
+											<arg value="${basedir}/src/main/c/Debug.c" />
+											<arg value="${basedir}/src/main/c/HashMap.c" />
+											<arg value="${basedir}/src/main/c/HashMapI.c" />
+											<arg value="${basedir}/src/main/c/ArrList.c" />
+											<arg value="${basedir}/src/main/c/LnkList.c" />
+											<arg value="${basedir}/src/main/c/MemMan.c" />
+											<arg value="${basedir}/src/main/c/Portable.c" />
+											<arg value="${basedir}/src/main/c/String.c" />
+											<arg value="${basedir}/src/main/c/BitSet.c" />
+											<arg value="${basedir}/src/main/c/Utf8.c" />
+											<arg value="${basedir}/src/main/c/Class.c" />
+											<arg value="${basedir}/src/main/c/ClassLoader.c" />
+											<arg value="${basedir}/src/main/c/CoreHandlers.c" />
+											<arg value="${basedir}/src/main/c/MathHandlers.c" />
+											<arg value="${basedir}/src/main/c/Data.c" />
+											<arg value="${basedir}/src/main/c/Heap.c" />
+											<arg value="${basedir}/src/main/c/Instructions.c" />
+											<arg value="${basedir}/src/main/c/Preverifier.c" />
+											<arg value="${basedir}/src/main/c/Thread.c" />
+											<arg value="${basedir}/src/main/c/ThreadManager.c" />
+											<arg value="${basedir}/src/main/c/VMContext.c" />
+											<arg value="${basedir}/src/main/c/ExpDev.c" />
+											<arg value="${basedir}/src/main/c/FiScE.c" />
+											<arg value="${basedir}/src/main/c/FileInputStream.c" />
+											<arg value="${basedir}/src/main/c/BinarySaver.c" />
+											<arg value="${basedir}/src/main/c/DataLoader.c" />
+											<arg value="${basedir}/src/main/c/BAIS.c" />
+											<arg value="${basedir}/src/main/c/RIS.c" />
+											<arg value="${basedir}/src/main/c/FisceService.c" />
+										</exec>
+										
+										<mkdir dir="${project.build.directory}/libfisce-out/osx32" />
+										<exec executable="/usr/i686-apple-darwin9/bin/i686-apple-darwin9-gcc"
+											dir="${project.build.directory}/libfisce-out/osx32"
+											failonerror="true">
+											<arg
+												value="-I/usr/i686-apple-darwin9/lib/gcc/i686-apple-darwin9/4.0.1/include" />
 											<arg value="-I${basedir}/src/main/c" />
 											<arg value="-Wall" />
 											<arg value="-DNDEBUG" />

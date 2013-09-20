@@ -29,7 +29,14 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
-			<directory>${project.build.directory}/libfisce-out/osx</directory>
+			<directory>${project.build.directory}/libfisce-out/osx64</directory>
+			<includes>
+			    <include>*.jnilib</include>
+			</includes>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>${project.build.directory}/libfisce-out/osx32</directory>
 			<includes>
 			    <include>*.jnilib</include>
 			</includes>
