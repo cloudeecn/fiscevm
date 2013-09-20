@@ -137,6 +137,7 @@ if(WIN32)
 #######Win32
     message("###Win32###")
     set(JNI_ADD_FLAGS "-Wl,--kill-at")
+    set(CUSTOM_JNI_PREFIX "")
     set(CMAKE_SHARED_LIBRARY_PREFIX "")
 #######/Win32
 else(WIN32)
@@ -244,6 +245,13 @@ if(ENABLE_JNI)
                		SUFFIX "${CUSTOM_JNI_EXT}"
         	)
         endif(DEFINED CUSTOM_JNI_EXT)
+        
+        if(DEFINED CUSTOM_JNI_PREFIX)
+     		set_target_properties(fyjni
+            	PROPERTIES
+               		PREFIX "${CUSTOM_JNI_PREFIX}"
+        	)
+        endif(DEFINED CUSTOM_JNI_PREFIX)
 	endif(NOT (HAS_M32 OR HAS_M64))
     
 	if(HAS_M32)
@@ -267,6 +275,13 @@ if(ENABLE_JNI)
                		SUFFIX "${CUSTOM_JNI_EXT}"
         	)
         endif(DEFINED CUSTOM_JNI_EXT)
+        
+        if(DEFINED CUSTOM_JNI_PREFIX)
+     		set_target_properties(fyjni
+            	PROPERTIES
+               		PREFIX "${CUSTOM_JNI_PREFIX}"
+        	)
+        endif(DEFINED CUSTOM_JNI_PREFIX)
 	endif(HAS_M32)
     
 	if(HAS_M64)
@@ -290,5 +305,12 @@ if(ENABLE_JNI)
                		SUFFIX "${CUSTOM_JNI_EXT}"
         	)
         endif(DEFINED CUSTOM_JNI_EXT)
+        
+        if(DEFINED CUSTOM_JNI_PREFIX)
+     		set_target_properties(fyjni64
+            	PROPERTIES
+               		PREFIX "${CUSTOM_JNI_PREFIX}"
+        	)
+        endif(DEFINED CUSTOM_JNI_PREFIX)
 	endif(HAS_M64)    
 endif(ENABLE_JNI)
