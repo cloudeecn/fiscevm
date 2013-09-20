@@ -467,7 +467,7 @@
 											<arg value="-m64" />
 											<arg value="-fPIC" />
 											<arg value="-o" />
-											<arg value="libfyjni64.jnilib" />
+											<arg value="libfyjni.jnilib" />
 											<arg value="${basedir}/src/main/c/Debug.c" />
 											<arg value="${basedir}/src/main/c/HashMap.c" />
 											<arg value="${basedir}/src/main/c/HashMapI.c" />
