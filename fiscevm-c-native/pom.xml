@@ -1,0 +1,732 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>fiscevm-c-native</artifactId>
+	<name>FiScE Virtual Machine C bridge (native code)</name>
+	<parent>
+		<groupId>com.cirnoworks.fisce</groupId>
+		<artifactId>fiscevm</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
+	<properties>
+		<cross.prefix.win32>i486-mingw32</cross.prefix.win32>
+		<cross.prefix.win64>x86_64-w64-mingw32</cross.prefix.win64>
+	</properties>
+	<profiles>
+		<profile>
+			<id>native</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>native-make</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-out/native" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-out/native"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-out/native"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>native-make-test</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/native" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/native"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=ON" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/native"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>native-test</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec
+											executable="${project.build.directory}/libfisce-test/native/fisce-test"
+											dir="${project.build.directory}/libfisce-test/native/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>2.6</version>
+						<executions>
+							<execution>
+								<id>copy-lib-native</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${project.build.directory}/libfisce-out/native</directory>
+											<filtering>false</filtering>
+											<includes>
+												<include>*.so</include>
+												<include>*.dll</include>
+												<include>*.jnilib</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+
+		<!-- Server farm specific configures -->
+		<profile>
+			<id>native-linux</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>linux-make-test</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/linux" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/linux"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=ON" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/linux"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>linux-test</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux/fisce-test"
+											dir="${project.build.directory}/libfisce-test/linux/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+
+
+							<execution>
+								<id>linux-make</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-out/linux" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-out/linux"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-out/linux"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>linux-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-linux.xml</descriptor>
+									</descriptors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>cross-windows</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>cross-make-win32-test</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/win32" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/win32"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=ON" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/win32"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>cross-test-win32</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec executable="wine"
+											dir="${project.build.directory}/libfisce-test/win32/"
+											failonerror="true">
+											<arg
+												value="${project.build.directory}/libfisce-test/win32/fisce-test" />
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+
+							<execution>
+								<id>cross-make-win64-test</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/win64" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/win64"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=ON" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/win64"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>cross-test-win64</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec executable="wine"
+											dir="${project.build.directory}/libfisce-test/win64/"
+											failonerror="true">
+											<arg
+												value="${project.build.directory}/libfisce-test/win64/fisce-test" />
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+
+							<execution>
+								<id>cross-make-windows</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-out/win32" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-out/win32"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-out/win32"
+											failonerror="true" />
+											
+										<mkdir dir="${project.build.directory}/libfisce-out/win64" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-out/win64"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-out/win64"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>windows-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-windows.xml</descriptor>
+									</descriptors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>cross-osx</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>cross-make-osx</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-out/osx64" />
+										<exec executable="/usr/x86_64-apple-darwin9/bin/x86_64-apple-darwin9-gcc"
+											dir="${project.build.directory}/libfisce-out/osx64"
+											failonerror="true">
+											<arg
+												value="-I/usr/x86_64-apple-darwin9/lib/gcc/x86_64-apple-darwin9/4.0.1/include" />
+											<arg value="-I${basedir}/src/main/c" />
+											<arg value="-Wall" />
+											<arg value="-DNDEBUG" />
+											<arg value="-O3" />
+											<arg value="-bundle" />
+											<arg value="-Wl,-headerpad_max_install_names" />
+											<arg value="-m64" />
+											<arg value="-fPIC" />
+											<arg value="-o" />
+											<arg value="libfyjni64.jnilib" />
+											<arg value="${basedir}/src/main/c/Debug.c" />
+											<arg value="${basedir}/src/main/c/HashMap.c" />
+											<arg value="${basedir}/src/main/c/HashMapI.c" />
+											<arg value="${basedir}/src/main/c/ArrList.c" />
+											<arg value="${basedir}/src/main/c/LnkList.c" />
+											<arg value="${basedir}/src/main/c/MemMan.c" />
+											<arg value="${basedir}/src/main/c/Portable.c" />
+											<arg value="${basedir}/src/main/c/String.c" />
+											<arg value="${basedir}/src/main/c/BitSet.c" />
+											<arg value="${basedir}/src/main/c/Utf8.c" />
+											<arg value="${basedir}/src/main/c/Class.c" />
+											<arg value="${basedir}/src/main/c/ClassLoader.c" />
+											<arg value="${basedir}/src/main/c/CoreHandlers.c" />
+											<arg value="${basedir}/src/main/c/MathHandlers.c" />
+											<arg value="${basedir}/src/main/c/Data.c" />
+											<arg value="${basedir}/src/main/c/Heap.c" />
+											<arg value="${basedir}/src/main/c/Instructions.c" />
+											<arg value="${basedir}/src/main/c/Preverifier.c" />
+											<arg value="${basedir}/src/main/c/Thread.c" />
+											<arg value="${basedir}/src/main/c/ThreadManager.c" />
+											<arg value="${basedir}/src/main/c/VMContext.c" />
+											<arg value="${basedir}/src/main/c/ExpDev.c" />
+											<arg value="${basedir}/src/main/c/FiScE.c" />
+											<arg value="${basedir}/src/main/c/FileInputStream.c" />
+											<arg value="${basedir}/src/main/c/BinarySaver.c" />
+											<arg value="${basedir}/src/main/c/DataLoader.c" />
+											<arg value="${basedir}/src/main/c/BAIS.c" />
+											<arg value="${basedir}/src/main/c/RIS.c" />
+											<arg value="${basedir}/src/main/c/FisceService.c" />
+										</exec>
+										
+										<mkdir dir="${project.build.directory}/libfisce-out/osx32" />
+										<exec executable="/usr/i686-apple-darwin9/bin/i686-apple-darwin9-gcc"
+											dir="${project.build.directory}/libfisce-out/osx32"
+											failonerror="true">
+											<arg
+												value="-I/usr/i686-apple-darwin9/lib/gcc/i686-apple-darwin9/4.0.1/include" />
+											<arg value="-I${basedir}/src/main/c" />
+											<arg value="-Wall" />
+											<arg value="-DNDEBUG" />
+											<arg value="-O3" />
+											<arg value="-bundle" />
+											<arg value="-Wl,-headerpad_max_install_names" />
+											<arg value="-m64" />
+											<arg value="-fPIC" />
+											<arg value="-o" />
+											<arg value="libfyjni.jnilib" />
+											<arg value="${basedir}/src/main/c/Debug.c" />
+											<arg value="${basedir}/src/main/c/HashMap.c" />
+											<arg value="${basedir}/src/main/c/HashMapI.c" />
+											<arg value="${basedir}/src/main/c/ArrList.c" />
+											<arg value="${basedir}/src/main/c/LnkList.c" />
+											<arg value="${basedir}/src/main/c/MemMan.c" />
+											<arg value="${basedir}/src/main/c/Portable.c" />
+											<arg value="${basedir}/src/main/c/String.c" />
+											<arg value="${basedir}/src/main/c/BitSet.c" />
+											<arg value="${basedir}/src/main/c/Utf8.c" />
+											<arg value="${basedir}/src/main/c/Class.c" />
+											<arg value="${basedir}/src/main/c/ClassLoader.c" />
+											<arg value="${basedir}/src/main/c/CoreHandlers.c" />
+											<arg value="${basedir}/src/main/c/MathHandlers.c" />
+											<arg value="${basedir}/src/main/c/Data.c" />
+											<arg value="${basedir}/src/main/c/Heap.c" />
+											<arg value="${basedir}/src/main/c/Instructions.c" />
+											<arg value="${basedir}/src/main/c/Preverifier.c" />
+											<arg value="${basedir}/src/main/c/Thread.c" />
+											<arg value="${basedir}/src/main/c/ThreadManager.c" />
+											<arg value="${basedir}/src/main/c/VMContext.c" />
+											<arg value="${basedir}/src/main/c/ExpDev.c" />
+											<arg value="${basedir}/src/main/c/FiScE.c" />
+											<arg value="${basedir}/src/main/c/FileInputStream.c" />
+											<arg value="${basedir}/src/main/c/BinarySaver.c" />
+											<arg value="${basedir}/src/main/c/DataLoader.c" />
+											<arg value="${basedir}/src/main/c/BAIS.c" />
+											<arg value="${basedir}/src/main/c/RIS.c" />
+											<arg value="${basedir}/src/main/c/FisceService.c" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>osx-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-osx.xml</descriptor>
+									</descriptors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>cross-android</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>cross-make-android-arm</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/output/android-arm" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/output/android-arm"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/android.toolchain.cmake" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DLIBRARY_OUTPUT_PATH_ROOT=." />
+											<arg value="-DANDROID_ABI=armeabi" />
+											<arg value="-DANDROID_NATIVE_API_LEVEL=android-4" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/output/android-arm"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>cross-make-android-x86</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/output/android-x86" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/output/android-x86"
+											failonerror="true">
+											<arg
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/android.toolchain.cmake" />
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DLIBRARY_OUTPUT_PATH_ROOT=." />
+											<arg value="-DANDROID_ABI=x86" />
+											<arg value="-DANDROID_NATIVE_API_LEVEL=android-9" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/output/android-x86"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<configuration>
+									<descriptors>
+										<descriptor>assembly-android.xml</descriptor>
+									</descriptors>
+								</configuration>
+								<id>make-assembly</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugin.cmake.ng
+										</groupId>
+										<artifactId>
+											cmake-ng
+										</artifactId>
+										<versionRange>
+											[1.0,)
+										</versionRange>
+										<goals>
+											<goal>compile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-assembly-plugin
+										</artifactId>
+										<versionRange>
+											[2.4,)
+										</versionRange>
+										<goals>
+											<goal>single</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-antrun-plugin
+										</artifactId>
+										<versionRange>
+											[1.7,)
+										</versionRange>
+										<goals>
+											<goal>run</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<configuration>
+							<attach>false</attach>
+							<finalName>libfisce</finalName>
+							<descriptors>
+								<descriptor>assembly-test.xml</descriptor>
+							</descriptors>
+						</configuration>
+						<id>make-assembly-test</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.cirnoworks.fisce</groupId>
+			<artifactId>fiscevm-runtime</artifactId>
+			<classifier>scripts-test</classifier>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>
+

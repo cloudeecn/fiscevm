@@ -49,5 +49,6 @@
 		<!-- <module>fiscevm-java</module> -->
 		<!-- <module>fiscevm-javatoolkit</module> -->
 		<module>fiscevm-c</module>
+		<module>fiscevm-c-native</module>
 	</modules>
 </project>
