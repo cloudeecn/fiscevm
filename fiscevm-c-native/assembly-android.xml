@@ -45,19 +45,19 @@
 	</fileSets>
 	<files>
 	    <file>
-			<source>${basedir}/src/main/resources/com/cirnoworks/libfisce/shell/AUTHORS</source>
+			<source>${basedir}/AUTHORS</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/resources/com/cirnoworks/libfisce/shell/README</source>
+			<source>${basedir}/README</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/resources/com/cirnoworks/libfisce/shell/COPYING</source>
+			<source>${basedir}/COPYING</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 		<file>
-			<source>${basedir}/src/main/resources/com/cirnoworks/libfisce/shell/COPYING.LESSER</source>
+			<source>${basedir}/COPYING.LESSER</source>
 			<outputDirectory>libs</outputDirectory>
 		</file>
 	</files>
