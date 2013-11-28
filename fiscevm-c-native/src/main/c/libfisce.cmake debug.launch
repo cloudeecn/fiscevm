@@ -6,6 +6,6 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LAUNCH_CONFIGURATION_BUILD_SCOPE" value="${none}"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="${system_path:cmake}"/>
-<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-DENABLE_TEST=ON -DENABLE_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_VERBOSE=OFF -G &quot;Unix Makefiles&quot; ../"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-DENABLE_TEST=ON -DENABLE_LIBS=OFF -DENABLE_JNI=OFF  -DCMAKE_BUILD_TYPE=Debug -DENABLE_VERBOSE=OFF -G &quot;Unix Makefiles&quot; ../"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${project_loc:libfisce}/Build"/>
 </launchConfiguration>

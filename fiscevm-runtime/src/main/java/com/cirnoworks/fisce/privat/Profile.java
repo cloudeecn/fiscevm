@@ -63,9 +63,10 @@ public class Profile extends PSuper implements Runnable {
 	}
 
 	public void run() {
-		int k = 0;
 		int i;
+		int k = 0;
 
+		long ttNoop = 0;
 		long ttStack = 0;
 		long ttField = 0;
 		long ttStatic = 0;
@@ -85,13 +86,22 @@ public class Profile extends PSuper implements Runnable {
 		long ttProt = 0;
 		long ttPf = 0;
 
-		final int max = 14;
+		final int max = 9;
 		final int min = 4;
-		
+
 		for (int u = 0; u < max; u++) {
 			Intf in = new Impl();
 			Impl im = (Impl) in;
 			long t, t2;
+
+			t = System.nanoTime();
+			for (i = 0; i < 50000; i++) {
+			}
+			t2 = System.nanoTime();
+			if (u >= min) {
+				ttNoop += t2 - t;
+			}
+
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -119,8 +129,6 @@ public class Profile extends PSuper implements Runnable {
 				ttStatic += t2 - t;
 			}
 
-			
-			debugOut("Profiling ttIRootI");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -131,7 +139,6 @@ public class Profile extends PSuper implements Runnable {
 				ttIRootI += t2 - t;
 			}
 
-			debugOut("Profiling ttIFooI");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -142,7 +149,6 @@ public class Profile extends PSuper implements Runnable {
 				ttIFooI += t2 - t;
 			}
 
-			debugOut("Profiling ttRootS");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -152,7 +158,6 @@ public class Profile extends PSuper implements Runnable {
 			if (u >= min) {
 				ttRootS += t2 - t;
 			}
-			debugOut("Profiling ttRootV");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -163,7 +168,6 @@ public class Profile extends PSuper implements Runnable {
 				ttRootV += t2 - t;
 			}
 
-			debugOut("Profiling ttRootF");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -174,7 +178,6 @@ public class Profile extends PSuper implements Runnable {
 				ttRootF += t2 - t;
 			}
 
-			debugOut("Profiling ttRootI");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -185,7 +188,6 @@ public class Profile extends PSuper implements Runnable {
 				ttRootI += t2 - t;
 			}
 
-			debugOut("Profiling ttFooS");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -196,7 +198,6 @@ public class Profile extends PSuper implements Runnable {
 				ttFooS += t2 - t;
 			}
 
-			debugOut("Profiling ttFooF");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -207,7 +208,6 @@ public class Profile extends PSuper implements Runnable {
 				ttFooF += t2 - t;
 			}
 
-			debugOut("Profiling ttFooI");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -218,7 +218,6 @@ public class Profile extends PSuper implements Runnable {
 				ttFooI += t2 - t;
 			}
 
-			debugOut("Profiling ttInh");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -229,7 +228,6 @@ public class Profile extends PSuper implements Runnable {
 				ttInh += t2 - t;
 			}
 
-			debugOut("Profiling ttPub");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -240,7 +238,6 @@ public class Profile extends PSuper implements Runnable {
 				ttPub += t2 - t;
 			}
 
-			debugOut("Profiling ttFnl");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -251,7 +248,6 @@ public class Profile extends PSuper implements Runnable {
 				ttFnl += t2 - t;
 			}
 
-			debugOut("Profiling ttPrv");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -262,7 +258,6 @@ public class Profile extends PSuper implements Runnable {
 				ttPrv += t2 - t;
 			}
 
-			debugOut("Profiling ttProt");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -273,7 +268,6 @@ public class Profile extends PSuper implements Runnable {
 				ttProt += t2 - t;
 			}
 
-			debugOut("Profiling ttPf");
 			t = System.nanoTime();
 			for (i = 0; i < 50000; i++) {
 				k += i;
@@ -282,8 +276,10 @@ public class Profile extends PSuper implements Runnable {
 			t2 = System.nanoTime();
 			if (u >= min) {
 				ttPf += t2 - t;
-			}/**<code>
-			*/
+			}
+			/**
+			 * <code>
+			 */
 
 			String result = "" + u;
 			debugOut(result);
@@ -293,6 +289,7 @@ public class Profile extends PSuper implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		ttNoop /= max - min;
 		ttStack /= max - min;
 		ttField /= max - min;
 		ttStatic /= max - min;
@@ -311,31 +308,37 @@ public class Profile extends PSuper implements Runnable {
 		ttPrv /= max - min;
 		ttProt /= max - min;
 		ttPf /= max - min;
-		debugOut(" ttStack=" + ttStack / 500000f);
-		debugOut(" ttField=" + ttField / 500000f);
-		debugOut("ttStatic=" + ttStatic / 500000f);
+		debugOut("" + k);
+		debugOut("  ttNoop = " + ttNoop / 500000f);
+		debugOut(" ttStack = " + ttStack / 500000f);
+		debugOut(" ttField = " + ttField / 500000f);
+		debugOut("ttStatic = " + ttStatic / 500000f);
 
-		debugOut("   ttPub=" + ttPub / 500000f);
-		debugOut("   ttFnl=" + ttFnl / 500000f);
-		debugOut("   ttPrv=" + ttPrv / 500000f);
-		debugOut("  ttProt=" + ttProt / 500000f);
-		debugOut("   ttPFn=" + ttPf / 500000f);
+		debugOut("");
 
-		debugOut("ttIRootI=" + ttIRootI / 500000f);
-		debugOut(" ttIFooI=" + ttIFooI / 500000f);
-		debugOut(" ttRootS=" + ttRootS / 500000f);
-		debugOut(" ttRootV=" + ttRootV / 500000f);
-		debugOut(" ttRootF=" + ttRootF / 500000f);
-		debugOut(" ttRootI=" + ttRootI / 500000f);
-		debugOut("  ttFooS=" + ttFooS / 500000f);
-		debugOut("  ttFooF=" + ttFooF / 500000f);
-		debugOut("  ttFooI=" + ttFooI / 500000f);
-		debugOut("   ttInh=" + ttInh / 500000f);
+		debugOut("   ttPub = " + ttPub / 500000f);
+		debugOut("   ttFnl = " + ttFnl / 500000f);
+		debugOut("   ttPrv = " + ttPrv / 500000f);
+		debugOut("  ttProt = " + ttProt / 500000f);
+		debugOut("   ttPFn = " + ttPf / 500000f);
+
+		debugOut("");
+
+		debugOut("ttIRootI = " + ttIRootI / 500000f);
+		debugOut(" ttIFooI = " + ttIFooI / 500000f);
+		debugOut(" ttRootS = " + ttRootS / 500000f);
+		debugOut(" ttRootV = " + ttRootV / 500000f);
+		debugOut(" ttRootF = " + ttRootF / 500000f);
+		debugOut(" ttRootI = " + ttRootI / 500000f);
+		debugOut("  ttFooS = " + ttFooS / 500000f);
+		debugOut("  ttFooF = " + ttFooF / 500000f);
+		debugOut("  ttFooI = " + ttFooI / 500000f);
+		debugOut("   ttInh = " + ttInh / 500000f);
 
 	}
 
 	private void debugOut(String v) {
-		FiScEVM.infoOut(v);
+		// FiScEVM.infoOut(v);
 		System.out.println(v);
 	}
 }

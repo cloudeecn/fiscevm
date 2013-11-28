@@ -829,10 +829,10 @@ int main(int argc, char *argv[]) {
 	char *fn;
 	setvbuf(stdout, NULL, _IONBF, 1024);
 	if (argc < 2) {
-		printf("Usage: fisce_test <base runtime dir> [function to test]\n");
-		return -1;
+		runtimeDir = "runtime";
+	}else{
+		runtimeDir = argv[1];
 	}
-	runtimeDir = argv[1];
 	printf("Base dir: %s\n", runtimeDir);
 	if (argc > 2) {
 		printf("Testing %s:", argv[2]);

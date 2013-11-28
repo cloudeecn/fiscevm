@@ -15,40 +15,31 @@
  */
 package EXCLUDE.fisce.test;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
 
 /**
  * @author Cloudee
- *
+ * 
  */
-public class StaticTest {
+public class StaticTest extends TestService {
 
 	public static void main(String[] args) {
 		Thread t1 = new Thread() {
 			@Override
 			public void run() {
 				if (Layer5.z != 2) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.z);
 				}
 
 				if (Layer5.a != 3) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.a);
 				}
 
 				if (Layer5.b != 4) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.b);
 				}
 
 				if (Layera.c != 5) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layera.c);
 				}
 			}
 		};
@@ -58,27 +49,19 @@ public class StaticTest {
 			public void run() {
 
 				if (Layer5.b != 4) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.b);
 				}
 
 				if (Layera.c != 5) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layera.c);
 				}
 
 				if (Layer5.z != 2) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.z);
 				}
 
 				if (Layer5.a != 3) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.a);
 				}
 
 			}
@@ -88,24 +71,16 @@ public class StaticTest {
 			@Override
 			public void run() {
 				if (Layer5.b != 4) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.b);
 				}
 				if (Layer5.z != 2) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.z);
 				}
 				if (Layera.c != 5) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layera.c);
 				}
 				if (Layer5.a != 3) {
-					Exception e = new Exception("static error!");
-					e.printStackTrace();
-					FiScEVM.throwOut(e);
+					fail("static error!" + Layer5.a);
 				}
 			}
 		};

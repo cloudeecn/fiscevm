@@ -117,13 +117,13 @@ public class ReflectionTest extends RTParent implements RTInterface3,
 					+ " mismatches Integer[111]");
 
 			fbase.set(this, 123);
-			assertTrue(fbase.getInt(this) == 123);
+			assertEqual(123, fbase.getInt(this));
 
 			fbase.set(this, (short) 123);
-			assertTrue(fbase.getLong(this) == 123);
+			assertEqual(123l, fbase.getLong(this));
 
 			fbase.setShort(this, (short) 123);
-			assertTrue(fbase.getLong(this) == 123);
+			assertEqual(123l, fbase.getLong(this));
 
 		} catch (Exception e) {
 			e.printStackTrace(FiScEVM.debug);
@@ -142,15 +142,15 @@ public class ReflectionTest extends RTParent implements RTInterface3,
 	public void testConstructor() {
 		try {
 			ReflectionTest rt = clazz.newInstance();
-			assertTrue(rt.e1 == RTEnum.CCC);
+			assertIdentityEqual(RTEnum.CCC, rt.e1);
 			FiScEVM.debug.println("getConstructors"
 					+ Arrays.toString(clazz.getConstructors()));
 
 			rt = clazz.getConstructor(int.class, float.class).newInstance(200,
 					200.0f);
-			assertTrue(rt.e1 == RTEnum.CCC);
-			assertTrue(rt.a == 200);
-			assertTrue(rt.b == 200.0f);
+			assertIdentityEqual(RTEnum.CCC, rt.e1);
+			assertEqual(200, rt.a);
+			assertEqual(200.0f, rt.b);
 
 		} catch (Exception e) {
 			e.printStackTrace(FiScEVM.debug);

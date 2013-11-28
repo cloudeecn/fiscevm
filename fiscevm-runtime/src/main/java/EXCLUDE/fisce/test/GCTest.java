@@ -57,17 +57,20 @@ public class GCTest extends TestService {
 			System.gc();
 			System.gc();
 			System.gc();
-			assertTrue(wr.get() != null, "Weak ref is cleared abnormally");
+			assertTrue(wr.get() != null, "Weak ref is cleared abnormally #"
+					+ System.identityHashCode(wr));
 			referent = null;
 			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			System.gc();
-			assertTrue(wr.get() == null, "Weak ref is not cleared abnormally");
+			assertTrue(wr.get() == null, "Weak ref is not cleared abnormally #"
+					+ System.identityHashCode(wr));
 			Thread.sleep(500);
 			assertTrue(weakQueue.poll() == wr);
 			assertTrue(phantomQueue.poll() == pr);
 			assertTrue(weakQueue.poll() == null);
 			assertTrue(phantomQueue.poll() == null);
 		}
+		FiScEVM.debugOut("#####SOFT REF#####");
 		clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		{
 			ReferenceQueue<Referent> softQueue = new ReferenceQueue<Referent>();
@@ -79,7 +82,7 @@ public class GCTest extends TestService {
 						new Referent(), softQueue);
 				clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 				refs[i] = sr;
-				if (i == 10000) {
+				if (i == 10) {
 					System.gc();
 					Thread.sleep(500);
 					assertTrue(softQueue.poll() == null);
@@ -87,8 +90,11 @@ public class GCTest extends TestService {
 					assertTrue(refs[1].get() != null);
 				}
 			}
+			FiScEVM.debugOut("#####SOFT REF SLEEP#####");
 			Thread.sleep(500);
+			FiScEVM.debugOut("#####SOFT REF BEFORE GC#####");
 			System.gc();
+			FiScEVM.debugOut("#####SOFT REF AFTER GC#####");
 			assertTrue(softQueue.poll() != null);
 			Thread.sleep(500);
 			boolean ok = false;

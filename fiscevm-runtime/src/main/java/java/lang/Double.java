@@ -150,7 +150,7 @@ public final class Double extends Number implements Comparable<Double> {
 	 * @see #longBitsToDouble(long)
 	 */
 	public static long doubleToLongBits(double value) {
-		return FiScEVM.getDoubleRaw(value);
+		return doubleToRawLongBits(value);
 	}
 
 	/**
@@ -165,9 +165,7 @@ public final class Double extends Number implements Comparable<Double> {
 	 * @see #doubleToLongBits(double)
 	 * @see #longBitsToDouble(long)
 	 */
-	public static long doubleToRawLongBits(double value) {
-		return FiScEVM.getDoubleRaw(value);
-	}
+	public native static long doubleToRawLongBits(double value);
 
 	/**
 	 * Gets the primitive value of this double.

@@ -176,8 +176,8 @@ public final class Float extends Number implements Comparable<Float> {
 	 * @see #floatToRawIntBits(float)
 	 * @see #intBitsToFloat(int)
 	 */
-	public static int floatToIntBits(float value){
-		return FiScEVM.getFloatRaw(value);
+	public static int floatToIntBits(float value) {
+		return floatToRawIntBits(value);
 	}
 
 	/**
@@ -192,9 +192,7 @@ public final class Float extends Number implements Comparable<Float> {
 	 * @see #floatToIntBits(float)
 	 * @see #intBitsToFloat(int)
 	 */
-	public static int floatToRawIntBits(float value){
-		return FiScEVM.getFloatRaw(value);
-	}
+	public native static int floatToRawIntBits(float value);
 
 	/**
 	 * Gets the primitive value of this float.

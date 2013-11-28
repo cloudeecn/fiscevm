@@ -1,6 +1,6 @@
 package EXCLUDE.fisce.test;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
+
 
 public class EnumTester extends TestService {
 

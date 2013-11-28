@@ -6,6 +6,11 @@ public class TestService {
 	public static native void fail0(String message);
 
 	public static void fail(String message) {
+		try {
+			throw new RuntimeException(message);
+		} catch (RuntimeException e) {
+			e.printStackTrace(FiScEVM.debug);
+		}
 		if (FiScEVM.isFiScE) {
 			fail0(message);
 		} else {
@@ -24,11 +29,6 @@ public class TestService {
 
 	public static void assertTrue(boolean value, String failMessage) {
 		if (!value) {
-			try {
-				throw new AssertionError(failMessage);
-			} catch (AssertionError e) {
-				e.printStackTrace(FiScEVM.debug);
-			}
 			fail("Assertion error: " + failMessage);
 		}
 	}
@@ -43,6 +43,22 @@ public class TestService {
 			if (!expected.equals(actual)) {
 				fail("Assertion error: expected[" + expected + "] but actual["
 						+ actual + "]");
+			}
+		}
+	}
+
+	public static void assertIdentityEqual(Object expected, Object actual) {
+		if (expected == null) {
+			if (actual != null) {
+				fail("Assertion error: expected[" + expected + "]("
+						+ System.identityHashCode(expected) + ") but actual["
+						+ actual + "](" + System.identityHashCode(actual) + ")");
+			}
+		} else {
+			if (expected != actual) {
+				fail("Assertion error: expected[" + expected + "]("
+						+ System.identityHashCode(expected) + ") but actual["
+						+ actual + "](" + System.identityHashCode(actual) + ")");
 			}
 		}
 	}

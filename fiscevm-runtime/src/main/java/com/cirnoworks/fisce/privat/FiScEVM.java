@@ -126,10 +126,6 @@ public final class FiScEVM {
 		}
 	}
 
-	public static native long getDoubleRaw(double d);
-
-	public static native int getFloatRaw(float f);
-
 	public static native double stringToDouble(String str)
 			throws NumberFormatException;
 

@@ -95,9 +95,10 @@ public final class MethodData extends MethodNode {
 	private ExceptionHandler[] exceptionTable;
 	private LineNumber[] lineNumberTable;
 
-	private static boolean isAllocateInst(int op) {
+	private static boolean needHint(int op) {
 		return op == Opcodes.NEW || op == Opcodes.NEWARRAY
-				|| op == Opcodes.MULTIANEWARRAY;
+				|| op == Opcodes.MULTIANEWARRAY || op == Opcodes.MONITORENTER
+				|| op == Opcodes.MONITOREXIT;
 	}
 
 	public int getAccessFlags() {
@@ -152,7 +153,7 @@ public final class MethodData extends MethodNode {
 	public void visitEnd() {
 		super.visitEnd();
 
-//		System.out.println(owner.name + "." + name + "." + desc);
+		// System.out.println(owner.name + "." + name + "." + desc);
 
 		DescriptorAnalyzer da = new DescriptorAnalyzer(desc);
 		returnType = da.getReturnType();
@@ -276,7 +277,7 @@ public final class MethodData extends MethodNode {
 						break;
 					}
 
-					if (isAllocateInst(inst.getOpcode())) {
+					if (needHint(inst.getOpcode())) {
 						hintFrame[ip] = true;
 					}
 				}

@@ -185,6 +185,11 @@ public class ClassData extends ClassNode {
 				staticPos += length;
 			}
 
+			if (node.value != null) {
+				int cid = getConstantId(node.value);
+				field.setConstantValueIndex((char) cid);
+			}
+
 			fieldDatas[i] = field;
 		}
 
