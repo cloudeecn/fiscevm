@@ -428,7 +428,7 @@ static fy_class *lookup(fy_context *context, const char *name,
 }
 void testClassLoaderFull() {
 	char *names[] = { ""FY_BASE_STRING"", "[[[L"FY_BASE_STRING";", "[[[I",
-			"<int>", "<double>", FY_BASE_DOUBLE, FY_BASE_MATH, NULL };
+			"int", "double", FY_BASE_DOUBLE, FY_BASE_MATH, NULL };
 	int i = 0;
 	char *nm;
 	fy_str snm[1];

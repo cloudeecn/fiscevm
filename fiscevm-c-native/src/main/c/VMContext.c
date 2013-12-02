@@ -46,38 +46,34 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 			"a", FY_ATT_CONSTANT_VALIE);
 	FYEH();
 	context->sBoolean = fy_vmCreateStringByPoolV(context, exception, "a",
-			"<boolean>");
+			"boolean");
 	FYEH();
 
-	context->sByte = fy_vmCreateStringByPoolV(context, exception, "a",
-			"<byte>");
+	context->sByte = fy_vmCreateStringByPoolV(context, exception, "a", "byte");
 	FYEH();
 
 	context->sShort = fy_vmCreateStringByPoolV(context, exception, "a",
-			"<short>");
+			"short");
 	FYEH();
 
-	context->sChar = fy_vmCreateStringByPoolV(context, exception, "a",
-			"<char>");
+	context->sChar = fy_vmCreateStringByPoolV(context, exception, "a", "char");
 	FYEH();
 
-	context->sInt = fy_vmCreateStringByPoolV(context, exception, "a", "<int>");
+	context->sInt = fy_vmCreateStringByPoolV(context, exception, "a", "int");
 	FYEH();
 
 	context->sFloat = fy_vmCreateStringByPoolV(context, exception, "a",
-			"<float>");
+			"float");
 	FYEH();
 
-	context->sLong = fy_vmCreateStringByPoolV(context, exception, "a",
-			"<long>");
+	context->sLong = fy_vmCreateStringByPoolV(context, exception, "a", "long");
 	FYEH();
 
 	context->sDouble = fy_vmCreateStringByPoolV(context, exception, "a",
-			"<double>");
+			"double");
 	FYEH();
 
-	context->sVoid = fy_vmCreateStringByPoolV(context, exception, "a",
-			"<void>");
+	context->sVoid = fy_vmCreateStringByPoolV(context, exception, "a", "void");
 	FYEH();
 
 	context->sEnum = fy_vmCreateStringByPoolV(context, exception, "a",
@@ -486,12 +482,10 @@ static void initHeap(fy_context *context, fy_exception *exception) {
 
 void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_debugInit(context);
-	ILOG(
-			context,
+	ILOG(context,
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
-			MAX_OBJECTS * (fy_int) sizeof(fy_object))
-;
+			MAX_OBJECTS * (fy_int) sizeof(fy_object));
 	fy_mmInit(context->memblocks, exception);
 	FYEH();
 	fy_bsRegisterBinarySaver(context);
@@ -1199,7 +1193,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 			exception);
 	FYEH();
 	for (i = 1; i < MAX_OBJECTS; i++) {
-		if ((object = fy_heapGetObject(context,i))->object_data != NULL) {
+		if ((object = fy_heapGetObject(context, i))->object_data != NULL) {
 			context->saveObject(context, saver, i,
 					object->object_data->clazz->classId,
 					object->object_data->position, object->object_data->gen,
@@ -1249,7 +1243,7 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 		context->savePrepareFrame(context, saver, jmax, exception);
 		FYEH();
 		for (j = 0; j < jmax; j++) {
-			frame = FY_GET_FRAME(thread,j);
+			frame = FY_GET_FRAME(thread, j);
 			context->saveFrame(context, saver, frame->methodId, frame->sb,
 					frame->sp, frame->pc, frame->lpc, exception);
 			FYEH();

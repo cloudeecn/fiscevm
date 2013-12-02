@@ -2456,11 +2456,11 @@ void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception) {
 			NULL, VMEncode, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.getDoubleRaw.(D)J", NULL,
+			"java/lang/Double.doubleToRawLongBits.(D)J", NULL,
 			VMGetDoubleRaw, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
-			"com/cirnoworks/fisce/privat/FiScEVM.getFloatRaw.(F)I", NULL,
+			"java/lang/Float.floatToRawIntBits.(F)I", NULL,
 			VMGetFloatRaw, exception);
 	FYEH();
 	fy_vmRegisterNativeHandler(context,
