@@ -78,13 +78,7 @@ public class PropertyEditorManager {
             }
         }
 		String targetName = targetType.getName();
-		/*
-		 * FIXME libfisce make some mistake in class names of primitive types
-		 * eg. it will return "<float>" for type float instead of "float"
-		 */
-		if (targetType.isPrimitive()) {
-			targetName = targetName.substring(1, targetName.length() - 1);
-		}
+		
         String editorClassName = targetName + "Editor"; //$NON-NLS-1$
 
         try {

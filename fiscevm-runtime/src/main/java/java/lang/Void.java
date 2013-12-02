@@ -24,7 +24,7 @@ public final class Void {
 	static {
 		Class<?> clz = null;
 		try {
-			clz = Class.forName("<void>");
+			clz = Class.forName("void");
 		} catch (java.lang.ClassNotFoundException e) {
 			e.printStackTrace();
 			FiScEVM.throwOut(e);
