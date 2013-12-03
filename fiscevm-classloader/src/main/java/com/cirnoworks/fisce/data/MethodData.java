@@ -18,9 +18,11 @@ package com.cirnoworks.fisce.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -87,11 +89,16 @@ public final class MethodData extends MethodNode {
 	private Frame<BasicValue>[] rawFrames;
 	private AbstractInsnNode[] rawInstructions;
 	private boolean[] hintFrame;
-	private boolean[] checkOps;
+	private int[] checkOps;
+
 	private ArrayList<LookupSwitchTarget> lookupSwitchTargets = new ArrayList<LookupSwitchTarget>();
 	private Map<Integer, Integer> lookupSwitchTargetMap = new TreeMap<Integer, Integer>();
 	private ArrayList<TableSwitchTarget> tableSwitchTargets = new ArrayList<TableSwitchTarget>();
 	private Map<Integer, Integer> tableSwitchTargetMap = new TreeMap<Integer, Integer>();
+
+	private TreeMap<Integer, TreeSet<Integer>> jumpIns = new TreeMap<Integer, TreeSet<Integer>>();
+	private TreeMap<Integer, TreeSet<Integer>> jumpOuts = new TreeMap<Integer, TreeSet<Integer>>();
+
 	private ExceptionHandler[] exceptionTable;
 	private LineNumber[] lineNumberTable;
 
@@ -150,6 +157,21 @@ public final class MethodData extends MethodNode {
 		return returnTypeClassName;
 	}
 
+	private void addJumpPair(Integer from, Integer to) {
+		TreeSet<Integer> outs = jumpOuts.get(from);
+		if (outs == null) {
+			outs = new TreeSet<Integer>();
+			jumpOuts.put(from, outs);
+		}
+		outs.add(to);
+		TreeSet<Integer> ins = jumpIns.get(to);
+		if (ins == null) {
+			ins = new TreeSet<Integer>();
+			jumpIns.put(to, ins);
+		}
+		ins.add(from);
+	}
+
 	public void visitEnd() {
 		super.visitEnd();
 
@@ -189,6 +211,8 @@ public final class MethodData extends MethodNode {
 				Label currentLabel = null;
 
 				ArrayList<Entry<Label, Integer>> tmpLineNumbers = new ArrayList<Entry<Label, Integer>>();
+				IdentityHashMap<AbstractInsnNode, Integer> ipTable = new IdentityHashMap<AbstractInsnNode, Integer>();
+
 				for (int i = 0; i < codeLength; i++) {
 					AbstractInsnNode inst = instructions.get(i);
 					if (inst.getType() == AbstractInsnNode.LABEL) {
@@ -205,43 +229,32 @@ public final class MethodData extends MethodNode {
 							labelled[ip] = currentLabel;
 							currentLabel = null;
 						}
-
+						ipTable.put(inst, ip);
 						rawInstructions[ip] = inst;
 						rawFrames[ip] = frames[i];
 						ip++;
 					}
 				}
 				int newLength = ip;
-				hintFrame = new boolean[newLength];
-				checkOps = new boolean[newLength];
-				hintFrame[0] = true;
+
+				// Analyze jump targets
 				for (ip = 0; ip < newLength; ip++) {
 					AbstractInsnNode inst = rawInstructions[ip];
-					if (ip % 50 == 49) {
-						hintFrame[ip] = true;
-						checkOps[ip] = true;
-					}
-
 					switch (inst.getType()) {
-					case AbstractInsnNode.JUMP_INSN:
-						int target = ipMapper.get(((JumpInsnNode) inst).label
-								.getLabel());
-						// 往回跳的检查一下剩余的指令数量
-						if (target < ip) {
-							hintFrame[ip] = true;
-							checkOps[ip] = true;
-						}
+					case AbstractInsnNode.JUMP_INSN: {
+						Integer target = ipMapper
+								.get(((JumpInsnNode) inst).label.getLabel());
+						addJumpPair(ip, target);
 						break;
-					case AbstractInsnNode.METHOD_INSN:
-					case AbstractInsnNode.FIELD_INSN:
-						hintFrame[ip] = true;
-						break;
-					case AbstractInsnNode.LOOKUPSWITCH_INSN:
+					}
+					case AbstractInsnNode.LOOKUPSWITCH_INSN: {
 						LookupSwitchInsnNode lsin = (LookupSwitchInsnNode) inst;
 						LookupSwitchTarget lookupSwitchTarget = new LookupSwitchTarget();
+						Integer defaultTarget = ipMapper.get(lsin.dflt
+								.getLabel());
+						lookupSwitchTarget.setDefaultTarget(defaultTarget);
+						addJumpPair(ip, defaultTarget);
 
-						lookupSwitchTarget.setDefaultTarget(ipMapper
-								.get(lsin.dflt.getLabel()));
 						lookupSwitchTarget.setKeys(new int[lsin.keys.size()]);
 						lookupSwitchTarget
 								.setTargets(new int[lsin.keys.size()]);
@@ -251,12 +264,14 @@ public final class MethodData extends MethodNode {
 									.getLabel());
 							lookupSwitchTarget.getKeys()[i] = key;
 							lookupSwitchTarget.getTargets()[i] = targetIp;
+							addJumpPair(ip, targetIp);
 						}
 						lookupSwitchTargetMap.put(ip,
 								lookupSwitchTargets.size());
 						lookupSwitchTargets.add(lookupSwitchTarget);
 						break;
-					case AbstractInsnNode.TABLESWITCH_INSN:
+					}
+					case AbstractInsnNode.TABLESWITCH_INSN: {
 						TableSwitchInsnNode tsin = (TableSwitchInsnNode) inst;
 						TableSwitchTarget tableSwitchTarget = new TableSwitchTarget();
 						tableSwitchTarget
@@ -264,22 +279,57 @@ public final class MethodData extends MethodNode {
 						if (tsin.max - tsin.min + 1 != tsin.labels.size()) {
 							throw new RuntimeException();
 						}
-						tableSwitchTarget.setDefaultTarget(ipMapper
-								.get(tsin.dflt.getLabel()));
+
+						Integer defaultTarget = ipMapper.get(tsin.dflt
+								.getLabel());
+
+						tableSwitchTarget.setDefaultTarget(defaultTarget);
+
+						addJumpPair(ip, defaultTarget);
+
 						tableSwitchTarget.setMin(tsin.min);
 						tableSwitchTarget.setMax(tsin.max);
 						for (int i = 0, max = tsin.labels.size(); i < max; i++) {
-							tableSwitchTarget.getTargets()[i] = ipMapper
-									.get(tsin.labels.get(i).getLabel());
+							Integer target = ipMapper.get(tsin.labels.get(i)
+									.getLabel());
+							tableSwitchTarget.getTargets()[i] = target;
+							addJumpPair(ip, target);
 						}
 						tableSwitchTargetMap.put(ip, tableSwitchTargets.size());
 						tableSwitchTargets.add(tableSwitchTarget);
+						break;
+					}
+					}
+				}
+
+				ArrayList<Frame<BasicValue>> tmpFrames = new ArrayList<Frame<BasicValue>>();
+				int tmpIpLength = 0;
+				// hintFrame = new boolean[newLength];
+				// checkOps = new int[newLength];
+				// hintFrame[0] = true;
+				for (ip = 0; ip < newLength; ip++) {
+					checkOps[ip] = -1;
+				}
+				for (ip = 0; ip < newLength; ip++) {
+					AbstractInsnNode inst = rawInstructions[ip];
+					if (jumpIns.containsKey(ip + 1)
+							|| jumpOuts.containsKey(ip + 1)) {
+						checkOps[ip] = tmpIpLength;
+						hintFrame[ip] = true;
+						tmpIpLength = 0;
+					}
+
+					switch (inst.getType()) {
+					case AbstractInsnNode.METHOD_INSN:
+					case AbstractInsnNode.FIELD_INSN:
+						hintFrame[ip] = true;
 						break;
 					}
 
 					if (needHint(inst.getOpcode())) {
 						hintFrame[ip] = true;
 					}
+					tmpIpLength++;
 				}
 
 				if (tmpLineNumbers.size() > 0) {
@@ -427,7 +477,7 @@ public final class MethodData extends MethodNode {
 		return hintFrame;
 	}
 
-	public boolean[] getCheckOps() {
+	public int[] getCheckOps() {
 		return checkOps;
 	}
 

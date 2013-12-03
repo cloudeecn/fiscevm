@@ -62,6 +62,207 @@ public class Profile extends PSuper implements Runnable {
 
 	}
 
+	private long noop() {
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long stack() {
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long field() {
+		int k = 0;
+		long t = System.nanoTime();
+		for (j = 0; j < 50000; j++) {
+			k += j;
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long staticField() {
+		int k = 0;
+		long t = System.nanoTime();
+		for (s = 0; s < 50000; s++) {
+			k += s;
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long iRootI() {
+		Intf in = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			in.rootI();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long iFooI() {
+		Intf in = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			in.fooI();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long rootS() {
+		Impl im = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			im.rootS();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long rootV() {
+		Impl im = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			im.rootV();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long rootF() {
+		Impl im = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			im.rootF();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long rootI() {
+		Impl im = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			im.rootI();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long fooS() {
+		Impl im = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			im.fooS();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long fooF() {
+		Impl im = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			im.fooF();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long fooI() {
+		Impl im = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			im.fooI();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long inh() {
+		Impl im = new Impl();
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			im.inh();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long pubTest() {
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			pub();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long fnlTest() {
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			fnl();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long prvTest() {
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			prv();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long protTest() {
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			prot();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private long pfTest() {
+		int k = 0;
+		long t = System.nanoTime();
+		for (int i = 0; i < 50000; i++) {
+			k += i;
+			pf();
+		}
+		return System.nanoTime() - t;
+	}
+
+	private void sleep() {
+		try {
+			Thread.sleep(2);
+		} catch (InterruptedException e) {
+		}
+	}
+
 	public void run() {
 		int i;
 		int k = 0;
@@ -88,206 +289,169 @@ public class Profile extends PSuper implements Runnable {
 
 		final int max = 9;
 		final int min = 4;
+		
+		sleep();
 
 		for (int u = 0; u < max; u++) {
 			Intf in = new Impl();
 			Impl im = (Impl) in;
-			long t, t2;
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-			}
-			t2 = System.nanoTime();
 			if (u >= min) {
-				ttNoop += t2 - t;
+				ttNoop += noop();
+			} else {
+				noop();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttStack += t2 - t;
+				ttStack += stack();
+			} else {
+				stack();
 			}
 
-			t = System.nanoTime();
-			for (j = 0; j < 50000; j++) {
-				k += j;
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttField += t2 - t;
+				ttField += field();
+			} else {
+				field();
 			}
 
-			t = System.nanoTime();
-			for (s = 0; s < 50000; s++) {
-				k += s;
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttStatic += t2 - t;
+				ttStatic += staticField();
+			} else {
+				staticField();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				in.rootI();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttIRootI += t2 - t;
+				ttIRootI += iRootI();
+			} else {
+				iRootI();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				in.fooI();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttIFooI += t2 - t;
+				ttIFooI += iFooI();
+			} else {
+				iFooI();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				im.rootS();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttRootS += t2 - t;
-			}
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				im.rootV();
-			}
-			t2 = System.nanoTime();
-			if (u >= min) {
-				ttRootV += t2 - t;
+				ttRootS += rootS();
+			} else {
+				rootS();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				im.rootF();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttRootF += t2 - t;
+				ttRootV += rootV();
+			} else {
+				rootV();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				im.rootI();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttRootI += t2 - t;
+				ttRootF += rootF();
+			} else {
+				rootF();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				Impl.fooS();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttFooS += t2 - t;
+				ttRootI += rootI();
+			} else {
+				rootI();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				im.fooF();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttFooF += t2 - t;
+				ttFooS += fooS();
+			} else {
+				fooS();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				im.fooI();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttFooI += t2 - t;
+				ttFooF += fooF();
+			} else {
+				fooF();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				im.inh();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttInh += t2 - t;
+				ttFooI += fooI();
+			} else {
+				fooI();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				pub();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttPub += t2 - t;
+				ttInh += inh();
+			} else {
+				inh();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				fnl();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttFnl += t2 - t;
+				ttPub += pubTest();
+			} else {
+				pubTest();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				prv();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttPrv += t2 - t;
+				ttFnl += fnlTest();
+			} else {
+				fnlTest();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				prot();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttProt += t2 - t;
+				ttPrv += prvTest();
+			} else {
+				prvTest();
 			}
 
-			t = System.nanoTime();
-			for (i = 0; i < 50000; i++) {
-				k += i;
-				pf();
-			}
-			t2 = System.nanoTime();
+			sleep();
+
 			if (u >= min) {
-				ttPf += t2 - t;
+				ttProt += protTest();
+			} else {
+				protTest();
 			}
+
+			sleep();
+
+			if (u >= min) {
+				ttPf += pfTest();
+			} else {
+				pfTest();
+			}
+
 			/**
 			 * <code>
 			 */
-
 			String result = "" + u;
 			debugOut(result);
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			sleep();
 		}
 		ttNoop /= max - min;
 		ttStack /= max - min;

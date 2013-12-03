@@ -72,6 +72,26 @@ public class ArchitectureTest implements IF1 {
 		if (a / b != 0) {
 			TestService.fail("mistake in diving two integers 2");
 		}
+		if (!String.valueOf(al + bl).equals("1100000000000")) {
+			TestService.fail("mistake in adding two longs "
+					+ String.valueOf(al + bl));
+		}
+		if (!String.valueOf(al - bl).equals("-100000000000")) {
+			TestService.fail("mistake in subing two longs "
+					+ String.valueOf(al - bl));
+		}
+		if (!String.valueOf(al * bl).equals("601129261562068992")) {
+			TestService.fail("mistake in muling two longs"
+					+ String.valueOf(al * bl));
+		}
+		if (!String.valueOf(bl / al).equals("1")) {
+			TestService.fail("mistake in diving two longs"
+					+ String.valueOf(al * bl));
+		}
+		if (!String.valueOf(bl / 1000).equals("600000000")) {
+			TestService.fail("mistake in diving long with int"
+					+ String.valueOf(al * bl));
+		}
 		try {
 			c = a / c;
 			TestService.fail("mistake in invoking divided by zero");
@@ -81,6 +101,6 @@ public class ArchitectureTest implements IF1 {
 			}
 			ae.printStackTrace();
 		}
-		
+
 	}
 }
