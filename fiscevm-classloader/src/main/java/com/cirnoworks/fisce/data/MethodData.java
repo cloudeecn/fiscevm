@@ -302,11 +302,10 @@ public final class MethodData extends MethodNode {
 					}
 				}
 
-				ArrayList<Frame<BasicValue>> tmpFrames = new ArrayList<Frame<BasicValue>>();
 				int tmpIpLength = 0;
-				// hintFrame = new boolean[newLength];
-				// checkOps = new int[newLength];
-				// hintFrame[0] = true;
+				hintFrame = new boolean[newLength];
+				checkOps = new int[newLength];
+				hintFrame[0] = true;
 				for (ip = 0; ip < newLength; ip++) {
 					checkOps[ip] = -1;
 				}
