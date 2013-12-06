@@ -322,6 +322,9 @@ public final class MethodData extends MethodNode {
 					case AbstractInsnNode.METHOD_INSN:
 					case AbstractInsnNode.FIELD_INSN:
 						hintFrame[ip] = true;
+						if (ip + 1 < newLength) {
+							hintFrame[ip + 1] = true;
+						}
 						break;
 					}
 
