@@ -320,11 +320,11 @@ public final class MethodData extends MethodNode {
 
 					switch (inst.getType()) {
 					case AbstractInsnNode.METHOD_INSN:
-					case AbstractInsnNode.FIELD_INSN:
-						hintFrame[ip] = true;
 						if (ip + 1 < newLength) {
 							hintFrame[ip + 1] = true;
 						}
+					case AbstractInsnNode.FIELD_INSN:
+						hintFrame[ip] = true;
 						break;
 					}
 
