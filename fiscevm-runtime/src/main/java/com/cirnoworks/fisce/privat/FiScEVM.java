@@ -93,12 +93,6 @@ public final class FiScEVM {
 		logOut(LOG_ERROR, str);
 	}
 
-	public static void throwOut(Throwable t) {
-		throwOut(t, "");
-	}
-
-	public static native void throwOut(Throwable t, String message);
-
 	public static native void exit(int code);
 
 	public static native char[] decode(String encoding, byte[] src, int ofs,
@@ -112,7 +106,6 @@ public final class FiScEVM {
 		try {
 			return decode(defaultEncoding, src, ofs, len);
 		} catch (UnsupportedEncodingException e) {
-			throwOut(e);
 			return null;
 		}
 	}
@@ -121,7 +114,6 @@ public final class FiScEVM {
 		try {
 			return encode(defaultEncoding, src, ofs, len);
 		} catch (UnsupportedEncodingException e) {
-			throwOut(e);
 			return null;
 		}
 	}
@@ -249,4 +241,10 @@ public final class FiScEVM {
 	}
 
 	public static native void breakpoint();
+	
+	public static void main(String[] args) {
+		long al = 500000000000L;
+		long bl = 600000000000L;
+		System.out.println(bl/al);
+	}
 }

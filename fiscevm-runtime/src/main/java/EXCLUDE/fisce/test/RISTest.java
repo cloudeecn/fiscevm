@@ -1,10 +1,12 @@
 package EXCLUDE.fisce.test;
 
+import static EXCLUDE.fisce.test.TestService.assertEqual;
+import static EXCLUDE.fisce.test.TestService.assertTrue;
+import static EXCLUDE.fisce.test.TestService.fail;
+
 import java.io.InputStream;
 
 import com.cirnoworks.fisce.privat.FiScEVM;
-
-import static EXCLUDE.fisce.test.TestService.*;
 
 public class RISTest {
 	private final static byte[] baseline = "1234567890abcdefghijklmnopqrstuvwxyz"
@@ -24,6 +26,7 @@ public class RISTest {
 			assertTrue(is != null, "Stream not got");
 			pos = 0;
 			while ((read = is.read()) >= 0) {
+//				System.out.println("#Read " + read);
 				assertEqual(baseline[pos++], (byte) read);
 				// buf[pos] = (byte) read;
 			}

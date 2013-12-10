@@ -2,8 +2,6 @@ package EXCLUDE.fisce.test;
 
 import static java.lang.System.out;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
-
 public class TestGC extends Thread {
 
 	static String 中文测试 = "1122";
@@ -36,7 +34,11 @@ public class TestGC extends Thread {
 				i = 0;
 				while (true) {
 					if (i != tmpl) {
-						FiScEVM.throwOut(new Error("Thread running error."));
+						try {
+							throw new RuntimeException();
+						} catch (RuntimeException e) {
+							TestService.fail("Thread running error!", e);
+						}
 					}
 					i++;
 					tmpl = i;

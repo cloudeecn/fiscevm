@@ -17,8 +17,6 @@ package java.lang;
 
 import java.lang.ref.Reference;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
-
 /**
  * @author Cloudee
  * 
@@ -76,7 +74,7 @@ public final class Finalizer extends Thread {
 			}
 		} catch (Throwable t) {
 			t.printStackTrace();
-			FiScEVM.throwOut(t);
+			throw new RuntimeException(t);
 		}
 	}
 

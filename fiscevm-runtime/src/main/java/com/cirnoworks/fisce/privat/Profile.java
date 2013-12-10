@@ -77,6 +77,33 @@ public class Profile extends PSuper implements Runnable {
 		}
 		return System.nanoTime() - t;
 	}
+	
+	private long stackFloat() {
+		float k = 0;
+		long t = System.nanoTime();
+		for (float i = 0; i < 50000; i++) {
+			k += i;
+		}
+		return System.nanoTime() - t;
+	}
+	
+	private long stackDouble() {
+		double k = 0;
+		long t = System.nanoTime();
+		for (double i = 0; i < 50000; i++) {
+			k += i;
+		}
+		return System.nanoTime() - t;
+	}
+	
+	private long stackLong() {
+		long k = 0;
+		long t = System.nanoTime();
+		for (long i = 0; i < 50000; i++) {
+			k += i;
+		}
+		return System.nanoTime() - t;
+	}
 
 	private long field() {
 		int k = 0;
@@ -269,6 +296,9 @@ public class Profile extends PSuper implements Runnable {
 
 		long ttNoop = 0;
 		long ttStack = 0;
+		long ttStackFloat = 0;
+		long ttStackDouble = 0;
+		long ttStackLong = 0;
 		long ttField = 0;
 		long ttStatic = 0;
 		long ttIRootI = 0;
@@ -308,6 +338,30 @@ public class Profile extends PSuper implements Runnable {
 				ttStack += stack();
 			} else {
 				stack();
+			}
+
+			sleep();
+			
+			if (u >= min) {
+				ttStackFloat += stackFloat();
+			} else {
+				stackFloat();
+			}
+
+			sleep();
+			
+			if (u >= min) {
+				ttStackDouble += stackDouble();
+			} else {
+				stackDouble();
+			}
+
+			sleep();
+			
+			if (u >= min) {
+				ttStackLong += stackLong();
+			} else {
+				stackLong();
 			}
 
 			sleep();
@@ -455,6 +509,9 @@ public class Profile extends PSuper implements Runnable {
 		}
 		ttNoop /= max - min;
 		ttStack /= max - min;
+		ttStackFloat /= max - min;
+		ttStackDouble /= max - min;
+		ttStackLong /= max - min;
 		ttField /= max - min;
 		ttStatic /= max - min;
 		ttIRootI /= max - min;
@@ -475,6 +532,9 @@ public class Profile extends PSuper implements Runnable {
 		debugOut("" + k);
 		debugOut("  ttNoop = " + ttNoop / 500000f);
 		debugOut(" ttStack = " + ttStack / 500000f);
+		debugOut(" ttStackFloat = " + ttStackFloat / 500000f);
+		debugOut(" ttStackDouble = " + ttStackDouble / 500000f);
+		debugOut(" ttStackLong = " + ttStackLong / 500000f);
 		debugOut(" ttField = " + ttField / 500000f);
 		debugOut("ttStatic = " + ttStatic / 500000f);
 

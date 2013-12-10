@@ -15,7 +15,6 @@
  */
 package java.lang;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
 
 @SuppressWarnings("unchecked")
 public final class Void {
@@ -27,7 +26,7 @@ public final class Void {
 			clz = Class.forName("void");
 		} catch (java.lang.ClassNotFoundException e) {
 			e.printStackTrace();
-			FiScEVM.throwOut(e);
+			throw new RuntimeException(e);
 		}
 		TYPE = (java.lang.Class<Void>) clz;
 	}
