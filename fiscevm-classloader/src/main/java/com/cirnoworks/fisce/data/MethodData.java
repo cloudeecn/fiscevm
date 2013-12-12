@@ -104,8 +104,8 @@ public final class MethodData extends MethodNode {
 
 	private static boolean needHint(int op) {
 		return op == Opcodes.NEW || op == Opcodes.NEWARRAY
-				|| op == Opcodes.MULTIANEWARRAY || op == Opcodes.MONITORENTER
-				|| op == Opcodes.MONITOREXIT;
+				|| op == Opcodes.ANEWARRAY || op == Opcodes.MULTIANEWARRAY
+				|| op == Opcodes.MONITORENTER || op == Opcodes.MONITOREXIT;
 	}
 
 	public int getAccessFlags() {
