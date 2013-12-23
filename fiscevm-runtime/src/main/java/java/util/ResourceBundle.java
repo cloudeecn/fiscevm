@@ -423,8 +423,7 @@ public abstract class ResourceBundle {
 			if ((bundle = handleGetBundle(bundleName, localeName, true, loader)) != null) {
 				return bundle;
 			}
-			throw new MissingResourceException(Messages.getString(
-					"luni.3A", bundleName, locale), bundleName + '_' + locale, //$NON-NLS-1$
+			throw new MissingResourceException(""+bundleName + '_' + locale, bundleName + '_' + locale, //$NON-NLS-1$
 					EMPTY_STRING);
 		}
 		throw new NullPointerException();
