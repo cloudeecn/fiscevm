@@ -48,7 +48,7 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_int target = -1;
 #ifdef FY_DEBUG
 	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc)
-;	//
+	;	//
 	context->logDVar(context, "Exception: ");
 	context->logDStr(context,
 			fy_heapGetClassOfObject(context, handle, exception)->className);
@@ -265,7 +265,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		FY_SIMPLE_ERROR_HANDLE
 		fy_heapPutArrayHandle(context, arrayHandle, t, itemHandle, exception);
 		FY_SIMPLE_ERROR_HANDLE
-		frame = FY_GET_FRAME(thread,i);
+		frame = FY_GET_FRAME(thread, i);
 		method = frame->method;
 		str->content = NULL;
 		fy_strInit(context->memblocks, str, method->owner->className->length,
@@ -579,7 +579,7 @@ fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 	if (frameCount == 0) {
 		return NULL;
 	} else {
-		return FY_GET_FRAME(thread,thread->frameCount-1);
+		return FY_GET_FRAME(thread, thread->frameCount - 1);
 	}
 }
 
@@ -594,7 +594,7 @@ static fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
 	if (frame == NULL) {
 		sb = 0;
 		sp = invoke->max_locals;
-		frame = FY_GET_FRAME(thread,0);
+		frame = FY_GET_FRAME(thread, 0);
 	} else {
 		sb = frame->sp;
 		sp = sb + invoke->max_locals;
@@ -627,7 +627,7 @@ static fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread) {
 	if (fc <= 0) {
 		return NULL;
 	} else {
-		return FY_GET_FRAME(thread,fc-1);
+		return FY_GET_FRAME(thread, fc - 1);
 	}
 }
 
@@ -675,7 +675,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	if (!fy_strEndsWith(method->uniqueName, context->sFMain)) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-		FY_EXCEPTION_VM);
+				FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"The boot method must be static void main(String[])");
 		return;
@@ -683,7 +683,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	if ((method->access_flags & FY_ACC_STATIC) == 0) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-		FY_EXCEPTION_VM);
+				FY_EXCEPTION_VM);
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				"The first method of a thread must have no return value.");
 		return;
@@ -1003,8 +1003,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		if (frame == NULL) {
 			/*Time to quit!*/
 			if (thread->currentThrowable) {
-				DLOG(context, "XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX")
-;				//
+				DLOG(context, "XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX");//
 				method = fy_vmGetMethod(context,
 						context->sThrowablePrintStacktrace);
 				ASSERT(method != NULL);
@@ -2182,7 +2181,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				type = (fy_byte) fy_strGet(field->descriptor,0);
+				type = (fy_byte) fy_strGet(field->descriptor, 0);
 				switch (type) {
 				case 'D':
 				case 'J': {
@@ -2273,7 +2272,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					break;/*EXCEPTION_THROWN*/
 				}
 
-				type = (fy_byte) fy_strGet(field->descriptor,0);
+				type = (fy_byte) fy_strGet(field->descriptor, 0);
 				switch (type) {
 				case 'D':
 				case 'J': {
@@ -2331,9 +2330,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 #ifdef FY_LATE_DECLARATION
 				fy_uint ivalue;
 #endif
-				fy_threadPopInt(ivalue);
-				ivalue &= 0xff;
-				fy_threadPushInt(ivalue);
+				fy_checkPop(0, 0);
+				stack[sp - 1] = (fy_byte) stack[sp - 1];
 				break;
 			}
 			case I2C: {
@@ -2347,23 +2345,23 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case I2D: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
+				fy_int ivalue;
 				fy_long lvalue;
 #endif
 				fy_threadPopInt(ivalue);
-				lvalue = fy_doubleToLong((fy_double) ivalue);
+				lvalue = fy_doubleToLong(ivalue);
 				fy_threadPushLong(lvalue);
 				break;
 			}
 			case I2F: {
 				/*CUSTOM*/
 				fy_checkPop(0, 0);
-				stack[sp - 1] = fy_floatToInt((fy_float) stack[sp - 1]);
+				stack[sp - 1] = fy_floatToInt((fy_int) stack[sp - 1]);
 				break;
 			}
 			case I2L: {
 #ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
+				fy_int ivalue;
 				fy_long lvalue;
 #endif
 				fy_threadPopInt(ivalue);
@@ -2915,7 +2913,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case L2D: {
 #ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
+				fy_long lvalue;
 #endif
 				fy_threadPopLong(lvalue);
 				lvalue = fy_doubleToLong(lvalue);
@@ -2924,7 +2922,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 			case L2F: {
 #ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
+				fy_long lvalue;
 				fy_uint ivalue;
 #endif
 				fy_threadPopLong(lvalue);
@@ -3551,7 +3549,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;
 				}
-				type = (fy_byte) fy_strGet(field->descriptor,0);
+				type = (fy_byte) fy_strGet(field->descriptor, 0);
 				switch (type) {
 				case 'D':
 				case 'J':
@@ -3675,7 +3673,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 					FY_FALLOUT_NOINVOKE
 					break;/*EXCEPTION_THROWN*/
 				}
-				type = (fy_byte) fy_strGet(field->descriptor,0);
+				type = (fy_byte) fy_strGet(field->descriptor, 0);
 				switch (type) {
 				case 'D':
 				case 'J': {
@@ -3895,7 +3893,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	if (!fy_classCanCastTo(context, clazz1, context->TOP_THROWABLE, TRUE)) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-		FY_EXCEPTION_CAST);
+				FY_EXCEPTION_CAST);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				clazz1->className);
 		return 0;
@@ -3908,7 +3906,7 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	if (field == NULL) {
 		exception->exceptionType = exception_normal;
 		sprintf_s(exception->exceptionName, sizeof(exception->exceptionName),
-		FY_EXCEPTION_CLASSNOTFOUND);
+				FY_EXCEPTION_CLASSNOTFOUND);
 		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
 				context->sThrowableDetailMessage);
 		return 0;
@@ -3998,7 +3996,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 			ASSERT(
 					i>=frame->sb || (handle > 0 && handle < MAX_OBJECTS && fy_heapGetObject(context,handle)->object_data!= NULL));
 			if (handle > 0 && handle < MAX_OBJECTS) {
-				object = fy_heapGetObject(context,handle);
+				object = fy_heapGetObject(context, handle);
 				if (object->object_data != NULL
 						&& object->object_data->data != NULL) {
 					/*Valid handle*/
