@@ -187,7 +187,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	fy_str str[1];
 	fy_uint arrayHandle, itemHandle, strHandle;
 	fy_uint lpc;
-	fy_int i, j, t;
+	fy_int i, j, t, begin;
 	fy_int lineNumber;
 	fy_lineNumber *ln;
 
@@ -252,15 +252,23 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 				context->sStackTraceElementLineNumber);
 		return;
 	}
-	arrayHandle = fy_heapAllocateArray(context, array, thread->frameCount,
-			exception);
+
+	for (begin = thread->frameCount - 1; begin >= 0; begin--) {
+		frame = FY_GET_FRAME(thread, begin);
+		if ((frame->method->access_flags & FY_ACC_STATIC)
+				|| (thread->stack[frame->sb] != handle)) {
+			break;
+		}
+	}
+
+	arrayHandle = fy_heapAllocateArray(context, array, begin + 1, exception);
 	FY_SIMPLE_ERROR_HANDLE
 	fy_heapPutFieldHandle(context, handle, throwableStackTraceElements,
 			arrayHandle, exception);
 	FY_SIMPLE_ERROR_HANDLE
 
 	t = 0;
-	for (i = thread->frameCount - 1; i >= 0; i--) {
+	for (i = begin; i >= 0; i--) {
 		itemHandle = fy_heapAllocate(context, clazz, exception);
 		FY_SIMPLE_ERROR_HANDLE
 		fy_heapPutArrayHandle(context, arrayHandle, t, itemHandle, exception);
