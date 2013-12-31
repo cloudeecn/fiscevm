@@ -334,20 +334,20 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 
 	switch (sClass->ci.arr.arrayType) {
 	case fy_at_byte:
-		memcpy(((fy_ubyte*) dObject->object_data->data) + destPos,
-				((fy_ubyte*) sObject->object_data->data) + srcPos, len);
+		memcpy(((fy_ubyte* ) dObject->object_data->data) + destPos,
+				((fy_ubyte* ) sObject->object_data->data) + srcPos, len);
 		break;
 	case fy_at_short:
-		memcpy(((fy_char*) dObject->object_data->data) + destPos,
-				((fy_char*) sObject->object_data->data) + srcPos, len << 1);
+		memcpy(((fy_char* ) dObject->object_data->data) + destPos,
+				((fy_char* ) sObject->object_data->data) + srcPos, len << 1);
 		break;
 	case fy_at_int:
-		memcpy(((fy_uint*) dObject->object_data->data) + destPos,
-				((fy_uint*) sObject->object_data->data) + srcPos, len << 2);
+		memcpy(((fy_uint* ) dObject->object_data->data) + destPos,
+				((fy_uint* ) sObject->object_data->data) + srcPos, len << 2);
 		break;
 	case fy_at_long:
-		memcpy(((fy_ulong*) dObject->object_data->data) + destPos,
-				((fy_ulong*) sObject->object_data->data) + srcPos, len << 3);
+		memcpy(((fy_ulong* ) dObject->object_data->data) + destPos,
+				((fy_ulong* ) sObject->object_data->data) + srcPos, len << 3);
 		break;
 	}
 }

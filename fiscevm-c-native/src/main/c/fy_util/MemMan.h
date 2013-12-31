@@ -23,7 +23,7 @@
 #include "../fisceprt.h"
 #define EDEN_ENTRIES  32768
 #define COPY_ENTRIES  32768
-#define OLD_ENTRIES 1800000
+#define OLD_ENTRIES 2400000
 
 #ifdef	__cplusplus
 extern "C" {

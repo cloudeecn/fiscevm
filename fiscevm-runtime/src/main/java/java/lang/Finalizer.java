@@ -67,7 +67,7 @@ public final class Finalizer extends Thread {
 					finalizee = null;
 				}
 				try {
-					Thread.sleep(100);
+					Thread.sleep(500);
 				} catch (java.lang.InterruptedException e) {
 					e.printStackTrace();
 				}

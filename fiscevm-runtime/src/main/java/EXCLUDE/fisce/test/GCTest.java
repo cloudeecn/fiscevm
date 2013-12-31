@@ -27,7 +27,7 @@ public class GCTest extends TestService {
 			System.out.println(i + "+");
 			for (int j = 0; j < 100; j++) {
 				Thread.sleep(1);
-				// byte[] b = new byte[10000];
+				byte[] b = new byte[10000];
 			}
 			System.gc();
 			System.out.println(i + ".");
@@ -64,7 +64,7 @@ public class GCTest extends TestService {
 			System.gc();
 			assertTrue(wr.get() == null, "Weak ref is not cleared abnormally #"
 					+ System.identityHashCode(wr));
-			Thread.sleep(500);
+			Thread.sleep(2000);
 			assertTrue(weakQueue.poll() == wr);
 			assertTrue(phantomQueue.poll() == pr);
 			assertTrue(weakQueue.poll() == null);
@@ -136,7 +136,7 @@ public class GCTest extends TestService {
 			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			FiScEVM.breakpoint();
 			System.gc();
-			Thread.sleep(500);
+			Thread.sleep(2000);
 			assertTrue(weakQueue.poll() == null);
 			assertTrue(phantomQueue.poll() == pr);
 		}
@@ -144,7 +144,7 @@ public class GCTest extends TestService {
 
 	public static void main(String[] args) {
 		try {
-			// testGCBase();
+			testGCBase();
 			testReference();
 		} catch (Throwable e) {
 			// e.printStackTrace(FiScEVM.debug);
