@@ -16,14 +16,14 @@
  */
 package com.cirnoworks.fisce.data.constants;
 
-import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
 import com.cirnoworks.fisce.classloader.utils.StringPool;
 
 /**
  * 
  * @author cloudee
  */
-public class ConstantIntegerData implements ConstantData, JSONExportableConstantData {
+public class ConstantIntegerData implements ConstantData,
+		JSONExportableConstantData {
 
 	protected int data;
 
@@ -58,15 +58,12 @@ public class ConstantIntegerData implements ConstantData, JSONExportableConstant
 		return "ConstantInteger:" + data;
 	}
 
-	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
-			boolean addComma) {
-		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"",
-				String.valueOf(data), false);
-		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
-	}
-
 	public void fillConstants(ConstantData[] constantPool) {
 
+	}
+
+	@Override
+	public void export(StringPool pool, int[] output, int pos) {
+		output[0] = data;
 	}
 }

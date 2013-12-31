@@ -16,9 +16,7 @@
  */
 package com.cirnoworks.fisce.data.constants;
 
-import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
 import com.cirnoworks.fisce.classloader.utils.StringPool;
-import com.cirnoworks.fisce.data.constants.internal.ConstantUTF8Data;
 
 /**
  * Used in LDC
@@ -64,15 +62,12 @@ public class ConstantStringData implements ConstantData,
 		return "ConstantString: " + str;
 	}
 
-	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
-			boolean addComma) {
-		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"string\"",
-				spool.poolString(str), false);
-		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
+	public void fillConstants(ConstantData[] constantPool) {
 	}
 
-	public void fillConstants(ConstantData[] constantPool) {
+	@Override
+	public void export(StringPool pool, int[] output, int pos) {
+		output[0] = pool.poolString(str);
 	}
 
 }

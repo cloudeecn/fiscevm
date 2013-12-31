@@ -16,7 +16,6 @@
  */
 package com.cirnoworks.fisce.data.constants;
 
-import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
 import com.cirnoworks.fisce.classloader.utils.StringPool;
 
 /**
@@ -59,15 +58,12 @@ public class ConstantFloatData implements ConstantData,
 		return "ConstantFloat:" + data;
 	}
 
-	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
-			boolean addComma) {
-		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"",
-				String.valueOf(Float.floatToIntBits(data)), false);
-		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
-	}
-
 	public void fillConstants(ConstantData[] constantPool) {
 
+	}
+
+	@Override
+	public void export(StringPool pool, int[] output, int pos) {
+		output[pos] = Float.floatToIntBits(data);
 	}
 }

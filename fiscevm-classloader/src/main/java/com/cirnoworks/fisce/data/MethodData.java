@@ -231,6 +231,14 @@ public final class MethodData extends MethodNode {
 						}
 						ipTable.put(inst, ip);
 						rawInstructions[ip] = inst;
+						if (frames[i] == null) {
+							throw new NullPointerException(
+									"Can't find frame for i=" + i + " ip=" + ip
+											+ " " + inst.toString() + " "
+											+ inst.getOpcode() + " "
+											+ this.owner.name + "." + this.name
+											+ "." + this.desc);
+						}
 						rawFrames[ip] = frames[i];
 						ip++;
 					}

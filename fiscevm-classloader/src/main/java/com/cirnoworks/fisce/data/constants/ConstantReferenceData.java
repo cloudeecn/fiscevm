@@ -16,7 +16,6 @@
  */
 package com.cirnoworks.fisce.data.constants;
 
-import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
 import com.cirnoworks.fisce.classloader.utils.StringPool;
 import com.cirnoworks.fisce.data.constants.internal.ConstantNameTypeInfoData;
 
@@ -103,16 +102,6 @@ public class ConstantReferenceData implements ConstantData,
 		return true;
 	}
 
-	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
-			boolean addComma) {
-		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"className\"",
-				spool.poolString(className), true);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"nameAndType\"",
-				spool.poolString("." + name + "." + descriptior), false);
-		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
-	}
-
 	public void fillConstants(ConstantData[] constantPool) {
 		ConstantNameTypeInfoData nameAndType = (ConstantNameTypeInfoData) constantPool[nameAndTypeIdx];
 		name = nameAndType.getName();
@@ -123,6 +112,12 @@ public class ConstantReferenceData implements ConstantData,
 		if (descriptior == null) {
 			throw new NullPointerException();
 		}
+	}
+
+	@Override
+	public void export(StringPool pool, int[] output, int pos) {
+		output[0] = pool.poolString(className);
+		output[1] = pool.poolString("." + name + "." + descriptior);
 	}
 
 }

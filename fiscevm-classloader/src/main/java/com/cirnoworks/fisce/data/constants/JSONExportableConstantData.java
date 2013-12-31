@@ -24,6 +24,12 @@ import com.cirnoworks.fisce.classloader.utils.StringPool;
  */
 public interface JSONExportableConstantData extends ConstantData {
 
-	void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
-			boolean addComma);
+	/**
+	 * Export data to int array
+	 * 
+	 * @param pool string pool
+	 * @param output output int array
+	 * @param pos pos in int array
+	 */
+	void export(StringPool pool, int[] output, int pos);
 }

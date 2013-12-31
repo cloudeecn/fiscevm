@@ -16,7 +16,6 @@
  */
 package com.cirnoworks.fisce.data.constants;
 
-import com.cirnoworks.fisce.classloader.utils.SimpleJSONUtil;
 import com.cirnoworks.fisce.classloader.utils.StringPool;
 
 /**
@@ -63,17 +62,14 @@ public class ConstantDoubleData implements ConstantData,
 		return true;
 	}
 
-	public void appendJSON(StringPool spool, StringBuilder sb, int baseIndent,
-			boolean addComma) {
-		SimpleJSONUtil.add(sb, baseIndent, "{", false);
-		long ieeeValue = Double.doubleToLongBits(data);
-		SimpleJSONUtil.add(sb, baseIndent + 1, "\"value\"", "["
-				+ ((ieeeValue >>> 32) & 0xffffffffl) + ", "
-				+ (ieeeValue & 0xffffffffl) + "]", false);
-		SimpleJSONUtil.add(sb, baseIndent, "}", addComma);
-	}
-
 	public void fillConstants(ConstantData[] constantPool) {
 
+	}
+
+	@Override
+	public void export(StringPool pool, int[] output, int pos) {
+		long ieeeValue = Double.doubleToLongBits(data);
+		output[pos] = (int) (ieeeValue >>> 32);
+		output[pos + 1] = (int) ieeeValue;
 	}
 }
