@@ -65,7 +65,7 @@ public class ConstantLongData implements ConstantData,
 
 	@Override
 	public void export(StringPool pool, int[] output, int pos) {
-		output[0] = (int) (data >>> 32);
-		output[1] = (int) data;
+		output[pos] = (int) (data >>> 32);
+		output[pos + 1] = (int) data;
 	}
 }

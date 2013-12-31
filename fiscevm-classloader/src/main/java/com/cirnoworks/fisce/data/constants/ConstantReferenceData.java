@@ -116,8 +116,8 @@ public class ConstantReferenceData implements ConstantData,
 
 	@Override
 	public void export(StringPool pool, int[] output, int pos) {
-		output[0] = pool.poolString(className);
-		output[1] = pool.poolString("." + name + "." + descriptior);
+		output[pos] = pool.poolString(className);
+		output[pos + 1] = pool.poolString("." + name + "." + descriptior);
 	}
 
 }

@@ -67,7 +67,7 @@ public class ConstantStringData implements ConstantData,
 
 	@Override
 	public void export(StringPool pool, int[] output, int pos) {
-		output[0] = pool.poolString(str);
+		output[pos] = pool.poolString(str);
 	}
 
 }

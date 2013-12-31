@@ -64,6 +64,6 @@ public class ConstantIntegerData implements ConstantData,
 
 	@Override
 	public void export(StringPool pool, int[] output, int pos) {
-		output[0] = data;
+		output[pos] = data;
 	}
 }
