@@ -40,7 +40,7 @@ static fy_int isRead(struct fy_context *context, fy_inputStream *is,
 static fy_int isReadBlock(struct fy_context *context, fy_inputStream *is,
 		void *target, fy_int size, fy_exception *exception) {
 	fisData *data = is->data;
-	fy_int read = fread(target, 1, size, data->fp);
+	fy_int read = (fy_int)fread(target, 1, size, data->fp);
 	fy_int err;
 	if (read == 0) {
 		err = ferror(data->fp);
@@ -89,8 +89,8 @@ static fy_inputStream* isOpen(struct fy_context *context, const char *name,
 	fy_boolean baseSlash, nameSlash;
 
 	targetName[0] = 0;
-	baseLen = strlen(baseName);
-	if (baseName == NULL || (baseLen = strlen(baseName)) == 0) {
+	baseLen = (fy_int)strlen(baseName);
+	if (baseName == NULL || (baseLen = (fy_int)strlen(baseName)) == 0) {
 		baseLen = 1;
 		baseName = ".";
 	}
@@ -99,15 +99,15 @@ static fy_inputStream* isOpen(struct fy_context *context, const char *name,
 	nameSlash = name[0] == '/';
 
 	if (baseSlash && nameSlash) {
-		strncat(targetName, baseName, sizeof(targetName));
-		strncat(targetName, name + 1, sizeof(targetName));
+		strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+		strncat(targetName, name + 1, sizeof(targetName) - strlen(targetName) - 1);
 	} else if ((!baseSlash) && (!nameSlash)) {
-		strncat(targetName, baseName, sizeof(targetName));
-		strncat(targetName, "/", sizeof(targetName));
-		strncat(targetName, name, sizeof(targetName));
+		strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+		strncat(targetName, "/", sizeof(targetName) - strlen(targetName) - 1);
+		strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
 	} else {
-		strncat(targetName, baseName, sizeof(targetName));
-		strncat(targetName, name, sizeof(targetName));
+		strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+		strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
 	}
 	fp = fopen(targetName, "rb");
 	if (fp != NULL) {

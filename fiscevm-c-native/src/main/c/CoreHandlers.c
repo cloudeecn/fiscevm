@@ -935,7 +935,7 @@ static void methodInvoke(struct fy_context *context, struct fy_thread *thread,
 	fy_uint count =
 			args[2] ? fy_heapArrayLength(context, args[2], exception) : 0;
 	fy_class *paramType;
-	fy_int clinitStatus;
+	/*fy_int clinitStatus;*/
 	fy_uint i;
 	fy_uint paramsHandle = args[2];
 	fy_uint paramHandle;

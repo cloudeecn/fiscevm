@@ -438,7 +438,7 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	fy_int uintbufSize = 0;
 	fy_uint *uintbuf;
 	fy_int uintbufSize2 = 0;
-	fy_uint *uintbuf2;
+	fy_uint *uintbuf2 = NULL;
 
 	fy_uint nameSize;
 	fy_uint id;

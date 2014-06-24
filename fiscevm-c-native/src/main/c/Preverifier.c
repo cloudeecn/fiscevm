@@ -314,7 +314,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 	fy_switch_lookup *switchLookup;
 	fy_hashMapI tmpSwitchTargets[1];
 	fy_hashMapI tmpPcIcMap[1];
-	fy_int i, imax;
+	fy_int i = 0, imax;
 	fy_int target;
 
 	fy_uint ivalue3, ivalue, ivalue2, ivalue4;
