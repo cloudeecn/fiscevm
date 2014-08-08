@@ -368,6 +368,24 @@ public final class MethodData extends MethodNode {
 					}
 				}
 
+				// int[] sps = new int[newLength];
+				// int[] jumpTargets = new int[1024];
+				// jumpTargets[0] = 0;
+				// int pos = 1;
+				// while (pos > 0) {
+				// int i = jumpTargets[--pos];
+				// while (true) {
+				// AbstractInsnNode inst = instructions.get(i);
+				// switch (inst.getType()) {
+				// case AbstractInsnNode.JUMP_INSN:
+				// case AbstractInsnNode.TABLESWITCH_INSN:
+				// case AbstractInsnNode.LOOKUPSWITCH_INSN:
+				// }
+				//
+				// i++;
+				// }
+				// }
+
 				code = new int[newLength * 3];
 				for (ip = 0; ip < newLength; ip++) {
 					AbstractInsnNode inst = rawInstructions[ip];
@@ -385,7 +403,12 @@ public final class MethodData extends MethodNode {
 					case AbstractInsnNode.IINC_INSN:
 						IincInsnNode iin = (IincInsnNode) inst;
 						code[base + 1] = iin.var;
-						code[base + 2] = iin.incr;
+						if (iin.incr > Short.MAX_VALUE
+								|| iin.incr < Short.MIN_VALUE) {
+							throw new IllegalStateException(
+									"IINC incr too high: " + iin.incr);
+						}
+						code[base + 2] = iin.incr & 0xffff;
 						break;
 					case AbstractInsnNode.INT_INSN:
 						IntInsnNode inin = (IntInsnNode) inst;

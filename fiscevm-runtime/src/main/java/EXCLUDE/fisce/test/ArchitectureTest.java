@@ -31,8 +31,16 @@ public class ArchitectureTest implements IF1 {
 	}
 
 	public static void main(String[] args) {
-		new ArchitectureTest().run();
 		FiScEVM.infoOut("Begin!");
+		{
+			String a = "" + 1 + 2 + 3;
+			String b = String.valueOf(6);
+			if (a.equals(b)) {
+				TestService.fail("String compare error");
+				throw new RuntimeException();
+			}
+		}
+		new ArchitectureTest().run();
 		FiScEVM.infoOut(ArchitectureTest.class.getName());
 		try {
 			Object o = new HashMap();
@@ -89,7 +97,7 @@ public class ArchitectureTest implements IF1 {
 		if (c1 < 0 || i2b < 0) {
 			TestService.fail("I2C Error sign");
 		}
-		
+
 		int i3 = -10000;
 		short s2 = (short) i3;
 		char c2 = (char) i3;
@@ -104,8 +112,7 @@ public class ArchitectureTest implements IF1 {
 		if (c2 < 0 || i3b < 0) {
 			TestService.fail("I2C Error sign2");
 		}
-		
-		
+
 		int i4 = -40000;
 		short s3 = (short) i4;
 		char c3 = (char) i4;

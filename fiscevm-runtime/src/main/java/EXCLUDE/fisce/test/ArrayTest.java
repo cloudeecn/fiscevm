@@ -18,7 +18,7 @@ package EXCLUDE.fisce.test;
 
 /**
  * @author cloudee
- *
+ * 
  */
 public class ArrayTest extends TestService {
 
@@ -36,7 +36,9 @@ public class ArrayTest extends TestService {
 				for (int j = 0; j < 3; j++) {
 					for (int k = 0; k < 4; k++) {
 						if (array[i][j][k] != i * 100 + j * 10 + k) {
-							fail("Integer array error!");
+							fail("Integer array error! expected="
+									+ (i * 100 + j * 10 + k) + " real="
+									+ array[i][j][k]);
 						}
 					}
 				}
@@ -52,8 +54,11 @@ public class ArrayTest extends TestService {
 			for (int i = 0; i < 5; i++) {
 				for (int j = 0; j < 3; j++) {
 					for (int k = 0; k < 4; k++) {
-						if (array1[i][j][k].equals("" + i * 100 + j * 10 + k)) {
-							fail("Integer array error!");
+						if (!array1[i][j][k]
+								.equals("" + (i * 100 + j * 10 + k))) {
+							fail("String array error! expected="
+									+ (i * 100 + j * 10 + k) + " real="
+									+ array[i][j][k]);
 						}
 					}
 				}
