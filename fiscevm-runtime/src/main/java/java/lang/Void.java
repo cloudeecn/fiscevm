@@ -15,7 +15,6 @@
  */
 package java.lang;
 
-
 @SuppressWarnings("unchecked")
 public final class Void {
 
@@ -25,8 +24,12 @@ public final class Void {
 		try {
 			clz = Class.forName("void");
 		} catch (java.lang.ClassNotFoundException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
+			try {
+				clz = Class.forName("<void");
+			} catch (java.lang.ClassNotFoundException ex) {
+				ex.printStackTrace();
+				throw new RuntimeException(ex);
+			}
 		}
 		TYPE = (java.lang.Class<Void>) clz;
 	}

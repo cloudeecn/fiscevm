@@ -35,10 +35,14 @@ public final class Finalizer extends Thread {
 				Reference<?>[] refs = getReferencesToEnqueue();
 				if (refs != null) {
 					for (int i = 0, max = refs.length; i < max; i++) {
-						Reference<?> ref = refs[i];
-						ref.enqueue();
-						ref = null;
-						refs[i] = null;
+						try {
+							Reference<?> ref = refs[i];
+							ref.enqueue();
+							ref = null;
+							refs[i] = null;
+						} catch (Throwable e) {
+							e.printStackTrace();
+						}
 					}
 				}
 				Object[] finalizee = getFinalizee();

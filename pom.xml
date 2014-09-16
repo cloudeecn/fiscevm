@@ -45,7 +45,6 @@
 	<modules>
 		<module>fiscevm-intf</module>
 		<module>fiscevm-runtime</module>
-		<module>fiscevm-classloader</module>
 		<!-- <module>fiscevm-java</module> -->
 		<!-- <module>fiscevm-javatoolkit</module> -->
 		<module>fiscevm-c</module>
