@@ -46,11 +46,12 @@ public final class Finalizer extends Thread {
 					}
 				}
 				Object[] finalizee = getFinalizee();
+				// FiScEVM.infoOut("#FINALIZER "
+				// + System.identityHashCode(Thread.currentThread()) + ":"
+				// + System.identityHashCode(finalizee) + ": "
+				// + (finalizee == null ? "N/A" : finalizee.length)
+				// + " objects to finalize...");
 				if (finalizee != null) {
-					// FiScEVM.infoOut("#FINALIZER "
-					// + System.identityHashCode(Thread.currentThread())
-					// + ":" + System.identityHashCode(finalizee) + ": "
-					// + finalizee.length + " objects to finalize...");
 					for (int i = 0, max = finalizee.length; i < max; i++) {
 						Object o = finalizee[i];
 						try {
@@ -66,8 +67,8 @@ public final class Finalizer extends Thread {
 						o = null;
 						finalizee[i] = null;
 					}
-					// FiScEVM.infoOut("#FINALIZER:" + finalizee.length
-					// + " objects finalized.");
+//					FiScEVM.infoOut("#FINALIZER:" + finalizee.length
+//							+ " objects finalized.");
 					finalizee = null;
 				}
 				try {

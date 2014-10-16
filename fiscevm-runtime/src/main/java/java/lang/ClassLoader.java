@@ -19,6 +19,7 @@ package java.lang;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.ProtectionDomain;
 import java.util.Enumeration;
 
 /**
@@ -26,7 +27,7 @@ import java.util.Enumeration;
  *
  * @author Evgueni Brevnov
  */
-public final class ClassLoader {
+public class ClassLoader {
 
 	/**
 	 * system default class loader. It is initialized while
@@ -100,4 +101,113 @@ public final class ClassLoader {
 		return false;
 	}
 
+	/**
+	 * Constructs a new instance of this class with the specified class loader
+	 * as its parent.
+	 *
+	 * @param parentLoader
+	 *            The {@code ClassLoader} to use as the new class loader's
+	 *            parent.
+	 * @throws SecurityException
+	 *             if a security manager exists and it does not allow the
+	 *             creation of new a new {@code ClassLoader}.
+	 */
+	protected ClassLoader(ClassLoader parentLoader) {
+		super();
+	}
+
+	/**
+	 * Constructs a new class from an array of bytes containing a class
+	 * definition in class file format.
+	 *
+	 * @param classRep
+	 *            the memory image of a class file.
+	 * @param offset
+	 *            the offset into {@code classRep}.
+	 * @param length
+	 *            the length of the class file.
+	 * @return the {@code Class} object created from the specified subset of
+	 *         data in {@code classRep}.
+	 * @throws ClassFormatError
+	 *             if {@code classRep} does not contain a valid class.
+	 * @throws IndexOutOfBoundsException
+	 *             if {@code offset < 0}, {@code length < 0} or if
+	 *             {@code offset + length} is greater than the length of
+	 *             {@code classRep}.
+	 * @deprecated Use {@link #defineClass(String, byte[], int, int)}
+	 */
+	@Deprecated
+	protected final Class<?> defineClass(byte[] classRep, int offset, int length)
+			throws ClassFormatError {
+		return defineClass(null, classRep, offset, length);
+	}
+
+	/**
+	 * Constructs a new class from an array of bytes containing a class
+	 * definition in class file format.
+	 *
+	 * @param className
+	 *            the expected name of the new class, may be {@code null} if not
+	 *            known.
+	 * @param classRep
+	 *            the memory image of a class file.
+	 * @param offset
+	 *            the offset into {@code classRep}.
+	 * @param length
+	 *            the length of the class file.
+	 * @return the {@code Class} object created from the specified subset of
+	 *         data in {@code classRep}.
+	 * @throws ClassFormatError
+	 *             if {@code classRep} does not contain a valid class.
+	 * @throws IndexOutOfBoundsException
+	 *             if {@code offset < 0}, {@code length < 0} or if
+	 *             {@code offset + length} is greater than the length of
+	 *             {@code classRep}.
+	 */
+	protected final Class<?> defineClass(String className, byte[] classRep,
+			int offset, int length) throws ClassFormatError {
+		if (offset < 0 || length < 0 || offset + length > classRep.length) {
+			throw new ArrayIndexOutOfBoundsException(offset + length);
+		}
+		return defineClassImpl(className, classRep, offset, length);
+	}
+
+	/**
+	 * Constructs a new class from an array of bytes containing a class
+	 * definition in class file format and assigns the specified protection
+	 * domain to the new class. If the provided protection domain is
+	 * {@code null} then a default protection domain is assigned to the class.
+	 *
+	 * @param className
+	 *            the expected name of the new class, may be {@code null} if not
+	 *            known.
+	 * @param classRep
+	 *            the memory image of a class file.
+	 * @param offset
+	 *            the offset into {@code classRep}.
+	 * @param length
+	 *            the length of the class file.
+	 * @param protectionDomain
+	 *            the protection domain to assign to the loaded class, may be
+	 *            {@code null}.
+	 * @return the {@code Class} object created from the specified subset of
+	 *         data in {@code classRep}.
+	 * @throws ClassFormatError
+	 *             if {@code classRep} does not contain a valid class.
+	 * @throws IndexOutOfBoundsException
+	 *             if {@code offset < 0}, {@code length < 0} or if
+	 *             {@code offset + length} is greater than the length of
+	 *             {@code classRep}.
+	 * @throws NoClassDefFoundError
+	 *             if {@code className} is not equal to the name of the class
+	 *             contained in {@code classRep}.
+	 */
+	protected final Class<?> defineClass(String className, byte[] classRep,
+			int offset, int length, ProtectionDomain protectionDomain)
+			throws java.lang.ClassFormatError {
+		return defineClass(className, classRep, offset, length);
+	}
+
+	protected final native Class<?> defineClassImpl(String className,
+			byte[] classRep, int offset, int length) throws ClassFormatError;
 }

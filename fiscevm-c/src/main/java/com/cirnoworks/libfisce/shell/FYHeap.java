@@ -40,6 +40,9 @@ public class FYHeap implements IHeap {
 	}
 
 	public int getClass(int handle) throws VMException {
+		if (handle == 0) {
+			throw new NullPointerException("call getClass for null");
+		}
 		return FisceService.getClassOfHandle(context.getContext(), handle);
 	}
 

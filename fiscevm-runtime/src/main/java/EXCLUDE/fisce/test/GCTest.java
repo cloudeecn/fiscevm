@@ -128,17 +128,17 @@ public class GCTest extends TestService {
 			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			System.gc();
 			assertTrue(wr.get() == null, "Weak ref is not cleared abnormally");
-			Thread.sleep(500);
-			assertTrue(weakQueue.poll() == wr);
-			assertTrue(StrongReferent.holder != null);
-			assertTrue(phantomQueue.poll() == null);
+			Thread.sleep(1000);
+			assertTrue(weakQueue.poll() == wr, "#1");
+			assertTrue(StrongReferent.holder != null, "#2");
+			assertTrue(phantomQueue.poll() == null, "#3");
 			StrongReferent.holder = null;
 			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			FiScEVM.breakpoint();
 			System.gc();
 			Thread.sleep(2000);
-			assertTrue(weakQueue.poll() == null);
-			assertTrue(phantomQueue.poll() == pr);
+			assertTrue(weakQueue.poll() == null, "#4");
+			assertTrue(phantomQueue.poll() == pr, "#5");
 		}
 	}
 

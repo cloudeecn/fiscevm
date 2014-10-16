@@ -160,8 +160,8 @@ public class Proxy implements Serializable {
 				}
 				byte[] classFileBytes = ProxyClassFile.generateBytes(
 						nextClassName, interfaces);
-				ref = defineClassImpl(loader,
-						nextClassName.replace('.', '/'), classFileBytes);
+				ref = defineClassImpl(loader, nextClassName.replace('.', '/'),
+						classFileBytes);
 				// Need a weak reference to the class so it can
 				// be unloaded if the class loader is discarded
 				interfaceCache.put(interfaceKey, ref);
@@ -170,8 +170,8 @@ public class Proxy implements Serializable {
 					proxyCache.put(ref, ""); //$NON-NLS-1$
 				}
 			} else {
-				assert ref != null : "\ninterfaceKey=\"" + interfaceKey
-						+ "\"" + "\nloaderCache=\"" + loaderCache + "\""
+				assert ref != null : "\ninterfaceKey=\"" + interfaceKey + "\""
+						+ "\nloaderCache=\"" + loaderCache + "\""
 						+ "\nintfCache=\"" + interfaceCache + "\""
 						+ "\nproxyCache=\"" + proxyCache + "\"";
 			}
@@ -266,7 +266,10 @@ public class Proxy implements Serializable {
 		throw new IllegalArgumentException(Messages.getString("luni.54")); //$NON-NLS-1$
 	}
 
-	private static native Class<?> defineClassImpl(ClassLoader classLoader,
-			String className, byte[] classFileBytes);
+	private static Class<?> defineClassImpl(ClassLoader classLoader,
+			String className, byte[] classFileBytes) {
+		return ClassLoaderHelper.defineClass(classLoader, className,
+				classFileBytes, 0, classFileBytes.length);
+	}
 
 }
