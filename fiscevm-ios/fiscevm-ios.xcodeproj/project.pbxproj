@@ -38,6 +38,8 @@
 		6873C2961A033B27006C201B /* ThreadManager.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2791A033B27006C201B /* ThreadManager.c */; };
 		6873C2971A033B27006C201B /* Utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C27A1A033B27006C201B /* Utf8.c */; };
 		6873C2981A033B27006C201B /* VMContext.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C27B1A033B27006C201B /* VMContext.c */; };
+		6873C4941A0F97EC006C201B /* FiScEVMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6873C4931A0F97EC006C201B /* FiScEVMTest.m */; };
+		6873C4961A0F98DB006C201B /* classes in Resources */ = {isa = PBXBuildFile; fileRef = 6873C4951A0F98DB006C201B /* classes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +106,8 @@
 		6873C27B1A033B27006C201B /* VMContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = VMContext.c; path = "../../fiscevm-c-native/src/main/c/VMContext.c"; sourceTree = "<group>"; };
 		6873C3EE1A0A033E006C201B /* fy_util */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fy_util; path = "../../fiscevm-c-native/src/main/c/fy_util"; sourceTree = "<group>"; };
 		6873C3EF1A0A033E006C201B /* fyc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fyc; path = "../../fiscevm-c-native/src/main/c/fyc"; sourceTree = "<group>"; };
+		6873C4931A0F97EC006C201B /* FiScEVMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiScEVMTest.m; sourceTree = "<group>"; };
+		6873C4951A0F98DB006C201B /* classes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = classes; path = "../../fiscevm-runtime/target/classes"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,7 +194,9 @@
 		6873C24D1A033A66006C201B /* fiscevm-iosTests */ = {
 			isa = PBXGroup;
 			children = (
+				6873C4951A0F98DB006C201B /* classes */,
 				6873C24E1A033A66006C201B /* Supporting Files */,
+				6873C4931A0F97EC006C201B /* FiScEVMTest.m */,
 			);
 			path = "fiscevm-iosTests";
 			sourceTree = "<group>";
@@ -281,6 +287,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6873C4961A0F98DB006C201B /* classes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,6 +334,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6873C4941A0F97EC006C201B /* FiScEVMTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

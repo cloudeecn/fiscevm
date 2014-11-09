@@ -205,6 +205,8 @@ FY_ATTR_EXPORT void fy_portInit(fy_port *pd);
 FY_ATTR_EXPORT void fy_portDestroy(fy_port *pd);
 FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd);
 FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd);
+    
+FY_ATTR_EXPORT fy_boolean fy_portValidate();
 
 #ifdef	__cplusplus
 }

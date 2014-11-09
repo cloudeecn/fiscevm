@@ -187,3 +187,40 @@ FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd) {
 #error Unsupported platform
 #endif
 }
+
+FY_ATTR_EXPORT fy_boolean fy_portValidate(){
+    if(sizeof(fy_boolean)!=4){
+        return FALSE;
+    }
+    if(sizeof(fy_ubyte)!=1){
+        return FALSE;
+    }
+    if(sizeof(fy_byte)!=1){
+        return FALSE;
+    }
+    if(sizeof(fy_char)!=2){
+        return FALSE;
+    }
+    if(sizeof(fy_short)!=2){
+        return FALSE;
+    }
+    if(sizeof(fy_uint)!=4){
+        return FALSE;
+    }
+    if(sizeof(fy_int)!=4){
+        return FALSE;
+    }
+    if(sizeof(fy_float)!=4){
+        return FALSE;
+    }
+    if(sizeof(fy_ulong)!=8){
+        return FALSE;
+    }
+    if(sizeof(fy_long)!=8){
+        return FALSE;
+    }
+    if(sizeof(fy_double)!=8){
+        return FALSE;
+    }
+    return TRUE;
+}
