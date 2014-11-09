@@ -44,7 +44,7 @@ static void expandBuckets(fy_memblock *mem, fy_hashMapI *this,
 	if (targetFact <= this->bucketsFact) {
 		return;
 	} else {
-		newEntries = fy_mmAllocate(mem, sizeof(fy_hashMapIEntry*) << targetFact,
+		newEntries = fy_mmAllocate(mem, (int)sizeof(fy_hashMapIEntry*) << targetFact,
 				exception);
 		FYEH();
 		for (i = 0, imax = 1 << this->bucketsFact; i < imax; i++) {
@@ -170,7 +170,7 @@ FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
 	this->bucketsFact = initFact;
 	this->nullValue = nullValue;
 	this->bucketsSizeM1 = (1 << initFact) - 1;
-	this->buckets = fy_mmAllocate(mem, sizeof(fy_hashMapIEntry*) << initFact,
+	this->buckets = fy_mmAllocate(mem, (int)sizeof(fy_hashMapIEntry*) << initFact,
 			exception);
 #if FY_MEM_LOG_TO_CONTEXT
 	context->logEVarLn(context,

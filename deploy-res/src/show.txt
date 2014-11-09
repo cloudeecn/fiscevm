@@ -1,1 +1,0 @@
-This is a text file. We can read it through Class

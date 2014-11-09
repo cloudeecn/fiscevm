@@ -17,7 +17,8 @@
  * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include "fyc/Thread.h"
+
+#include "fyc/Instructions.h"
 #include <math.h>
 #include <string.h>
 #include <time.h>
@@ -30,10 +31,11 @@
 #include "fy_util/String.h"
 #include "fyc/Class.h"
 #include "fyc/Heap.h"
-#include "fyc/Instructions.h"
 #include "fyc/Preverifier.h"
 #include "fyc/ThreadManager.h"
 #include "fyc/VMContext.h"
+
+#include "fyc/Thread.h"
 
 static fy_nh _NO_HANDLER;
 static fy_nh *NO_HANDLER = &_NO_HANDLER;
@@ -873,7 +875,7 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_exception *exception,
 		fy_message *message) {
 	char msg[256];
-	fy_class *owner = method->owner;
+	/*fy_class *owner = method->owner;*/
 	fy_uint count = method->paramStackUsage;
 #ifdef FY_VERBOSE
 	context->logDVar(context, "Invoke static: ");
@@ -2335,9 +2337,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				break;
 			}
 			case I2B: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
 				fy_checkPop(0, 0);
 				stack[sp - 1] = (fy_byte) stack[sp - 1];
 				break;

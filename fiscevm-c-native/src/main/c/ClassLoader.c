@@ -536,7 +536,7 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 		fy_exception *exception) {
 	fy_byte *temp;
 	fy_byte returnType = FY_TYPE_UNKNOWN;
-	fy_int beginClass, endClass;
+	fy_int beginClass = 0, endClass = 0;
 	int pc = 0;
 	fy_char ch;
 	int i, maxi;

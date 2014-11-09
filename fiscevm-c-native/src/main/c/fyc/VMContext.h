@@ -35,7 +35,7 @@ extern "C" {
 void fy_vmContextInit(fy_context *context, fy_exception *exception);
 void fy_vmContextDestroy(fy_context *context);
 
-void fy_vmBootup(fy_context *context, const char* bootStrapClass,
+fy_boolean fy_vmBootup(fy_context *context, const char* bootStrapClass,
 		fy_exception *exception);
 
 void fy_vmSave(fy_context *context, fy_exception *exception);

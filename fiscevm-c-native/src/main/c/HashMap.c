@@ -22,7 +22,10 @@
 typedef struct fy_hashMapEntry {
 	struct fy_str *key;
 	fy_uint keyHash;
-	void *value;
+    union{
+        void *value;
+        const void *cvalue;
+    };
 	struct fy_hashMapEntry *next;
 } fy_hashMapEntry;
 
@@ -122,7 +125,59 @@ FY_ATTR_EXPORT void fy_hashMapInitPerm(fy_memblock *mem, fy_hashMap *this,
 }
 
 FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
-		fy_str *key, void *value, fy_exception *exception) {
+                                   fy_str *key, void *value, fy_exception *exception) {
+    fy_hashMapEntry *entry;
+    fy_hashMapEntry *tmp;
+    fy_str *keyClone;
+    int pos;
+    void *ret = NULL;
+    entry = getBucket(mem, this, key);
+    if (entry == NULL) {
+        if (this->perm) {
+            entry = fy_mmAllocatePerm(mem, sizeof(fy_hashMapEntry), exception);
+        } else {
+            entry = fy_mmAllocate(mem, sizeof(fy_hashMapEntry), exception);
+        }
+        FYEH()NULL;
+        keyClone =
+        (key->status & FY_STR_PERSIST) ?
+        key : fy_strCreatePermFromClone(mem, key, 0, exception);
+        FYEH()NULL;
+        keyClone->status |= FY_STR_PERSIST;
+        entry->key = keyClone;
+        entry->keyHash = fy_strHash(keyClone);
+        entry->value = value;
+        
+        if (!this->perm
+            && ((this->size + 1) * 16
+                > this->bucketsCount * this->loadFactor)) {
+                expandBuckets(mem, this, this->bucketsCount << 1, exception);
+                FYEH()NULL;
+            }
+        
+        pos = entry->keyHash % this->bucketsCount;
+        
+        tmp = this->buckets[pos];
+        if (tmp) {
+            while (tmp->next != NULL) {
+                tmp = tmp->next;
+            }
+            tmp->next = entry;
+        } else {
+            this->buckets[pos] = entry;
+        }
+        this->size++;
+        
+        return ret;
+    } else {
+        ret = entry->value;
+        entry->value = value;
+        return ret;
+    }
+}
+
+FY_ATTR_EXPORT void *fy_hashMapPutConst(fy_memblock *mem, fy_hashMap *this,
+		fy_str *key, const void *value, fy_exception *exception) {
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
 	fy_str *keyClone;
@@ -136,14 +191,18 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 			entry = fy_mmAllocate(mem, sizeof(fy_hashMapEntry), exception);
 		}
 		FYEH()NULL;
-		keyClone =
-				(key->status & FY_STR_PERSIST) ?
-						key : fy_strCreatePermFromClone(mem, key, 0, exception);
+        if(key->status & FY_STR_PERSIST){
+            keyClone = key;
+        }else if(this->perm){
+            keyClone = fy_strCreatePermFromClone(mem, key, 0, exception);
+        }else{
+            keyClone = fy_strCreateClone(mem, key, exception);
+        }
 		FYEH()NULL;
 		keyClone->status |= FY_STR_PERSIST;
 		entry->key = keyClone;
 		entry->keyHash = fy_strHash(keyClone);
-		entry->value = value;
+		entry->cvalue = value;
 
 		if (!this->perm
 				&& ((this->size + 1) * 16
@@ -168,10 +227,11 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 		return ret;
 	} else {
 		ret = entry->value;
-		entry->value = value;
+		entry->cvalue = value;
 		return ret;
 	}
 }
+
 FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
 		fy_strVA *va, void *value, fy_exception *exception) {
 	fy_hashMapEntry *entry;
@@ -260,6 +320,12 @@ FY_ATTR_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this,
 	return entry == NULL ? NULL : entry->value;
 }
 
+FY_ATTR_EXPORT const void* fy_hashMapGetConst(fy_memblock *mem, fy_hashMap *this,
+                                   fy_str *key) {
+    fy_hashMapEntry *entry = getBucket(mem, this, key);
+    return entry == NULL ? NULL : entry->cvalue;
+}
+
 FY_ATTR_EXPORT void* fy_hashMapGetVA(fy_memblock *mem, fy_hashMap *map,
 		fy_strVA *va) {
 	fy_hashMapEntry *entry = getBucketVA(mem, map, va);
@@ -286,6 +352,7 @@ FY_ATTR_EXPORT void fy_hashMapDestroy(fy_memblock *mem, fy_hashMap *this) {
 	for (i = 0, imax = this->bucketsCount; i < imax; i++) {
 		entry = this->buckets[i];
 		while (entry != NULL) {
+            entry->key->status ^= FY_STR_PERSIST;
 			fy_strDestroy(mem, entry->key);
 			fy_mmFree(mem, entry->key);
 			tmp = entry;

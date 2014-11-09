@@ -1099,7 +1099,7 @@ fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 	return clazz;
 }
 
-void fy_vmBootup(fy_context *context, const char* bootStrapClass,
+fy_boolean fy_vmBootup(fy_context *context, const char* bootStrapClass,
 		fy_exception *exception) {
 	fy_str name;
 	fy_class *clazz;
@@ -1113,13 +1113,17 @@ void fy_vmBootup(fy_context *context, const char* bootStrapClass,
 	 FYEH();
 	 */
 	name.content = NULL;
+    if(exception == NULL){
+        return FALSE;
+    }
 	fy_strInitWithUTF8(context->memblocks, &name, bootStrapClass, exception);
-	FYEH();
+	FYEH()FALSE;
 	clazz = fy_vmLookupClass(context, &name, exception);
 	fy_strDestroy(context->memblocks, &name);
-	FYEH();
+	FYEH()FALSE;
 	fy_tmBootFromMain(context, clazz, exception);
-	FYEH();
+	FYEH()FALSE;
+    return TRUE;
 }
 
 static void fillValues(fy_str *key, void *value, void *addition) {
