@@ -41,7 +41,8 @@
 static void FiScEVMSave(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
-	context->callForSave(context, exception);
+    context->saveloadParam = "save.dat";
+    fy_vmSave(context, exception);
 }
 
 static void FiScEVMStoreParams(struct fy_context *context,

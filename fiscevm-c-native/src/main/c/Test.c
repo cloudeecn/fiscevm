@@ -563,6 +563,7 @@ static void hltest(char *name) {
 	TEST_EXCEPTION(exception);
 
 	if (name == NULL) {
+		context->saveloadParam = "save.dat";
 		fy_vmBootFromData(context, exception);
 		TEST_EXCEPTION(exception);
 	} else {
@@ -595,6 +596,92 @@ static void hltest(char *name) {
 			break;
 		case message_sleep:
 //			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
+			break;
+		case message_vm_dead:
+			fy_log("VM dead\n");
+			dead = 1;
+			break;
+		case message_none:
+		case message_continue:
+		case message_thread_dead:
+		default:
+			fy_log("Invalid message type %d\n", message.messageType);
+			break;
+		}
+	}
+	FY_ASSERT(message.messageType == message_vm_dead);
+	fy_vmContextDestroy(context);
+	fy_free(context);
+	fy_log("--------------------------------------------------------\n");
+}
+
+static void hltest2(char *name) {
+//	fy_class *clazz;
+	fy_message message;
+	fy_boolean dead;
+	fy_exception ex;
+	fy_context *context;
+	fy_exception *exception = &ex;
+	fy_boolean loadMode=FALSE;
+	if (name == NULL) {
+		fy_log("+++Executing test case Load2+++\n", name);
+	} else {
+		fy_log("+++Executing test case %s+++\n", name);
+	}
+	exception->exceptionType = exception_none;
+	context = fy_allocate(sizeof(fy_context), exception);
+	TEST_EXCEPTION(exception);
+	dead = FALSE;
+	fy_vmContextInit(context, exception);
+	TEST_EXCEPTION(exception);
+	context->isParam = runtimeDir;
+	fy_vmRegisterNativeHandler(context,
+			"EXCLUDE/fisce/test/TestService.fail0.(L"FY_BASE_STRING";)V", NULL,
+			testFail, exception);
+	TEST_EXCEPTION(exception);
+
+	if (name == NULL) {
+		context->saveloadParam = "save2.dat";
+		fy_vmBootFromData(context, exception);
+		TEST_EXCEPTION(exception);
+		loadMode=TRUE;
+	} else {
+		fy_vmBootup(context, name, exception);
+		TEST_EXCEPTION(exception);
+	}
+
+	while (!dead) {
+		fy_tmRun(context, &message, exception);
+		TEST_EXCEPTION(exception);
+
+		switch (message.messageType) {
+		case message_invoke_native:
+			fy_strSPrint(msg, sizeof(msg),
+					message.body.call.method->uniqueName);
+			fy_log("Stopped at invoke native for thread %d: %s\n",
+					message.thread->threadId, msg);
+			FY_ASSERT("Core native functions not implemented"==NULL)
+			;
+			dead = 1;
+			break;
+		case message_exception:
+			fy_log("Thread %d Stopped at exception %s : %s\n",
+					message.thread->threadId,
+					message.body.exception.exceptionName,
+					message.body.exception.exceptionDesc);
+			FY_ASSERT("Critical exception in thread"==NULL)
+			;
+			dead = 1;
+			break;
+		case message_sleep:
+//			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
+			if(!loadMode){
+			message.messageType = message_vm_dead;
+			dead = 1;
+			context->saveloadParam = "save2.dat";
+			fy_vmSave(context, exception);
+			TEST_EXCEPTION(exception);
+			}
 			break;
 		case message_vm_dead:
 			fy_log("VM dead\n");
@@ -691,6 +778,11 @@ void testSaveLoad() {
 	hltest(NULL);
 }
 
+void testSaveLoad2() {
+	hltest2("com/cirnoworks/fisce/privat/Linpack");
+	hltest2(NULL);
+}
+
 void testRIS() {
 	hltest("EXCLUDE/fisce/test/RISTest");
 	hltest(NULL);
@@ -772,6 +864,8 @@ void testCustom(char *customTest) {
 		testLoad();
 	} else if (strcmp(customTest, "SAVE") == 0) {
 		testSaveLoad();
+	} else if (strcmp(customTest, "SAVE2") == 0) {
+		testSaveLoad2();
 	} else if (strcmp(customTest, "RIS") == 0) {
 		testRIS();
 	} else {
@@ -817,6 +911,7 @@ FY_TEST_FUN testcases[] = { //
 				// { "BasicRegex", testBasicReLoadgex }, //
 				{ "Proxy", testProxy }, //
 				{ "SaveLoad", testSaveLoad }, //
+				{ "SaveLoad2", testSaveLoad2 }, //
 				{ "RIS", testRIS }, //
 				{ "Native", testNative }, //
 				{ NULL, NULL } };

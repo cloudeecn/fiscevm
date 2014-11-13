@@ -54,6 +54,7 @@ void fy_loadPrepareClass(struct fy_context *context, void *loader_,
 	loader->classCount = classCount;
 	loader->classTemp = fy_mmAllocate(context->memblocks,
 			(classCount + 1) * sizeof(ClassTemp), exception);
+	context->classesCount += classCount;
 }
 void fy_loadClass(struct fy_context *context, void *loader_, fy_uint classId,
 		fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
@@ -87,6 +88,7 @@ void fy_loadPrepareMethod(struct fy_context *context, void *loader_,
 	loader->methodCount = methodCount;
 	loader->methodTemp = fy_mmAllocate(context->memblocks,
 			methodCount * sizeof(MethodTemp), exception);
+	context->methodsCount += methodCount;
 }
 void fy_loadMethod(struct fy_context *context, void *loader_, fy_uint methodId,
 		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {
@@ -109,6 +111,7 @@ void fy_loadPrepareField(struct fy_context *context, void *loader_,
 	loader->fieldCount = fieldCount;
 	loader->fieldTemp = fy_mmAllocate(context->memblocks,
 			fieldCount * sizeof(MethodTemp), exception);
+	context->fieldsCount += fieldCount;
 }
 void fy_loadField(struct fy_context *context, void *loader_, fy_uint fieldId,
 		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {

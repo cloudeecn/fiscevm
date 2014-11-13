@@ -34,6 +34,12 @@ FY_ATTR_EXPORT void fisceDestroyContext(fy_context *context);
 
 FY_ATTR_EXPORT void fisceBootFromMain(fy_context *context, const char *name,
 		fy_exception *exception);
+    
+FY_ATTR_EXPORT void fisceBootFromData(fy_context *context,
+                                      fy_exception *exception);
+    
+FY_ATTR_EXPORT void fisceSave(fy_context *context,
+                                  fy_exception *exception);
 
 FY_ATTR_EXPORT void fisceRun(fy_context *context, fy_message *message,
 		fy_exception *exception);

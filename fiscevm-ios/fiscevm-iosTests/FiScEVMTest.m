@@ -32,8 +32,11 @@
         boolean_t run=true;
         FiScEVM *vm=[[FiScEVM alloc] init];
         FiScEMessage *message=[[FiScEMessage alloc] init];
-        
-        [vm bootFromMainClassWithName:className];
+        if(className){
+            [vm bootFromMainClassWithName:className];
+        }else{
+            [vm bootFromDataFile:@"save.dat"];
+        }
         while(run){
             @autoreleasepool {
                 [vm runWithMessageHolder:message];
@@ -164,6 +167,11 @@
 
 - (void)testLinpack {
     [self hltest:@"com/cirnoworks/fisce/privat/Linpack"];
+}
+
+- (void)testSaveLoad {
+    [self hltest:@"EXCLUDE/fisce/test/SaveTest"];
+    [self hltest:nil];
 }
 
 - (void)testPerformanceExample {

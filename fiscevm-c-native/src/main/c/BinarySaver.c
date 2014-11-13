@@ -111,7 +111,7 @@ static void writeInt(FILE *fp, fy_uint value, fy_exception *exception) {
 	int i;
 	for (i = 4; i > 0; i--) {
 		if (fputc(value, fp) == EOF) {
-			fy_fault(exception, FY_EXCEPTION_IO, "Can't write to save.dat");
+			fy_fault(exception, FY_EXCEPTION_IO, "Can't write to save file");
 			return;
 		}
 		value >>= 8;
@@ -122,20 +122,17 @@ static void writeChar(FILE *fp, fy_char value, fy_exception *exception) {
 	int i;
 	for (i = 2; i > 0; i--) {
 		if (fputc(value, fp) == EOF) {
-			fy_fault(exception, FY_EXCEPTION_IO, "Can't write to save.dat");
+			fy_fault(exception, FY_EXCEPTION_IO, "Can't write to save file");
 			return;
 		}
 		value >>= 8;
 	}
 }
 
-static void callForSave(struct fy_context *context, fy_exception *exception) {
-	fy_vmSave(context, exception);
-}
 static void* saveBegin(struct fy_context *context, fy_exception *exception) {/*TODO*/
-	FILE *fp = fopen("save.dat", "wb");
+	FILE *fp = fopen(context->saveloadParam, "wb");
 	if (fp == NULL) {
-		fy_fault(exception, FY_EXCEPTION_IO, "Can't open save.dat for save.");
+		fy_fault(exception, FY_EXCEPTION_IO, "Can't open %s for save.", context->saveloadParam);
 		return NULL;
 	}
 	writeInt(fp, 0x11BF15CE, exception);
@@ -430,7 +427,10 @@ static void readString(fy_context *context, FILE *fp, fy_str *str, fy_int size,
 #define FY_ASSERTF(VALUE) if(readInt(fp,exception)!=VALUE){FYEH();fy_fault(exception,FY_EXCEPTION_IO,"Data mismatch");return;}
 
 static void loadData(struct fy_context *context, fy_exception *exception) {
-	FILE *fp = fopen("save.dat", "rb");
+	FILE *fp = fopen(context->saveloadParam, "rb");
+    if(fp == NULL){
+        fy_fault(exception, FY_EXCEPTION_IO, "Can't load %s for load.", context->saveloadParam);
+    }
 	void *loader;
 	fy_uint i, j;
 	fy_uint classCount;
@@ -694,7 +694,6 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	fclose(fp);
 }
 void fy_bsRegisterBinarySaver(fy_context *context) {
-	context->callForSave = callForSave;
 	context->saveBegin = saveBegin;
 	context->savePrepareClass = savePrepareClass;
 	context->saveClass = saveClass;

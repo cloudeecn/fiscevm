@@ -157,6 +157,8 @@
 - (void)unRegisterNativeHandlerWithName:(NSString*)name;
 
 - (void)bootFromMainClassWithName:(NSString*)name;
+- (void)bootFromDataFile:(NSString*)name;
+- (void)saveToDataFile:(NSString*)name;
 - (void)runWithMessageHolder:(FiScEMessage*)message;
 @end
 

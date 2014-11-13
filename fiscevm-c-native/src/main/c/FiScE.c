@@ -34,6 +34,16 @@ FY_ATTR_EXPORT void fisceBootFromMain(fy_context *context, const char *name,
 	fy_vmBootup(context, name, exception);
 }
 
+FY_ATTR_EXPORT void fisceBootFromData(fy_context *context,
+                                      fy_exception *exception) {
+    fy_vmBootFromData(context, exception);
+}
+
+FY_ATTR_EXPORT void fisceSave(fy_context *context,
+                                      fy_exception *exception) {
+    fy_vmSave(context, exception);
+}
+
 FY_ATTR_EXPORT void fisceRun(fy_context *context, fy_message *message,
 		fy_exception *exception) {
 	fy_tmRun(context, message, exception);

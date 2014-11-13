@@ -160,6 +160,7 @@ NSString *classPath;
     fy_nativeRegisterNativeHandler(context,
         "com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V", (__bridge void *)(self), SOSWrite, ex);
     HANDLE_EXCEPTION
+    
     return self;
 }
 
@@ -650,6 +651,19 @@ NSString *classPath;
     fisceBootFromMain(context, [name UTF8String], ex);
     HANDLE_EXCEPTION
 }
+
+- (void)bootFromDataFile:(NSString*)name{
+    context->saveloadParam=[name UTF8String];
+    fisceBootFromData(context, ex);
+    HANDLE_EXCEPTION
+}
+
+- (void)saveToDataFile:(NSString*)name{
+    context->saveloadParam=[name UTF8String];
+    fisceSave(context, ex);
+    HANDLE_EXCEPTION
+}
+
 - (void)runWithMessageHolder:(FiScEMessage*)m{
     fisceRun(context, message, ex);
     [m setMessageType:message->messageType];

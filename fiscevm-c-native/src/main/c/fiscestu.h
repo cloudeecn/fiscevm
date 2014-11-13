@@ -449,7 +449,7 @@ extern "C" {
 		fy_inputStream* aliveStreams[MAX_STREAMS];
 
 		/*Status Saver*/
-		void (*callForSave)(struct fy_context *context, fy_exception *exception);
+        const void *saveloadParam;
 		void* (*saveBegin)(struct fy_context *context, fy_exception *exception);
 		void (*savePrepareClass)(struct fy_context *context, void *saver,
 				fy_uint classCount, fy_exception *exception);

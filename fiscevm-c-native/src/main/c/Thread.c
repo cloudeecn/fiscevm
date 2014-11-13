@@ -875,7 +875,9 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_exception *exception,
 		fy_message *message) {
 	char msg[256];
-	/*fy_class *owner = method->owner;*/
+#ifdef FY_DEBUG
+	fy_class *owner = method->owner;
+#endif
 	fy_uint count = method->paramStackUsage;
 #ifdef FY_VERBOSE
 	context->logDVar(context, "Invoke static: ");
