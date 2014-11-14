@@ -160,7 +160,7 @@ NSString *classPath;
     fy_nativeRegisterNativeHandler(context,
         "com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V", (__bridge void *)(self), SOSWrite, ex);
     HANDLE_EXCEPTION
-    
+    NSLog(@"FiScEVM initialized at %p", (__bridge void*)self);
     return self;
 }
 
@@ -173,6 +173,7 @@ NSString *classPath;
 
     fisceDestroyContext(context);
     fy_free(context);
+    NSLog(@"FiScEVM destroyed at %p", (__bridge void*)self);
 }
 
 - (void)appendLog:(NSString*)channel content:(char)content{
@@ -517,7 +518,7 @@ NSString *classPath;
     return ret;
 }
 
-- (int8_t*)getbytesFromArray:(int32_t)handle index:(int32_t)index{
+- (int8_t*)getbytesFromArray:(int32_t)handle{
     int8_t* ret=fy_nativeGetArrayBytes(context, handle, ex);
     HANDLE_EXCEPTION
     return ret;

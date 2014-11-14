@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		680577141A145D660048D21F /* FiScERunner.m in Sources */ = {isa = PBXBuildFile; fileRef = 680577131A145D660048D21F /* FiScERunner.m */; };
 		6873C2421A033A66006C201B /* FiScEVM.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6873C2411A033A66006C201B /* FiScEVM.h */; };
 		6873C2441A033A66006C201B /* FiScEVM.m in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2431A033A66006C201B /* FiScEVM.m */; };
 		6873C24A1A033A66006C201B /* libFiScEVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6873C23E1A033A66006C201B /* libFiScEVM.a */; };
@@ -66,6 +67,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		680577121A145D660048D21F /* FiScERunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FiScERunner.h; sourceTree = "<group>"; };
+		680577131A145D660048D21F /* FiScERunner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiScERunner.m; sourceTree = "<group>"; };
 		6873C23E1A033A66006C201B /* libFiScEVM.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFiScEVM.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6873C2411A033A66006C201B /* FiScEVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FiScEVM.h; sourceTree = "<group>"; };
 		6873C2431A033A66006C201B /* FiScEVM.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FiScEVM.m; sourceTree = "<group>"; };
@@ -187,6 +190,8 @@
 				6873C25E1A033AF3006C201B /* fiscestu.h */,
 				6873C2411A033A66006C201B /* FiScEVM.h */,
 				6873C2431A033A66006C201B /* FiScEVM.m */,
+				680577121A145D660048D21F /* FiScERunner.h */,
+				680577131A145D660048D21F /* FiScERunner.m */,
 			);
 			path = "fiscevm-ios";
 			sourceTree = "<group>";
@@ -320,6 +325,7 @@
 				6873C28A1A033B27006C201B /* HashMap.c in Sources */,
 				6873C2921A033B27006C201B /* Preverifier.c in Sources */,
 				6873C2831A033B27006C201B /* Data.c in Sources */,
+				680577141A145D660048D21F /* FiScERunner.m in Sources */,
 				6873C2971A033B27006C201B /* Utf8.c in Sources */,
 				6873C2901A033B27006C201B /* MemMan.c in Sources */,
 				6873C27D1A033B27006C201B /* BAIS.c in Sources */,

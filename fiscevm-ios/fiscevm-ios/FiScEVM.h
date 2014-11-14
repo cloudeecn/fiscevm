@@ -100,7 +100,7 @@
 - (float_t)getFloatFromArray:(int32_t)handle index:(int32_t)index;
 - (double_t)getDoubleFromArray:(int32_t)handle index:(int32_t)index;
 
-- (int8_t*)getbytesFromArray:(int32_t)handle index:(int32_t)index;
+- (int8_t*)getbytesFromArray:(int32_t)handle;
 
 - (void)putBoolean:(boolean_t)value toArray:(int32_t)handle index:(int32_t)index;
 - (void)putHandle:(int32_t)value toArray:(int32_t)handle index:(int32_t)index;
