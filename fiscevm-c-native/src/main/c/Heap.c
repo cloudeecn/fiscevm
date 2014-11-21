@@ -1381,9 +1381,15 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	struct gc_data gc_data;
 	fy_long timeStamp;
 	fy_long t1, t2, t3, t4, t5, t6, t7;
+    fy_int externCount;
+    fy_int *externContent;
 #ifdef FY_GC_DEBUG
 	void *tmpPointer;
 #endif
+    if(context->beforeGC){
+        context->beforeGC(context->gcCustomData);
+    }
+
 	if (block->posInOld + block->posInEden + block->posInYong
 			+ context->totalObjects > block->oldTop) {
 #ifdef FY_DEBUG
@@ -1418,12 +1424,12 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 
 	timeStamp = fy_portTimeMillSec(context->port);
 	marks = /*TEMP*/fy_allocate(fy_bitSizeToInt(MAX_OBJECTS), exception);
-	FYEH();
+	FYEG(RETURN);
 	fy_arrayListInit(context->memblocks, &from, sizeof(fy_uint),
 			context->totalObjects, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
-		return;
+        goto RETURN;
 	}
 	gc_data.context = context;
 	gc_data.marks = marks;
@@ -1434,8 +1440,17 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
 		fy_arrayListDestroy(context->memblocks, &from);
-		return;
+        goto RETURN;
 	}
+    if(context->getExtraGCKeep){
+        context->getExtraGCKeep(context->gcCustomData, &externCount, &externContent);
+        if(externCount > 0){
+            for(i = 0; i < externCount; i++){
+                markObjectInitialUsing(context, &from, externContent[i], exception);
+                FYEG(RETURN);
+            }
+        }
+    }
 
 	gc_data.from = &from;
 
@@ -1445,7 +1460,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
 		fy_arrayListDestroy(context->memblocks, &from);
-		return;
+        goto RETURN;
 	}
 
 	t3 = fy_portTimeMillSec(context->port);
@@ -1465,13 +1480,13 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 			if (exception->exceptionType != exception_none) {
 				fy_free(marks);
 				fy_arrayListDestroy(context->memblocks, &from);
-				return;
+                goto RETURN;
 			}
 			fy_arrayListAdd(context->memblocks, &from, &i, exception);
 			if (exception->exceptionType != exception_none) {
 				fy_free(marks);
 				fy_arrayListDestroy(context->memblocks, &from);
-				return;
+                goto RETURN;
 			}
 			object->object_data->finalizeStatus = in_finalize_array;
 		}
@@ -1483,13 +1498,13 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	fy_arrayListDestroy(context->memblocks, &from);
 	if (exception->exceptionType != exception_none) {
 		fy_free(marks);
-		return;
+        goto RETURN;
 	}
 
 	t5 = fy_portTimeMillSec(context->port);
 	if (memoryStressed) {
 		compactOld(context, marks, exception);
-		FYEH();
+		FYEG(RETURN);
 	}
 	t6 = fy_portTimeMillSec(context->port);
 	block->posInEden = 0;
@@ -1536,7 +1551,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 			processReferencePhase2, &gc_data);
 #ifdef FY_GC_FORCE_FULL
 	compactOld(context, exception);
-	FYEH();
+	FYEG(RETURN);
 #endif
 	t7 = fy_portTimeMillSec(context->port);
 #ifdef FY_DEBUG
@@ -1569,6 +1584,11 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 			fy_portTimeMillSec(context->port) - t7);
 #endif
 	fy_free(marks);
+    
+RETURN:
+    if(context->afterGC){
+        context->afterGC(context->gcCustomData);
+    }
 }
 
 fy_uint fy_heapWrapBoolean(fy_context *context, fy_boolean value,

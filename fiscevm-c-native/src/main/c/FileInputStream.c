@@ -80,36 +80,44 @@ static void isClose(struct fy_context *context, fy_inputStream *is,
 
 static fy_inputStream* isOpen(struct fy_context *context, const char *name,
 		fy_exception *exception) {
-	FILE *fp;
+	FILE *fp = NULL;
 	fy_inputStream *ret;
 	char targetName[1024];
-	const char *baseName = context->isParam;
+    const char *const *baseNames = context->isParam;
 	fisData *data;
 	fy_int baseLen;
 	fy_boolean baseSlash, nameSlash;
+    const char* baseName;
+    fy_int i = 0;
 
 	targetName[0] = 0;
-	baseLen = (fy_int)strlen(baseName);
-	if (baseName == NULL || (baseLen = (fy_int)strlen(baseName)) == 0) {
-		baseLen = 1;
-		baseName = ".";
-	}
-
-	baseSlash = baseName[baseLen - 1] == '/';
-	nameSlash = name[0] == '/';
-
-	if (baseSlash && nameSlash) {
-		strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
-		strncat(targetName, name + 1, sizeof(targetName) - strlen(targetName) - 1);
-	} else if ((!baseSlash) && (!nameSlash)) {
-		strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
-		strncat(targetName, "/", sizeof(targetName) - strlen(targetName) - 1);
-		strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
-	} else {
-		strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
-		strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
-	}
-	fp = fopen(targetName, "rb");
+    while((baseName=baseNames[i++])!=NULL){
+        baseLen = (fy_int)strlen(baseName);
+        if (baseName == NULL || (baseLen = (fy_int)strlen(baseName)) == 0) {
+            baseLen = 1;
+            baseName = ".";
+        }
+        
+        baseSlash = baseName[baseLen - 1] == '/';
+        nameSlash = name[0] == '/';
+        
+        if (baseSlash && nameSlash) {
+            strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+            strncat(targetName, name + 1, sizeof(targetName) - strlen(targetName) - 1);
+        } else if ((!baseSlash) && (!nameSlash)) {
+            strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+            strncat(targetName, "/", sizeof(targetName) - strlen(targetName) - 1);
+            strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
+        } else {
+            strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+            strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
+        }
+        fp = fopen(targetName, "rb");
+        if(fp != NULL){
+            break;
+        }
+    }
+	
 	if (fp != NULL) {
 		ret = fy_mmAllocate(context->memblocks, sizeof(fy_inputStream),
 				exception);

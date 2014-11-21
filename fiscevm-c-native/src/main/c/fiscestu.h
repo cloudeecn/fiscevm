@@ -640,6 +640,11 @@ extern "C" {
 		fy_hashMapI methodObjIds[1];
 		fy_hashMapI fieldObjIds[1];
 		fy_hashMapI constructorObjIds[1];
+        
+        void *gcCustomData;
+        void (*beforeGC)(void *data);
+        void (*getExtraGCKeep)(void *data, fy_int *count, fy_int **content);
+        void (*afterGC)(void *data);
 
 		fy_hashMap customClassData[1];
 

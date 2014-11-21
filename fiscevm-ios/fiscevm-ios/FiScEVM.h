@@ -12,6 +12,13 @@
 #import <Foundation/Foundation.h>
 #import <stdint.h>
 
+typedef NS_ENUM(int32_t, FiScEReturnType){
+    FISCE_RETURN_NONE,
+    FISCE_RETURN_INT,
+    FISCE_RETURN_LONG,
+    FISCE_RETURN_HANDLE
+};
+
 @interface FiScEClass : NSObject
 @property NSString* name;
 @end
@@ -25,14 +32,15 @@
 @end
 
 @interface FiScEMessage : NSObject
-@property int32_t messageType;
-@property int32_t threadId;
-@property NSString *nativeCallName;
-@property int32_t paramCount;
-@property uint32_t *params;
-@property NSString *exceptionName;
-@property NSString *exceptionDesc;
-@property NSTimeInterval sleepTime;
+@property (nonatomic) int32_t messageType;
+@property (nonatomic) int32_t threadId;
+@property (nonatomic) NSString *nativeCallName;
+@property (nonatomic) int32_t paramCount;
+@property (nonatomic) uint32_t *params;
+@property (nonatomic) FiScEReturnType returnType;
+@property (nonatomic) NSString *exceptionName;
+@property (nonatomic) NSString *exceptionDesc;
+@property (nonatomic) NSTimeInterval sleepTime;
 @end
 
 @protocol FiScELogger <NSObject>
@@ -160,6 +168,8 @@
 - (void)bootFromDataFile:(NSString*)name;
 - (void)saveToDataFile:(NSString*)name;
 - (void)runWithMessageHolder:(FiScEMessage*)message;
+
+- (void)handleGcEventWithData:(void*)data before:(void (*)(void*))beforeHandler getExtra:(void (*)(void*, int32_t*, int32_t**))getExtraHandler after:(void (*)(void*))afterHandler;
 @end
 
 #endif

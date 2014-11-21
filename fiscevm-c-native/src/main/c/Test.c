@@ -30,7 +30,7 @@
 #include "fyc/ClassLoader.h"
 #include "fyc/Thread.h"
 
-static const char *runtimeDir;
+static const char* dirs[]={NULL, NULL};
 
 typedef struct FY_TEST_FUN {
 	char *name;
@@ -382,7 +382,7 @@ static void testAllocate1() {
 	context = fy_allocate(sizeof(fy_context), NULL);
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
-	context->isParam = runtimeDir;
+	context->isParam = dirs;
 
 	fy_vmBootup(context, "EXCLUDE/fisce/test/Tester", exception);
 	TEST_EXCEPTION(exception);
@@ -556,7 +556,8 @@ static void hltest(char *name) {
 	dead = FALSE;
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
-	context->isParam = runtimeDir;
+
+	context->isParam = dirs;
 	fy_vmRegisterNativeHandler(context,
 			"EXCLUDE/fisce/test/TestService.fail0.(L"FY_BASE_STRING";)V", NULL,
 			testFail, exception);
@@ -634,7 +635,7 @@ static void hltest2(char *name) {
 	dead = FALSE;
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
-	context->isParam = runtimeDir;
+	context->isParam = dirs;
 	fy_vmRegisterNativeHandler(context,
 			"EXCLUDE/fisce/test/TestService.fail0.(L"FY_BASE_STRING";)V", NULL,
 			testFail, exception);
@@ -833,7 +834,7 @@ void testNative() {
 	TEST_EXCEPTION(exception);
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
-	context->isParam = runtimeDir;
+	context->isParam = dirs;
 	while ((className = classes[i++]) != NULL) {
 		clazz = lookup(context, className, exception);
 		TEST_EXCEPTION(exception);
@@ -924,11 +925,11 @@ int main(int argc, char *argv[]) {
 	char *fn;
 	setvbuf(stdout, NULL, _IONBF, 1024);
 	if (argc < 2) {
-		runtimeDir = "runtime";
+		dirs[0] = "runtime";
 	}else{
-		runtimeDir = argv[1];
+		dirs[0] = argv[1];
 	}
-	printf("Base dir: %s\n", runtimeDir);
+	printf("Base dir: %s\n", dirs[0]);
 	if (argc > 2) {
 		printf("Testing %s:", argv[2]);
 		customTest = argv[2];

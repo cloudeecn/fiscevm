@@ -82,6 +82,7 @@ typedef struct fy_exception {
 } fy_exception;
 /*#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)!=NULL&&(EXCEPTION)->exceptionType!=exception_none) return*/
 #define FYEH() if((exception)!=NULL&&(exception)->exceptionType!=exception_none) return
+#define FYEG(X) if((exception)!=NULL&&(exception)->exceptionType!=exception_none) goto X
 typedef struct fy_port {
 	fy_long initTimeInMillSec;
 #if defined(FY_PRT_WIN32)

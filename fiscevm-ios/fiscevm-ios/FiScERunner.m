@@ -15,12 +15,19 @@ typedef NS_ENUM(int32_t, VM_STATUS){
     PAUSE_PENDING
 };
 
+static void gc_prepare(void *data);
+static void gc_protect(void *data, int32_t *count, int32_t **handles);
+static void gc_finish(void *data);
+
+
 @interface FiScERunner ()
 
 @end
 
 @implementation FiScERunner{
+    NSLock *gcLock;
     NSObject *vmLock;
+    
     FiScEMessage *message;
     void (^tick)();
     VM_STATUS status;
@@ -30,6 +37,11 @@ typedef NS_ENUM(int32_t, VM_STATUS){
     
     FiScEVM *vm;
     NSString *statusFileToLoad;
+    int32_t *handlesToKeepInGC;
+    
+    int32_t *protectList;
+    int32_t protectLength;
+    int32_t protectMax;
 }
 
 - (void)runAfterSeconds:(NSTimeInterval)delay{
@@ -41,6 +53,9 @@ typedef NS_ENUM(int32_t, VM_STATUS){
     if(self){
         vmLock = [[NSObject alloc] init];
         message = [[FiScEMessage alloc] init];
+        protectMax = 256;
+        protectLength = 0;
+        protectList = malloc(sizeof(int32_t) * protectMax);
         status = PAUSED;
         __weak FiScERunner *weakSelf=self;
         tick=^{
@@ -68,6 +83,8 @@ typedef NS_ENUM(int32_t, VM_STATUS){
                                 @throw [NSException exceptionWithName:@"IO" reason:@"Can't delete auto save file" userInfo:nil];
                             }
                         }
+                        strongSelf->vm = [[FiScEVM alloc] init];
+                        [strongSelf->vm handleGcEventWithData:(__bridge void *)(strongSelf) before:gc_prepare getExtra:gc_protect after:gc_finish];
                         [strongSelf->vm bootFromDataFile:strongSelf->statusFileToLoad];
                     }else if(!strongSelf->vm){
                         strongSelf->vm = [[FiScEVM alloc] init];
@@ -86,20 +103,50 @@ typedef NS_ENUM(int32_t, VM_STATUS){
                         switch(strongSelf->message.messageType){
                             case 3: // invoke native
                             {
-                                FiScENativeHandler handlerBlock= [strongSelf->nativeHandlers objectForKey:strongSelf->message.nativeCallName];
+                                FiScENativeHandler handlerBlock = [strongSelf->nativeHandlers objectForKey:strongSelf->message.nativeCallName];
                                 if(handlerBlock){
-                                    handlerBlock(strongSelf->vm, strongSelf->message.threadId, strongSelf->message.paramCount,strongSelf->message.params);
+                                    @try{
+                                        handlerBlock(strongSelf, strongSelf->vm, strongSelf->message.threadId, strongSelf->message.paramCount,strongSelf->message.params);
+                                    }@catch(NSException *e){
+                                        if(strongSelf.delegate){
+                                            [strongSelf.delegate runnerEncountersException:strongSelf name:@"" description:[NSString stringWithFormat:@"Exception occored: %@", e] threadId:strongSelf->message.threadId];
+                                        }else{
+                                            @throw e;
+                                        }
+                                    }
                                 }else{
-                                    @throw [NSException exceptionWithName:@"TODO" reason:[NSString stringWithFormat:@"Can't handle native call: %@", strongSelf->message.nativeCallName] userInfo:nil];
+                                    
+                                    NSLog(@"WARN: unhandled native method call: %@", strongSelf->message.nativeCallName);
+                                    if(strongSelf.delegate){
+                                        [strongSelf.delegate runnerEncountersException:strongSelf name:@"java/lang/UnsatisfiedLinkError" description:strongSelf->message.nativeCallName threadId:strongSelf->message.threadId];
+                                    }
+                                    
+                                    switch(strongSelf->message.returnType){
+                                        case FISCE_RETURN_NONE:
+                                            break;
+                                        case FISCE_RETURN_INT:
+                                            [strongSelf->vm returnIntValue:0 toThread:strongSelf->message.threadId];
+                                            break;
+                                        case FISCE_RETURN_LONG:
+                                            [strongSelf->vm returnLongValue:0 toThread:strongSelf->message.threadId];
+                                            break;
+                                        case FISCE_RETURN_HANDLE:
+                                            [strongSelf->vm returnHandleValue:0 toThread:strongSelf->message.threadId];
+                                            break;
+                                    }
                                 }
                             }
                                 break;
                             case 4: // exception
-                                //TODO
-                                @throw [NSException exceptionWithName:@"TODO" reason:[NSString stringWithFormat:@"Illegal message type: %d", strongSelf->message.messageType] userInfo:nil];
+                                //TODO 脚本娘坏掉了
+                                if(strongSelf.delegate){
+                                    [strongSelf.delegate runnerEncountersException:strongSelf name:strongSelf->message.exceptionName description:strongSelf->message.exceptionDesc threadId:strongSelf->message.threadId];
+                                } else {
+                                    @throw [NSException exceptionWithName:@"Exception" reason:[NSString stringWithFormat:@"Unhandled exception occored: %@, %@", strongSelf->message.exceptionName, strongSelf->message.exceptionDesc] userInfo:nil];
+                                }
                                 break;
                             case 5: // sleep
-//                                NSLog(@"Sleep %fs", strongSelf->message.sleepTime);
+                                //                                NSLog(@"Sleep %fs", strongSelf->message.sleepTime);
                                 [strongSelf runAfterSeconds:strongSelf->message.sleepTime];
                                 return;
                             case 6: // dead
@@ -118,7 +165,7 @@ typedef NS_ENUM(int32_t, VM_STATUS){
 }
 
 - (void)dealloc{
-    
+    free(gc_protect);
 }
 
 - (void)handleNativeMethod:(NSString*)methodName withBlock:(FiScENativeHandler)block{
@@ -252,4 +299,78 @@ typedef NS_ENUM(int32_t, VM_STATUS){
     NSLog(@"Pause vm done");
 }
 
+- (void)unprotectAll{
+    protectLength = 0;
+}
+
+- (void)ensureProtectSize:(int32_t)size{
+    int32_t max = protectMax;
+    if(size > max){
+        while(size > max || max < 0){
+            max <<= 1;
+        }
+        if(max > 0){
+            protectList=reallocf(protectList, size * (sizeof(int32_t)));
+            if(protectList == NULL){
+                @throw [NSException exceptionWithName:@"OutOfMemory" reason:[NSString stringWithFormat:@"Can't increase protect_list to size: %lu", size * (sizeof(int32_t))] userInfo:nil];
+            }
+        } else {
+            @throw [NSException exceptionWithName:@"OutOfMemory" reason:[NSString stringWithFormat:@"Protect size exceeds max int32_t: %u", max] userInfo:nil];
+        }
+    }
+}
+
+- (void)protect:(int32_t)handle{
+    [self ensureProtectSize:protectLength + 1];
+    protectList[protectLength++]=handle;
+}
+
+- (int32_t)protectLength{
+    return protectLength;
+}
+
+- (int32_t*)protectList{
+    return protectList;
+}
+
+- (void)lockGC{
+    [gcLock lock];
+}
+
+- (void)unlockGC{
+    [gcLock unlock];
+}
+
+- (void)lockGCWithBlock:(void (^)())block{
+    @try {
+        [gcLock lock];
+        block();
+    }@finally{
+        [gcLock unlock];
+    }
+}
+
 @end
+
+static void gc_prepare(void *data){
+    FiScERunner *runner = (__bridge FiScERunner *)(data);
+    [runner unprotectAll];
+    
+    if(runner.delegate){
+        [runner.delegate runnerCollectsExtraObjectsForGC:runner withCollector:^(int32_t handle){
+            [runner protect:handle];
+        }];
+    }
+    [runner lockGC];
+}
+
+static void gc_protect(void *data, int32_t *count, int32_t **handles){
+    FiScERunner *runner = (__bridge FiScERunner *)(data);
+    *count = [runner protectLength];
+    *handles = [runner protectList];
+}
+
+static void gc_finish(void *data){
+    FiScERunner *runner = (__bridge FiScERunner *)(data);
+    [runner unlockGC];
+}

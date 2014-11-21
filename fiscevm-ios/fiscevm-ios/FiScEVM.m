@@ -19,6 +19,65 @@ C ; \
 @throw [[NSException alloc] initWithName:@"FyException" reason:[NSString stringWithFormat:@"Exception %s occored: %s" , ex->exceptionName , ex->exceptionDesc] userInfo:nil]; \
 }
 
+static fy_inputStream* isOpen(struct fy_context *context, const char *name,
+                              fy_exception *exception) {
+    FILE *fp;
+    fy_inputStream *ret;
+    char targetName[1024];
+    const char *baseName = context->isParam;
+    fisData *data;
+    fy_int baseLen;
+    fy_boolean baseSlash, nameSlash;
+    
+    targetName[0] = 0;
+    baseLen = (fy_int)strlen(baseName);
+    if (baseName == NULL || (baseLen = (fy_int)strlen(baseName)) == 0) {
+        baseLen = 1;
+        baseName = ".";
+    }
+    
+    baseSlash = baseName[baseLen - 1] == '/';
+    nameSlash = name[0] == '/';
+    
+    if (baseSlash && nameSlash) {
+        strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+        strncat(targetName, name + 1, sizeof(targetName) - strlen(targetName) - 1);
+    } else if ((!baseSlash) && (!nameSlash)) {
+        strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+        strncat(targetName, "/", sizeof(targetName) - strlen(targetName) - 1);
+        strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
+    } else {
+        strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
+        strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
+    }
+    fp = fopen(targetName, "rb");
+    if (fp != NULL) {
+        ret = fy_mmAllocate(context->memblocks, sizeof(fy_inputStream),
+                            exception);
+        if (exception->exceptionType != exception_none) {
+            fclose(fp);
+            return NULL;
+        }
+        data = fy_mmAllocate(context->memblocks, sizeof(fisData), exception);
+        if (exception->exceptionType != exception_none) {
+            fy_mmFree(context->memblocks, ret);
+            fclose(fp);
+            return NULL;
+        }
+        data->closed = FALSE;
+        data->fp = fp;
+        ret->data = data;
+        ret->isClose = isClose;
+        ret->isRead = isRead;
+        ret->isReadBlock = isReadBlock;
+        ret->isSkip = isSkip;
+    } else {
+        ret = NULL;
+    }
+    return ret;
+}
+
+
 @implementation FiScEClass
 fy_class *clazz;
 
@@ -204,6 +263,13 @@ NSString *classPath;
             systemOutBuf[sobPos++]=content;
         }
     }
+}
+
+- (void)handleGcEventWithData:(void*)data before:(void (*)(void*))beforeHandler getExtra:(void (*)(void*, int32_t*, int32_t**))getExtraHandler after:(void (*)(void*))afterHandler{
+    context->gcCustomData = data;
+    context->beforeGC = beforeHandler;
+    context->getExtraGCKeep = getExtraHandler;
+    context->afterGC = afterHandler;
 }
 
 - (void)returnIntValue:(int32_t)value toThread:(int32_t)threadId{
@@ -667,29 +733,60 @@ NSString *classPath;
 
 - (void)runWithMessageHolder:(FiScEMessage*)m{
     fisceRun(context, message, ex);
-    [m setMessageType:message->messageType];
-    switch (message->messageType) {
-        case message_invoke_native:
-            [m setNativeCallName:[self getNSStringWith:message->body.call.method->uniqueName]];
-            [m setParamCount:message->body.call.paramCount];
-            [m setParams:message->body.call.params];
-            break;
-        case message_exception:
-            [m setExceptionName:[NSString stringWithUTF8String:message->body.exception.exceptionName]];
-            [m setExceptionDesc:[NSString stringWithUTF8String:message->body.exception.exceptionDesc]];
-            break;
-        case message_sleep:
-            [m setSleepTime:message->body.sleepTime/1000.0];
-            break;
-        case message_vm_dead:
-            break;
-        case message_none:
-        case message_continue:
-        case message_thread_dead:
-        default:
-            @throw [[NSException alloc] initWithName:@"FyException" reason:[NSString stringWithFormat:@"Invalid message type: %d" , message->messageType] userInfo:nil];
-            break;
+    if(ex->exceptionType != exception_none){
+        m.messageType = message_exception;
+        m.exceptionName = [NSString stringWithUTF8String:ex->exceptionName];
+        m.exceptionDesc = [NSString stringWithUTF8String:ex->exceptionDesc];
+    }else{
+        m.messageType = message->messageType;
+        if(message->thread){
+            m.threadId = message->thread->threadId;
+        }else{
+            m.threadId = -1;
+        }
+        switch (message->messageType) {
+            case message_invoke_native:
+                m.nativeCallName = [self getNSStringWith:message->body.call.method->uniqueName];
+                m.paramCount = message->body.call.paramCount;
+                m.params = message->body.call.params;
+                switch(message->body.call.method->returnType){
+                    case FY_TYPE_UNKNOWN:
+                        m.returnType = FISCE_RETURN_NONE;
+                        break;
+                    case FY_TYPE_INT:
+                        m.returnType = FISCE_RETURN_INT;
+                        break;
+                    case FY_TYPE_WIDE:
+                        m.returnType = FISCE_RETURN_LONG;
+                        break;
+                    case FY_TYPE_HANDLE:
+                        m.returnType = FISCE_RETURN_HANDLE;
+                        break;
+                    default:
+                        m.messageType = message_exception;
+                        m.exceptionName = @"";
+                        m.exceptionDesc = [NSString stringWithUTF8String:ex->exceptionDesc];
+                        break;
+                }
+                break;
+            case message_exception:
+                m.exceptionName = [NSString stringWithUTF8String:message->body.exception.exceptionName];
+                m.exceptionDesc = [NSString stringWithUTF8String:message->body.exception.exceptionDesc];
+                break;
+            case message_sleep:
+                m.sleepTime = message->body.sleepTime/1000.0;
+                break;
+            case message_vm_dead:
+                break;
+            case message_none:
+            case message_continue:
+            case message_thread_dead:
+            default:
+                m.messageType = message_exception;
+                m.exceptionName = @"";
+                m.exceptionDesc = [NSString stringWithFormat:@"Invalid message type: %d" , message->messageType];
+                break;
+        }
     }
-    HANDLE_EXCEPTION
 }
 @end

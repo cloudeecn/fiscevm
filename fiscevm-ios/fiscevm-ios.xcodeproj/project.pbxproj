@@ -132,25 +132,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		6873C2351A033A66006C201B = {
-			isa = PBXGroup;
-			children = (
-				6873C2401A033A66006C201B /* fiscevm-ios */,
-				6873C24D1A033A66006C201B /* fiscevm-iosTests */,
-				6873C23F1A033A66006C201B /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		6873C23F1A033A66006C201B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				6873C23E1A033A66006C201B /* libFiScEVM.a */,
-				6873C2491A033A66006C201B /* fiscevm-iosTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		6873C2401A033A66006C201B /* fiscevm-ios */ = {
+		68420CF31A199D8A0066B591 /* fiscevm-c-native */ = {
 			isa = PBXGroup;
 			children = (
 				6873C3EE1A0A033E006C201B /* fy_util */,
@@ -188,6 +170,32 @@
 				6873C25C1A033AF3006C201B /* fiscedev.h */,
 				6873C25D1A033AF3006C201B /* fisceprt.h */,
 				6873C25E1A033AF3006C201B /* fiscestu.h */,
+			);
+			name = "fiscevm-c-native";
+			sourceTree = "<group>";
+		};
+		6873C2351A033A66006C201B = {
+			isa = PBXGroup;
+			children = (
+				6873C2401A033A66006C201B /* fiscevm-ios */,
+				6873C24D1A033A66006C201B /* fiscevm-iosTests */,
+				6873C23F1A033A66006C201B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6873C23F1A033A66006C201B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6873C23E1A033A66006C201B /* libFiScEVM.a */,
+				6873C2491A033A66006C201B /* fiscevm-iosTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6873C2401A033A66006C201B /* fiscevm-ios */ = {
+			isa = PBXGroup;
+			children = (
+				68420CF31A199D8A0066B591 /* fiscevm-c-native */,
 				6873C2411A033A66006C201B /* FiScEVM.h */,
 				6873C2431A033A66006C201B /* FiScEVM.m */,
 				680577121A145D660048D21F /* FiScERunner.h */,
