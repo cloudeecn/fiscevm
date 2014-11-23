@@ -52,6 +52,8 @@ typedef NS_ENUM(int32_t, FiScEReturnType){
 @property id<FiScELogger> systemOutLogger;
 @property id<FiScELogger> systemErrLogger;
 
+- (instancetype)initWithClassPaths:(NSArray*)cps;
+
 - (void)setSystemOutLogger:(id<FiScELogger>)logger;
 - (void)setSystemErrLogger:(id<FiScELogger>)logger;
 - (void)appendLog:(NSString*)channel content:(char)content;

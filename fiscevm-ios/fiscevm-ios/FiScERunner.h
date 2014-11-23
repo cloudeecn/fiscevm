@@ -25,6 +25,7 @@ typedef void (^FiScENativeHandler)(FiScERunner*, FiScEVM*, int32_t, int32_t, uin
 @end
 
 @interface FiScERunner : NSObject
+@property NSArray *classPaths;
 @property NSString *dataPath;
 @property NSString *savePath;
 @property NSString *autoSavePath;

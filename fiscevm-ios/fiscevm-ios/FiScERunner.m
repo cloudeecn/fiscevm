@@ -57,6 +57,7 @@ static void gc_finish(void *data);
         protectLength = 0;
         protectList = malloc(sizeof(int32_t) * protectMax);
         status = PAUSED;
+        nativeHandlers = [NSMutableDictionary dictionary];
         __weak FiScERunner *weakSelf=self;
         tick=^{
             NSError *error;
@@ -83,11 +84,11 @@ static void gc_finish(void *data);
                                 @throw [NSException exceptionWithName:@"IO" reason:@"Can't delete auto save file" userInfo:nil];
                             }
                         }
-                        strongSelf->vm = [[FiScEVM alloc] init];
+                        strongSelf->vm = [[FiScEVM alloc] initWithClassPaths:strongSelf.classPaths];
                         [strongSelf->vm handleGcEventWithData:(__bridge void *)(strongSelf) before:gc_prepare getExtra:gc_protect after:gc_finish];
                         [strongSelf->vm bootFromDataFile:strongSelf->statusFileToLoad];
                     }else if(!strongSelf->vm){
-                        strongSelf->vm = [[FiScEVM alloc] init];
+                        strongSelf->vm = [[FiScEVM alloc] initWithClassPaths:strongSelf.classPaths];
                         
                         if([[NSFileManager defaultManager] fileExistsAtPath:strongSelf.autoSavePath]) {
                             NSLog(@"Start vm from autosave");

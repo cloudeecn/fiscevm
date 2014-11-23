@@ -19,64 +19,6 @@ C ; \
 @throw [[NSException alloc] initWithName:@"FyException" reason:[NSString stringWithFormat:@"Exception %s occored: %s" , ex->exceptionName , ex->exceptionDesc] userInfo:nil]; \
 }
 
-static fy_inputStream* isOpen(struct fy_context *context, const char *name,
-                              fy_exception *exception) {
-    FILE *fp;
-    fy_inputStream *ret;
-    char targetName[1024];
-    const char *baseName = context->isParam;
-    fisData *data;
-    fy_int baseLen;
-    fy_boolean baseSlash, nameSlash;
-    
-    targetName[0] = 0;
-    baseLen = (fy_int)strlen(baseName);
-    if (baseName == NULL || (baseLen = (fy_int)strlen(baseName)) == 0) {
-        baseLen = 1;
-        baseName = ".";
-    }
-    
-    baseSlash = baseName[baseLen - 1] == '/';
-    nameSlash = name[0] == '/';
-    
-    if (baseSlash && nameSlash) {
-        strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
-        strncat(targetName, name + 1, sizeof(targetName) - strlen(targetName) - 1);
-    } else if ((!baseSlash) && (!nameSlash)) {
-        strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
-        strncat(targetName, "/", sizeof(targetName) - strlen(targetName) - 1);
-        strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
-    } else {
-        strncat(targetName, baseName, sizeof(targetName) - strlen(targetName) - 1);
-        strncat(targetName, name, sizeof(targetName) - strlen(targetName) - 1);
-    }
-    fp = fopen(targetName, "rb");
-    if (fp != NULL) {
-        ret = fy_mmAllocate(context->memblocks, sizeof(fy_inputStream),
-                            exception);
-        if (exception->exceptionType != exception_none) {
-            fclose(fp);
-            return NULL;
-        }
-        data = fy_mmAllocate(context->memblocks, sizeof(fisData), exception);
-        if (exception->exceptionType != exception_none) {
-            fy_mmFree(context->memblocks, ret);
-            fclose(fp);
-            return NULL;
-        }
-        data->closed = FALSE;
-        data->fp = fp;
-        ret->data = data;
-        ret->isClose = isClose;
-        ret->isRead = isRead;
-        ret->isReadBlock = isReadBlock;
-        ret->isSkip = isSkip;
-    } else {
-        ret = NULL;
-    }
-    return ret;
-}
-
 
 @implementation FiScEClass
 fy_class *clazz;
@@ -160,48 +102,52 @@ static void SOSWrite(struct fy_context *context, struct fy_thread *thread,
 @end
 
 @implementation FiScEVM{
-fy_context *context;
-fy_exception ex[1];
-fy_hashMap classCache[1];
-fy_hashMap methodCache[1];
-fy_hashMap fieldCache[1];
-fy_hashMap stringCache[1];
-fy_message message[1];
-char systemOutBuf[1000];
-int32_t sobPos;
-char systemErrBuf[1000];
-int32_t sebPos;
-
-NSString *classPath;
+    fy_context *context;
+    fy_exception ex[1];
+    fy_hashMap classCache[1];
+    fy_hashMap methodCache[1];
+    fy_hashMap fieldCache[1];
+    fy_hashMap stringCache[1];
+    fy_message message[1];
+    char systemOutBuf[1000];
+    int32_t sobPos;
+    char systemErrBuf[1000];
+    int32_t sebPos;
+    char **classPaths;
 }
 
-- (instancetype)init
+- (instancetype)initWithClassPaths:(NSArray*)cps
 {
     self = [super init];
     [self setSystemErrLogger:[[FiScEDefaultLogger alloc] init]];
     [self setSystemOutLogger:[[FiScEDefaultLogger alloc] init]];
-    classPath = [[[NSBundle bundleForClass:[FiScEVM class]] bundlePath] stringByAppendingString:@"/classes"];
+    
+    
     context = fy_allocate(sizeof(fy_context), ex);
     HANDLE_EXCEPTION
- 
+    
     fisceInitContext(context, ex);
     HANDLE_EXCEPTION
-    context->isParam=[classPath UTF8String];
     
-//    classCache = fy_mmAllocate(context->memblocks, sizeof(fy_hashMap), ex);
-//    HANDLE_EXCEPTION
-//    methodCache = fy_mmAllocate(context->memblocks, sizeof(fy_hashMap), ex);
-//    HANDLE_EXCEPTION
-//    fieldCache = fy_mmAllocate(context->memblocks, sizeof(fy_hashMap), ex);
-//    HANDLE_EXCEPTION
-//    stringCache = fy_mmAllocate(context->memblocks, sizeof(fy_hashMap), ex);
-//    HANDLE_EXCEPTION
-//    message = fy_mmAllocate(context->memblocks, sizeof(fy_message), ex);
-//    HANDLE_EXCEPTION
-//    systemOutBuf = fy_mmAllocate(context->memblocks, sizeof(char)*1000, ex);
-//    HANDLE_EXCEPTION
-//    systemErrBuf = fy_mmAllocate(context->memblocks, sizeof(char)*1000, ex);
-//    HANDLE_EXCEPTION
+    {
+        NSUInteger count = cps.count;
+        classPaths = fy_mmAllocatePerm(context->memblocks, sizeof(char**)*(count+1), ex);
+        HANDLE_EXCEPTION
+        
+        NSUInteger i = 0;
+        for (NSString *classpath in cps) {
+            NSString *cp1 = [NSString stringWithFormat:@"%@/%@",[[NSBundle bundleForClass:[FiScEVM class]] bundlePath],classpath] ;
+            const char *path = [cp1 UTF8String];
+            size_t len = strlen(path);
+            classPaths[i] = fy_mmAllocatePerm(context->memblocks, sizeof(char)*(len + 1), ex);
+            strncpy(classPaths[i], [cp1 UTF8String], len);
+            i++;
+        }
+        classPaths[i] = NULL;
+    }
+    
+    context->isParam=classPaths;
+    
     sobPos=0;
     sebPos=0;
     
@@ -217,7 +163,7 @@ NSString *classPath;
     fy_nativeUnRegisterNativeHandler(context, "com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V", ex);
     HANDLE_EXCEPTION
     fy_nativeRegisterNativeHandler(context,
-        "com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V", (__bridge void *)(self), SOSWrite, ex);
+                                   "com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V", (__bridge void *)(self), SOSWrite, ex);
     HANDLE_EXCEPTION
     NSLog(@"FiScEVM initialized at %p", (__bridge void*)self);
     return self;
@@ -229,7 +175,7 @@ NSString *classPath;
     fy_hashMapEachValue(context->memblocks, methodCache, releaseValue, NULL);
     fy_hashMapEachValue(context->memblocks, classCache, releaseValue, NULL);
     fy_hashMapEachValue(context->memblocks, stringCache, releaseValue, NULL);
-
+    
     fisceDestroyContext(context);
     fy_free(context);
     NSLog(@"FiScEVM destroyed at %p", (__bridge void*)self);

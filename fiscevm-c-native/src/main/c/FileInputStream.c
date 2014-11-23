@@ -90,8 +90,8 @@ static fy_inputStream* isOpen(struct fy_context *context, const char *name,
     const char* baseName;
     fy_int i = 0;
 
-	targetName[0] = 0;
     while((baseName=baseNames[i++])!=NULL){
+        targetName[0] = 0;
         baseLen = (fy_int)strlen(baseName);
         if (baseName == NULL || (baseLen = (fy_int)strlen(baseName)) == 0) {
             baseLen = 1;
