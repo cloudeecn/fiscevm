@@ -1,4 +1,4 @@
-Copyright 2010-2013 Yuxuan Huang. All rights reserved.
+Copyright 2010-2014 Yuxuan Huang. All rights reserved.
 
  This file is part of fiscevm.
 
@@ -15,5 +15,6 @@ Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  You should have received a copy of the GNU Lesser General Public License
  along with fiscevm.  If not, see <http://www.gnu.org/licenses/>.
 
-
+Note: Source code in fiscevm-runtime directory is licensed to you under 
+the Apache License, Version 2.0. see fiscevm-runtime/README for detail 
  
