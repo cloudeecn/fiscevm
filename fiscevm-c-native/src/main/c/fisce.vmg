@@ -1,0 +1,103 @@
+\ stack definitions:
+\E stack data-stack sp Cell
+
+\ stack prefix definitions
+\E inst-stream stack-prefix #
+
+\ type prefix definitions:
+\E s" fy_uint"   single data-stack type-prefix i
+\E s" fy_uint" single data-stack type-prefix a
+\E s" fy_float" single data-stack type-prefix f
+
+nop ( -- )
+;
+
+aaload (i1 a2 -- a)
+a = fy_heapGetArrayHandle(context, a2, i1, exception);
+FY_THEH
+
+iaload (i1 a2 -- i)
+i = fy_heapGetArrayHandle(context, a2, i1, exception);
+FY_THEH
+
+faload (i1 a2 -- i)
+i = fy_heapGetArrayHandle(context, a2, i1, exception);
+FY_THEH
+
+aastore (a1 i2 a3 -- )
+fy_class *clazz1, *clazz2;
+clazz1 = fy_heapGetClassOfObject(context, a3, exception);
+clazz2 = clazz1->ci.arr.contentClass;
+if (a1 != 0 &&
+    !fy_classCanCastTo(context,
+                       fy_heapGetClassOfObject(context, a1, exception),
+                       clazz2,
+                       TRUE)) {
+  exception->exceptionType = exception_normal;
+  strcpy_s(exception->exceptionName,
+           sizeof(exception->exceptionName),
+           FY_EXCEPTION_STORE);
+  strcpy_s(exception->exceptionDesc,
+           sizeof(exception->exceptionDesc),
+           "Data type not compatable!");
+  message->messageType = message_exception;
+  FY_FALLOUT_NOINVOKE
+  break;/*EXCEPTION_THROWN*/
+}
+fy_heapPutArrayHandle(context, a3, i2, a1,
+                      exception);
+FY_THEH
+
+iastore (i1 i2 a3 -- )
+fy_heapPutArrayInt(context, a3, i2, i, exception);
+FY_THEH
+
+fastore (i1 i2 a3 -- )
+fy_heapPutArrayInt(context, a3, i2, i, exception);
+FY_THEH
+
+aconst_null ( -- a)
+a = 0;
+
+iload ( -- i)
+fy_threadGetLocalInt(instruction->params.int_params.param1, i);
+
+aload ( -- a)
+fy_threadGetLocalHandle(instruction->params.int_params.param1, a);
+
+iload_0 ( -- i)
+fy_threadGetLocalInt(0, i);
+
+fload_0 ( -- i)
+fy_threadGetLocalInt(0, i);
+
+aload_0 ( -- a)
+fy_threadGetLocalHandle(0, a);
+
+iload_1 ( -- i)
+fy_threadGetLocalInt(1, i);
+
+fload_1 ( -- i)
+fy_threadGetLocalInt(1, i);
+
+aload_1 ( -- a)
+fy_threadGetLocalHandle(1, a);
+
+iload_2 ( -- i)
+fy_threadGetLocalInt(2, i);
+
+fload_2 ( -- i)
+fy_threadGetLocalInt(2, i);
+
+aload_2 ( -- a)
+fy_threadGetLocalHandle(2, a);
+
+iload_3 ( -- i)
+fy_threadGetLocalInt(3, i);
+
+fload_3 ( -- i)
+fy_threadGetLocalInt(3, i);
+
+aload_3 ( -- a)
+fy_threadGetLocalHandle(3, a);
+
