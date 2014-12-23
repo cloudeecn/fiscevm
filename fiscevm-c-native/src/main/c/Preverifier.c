@@ -260,6 +260,13 @@ static fy_int code_length[255] = {
 /* 0xca BREADPOINT */1,
 
 };
+
+#ifdef FY_VERBOSE
+#define FY_VERBOSE_PREVERIFIER
+#endif
+
+#define FY_VERBOSE_PREVERIFIER
+
 static fy_int getIcFromPc(fy_context *context, fy_int pc,
 		fy_hashMapI *tmpPcIcMap, fy_exception *exception) {
 	fy_int ic = fy_hashMapIGet(context->memblocks, tmpPcIcMap, pc);
@@ -301,28 +308,617 @@ static void preverifyMethodLineNumberTable(fy_context *context,
 	}
 }
 
+struct read_stack_status {
+	fy_uint frameNum;
+	fy_uint sc;
+	fy_uint pc;
+	fy_uint type;
+	fy_uint localSize;
+	fy_instruction tmp[1];
+	fy_instruction *lastFrame;
+};
+
+static fy_boolean readStackTypeOfs(fy_context *context, fy_stack_map_table *smt,
+		struct read_stack_status *status, fy_method *method, fy_int pc,
+		fy_exception *exception) {
+	fy_uint type;
+	if (status->sc >= smt->length) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+				"Can't verify %s, pc=%"FY_PRINT32"d: unexpected end of stack frame table",
+				method->utf8Name, pc);
+		return FALSE;
+	} else {
+		type = status->type = smt->entries[status->sc++];
+		if (type < 64) { /*0-63 SAME*/
+			status->pc += 1 + type;
+#ifdef FY_VERBOSE_PREVERIFIER
+			context->logDVarLn(context, "NEXT FRAME: SAME, pc=%d", status->pc);
+#endif
+		} else if (type < 128) { /*64-127 SAME_LOCALS_1_STACK_ITEM*/
+			status->pc += 1 + type - 64;
+#ifdef FY_VERBOSE_PREVERIFIER
+			context->logDVarLn(context,
+					"NEXT FRAME: SAME_LOCALS_1_STACK_ITEM, pc=%d", status->pc);
+#endif
+		} else if (type < 247) { /*ILLEGAL*/
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+					"Can't verify %s, pc=%"FY_PRINT32"d: illegal type %"FY_PRINT32"d",
+					method->utf8Name, pc, type);
+			return FALSE;
+		} else if (type < 248) { /*247 SAME_LOCALS_1_STACK_ITEM_EXTENDED*/
+			status->pc += 1
+					+ (fy_B2TOUI(smt->entries[status->sc],
+							smt->entries[status->sc + 1]));
+			status->sc += 2;
+#ifdef FY_VERBOSE_PREVERIFIER
+			context->logDVarLn(context,
+					"NEXT FRAME: SAME_LOCALS_1_STACK_ITEM_EXTENDED, pc=%d",
+					status->pc);
+#endif
+		} else if (type < 251) { /*248-250 CHOP*/
+			status->pc += 1
+					+ (fy_B2TOUI(smt->entries[status->sc],
+							smt->entries[status->sc + 1]));
+			status->sc += 2;
+#ifdef FY_VERBOSE_PREVERIFIER
+			context->logDVarLn(context, "NEXT FRAME: CHOP, pc=%d", status->pc);
+#endif
+		} else if (type < 252) { /*251 SAME_FRAME_EXTENDED*/
+			status->pc += 1
+					+ (fy_B2TOUI(smt->entries[status->sc],
+							smt->entries[status->sc + 1]));
+			status->sc += 2;
+#ifdef FY_VERBOSE_PREVERIFIER
+			context->logDVarLn(context,
+					"NEXT FRAME: SAME_FRAME_EXTENDED, pc=%d", status->pc);
+#endif
+		} else if (type < 255) { /*252-254 APPEND*/
+			status->pc += 1
+					+ (fy_B2TOUI(smt->entries[status->sc],
+							smt->entries[status->sc + 1]));
+			status->sc += 2;
+#ifdef FY_VERBOSE_PREVERIFIER
+			context->logDVarLn(context, "NEXT FRAME: APPEND, pc=%d",
+					status->pc);
+#endif
+		} else { /*255 FULL*/
+			status->pc += 1
+					+ (fy_B2TOUI(smt->entries[status->sc],
+							smt->entries[status->sc + 1]));
+			status->sc += 2;
+#ifdef FY_VERBOSE_PREVERIFIER
+			context->logDVarLn(context, "NEXT FRAME: FULL, pc=%d", status->pc);
+#endif
+		}
+		return TRUE;
+	}
+}
+
+static void parseStackItemInitial(fy_context *context, fy_stack_map_table *smt,
+		struct read_stack_status *status, fy_method *method, fy_int pc,
+		fy_instruction *instruction, fy_exception *exception) {
+	fy_int localSize = method->paramStackUsage;
+	fy_int i, ofs = 0;
+	fy_instInitStackItem(context->memblocks, instruction, method->max_locals,
+			exception);
+	FYEH();
+	if (!(method->access_flags & FY_ACC_STATIC)) {
+		fy_instMarkStackItem(instruction, 0, -1);
+		ofs = 1;
+	}
+	for (i = 0; i < localSize; i++) {
+		if (method->paramTypes[i] == FY_TYPE_HANDLE) {
+			fy_instMarkStackItem(instruction, i + ofs, -1);
+		}
+	}
+#ifdef FY_VERBOSE_PREVERIFIER
+	context->logDVarLn(context, "FRAME: INITIAL");
+#endif
+	status->sc = 0;
+	status->localSize = localSize + ofs;
+	status->lastFrame = instruction;
+	status->frameNum = 0;
+	status->pc = -1;
+	if (smt != NULL && smt->count > status->frameNum) {
+		readStackTypeOfs(context, smt, status, method, pc, exception);
+	} else {
+		status->type = 256;
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME END");
+#endif
+	}
+	status->tmp->sp = instruction->sp;
+	status->tmp->s = instruction->s;
+#ifdef FY_STRICT_CHECK
+	status->tmp->localSize = instruction->localSize = status->localSize;
+#endif
+#ifdef FY_VERBOSE_PREVERIFIER
+	context->logDVarLn(context, "FRAME localSize=%d", status->localSize);
+#endif
+}
+
+static void parseStackItemFrame(fy_context *context, fy_stack_map_table *smt,
+		struct read_stack_status *status, fy_method *method, fy_int pc,
+		fy_instruction *instruction, fy_exception *exception) {
+	fy_int i, max;
+	fy_ubyte vti;
+	fy_uint ofs = 0;
+	fy_uint type = status->type;
+
+	if (type < 64) {/*0-63 SAME*/
+		instruction->sp = method->max_locals;
+		instruction->s = status->lastFrame->s;
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME: SAME");
+#endif
+	} else if (type < 128) {/*64-127 SAME_LOCALS_1_STACK_ITEM*/
+		vti = smt->entries[status->sc++];
+		switch (vti) {
+		case 1:
+		case 2:
+			/* int float */
+		{
+			fy_instInitStackItem(context->memblocks, instruction,
+					method->max_locals + 1, exception);
+			FYEH();
+			fy_instStackItemClone(status->lastFrame, instruction);
+			fy_instMarkStackItem(instruction, method->max_locals, 0);
+			break;
+		}
+		case 3:
+		case 4:
+			/* wide */
+		{
+			fy_instInitStackItem(context->memblocks, instruction,
+					method->max_locals + 2, exception);
+			FYEH();
+			fy_instStackItemClone(status->lastFrame, instruction);
+			fy_instMarkStackItem(instruction, method->max_locals, 0);
+			fy_instMarkStackItem(instruction, method->max_locals + 1, 0);
+			break;
+		}
+		case 5:
+		case 6: {
+			fy_instInitStackItem(context->memblocks, instruction,
+					method->max_locals + 1, exception);
+			FYEH();
+			fy_instStackItemClone(status->lastFrame, instruction);
+			fy_instMarkStackItem(instruction, method->max_locals, -1);
+			break;
+		}
+		case 7:/* handle */
+		case 8:/* uninit */
+		{
+			fy_instInitStackItem(context->memblocks, instruction,
+					method->max_locals + 1, exception);
+			FYEH();
+			fy_instStackItemClone(status->lastFrame, instruction);
+			fy_instMarkStackItem(instruction, method->max_locals, -1);
+			status->sc += 2;
+			break;
+		}
+		default: {
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+					"Can't verify %s, pc=%"FY_PRINT32"d illegal stack item type %"FY_PRINT32"d at %"FY_PRINT32"d (same_locals_1_stack_item_frame)",
+					method->utf8Name, pc, vti, status->sc);
+			break;
+		}
+		}
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME: SAME_LOCALS_1_STACK_ITEM");
+#endif
+	} else if (type < 247) { /*128-246 ILLEGAL*/
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+				"Can't verify %s, pc=%"FY_PRINT32"d: illegal type %"FY_PRINT32"d",
+				method->utf8Name, pc, type);
+	} else if (type < 248) { /*247 SAME_LOCALS_1_STACK_ITEM_EXTENDED*/
+		vti = smt->entries[status->sc++];
+		switch (vti) {
+		case 0:
+			/*top*/
+		case 1:
+		case 2:
+			/* int float */
+		{
+			fy_instInitStackItem(context->memblocks, instruction,
+					method->max_locals + 1, exception);
+			FYEH();
+			fy_instStackItemClone(status->lastFrame, instruction);
+			fy_instMarkStackItem(instruction, method->max_locals, 0);
+			break;
+		}
+		case 3:
+		case 4:
+			/* wide */
+		{
+			fy_instInitStackItem(context->memblocks, instruction,
+					method->max_locals + 2, exception);
+			FYEH();
+			fy_instStackItemClone(status->lastFrame, instruction);
+			fy_instMarkStackItem(instruction, method->max_locals, 0);
+			fy_instMarkStackItem(instruction, method->max_locals + 1, 0);
+			break;
+		}
+		case 5:
+		case 6: {
+			fy_instInitStackItem(context->memblocks, instruction,
+					method->max_locals + 1, exception);
+			FYEH();
+			fy_instStackItemClone(status->lastFrame, instruction);
+			fy_instMarkStackItem(instruction, method->max_locals, -1);
+			break;
+		}
+		case 7: /* handle */
+		case 8: /* uninit */
+		{
+			fy_instInitStackItem(context->memblocks, instruction,
+					method->max_locals + 1, exception);
+			FYEH();
+			fy_instStackItemClone(status->lastFrame, instruction);
+			fy_instMarkStackItem(instruction, method->max_locals, -1);
+			status->sc += 2;
+			break;
+		}
+		default: {
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+					"Can't verify %s, pc=%"FY_PRINT32"d illegal stack item type %"FY_PRINT32"d at %"FY_PRINT32"d (same_locals_1_stack_item_frame)",
+					method->utf8Name, pc, vti, status->sc);
+			break;
+		}
+		}
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME: SAME_LOCALS_1_STACK_ITEM_EXTENDED");
+#endif
+	} else if (type < 251) { /*CHOP*/
+		vti = 251 - type;
+		if (status->localSize < vti) {
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+					"Can't verify [%s] pc=%"FY_PRINT32"d: can't chop %"FY_PRINT32"d from %"FY_PRINT32"d (CHOP)",
+					method->utf8Name, pc, vti, status->localSize);
+			FYEH();
+		}
+		max = status->localSize;
+		status->localSize -= vti;
+		fy_instInitStackItem(context->memblocks, instruction,
+				method->max_locals, exception);
+		FYEH();
+		fy_instStackItemClone(status->lastFrame, instruction);
+		for (i = status->localSize; i < max; i++) {
+			fy_instMarkStackItem(instruction, i, 0);
+		}
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME: CHOP");
+#endif
+	} else if (type < 252) { /*SAME_FRAME_EXTENDED*/
+		instruction->sp = method->max_locals;
+		instruction->s = status->lastFrame->s;
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME: SAME_FRAME_EXTENDED");
+#endif
+	} else if (type < 255) { /*APPEND*/
+		fy_instInitStackItem(context->memblocks, instruction,
+				method->max_locals, exception);
+		FYEH();
+		fy_instStackItemClone(status->lastFrame, instruction);
+		max = status->localSize + (type - 251);
+		ofs = 0;
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context,
+				"FRAME: APPEND FROM %"FY_PRINT32"d TO %"FY_PRINT32"d",
+				status->localSize, max);
+#endif
+		for (i = status->localSize; i < max; i++) {
+			vti = smt->entries[status->sc++];
+			switch (vti) {
+			case 0:
+				/*top*/
+			case 1:
+			case 2:
+				/* int float */
+			{
+#ifdef FY_VERBOSE_PREVERIFIER
+				context->logDVar(context, "%d", vti);
+#endif
+				fy_instMarkStackItem(instruction, i + ofs, 0);
+				break;
+			}
+			case 3:
+			case 4:
+				/* wide */
+			{
+#ifdef FY_VERBOSE_PREVERIFIER
+				context->logDVar(context, "%d-", vti);
+#endif
+				fy_instMarkStackItem(instruction, i + ofs, 0);
+				fy_instMarkStackItem(instruction, i + ofs + 1, 0);
+				ofs++;
+				break;
+			}
+			case 5:
+			case 6: {
+#ifdef FY_VERBOSE_PREVERIFIER
+				context->logDVar(context, "%d", vti);
+#endif
+				fy_instMarkStackItem(instruction, i + ofs, -1);
+				break;
+			}
+			case 7:/* handle */
+			case 8:/* uninit */
+			{
+#ifdef FY_VERBOSE_PREVERIFIER
+				context->logDVar(context, "%d", vti);
+#endif
+				fy_instMarkStackItem(instruction, i + ofs, -1);
+				status->sc += 2;
+				break;
+			}
+			default: {
+				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+						"Can't verify %s, pc=%"FY_PRINT32"d illegal stack item type %"FY_PRINT32"d at %"FY_PRINT32"d (APPEND)",
+						method->utf8Name, pc, vti, status->sc - 1);
+				break;
+			}
+			}
+		}
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "");
+#endif
+		status->localSize = max + ofs;
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME: APPEND");
+#endif
+	} else if (type < 256) {/*FULL*/
+		fy_uint tmpsc = status->sc;
+		max = (fy_B2TOUI(smt->entries[tmpsc], smt->entries[tmpsc + 1]));
+		tmpsc += 2;
+		for (i = 0; i < max; i++) {
+			vti = smt->entries[tmpsc++];
+			switch (vti) {
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6: {
+				break;
+			}
+			case 7:/* handle */
+			case 8:/* uninit */
+			{
+				tmpsc += 2;
+				break;
+			}
+			default: {
+				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+						"Can't verify %s, pc=%"FY_PRINT32"d illegal stack item type %"FY_PRINT32"d at %"FY_PRINT32"d (FULL)",
+						method->utf8Name, pc, vti, status->sc - 1);
+				break;
+			}
+			}
+		}
+		max = (fy_B2TOUI(smt->entries[tmpsc], smt->entries[tmpsc + 1]));
+		tmpsc += 2;
+		instruction->sp = method->max_locals;
+		for (i = 0; i < max; i++) {
+			vti = smt->entries[tmpsc++];
+			switch (vti) {
+			case 0:
+				/*top*/
+			case 1:
+			case 2:
+				/* int float */
+			{
+				instruction->sp++;
+				break;
+			}
+			case 3:
+			case 4:
+				/* wide */
+			{
+				instruction->sp += 2;
+				break;
+			}
+			case 5:
+			case 6: {
+				instruction->sp++;
+				break;
+			}
+			case 7:/* handle */
+			case 8:/* uninit */
+			{
+				instruction->sp++;
+				tmpsc += 2;
+				break;
+			}
+			default: {
+				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+						"Can't verify %s, pc=%"FY_PRINT32"d illegal stack item type %"FY_PRINT32"d at %"FY_PRINT32"d (APPEND)",
+						method->utf8Name, pc, vti, status->sc - 1);
+				break;
+			}
+			}
+		}
+		fy_instInitStackItem(context->memblocks, instruction, instruction->sp,
+				exception);
+		FYEH();
+		status->localSize = 0;
+		i = 0;
+		max =
+				(fy_B2TOUI(smt->entries[status->sc],
+						smt->entries[status->sc + 1]));
+		status->sc += 2;
+		ofs = 0;
+		for (i = 0; i < max; i++) {
+			vti = smt->entries[status->sc++];
+			switch (vti) {
+			case 0:
+				/*top*/
+			case 1:
+			case 2:
+				/* int float */
+
+			{
+				fy_instMarkStackItem(instruction, i + ofs, 0);
+				break;
+			}
+			case 3:
+			case 4:
+				/* wide */
+			{
+				fy_instMarkStackItem(instruction, i + ofs, 0);
+				fy_instMarkStackItem(instruction, i + ofs + 1, 0);
+				ofs++;
+				break;
+			}
+			case 5:
+			case 6: {
+				fy_instMarkStackItem(instruction, i + ofs, -1);
+				break;
+			}
+			case 7:/* handle */
+			case 8:/* uninit */
+			{
+				fy_instMarkStackItem(instruction, i + ofs, -1);
+				status->sc += 2;
+				break;
+			}
+			default: {
+				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+						"Can't verify %s, pc=%"FY_PRINT32"d illegal stack item type %"FY_PRINT32"d at %"FY_PRINT32"d (APPEND)",
+						method->utf8Name, pc, vti, status->sc - 1);
+				break;
+			}
+			}
+		}
+		status->localSize = max + ofs;
+		i = 0;
+		max =
+				(fy_B2TOUI(smt->entries[status->sc],
+						smt->entries[status->sc + 1]));
+		status->sc += 2;
+		ofs = 0;
+
+		for (i = 0; i < max; i++) {
+			vti = smt->entries[status->sc++];
+			switch (vti) {
+			case 0:
+				/*top*/
+			case 1:
+			case 2:
+				/* int float */
+			{
+				fy_instMarkStackItem(instruction, method->max_locals + i + ofs,
+						0);
+				break;
+			}
+			case 3:
+			case 4:
+				/* wide */
+			{
+				fy_instMarkStackItem(instruction, method->max_locals + i + ofs,
+						0);
+				fy_instMarkStackItem(instruction,
+						method->max_locals + i + ofs + 1, 0);
+				ofs++;
+				break;
+			}
+			case 5:
+			case 6: {
+				fy_instMarkStackItem(instruction, method->max_locals + i + ofs,
+						-1);
+				break;
+			}
+			case 7: /* handle */
+			case 8: /* uninit */
+			{
+				fy_instMarkStackItem(instruction, method->max_locals + i + ofs,
+						-1);
+				status->sc += 2;
+				break;
+			}
+			default: {
+				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+						"Can't verify %s, pc=%"FY_PRINT32"d illegal stack item type %"FY_PRINT32"d at %"FY_PRINT32"d (APPEND)",
+						method->utf8Name, pc, vti, status->sc - 1);
+				break;
+			}
+			}
+		}
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME: FULL");
+#endif
+	} else {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+				"Can't verify %s, pc=%"FY_PRINT32"d illegal stack frame type %"FY_PRINT32"d at %"FY_PRINT32"d (APPEND)",
+				method->utf8Name, pc, type, status->sc - 1);
+	}
+#ifdef FY_VERBOSE_PREVERIFIER
+	context->logDVarLn(context, "FRAME localSize=%d", status->localSize);
+#endif
+	status->lastFrame = instruction;
+	status->frameNum++;
+#ifdef FY_STRICT_CHECK
+	instruction->localSize = status->localSize;
+#endif
+	if (smt != NULL && smt->count > status->frameNum) {
+		readStackTypeOfs(context, smt, status, method, pc, exception);
+	} else {
+		status->type = 256;
+		status->pc = -1;
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVarLn(context, "FRAME END");
+#endif
+	}
+	status->tmp->sp = instruction->sp;
+	status->tmp->s = instruction->s;
+#ifdef FY_STRICT_CHECK
+	status->tmp->localSize = instruction->localSize;
+#endif
+}
+
+static void parseStackItemInstruction(fy_context *context,
+		fy_stack_map_table *smt, struct read_stack_status *status,
+		fy_method *method, fy_int pc, fy_instruction *instruction,
+		fy_exception *exception) {
+	instruction->sp = status->tmp->sp;
+	instruction->s = status->tmp->s;
+#ifdef FY_STRICT_CHECK
+	instruction->localSize = status->tmp->localSize;
+#endif
+}
+
 void fy_preverify(fy_context *context, fy_method *method,
 		fy_exception *exception) {
 	fy_ubyte *code = method->code;
 	fy_uint codeLength = method->codeLength;
-	fy_uint pc = 0;
+	fy_uint pc = 0, lpc = 0;
 	fy_instruction *instruction;
 	fy_uint instCount = 0;
-	fy_uint ic = 0;
-	fy_uint op;
+	fy_int ic = 0;
+	fy_int op;
 	fy_switch_table *switchTable;
 	fy_switch_lookup *switchLookup;
 	fy_hashMapI tmpSwitchTargets[1];
 	fy_hashMapI tmpPcIcMap[1];
+	fy_stack_map_table *smt;
 	fy_int i = 0, imax;
 	fy_int target;
+	fy_exceptionHandler *exh;
+	fy_int exhic;
+	fy_instruction *exhi;
+
+	struct read_stack_status smtStatus;
 
 	fy_uint ivalue3, ivalue, ivalue2, ivalue4;
-#ifdef FY_VERBOSE
+#ifdef FY_VERBOSE_PREVERIFIER
 	fy_class *owner = method->owner;
 	context->logDVar(context, "Preverifing [");
 	context->logDStr(context, method->uniqueName);
 	context->logDVarLn(context, "]");
+	context->logDVarLn(context,
+			"max_locals = %"FY_PRINT32"d max_stack = %"FY_PRINT32"d",
+			method->max_locals, method->max_stack);
 	/*
 	 imax=owner->fieldCount;
 	 for(i=0;i<imax;i++){
@@ -348,7 +944,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 		FYEH();
 #if 0
 		context->logDStr(context,method->uniqueName);
-		context->logDVar(context," - pc=%d inst=%d op=[%d,%s]\n", pc, instCount, op,
+		context->logDVarLn(context," - pc=%d inst=%d op=[%d,%s]", pc, instCount, op,
 				FY_OP_NAME[op]);
 #endif
 		if (op > 0xca) {
@@ -435,101 +1031,396 @@ void fy_preverify(fy_context *context, fy_method *method,
 	FYEH();
 	pc = 0;
 
+	smt = method->stackMapTable;
+#ifdef FY_VERBOSE_PREVERIFIER
+	if (smt != NULL) {
+		context->logDVarLn(context, "Dumping stack map table:");
+		for (i = 0; i < smt->length; i++) {
+			context->logDVar(context, "%02x ", smt->entries[i]);
+		}
+		context->logDVarLn(context, "");
+	} else {
+		context->logDVarLn(context, "No stack map table");
+	}
+#endif
+
 	while (pc < codeLength) {
-		op = fy_nextU1(code);
 		instruction = method->instructions + (ic++);
+		lpc = pc;
+		if (pc == 0) {
+			parseStackItemInitial(context, smt, &smtStatus, method, pc,
+					instruction, exception);
+			FYEH();
+			if (pc == smtStatus.pc) {
+				parseStackItemFrame(context, smt, &smtStatus, method, pc,
+						instruction, exception);
+			}
+		} else if (pc == smtStatus.pc) {
+			parseStackItemFrame(context, smt, &smtStatus, method, pc,
+					instruction, exception);
+		} else {
+			parseStackItemInstruction(context, smt, &smtStatus, method, pc,
+					instruction, exception);
+			if (instruction->sp == 0xffffffff) {
+				if (smt == NULL) {
+					imax = method->exception_table_length;
+					for (i = 0; i < imax; i++) {
+						exh = method->exception_table + i;
+						if (pc == exh->handler_pc) {
+							exhic = getIcFromPc(context, exh->start_pc,
+									tmpPcIcMap, exception);
+							FYEH();
+							exhi = method->instructions + exhic;
+							fy_instInitStackItem(context->memblocks,
+									instruction, exhi->sp + 1, exception);
+							FYEH();
+							fy_instStackItemClone(exhi, instruction);
+							fy_instMarkStackItem(instruction,
+									instruction->sp - 1, -1);
+#ifdef FY_VERBOSE_PREVERIFIER
+							context->logDVarLn(context,
+									"Got frame data from exception handler");
+#endif
+							break;
+						}
+					}
+				}
+				if (instruction->sp == 0xffffffff) {
+					fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+							"Can't verify %s, pc=%"FY_PRINT32"d can't fetch stack data from last op",
+							method->utf8Name, pc);
+				}
+			}
+		}
+
+		op = fy_nextU1(code);
 		instruction->op = op;
+
 #if 0
 		context->logDStr(context,method->uniqueName);
-		context->logDVar(context," + pc=%d inst=%d op=[%d,%s]\n", pc - 1, ic - 1, op,
+		context->logDVarLn(context," + pc=%d inst=%d op=[%d,%s]", pc - 1, ic - 1, op,
 				FY_OP_NAME[op]);
 #endif
 		switch (op) {
+		/*NO_PARAM*/
+		/*DONT CARE*/
+		case BREAKPOINT:
+		case ARETURN:
+		case FRETURN:
+		case IRETURN:
+		case LRETURN:
+		case DRETURN:
+		case RETURN:
+		case ATHROW: {
+			smtStatus.tmp->sp = 0xffffffff;
+		}
+			break;
+			/*NO_STACK_CHANGE/NO_LOCAL_CHANGE*/
 		case UNUSED_BA:
-		case AALOAD:
+		case NOP:
+		case I2B:
+		case I2S:
+		case I2C:
+		case I2F:
+		case INEG:
+		case F2I:
+		case FNEG:
+		case LNEG:
+		case L2D:
+		case LALOAD:
+		case D2L:
+		case DNEG:
+		case DALOAD:
+		case SWAP: {
+// same content
+			smtStatus.tmp->sp = instruction->sp;
+			smtStatus.tmp->s = instruction->s;
+#ifdef FY_STRICT_CHECK
+			smtStatus.tmp->localSize = instruction->localSize;
+#endif
+			break;
+		}
+		case ARRAYLENGTH: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+		}
+			break;
+			/*POP 1/NO_LOCAL_CHANGE*/
+		case IADD:
+		case ISUB:
+		case IMUL:
+		case IDIV:
+		case IREM:
+		case IAND:
+		case IOR:
+		case IXOR:
+		case ISHL:
+		case ISHR:
+		case IUSHR:
+		case LSHL:
+		case LSHR:
+		case LUSHR:
+		case FADD:
+		case FSUB:
+		case FMUL:
+		case FDIV:
+		case FREM:
+		case FCMPG:
+		case FCMPL:
+		case D2F:
+		case D2I:
+		case L2F:
+		case L2I:
+		case MONITORENTER:
+		case MONITOREXIT:
+		case POP: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			break;
+		}
+			/*POP 1/WRITE_LOCAL*/
+		case ASTORE_0: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 0, -1);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 1)
+				smtStatus.tmp->localSize = 1;
+#endif
+			break;
+		}
+		case ASTORE_1: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 1, -1);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 2)
+				smtStatus.tmp->localSize = 2;
+#endif
+			break;
+		}
+		case ASTORE_2: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 2, -1);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 3)
+				smtStatus.tmp->localSize = 3;
+#endif
+			break;
+		}
+		case ASTORE_3: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 3, -1);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 4)
+				smtStatus.tmp->localSize = 4;
+#endif
+			break;
+		}
+		case FSTORE_0:
+		case ISTORE_0: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 0, 0);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 1)
+				smtStatus.tmp->localSize = 1;
+#endif
+			break;
+		}
+		case FSTORE_1:
+		case ISTORE_1: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 1, 0);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 2)
+				smtStatus.tmp->localSize = 2;
+#endif
+			break;
+		}
+		case FSTORE_2:
+		case ISTORE_2: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 2, 0);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 3)
+				smtStatus.tmp->localSize = 3;
+#endif
+			break;
+		}
+		case FSTORE_3:
+		case ISTORE_3: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 3, 0);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 4)
+				smtStatus.tmp->localSize = 4;
+#endif
+			break;
+		}
+			/*POP 1, MODIFY 1/NO_LOCAL_CHANGE*/
+		case AALOAD: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+			break;
+		}
+		case IALOAD:
+		case FALOAD:
+		case BALOAD:
+		case CALOAD:
+		case SALOAD: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+			break;
+		}
+			/*POP 2/NO_LOCAL_CHANGE*/
+		case POP2:
+		case LADD:
+		case LSUB:
+		case LMUL:
+		case LDIV:
+		case LREM:
+		case LAND:
+		case LOR:
+		case LXOR:
+		case DADD:
+		case DSUB:
+		case DMUL:
+		case DDIV:
+		case DREM: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			break;
+		}
+			/*POP 2/WRITE_LOCAL*/
+		case DSTORE_0:
+		case LSTORE_0: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 0, 0);
+			fy_instMarkStackItem(smtStatus.tmp, 1, 0);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 2)
+				smtStatus.tmp->localSize = 2;
+#endif
+			break;
+		}
+		case DSTORE_1:
+		case LSTORE_1: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 1, 0);
+			fy_instMarkStackItem(smtStatus.tmp, 2, 0);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 3)
+				smtStatus.tmp->localSize = 3;
+#endif
+			break;
+		}
+		case DSTORE_2:
+		case LSTORE_2: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 2, 0);
+			fy_instMarkStackItem(smtStatus.tmp, 3, 0);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 4)
+				smtStatus.tmp->localSize = 4;
+#endif
+			break;
+		}
+		case DSTORE_3:
+		case LSTORE_3: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, 3, 0);
+			fy_instMarkStackItem(smtStatus.tmp, 4, 0);
+#ifdef FY_STRICT_CHECK
+			if (smtStatus.tmp->localSize < 5)
+				smtStatus.tmp->localSize = 5;
+#endif
+			break;
+		}
+			/*POP 3/NO_LOCAL_CHANGE*/
 		case AASTORE:
+		case IASTORE:
+		case FASTORE:
+		case BASTORE:
+		case CASTORE:
+		case SASTORE:
+		case DCMPG:
+		case DCMPL:
+		case LCMP: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 3, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			break;
+		}
+			/*POP 4/NO_LOCAL_CHANGE*/
+		case DASTORE:
+		case LASTORE: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp - 4, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			break;
+		}
+			/*PUSH 1, NO_LOCAL_CHANGE*/
 		case ACONST_NULL:
 		case ALOAD_0:
 		case ALOAD_1:
 		case ALOAD_2:
-		case ALOAD_3:
-		case ARETURN:
-		case ARRAYLENGTH:
-		case ASTORE_0:
-		case ASTORE_1:
-		case ASTORE_2:
-		case ASTORE_3:
-		case ATHROW:
-		case BALOAD:
-		case BASTORE:
-		case BREAKPOINT:
-		case CALOAD:
-		case CASTORE:
-		case D2F:
-		case D2I:
-		case D2L:
-		case DADD:
-		case DALOAD:
-		case DASTORE:
-		case DCMPG:
-		case DCMPL:
-		case DCONST_0:
-		case DCONST_1:
-		case DDIV:
-		case DLOAD_0:
-		case DLOAD_1:
-		case DLOAD_2:
-		case DLOAD_3:
-		case DMUL:
-		case DNEG:
-		case DREM:
-		case DRETURN:
-		case DSTORE_0:
-		case DSTORE_1:
-		case DSTORE_2:
-		case DSTORE_3:
-		case DSUB:
-		case DUP:
-		case DUP_X1:
-		case DUP_X2:
-		case DUP2:
-		case DUP2_X1:
-		case DUP2_X2:
-		case F2D:
-		case F2I:
-		case F2L:
-		case FADD:
-		case FALOAD:
-		case FASTORE:
-		case FCMPG:
-		case FCMPL:
-		case FCONST_0:
-		case FCONST_1:
-		case FCONST_2:
-		case FDIV:
-		case FLOAD_0:
-		case FLOAD_1:
-		case FLOAD_2:
-		case FLOAD_3:
-		case FMUL:
-		case FNEG:
-		case FREM:
-		case FRETURN:
-		case FSTORE_0:
-		case FSTORE_1:
-		case FSTORE_2:
-		case FSTORE_3:
-		case FSUB:
-		case I2B:
-		case I2C:
-		case I2D:
-		case I2F:
-		case I2L:
-		case I2S:
-		case IADD:
-		case IALOAD:
-		case IAND:
-		case IASTORE:
+		case ALOAD_3: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp + 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+			break;
+		}
 		case ICONST_0:
 		case ICONST_1:
 		case ICONST_2:
@@ -537,293 +1428,881 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case ICONST_4:
 		case ICONST_5:
 		case ICONST_M1:
-		case IDIV:
 		case ILOAD_0:
 		case ILOAD_1:
 		case ILOAD_2:
 		case ILOAD_3:
-		case IMUL:
-		case INEG:
-		case IOR:
-		case IREM:
-		case IRETURN:
-		case ISHL:
-		case ISHR:
-		case ISTORE_0:
-		case ISTORE_1:
-		case ISTORE_2:
-		case ISTORE_3:
-		case ISUB:
-		case IUSHR:
-		case IXOR:
-		case L2D:
-		case L2F:
-		case L2I:
-		case LADD:
-		case LALOAD:
-		case LAND:
-		case LASTORE:
-		case LCMP:
+		case FCONST_0:
+		case FCONST_1:
+		case FCONST_2:
+		case FLOAD_0:
+		case FLOAD_1:
+		case FLOAD_2:
+		case FLOAD_3:
+		case I2D:
+		case I2L:
+		case F2D:
+		case F2L: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp + 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+			break;
+		}
+			/*PUSH 2, NO_LOCAL_CHANGE*/
+		case DCONST_0:
+		case DCONST_1:
+		case DLOAD_0:
+		case DLOAD_1:
+		case DLOAD_2:
+		case DLOAD_3:
 		case LCONST_0:
 		case LCONST_1:
-		case LDIV:
 		case LLOAD_0:
 		case LLOAD_1:
 		case LLOAD_2:
-		case LLOAD_3:
-		case LMUL:
-		case LNEG:
-		case LOR:
-		case LREM:
-		case LRETURN:
-		case LSHL:
-		case LSHR:
-		case LSTORE_0:
-		case LSTORE_1:
-		case LSTORE_2:
-		case LSTORE_3:
-		case LSUB:
-		case LUSHR:
-		case LXOR:
-		case MONITORENTER:
-		case MONITOREXIT:
-		case NOP:
-		case POP:
-		case POP2:
-		case RETURN:
-		case SALOAD:
-		case SASTORE:
-		case SWAP: {
+		case LLOAD_3: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp + 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 			break;
 		}
-		case ALOAD: /*local var id*/
-		case ASTORE:/*local var id*/
-		case DLOAD:/*local var id*/
-		case DSTORE:/*local var id*/
-		case FLOAD:/*local var id*/
-		case FSTORE:/*local var id*/
-		case ILOAD:/*local var id*/
-		case ISTORE:/*local var id*/
-		case LLOAD:/*local var id*/
-		case LSTORE:/*local var id*/
-		case RET:/*local var id*/
-		{
-			instruction->params.int_params.param1 = fy_nextU1(code);
+			/*X-DUPS*/
+		case DUP: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp + 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1,
+					fy_instGetStackItem(instruction, instruction->sp - 1));
 			break;
 		}
-		case LDC: /*constant id*/
-		{
-			instruction->params.ldc.derefed = FALSE;
-			instruction->params.ldc.value = fy_nextU1(code);
+		case DUP_X1: {
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp + 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 3,
+					fy_instGetStackItem(instruction, instruction->sp - 1));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2,
+					fy_instGetStackItem(instruction, instruction->sp - 2));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1,
+					fy_instGetStackItem(instruction, instruction->sp - 1));
 			break;
 		}
-		case LDC_W: /*constant id*/
-		case LDC2_W: /*constant id*/
-		{
-			instruction->params.ldc.derefed = FALSE;
-			instruction->params.ldc.value = fy_nextU2(code)
-			;
+		case DUP_X2:
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
+					instruction->sp + 1, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-4, fy_instGetStackItem(instruction, instruction->sp - 1));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-3, fy_instGetStackItem(instruction, instruction->sp - 3));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-2, fy_instGetStackItem(instruction, instruction->sp - 2));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-1, fy_instGetStackItem(instruction, instruction->sp - 1));
 			break;
-		}
+			case DUP2:
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-4, fy_instGetStackItem(instruction, instruction->sp - 2));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-3, fy_instGetStackItem(instruction, instruction->sp - 1));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-2, fy_instGetStackItem(instruction, instruction->sp - 2));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-1, fy_instGetStackItem(instruction, instruction->sp - 1));
+			break;
+			case DUP2_X1:
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-5, fy_instGetStackItem(instruction, instruction->sp - 2));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-4, fy_instGetStackItem(instruction, instruction->sp - 1));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-3, fy_instGetStackItem(instruction, instruction->sp - 3));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-2, fy_instGetStackItem(instruction, instruction->sp - 2));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-1, fy_instGetStackItem(instruction, instruction->sp - 1));
+			break;
+			case DUP2_X2:
+			fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
+			FYEH();
+			fy_instStackItemClone(instruction, smtStatus.tmp);
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-6, fy_instGetStackItem(instruction, instruction->sp - 2));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-5, fy_instGetStackItem(instruction, instruction->sp - 1));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-4, fy_instGetStackItem(instruction, instruction->sp - 4));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-3, fy_instGetStackItem(instruction, instruction->sp - 3));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-2, fy_instGetStackItem(instruction, instruction->sp - 2));
+			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-1, fy_instGetStackItem(instruction, instruction->sp - 1));
+			break;
+			/*******/
 
-		case NEWARRAY: /*type*/
-		{
-			instruction->params.int_params.param1 = fy_nextU1(code);
-			break;
-		}
-		case BIPUSH: {
-			instruction->params.int_params.param1 = fy_nextS1(code); /*value*/
-			break;
-		}
-		case SIPUSH: {
-			instruction->params.int_params.param1 = fy_nextS2(code)
-			; /*value*/
-			break;
-		}
-		case ANEWARRAY: /*Constant id -> class constant*/
-		case CHECKCAST: /*Constant id -> class constant*/
-		case INSTANCEOF: /*Constant id -> class constant*/
-
-		case NEW: {
-			target = fy_nextU2(code)
-			;
-			instruction->params.clazz = fy_vmLookupClassFromConstant(context,
-					method->owner->constantPools[target], exception);
-			FYEH();
-			break;
-		}
-		case GETFIELD: /*Constant id -> field constant*/
-		case GETSTATIC: /*Constant id -> field constant*/
-		case PUTFIELD: /*Constant id -> field constant*/
-		case PUTSTATIC: /*Constant id -> field constant*/
-		{
-			target = fy_nextU2(code)
-			;
-			instruction->params.field = fy_vmLookupFieldFromConstant(context,
-					method->owner->constantPools[target], exception);
-			FYEH();
-			break;
-		}
-		case INVOKESPECIAL:/*Constant id -> method constant*/
-		case INVOKESTATIC:/*Constant id -> method constant*/
-		case INVOKEVIRTUAL: /*Constant id -> method constant*/
-		{
-			target = fy_nextU2(code)
-			;
-			instruction->params.method = fy_vmLookupMethodFromConstant(context,
-					method->owner->constantPools[target], exception);
-			FYEH();
-			break;
-		}
-		case INVOKEINTERFACE: {
-			target = fy_nextU2(code)
-			;
-			instruction->params.method = fy_vmLookupMethodFromConstant(context,
-					method->owner->constantPools[target], exception);
-			FYEH();
-			pc += 2;
-			break;
-		}
-		case GOTO:
-		case IF_ACMPEQ:
-		case IF_ACMPNE:
-		case IF_ICMPEQ:
-		case IF_ICMPGE:
-		case IF_ICMPGT:
-		case IF_ICMPLE:
-		case IF_ICMPLT:
-		case IF_ICMPNE:
-		case IFEQ:
-		case IFGE:
-		case IFGT:
-		case IFLE:
-		case IFLT:
-		case IFNE:
-		case IFNONNULL:
-		case IFNULL: {
-			target = pc - 1 + fy_nextS2(code)
-			;
-			instruction->params.int_params.param1 = getIcFromPc(context, target,
-					tmpPcIcMap, exception);
-			FYEH();
-			break;
-		}
-		case GOTO_W: {
-			target = pc - 1 + fy_nextS4(code)
-			; /*jump*/
-			instruction->params.int_params.param1 = getIcFromPc(context, target,
-					tmpPcIcMap, exception);
-			FYEH();
-			break;
-		}
-		case JSR: {
-			target = pc - 1 + fy_nextS2(code)
-			; /*jump*/
-			instruction->params.int_params.param1 = getIcFromPc(context, target,
-					tmpPcIcMap, exception);
-			FYEH();
-			break;
-		}
-		case JSR_W: {
-			target = pc - 1 + fy_nextS4(code)
-			; /*jump*/
-			instruction->params.int_params.param1 = getIcFromPc(context, target,
-					tmpPcIcMap, exception);
-			FYEH();
-			break;
-		}
-		case IINC: {
-			instruction->params.int_params.param1 = fy_nextU1(code); /*local var id*/
-			instruction->params.int_params.param2 = fy_nextS1(code); /*value*/
-			break;
-		}
-		case MULTIANEWARRAY: {
-			instruction->params.int_params.param1 = fy_nextU2(code)
-			; /*Constant id-> class Constant*/
-			instruction->params.int_params.param2 = fy_nextU1(code); /*count*/
-			break;
-		}
-		case LOOKUPSWITCH: {
-			target = fy_hashMapIGet(context->memblocks, tmpSwitchTargets,
-					ic - 1);
-			if (target == -1) {
-				fy_fault(exception, NULL, "Can't find switch target for ic=%d",
-						ic - 1);
-			}
-			fy_arrayListGet(context->memblocks, context->switchTargets, target,
-					&switchLookup);
-			instruction->params.swlookup = switchLookup;
-			imax = switchLookup->count;
-			switchLookup->defaultJump = getIcFromPc(context,
-					pc - 1 + switchLookup->defaultJump, tmpPcIcMap, exception);
-			for (i = 0; i < imax; i++) {
-				(switchLookup->targets + i)->target = getIcFromPc(context,
-						pc - 1 + (switchLookup->targets + i)->target,
-						tmpPcIcMap, exception);
-			}
-			pc = switchLookup->nextPC;
-			break;
-		}
-		case TABLESWITCH: {
-			target = fy_hashMapIGet(context->memblocks, tmpSwitchTargets,
-					ic - 1);
-			if (target == -1) {
-				fy_fault(exception, NULL, "Can't find switch target for ic=%d",
-						ic - 1);
-			}
-			fy_arrayListGet(context->memblocks, context->switchTargets, target,
-					&switchTable);
-			instruction->params.swtable = switchTable;
-			imax = switchTable->highest - switchTable->lowest;
-			switchTable->defaultJump = getIcFromPc(context,
-					pc - 1 + switchTable->defaultJump, tmpPcIcMap, exception);
-			for (i = 0; i <= imax; i++) {
-				switchTable->targets[i] = getIcFromPc(context,
-						pc - 1 + switchTable->targets[i], tmpPcIcMap,
-						exception);
-			}
-			pc = switchTable->nextPC;
-			break;
-		}
-		case WIDE: {
-			switch (instruction->op = fy_nextU1(code) ) {
 			case ALOAD: /*local var id*/
+			{
+				instruction->params.int_params.param1 = fy_nextU1(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+				break;
+			}
 			case ASTORE:/*local var id*/
+			{
+				instruction->params.int_params.param1 = fy_nextU1(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, instruction->params.int_params.param1, -1);
+#ifdef FY_STRICT_CHECK
+				if(smtStatus.tmp->localSize < instruction->params.int_params.param1 + 1) smtStatus.tmp->localSize = instruction->params.int_params.param1 + 1;
+#endif
+				break;
+			}
 			case DLOAD:/*local var id*/
-			case DSTORE:/*local var id*/
-			case FLOAD:/*local var id*/
-			case FSTORE:/*local var id*/
-			case ILOAD:/*local var id*/
-			case ISTORE:/*local var id*/
 			case LLOAD:/*local var id*/
+			{
+				instruction->params.int_params.param1 = fy_nextU1(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+				break;
+			}
+			case DSTORE:/*local var id*/
 			case LSTORE:/*local var id*/
+			{
+				instruction->params.int_params.param1 = fy_nextU1(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 2, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, instruction->params.int_params.param1, 0);
+				fy_instMarkStackItem(smtStatus.tmp, instruction->params.int_params.param1 + 1, 0);
+#ifdef FY_STRICT_CHECK
+				if(smtStatus.tmp->localSize < instruction->params.int_params.param1 + 2) smtStatus.tmp->localSize = instruction->params.int_params.param1 + 2;
+#endif
+				break;
+			}
+
+			case FLOAD:/*local var id*/
+			case ILOAD:/*local var id*/
+			{
+				instruction->params.int_params.param1 = fy_nextU1(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+				break;
+			}
+			case FSTORE:/*local var id*/
+			case ISTORE:/*local var id*/
+			{
+				instruction->params.int_params.param1 = fy_nextU1(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, instruction->params.int_params.param1, 0);
+#ifdef FY_STRICT_CHECK
+				if(smtStatus.tmp->localSize < instruction->params.int_params.param1 + 1) smtStatus.tmp->localSize = instruction->params.int_params.param1 + 1;
+#endif
+				break;
+			}
 			case RET:/*local var id*/
 			{
-				instruction->params.int_params.param1 = fy_nextU2(code)
-				;
-				break;
-			}
-			case IINC: {
-				instruction->params.int_params.param1 = fy_nextU2(code)
-				;
-				instruction->params.int_params.param2 = fy_nextS2(code)
-				;
-				break;
-			}
-			default: {
-				fy_fault(exception, NULL, "Unknown Wide OPCode %d", op);
+				//TODO RET/JSR is no longer supported
+				instruction->params.int_params.param1 = fy_nextU1(code);
+				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+						"Illegal op in method %s, pc %d, ip %d, JSR/RET not supported",
+						method->utf8Name, lpc, ic);
 				FYEH();
 				break;
 			}
+			case LDC: /*constant id*/
+			{
+				instruction->params.ldc.derefed = FALSE;
+				instruction->params.ldc.value = fy_nextU1(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				switch(method->owner->constantTypes[instruction->params.ldc.value]) {
+					case CONSTANT_Integer:
+					case CONSTANT_Float:
+					{
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case CONSTANT_String:
+					case CONSTANT_Class:
+					{
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;
+					}
+				}
+				break;
 			}
-			break;
+			case LDC_W: /*constant id*/
+			{
+				instruction->params.ldc.derefed = FALSE;
+				instruction->params.ldc.value = fy_nextU2(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				switch(method->owner->constantTypes[instruction->params.ldc.value]) {
+					case CONSTANT_Integer:
+					case CONSTANT_Float:
+					{
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case CONSTANT_String:
+					case CONSTANT_Class:
+					{
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;
+					}
+				}
+				break;
+			}
+			case LDC2_W: /*constant id*/
+			{
+				instruction->params.ldc.derefed = FALSE;
+				instruction->params.ldc.value = fy_nextU2(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+				break;
+			}
+
+			case NEWARRAY: /*type*/
+			{
+				instruction->params.int_params.param1 = fy_nextU1(code);
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+				break;
+			}
+			case BIPUSH: {
+				instruction->params.int_params.param1 = fy_nextS1(code); /*value*/
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+				break;
+			}
+			case SIPUSH: {
+				instruction->params.int_params.param1 = fy_nextS2(code); /*value*/
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+				break;
+			}
+			case ANEWARRAY: /*Constant id -> class constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.clazz = fy_vmLookupClassFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+				break;
+			}
+			case CHECKCAST: /*Constant id -> class constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.clazz = fy_vmLookupClassFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				smtStatus.tmp->sp = instruction->sp;
+				smtStatus.tmp->s = instruction->s;
+#ifdef FY_STRICT_CHECK
+				smtStatus.tmp->localSize = instruction->localSize;
+#endif
+				break;
+			}
+			case INSTANCEOF: /*Constant id -> class constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.clazz = fy_vmLookupClassFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+				break;
+			}
+			case NEW: {
+				target = fy_nextU2(code)
+				;
+				instruction->params.clazz = fy_vmLookupClassFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+				break;
+			}
+			case GETFIELD: /*Constant id -> field constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.field = fy_vmLookupFieldFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				switch((fy_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
+					case 'D':
+					case 'J':
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case 'L':
+					case '[':
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;
+					}
+					default:
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+				}
+				break;
+			}
+			case GETSTATIC: /*Constant id -> field constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.field = fy_vmLookupFieldFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				switch((fy_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
+					case 'D':
+					case 'J':
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case 'L':
+					case '[':
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;
+					}
+					default:
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+				}
+				break;
+			}
+			case PUTFIELD: /*Constant id -> field constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.field = fy_vmLookupFieldFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				switch((fy_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
+					case 'D':
+					case 'J':
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 3, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						break;
+					}
+					default:
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 2, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						break;
+					}
+				}
+				break;
+			}
+			case PUTSTATIC: /*Constant id -> field constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.field = fy_vmLookupFieldFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				switch((fy_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
+					case 'D':
+					case 'J':
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 2, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						break;
+					}
+					default:
+					{
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						break;
+					}
+				}
+				break;
+			}
+			case INVOKESPECIAL:/*Constant id -> method constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.method = fy_vmLookupMethodFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				switch(instruction->params.method->returnType) {
+					case FY_TYPE_INT: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case FY_TYPE_HANDLE: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage , exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;
+					}
+					case FY_TYPE_WIDE: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage + 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case FY_TYPE_UNKNOWN: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage - 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						break;
+					}
+				}
+				break;
+			}
+			case INVOKESTATIC:/*Constant id -> method constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.method = fy_vmLookupMethodFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				switch(instruction->params.method->returnType) {
+					case FY_TYPE_INT: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage+1 , exception);
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;}
+					case FY_TYPE_HANDLE: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage +1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;}
+					case FY_TYPE_WIDE: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage + 2, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;}
+					case FY_TYPE_UNKNOWN: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage , exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						break;
+					}
+				}
+				break;
+			}
+			case INVOKEVIRTUAL: /*Constant id -> method constant*/
+			{
+				target = fy_nextU2(code);
+				instruction->params.method = fy_vmLookupMethodFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				switch(instruction->params.method->returnType) {
+					case FY_TYPE_INT: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;}
+					case FY_TYPE_HANDLE: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage , exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;}
+					case FY_TYPE_WIDE: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage + 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;}
+					case FY_TYPE_UNKNOWN: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage - 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						break;
+					}
+				}
+				break;
+			}
+			case INVOKEINTERFACE: {
+				target = fy_nextU2(code);
+				instruction->params.method = fy_vmLookupMethodFromConstant(context,
+						method->owner->constantPools[target], exception);
+				FYEH();
+				pc += 2;
+				switch(instruction->params.method->returnType) {
+					case FY_TYPE_INT: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;}
+					case FY_TYPE_HANDLE: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage , exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;
+					}
+					case FY_TYPE_WIDE: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage + 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case FY_TYPE_UNKNOWN: {
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.method->paramStackUsage - 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						break;
+					}
+				}
+				break;
+			}
+			case GOTO:
+			{
+				target = pc - 1 + fy_nextS2(code);
+				instruction->params.int_params.param1 = getIcFromPc(context, target,
+						tmpPcIcMap, exception);
+				FYEH();
+				smtStatus.tmp->sp = 0xffffffff;
+				break;
+			}
+			case IF_ACMPEQ:
+			case IF_ACMPNE:
+			case IF_ICMPEQ:
+			case IF_ICMPGE:
+			case IF_ICMPGT:
+			case IF_ICMPLE:
+			case IF_ICMPLT:
+			case IF_ICMPNE: {
+				target = pc - 1 + fy_nextS2(code);
+				instruction->params.int_params.param1 = getIcFromPc(context, target,
+						tmpPcIcMap, exception);
+				FYEH();
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 2, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				break;
+			}
+			case IFEQ:
+			case IFGE:
+			case IFGT:
+			case IFLE:
+			case IFLT:
+			case IFNE:
+			case IFNONNULL:
+			case IFNULL: {
+				target = pc - 1 + fy_nextS2(code)
+				;
+				instruction->params.int_params.param1 = getIcFromPc(context, target,
+						tmpPcIcMap, exception);
+				FYEH();
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				break;
+			}
+			case GOTO_W: {
+				target = pc - 1 + fy_nextS4(code)
+				; /*jump*/
+				instruction->params.int_params.param1 = getIcFromPc(context, target,
+						tmpPcIcMap, exception);
+				FYEH();
+				smtStatus.tmp->sp = 0xffffffff;
+				break;
+			}
+			case JSR: {
+				target = pc - 1 + fy_nextS2(code)
+				; /*jump*/
+				instruction->params.int_params.param1 = getIcFromPc(context, target,
+						tmpPcIcMap, exception);
+				FYEH();
+				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+						"Illegal op in method %s, pc %d, ip %d, JSR/RET not supported",
+						method->utf8Name, lpc, ic);
+				FYEH();
+				break;
+			}
+			case JSR_W: {
+				target = pc - 1 + fy_nextS4(code)
+				; /*jump*/
+				instruction->params.int_params.param1 = getIcFromPc(context, target,
+						tmpPcIcMap, exception);
+				FYEH();
+				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+						"Illegal op in method %s, pc %d, ip %d, JSR/RET not supported",
+						method->utf8Name, lpc, ic);
+				FYEH();
+				break;
+			}
+			case IINC: {
+				instruction->params.int_params.param1 = fy_nextU1(code); /*local var id*/
+				instruction->params.int_params.param2 = fy_nextS1(code); /*value*/
+				smtStatus.tmp->sp = instruction->sp;
+				smtStatus.tmp->s = instruction->s;
+#ifdef FY_STRICT_CHECK
+				smtStatus.tmp->localSize = instruction->localSize;
+#endif
+				break;
+			}
+			case MULTIANEWARRAY: {
+				instruction->params.int_params.param1 = fy_nextU2(code)
+				; /*Constant id-> class Constant*/
+				instruction->params.int_params.param2 = fy_nextU1(code); /*count*/
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - instruction->params.int_params.param2 + 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+				break;
+			}
+			case LOOKUPSWITCH: {
+				target = fy_hashMapIGet(context->memblocks, tmpSwitchTargets,
+						ic - 1);
+				if (target == -1) {
+					fy_fault(exception, NULL, "Can't find switch target for ic=%d",
+							ic - 1);
+				}
+				fy_arrayListGet(context->memblocks, context->switchTargets, target,
+						&switchLookup);
+				instruction->params.swlookup = switchLookup;
+				imax = switchLookup->count;
+				switchLookup->defaultJump = getIcFromPc(context,
+						pc - 1 + switchLookup->defaultJump, tmpPcIcMap, exception);
+				for (i = 0; i < imax; i++) {
+					(switchLookup->targets + i)->target = getIcFromPc(context,
+							pc - 1 + (switchLookup->targets + i)->target,
+							tmpPcIcMap, exception);
+				}
+				pc = switchLookup->nextPC;
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				break;
+			}
+			case TABLESWITCH: {
+				target = fy_hashMapIGet(context->memblocks, tmpSwitchTargets,
+						ic - 1);
+				if (target == -1) {
+					fy_fault(exception, NULL, "Can't find switch target for ic=%d",
+							ic - 1);
+				}
+				fy_arrayListGet(context->memblocks, context->switchTargets, target,
+						&switchTable);
+				instruction->params.swtable = switchTable;
+				imax = switchTable->highest - switchTable->lowest;
+				switchTable->defaultJump = getIcFromPc(context,
+						pc - 1 + switchTable->defaultJump, tmpPcIcMap, exception);
+				for (i = 0; i <= imax; i++) {
+					switchTable->targets[i] = getIcFromPc(context,
+							pc - 1 + switchTable->targets[i], tmpPcIcMap,
+							exception);
+				}
+				pc = switchTable->nextPC;
+				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
+				FYEH();
+				fy_instStackItemClone(instruction, smtStatus.tmp);
+				break;
+			}
+			case WIDE: {
+				switch (instruction->op = fy_nextU1(code)) {
+					case ALOAD: /*local var id*/
+					{
+						instruction->params.int_params.param1 = fy_nextU2(code);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
+						break;
+					}
+					case ASTORE:/*local var id*/
+					{
+						instruction->params.int_params.param1 = fy_nextU2(code);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, instruction->params.int_params.param1, -1);
+#ifdef FY_STRICT_CHECK
+						if(smtStatus.tmp->localSize < instruction->params.int_params.param1 + 1) smtStatus.tmp->localSize = instruction->params.int_params.param1 + 1;
+#endif
+						break;
+					}
+					case DLOAD:/*local var id*/
+					case LLOAD:/*local var id*/
+					{
+						instruction->params.int_params.param1 = fy_nextU2(code);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case DSTORE:/*local var id*/
+					case LSTORE:/*local var id*/
+					{
+						instruction->params.int_params.param1 = fy_nextU2(code);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 2, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, instruction->params.int_params.param1, 0);
+						fy_instMarkStackItem(smtStatus.tmp, instruction->params.int_params.param1 + 1, 0);
+#ifdef FY_STRICT_CHECK
+						if(smtStatus.tmp->localSize < instruction->params.int_params.param1 + 2) smtStatus.tmp->localSize = instruction->params.int_params.param1 + 2;
+#endif
+						break;
+					}
+					case FLOAD:/*local var id*/
+					case ILOAD:/*local var id*/
+					{
+						instruction->params.int_params.param1 = fy_nextU2(code);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
+						break;
+					}
+					case FSTORE:/*local var id*/
+					case ISTORE:/*local var id*/
+					{
+						instruction->params.int_params.param1 = fy_nextU2(code);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
+						FYEH();
+						fy_instStackItemClone(instruction, smtStatus.tmp);
+						fy_instMarkStackItem(smtStatus.tmp, instruction->params.int_params.param1, 0);
+#ifdef FY_STRICT_CHECK
+						if(smtStatus.tmp->localSize < instruction->params.int_params.param1 + 1) smtStatus.tmp->localSize = instruction->params.int_params.param1 + 1;
+#endif
+						break;
+					}
+					case RET:/*local var id*/
+					{
+						instruction->params.int_params.param1 = fy_nextU2(code);
+						fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+								"Illegal op in method %s, pc %d, ip %d, JSR/RET not supported",
+								method->utf8Name, lpc, ic);
+						FYEH();
+						break;
+					}
+					case IINC: {
+						instruction->params.int_params.param1 = fy_nextU2(code);
+						instruction->params.int_params.param2 = fy_nextS2(code);
+						smtStatus.tmp->sp = instruction->sp;
+						smtStatus.tmp->s = instruction->s;
+#ifdef FY_STRICT_CHECK
+						smtStatus.tmp->localSize = instruction->localSize;
+#endif
+						break;
+					}
+					default: {
+						fy_fault(exception, NULL, "Unknown Wide OPCode %d", op);
+						FYEH();
+						break;
+					}
+				}
+				break;
+			}
+			default: {
+				fy_fault(exception, NULL, "Unknown OPCode %d", op);
+				FYEH();
+				break;
+			}
 		}
-		default: {
-			fy_fault(exception, NULL, "Unknown OPCode %d", op);
+		if (instruction->sp > 65535) {
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+					"Illegal sp value in method %s, pc %d, ip %d",
+					method->utf8Name, lpc, ic);
 			FYEH();
-			break;
 		}
+#ifdef FY_VERBOSE_PREVERIFIER
+		context->logDVar(context, "%04x ", ic - 1);
+		for (i = 0; i < method->max_locals; i++) {
+#ifdef FY_STRICT_CHECK
+			context->logDVar(context, "%c",
+					i < instruction->localSize ?
+							fy_instGetStackItem(instruction, i) ? 'R' : 'I'
+							: '.');
+#else
+			context->logDVar(context, "%c",
+					fy_instGetStackItem(instruction, i) ? 'R' : 'I');
+#endif
 		}
+		context->logDVar(context, " ");
+		for (i = method->max_locals; i < instruction->sp; i++) {
+			context->logDVar(context, "%c",
+					fy_instGetStackItem(instruction, i) ? 'R' : 'I');
+		}
+		if (instruction->sp < method->max_locals) {
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+					"Can't verify %s, pc=%"FY_PRINT32"d stack underflow",
+					method->utf8Name, lpc);
+		} else if (instruction->sp > method->max_locals + method->max_stack) {
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
+					"Can't verify %s, pc=%"FY_PRINT32"d stack overflow",
+					method->utf8Name, lpc);
+		}
+		for (i = instruction->sp; i < method->max_locals + method->max_stack;
+				i++) {
+			context->logDVar(context, " ");
+		}
+		context->logDVarLn(context, " %-14s %08x %08x", FY_OP_NAME[op],
+				instruction->params.int_params.param1,
+				instruction->params.int_params.param2);
+#endif
 	}
 	preverifyMethodExceptionTable(context, method, tmpPcIcMap, exception);
 	preverifyMethodLineNumberTable(context, method, tmpPcIcMap, exception);

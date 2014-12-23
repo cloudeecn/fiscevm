@@ -172,6 +172,7 @@ extern "C" {
 		fy_char access_flags;
 
 		/*fy_char name_index;*/
+		char* utf8Name;
 		fy_str* name;
 
 		/*fy_char descriptor_index;*/
@@ -203,12 +204,20 @@ extern "C" {
 
 		classInfo ci;
 	}fy_exceptionHandler;
+
+	typedef struct fy_stack_map_table{
+		fy_uint length;
+		fy_int count;
+		FY_VLS(fy_ubyte, entries);
+	} fy_stack_map_table;
+
 	struct fy_nh;
 	struct fy_class;
 	typedef struct fy_method {
 		fy_int method_id;
 		fy_uint access_flags;
 
+		char* utf8Name;
 		fy_str* name;
 
 		fy_str* descriptor;
@@ -227,6 +236,7 @@ extern "C" {
 			fy_instruction *instructions;
 			struct fy_nh *nh;
 		};
+		fy_stack_map_table *stackMapTable;
 		fy_char exception_table_length;
 		struct fy_exceptionHandler *exception_table;
 
@@ -270,6 +280,7 @@ extern "C" {
 
 		fy_uint accessFlags;
 		ConstantClass* thisClass;
+		char* utf8Name;
 		fy_str* className;
 		union {
 			ConstantClass* superClass;
@@ -530,6 +541,7 @@ extern "C" {
 
 		fy_str *sAttCode;
 		fy_str *sAttLineNum;
+		fy_str *sAttStackMapTable;
 		fy_str *sAttSynth;
 		fy_str *sAttSourceFile;
 		fy_str *sAttConstantValue;
@@ -716,6 +728,14 @@ extern "C" {
 
 	struct fy_instruction {
 		fy_int op;
+		fy_uint sp;
+#ifdef FY_STRICT_CHECK
+		fy_uint localSize;
+#endif
+		union {
+			fy_ulong stackTypeContent;
+			fy_ulong *stackTypeContents;
+		} s;
 		union {
 			struct {
 				fy_int param1;

@@ -367,6 +367,12 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 		FY_FALLOUT_NOINVOKE \
 		break; \
 	} \
+	if(!T!=!fy_instGetStackItem(instruction, sp-sb-1)){ \
+		fy_fault(exception,NULL,"Type mismatch, needs [%d] but got [%d]",(T),fy_bitGet(typeStack, sp-1)); \
+		message->messageType=message_exception; \
+		FY_FALLOUT_NOINVOKE \
+		break; \
+	} \
 }
 
 # define fy_frameToLocalCheck(ptrFrame) { \
@@ -399,6 +405,13 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	} \
 	if((T)!=fy_bitGet(typeStack, sb+(P))){\
 		fy_fault(exception,NULL,"Type mismatch, needs [%d] but got [%d]",\
+				(T),fy_bitGet(typeStack, sb+(P))); \
+		message->messageType=message_exception; \
+		FY_FALLOUT_NOINVOKE \
+		break; \
+	}\
+	if(!(T)!=!fy_instGetStackItem(instruction, (P))){\
+		fy_fault(exception,NULL,"Type mismatch with frame, needs [%d] but got [%d]",\
 				(T),fy_bitGet(typeStack, sb+(P))); \
 		message->messageType=message_exception; \
 		FY_FALLOUT_NOINVOKE \
@@ -606,6 +619,13 @@ static fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
 		sp = invoke->max_locals;
 		frame = FY_GET_FRAME(thread, 0);
 	} else {
+#ifdef FY_STRICT_CHECK
+		sp = invoke->paramStackUsage
+				+ ((!(invoke->access_flags & FY_ACC_STATIC)) & 1);
+		for (sb = sp; sb < invoke->max_locals; sb++) {
+			fy_bitClear(thread->typeStack, frame->sp + sb);
+		}
+#endif
 		sb = frame->sp;
 		sp = sb + invoke->max_locals;
 		frame--;
@@ -1103,6 +1123,14 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			/*RUN_ONE_INST!!!!!*/
 			lpc = pc;
 			instruction = instructions + (pc++);
+#ifdef FY_STRICT_CHECK
+			if (sp - sb != instruction->sp) {
+				fy_fault(exception, NULL,
+						"Sp mismatch running %s at %"FY_PRINT32"d, current: %"FY_PRINT32"d, frame: %"FY_PRINT32"d",
+						method->utf8Name, lpc, sp - sb, instruction->sp);
+				FYEH();
+			}
+#endif
 #ifdef FY_PROFILE
 			context->opUsage[instruction->op].count++;
 			context->opCombine[(context->lastOp << 8) + instruction->op].count++;

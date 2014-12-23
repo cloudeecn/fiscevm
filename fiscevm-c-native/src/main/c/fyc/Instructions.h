@@ -20,6 +20,8 @@
 #ifndef INSTRUCTIONS_H_
 #define INSTRUCTIONS_H_
 
+#include "../fiscestu.h"
+
 #define NOP  0x00
 #define ACONST_NULL  0x01
 #define ICONST_M1  0x02
@@ -255,6 +257,18 @@
 #define fy_nextS2(CODE) fy_B2TOI(CODE[pc],CODE[pc+1]);pc+=2
 #define fy_nextS4(CODE) fy_B4TOI(CODE[pc],CODE[pc+1],CODE[pc+2],CODE[pc+3]);pc+=4
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
 extern const char *FY_OP_NAME[256];
 
+void fy_instInitStackItem(fy_memblock *block, fy_instruction *instruction,
+		fy_int size, fy_exception *exception) ;
+void fy_instStackItemClone(fy_instruction *from, fy_instruction *to);
+void fy_instMarkStackItem(fy_instruction *instruction, fy_int pos,
+		fy_long isHandle);
+fy_int fy_instGetStackItem(fy_instruction *instruction, fy_int pos);
+#ifdef	__cplusplus
+}
+#endif
 #endif /* INSTRUCTIONS_H_ */

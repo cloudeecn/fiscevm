@@ -17,6 +17,7 @@
  * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "fyc/Instructions.h"
+#include <math.h>
 
 const char *FY_OP_NAME[256] = { /**/
 "NOP", /* 0x00 */
@@ -222,4 +223,68 @@ const char *FY_OP_NAME[256] = { /**/
 "GOTO_W", /* 0xC8 */
 "JSR_W", /* 0xC9 */
 "BREAKPOINT" /* 0xCA */};
+
+void fy_instInitStackItem(fy_memblock *block, fy_instruction *instruction,
+		fy_int size, fy_exception *exception) {
+	instruction->sp = size;
+	if (size <= 64) {
+		instruction->s.stackTypeContent = 0;
+	} else {
+		instruction->s.stackTypeContents = fy_mmAllocatePerm(block,
+				sizeof(fy_ulong) * ((size + 63) >> 6), exception);
+	}
+}
+
+static inline fy_int imin(fy_int a, fy_int b) {
+	return a < b ? a : b;
+}
+
+void fy_instStackItemClone(fy_instruction *from, fy_instruction *to) {
+	fy_int size;
+	if (from->sp <= 64 && to->sp <= 64) {
+		to->s.stackTypeContent = from->s.stackTypeContent;
+	} else if (from->sp > 64 && to->sp <= 64) {
+		to->s.stackTypeContent = from->s.stackTypeContents[0];
+	} else if (from->sp <= 64 && to->sp > 64) {
+		to->s.stackTypeContents[0] = from->s.stackTypeContent;
+	} else {
+		size = (imin(from->sp, to->sp) + 63) >> 6;
+		memcpy(to->s.stackTypeContents, from->s.stackTypeContents,
+				sizeof(fy_ulong) * size);
+	}
+#ifdef FY_STRICT_CHECK
+	to->localSize = from->localSize;
+#endif
+}
+
+void fy_instMarkStackItem(fy_instruction *instruction, fy_int pos,
+		fy_long isHandle) {
+	fy_ulong mkOr;
+	fy_ulong mkAnd;
+	fy_int lpos;
+	if (instruction->sp <= 64) {
+		/*happy*/
+		mkOr = (((fy_ulong)1) << pos) & isHandle;
+		mkAnd = isHandle | ~(((fy_ulong)1) << pos);
+
+		instruction->s.stackTypeContent = (instruction->s.stackTypeContent
+				& mkAnd) | mkOr;
+	} else {
+		/*not so happy*/
+		lpos = pos >> 6; /* /64 */
+		pos = pos & 63;
+		mkOr = (((fy_ulong)1) << pos) & isHandle;
+		mkAnd = isHandle | ~(((fy_ulong)1) << pos);
+		instruction->s.stackTypeContents[lpos] =
+				(instruction->s.stackTypeContents[lpos] & mkAnd) | mkOr;
+	}
+}
+
+fy_int fy_instGetStackItem(fy_instruction *instruction, fy_int pos) {
+	if (instruction->sp <= 64) {
+		return -((instruction->s.stackTypeContent >> pos) & 1);
+	} else {
+		return -((instruction->s.stackTypeContents[pos >> 6] >> (pos & 63)) & 1);
+	}
+}
 

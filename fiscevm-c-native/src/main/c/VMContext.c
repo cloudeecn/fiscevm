@@ -35,6 +35,10 @@ static void initConstantStrings(fy_context *context, fy_exception *exception) {
 	FY_ATT_LINENUM);
 	FYEH();
 
+	context->sAttStackMapTable = fy_vmCreateStringByPoolV(context, exception,
+			"a", FY_ATT_STACK_MAP_TABLE);
+	FYEH();
+
 	context->sAttSynth = fy_vmCreateStringByPoolV(context, exception, "a",
 	FY_ATT_SYNTH);
 	FYEH();

@@ -380,6 +380,15 @@ FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) 
 	return target;
 }
 
+FY_ATTR_EXPORT char *fy_strToUTF8Perm(fy_memblock *block, fy_str *from,
+		fy_exception *exception) {
+	fy_int count = fy_strUtf8Count(from) + 1;
+	char *result = fy_mmAllocatePerm(block, count, exception);
+	FYEH()NULL;
+	fy_strSPrint(result, count, from);
+	return result;
+}
+
 FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *block, fy_str *from,
 		fy_exception *exception) {
 	fy_str *_this = fy_mmAllocate(block, sizeof(fy_str), exception);
@@ -571,17 +580,17 @@ FY_ATTR_EXPORT void fy_strParseVA(fy_strVA *output, const char *pattern,
 		switch (c) {
 		case 'c':
 			/*(one char)*/
-			vs[i].c = va_arg(arg_ptr,int);
+			vs[i].c = va_arg(arg_ptr, int);
 			size += 1;
 			break;
 		case 'a':
 			/*(char*)*/
-			vs[i].a = va_arg(arg_ptr,char*);
+			vs[i].a = va_arg(arg_ptr, char*);
 			size += fy_utf8SizeS(vs[i].a, -1);
 			break;
 		case 's':
 			/*(fy_str*)*/
-			vs[i].s = va_arg(arg_ptr,fy_str*);
+			vs[i].s = va_arg(arg_ptr, fy_str*);
 			size += vs[i].s->length;
 			break;
 		default:

@@ -21,9 +21,9 @@
 #define FY_MEMMAN_H_
 
 #include "../fisceprt.h"
-#define EDEN_ENTRIES  32768
-#define COPY_ENTRIES  32768
-#define OLD_ENTRIES 2400000
+#define EDEN_ENTRIES    80000
+#define COPY_ENTRIES   120000
+#define OLD_ENTRIES   2800000
 
 #ifdef	__cplusplus
 extern "C" {

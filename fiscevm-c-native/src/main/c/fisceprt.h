@@ -77,8 +77,8 @@ typedef struct fy_exception {
 		exception_none = 0, exception_normal
 	/*, exception_critical // use fy_fault instead!*/
 	} exceptionType;
-	char exceptionName[64];
-	char exceptionDesc[64];
+	char exceptionName[256];
+	char exceptionDesc[256];
 } fy_exception;
 /*#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)!=NULL&&(EXCEPTION)->exceptionType!=exception_none) return*/
 #define FYEH() if((exception)!=NULL&&(exception)->exceptionType!=exception_none) return

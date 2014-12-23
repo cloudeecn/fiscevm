@@ -399,6 +399,8 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_inputStream *is,
 				"scscs", clazz->className, '.', field->name, '.',
 				field->descriptor);
 		FYEH();
+		field->utf8Name = fy_strToUTF8Perm(block, field->uniqueName, exception);
+		FYEH();
 		field->fullName = fy_strCreatePermPersistSubstring(context->memblocks,
 				field->uniqueName, clazz->className->length,
 				field->uniqueName->length, exception);
@@ -734,6 +736,8 @@ static void loadMethods(fy_context *context, fy_class *clazz,
 				"scscs", clazz->className, '.', method->name, '.',
 				method->descriptor);
 		FYEH();
+		method->utf8Name = fy_strToUTF8Perm(block, method->uniqueName, exception);
+				FYEH();
 		method->fullName = fy_strCreatePermPersistSubstring(context->memblocks,
 				method->uniqueName, clazz->className->length,
 				method->uniqueName->length, exception);
@@ -823,6 +827,14 @@ static void loadMethods(fy_context *context, fy_class *clazz,
 									fy_dataRead2(context, is, exception);
 							FYEH();
 						}
+					} else if(fy_strCmp(context->sAttStackMapTable, attrNameCode) == 0) {
+						method->stackMapTable = fy_mmAllocate(block, sizeof(fy_stack_map_table) + attrSizeCode - 2, exception);
+						FYEH();
+						method->stackMapTable->length = attrSizeCode;
+						method->stackMapTable->count = fy_dataRead2(context, is, exception);
+						FYEH();
+						fy_dataReadBlock(context, is, method->stackMapTable->entries,attrSizeCode - 2, exception);
+						FYEH();
 					} else {
 						fy_dataSkip(context, is, attrSizeCode, exception);
 						FYEH();
@@ -890,6 +902,8 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
 			exception)];
 	FYEH()NULL;
 	clazz->className = clazz->thisClass->ci.className;
+	clazz->utf8Name = fy_strToUTF8Perm(block, clazz->className, exception);
+	FYEH()NULL;
 #ifdef FY_CL_DEBUG
 	context->logDVar(context, "#CL Phase1: ");
 	context->logDStr(context, clazz->className);

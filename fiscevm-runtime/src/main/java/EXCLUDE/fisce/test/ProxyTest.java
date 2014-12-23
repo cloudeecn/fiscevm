@@ -5,8 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import com.cirnoworks.fisce.privat.FiScEVM;
-
 interface Interface1 {
 	void method1();
 }
@@ -47,7 +45,7 @@ public class ProxyTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		System.out.println("begin");
 		try {
 			Object o = Proxy
 					.newProxyInstance(

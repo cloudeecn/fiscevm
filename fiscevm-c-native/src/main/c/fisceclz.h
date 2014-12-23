@@ -38,6 +38,7 @@
 #define FY_FIELDF_DAEMON ".daemon.Z"
 #define FY_ATT_CODE "Code"
 #define FY_ATT_LINENUM "LineNumberTable"
+#define FY_ATT_STACK_MAP_TABLE "StackMapTable"
 #define FY_ATT_SYNTH "Synthetic"
 #define FY_ATT_SOURCE_FILE "SourceFile"
 #define FY_ATT_CONSTANT_VALIE "ConstantValue"

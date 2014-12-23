@@ -30,7 +30,7 @@
 #include "fyc/ClassLoader.h"
 #include "fyc/Thread.h"
 
-static const char* dirs[]={NULL, NULL};
+static const char* dirs[] = { NULL, NULL };
 
 typedef struct FY_TEST_FUN {
 	char *name;
@@ -180,7 +180,7 @@ void testString() {
 	fy_strAppendUTF8(block, js2, cc2, 999, exception);
 	TEST_EXCEPTION(exception);
 	for (i = 0; i < js->length; i++) {
-		printf("%d ", (fy_uint) fy_strGet(js,i));
+		printf("%d ", (fy_uint) fy_strGet(js, i));
 	}
 	printf("\n");
 	fy_strPrint(js);
@@ -522,6 +522,27 @@ void testHeap() {
 	fy_strDestroy(block, compare);
 }
 
+void testPreverifier() {
+	const char *testClass = "java/util/Properties";
+	const char *testMethod = "java/util/Properties.loadImpl.(Ljava/io/Reader;)V";
+	fy_str className[1], methodName[1];
+	fy_method *method;
+
+	exception->exceptionType = exception_none;
+	className->content = NULL;
+	methodName->content = NULL;
+	fy_strInitWithUTF8(block, className, testClass, exception);
+	TEST_EXCEPTION(exception);
+	fy_strInitWithUTF8(block, methodName, testMethod, exception);
+	TEST_EXCEPTION(exception);
+	fy_clLoadclass(context, className, exception);
+	TEST_EXCEPTION(exception);
+	method = fy_vmGetMethod(context, methodName);
+	ASSERT(method != NULL);
+	fy_preverify(context, method, exception);
+	TEST_EXCEPTION(exception);
+}
+
 static void testFail(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
 		fy_exception *exception) {
@@ -623,7 +644,7 @@ static void hltest2(char *name) {
 	fy_exception ex;
 	fy_context *context;
 	fy_exception *exception = &ex;
-	fy_boolean loadMode=FALSE;
+	fy_boolean loadMode = FALSE;
 	if (name == NULL) {
 		fy_log("+++Executing test case Load2+++\n", name);
 	} else {
@@ -645,7 +666,7 @@ static void hltest2(char *name) {
 		context->saveloadParam = "save2.dat";
 		fy_vmBootFromData(context, exception);
 		TEST_EXCEPTION(exception);
-		loadMode=TRUE;
+		loadMode = TRUE;
 	} else {
 		fy_vmBootup(context, name, exception);
 		TEST_EXCEPTION(exception);
@@ -676,12 +697,12 @@ static void hltest2(char *name) {
 			break;
 		case message_sleep:
 //			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
-			if(!loadMode){
-			message.messageType = message_vm_dead;
-			dead = 1;
-			context->saveloadParam = "save2.dat";
-			fy_vmSave(context, exception);
-			TEST_EXCEPTION(exception);
+			if (!loadMode) {
+				message.messageType = message_vm_dead;
+				dead = 1;
+				context->saveloadParam = "save2.dat";
+				fy_vmSave(context, exception);
+				TEST_EXCEPTION(exception);
 			}
 			break;
 		case message_vm_dead:
@@ -869,6 +890,10 @@ void testCustom(char *customTest) {
 		testSaveLoad2();
 	} else if (strcmp(customTest, "RIS") == 0) {
 		testRIS();
+	} else if (strcmp(customTest, "PERVERIFIER") == 0) {
+		testAllocate1();
+		testPreverifier();
+		testCleanup1();
 	} else {
 		hltest(customTest);
 	}
@@ -887,6 +912,7 @@ FY_TEST_FUN testcases[] = { //
 				{ "classloader", testClassLoader }, //
 				{ "classLoaderFull", testClassLoaderFull }, //
 				{ "classMethod", testClassMethod }, //
+				{ "preverifier", testPreverifier }, //
 				{ "heap", testHeap }, //
 				{ "cleanup1", testCleanup1 }, //
 				{ "Arch", testArch }, //
@@ -926,7 +952,7 @@ int main(int argc, char *argv[]) {
 	setvbuf(stdout, NULL, _IONBF, 1024);
 	if (argc < 2) {
 		dirs[0] = "runtime";
-	}else{
+	} else {
 		dirs[0] = argv[1];
 	}
 	printf("Base dir: %s\n", dirs[0]);
