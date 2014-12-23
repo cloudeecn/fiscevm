@@ -1,7 +1,7 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
  *fiscevmis free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,7 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "fyc/Preverifier.h"
@@ -261,11 +261,9 @@ static fy_int code_length[255] = {
 
 };
 
-#ifdef FY_VERBOSE
-#define FY_VERBOSE_PREVERIFIER
+#ifdef FY_VERBOSE_XX
+# define FY_VERBOSE_PREVERIFIER
 #endif
-
-#define FY_VERBOSE_PREVERIFIER
 
 static fy_int getIcFromPc(fy_context *context, fy_int pc,
 		fy_hashMapI *tmpPcIcMap, fy_exception *exception) {
@@ -894,7 +892,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 	fy_uint codeLength = method->codeLength;
 	fy_uint pc = 0, lpc = 0;
 	fy_instruction *instruction;
-	fy_uint instCount = 0;
+	fy_uint instCount = FY_IP_begin;
 	fy_int ic = 0;
 	fy_int op;
 	fy_switch_table *switchTable;
@@ -910,27 +908,34 @@ void fy_preverify(fy_context *context, fy_method *method,
 
 	struct read_stack_status smtStatus;
 
+	fy_e2_label_holder *labels;
+	fy_e2_label labelsByOp[0x200];
+	fy_engine engine;
+
 	fy_uint ivalue3, ivalue, ivalue2, ivalue4;
 #ifdef FY_VERBOSE_PREVERIFIER
-	fy_class *owner = method->owner;
 	context->logDVar(context, "Preverifing [");
 	context->logDStr(context, method->uniqueName);
 	context->logDVarLn(context, "]");
 	context->logDVarLn(context,
 			"max_locals = %"FY_PRINT32"d max_stack = %"FY_PRINT32"d",
 			method->max_locals, method->max_stack);
-	/*
-	 imax=owner->fieldCount;
-	 for(i=0;i<imax;i++){
-	 context->logDStr(context,owner->fields[i]->uniqueName);
-	 context->logDVarLn(context," ###");
-	 }
-	 */
 #endif
 	if (method->access_flags & FY_ACC_VERIFIED) {
 		fy_fault(exception, NULL, "Method already preverified");
 		FYEH();
 	}
+
+	engine = context->engines[method->method_id % context->engineCount];
+	memset(labelsByOp, 0, sizeof(labelsByOp));
+
+	labels = ((*engine)(context, NULL, NULL, 0, exception)).labels;
+	FYEH();
+	while (labels->op >= 0) {
+		labelsByOp[labels->op] = labels->label;
+		labels++;
+	}
+	method->engine = engine;
 
 	fy_hashMapIInit(context->memblocks, tmpSwitchTargets, 4, 12, -1, exception);
 	FYEH();
@@ -951,7 +956,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_fault(exception, NULL, "Illegal op %d", op);
 			FYEH();
 		}
-		if (op == LOOKUPSWITCH) {
+		if (op == FY_OP_lookupswitch) {
 			ivalue4 = context->switchTargets->length;
 			fy_hashMapIPut(context->memblocks, tmpSwitchTargets, instCount,
 					ivalue4, exception);
@@ -980,7 +985,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				;
 			}
 			switchLookup->nextPC = pc;
-		} else if (op == TABLESWITCH) {
+		} else if (op == FY_OP_tableswitch) {
 			ivalue4 = context->switchTargets->length;
 			fy_hashMapIPut(context->memblocks, tmpSwitchTargets, instCount,
 					ivalue4, exception);
@@ -1010,8 +1015,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 				;
 			}
 			switchTable->nextPC = pc;
-		} else if (op == WIDE) {
-			if (code[pc + 1] == IINC) {
+		} else if (op == FY_OP_wide) {
+			if (code[pc + 1] == FY_OP_iinc) {
 				pc += 6;
 			} else {
 				pc += 4;
@@ -1025,11 +1030,12 @@ void fy_preverify(fy_context *context, fy_method *method,
 		}
 		instCount++;
 	}
-	method->codeLength = instCount;
+	method->codeLength = instCount + 1;
 	method->instructions = fy_mmAllocatePerm(context->memblocks,
 			instCount * sizeof(fy_instruction), exception);
 	FYEH();
 	pc = 0;
+	ic = FY_IP_begin;
 
 	smt = method->stackMapTable;
 #ifdef FY_VERBOSE_PREVERIFIER
@@ -1094,8 +1100,6 @@ void fy_preverify(fy_context *context, fy_method *method,
 		}
 
 		op = fy_nextU1(code);
-		instruction->op = op;
-
 #if 0
 		context->logDStr(context,method->uniqueName);
 		context->logDVarLn(context," + pc=%d inst=%d op=[%d,%s]", pc - 1, ic - 1, op,
@@ -1104,34 +1108,34 @@ void fy_preverify(fy_context *context, fy_method *method,
 		switch (op) {
 		/*NO_PARAM*/
 		/*DONT CARE*/
-		case BREAKPOINT:
-		case ARETURN:
-		case FRETURN:
-		case IRETURN:
-		case LRETURN:
-		case DRETURN:
-		case RETURN:
-		case ATHROW: {
+		case FY_OP_breakpoint:
+		case FY_OP_areturn:
+		case FY_OP_freturn:
+		case FY_OP_ireturn:
+		case FY_OP_lreturn:
+		case FY_OP_dreturn:
+		case FY_OP_return:
+		case FY_OP_athrow: {
 			smtStatus.tmp->sp = 0xffffffff;
 		}
 			break;
 			/*NO_STACK_CHANGE/NO_LOCAL_CHANGE*/
-		case UNUSED_BA:
-		case NOP:
-		case I2B:
-		case I2S:
-		case I2C:
-		case I2F:
-		case INEG:
-		case F2I:
-		case FNEG:
-		case LNEG:
-		case L2D:
-		case LALOAD:
-		case D2L:
-		case DNEG:
-		case DALOAD:
-		case SWAP: {
+		case FY_OP_unused_ba:
+		case FY_OP_nop:
+		case FY_OP_i2b:
+		case FY_OP_i2s:
+		case FY_OP_i2c:
+		case FY_OP_i2f:
+		case FY_OP_ineg:
+		case FY_OP_f2i:
+		case FY_OP_fneg:
+		case FY_OP_lneg:
+		case FY_OP_l2d:
+		case FY_OP_laload:
+		case FY_OP_d2l:
+		case FY_OP_dneg:
+		case FY_OP_daload:
+		case FY_OP_swap: {
 // same content
 			smtStatus.tmp->sp = instruction->sp;
 			smtStatus.tmp->s = instruction->s;
@@ -1140,7 +1144,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case ARRAYLENGTH: {
+		case FY_OP_arraylength: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp, exception);
 			FYEH();
@@ -1149,34 +1153,34 @@ void fy_preverify(fy_context *context, fy_method *method,
 		}
 			break;
 			/*POP 1/NO_LOCAL_CHANGE*/
-		case IADD:
-		case ISUB:
-		case IMUL:
-		case IDIV:
-		case IREM:
-		case IAND:
-		case IOR:
-		case IXOR:
-		case ISHL:
-		case ISHR:
-		case IUSHR:
-		case LSHL:
-		case LSHR:
-		case LUSHR:
-		case FADD:
-		case FSUB:
-		case FMUL:
-		case FDIV:
-		case FREM:
-		case FCMPG:
-		case FCMPL:
-		case D2F:
-		case D2I:
-		case L2F:
-		case L2I:
-		case MONITORENTER:
-		case MONITOREXIT:
-		case POP: {
+		case FY_OP_iadd:
+		case FY_OP_isub:
+		case FY_OP_imul:
+		case FY_OP_idiv:
+		case FY_OP_irem:
+		case FY_OP_iand:
+		case FY_OP_ior:
+		case FY_OP_ixor:
+		case FY_OP_ishl:
+		case FY_OP_ishr:
+		case FY_OP_iushr:
+		case FY_OP_lshl:
+		case FY_OP_lshr:
+		case FY_OP_lushr:
+		case FY_OP_fadd:
+		case FY_OP_fsub:
+		case FY_OP_fmul:
+		case FY_OP_fdiv:
+		case FY_OP_frem:
+		case FY_OP_fcmpg:
+		case FY_OP_fcmpl:
+		case FY_OP_d2f:
+		case FY_OP_d2i:
+		case FY_OP_l2f:
+		case FY_OP_l2i:
+		case FY_OP_monitorenter:
+		case FY_OP_monitorexit:
+		case FY_OP_pop: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1184,7 +1188,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*POP 1/WRITE_LOCAL*/
-		case ASTORE_0: {
+		case FY_OP_astore_0: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1196,7 +1200,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case ASTORE_1: {
+		case FY_OP_astore_1: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1208,7 +1212,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case ASTORE_2: {
+		case FY_OP_astore_2: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1220,7 +1224,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case ASTORE_3: {
+		case FY_OP_astore_3: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1232,8 +1236,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case FSTORE_0:
-		case ISTORE_0: {
+		case FY_OP_fstore_0:
+		case FY_OP_istore_0: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1245,8 +1249,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case FSTORE_1:
-		case ISTORE_1: {
+		case FY_OP_fstore_1:
+		case FY_OP_istore_1: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1258,8 +1262,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case FSTORE_2:
-		case ISTORE_2: {
+		case FY_OP_fstore_2:
+		case FY_OP_istore_2: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1271,8 +1275,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case FSTORE_3:
-		case ISTORE_3: {
+		case FY_OP_fstore_3:
+		case FY_OP_istore_3: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1285,7 +1289,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*POP 1, MODIFY 1/NO_LOCAL_CHANGE*/
-		case AALOAD: {
+		case FY_OP_aaload: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1293,11 +1297,11 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 			break;
 		}
-		case IALOAD:
-		case FALOAD:
-		case BALOAD:
-		case CALOAD:
-		case SALOAD: {
+		case FY_OP_iaload:
+		case FY_OP_faload:
+		case FY_OP_baload:
+		case FY_OP_caload:
+		case FY_OP_saload: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 1, exception);
 			FYEH();
@@ -1306,20 +1310,20 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*POP 2/NO_LOCAL_CHANGE*/
-		case POP2:
-		case LADD:
-		case LSUB:
-		case LMUL:
-		case LDIV:
-		case LREM:
-		case LAND:
-		case LOR:
-		case LXOR:
-		case DADD:
-		case DSUB:
-		case DMUL:
-		case DDIV:
-		case DREM: {
+		case FY_OP_pop2:
+		case FY_OP_ladd:
+		case FY_OP_lsub:
+		case FY_OP_lmul:
+		case FY_OP_ldiv:
+		case FY_OP_lrem:
+		case FY_OP_land:
+		case FY_OP_lor:
+		case FY_OP_lxor:
+		case FY_OP_dadd:
+		case FY_OP_dsub:
+		case FY_OP_dmul:
+		case FY_OP_ddiv:
+		case FY_OP_drem: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 2, exception);
 			FYEH();
@@ -1327,8 +1331,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*POP 2/WRITE_LOCAL*/
-		case DSTORE_0:
-		case LSTORE_0: {
+		case FY_OP_dstore_0:
+		case FY_OP_lstore_0: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 2, exception);
 			FYEH();
@@ -1341,8 +1345,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case DSTORE_1:
-		case LSTORE_1: {
+		case FY_OP_dstore_1:
+		case FY_OP_lstore_1: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 2, exception);
 			FYEH();
@@ -1355,8 +1359,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case DSTORE_2:
-		case LSTORE_2: {
+		case FY_OP_dstore_2:
+		case FY_OP_lstore_2: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 2, exception);
 			FYEH();
@@ -1369,8 +1373,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 			break;
 		}
-		case DSTORE_3:
-		case LSTORE_3: {
+		case FY_OP_dstore_3:
+		case FY_OP_lstore_3: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 2, exception);
 			FYEH();
@@ -1384,15 +1388,15 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*POP 3/NO_LOCAL_CHANGE*/
-		case AASTORE:
-		case IASTORE:
-		case FASTORE:
-		case BASTORE:
-		case CASTORE:
-		case SASTORE:
-		case DCMPG:
-		case DCMPL:
-		case LCMP: {
+		case FY_OP_aastore:
+		case FY_OP_iastore:
+		case FY_OP_fastore:
+		case FY_OP_bastore:
+		case FY_OP_castore:
+		case FY_OP_sastore:
+		case FY_OP_dcmpg:
+		case FY_OP_dcmpl:
+		case FY_OP_lcmp: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 3, exception);
 			FYEH();
@@ -1400,8 +1404,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*POP 4/NO_LOCAL_CHANGE*/
-		case DASTORE:
-		case LASTORE: {
+		case FY_OP_dastore:
+		case FY_OP_lastore: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp - 4, exception);
 			FYEH();
@@ -1409,11 +1413,11 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*PUSH 1, NO_LOCAL_CHANGE*/
-		case ACONST_NULL:
-		case ALOAD_0:
-		case ALOAD_1:
-		case ALOAD_2:
-		case ALOAD_3: {
+		case FY_OP_aconst_null:
+		case FY_OP_aload_0:
+		case FY_OP_aload_1:
+		case FY_OP_aload_2:
+		case FY_OP_aload_3: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp + 1, exception);
 			FYEH();
@@ -1421,28 +1425,28 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 			break;
 		}
-		case ICONST_0:
-		case ICONST_1:
-		case ICONST_2:
-		case ICONST_3:
-		case ICONST_4:
-		case ICONST_5:
-		case ICONST_M1:
-		case ILOAD_0:
-		case ILOAD_1:
-		case ILOAD_2:
-		case ILOAD_3:
-		case FCONST_0:
-		case FCONST_1:
-		case FCONST_2:
-		case FLOAD_0:
-		case FLOAD_1:
-		case FLOAD_2:
-		case FLOAD_3:
-		case I2D:
-		case I2L:
-		case F2D:
-		case F2L: {
+		case FY_OP_iconst_0:
+		case FY_OP_iconst_1:
+		case FY_OP_iconst_2:
+		case FY_OP_iconst_3:
+		case FY_OP_iconst_4:
+		case FY_OP_iconst_5:
+		case FY_OP_iconst_m1:
+		case FY_OP_iload_0:
+		case FY_OP_iload_1:
+		case FY_OP_iload_2:
+		case FY_OP_iload_3:
+		case FY_OP_fconst_0:
+		case FY_OP_fconst_1:
+		case FY_OP_fconst_2:
+		case FY_OP_fload_0:
+		case FY_OP_fload_1:
+		case FY_OP_fload_2:
+		case FY_OP_fload_3:
+		case FY_OP_i2d:
+		case FY_OP_i2l:
+		case FY_OP_f2d:
+		case FY_OP_f2l: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp + 1, exception);
 			FYEH();
@@ -1451,18 +1455,18 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*PUSH 2, NO_LOCAL_CHANGE*/
-		case DCONST_0:
-		case DCONST_1:
-		case DLOAD_0:
-		case DLOAD_1:
-		case DLOAD_2:
-		case DLOAD_3:
-		case LCONST_0:
-		case LCONST_1:
-		case LLOAD_0:
-		case LLOAD_1:
-		case LLOAD_2:
-		case LLOAD_3: {
+		case FY_OP_dconst_0:
+		case FY_OP_dconst_1:
+		case FY_OP_dload_0:
+		case FY_OP_dload_1:
+		case FY_OP_dload_2:
+		case FY_OP_dload_3:
+		case FY_OP_lconst_0:
+		case FY_OP_lconst_1:
+		case FY_OP_lload_0:
+		case FY_OP_lload_1:
+		case FY_OP_lload_2:
+		case FY_OP_lload_3: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp + 2, exception);
 			FYEH();
@@ -1472,7 +1476,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 		}
 			/*X-DUPS*/
-		case DUP: {
+		case FY_OP_dup: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp + 1, exception);
 			FYEH();
@@ -1481,7 +1485,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 					fy_instGetStackItem(instruction, instruction->sp - 1));
 			break;
 		}
-		case DUP_X1: {
+		case FY_OP_dup_x1: {
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp + 1, exception);
 			FYEH();
@@ -1494,7 +1498,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 					fy_instGetStackItem(instruction, instruction->sp - 1));
 			break;
 		}
-		case DUP_X2:
+		case FY_OP_dup_x2:
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp,
 					instruction->sp + 1, exception);
 			FYEH();
@@ -1504,7 +1508,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-2, fy_instGetStackItem(instruction, instruction->sp - 2));
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-1, fy_instGetStackItem(instruction, instruction->sp - 1));
 			break;
-			case DUP2:
+			case FY_OP_dup2:
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
 			FYEH();
 			fy_instStackItemClone(instruction, smtStatus.tmp);
@@ -1513,7 +1517,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-2, fy_instGetStackItem(instruction, instruction->sp - 2));
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-1, fy_instGetStackItem(instruction, instruction->sp - 1));
 			break;
-			case DUP2_X1:
+			case FY_OP_dup2_x1:
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
 			FYEH();
 			fy_instStackItemClone(instruction, smtStatus.tmp);
@@ -1523,7 +1527,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-2, fy_instGetStackItem(instruction, instruction->sp - 2));
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp-1, fy_instGetStackItem(instruction, instruction->sp - 1));
 			break;
-			case DUP2_X2:
+			case FY_OP_dup2_x2:
 			fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
 			FYEH();
 			fy_instStackItemClone(instruction, smtStatus.tmp);
@@ -1536,7 +1540,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			break;
 			/*******/
 
-			case ALOAD: /*local var id*/
+			case FY_OP_aload: /*local var id*/
 			{
 				instruction->params.int_params.param1 = fy_nextU1(code);
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
@@ -1545,7 +1549,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 				break;
 			}
-			case ASTORE:/*local var id*/
+			case FY_OP_astore:/*local var id*/
 			{
 				instruction->params.int_params.param1 = fy_nextU1(code);
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
@@ -1557,8 +1561,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 				break;
 			}
-			case DLOAD:/*local var id*/
-			case LLOAD:/*local var id*/
+			case FY_OP_dload:/*local var id*/
+			case FY_OP_lload:/*local var id*/
 			{
 				instruction->params.int_params.param1 = fy_nextU1(code);
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
@@ -1568,8 +1572,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 				break;
 			}
-			case DSTORE:/*local var id*/
-			case LSTORE:/*local var id*/
+			case FY_OP_dstore:/*local var id*/
+			case FY_OP_lstore:/*local var id*/
 			{
 				instruction->params.int_params.param1 = fy_nextU1(code);
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 2, exception);
@@ -1583,8 +1587,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 				break;
 			}
 
-			case FLOAD:/*local var id*/
-			case ILOAD:/*local var id*/
+			case FY_OP_fload:/*local var id*/
+			case FY_OP_iload:/*local var id*/
 			{
 				instruction->params.int_params.param1 = fy_nextU1(code);
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
@@ -1593,8 +1597,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 				break;
 			}
-			case FSTORE:/*local var id*/
-			case ISTORE:/*local var id*/
+			case FY_OP_fstore:/*local var id*/
+			case FY_OP_istore:/*local var id*/
 			{
 				instruction->params.int_params.param1 = fy_nextU1(code);
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
@@ -1606,7 +1610,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 				break;
 			}
-			case RET:/*local var id*/
+			case FY_OP_ret:/*local var id*/
 			{
 				//TODO RET/JSR is no longer supported
 				instruction->params.int_params.param1 = fy_nextU1(code);
@@ -1616,7 +1620,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				FYEH();
 				break;
 			}
-			case LDC: /*constant id*/
+			case FY_OP_ldc: /*constant id*/
 			{
 				instruction->params.ldc.derefed = FALSE;
 				instruction->params.ldc.value = fy_nextU1(code);
@@ -1639,7 +1643,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case LDC_W: /*constant id*/
+			case FY_OP_ldc_w: /*constant id*/
 			{
 				instruction->params.ldc.derefed = FALSE;
 				instruction->params.ldc.value = fy_nextU2(code);
@@ -1662,7 +1666,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case LDC2_W: /*constant id*/
+			case FY_OP_ldc2_w: /*constant id*/
 			{
 				instruction->params.ldc.derefed = FALSE;
 				instruction->params.ldc.value = fy_nextU2(code);
@@ -1674,7 +1678,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				break;
 			}
 
-			case NEWARRAY: /*type*/
+			case FY_OP_newarray: /*type*/
 			{
 				instruction->params.int_params.param1 = fy_nextU1(code);
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp, exception);
@@ -1683,7 +1687,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 				break;
 			}
-			case BIPUSH: {
+			case FY_OP_bipush: {
 				instruction->params.int_params.param1 = fy_nextS1(code); /*value*/
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
 				FYEH();
@@ -1691,7 +1695,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 				break;
 			}
-			case SIPUSH: {
+			case FY_OP_sipush: {
 				instruction->params.int_params.param1 = fy_nextS2(code); /*value*/
 				fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
 				FYEH();
@@ -1699,7 +1703,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 				break;
 			}
-			case ANEWARRAY: /*Constant id -> class constant*/
+			case FY_OP_anewarray: /*Constant id -> class constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.clazz = fy_vmLookupClassFromConstant(context,
@@ -1711,7 +1715,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 				break;
 			}
-			case CHECKCAST: /*Constant id -> class constant*/
+			case FY_OP_checkcast: /*Constant id -> class constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.clazz = fy_vmLookupClassFromConstant(context,
@@ -1724,7 +1728,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 				break;
 			}
-			case INSTANCEOF: /*Constant id -> class constant*/
+			case FY_OP_instanceof: /*Constant id -> class constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.clazz = fy_vmLookupClassFromConstant(context,
@@ -1736,7 +1740,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 				break;
 			}
-			case NEW: {
+			case FY_OP_new: {
 				target = fy_nextU2(code)
 				;
 				instruction->params.clazz = fy_vmLookupClassFromConstant(context,
@@ -1748,7 +1752,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 				break;
 			}
-			case GETFIELD: /*Constant id -> field constant*/
+			case FY_OP_getfield: /*Constant id -> field constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.field = fy_vmLookupFieldFromConstant(context,
@@ -1758,6 +1762,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 					case 'D':
 					case 'J':
 					{
+						op = FY_OP_getfield_x;
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
 						FYEH();
 						fy_instStackItemClone(instruction, smtStatus.tmp);
@@ -1785,7 +1790,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case GETSTATIC: /*Constant id -> field constant*/
+			case FY_OP_getstatic: /*Constant id -> field constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.field = fy_vmLookupFieldFromConstant(context,
@@ -1795,6 +1800,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 					case 'D':
 					case 'J':
 					{
+						op = FY_OP_getstatic_x;
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
 						FYEH();
 						fy_instStackItemClone(instruction, smtStatus.tmp);
@@ -1822,7 +1828,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case PUTFIELD: /*Constant id -> field constant*/
+			case FY_OP_putfield: /*Constant id -> field constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.field = fy_vmLookupFieldFromConstant(context,
@@ -1832,6 +1838,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 					case 'D':
 					case 'J':
 					{
+						op = FY_OP_putfield_x;
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 3, exception);
 						FYEH();
 						fy_instStackItemClone(instruction, smtStatus.tmp);
@@ -1847,7 +1854,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case PUTSTATIC: /*Constant id -> field constant*/
+			case FY_OP_putstatic: /*Constant id -> field constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.field = fy_vmLookupFieldFromConstant(context,
@@ -1857,6 +1864,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 					case 'D':
 					case 'J':
 					{
+						op=FY_OP_putstatic_x;
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 2, exception);
 						FYEH();
 						fy_instStackItemClone(instruction, smtStatus.tmp);
@@ -1872,7 +1880,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case INVOKESPECIAL:/*Constant id -> method constant*/
+			case FY_OP_invokespecial:/*Constant id -> method constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.method = fy_vmLookupMethodFromConstant(context,
@@ -1909,7 +1917,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case INVOKESTATIC:/*Constant id -> method constant*/
+			case FY_OP_invokestatic:/*Constant id -> method constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.method = fy_vmLookupMethodFromConstant(context,
@@ -1943,7 +1951,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case INVOKEVIRTUAL: /*Constant id -> method constant*/
+			case FY_OP_invokevirtual: /*Constant id -> method constant*/
 			{
 				target = fy_nextU2(code);
 				instruction->params.method = fy_vmLookupMethodFromConstant(context,
@@ -1977,7 +1985,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case INVOKEINTERFACE: {
+			case FY_OP_invokeinterface: {
 				target = fy_nextU2(code);
 				instruction->params.method = fy_vmLookupMethodFromConstant(context,
 						method->owner->constantPools[target], exception);
@@ -2013,7 +2021,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				}
 				break;
 			}
-			case GOTO:
+			case FY_OP_goto:
 			{
 				target = pc - 1 + fy_nextS2(code);
 				instruction->params.int_params.param1 = getIcFromPc(context, target,
@@ -2022,14 +2030,14 @@ void fy_preverify(fy_context *context, fy_method *method,
 				smtStatus.tmp->sp = 0xffffffff;
 				break;
 			}
-			case IF_ACMPEQ:
-			case IF_ACMPNE:
-			case IF_ICMPEQ:
-			case IF_ICMPGE:
-			case IF_ICMPGT:
-			case IF_ICMPLE:
-			case IF_ICMPLT:
-			case IF_ICMPNE: {
+			case FY_OP_if_acmpeq:
+			case FY_OP_if_acmpne:
+			case FY_OP_if_icmpeq:
+			case FY_OP_if_icmpge:
+			case FY_OP_if_icmpgt:
+			case FY_OP_if_icmple:
+			case FY_OP_if_icmplt:
+			case FY_OP_if_icmpne: {
 				target = pc - 1 + fy_nextS2(code);
 				instruction->params.int_params.param1 = getIcFromPc(context, target,
 						tmpPcIcMap, exception);
@@ -2039,14 +2047,14 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instStackItemClone(instruction, smtStatus.tmp);
 				break;
 			}
-			case IFEQ:
-			case IFGE:
-			case IFGT:
-			case IFLE:
-			case IFLT:
-			case IFNE:
-			case IFNONNULL:
-			case IFNULL: {
+			case FY_OP_ifeq:
+			case FY_OP_ifge:
+			case FY_OP_ifgt:
+			case FY_OP_ifle:
+			case FY_OP_iflt:
+			case FY_OP_ifne:
+			case FY_OP_ifnonnull:
+			case FY_OP_ifnull: {
 				target = pc - 1 + fy_nextS2(code)
 				;
 				instruction->params.int_params.param1 = getIcFromPc(context, target,
@@ -2057,7 +2065,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instStackItemClone(instruction, smtStatus.tmp);
 				break;
 			}
-			case GOTO_W: {
+			case FY_OP_goto_w: {
 				target = pc - 1 + fy_nextS4(code)
 				; /*jump*/
 				instruction->params.int_params.param1 = getIcFromPc(context, target,
@@ -2066,7 +2074,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				smtStatus.tmp->sp = 0xffffffff;
 				break;
 			}
-			case JSR: {
+			case FY_OP_jsr: {
 				target = pc - 1 + fy_nextS2(code)
 				; /*jump*/
 				instruction->params.int_params.param1 = getIcFromPc(context, target,
@@ -2078,7 +2086,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				FYEH();
 				break;
 			}
-			case JSR_W: {
+			case FY_OP_jsr_w: {
 				target = pc - 1 + fy_nextS4(code)
 				; /*jump*/
 				instruction->params.int_params.param1 = getIcFromPc(context, target,
@@ -2090,7 +2098,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				FYEH();
 				break;
 			}
-			case IINC: {
+			case FY_OP_iinc: {
 				instruction->params.int_params.param1 = fy_nextU1(code); /*local var id*/
 				instruction->params.int_params.param2 = fy_nextS1(code); /*value*/
 				smtStatus.tmp->sp = instruction->sp;
@@ -2100,7 +2108,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 				break;
 			}
-			case MULTIANEWARRAY: {
+			case FY_OP_multianewarray: {
 				instruction->params.int_params.param1 = fy_nextU2(code)
 				; /*Constant id-> class Constant*/
 				instruction->params.int_params.param2 = fy_nextU1(code); /*count*/
@@ -2110,7 +2118,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 				break;
 			}
-			case LOOKUPSWITCH: {
+			case FY_OP_lookupswitch: {
 				target = fy_hashMapIGet(context->memblocks, tmpSwitchTargets,
 						ic - 1);
 				if (target == -1) {
@@ -2134,7 +2142,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instStackItemClone(instruction, smtStatus.tmp);
 				break;
 			}
-			case TABLESWITCH: {
+			case FY_OP_tableswitch: {
 				target = fy_hashMapIGet(context->memblocks, tmpSwitchTargets,
 						ic - 1);
 				if (target == -1) {
@@ -2158,9 +2166,10 @@ void fy_preverify(fy_context *context, fy_method *method,
 				fy_instStackItemClone(instruction, smtStatus.tmp);
 				break;
 			}
-			case WIDE: {
-				switch (instruction->op = fy_nextU1(code)) {
-					case ALOAD: /*local var id*/
+			case FY_OP_wide: {
+				op = fy_nextU1(code);
+				switch (op) {
+					case FY_OP_aload: /*local var id*/
 					{
 						instruction->params.int_params.param1 = fy_nextU2(code);
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
@@ -2169,7 +2178,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 						break;
 					}
-					case ASTORE:/*local var id*/
+					case FY_OP_astore:/*local var id*/
 					{
 						instruction->params.int_params.param1 = fy_nextU2(code);
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
@@ -2181,8 +2190,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 						break;
 					}
-					case DLOAD:/*local var id*/
-					case LLOAD:/*local var id*/
+					case FY_OP_dload:/*local var id*/
+					case FY_OP_lload:/*local var id*/
 					{
 						instruction->params.int_params.param1 = fy_nextU2(code);
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 2, exception);
@@ -2192,8 +2201,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 						break;
 					}
-					case DSTORE:/*local var id*/
-					case LSTORE:/*local var id*/
+					case FY_OP_dstore:/*local var id*/
+					case FY_OP_lstore:/*local var id*/
 					{
 						instruction->params.int_params.param1 = fy_nextU2(code);
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 2, exception);
@@ -2206,8 +2215,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 						break;
 					}
-					case FLOAD:/*local var id*/
-					case ILOAD:/*local var id*/
+					case FY_OP_fload:/*local var id*/
+					case FY_OP_iload:/*local var id*/
 					{
 						instruction->params.int_params.param1 = fy_nextU2(code);
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp + 1, exception);
@@ -2216,8 +2225,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 						break;
 					}
-					case FSTORE:/*local var id*/
-					case ISTORE:/*local var id*/
+					case FY_OP_fstore:/*local var id*/
+					case FY_OP_istore:/*local var id*/
 					{
 						instruction->params.int_params.param1 = fy_nextU2(code);
 						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction->sp - 1, exception);
@@ -2229,7 +2238,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 						break;
 					}
-					case RET:/*local var id*/
+					case FY_OP_ret:/*local var id*/
 					{
 						instruction->params.int_params.param1 = fy_nextU2(code);
 						fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
@@ -2238,7 +2247,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 						FYEH();
 						break;
 					}
-					case IINC: {
+					case FY_OP_iinc: {
 						instruction->params.int_params.param1 = fy_nextU2(code);
 						instruction->params.int_params.param2 = fy_nextS2(code);
 						smtStatus.tmp->sp = instruction->sp;
@@ -2274,8 +2283,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #ifdef FY_STRICT_CHECK
 			context->logDVar(context, "%c",
 					i < instruction->localSize ?
-							fy_instGetStackItem(instruction, i) ? 'R' : 'I'
-							: '.');
+					fy_instGetStackItem(instruction, i) ? 'R' : 'I'
+					: '.');
 #else
 			context->logDVar(context, "%c",
 					fy_instGetStackItem(instruction, i) ? 'R' : 'I');
@@ -2303,7 +2312,15 @@ void fy_preverify(fy_context *context, fy_method *method,
 				instruction->params.int_params.param1,
 				instruction->params.int_params.param2);
 #endif
+		instruction->inst = labelsByOp[op];
+		if(instruction->inst == NULL){
+			fy_breakpoint();
+		}
+#ifdef FY_STRICT_CHECK
+		instruction->op = op;
+#endif
 	}
+	method->instructions->inst = labelsByOp[FY_OP_dropout];
 	preverifyMethodExceptionTable(context, method, tmpPcIcMap, exception);
 	preverifyMethodLineNumberTable(context, method, tmpPcIcMap, exception);
 	method->access_flags |= FY_ACC_VERIFIED;

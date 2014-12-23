@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "fy_util/String.h"
@@ -358,7 +358,7 @@ FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to) {
 	return str;
 }
 
-FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, fy_str *str) {
+FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, const fy_str *str) {
 	int i, count;
 	fy_char unicode;
 	char *tmp;

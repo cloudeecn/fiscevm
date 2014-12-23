@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "fisceprt.h"
@@ -68,6 +68,12 @@ static fy_port *port;
 	fy_log("Exception %s: %s occored!\n",(EXCEPTION)->exceptionName,(EXCEPTION)->exceptionDesc); \
 	FY_ASSERT("Critical exception in global"==NULL); \
 	return; \
+}
+
+#define TEST_EXCEPTION_RETURN(EXCEPTION, RETURN) if((EXCEPTION)->exceptionType!=exception_none) { \
+	fy_log("Exception %s: %s occored!\n",(EXCEPTION)->exceptionName,(EXCEPTION)->exceptionDesc); \
+	FY_ASSERT("Critical exception in global"==NULL); \
+	return RETURN; \
 }
 
 void test_init(void) {
@@ -543,20 +549,21 @@ void testPreverifier() {
 	TEST_EXCEPTION(exception);
 }
 
-static void testFail(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_uint *args, fy_int argsCount, fy_message *message,
+static fy_int testFail(struct fy_context *context, struct fy_thread *thread,
+		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
 		fy_exception *exception) {
 	fy_str str;
 	char msg[256];
 	memset(&str, 0, sizeof(str));
 	fy_strInit(context->memblocks, &str, 256, exception);
-	TEST_EXCEPTION(exception);
-	fy_heapGetString(context, args[0], &str, exception);
-	TEST_EXCEPTION(exception);
+	TEST_EXCEPTION_RETURN(exception, 0);
+	fy_heapGetString(context, args[0].uvalue, &str, exception);
+	TEST_EXCEPTION_RETURN(exception, 0);
 	fy_strSPrint(msg, sizeof(msg), &str);
 	fy_strDestroy(context->memblocks, &str);
 	fy_log("FAIL: %s\n", msg);
 	FY_ASSERT("Test fail in high level test."==NULL);
+	return ops - 1;
 
 }
 static void hltest(char *name) {
@@ -607,15 +614,6 @@ static void hltest(char *name) {
 			;
 			dead = 1;
 			break;
-		case message_exception:
-			fy_log("Thread %d Stopped at exception %s : %s\n",
-					message.thread->threadId,
-					message.body.exception.exceptionName,
-					message.body.exception.exceptionDesc);
-			FY_ASSERT("Critical exception in thread"==NULL)
-			;
-			dead = 1;
-			break;
 		case message_sleep:
 //			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
 			break;
@@ -624,7 +622,6 @@ static void hltest(char *name) {
 			dead = 1;
 			break;
 		case message_none:
-		case message_continue:
 		case message_thread_dead:
 		default:
 			fy_log("Invalid message type %d\n", message.messageType);
@@ -686,15 +683,6 @@ static void hltest2(char *name) {
 			;
 			dead = 1;
 			break;
-		case message_exception:
-			fy_log("Thread %d Stopped at exception %s : %s\n",
-					message.thread->threadId,
-					message.body.exception.exceptionName,
-					message.body.exception.exceptionDesc);
-			FY_ASSERT("Critical exception in thread"==NULL)
-			;
-			dead = 1;
-			break;
 		case message_sleep:
 //			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
 			if (!loadMode) {
@@ -710,8 +698,7 @@ static void hltest2(char *name) {
 			dead = 1;
 			break;
 		case message_none:
-		case message_continue:
-		case message_thread_dead:
+ 		case message_thread_dead:
 		default:
 			fy_log("Invalid message type %d\n", message.messageType);
 			break;

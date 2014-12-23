@@ -1,103 +1,1928 @@
-\ stack definitions:
-\E stack data-stack sp Cell
+\C#ifdef FY_ENGINE_HEADER
+\C#define Cell fy_stack_item
+\C
+\Cfy_engine_result FY_ENGINE_NAME(
+\C    fy_context *context,
+\C    fy_thread *thread,
+\C    fy_frame *frame,
+\C    fy_int ops,
+\C    fy_exception *exception) {
+\C#ifndef FY_LATE_DECLARATION
+\C#ifdef USE_CFA
+\C  register fy_instruction cfa;
+\C#endif
+\C  register fy_instruction *ipp;
+\C#ifdef FY_USE_TOS
+\C  register fy_stack_item sppTOS;
+\C#endif
+\C  register fy_stack_item *spp;
+\C
+\C  fy_instruction *instructions;
+\C  fy_stack_item *stack, *sbase;
+\C
+\C  fy_memblock *block;
+\C
+\C  fy_method *method = NULL;
+\C#endif
+\C
+\C#ifndef FY_LATE_DECLARATION
+\C  fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
+\C#endif
+\C
+\C  fy_engine_result ret;
+\C  static fy_e2_label_holder labels[] = {
+\C#undef FY_ENGINE_HEADER
+\C#include "fisce-labels.i"
+\C#define FY_ENGINE_HEADER
+\C      {0, -1}
+\C  };
+\C#ifdef MORE_VARS
+\C  MORE_VARS
+\C#endif
+\C
+\C#ifdef VM_DEBUG
+\C  FILE *vm_out = stdout;
+\C  const fy_uint vm_debug = 1;
+\C#endif
+\C
+\C
+\C
+\C  if(thread == NULL){
+\C    ret.labels = labels;
+\C  }else{
+\C#ifdef FY_LATE_DECLARATION
+\C
+\C
+\C#ifdef USE_CFA
+\C  register fy_instruction cfa;
+\C#endif
+\C  register fy_instruction *ipp;
+\C#ifdef FY_USE_TOS
+\C  register fy_stack_item sppTOS;
+\C#endif
+\C  register fy_stack_item *spp;
+\C
+\C  fy_instruction *instructions;
+\C  fy_stack_item *stack, *sbase;
+\C
+\C  fy_memblock *block;
+\C
+\C  fy_method *method = NULL;
+\C#endif
+\C
+\C  stack = thread->stack;
+\C  block = context->memblocks;
+\C
+\C  method = frame->method;
+\C  instructions = method->instructions;
+\C  sbase = frame->baseSpp;
+\C
+\C#ifdef VM_DEBUG
+\C  if(vm_debug){
+\C    fprintf(vm_out, "\nInvoking: ");
+\C    fy_strFPrint(vm_out, method->uniqueName);
+\C    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, stack));
+\C    if(frame->lpc + frame->pcofs == FY_IP_begin){
+\C#ifndef FY_LATE_DECLARATION
+\C      fy_uint i1, i2;
+\C      fprintf(vm_out, "[")
+\C      i2 = method->max_locals + method->max_stack;
+\C      for(i1 = 0; i1 < i2; i1++){
+\C        printarg_i(sbase + i1);
+\C        if(i1 < i2 - 1) fputs(vm_out, ", ");
+\C      }
+\C      fputs(vm_out, "]\n");
+\C#endif
+\C    }
+\C  }
+\C#endif
+\C
+\C  if ((method->access_flags & FY_ACC_CLINIT) && frame->lpc + frame->pcofs == FY_IP_begin) {
+\C#ifdef VM_DEBUG
+\C    if(vm_debug){
+\C      fprintf(vm_out, "Checking clinit for: ");
+\C      fy_strFPrint(vm_out, method->uniqueName);
+\C      fprintf(vm_out, "\n");
+\C    }
+\C#endif
+\C    //!CLINIT
+\C    ipp = method->instructions;
+\C    spp = frame->baseSpp + method->max_locals;
+\C    FY_ENGINE_CLINIT(method->owner)
+\C  }
+\C
+\C  SET_IP(frame->lpc += frame->pcofs);
+\C  frame->pcofs = 0;
+\C  NEXT_P1;
+\C  spp = frame->baseSpp + PCURR_INST->sp;
+\C  NEXT_P2;
+\C#endif
 
-\ stack prefix definitions
-\E inst-stream stack-prefix #
+\E store-optimization off
+
+\ stack definitions:
+\E stack data-stack spp fy_stack_item
+\E : sp-access-transform ( itemnum -- index ) negate 1- ;
+\E ' sp-access-transform ' data-stack >body stack-access-transform !
 
 \ type prefix definitions:
 \E s" fy_uint"   single data-stack type-prefix i
-\E s" fy_uint" single data-stack type-prefix a
 \E s" fy_float" single data-stack type-prefix f
+\E s" fy_double" double data-stack type-prefix d
+\E s" fy_ulong" double data-stack type-prefix l
+
+\ ######  ######    ###   #     #    #    ####### #######
+\ #     # #     #    #    #     #   # #      #    #
+\ #     # #     #    #    #     #  #   #     #    #
+\ ######  ######     #    #     # #     #    #    #####
+\ #       #   #      #     #   #  #######    #    #
+\ #       #    #     #      # #   #     #    #    #
+\ #       #     #   ###      #    #     #    #    #######
+
+dropout ( -- )
+{
+  #ifdef VM_DEBUG
+  if (vm_debug) {
+  fputs(" ### ", vm_out); fputc('\n', vm_out);
+  }
+  #endif
+  goto label_fallout_invoke;
+}
+
+\ #     # ####### ####### ######
+\ ##    # #     # #     # #     #
+\ # #   # #     # #     # #     #
+\ #  #  # #     # #     # ######
+\ #   # # #     # #     # #
+\ #    ## #     # #     # #
+\ #     # ####### ####### #
 
 nop ( -- )
 ;
 
-aaload (i1 a2 -- a)
-a = fy_heapGetArrayHandle(context, a2, i1, exception);
-FY_THEH
+pop (i1 -- )
+;
 
-iaload (i1 a2 -- i)
-i = fy_heapGetArrayHandle(context, a2, i1, exception);
-FY_THEH
+pop2 (i1 i2 -- )
+;
 
-faload (i1 a2 -- i)
-i = fy_heapGetArrayHandle(context, a2, i1, exception);
-FY_THEH
+\ #       #######  #####     #    #
+\ #       #     # #     #   # #   #
+\ #       #     # #        #   #  #
+\ #       #     # #       #     # #
+\ #       #     # #       ####### #
+\ #       #     # #     # #     # #
+\ ####### #######  #####  #     # #######
 
-aastore (a1 i2 a3 -- )
-fy_class *clazz1, *clazz2;
-clazz1 = fy_heapGetClassOfObject(context, a3, exception);
-clazz2 = clazz1->ci.arr.contentClass;
-if (a1 != 0 &&
-    !fy_classCanCastTo(context,
-                       fy_heapGetClassOfObject(context, a1, exception),
-                       clazz2,
-                       TRUE)) {
-  exception->exceptionType = exception_normal;
-  strcpy_s(exception->exceptionName,
-           sizeof(exception->exceptionName),
-           FY_EXCEPTION_STORE);
-  strcpy_s(exception->exceptionDesc,
-           sizeof(exception->exceptionDesc),
-           "Data type not compatable!");
-  message->messageType = message_exception;
-  FY_FALLOUT_NOINVOKE
-  break;/*EXCEPTION_THROWN*/
+iload ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(PCURR_INST->params.int_params.param1, ir);
 }
-fy_heapPutArrayHandle(context, a3, i2, a1,
-                      exception);
-FY_THEH
 
-iastore (i1 i2 a3 -- )
-fy_heapPutArrayInt(context, a3, i2, i, exception);
-FY_THEH
+fload ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #fload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(PCURR_INST->params.int_params.param1, ir);
+}
 
-fastore (i1 i2 a3 -- )
-fy_heapPutArrayInt(context, a3, i2, i, exception);
-FY_THEH
+aload ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #aload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalHandle(PCURR_INST->params.int_params.param1, ir);
+}
 
-aconst_null ( -- a)
-a = 0;
+iload_0 ( -- ir)
+{
+  fy_threadGetLocalInt(0, ir);
+}
 
-iload ( -- i)
-fy_threadGetLocalInt(instruction->params.int_params.param1, i);
+fload_0 ( -- ir)
+{
+  fy_threadGetLocalInt(0, ir);
+}
 
-aload ( -- a)
-fy_threadGetLocalHandle(instruction->params.int_params.param1, a);
+aload_0 ( -- ir)
+{
+  fy_threadGetLocalHandle(0, ir);
+}
 
-iload_0 ( -- i)
-fy_threadGetLocalInt(0, i);
+iload_1 ( -- ir)
+{
+  fy_threadGetLocalInt(1, ir);
+}
 
-fload_0 ( -- i)
-fy_threadGetLocalInt(0, i);
+fload_1 ( -- ir)
+{
+  fy_threadGetLocalInt(1, ir);
+}
 
-aload_0 ( -- a)
-fy_threadGetLocalHandle(0, a);
+aload_1 ( -- ir)
+{
+  fy_threadGetLocalHandle(1, ir);
+}
 
-iload_1 ( -- i)
-fy_threadGetLocalInt(1, i);
+iload_2 ( -- ir)
+{
+  fy_threadGetLocalInt(2, ir);
+}
 
-fload_1 ( -- i)
-fy_threadGetLocalInt(1, i);
+fload_2 ( -- ir)
+{
+  fy_threadGetLocalInt(2, ir);
+}
 
-aload_1 ( -- a)
-fy_threadGetLocalHandle(1, a);
+aload_2 ( -- ir)
+{
+  fy_threadGetLocalHandle(2, ir);
+}
 
-iload_2 ( -- i)
-fy_threadGetLocalInt(2, i);
+iload_3 ( -- ir)
+{
+  fy_threadGetLocalInt(3, ir);
+}
 
-fload_2 ( -- i)
-fy_threadGetLocalInt(2, i);
+fload_3 ( -- ir)
+{
+  fy_threadGetLocalInt(3, ir);
+}
 
-aload_2 ( -- a)
-fy_threadGetLocalHandle(2, a);
+aload_3 ( -- ir)
+{
+  fy_threadGetLocalHandle(3, ir);
+}
 
-iload_3 ( -- i)
-fy_threadGetLocalInt(3, i);
+istore (i1 -- )
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #istore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadPutLocalInt(PCURR_INST->params.int_params.param1, i1);
+}
 
-fload_3 ( -- i)
-fy_threadGetLocalInt(3, i);
+fstore (i1 -- )
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #fstore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadPutLocalInt(PCURR_INST->params.int_params.param1, i1);
+}
 
-aload_3 ( -- a)
-fy_threadGetLocalHandle(3, a);
+astore (i1 -- )
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #astore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadPutLocalHandle(PCURR_INST->params.int_params.param1, i1);
+}
+
+istore_0 (i1 -- )
+{
+  fy_threadPutLocalInt(0, i1);
+}
+
+fstore_0 (i1 -- )
+{
+  fy_threadPutLocalInt(0, i1);
+}
+
+astore_0 (i1 -- )
+{
+  fy_threadPutLocalHandle(0, i1);
+}
+
+istore_1 (i1 -- )
+{
+  fy_threadPutLocalInt(1, i1);
+}
+
+fstore_1 (i1 -- )
+{
+  fy_threadPutLocalInt(1, i1);
+}
+
+astore_1 (i1 -- )
+{
+  fy_threadPutLocalHandle(1, i1);
+}
+
+istore_2 (i1 -- )
+{
+  fy_threadPutLocalInt(2, i1);
+}
+
+fstore_2 (i1 -- )
+{
+  fy_threadPutLocalInt(2, i1);
+}
+
+astore_2 (i1 -- )
+{
+  fy_threadPutLocalHandle(2, i1);
+}
+
+istore_3 (i1 -- )
+{
+  fy_threadPutLocalInt(3, i1);
+}
+
+fstore_3 (i1 -- )
+{
+  fy_threadPutLocalInt(3, i1);
+}
+
+astore_3 (i1 -- )
+{
+  fy_threadPutLocalHandle(3, i1);
+}
+
+dload ( -- lr)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #dload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalLong(PCURR_INST->params.int_params.param1, lr);
+}
+
+lload ( -- lr)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #lload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalLong(PCURR_INST->params.int_params.param1, lr);
+}
+
+dload_0 ( -- lr)
+{
+  fy_threadGetLocalLong(0, lr);
+}
+
+lload_0 ( -- lr)
+{
+  fy_threadGetLocalLong(0, lr);
+}
+
+dload_1 ( -- lr)
+{
+  fy_threadGetLocalLong(1, lr);
+}
+
+lload_1 ( -- lr)
+{
+  fy_threadGetLocalLong(1, lr);
+}
+
+dload_2 ( -- lr)
+{
+  fy_threadGetLocalLong(2, lr);
+}
+
+lload_2 ( -- lr)
+{
+  fy_threadGetLocalLong(2, lr);
+}
+
+dload_3 ( -- lr)
+{
+  fy_threadGetLocalLong(3, lr);
+}
+
+lload_3 ( -- lr)
+{
+  fy_threadGetLocalLong(3, lr);
+}
+
+dstore (l1 -- )
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #dstore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadPutLocalLong(PCURR_INST->params.int_params.param1, l1);
+}
+
+lstore (l1 -- )
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #lstore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+  }
+#endif
+  fy_threadPutLocalLong(PCURR_INST->params.int_params.param1, l1);
+}
+
+dstore_0 (l1 -- )
+{
+  fy_threadPutLocalLong(0, l1);
+}
+
+lstore_0 (l1 -- )
+{
+  fy_threadPutLocalLong(0, l1);
+}
+
+dstore_1 (l1 -- )
+{
+  fy_threadPutLocalLong(1, l1);
+}
+
+lstore_1 (l1 -- )
+{
+  fy_threadPutLocalLong(1, l1);
+}
+
+dstore_2 (l1 -- )
+{
+  fy_threadPutLocalLong(2, l1);
+}
+
+lstore_2 (l1 -- )
+{
+  fy_threadPutLocalLong(2, l1);
+}
+
+dstore_3 (l1 -- )
+{
+  fy_threadPutLocalLong(3, l1);
+}
+
+lstore_3 (l1 -- )
+{
+  fy_threadPutLocalLong(3, l1);
+}
+
+iinc ( -- )
+{
+  sbase[PCURR_INST->params.int_params.param1].uvalue += PCURR_INST->params.int_params.param2;
+}
+
+
+\  #####  #######    #     #####  #    #
+\ #     #    #      # #   #     # #   #
+\ #          #     #   #  #       #  #
+\  #####     #    #     # #       ###
+\       #    #    ####### #       #  #
+\ #     #    #    #     # #     # #   #
+\  #####     #    #     #  #####  #    #
+
+\ DUP
+
+dup (i1 -- ir1 ir2)
+{
+  ir1 = ir2 = i1;
+}
+
+dup_x1 (i1 i2 -- ir1 ir2 ir3)
+{
+  ir1 = i2;
+  ir2 = i1;
+  ir3 = i2;
+}
+
+dup_x2 (i1 i2 i3 -- ir1 ir2 ir3 ir4)
+{
+  ir1 = i3;
+  ir2 = i1;
+  ir3 = i2;
+  ir4 = i3;
+}
+
+dup2 (i1 i2 -- ir1 ir2 ir3 ir4)
+{
+  ir3 = ir1 = i1;
+  ir4 = ir2 = i2;
+}
+
+dup2_x1 (i1 i2 i3 -- ir1 ir2 ir3 ir4 ir5)
+{
+  ir1 = i2;
+  ir2 = i3;
+  ir3 = i1;
+  ir4 = i2;
+  ir5 = i3;
+}
+
+dup2_x2 (i1 i2 i3 i4 -- ir1 ir2 ir3 ir4 ir5 ir6)
+{
+  ir1 = i3;
+  ir2 = i4;
+  ir3 = i1;
+  ir4 = i2;
+  ir5 = i3;
+  ir6 = i4;
+}
+
+swap (i1 i2 -- ir1 ir2)
+{
+  ir1 = i2;
+  ir2 = i1;
+}
+
+\ CONST
+
+bipush ( -- ir)
+{
+  ir = PCURR_INST->params.int_params.param1;
+}
+
+sipush ( -- ir)
+{
+  ir = PCURR_INST->params.int_params.param1;
+}
+
+iconst_m1 ( -- ir)
+{
+  ir = -1;
+}
+
+
+aconst_null ( -- ir)
+{
+  ir = 0;
+}
+
+iconst_0 ( -- ir)
+{
+  ir = 0;
+}
+
+fconst_0 ( -- fr)
+{
+  fr = 0.0f;
+}
+
+dconst_0 ( -- dr)
+{
+  dr = 0.0;
+}
+
+lconst_0 ( -- lr)
+{
+  lr = 0;
+}
+
+
+iconst_1 ( -- ir)
+{
+  ir = 1;
+}
+
+fconst_1 ( -- fr)
+{
+  fr = 1.0f;
+}
+
+dconst_1 ( -- dr)
+{
+  dr = 1.0;
+}
+
+lconst_1 ( -- lr)
+{
+  lr = 1;
+}
+
+
+iconst_2 ( -- ir)
+{
+  ir = 2;
+}
+
+fconst_2 ( -- fr)
+{
+  fr = 2.0f;
+}
+
+
+iconst_3 ( -- ir)
+{
+  ir = 3;
+}
+
+
+iconst_4 ( -- ir)
+{
+  ir = 4;
+}
+
+
+iconst_5 ( -- ir)
+{
+  ir = 5;
+}
+
+
+\ CONVERT
+
+d2f (d1 -- fr)
+{
+  fr = (fy_float)d1;
+}
+
+d2i (d1 -- ir)
+{
+  ir = (fy_int)d1;
+}
+
+d2l (d1 -- lr)
+{
+  lr = (fy_long)d1;
+}
+
+f2d (f1 -- dr)
+{
+  dr = f1;
+}
+
+f2i (f1 -- ir)
+{
+  ir = (fy_int)f1;
+}
+
+f2l (f1 -- lr)
+{
+  lr = (fy_long)f1;
+}
+
+i2b (i1 -- ir)
+{
+  ir = (fy_byte)i1;
+}
+
+i2c (i1 -- ir)
+{
+  ir = i1 & 0xffff;
+}
+
+i2d (i1 -- dr)
+{
+  dr = (fy_int)i1;
+}
+
+i2f (i1 -- fr)
+{
+  fr = (fy_int)i1;
+}
+
+i2l (i1 -- lr)
+{
+  lr = (fy_int)i1;
+}
+
+i2s (i1 -- ir)
+{
+  ir = (fy_short)i1;
+}
+
+l2d (l1 -- dr)
+{
+  dr = (fy_long)l1;
+}
+
+l2f (l1 -- fr)
+{
+  fr = (fy_long)l1;
+}
+
+l2i (l1 -- ir)
+{
+  ir = (fy_uint)l1;
+}
+
+
+
+\ CALC
+
+fadd (f1 f2 -- fr)
+{
+  fr = f1 + f2;
+}
+
+fsub (f1 f2 -- fr)
+{
+  fr = f1 - f2;
+}
+
+fmul (f1 f2 -- fr)
+{
+  fr = f1 * f2;
+}
+
+fdiv (f1 f2 -- fr)
+{
+  fr = f1 / f2;
+}
+
+frem (f1 f2 -- fr)
+{
+  if(f2 == 0){
+    fr = 0.0 / f2;
+  } else {
+    fr = f1 - floor(f1 / f2) * f2;
+  }
+}
+
+fneg (f1 -- fr)
+{
+  fr = -f1;
+}
+
+fcmpg (f1 f2 -- ir)
+{
+  if (fy_isnand(f2) || fy_isnand(f1)) {
+    ir = 1;
+  } else {
+    ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
+  }
+}
+
+fcmpl (f1 f2 -- ir)
+{
+  if (fy_isnand(f2) || fy_isnand(f1)) {
+    ir = -1;
+  } else {
+    ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
+  }
+}
+
+
+
+dadd (d1 d2 -- dr)
+{
+  dr = d1 + d2;
+}
+
+dsub (d1 d2 -- dr)
+{
+  dr = d1 - d2;
+}
+
+ddiv (d1 d2 -- dr)
+{
+  dr = d1 / d2;
+}
+
+dmul (d1 d2 -- dr)
+{
+  dr = d1 * d2;
+}
+
+drem (d1 d2 -- dr)
+{
+  if(d2 == 0){
+    dr = 0.0 / d2;
+  } else {
+    dr = d1 - floor(d1 / d2) * d2;
+  }
+}
+
+dneg (d1 -- dr)
+{
+  dr = -d1;
+}
+
+dcmpg (d1 d2 -- ir)
+{
+  if (fy_isnand(d2) || fy_isnand(d1)) {
+    ir = 1;
+  } else {
+    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
+  }
+}
+
+dcmpl (d1 d2 -- ir)
+{
+  if (fy_isnand(d2) || fy_isnand(d1)) {
+    ir = -1;
+  } else {
+    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
+  }
+}
+
+iadd (i1 i2 -- ir)
+{
+  ir = i1 + i2;
+}
+
+isub (i1 i2 -- ir)
+{
+  ir = i1 - i2;
+}
+
+imul (i1 i2 -- ir)
+{
+  ir = (fy_uint)((fy_int)i1 * (fy_int)i2);
+}
+
+idiv (i1 i2 -- ir)
+{
+  if(i2 == 0){
+    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
+    FY_THEH()
+    ir = 0;
+  } else {
+    ir = ((fy_int)i1) / ((fy_int)i2);
+  }
+}
+
+irem (i1 i2 -- ir)
+{
+  if(i2 == 0){
+    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
+    FY_THEH()
+    ir = 0;
+  } else {
+    ir = ((fy_int)i1) % ((fy_int)i2);
+  }
+}
+
+ineg (i1 -- ir)
+{
+  ir = -i1;
+}
+
+iand (i1 i2 -- ir)
+{
+  ir = i1 & i2;
+}
+
+ior (i1 i2 -- ir)
+{
+  ir = i1 | i2;
+}
+
+ixor (i1 i2 -- ir)
+{
+  ir = i1 ^ i2;
+}
+
+ishl (i1 i2 -- ir)
+{
+  ir = i1 << i2;
+}
+
+ishr (i1 i2 -- ir)
+{
+  ir = ((fy_int)i1) >> ((fy_int)i2);
+}
+
+iushr (i1 i2 -- ir)
+{
+  ir = i1 >> i2;
+}
+
+ladd (l1 l2 -- lr)
+{
+  lr = l1 + l2;
+}
+
+lsub (l1 l2 -- lr)
+{
+  lr = l1 - l2;
+}
+
+lmul (l1 l2 -- lr)
+{
+  lr = (fy_long) l1 * (fy_long) l2;
+}
+
+ldiv (l1 l2 -- lr)
+{
+  if (l2 == 0) {
+    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
+    FY_THEH()
+  }
+  lr = (fy_long) l1 / (fy_long) l2;
+}
+
+lrem (l1 l2 -- lr)
+{
+  if (l2 == 0) {
+    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
+    FY_THEH()
+  }
+  lr = (fy_long) l1 % (fy_long) l2;
+}
+
+lneg (l1 -- lr)
+{
+  lr = -l1;
+}
+
+land (l1 l2 -- lr)
+{
+  lr = l1 & l2;
+}
+
+lor (l1 l2 -- lr)
+{
+  lr = l1 | l2;
+}
+
+lxor (l1 l2 -- lr)
+{
+  lr = l1 ^ l2;
+}
+
+lcmp (l1 l2 -- ir)
+{
+  ir = l1 == l2 ? 0 : ((fy_long)l1 > (fy_long)l2 ? 1 : -1) ;
+}
+
+lshl (l1 i1 -- lr)
+{
+  lr = l1 << i1;
+}
+
+lshr (l1 i1 -- lr)
+{
+  lr = ((fy_long)l1) >> i1;
+}
+
+lushr (l1 i1 -- lr)
+{
+  lr = l1 >> i1;
+}
+
+\ LDC
+ldc ( -- ir)
+{
+  ir = opLDC(context, method->owner, PCURR_INST->params.ldc.value, exception);
+  FY_THEH()
+}
+
+ldc_w ( -- ir)
+{
+  ir = opLDC(context, method->owner, PCURR_INST->params.ldc.value, exception);
+  FY_THEH()
+}
+
+ldc2_w ( -- lr)
+{
+  lr = opLDC2(context, method->owner, PCURR_INST->params.ldc.value, exception);
+  FY_THEH()
+}
+
+
+\    #    ######  ######     #    #     #
+\   # #   #     # #     #   # #    #   #
+\  #   #  #     # #     #  #   #    # #
+\ #     # ######  ######  #     #    #
+\ ####### #   #   #   #   #######    #
+\ #     # #    #  #    #  #     #    #
+\ #     # #     # #     # #     #    #
+
+arraylength (i1 -- ir)
+{
+  ir = fy_heapArrayLength(context, i1, exception);
+  FY_THEH()
+}
+
+aaload (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayHandle(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iaload (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayHandle(context, i1, i2, exception);
+  FY_THEH()
+}
+
+faload (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayHandle(context, i1, i2, exception);
+  FY_THEH()
+}
+
+aastore (i1 i2 i3 -- )
+{
+  fy_class *clazz1, *clazz2;
+  clazz1 = fy_heapGetClassOfObject(context, i1, exception);
+  clazz2 = clazz1->ci.arr.contentClass;
+  if (i3 != 0 &&
+      !fy_classCanCastTo(context,
+                         fy_heapGetClassOfObject(context, i3, exception),
+                         clazz2,
+                         TRUE)) {
+    exception->exceptionType = exception_normal;
+    strcpy_s(exception->exceptionName,
+             sizeof(exception->exceptionName),
+             FY_EXCEPTION_STORE);
+    strcpy_s(exception->exceptionDesc,
+             sizeof(exception->exceptionDesc),
+             "Data type not compatable!");
+    FY_THEH()
+  }
+  fy_heapPutArrayHandle(context, i1, i2, i3, exception);
+  FY_THEH()
+}
+
+iastore (i1 i2 i3 -- )
+{
+  fy_heapPutArrayInt(context, i1, i2, i3, exception);
+  FY_THEH()
+}
+
+fastore (i1 i2 i3 -- )
+{
+  fy_heapPutArrayInt(context, i1, i2, i3, exception);
+  FY_THEH()
+}
+
+baload (i1 i2 -- ir)
+{ /*handle index -- value*/
+  ir = fy_heapGetArrayByte(context, i1, i2, exception);
+  FY_THEH()
+}
+
+bastore (i1 i2 i3 -- )
+{ /*handle index value*/
+  fy_heapPutArrayByte(context, i1, i2, (fy_byte) i3, exception);
+  FY_THEH()
+}
+
+caload (i1 i2 -- ir)
+{ /*index handle -- value*/
+  ir = fy_heapGetArrayChar(context, i1, i2, exception);
+  FY_THEH()
+}
+
+castore (i1 i2 i3 -- )
+{ /*value index handle*/
+  fy_heapPutArrayChar(context, i1, i2, (fy_char) i3, exception);
+  FY_THEH()
+}
+
+saload (i1 i2 -- ir)
+{ /*index handle -- value*/
+  ir = fy_heapGetArrayShort(context, i1, i2, exception);
+  FY_THEH()
+}
+
+sastore (i1 i2 i3 -- )
+{ /*value index handle*/
+  fy_heapPutArrayShort(context, i1, i2, (fy_short) i3, exception);
+  FY_THEH()
+}
+
+daload (i1 i2 -- lr)
+{
+  lr = fy_heapGetArrayLong(context, i1, i2, exception);
+  FY_THEH()
+}
+
+dastore (i1 i2 l1 -- )
+{
+  fy_heapPutArrayLong(context, i1, i2, l1, exception);
+  FY_THEH()
+}
+
+laload (i1 i2 -- lr)
+{
+  lr = fy_heapGetArrayLong(context, i1, i2, exception);
+  FY_THEH()
+}
+
+lastore (i1 i2 l1 -- )
+{
+  fy_heapPutArrayLong(context, i1, i2, l1, exception);
+  FY_THEH()
+}
+
+anewarray (i1 -- ir)
+{
+  fy_class *clazz1, *clazz2;
+  fy_str str1;
+  
+  if (((fy_int) i1) < 0) {
+    exception->exceptionType = exception_normal;
+    strcpy_s(exception->exceptionName,
+        sizeof(exception->exceptionName),
+        FY_EXCEPTION_AIOOB);
+    sprintf_s(exception->exceptionDesc,
+        sizeof(exception->exceptionDesc), "%d<0", i1);
+    FY_THEH()
+  }
+  clazz1 = PCURR_INST->params.clazz;
+  FY_THEH()
+  str1.content = NULL;
+  fy_strInit(block, &str1, 64, exception);
+  FY_THEH()
+  if (clazz1->type == object_class) {
+    fy_strAppendUTF8(block, &str1, "[L", 3, exception);
+    FY_THEH({fy_strDestroy(block, &str1);})
+    fy_strAppend(block, &str1, clazz1->className, exception);
+    FY_THEH({fy_strDestroy(block, &str1);})
+    fy_strAppendUTF8(block, &str1, ";", 3, exception);
+    FY_THEH({fy_strDestroy(block, &str1);})
+  } else if (clazz1->type == array_class) {
+    fy_strAppendUTF8(block, &str1, "[", 3, exception);
+    FY_THEH({fy_strDestroy(block, &str1);})
+    fy_strAppend(block, &str1, clazz1->className, exception);
+    FY_THEH({fy_strDestroy(block, &str1);})
+  }
+  clazz2 = fy_vmLookupClass(context, &str1, exception);
+  FY_THEH()
+  fy_strDestroy(block, &str1);
+  ir = fy_heapAllocateArray(context, clazz2, i1, exception);
+  FY_THEH()
+}
+
+multianewarray ( -- ir)
+{
+  fy_class *clazz1;
+  clazz1 = fy_vmLookupClassFromConstant(context, (ConstantClass*) method->owner->constantPools[PCURR_INST->params.int_params.param1], exception);
+  FY_THEH()
+  spp -= PCURR_INST->params.int_params.param2;
+  fy_heapBeginProtect(context);
+  ir = fy_heapMultiArray(context, clazz1, PCURR_INST->params.int_params.param2, fy_stack_item2iarray(spp),
+      exception);
+  FY_THEH()
+}
+
+
+
+
+\ #     # #######    #    ######
+\ #     # #         # #   #     #
+\ #     # #        #   #  #     #
+\ ####### #####   #     # ######
+\ #     # #       ####### #
+\ #     # #       #     # #
+\ #     # ####### #     # #
+
+new ( -- ir)
+{
+  fy_class *clazz1;
+  clazz1 = PCURR_INST->params.clazz;
+  if (clazz1->accessFlags
+      & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT)) {
+#ifdef FY_LATE_DECLARATION
+    char msg[256];
+#endif
+    fy_strSPrint(msg, 256, clazz1->className);
+    fy_fault(exception, NULL, "InstantiationErro %s", msg);
+    FY_THEH();
+  }
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1);
+
+  ir = fy_heapAllocate(context, clazz1, exception);
+  FY_THEH()
+}
+
+newarray (i1 -- ir)
+{
+  fy_class *clazz1;
+  fy_str *pstr1;
+  if (((fy_int) i1) < 0) {
+    fy_fault(exception, FY_EXCEPTION_NASE, "%d", i1);
+    FY_THEH()
+  }
+  switch(PCURR_INST->params.int_params.param1){
+  case 4:
+    pstr1 = context->sArrayBoolean;
+    break;
+  case 5:
+    pstr1 = context->sArrayChar;
+    break;
+  case 6:
+    pstr1 = context->sArrayFloat;
+    break;
+  case 7:
+    pstr1 = context->sArrayDouble;
+    break;
+  case 8:
+    pstr1 = context->sArrayByte;
+    break;
+  case 9:
+    pstr1 = context->sArrayShort;
+    break;
+  case 10:
+    pstr1 = context->sArrayInteger;
+    break;
+  case 11:
+    pstr1 = context->sArrayLong;
+    break;
+  default:
+    pstr1 = NULL; /*make compiler happy*/
+    fy_fault(exception, FY_EXCEPTION_VM, "%d", PCURR_INST->params.int_params.param1);
+    FY_THEH()
+    break;
+  }
+  clazz1 = fy_vmLookupClass(context, pstr1, exception);
+  FY_THEH()
+  ir = fy_heapAllocateArray(context, clazz1, i1, exception);
+  FY_THEH()
+}
+
+getfield (i1 -- ir)
+{
+  fy_field *field = PCURR_INST->params.field;
+  if (field->access_flags & FY_ACC_STATIC) {
+    char msg[256];
+    fy_strSPrint(msg, 256, field->uniqueName);
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", msg);
+    FY_THEH()
+  }
+  ir = fy_heapGetFieldInt(context, i1, field, exception);
+  FY_THEH()
+}
+
+putfield (i1 i2 --)
+{
+  fy_field *field;
+
+  field = PCURR_INST->params.field;
+  if (field->access_flags & FY_ACC_STATIC) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  if ((field->access_flags & FY_ACC_FINAL)
+            && method->owner != field->owner) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  fy_heapPutFieldInt(context, i1, field, i2, exception);
+  FY_THEH()
+}
+
+getfield_x (i1 -- lr)
+{
+  fy_field *field = PCURR_INST->params.field;
+  if (field->access_flags & FY_ACC_STATIC) {
+    char msg[256];
+    fy_strSPrint(msg, 256, field->uniqueName);
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", msg);
+    FY_THEH()
+  }
+  lr = fy_heapGetFieldLong(context, i1, field, exception);
+  FY_THEH()
+}
+
+putfield_x (i1 l1 --)
+{
+  fy_field *field;
+
+  field = PCURR_INST->params.field;
+  if (field->access_flags & FY_ACC_STATIC) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  if ((field->access_flags & FY_ACC_FINAL)
+            && method->owner != field->owner) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  fy_heapPutFieldLong(context, i1, field, l1, exception);
+  FY_THEH()
+}
+
+getstatic( -- ir)
+{
+  fy_field *field = PCURR_INST->params.field;
+  fy_class *clazz1 = field->owner;
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1);
+  ir = fy_heapGetStaticInt(context, field, exception);
+  FY_THEH()
+}
+
+putstatic(i1 -- )
+{
+  fy_field *field;
+  fy_class *clazz1;
+  
+  field = PCURR_INST->params.field;
+  if ((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner)) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  clazz1 = field->owner;
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1);
+  fy_heapPutStaticInt(context, field, i1, exception);
+  FY_THEH()
+}
+
+getstatic_x( -- lr)
+{
+  fy_field *field = PCURR_INST->params.field;
+  fy_class *clazz1 = field->owner;
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1);
+  lr = fy_heapGetStaticLong(context, field, exception);
+  FY_THEH()
+}
+
+putstatic_x(l1 -- )
+{
+  fy_field *field;
+  fy_class *clazz1;
+  
+  field = PCURR_INST->params.field;
+  if ((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner)) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  clazz1 = field->owner;
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1);
+  fy_heapPutStaticLong(context, field, l1, exception);
+  FY_THEH()
+}
+
+\  #####     #     #####  #######
+\ #     #   # #   #     #    #
+\ #        #   #  #          #
+\ #       #     #  #####     #
+\ #       #######       #    #
+\ #     # #     # #     #    #
+\  #####  #     #  #####     #
+
+checkcast (i1 -- ir)
+{
+  fy_class *clazz1, *clazz2;
+  fy_str str1;
+  if (i1 != 0) {
+    clazz1 = fy_heapGetClassOfObject(context, i1, exception);
+    clazz2 = PCURR_INST->params.clazz;
+    
+    FY_THEH()
+    if (!fy_classCanCastTo(context, clazz1, clazz2, TRUE)) {
+      strcpy_s(exception->exceptionName,
+          sizeof(exception->exceptionName),
+          FY_EXCEPTION_CAST);
+      str1.content = NULL;
+      fy_strInit(block, &str1, 64, exception);
+      fy_strAppendUTF8(block, &str1, "from ", 99, exception);
+      fy_strAppend(block, &str1, clazz1->className,
+          exception);
+      fy_strAppendUTF8(block, &str1, " to ", 99, exception);
+      fy_strAppend(block, &str1, clazz2->className,
+          exception);
+      fy_strSPrint(exception->exceptionDesc,
+          sizeof(exception->exceptionDesc), &str1);
+      fy_strDestroy(block, &str1);
+      exception->exceptionType = exception_normal;
+      FY_THEH()
+      ir = 0;
+    } else {
+      ir = i1;
+    }
+  } else {
+    ir = i1;
+  }
+}
+
+instanceof (i1 -- ir)
+{
+  fy_class *clazz1, *clazz2;
+  
+  if(i1 == 0){
+    ir = 0;
+  } else {
+    clazz1 = fy_heapGetClassOfObject(context, i1, exception);
+    clazz2 = PCURR_INST->params.clazz;
+    FY_THEH()
+    ir = fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0;
+  }
+}
+
+
+
+
+\ #     # ####### #     #   ###   ####### ####### ######
+\ ##   ## #     # ##    #    #       #    #     # #     #
+\ # # # # #     # # #   #    #       #    #     # #     #
+\ #  #  # #     # #  #  #    #       #    #     # ######
+\ #     # #     # #   # #    #       #    #     # #   #
+\ #     # #     # #    ##    #       #    #     # #    #
+\ #     # ####### #     #   ###      #    ####### #     #
+
+monitorenter(i1 -- )
+{
+  ops = fy_threadMonitorEnter(context, thread, i1, ops);
+  FY_CHECK_OPS;
+}
+
+monitorexit(i1 -- )
+{
+  ops = fy_threadMonitorExit(context, thread, i1, ops, exception);
+  FY_THEH()
+  FY_CHECK_OPS;
+}
+
+
+\   ###   #     # #     # ####### #    #  #######
+\    #    ##    # #     # #     # #   #   #
+\    #    # #   # #     # #     # #  #    #
+\    #    #  #  # #     # #     # ###     #####
+\    #    #   # #  #   #  #     # #  #    #
+\    #    #    ##   # #   #     # #   #   #
+\   ###   #     #    #    ####### #    #  #######
+
+
+
+invokespecial ( -- )
+{
+  fy_localToFrame(context, frame);
+  ops = fy_threadInvokeSpecial(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
+  FY_THEH();
+  FY_CHECK_OPS_INVOKE;
+  FY_UPDATE_SP(context, frame);
+  SUPER_END;
+}
+
+invokestatic ( -- )
+{
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(PCURR_INST->params.method->owner);
+  ops = fy_threadInvokeStatic(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
+  FY_THEH();
+  FY_CHECK_OPS_INVOKE;
+  FY_UPDATE_SP(context, frame);
+  SUPER_END;
+}
+
+invokeinterface ( -- )
+{
+  fy_localToFrame(context, frame);
+  ops = fy_threadInvokeVirtual(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
+  FY_THEH();
+  FY_CHECK_OPS_INVOKE;
+  FY_UPDATE_SP(context, frame);
+  SUPER_END;
+}
+
+invokevirtual ( -- )
+{
+  fy_localToFrame(context, frame);
+  ops = fy_threadInvokeVirtual(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
+  FY_THEH();
+  FY_CHECK_OPS_INVOKE;
+  FY_UPDATE_SP(context, frame);
+  SUPER_END;
+}
+
+
+
+\ ######  ####### ####### #     # ######  #     #
+\ #     # #          #    #     # #     # ##    #
+\ #     # #          #    #     # #     # # #   #
+\ ######  #####      #    #     # ######  #  #  #
+\ #   #   #          #    #     # #   #   #   # #
+\ #    #  #          #    #     # #    #  #    ##
+\ #     # #######    #     #####  #     # #     #
+
+return ( -- )
+{
+  fy_uint i2;
+
+  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+    if (method->access_flags & FY_ACC_STATIC) {
+      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
+      FY_THEH()
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+    } else {
+      /*CUSTOM*/
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+    }
+    FY_THEH()
+  }
+  if (method->access_flags & FY_ACC_CLINIT) {
+    method->owner->clinitThreadId = -1;
+  }
+  fy_localToFrame(context, frame);
+  fy_threadPopFrame(context, thread);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    if(thread->frameCount > 0){
+      fprintf(vm_out, " #Return to %s @%d + %d# ", 
+        fy_threadCurrentFrame(context, thread)->method->utf8Name,
+        fy_threadCurrentFrame(context, thread)->lpc,
+        fy_threadCurrentFrame(context, thread)->pcofs
+      );
+    }
+  }
+#endif
+  SUPER_END;
+  FY_FALLOUT_INVOKE;
+}
+
+ireturn (i1 -- )
+{
+  fy_uint i2;
+
+  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+    if (method->access_flags & FY_ACC_STATIC) {
+      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
+      FY_THEH()
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+    } else {
+      /*CUSTOM*/
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+    }
+    FY_THEH()
+  }
+  fy_threadReturnInt(frame->baseSpp, i1);
+  fy_localToFrame(context, frame);
+  fy_threadPopFrame(context, thread);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #Return %"FY_PRINT32"d to %s @%d + %d# ",
+      sbase->ivalue,
+      fy_threadCurrentFrame(context, thread)->method->utf8Name,
+      fy_threadCurrentFrame(context, thread)->lpc,
+      fy_threadCurrentFrame(context, thread)->pcofs
+    );
+  }
+#endif
+  SUPER_END;
+  FY_FALLOUT_INVOKE;
+}
+
+freturn (i1 -- )
+{
+  fy_uint i2;
+
+  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+    if (method->access_flags & FY_ACC_STATIC) {
+      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
+      FY_THEH()
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+    } else {
+      /*CUSTOM*/
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+    }
+    FY_THEH()
+  }
+  fy_threadReturnInt(frame->baseSpp, i1);
+  fy_localToFrame(context, frame);
+  fy_threadPopFrame(context, thread);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #Return %f to %s @%d + %d# ",
+      fy_intToFloat(sbase->ivalue),
+      fy_threadCurrentFrame(context, thread)->method->utf8Name,
+      fy_threadCurrentFrame(context, thread)->lpc,
+      fy_threadCurrentFrame(context, thread)->pcofs
+    );
+  }
+#endif
+  SUPER_END;
+  FY_FALLOUT_INVOKE;
+}
+
+areturn (i1 -- )
+{
+  fy_uint i2;
+
+  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+    if (method->access_flags & FY_ACC_STATIC) {
+      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
+      FY_THEH()
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+    } else {
+      /*CUSTOM*/
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+    }
+    FY_THEH()
+  }
+  fy_threadReturnHandle(frame->baseSpp, i1);
+  fy_localToFrame(context, frame);
+  fy_threadPopFrame(context, thread);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #Return #%d to %s @%d + %d# ",
+      sbase->ivalue,
+      fy_threadCurrentFrame(context, thread)->method->utf8Name,
+      fy_threadCurrentFrame(context, thread)->lpc,
+      fy_threadCurrentFrame(context, thread)->pcofs
+    );
+  }
+#endif
+  SUPER_END;
+  FY_FALLOUT_INVOKE;
+}
+
+dreturn (l1 -- )
+{
+  fy_uint i2;
+
+  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+    if (method->access_flags & FY_ACC_STATIC) {
+      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
+      FY_THEH()
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+    } else {
+      /*CUSTOM*/
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+    }
+    FY_THEH()
+  }
+  fy_threadReturnLong(frame->baseSpp, l1);
+  fy_localToFrame(context, frame);
+  fy_threadPopFrame(context, thread);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #Return %f to %s @%d + %d# ",
+      fy_longToDouble(fy_I2TOL(sbase->ivalue, (sbase + 1)->ivalue)),
+      fy_threadCurrentFrame(context, thread)->method->utf8Name,
+      fy_threadCurrentFrame(context, thread)->lpc,
+      fy_threadCurrentFrame(context, thread)->pcofs
+    );
+  }
+#endif
+  SUPER_END;
+  FY_FALLOUT_INVOKE;
+}
+
+lreturn (l1 -- )
+{
+  fy_uint i2;
+
+  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+    if (method->access_flags & FY_ACC_STATIC) {
+      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
+      FY_THEH()
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+    } else {
+      /*CUSTOM*/
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+    }
+    FY_THEH()
+  }
+  fy_threadReturnLong(frame->baseSpp, l1);
+  fy_localToFrame(context, frame);
+  fy_threadPopFrame(context, thread);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #Return %"FY_PRINT64"d to %s @%d + %d# ",
+      fy_I2TOL(sbase->ivalue, (sbase + 1)->ivalue),
+      fy_threadCurrentFrame(context, thread)->method->utf8Name,
+      fy_threadCurrentFrame(context, thread)->lpc,
+      fy_threadCurrentFrame(context, thread)->pcofs
+    );
+  }
+#endif
+  SUPER_END;
+  FY_FALLOUT_INVOKE;
+}
+
+\ ####### #     # ######  ####### #     #
+\    #    #     # #     # #     # #  #  #
+\    #    #     # #     # #     # #  #  #
+\    #    ####### ######  #     # #  #  #
+\    #    #     # #   #   #     # #  #  #
+\    #    #     # #    #  #     # #  #  #
+\    #    #     # #     # #######  ## ##
+
+athrow (i1 -- )
+{
+  thread->currentThrowable = i1;
+  SUPER_END;
+  FY_FALLOUT_NOINVOKE;
+}
+
+\       # #     # #     # ######
+\       # #     # ##   ## #     #
+\       # #     # # # # # #     #
+\       # #     # #  #  # ######
+\ #     # #     # #     # #
+\ #     # #     # #     # #
+\  #####   #####  #     # #
+
+goto ( -- )
+{
+  FY_CHECK_OPS_AND_GOTO;
+}
+
+goto_w ( -- )
+{
+  FY_CHECK_OPS_AND_GOTO;
+}
+
+if_icmpeq (i1 i2 -- )
+{
+  if(i1 == i2){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_acmpeq (i1 i2 -- )
+{
+  if(i1 == i2){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmpne (i1 i2 -- )
+{
+  if(i1 != i2){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_acmpne (i1 i2 -- )
+{
+  if(i1 != i2){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmplt (i1 i2 -- )
+{
+  if((fy_int)i1 < (fy_int)i2){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmple (i1 i2 -- )
+{
+  if((fy_int)i1 <= (fy_int)i2){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmpgt (i1 i2 -- )
+{
+  if((fy_int)i1 > (fy_int)i2){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmpge (i1 i2 -- )
+{
+  if((fy_int)i1 >= (fy_int)i2){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifeq (i1 -- )
+{
+  if(i1 == 0){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifnull (i1 -- )
+{
+  if(i1 == 0){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifne (i1 -- )
+{
+  if(i1 != 0){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifnonnull (i1 -- )
+{
+  if(i1 != 0){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+iflt (i1 -- )
+{
+  if((fy_int)i1 < 0){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifle (i1 -- )
+{
+  if((fy_int)i1 <= 0){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifgt (i1 -- )
+{
+  if((fy_int)i1 > 0){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifge (i1 -- )
+{
+  if((fy_int)i1 >= 0){
+    FY_CHECK_OPS_AND_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+lookupswitch (i1 -- )
+{
+  fy_uint i2, i3;
+  fy_switch_lookup *swlookup;
+  
+  swlookup = PCURR_INST->params.swlookup;
+  i3 = swlookup->count;
+  for(i2 = 0; i2 < i3; i2++){
+    if(swlookup->targets[i2].value == i1){
+      SET_IP(swlookup->targets[i2].target);
+      INST_TAIL;
+      break;
+    }
+  }
+
+  SET_IP(swlookup->defaultJump);
+}
+
+tableswitch (i1 -- )
+{
+  fy_uint i2, i3;
+  i2 = PCURR_INST->params.swtable->lowest;/*lb*/
+  i3 = PCURR_INST->params.swtable->highest;/*hb*/
+  if ((fy_int) i1 < (fy_int) i2
+      || (fy_int) i1 > (fy_int) i3) {
+    SET_IP(PCURR_INST->params.swtable->defaultJump);
+    INST_TAIL;
+  } else {
+    SET_IP(PCURR_INST->params.swtable->targets[i1 - i2]);
+    INST_TAIL;
+  }
+}
+
+\C#ifdef FY_ENGINE_HEADER
+\C    label_fallout_invoke:
+\C    ret.ops = ops;
+\C  }
+\C  return ret;
+\C}
+\C#undef FY_ENGINE_NAME
+\C#endif
 

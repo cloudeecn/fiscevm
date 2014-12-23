@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef DATALOADER_H_
@@ -64,11 +64,11 @@ fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
 		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 		fy_uint pendingLockCount, fy_uint waitForLockId,
 		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
-		fy_uint *typeStack, fy_exception *exception);
+		fy_exception *exception);
 void fy_loadPrepareFrame(struct fy_context *context, void *loader_,
 		fy_thread *thread, fy_uint count, fy_exception *exception);
 void fy_loadFrame(struct fy_context *context, void *loader_, fy_thread *thread,
-		fy_uint methodId, fy_uint sb, fy_uint sp, fy_uint pc, fy_uint lpc,
+		fy_uint methodId, fy_uint sb, fy_uint lpc, fy_int pcofs,
 		fy_exception *exception);
 void fy_loadEndFrame(struct fy_context *context, void *loader_,
 		fy_thread *thread, fy_exception *exception);

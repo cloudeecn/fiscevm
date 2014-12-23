@@ -4,6 +4,7 @@
 /.project
 /.cproject
 /Build
+/Release
 /save.dat
 /save2.dat
 /test.custom.fail.log
@@ -12,5 +13,7 @@
 /Test.log
 /Debug
 /Release
-/fisce-*.i
-
+/fisce-disasm.i
+/fisce-gen.i
+/fisce-peephole.i
+/fisce-profile.i

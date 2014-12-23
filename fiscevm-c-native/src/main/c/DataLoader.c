@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "fyc/DataLoader.h"
@@ -258,7 +258,7 @@ fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
 		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 		fy_uint pendingLockCount, fy_uint waitForLockId,
 		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
-		fy_uint *typeStack, fy_exception *exception) {
+		fy_exception *exception) {
 	fy_thread *thread = context->threads[threadId] = fy_mmAllocate(
 			context->memblocks, sizeof(fy_thread), exception);
 	FYEH()NULL;
@@ -276,27 +276,22 @@ fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
 	thread->waitForLockId = waitForLockId;
 	thread->waitForNotifyId = waitForNotifyId;
 	memcpy(thread->stack, stack, stackSize * sizeof(fy_uint));
-	memcpy(thread->typeStack, typeStack,
-			(stackSize + 31) / 32 * sizeof(fy_uint));
 	return thread;
 }
 void fy_loadPrepareFrame(struct fy_context *context, void *loader_,
 		fy_thread *thread, fy_uint count, fy_exception *exception) {
 }
 void fy_loadFrame(struct fy_context *context, void *loader_, fy_thread *thread,
-		fy_uint methodId, fy_uint sb, fy_uint sp, fy_uint pc, fy_uint lpc,
+		fy_uint methodId, fy_uint sb, fy_uint lpc, fy_int pcofs,
 		fy_exception *exception) {
 	fy_frame *frame = FY_GET_FRAME(thread,thread->frameCount++);
-	frame->methodId = methodId;
 	frame->method = context->methods[methodId];
 	if (!(frame->method->access_flags & FY_ACC_VERIFIED)) {
 		fy_preverify(context, frame->method, exception);
 	}
-	frame->instructions = frame->method->instructions;
-	frame->sb = sb;
-	frame->sp = sp;
-	frame->pc = pc;
+	frame->baseSpp = thread->stack + sb;
 	frame->lpc = lpc;
+	frame->pcofs = pcofs;
 #ifdef FY_STRICT_CHECK
 	frame->size = frame->method->max_locals + frame->method->max_stack;
 	frame->localCount = frame->method->max_locals;

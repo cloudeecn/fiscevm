@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef INSTRUCTIONS_H_
@@ -22,234 +22,245 @@
 
 #include "../fiscestu.h"
 
-#define NOP  0x00
-#define ACONST_NULL  0x01
-#define ICONST_M1  0x02
-#define ICONST_0  0x03
-#define ICONST_1  0x04
-#define ICONST_2  0x05
-#define ICONST_3  0x06
-#define ICONST_4  0x07
+#define FY_OP_nop  0x00
+#define FY_OP_aconst_null  0x01
+#define FY_OP_iconst_m1  0x02
+#define FY_OP_iconst_0  0x03
+#define FY_OP_iconst_1  0x04
+#define FY_OP_iconst_2  0x05
+#define FY_OP_iconst_3  0x06
+#define FY_OP_iconst_4  0x07
 
-#define ICONST_5  0x08
-#define LCONST_0  0x09
-#define LCONST_1  0x0A
-#define FCONST_0  0x0B
-#define FCONST_1  0x0C
-#define FCONST_2  0x0D
-#define DCONST_0  0x0E
-#define DCONST_1  0x0F
+#define FY_OP_iconst_5  0x08
+#define FY_OP_lconst_0  0x09
+#define FY_OP_lconst_1  0x0a
+#define FY_OP_fconst_0  0x0b
+#define FY_OP_fconst_1  0x0c
+#define FY_OP_fconst_2  0x0d
+#define FY_OP_dconst_0  0x0e
+#define FY_OP_dconst_1  0x0f
 
-#define BIPUSH  0x10
-#define SIPUSH  0x11
-#define LDC  0x12
-#define LDC_W  0x13
-#define LDC2_W  0x14
-#define ILOAD  0x15
-#define LLOAD  0x16
-#define FLOAD  0x17
+#define FY_OP_bipush  0x10
+#define FY_OP_sipush  0x11
+#define FY_OP_ldc  0x12
+#define FY_OP_ldc_w  0x13
+#define FY_OP_ldc2_w  0x14
+#define FY_OP_iload  0x15
+#define FY_OP_lload  0x16
+#define FY_OP_fload  0x17
 
-#define DLOAD  0x18
-#define ALOAD  0x19
-#define ILOAD_0  0x1A
-#define ILOAD_1  0x1B
-#define ILOAD_2  0x1C
-#define ILOAD_3  0x1D
-#define LLOAD_0  0x1E
-#define LLOAD_1  0x1F
+#define FY_OP_dload  0x18
+#define FY_OP_aload  0x19
+#define FY_OP_iload_0  0x1a
+#define FY_OP_iload_1  0x1b
+#define FY_OP_iload_2  0x1c
+#define FY_OP_iload_3  0x1d
+#define FY_OP_lload_0  0x1e
+#define FY_OP_lload_1  0x1f
 
-#define LLOAD_2  0x20
-#define LLOAD_3  0x21
-#define FLOAD_0  0x22
-#define FLOAD_1  0x23
-#define FLOAD_2  0x24
-#define FLOAD_3  0x25
-#define DLOAD_0  0x26
-#define DLOAD_1  0x27
+#define FY_OP_lload_2  0x20
+#define FY_OP_lload_3  0x21
+#define FY_OP_fload_0  0x22
+#define FY_OP_fload_1  0x23
+#define FY_OP_fload_2  0x24
+#define FY_OP_fload_3  0x25
+#define FY_OP_dload_0  0x26
+#define FY_OP_dload_1  0x27
 
-#define DLOAD_2  0x28
-#define DLOAD_3  0x29
-#define ALOAD_0  0x2A
-#define ALOAD_1  0x2B
-#define ALOAD_2  0x2C
-#define ALOAD_3  0x2D
-#define IALOAD  0x2E
-#define LALOAD  0x2F
+#define FY_OP_dload_2  0x28
+#define FY_OP_dload_3  0x29
+#define FY_OP_aload_0  0x2a
+#define FY_OP_aload_1  0x2b
+#define FY_OP_aload_2  0x2c
+#define FY_OP_aload_3  0x2d
+#define FY_OP_iaload  0x2e
+#define FY_OP_laload  0x2f
 
-#define FALOAD  0x30
-#define DALOAD  0x31
-#define AALOAD  0x32
-#define BALOAD  0x33
-#define CALOAD  0x34
-#define SALOAD  0x35
-#define ISTORE  0x36
-#define LSTORE  0x37
+#define FY_OP_faload  0x30
+#define FY_OP_daload  0x31
+#define FY_OP_aaload  0x32
+#define FY_OP_baload  0x33
+#define FY_OP_caload  0x34
+#define FY_OP_saload  0x35
+#define FY_OP_istore  0x36
+#define FY_OP_lstore  0x37
 
-#define FSTORE  0x38
-#define DSTORE  0x39
-#define ASTORE  0x3A
-#define ISTORE_0  0x3B
-#define ISTORE_1  0x3C
-#define ISTORE_2  0x3D
-#define ISTORE_3  0x3E
-#define LSTORE_0  0x3F
+#define FY_OP_fstore  0x38
+#define FY_OP_dstore  0x39
+#define FY_OP_astore  0x3a
+#define FY_OP_istore_0  0x3b
+#define FY_OP_istore_1  0x3c
+#define FY_OP_istore_2  0x3d
+#define FY_OP_istore_3  0x3e
+#define FY_OP_lstore_0  0x3f
 
-#define LSTORE_1  0x40
-#define LSTORE_2  0x41
-#define LSTORE_3  0x42
-#define FSTORE_0  0x43
-#define FSTORE_1  0x44
-#define FSTORE_2  0x45
-#define FSTORE_3  0x46
-#define DSTORE_0  0x47
+#define FY_OP_lstore_1  0x40
+#define FY_OP_lstore_2  0x41
+#define FY_OP_lstore_3  0x42
+#define FY_OP_fstore_0  0x43
+#define FY_OP_fstore_1  0x44
+#define FY_OP_fstore_2  0x45
+#define FY_OP_fstore_3  0x46
+#define FY_OP_dstore_0  0x47
 
-#define DSTORE_1  0x48
-#define DSTORE_2  0x49
-#define DSTORE_3  0x4A
-#define ASTORE_0  0x4B
-#define ASTORE_1  0x4C
-#define ASTORE_2  0x4D
-#define ASTORE_3  0x4E
-#define IASTORE  0x4F
+#define FY_OP_dstore_1  0x48
+#define FY_OP_dstore_2  0x49
+#define FY_OP_dstore_3  0x4a
+#define FY_OP_astore_0  0x4b
+#define FY_OP_astore_1  0x4c
+#define FY_OP_astore_2  0x4d
+#define FY_OP_astore_3  0x4e
+#define FY_OP_iastore  0x4f
 
-#define LASTORE  0x50
-#define FASTORE  0x51
-#define DASTORE  0x52
-#define AASTORE  0x53
-#define BASTORE  0x54
-#define CASTORE  0x55
-#define SASTORE  0x56
-#define POP  0x57
+#define FY_OP_lastore  0x50
+#define FY_OP_fastore  0x51
+#define FY_OP_dastore  0x52
+#define FY_OP_aastore  0x53
+#define FY_OP_bastore  0x54
+#define FY_OP_castore  0x55
+#define FY_OP_sastore  0x56
+#define FY_OP_pop  0x57
 
-#define POP2  0x58
-#define DUP  0x59
-#define DUP_X1  0x5A
-#define DUP_X2  0x5B
-#define DUP2  0x5C
-#define DUP2_X1  0x5D
-#define DUP2_X2  0x5E
-#define SWAP  0x5F
+#define FY_OP_pop2  0x58
+#define FY_OP_dup  0x59
+#define FY_OP_dup_x1  0x5a
+#define FY_OP_dup_x2  0x5b
+#define FY_OP_dup2  0x5c
+#define FY_OP_dup2_x1  0x5d
+#define FY_OP_dup2_x2  0x5e
+#define FY_OP_swap  0x5f
 
-#define IADD  0x60
-#define LADD  0x61
-#define FADD  0x62
-#define DADD  0x63
-#define ISUB  0x64
-#define LSUB  0x65
-#define FSUB  0x66
-#define DSUB  0x67
+#define FY_OP_iadd  0x60
+#define FY_OP_ladd  0x61
+#define FY_OP_fadd  0x62
+#define FY_OP_dadd  0x63
+#define FY_OP_isub  0x64
+#define FY_OP_lsub  0x65
+#define FY_OP_fsub  0x66
+#define FY_OP_dsub  0x67
 
-#define IMUL  0x68
-#define LMUL  0x69
-#define FMUL  0x6A
-#define DMUL  0x6B
-#define IDIV  0x6C
-#define LDIV  0x6D
-#define FDIV  0x6E
-#define DDIV  0x6F
+#define FY_OP_imul  0x68
+#define FY_OP_lmul  0x69
+#define FY_OP_fmul  0x6a
+#define FY_OP_dmul  0x6b
+#define FY_OP_idiv  0x6c
+#define FY_OP_ldiv  0x6d
+#define FY_OP_fdiv  0x6e
+#define FY_OP_ddiv  0x6f
 
-#define IREM  0x70
-#define LREM  0x71
-#define FREM  0x72
-#define DREM  0x73
-#define INEG  0x74
-#define LNEG  0x75
-#define FNEG  0x76
-#define DNEG  0x77
+#define FY_OP_irem  0x70
+#define FY_OP_lrem  0x71
+#define FY_OP_frem  0x72
+#define FY_OP_drem  0x73
+#define FY_OP_ineg  0x74
+#define FY_OP_lneg  0x75
+#define FY_OP_fneg  0x76
+#define FY_OP_dneg  0x77
 
-#define ISHL  0x78
-#define LSHL  0x79
-#define ISHR  0x7A
-#define LSHR  0x7B
-#define IUSHR  0x7C
-#define LUSHR  0x7D
-#define IAND  0x7E
-#define LAND  0x7F
+#define FY_OP_ishl  0x78
+#define FY_OP_lshl  0x79
+#define FY_OP_ishr  0x7a
+#define FY_OP_lshr  0x7b
+#define FY_OP_iushr  0x7c
+#define FY_OP_lushr  0x7d
+#define FY_OP_iand  0x7e
+#define FY_OP_land  0x7f
 
-#define IOR  0x80
-#define LOR  0x81
-#define IXOR  0x82
-#define LXOR  0x83
-#define IINC  0x84
-#define I2L  0x85
-#define I2F  0x86
-#define I2D  0x87
+#define FY_OP_ior  0x80
+#define FY_OP_lor  0x81
+#define FY_OP_ixor  0x82
+#define FY_OP_lxor  0x83
+#define FY_OP_iinc  0x84
+#define FY_OP_i2l  0x85
+#define FY_OP_i2f  0x86
+#define FY_OP_i2d  0x87
 
-#define L2I  0x88
-#define L2F  0x89
-#define L2D  0x8A
-#define F2I  0x8B
-#define F2L  0x8C
-#define F2D  0x8D
-#define D2I  0x8E
-#define D2L  0x8F
+#define FY_OP_l2i  0x88
+#define FY_OP_l2f  0x89
+#define FY_OP_l2d  0x8a
+#define FY_OP_f2i  0x8b
+#define FY_OP_f2l  0x8c
+#define FY_OP_f2d  0x8d
+#define FY_OP_d2i  0x8e
+#define FY_OP_d2l  0x8f
 
-#define D2F  0x90
-#define I2B  0x91
-#define I2C  0x92
-#define I2S  0x93
-#define LCMP  0x94
-#define FCMPL  0x95
-#define FCMPG  0x96
-#define DCMPL  0x97
+#define FY_OP_d2f  0x90
+#define FY_OP_i2b  0x91
+#define FY_OP_i2c  0x92
+#define FY_OP_i2s  0x93
+#define FY_OP_lcmp  0x94
+#define FY_OP_fcmpl  0x95
+#define FY_OP_fcmpg  0x96
+#define FY_OP_dcmpl  0x97
 
-#define DCMPG  0x98
-#define IFEQ  0x99
-#define IFNE  0x9A
-#define IFLT  0x9B
-#define IFGE  0x9C
-#define IFGT  0x9D
-#define IFLE  0x9E
-#define IF_ICMPEQ  0x9F
+#define FY_OP_dcmpg  0x98
+#define FY_OP_ifeq  0x99
+#define FY_OP_ifne  0x9a
+#define FY_OP_iflt  0x9b
+#define FY_OP_ifge  0x9c
+#define FY_OP_ifgt  0x9d
+#define FY_OP_ifle  0x9e
+#define FY_OP_if_icmpeq  0x9f
 
-#define IF_ICMPNE  0xA0
-#define IF_ICMPLT  0xA1
-#define IF_ICMPGE  0xA2
-#define IF_ICMPGT  0xA3
-#define IF_ICMPLE  0xA4
-#define IF_ACMPEQ  0xA5
-#define IF_ACMPNE  0xA6
-#define GOTO  0xA7
+#define FY_OP_if_icmpne  0xa0
+#define FY_OP_if_icmplt  0xa1
+#define FY_OP_if_icmpge  0xa2
+#define FY_OP_if_icmpgt  0xa3
+#define FY_OP_if_icmple  0xa4
+#define FY_OP_if_acmpeq  0xa5
+#define FY_OP_if_acmpne  0xa6
+#define FY_OP_goto  0xa7
 
-#define JSR  0xA8
-#define RET  0xA9
-#define TABLESWITCH  0xAA
-#define LOOKUPSWITCH  0xAB
-#define IRETURN  0xAC
-#define LRETURN  0xAD
-#define FRETURN  0xAE
-#define DRETURN  0xAF
+#define FY_OP_jsr  0xa8
+#define FY_OP_ret  0xa9
+#define FY_OP_tableswitch  0xaa
+#define FY_OP_lookupswitch  0xab
+#define FY_OP_ireturn  0xac
+#define FY_OP_lreturn  0xad
+#define FY_OP_freturn  0xae
+#define FY_OP_dreturn  0xaf
 
-#define ARETURN  0xB0
-#define RETURN  0xB1
-#define GETSTATIC  0xB2
-#define PUTSTATIC  0xB3
-#define GETFIELD  0xB4
-#define PUTFIELD  0xB5
-#define INVOKEVIRTUAL  0xB6
-#define INVOKESPECIAL  0xB7
+#define FY_OP_areturn  0xb0
+#define FY_OP_return  0xb1
+#define FY_OP_getstatic  0xb2
+#define FY_OP_putstatic  0xb3
+#define FY_OP_getfield  0xb4
+#define FY_OP_putfield  0xb5
+#define FY_OP_invokevirtual  0xb6
+#define FY_OP_invokespecial  0xb7
 
-#define INVOKESTATIC  0xB8
-#define INVOKEINTERFACE  0xB9
-#define UNUSED_BA  0xBA
-#define NEW  0xBB
-#define NEWARRAY  0xBC
-#define ANEWARRAY  0xBD
-#define ARRAYLENGTH  0xBE
-#define ATHROW  0xBF
+#define FY_OP_invokestatic  0xb8
+#define FY_OP_invokeinterface  0xb9
+#define FY_OP_unused_ba  0xba
+#define FY_OP_new  0xbb
+#define FY_OP_newarray  0xbc
+#define FY_OP_anewarray  0xbd
+#define FY_OP_arraylength  0xbe
+#define FY_OP_athrow  0xbf
 
-#define CHECKCAST  0xC0
-#define INSTANCEOF  0xC1
-#define MONITORENTER  0xC2
-#define MONITOREXIT  0xC3
-#define WIDE  0xC4
-#define MULTIANEWARRAY  0xC5
-#define IFNULL  0xC6
-#define IFNONNULL  0xC7
+#define FY_OP_checkcast  0xc0
+#define FY_OP_instanceof  0xc1
+#define FY_OP_monitorenter  0xc2
+#define FY_OP_monitorexit  0xc3
+#define FY_OP_wide  0xc4
+#define FY_OP_multianewarray  0xc5
+#define FY_OP_ifnull  0xc6
+#define FY_OP_ifnonnull  0xc7
 
-#define GOTO_W  0xC8
-#define JSR_W  0xC9
-#define BREAKPOINT  0xCA
+#define FY_OP_goto_w  0xc8
+#define FY_OP_jsr_w  0xc9
+#define FY_OP_breakpoint  0xca
+
+#define FY_OP_getstatic_x  0xf2
+#define FY_OP_putstatic_x  0xf3
+#define FY_OP_getfield_x  0xf4
+#define FY_OP_putfield_x  0xf5
+
+#define FY_OP_dropout  0x1f0
+
+#define FY_IP_dropout 0x00
+
+#define FY_IP_begin 0x01
 
 #define fy_nextU1(CODE) (fy_uint)CODE[pc++]
 #define fy_nextS1(CODE) ((fy_byte)CODE[pc++])
@@ -260,7 +271,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-extern const char *FY_OP_NAME[256];
+extern const char *FY_OP_NAME[512];
 
 void fy_instInitStackItem(fy_memblock *block, fy_instruction *instruction,
 		fy_int size, fy_exception *exception) ;

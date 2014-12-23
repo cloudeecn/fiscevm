@@ -24,6 +24,7 @@
 #include "fyc/BinarySaver.h"
 #include "fyc/BAIS.h"
 #include "fyc/RIS.h"
+#include "fyc/Engine.h"
 
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
@@ -461,6 +462,14 @@ static void initThreadManager(fy_context *context, fy_exception *exception) {
 	context->pricmds[10] = 64000;
 }
 
+static void initEngine(fy_context *context, fy_exception *exception) {
+	context->engineCount = 1;
+	context->engines = fy_mmAllocatePerm(context->memblocks, sizeof(fy_engine),
+			exception);
+	FYEH();
+	context->engines[0] = fy_thread_runner_01;
+}
+
 static void initHeap(fy_context *context, fy_exception *exception) {
 	fy_memblock *block = context->memblocks;
 	context->nextHandle = 1;
@@ -486,10 +495,12 @@ static void initHeap(fy_context *context, fy_exception *exception) {
 
 void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_debugInit(context);
-	ILOG(context,
+	ILOG(
+			context,
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
-			MAX_OBJECTS * (fy_int) sizeof(fy_object));
+			MAX_OBJECTS * (fy_int) sizeof(fy_object))
+;
 	fy_mmInit(context->memblocks, exception);
 	FYEH();
 	fy_bsRegisterBinarySaver(context);
@@ -505,6 +516,9 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	initThreadManager(context, exception);
+	FYEH();
+
+	initEngine(context, exception);
 	FYEH();
 
 	initConstantStrings(context, exception);
@@ -1117,9 +1131,9 @@ fy_boolean fy_vmBootup(fy_context *context, const char* bootStrapClass,
 	 FYEH();
 	 */
 	name.content = NULL;
-    if(exception == NULL){
-        return FALSE;
-    }
+	if (exception == NULL) {
+		return FALSE;
+	}
 	fy_strInitWithUTF8(context->memblocks, &name, bootStrapClass, exception);
 	FYEH()FALSE;
 	clazz = fy_vmLookupClass(context, &name, exception);
@@ -1127,7 +1141,7 @@ fy_boolean fy_vmBootup(fy_context *context, const char* bootStrapClass,
 	FYEH()FALSE;
 	fy_tmBootFromMain(context, clazz, exception);
 	FYEH()FALSE;
-    return TRUE;
+	return TRUE;
 }
 
 static void fillValues(fy_str *key, void *value, void *addition) {
@@ -1241,19 +1255,24 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 		fy_arrayListGet(context->memblocks, context->runningThreads, i,
 				&thread);
 		jmax = thread->frameCount;
+		/*last frame*/
+		frame = FY_GET_FRAME(thread, jmax - 1);
 		context->saveThread(context, saver, thread->threadId, thread->handle,
 				thread->priority, thread->daemon, thread->destroyPending,
 				thread->interrupted, thread->nextWakeTime,
 				thread->pendingLockCount, thread->waitForLockId,
-				thread->waitForNotifyId, FY_GET_FRAME(thread,jmax-1)->sp,
-				thread->stack, thread->typeStack, exception);
+				thread->waitForNotifyId,
+				FY_PDIFF(fy_stack_item, frame->baseSpp, thread->stack)
+						+ frame->method->max_locals + frame->method->max_stack,
+				thread->stack, exception);
 		FYEH();
 		context->savePrepareFrame(context, saver, jmax, exception);
 		FYEH();
 		for (j = 0; j < jmax; j++) {
 			frame = FY_GET_FRAME(thread, j);
-			context->saveFrame(context, saver, frame->methodId, frame->sb,
-					frame->sp, frame->pc, frame->lpc, exception);
+			context->saveFrame(context, saver, frame->method->method_id,
+					FY_PDIFF(fy_stack_item, frame->baseSpp, thread->stack),
+					frame->lpc, frame->pcofs, exception);
 			FYEH();
 		}
 		context->saveEndFrame(context, saver, exception);

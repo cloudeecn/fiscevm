@@ -1,7 +1,7 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
  *fiscevmis free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,9 +14,8 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include "fyc/Instructions.h"
 #include <math.h>
@@ -38,7 +37,7 @@
 #include "fyc/Thread.h"
 
 static fy_nh _NO_HANDLER;
-static fy_nh *NO_HANDLER = &_NO_HANDLER;
+fy_nh *FY_NH_NO_HANDLER = &_NO_HANDLER;
 
 static fy_int processThrowable(fy_context *context, fy_frame *frame,
 		fy_int handle, fy_int lpc, fy_exception *exception) {
@@ -50,7 +49,7 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_int target = -1;
 #ifdef FY_DEBUG
 	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc)
-	;	//
+;	//
 	context->logDVar(context, "Exception: ");
 	context->logDStr(context,
 			fy_heapGetClassOfObject(context, handle, exception)->className);
@@ -91,68 +90,14 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	//Jump after found the target is move to run() for further optimize
 }
 
-static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
-		fy_uint *type, fy_exception *exception) {
-	ConstantStringInfo *constantStringInfo;
-	ConstantClass *constantClass;
-	fy_class *clazz;
-	fy_int hvalue;
-	switch (owner->constantTypes[index]) {
-	case CONSTANT_Integer:
-	case CONSTANT_Float:
-		*type = 0;
-		return ((ConstantIntegerFloatInfo*) (owner->constantPools[index]))->value;
-	case CONSTANT_String:
-		*type = 1;
-		constantStringInfo =
-				((ConstantStringInfo*) (owner->constantPools[index]));
-		hvalue = fy_heapLookupStringFromConstant(context, constantStringInfo,
-				exception);
-		return hvalue;
-	case CONSTANT_Class:
-		constantClass = (ConstantClass*) (owner->constantPools[index]);
-		*type = 1;
-		clazz = fy_vmLookupClassFromConstant(context, constantClass, exception);
-		if (exception->exceptionType != exception_none) {
-			return 0;
-		}
-		return fy_vmGetClassObjHandle(context, clazz, exception);
-	default:
-		exception->exceptionType = exception_normal;
-		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				FY_EXCEPTION_VM);
-		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
-				"LDC type wrong! %"FY_PRINT32"d,%d", index,
-				owner->constantTypes[index]);
-		return 0;
-	}
+fy_int fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
+		fy_int handle, fy_int ops) {
+	return fy_tmMonitorEnter(context, thread, handle, ops);
 }
 
-static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
-		fy_exception *exception) {
-	switch (owner->constantTypes[index]) {
-	case CONSTANT_Double:
-	case CONSTANT_Long:
-		return ((ConstantLongDoubleInfo*) (owner->constantPools[index]))->value;
-	default:
-		exception->exceptionType = exception_normal;
-		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				FY_EXCEPTION_VM);
-		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),
-				"LDC2 type wrong! %"FY_PRINT32"d,%d", index,
-				owner->constantTypes[index]);
-		return 0;
-	}
-}
-
-void fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
-		fy_int handle) {
-	fy_tmMonitorEnter(context, thread, handle);
-}
-
-void fy_threadMonitorExit(fy_context *context, fy_thread *thread, fy_int handle,
-		fy_exception *exception) {
-	fy_tmMonitorExit(context, thread, handle, exception);
+fy_int fy_threadMonitorExit(fy_context *context, fy_thread *thread,
+		fy_int handle, fy_int ops, fy_exception *exception) {
+	return fy_tmMonitorExit(context, thread, handle, ops, exception);
 }
 
 void fy_threadDestroy(fy_context *context, fy_thread *thread) {
@@ -258,7 +203,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	for (begin = thread->frameCount - 1; begin >= 0; begin--) {
 		frame = FY_GET_FRAME(thread, begin);
 		if ((frame->method->access_flags & FY_ACC_STATIC)
-				|| (thread->stack[frame->sb] != handle)) {
+				|| (frame->baseSpp->uvalue != handle)) {
 			break;
 		}
 	}
@@ -332,271 +277,6 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	/*The last line, so don't need error handle*/
 }
 
-#ifdef FY_GOTO
-# define FY_FALLOUT_INVOKE goto label_fallout_invoke;
-# define FY_FALLOUT_NOINVOKE goto label_fallout_noinvoke;
-#else
-# define FY_FALLOUT_INVOKE fallout = fallout_invoke;
-# define FY_FALLOUT_NOINVOKE fallout = fallout_noinvoke;
-#endif
-
-#ifdef FY_STRICT_CHECK
-# define fy_checkPush(SIZE) { \
-	if(sp>=sb+size+(SIZE)){ \
-		fy_fault(exception,NULL,"Stack overflow! base=%d sp=%d localvars=%d",sb,sp,localCount); \
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	} \
-}
-
-# define fy_checkPopSize(SIZE) { \
-	if(sp<=sb+localCount+(SIZE)){ \
-		fy_fault(exception,NULL,"Stack underflow! base=%d sp=%d localvars=%d",sb,sp,localCount); \
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	} \
-}
-
-# define fy_checkPop(SIZE,T) { \
-	fy_checkPopSize(SIZE) \
-	if(T!=fy_bitGet(typeStack, sp-1)){ \
-		fy_fault(exception,NULL,"Type mismatch, needs [%d] but got [%d]",(T),fy_bitGet(typeStack, sp-1)); \
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	} \
-	if(!T!=!fy_instGetStackItem(instruction, sp-sb-1)){ \
-		fy_fault(exception,NULL,"Type mismatch, needs [%d] but got [%d]",(T),fy_bitGet(typeStack, sp-1)); \
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	} \
-}
-
-# define fy_frameToLocalCheck(ptrFrame) { \
-	size = ptrFrame->size; \
-	localCount = ptrFrame -> localCount; \
-	codeSize = ptrFrame->codeSize; \
-}
-
-# define fy_localToFrameCheck(ptrFrame) { \
-	ptrFrame->size = size; \
-	ptrFrame -> localCount = localCount; \
-	ptrFrame->codeSize = codeSize; \
-}
-
-# define fy_checkPutLocal(P,SIZE) { \
-	if((P)<0 || (P)+(SIZE)>=localCount) {\
-		fy_fault(exception,NULL,"Local var out of range %d/%d",(P),localCount);\
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	} \
-}
-
-# define fy_checkGetLocal(P,SIZE,T) { \
-	if((P)<0 || (P)+(SIZE)>=localCount) {\
-		fy_fault(exception,NULL,"Local var out of range %d/%d",(P),localCount);\
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	} \
-	if((T)!=fy_bitGet(typeStack, sb+(P))){\
-		fy_fault(exception,NULL,"Type mismatch, needs [%d] but got [%d]",\
-				(T),fy_bitGet(typeStack, sb+(P))); \
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	}\
-	if(!(T)!=!fy_instGetStackItem(instruction, (P))){\
-		fy_fault(exception,NULL,"Type mismatch with frame, needs [%d] but got [%d]",\
-				(T),fy_bitGet(typeStack, sb+(P))); \
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	}\
-}
-
-# define fy_checkCall(COUNT) \
-	if (sp - (COUNT) - sb < localCount) { \
-		fy_fault(exception,NULL,"Buffer underflow! sb=%d local=%d sp=%d count=%d", sb, localCount, sp, COUNT); \
-		message->messageType=message_exception; \
-		FY_FALLOUT_NOINVOKE \
-		break; \
-	}
-
-#else
-# define fy_checkPush(SIZE)
-# define fy_checkPopSize(SIZE)
-# define fy_checkPop(SIZE,T)
-# define fy_frameToLocalCheck(F)
-# define fy_localToFrameCheck(F)
-# define fy_checkPutLocal(P,SIZE)
-# define fy_checkGetLocal(P,SIZE,T)
-# define fy_checkCall(COUNT)
-#endif
-
-#define fy_threadPushType(V,T) { \
-	fy_checkPush(0) \
-	if(T)fy_bitSet(typeStack,sp);else fy_bitClear(typeStack,sp);\
-	stack[sp++]=V; \
-}
-
-#define fy_threadPushInt(V) { \
-	fy_checkPush(0) \
-	fy_bitClear(typeStack,sp);stack[sp++]=V; \
-}
-
-#define fy_threadPushHandle(V) { \
-		fy_checkPush(0) \
-	fy_bitSet(typeStack,sp);stack[sp++]=V; \
-}
-#define fy_threadPushReturn(V) { \
-	fy_checkPush(0) \
-	fy_bitClear(typeStack,sp);stack[sp++]=V; \
-}
-
-#define fy_threadPushLong(W) { \
-	fy_checkPush(1) \
-	fy_bitClear(typeStack,sp);stack[sp++]=fy_HOFL((W)); \
-	fy_bitClear(typeStack,sp);stack[sp++]=fy_LOFL((W)); \
-}
-
-#define fy_threadPopType(O,T) { \
-	fy_checkPopSize(0) \
-	O=stack[--sp]; \
-	T=fy_bitGet(typeStack,sp); \
-}
-
-#define fy_threadPopInt(O) { \
-	fy_checkPop(0,0) \
-	O=stack[--sp]; \
-}
-
-#define fy_threadPopFloat(O) { \
-	fy_checkPop(0,0) \
-	O=fy_intToFloat(stack[--sp]); \
-}
-
-#define fy_threadPopHandle(O) { \
-	fy_checkPop(0,1) \
-	O=stack[--sp]; \
-}
-
-#define fy_threadPopReturn(O) { \
-	fy_checkPop(0,0) \
-	O=stack[--sp]; \
-}
-
-#define fy_threadPopLong(O) { \
-	fy_checkPop(1,0) \
-	O = (fy_ulong)stack[--sp]; \
-	O += ((fy_ulong)stack[--sp])<<32; \
-}
-
-#define fy_threadPopDouble(O) { \
-	fy_checkPop(1,0) \
-	sp-=2; \
-	O=fy_longToDouble((((fy_ulong)stack[sp])<<32)+(fy_ulong)stack[sp+1]); \
-}
-
-#define fy_threadPutLocalInt(P,V) { \
-	fy_checkPutLocal(P,0) \
-	stack[sb+(P)]=(V); \
-	fy_bitClear(typeStack,sb+(P)); \
-}
-
-#define fy_threadPutLocalHandle(P,V) { \
-	fy_checkPutLocal(P,0) \
-	stack[sb+(P)]=(V); \
-	fy_bitSet(typeStack,sb+(P)); \
-}
-
-#define fy_threadPutLocalType(P,V,TYPE) { \
-	fy_checkPutLocal(P,0) \
-	stack[sb+(P)]=(V); \
-	if(TYPE)fy_bitSet(typeStack,sb+(P)); else fy_bitClear(typeStack,sb+(P)); \
-}
-
-#define fy_threadPutLocalLong(P,W) { \
-	fy_checkPutLocal(P,1) \
-	stack[sb+(P)]=fy_HOFL(W); \
-	stack[sb+(P)+1]=fy_LOFL(W); \
-	fy_bitClear(typeStack,sb+(P)); \
-	fy_bitClear(typeStack,sb+(P)+1); \
-}
-
-#define fy_threadGetLocalInt(P,O) { \
-	fy_checkGetLocal(P,0,FALSE) \
-	O=stack[sb+(P)]; \
-}
-
-#define fy_threadGetLocalHandle(P,O) { \
-	fy_checkGetLocal(P,0,TRUE) \
-	O=stack[sb+(P)]; \
-}
-
-#define fy_threadGetLocalReturn(P,O) { \
-	fy_checkGetLocal(P,0,FALSE) \
-	O=stack[sb+(P)]; \
-}
-
-#define fy_threadGetLocalLong(P,O) { \
-	fy_checkGetLocal(P,1,FALSE) \
-	O=stack[sb+(P)]; \
-	O=((fy_ulong)O<<32)+((fy_ulong)stack[sb+(P)+1]); \
-}
-#ifdef FY_VERBOSE
-# define fy_frameToLocal(context,ptrFrame) { \
-	sp=ptrFrame->sp; \
-	pc=ptrFrame->pc; \
-	lpc=ptrFrame->lpc; \
-	sb=ptrFrame->sb; \
-	method = ptrFrame->method; \
-	instructions = method->instructions; \
-	context->logDVar(context,"Frame[%p] To Local sb=%"FY_PRINT32"d sp=%"FY_PRINT32"d pc=%"FY_PRINT32"d" \
-			"lpc=%"FY_PRINT32"d\n",ptrFrame,sb,sp,pc,lpc); \
-	fy_frameToLocalCheck(ptrFrame) \
-}
-#else
-# define fy_frameToLocal(context,ptrFrame) { \
-	sp=ptrFrame->sp; \
-	pc=ptrFrame->pc; \
-	lpc=ptrFrame->lpc; \
-	sb=ptrFrame->sb; \
-	method = ptrFrame->method; \
-	instructions = method->instructions; \
-	fy_frameToLocalCheck(ptrFrame) \
-}
-#endif
-
-#ifdef FY_VERBOSE
-#define fy_localToFrame(context,ptrFrame) { \
-	ptrFrame->sp = sp; \
-	ptrFrame->pc = pc; \
-	ptrFrame->lpc = lpc; \
-	ptrFrame->sb = sb; \
-	ptrFrame->method = method; \
-	ptrFrame->methodId = method->method_id; \
-	if(lpc==133){fy_breakpoint();} \
-	context->logDVar(context,"Local To Frame[%p] sb=%"FY_PRINT32"d sp=%"FY_PRINT32"d pc=%"FY_PRINT32"d" \
-				"lpc=%"FY_PRINT32"d\n",ptrFrame,sb,sp,pc,lpc); \
-	fy_localToFrameCheck(ptrFrame) \
-}
-#else
-#define fy_localToFrame(context,ptrFrame) { \
-	ptrFrame->sp = sp; \
-	ptrFrame->pc = pc; \
-	ptrFrame->lpc = lpc; \
-	ptrFrame->sb = sb; \
-	ptrFrame->method = method; \
-	ptrFrame->methodId = method->method_id; \
-	fy_localToFrameCheck(ptrFrame) \
-}
-#endif
-
 fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 	fy_uint frameCount = thread->frameCount;
 	if (frameCount == 0) {
@@ -606,53 +286,47 @@ fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 	}
 }
 
-static fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
-		fy_method *invoke, fy_exception *exception) {
-	fy_frame *frame = fy_threadCurrentFrame(context, thread);
-	fy_uint sb, sp;
+fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
+		fy_method *invoke, fy_stack_item *spp, fy_exception *exception) {
+	fy_frame *frame;
+#ifdef FY_STRICT_CHECK
+	fy_frame *currentFrame = fy_threadCurrentFrame(context, thread);
+	if (currentFrame == NULL) {
+
+	} else {
+		if (spp < currentFrame->baseSpp + currentFrame->method->max_locals) {
+			fy_fault(exception, NULL, "Illegal spp: %p < %p[%"FY_PRINT32"d]",
+					spp, currentFrame->baseSpp,
+					currentFrame->method->max_locals);
+		}
+	}
+#endif
 	if (!(invoke->access_flags & FY_ACC_VERIFIED)) {
 		fy_preverify(context, invoke, exception);
 		FYEH()NULL;
 	}
-	if (frame == NULL) {
-		sb = 0;
-		sp = invoke->max_locals;
-		frame = FY_GET_FRAME(thread, 0);
-	} else {
-#ifdef FY_STRICT_CHECK
-		sp = invoke->paramStackUsage
-				+ ((!(invoke->access_flags & FY_ACC_STATIC)) & 1);
-		for (sb = sp; sb < invoke->max_locals; sb++) {
-			fy_bitClear(thread->typeStack, frame->sp + sb);
-		}
-#endif
-		sb = frame->sp;
-		sp = sb + invoke->max_locals;
-		frame--;
-	}
-	if (sp + invoke->max_stack + (++(thread->frameCount)) * FY_FRAME_ENTRIES
-			>= STACK_SIZE) {
-		fy_fault(exception, NULL, "STACK OVERFLOW! sp=%d frame_size=", sp,
-				thread->frameCount * FY_FRAME_ENTRIES);
+	frame = ((fy_frame*) ((thread)->stack
+			+ (STACK_SIZE - (++thread->frameCount) * FY_FRAME_ENTRIES)));
+	if ((void*) (spp + invoke->max_locals + invoke->max_stack)
+			> (void*) frame) {
+		fy_fault(exception, NULL, "STACK OVERFLOW! spp=%p frame=%p", spp,
+				frame);
 		return NULL;
 	}
+
 	frame->method = invoke;
-	frame->instructions = invoke->instructions;
-	frame->sb = sb;
-	frame->methodId = invoke->method_id;
-	frame->sp = sp;
-	frame->pc = 0;
-	frame->lpc = 0;
+	frame->baseSpp = spp;
+	frame->lpc = FY_IP_begin;
+	frame->pcofs = 0;
 #ifdef FY_STRICT_CHECK
 	frame->size = invoke->max_locals + invoke->max_stack;
 	frame->localCount = invoke->max_locals;
 	frame->codeSize = invoke->codeLength;
 #endif
-
 	return frame;
 }
 
-static fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread) {
+fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread) {
 	fy_uint fc = --(thread->frameCount);
 	if (fc <= 0) {
 		return NULL;
@@ -683,19 +357,22 @@ static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz)
 	return NULL;
 }
 
-void fy_threadPushMethod(fy_context *context, fy_thread *thread,
-		fy_method *invoke, fy_exception *exception) {
-	fy_frame *frame = fy_threadPushFrame(context, thread, invoke, exception);
-	FYEH();
+fy_int fy_threadPushMethod(fy_context *context, fy_thread *thread,
+		fy_method *invoke, fy_stack_item *spp, fy_int ops,
+		fy_exception *exception) {
+	fy_frame *frame = fy_threadPushFrame(context, thread, invoke, spp,
+			exception);
+	FYEH()0;
 
 	if (invoke->access_flags & FY_ACC_SYNCHRONIZED) {
-		fy_threadMonitorEnter(context, thread,
+		return fy_threadMonitorEnter(context, thread,
 				(invoke->access_flags & FY_ACC_STATIC) ?
 						fy_vmGetClassObjHandle(context, invoke->owner,
 								exception) :
-						thread->stack[frame->sb]);
+						frame->baseSpp->uvalue, ops);
+	} else {
+		return ops;
 	}
-
 }
 
 void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
@@ -720,15 +397,14 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 	}
 	thread->handle = threadHandle;
 	obj->object_data->threadId = thread->threadId;
-	fy_threadPushFrame(context, thread, method, exception);
+	fy_threadPushFrame(context, thread, method, thread->stack, exception);
 	FYEH();
 	clazz = fy_vmLookupClass(context, context->sStringArray, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
 
-	thread->stack[0] = fy_heapAllocateArray(context, clazz, 0, exception);
-	fy_bitSet(thread->typeStack, 0);
+	thread->stack->uvalue = fy_heapAllocateArray(context, clazz, 0, exception);
 	if (exception->exceptionType != exception_none) {
 		return;
 	}
@@ -762,77 +438,144 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	context->logDVarLn(context, "With thread #%"FY_PRINT32"d",
 			thread->threadId);
 #endif
-	fy_threadPushFrame(context, thread, runner, exception);
+	fy_threadPushFrame(context, thread, runner, thread->stack, exception);
 	FYEH();
-	thread->stack[0] = handle;
-	fy_bitSet(thread->typeStack, 0);
+	thread->stack->uvalue = handle;
 }
 
-static void doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
-		fy_method *method, fy_uint paramsCount, fy_message *message,
+static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
+		fy_method *method, fy_uint paramsCount, fy_stack_item *spp, fy_int ops,
 		fy_exception *exception) {
 	fy_nh *nh;
+	frame->pcofs = 1;
 	if (method->access_flags & FY_ACC_NATIVE) {
 		nh = method->nh;
 		if (nh == NULL) {
 			nh = fy_hashMapGet(context->memblocks, context->mapMUNameToNH,
 					method->uniqueName);
-			nh = method->nh = (nh == NULL ? NO_HANDLER : nh);
+			nh = method->nh = (nh == NULL ? FY_NH_NO_HANDLER : nh);
 		}
-		if (nh == NO_HANDLER) {
-			message->messageType = message_invoke_native;
-			message->body.call.method = method;
-			message->body.call.paramCount = paramsCount;
-			message->body.call.params = thread->stack + frame->sp;
+		if (nh == FY_NH_NO_HANDLER) {
+			thread->pendingNative.method = method;
+			thread->pendingNative.paramCount = paramsCount;
+			thread->pendingNative.params = spp;
+			ops = 0;
 		} else {
 			fy_heapBeginProtect(context);
-			(nh->handler)(context, thread, nh->data, thread->stack + frame->sp,
-					paramsCount, message, exception);
-			FYEH();
+			ops = (nh->handler)(context, thread, nh->data, spp, paramsCount,
+					ops, exception);
+			FYEH()0;
 			fy_heapEndProtect(context);
 		}
 	} else {
-		fy_threadPushMethod(context, thread, method, exception);
-		FYEH();
+		ops = fy_threadPushMethod(context, thread, method, spp, ops, exception);
+		FYEH()0;
+		if (ops <= 0) {
+			return 0;
+		}
+		ops = (*(method->engine))(context, thread,
+				fy_threadCurrentFrame(context, thread), ops, exception).ops;
 	}
+	return ops;
 }
 
-static void invokeVirtual(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_exception *exception,
-		fy_message *message) {
+fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
+		fy_exception *exception) {
+	fy_int count = method->paramStackUsage + 1;
+	fy_method *actureMethod = NULL;
+#ifdef FY_VERBOSE
+	context->logDVar(context, "Invoke special: ");
+	context->logDStr(context, method->uniqueName);
+	context->logDVar(context, "\n");
+#endif
+#ifdef FY_STRICT_CHECK
+	if (spp - count < frame->baseSpp + frame->localCount) {
+		fy_fault(exception, NULL,
+				"Buffer underflow! %p - %"FY_PRINT32"d < %p + %"FY_PRINT32"d",
+				spp, count, frame->baseSpp, frame->localCount);
+		return 0;
+	}
+#endif
+	spp -= count;
+	if (spp->uvalue == 0) {
+		fy_fault(exception, FY_EXCEPTION_NPT, "");
+		return 0;
+	}
+	if (fy_strCmp(method->name, context->sInit)
+			&& fy_classIsSuperClassOf(context, method->owner,
+					frame->method->owner)) {
+		/* call to method is not init and owned by super = call super.XXX() */
+		actureMethod = fy_vmLookupMethodVirtualByMethod(context,
+				frame->method->owner->super, method, exception);
+		FYEH()0;
+		if (actureMethod->owner != method->owner) {
+			fy_fault(exception, FY_EXCEPTION_NO_METHOD, "");
+			fy_strSPrint(exception->exceptionDesc,
+					sizeof(exception->exceptionDesc), method->uniqueName);
+			FYEH()0;
+		}
+	} else {
+		/*Else call private or <init>*/
+		actureMethod = method;
+	}
+	if (actureMethod == NULL) {
+		fy_fault(exception, FY_EXCEPTION_ABSTRACT, "");
+		FYEH()0;
+	}
+	if (actureMethod->access_flags & FY_ACC_STATIC) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "");
+		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				actureMethod->uniqueName);
+		FYEH()0;
+	}
+	if (actureMethod->access_flags & FY_ACC_ABSTRACT) {
+		fy_fault(exception, FY_EXCEPTION_ABSTRACT, "");
+		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				actureMethod->uniqueName);
+		FYEH()0;
+	}
+#ifdef FY_VERBOSE
+	context->logDVar(context, "\tmethod is: ");
+	context->logDStr(context, actureMethod->uniqueName);
+	context->logDVar(context, "\n");
+#endif
+	return doInvoke(context, thread, frame, actureMethod, count, spp, ops,
+			exception);
+}
+
+fy_int fy_threadInvokeVirtual(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
+		fy_exception *exception) {
 	fy_int count = method->paramStackUsage + 1;
 	fy_method *actureMethod;
 	fy_class *clazz;
-	fy_uint *stack;
-	fy_uint sp;
 #ifdef FY_VERBOSE
 	context->logDVar(context, "Invoke virtual: ");
 	context->logDStr(context, method->uniqueName);
 	context->logDVar(context, "\n");
 #endif
 #ifdef FY_STRICT_CHECK
-	if (frame->sp - (count) - frame->sb < frame->localCount) {
-		fy_fault(exception, NULL, "Buffer underflow! %d %d",
-				frame->sp - (count) - frame->sb, frame->localCount);
-		return;
+	if (spp - count < frame->baseSpp + frame->localCount) {
+		fy_fault(exception, NULL,
+				"Buffer underflow! %p - %"FY_PRINT32"d < %p + %"FY_PRINT32"d",
+				spp, count, frame->baseSpp, frame->localCount);
+		return 0;
 	}
 #endif
-	frame->sp -= count;
-	sp = frame->sp;
-	ASSERT(fy_bitGet(thread->typeStack,frame->sp));
-	stack = thread->stack;
-	if (stack[frame->sp] == 0) {
+	spp -= count;
+	if (spp->uvalue == 0) {
 		fy_fault(exception, FY_EXCEPTION_NPT, "");
-		return;
+		return 0;
 	}
 	if (method->access_flags & FY_ACC_FINAL) {
 		actureMethod = method;
 	} else {
-		clazz = fy_heapGetClassOfObject(context, stack[sp], exception);
-		FYEH();
+		clazz = fy_heapGetClassOfObject(context, spp->uvalue, exception);
+		FYEH()0;
 		actureMethod = fy_vmLookupMethodVirtualByMethod(context, clazz, method,
 				exception);
-		FYEH();
+		FYEH()0;
 #ifdef FY_VERBOSE
 		context->logDStr(context, actureMethod->uniqueName);
 		context->logDVar(context, "\n");
@@ -843,57 +586,13 @@ static void invokeVirtual(fy_context *context, fy_thread *thread,
 	context->logDStr(context, actureMethod->uniqueName);
 	context->logDVar(context, "\n");
 #endif
-	doInvoke(context, thread, frame, actureMethod, count, message, exception);
+	return doInvoke(context, thread, frame, actureMethod, count, spp, ops,
+			exception);
 }
 
-#if 0
-
-static void invokeDirect(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_exception *exception,
-		fy_message *message) {
-	fy_int count = method->paramStackUsage + 1;
-	fy_class *clazz;
-	fy_uint *stack;
-	fy_object *object;
-	fy_uint sp;
-#ifdef FY_VERBOSE
-	context->logDVar(context,"Invoke direct: ");
-	context->logDStr(context, method->uniqueName);
-	context->logDVar(context,"\n");
-#endif
-#ifdef FY_STRICT_CHECK
-	if (frame->sp - (count) - frame->sb < frame->localCount) {
-		fy_fault(exception, NULL, "Buffer underflow! %d %d",
-				frame->sp - (count) - frame->sb, frame->localCount);
-		return;
-	}
-#endif
-	frame->sp -= count;
-	sp = frame->sp;
-	ASSERT(fy_bitGet(thread->typeStack,frame->sp));
-	stack = thread->stack;
-	if (stack[frame->sp] == 0) {
-		fy_fault(exception, FY_EXCEPTION_NPT, "");
-		return;
-	}
-	object = fy_heapGetObject(context,stack[sp]);
-	if (!fy_classCanCastTo(context, object->object_data->clazz, method->owner,
-					TRUE)) {
-		fy_fault(exception, FY_EXCEPTION_CAST, "");
-		return;
-	}
-#ifdef FY_VERBOSE
-	context->logDVar(context,"\tmethod is: ");
-	context->logDStr(context, method->uniqueName);
-	context->logDVar(context,"\n");
-#endif
-	doInvoke(context, thread, frame, method, count, message, exception);
-}
-#endif
-
-static void invokeStatic(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_exception *exception,
-		fy_message *message) {
+fy_int fy_threadInvokeStatic(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
+		fy_exception *exception) {
 	char msg[256];
 #ifdef FY_DEBUG
 	fy_class *owner = method->owner;
@@ -909,7 +608,7 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 		fy_strSPrint(msg, 256, method->uniqueName);
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s is not static",
 				msg);
-		return;
+		return 0;
 	}
 
 #ifdef FY_DEBUG
@@ -920,2991 +619,162 @@ static void invokeStatic(fy_context *context, fy_thread *thread,
 		context->logDVarLn(context, "");
 		fy_fault(exception, NULL,
 				"Clinit of class should be finished before invoke");
+		return 0;
 	}
 #endif
 
 #ifdef FY_STRICT_CHECK
-	if (frame->sp - (count) - frame->sb < frame->localCount) {
-		fy_fault(exception, NULL, "Buffer underflow! %d %d",
-				frame->sp - (count) - frame->sb, frame->localCount);
-		return;
+	if (spp - count < frame->baseSpp + frame->localCount) {
+		fy_fault(exception, NULL,
+				"Buffer underflow! %p - %"FY_PRINT32"d < %p + %"FY_PRINT32"d",
+				spp, count, frame->baseSpp, frame->localCount);
+		return 0;
 	}
 #endif
-	frame->sp -= count;
+	spp -= count;
 #ifdef FY_VERBOSE
 	context->logDStr(context, method->uniqueName);
 	context->logDVar(context, "\n");
 #endif
-	doInvoke(context, thread, frame, method, count, message, exception);
+	return doInvoke(context, thread, frame, method, count, spp, ops, exception);
 }
 
-void fy_threadInvoke(fy_context *context, fy_thread *thread, fy_method *method,
-		fy_message *message, fy_exception *exception) {
+fy_int fy_threadInvoke(fy_context *context, fy_thread *thread,
+		fy_method *method, fy_stack_item *spp, fy_int ops,
+		fy_exception *exception) {
 	if (method->access_flags & FY_ACC_STATIC) {
-		invokeStatic(context, thread, fy_threadCurrentFrame(context, thread),
-				method, exception, message);
+		return fy_threadInvokeStatic(context, thread,
+				fy_threadCurrentFrame(context, thread), method, spp, ops,
+				exception);
 	} else {
-		invokeVirtual(context, thread, fy_threadCurrentFrame(context, thread),
-				method, exception, message);
+		return fy_threadInvokeVirtual(context, thread,
+				fy_threadCurrentFrame(context, thread), method, spp, ops,
+				exception);
 	}
 }
 
-fy_boolean fy_threadClinit(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_class *clazz, fy_exception *exception) {
+fy_int fy_threadClinit(fy_context *context, fy_thread *thread, fy_class *clazz,
+		fy_stack_item *spp, fy_int ops, fy_exception *exception) {
 	//!CLINIT
-	fy_class *clinitClazz;
+	fy_class *clinitClazz = NULL;
+	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	clinitClazz = clinit(context, thread, clazz);
 	if (clinitClazz) {
+		frame->pcofs = 0;
 		if (clinitClazz->clinitThreadId == 0) {
 #ifdef FY_VERBOSE
 			context->logDVar(context,
-					"Prepare invoke <clinit> rollback ip %p %"FY_PRINT32"d => %"FY_PRINT32"d",
-					frame, frame->lpc, frame->pc);
+					"Prepare invoke <clinit> rollback pcofs");
 #endif
-			frame->pc = frame->lpc;
 			clinitClazz->clinitThreadId = thread->threadId;
-			fy_threadPushFrame(context, thread, clinitClazz->clinit, exception);
-			FYEH()1;
-			return 1;
+			fy_threadPushMethod(context, thread, clinitClazz->clinit, spp, ops,
+					exception);
+			return 0;
 		} else {
 #ifdef FY_VERBOSE
 			context->logDVar(context,
-					"Wait for <clinit> thread #%"FY_PRINT32"d rollback ip %p %"FY_PRINT32"d => %"FY_PRINT32"d",
-					clinitClazz->clinitThreadId, frame, frame->lpc, frame->pc);
+					"Wait for <clinit> thread #%"FY_PRINT32"d rollback ip %p",
+					clinitClazz->clinitThreadId, frame);
 #endif
-			frame->pc = frame->lpc;
-			thread->yield = TRUE;
-			return -1;
+			return 0;
 		}
 	} else {
-		return 0;
+		return ops > 0 ? ops : 1;
 	}
 }
 
-/**
- * DON'T USE RETURN HERE!!!!
- */
 void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
-		fy_int ops) {
-	fy_uint sb, sp, pc, lpc, opCount;
-#ifndef FY_GOTO
-	enum FallOut {
-		fallout_none, fallout_invoke, fallout_noinvoke
-	}fallout;
-#endif
-#ifdef FY_STRICT_CHECK
-	fy_uint size, localCount, codeSize;
-#endif
-	fy_instruction *instructions;
-	fy_instruction *instruction;
-	fy_method *method = NULL;
-	fy_frame *frame = NULL;
-	fy_uint *stack = thread->stack;
-	fy_uint *typeStack = thread->typeStack;
-	fy_memblock *block = context->memblocks;
-	fy_exception *exception = &(message->body.exception);
-
-#ifndef FY_LATE_DECLARATION
-	fy_uint ivalue, ivalue2, ivalue3, ivalue4;
-	int i;
-	fy_ulong lvalue, lvalue2;
-	fy_double dvalue, dvalue2;
-	fy_float fvalue, fvalue2;
-	fy_method *mvalue;
-	fy_field *field = NULL;
-	fy_class *clazz1 = NULL, *clazz2 = NULL;
-	fy_char ch1;
-	fy_str str1;
-	fy_uint type, type2, type3, type4;
-	fy_int *pivalue, *pivalue2;
-	fy_str *pstr1;
-	fy_boolean bvalue1;
-	fy_nh *nh;
-	char msg[256];
-	fy_exception exceptionToPrepare;
-	fy_switch_lookup *swlookup = NULL;
-	pstr1 = NULL;
-#endif
-
-	message->messageType = message_continue;
-	exception->exceptionType = exception_none;
-	opCount = 0;
-
-	while (opCount < ops) {
+		fy_int ops, fy_exception *exception) {
+	fy_frame *frame;
+	fy_method *method;
+	fy_exception intrenalException[1];
+	intrenalException->exceptionType = exception_none;
+	while (ops > 0) {
 		frame = fy_threadCurrentFrame(context, thread);
+
 		if (frame == NULL) {
 			/*Time to quit!*/
 			if (thread->currentThrowable) {
-				DLOG(context, "XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX");//
+				DLOG(context, "XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX")
+;				//
 				method = fy_vmGetMethod(context,
 						context->sThrowablePrintStacktrace);
 				ASSERT(method != NULL);
-				frame = fy_threadPushFrame(context, thread, method, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					break;
-				}
-				stack[frame->sb] = thread->currentThrowable;
-				fy_bitSet(typeStack, frame->sb);
+				frame = fy_threadPushFrame(context, thread, method,
+						thread->stack, exception);
+				FYEH();
+				frame->baseSpp->uvalue = thread->currentThrowable;
 				thread->currentThrowable = 0;
-				continue;
+				/* TODO check continue; */
 			} else {
 				message->messageType = message_thread_dead;
 				break;
 			}
 		}
+		method = frame->method;
 		/**/
-		fy_frameToLocal(context, frame);
 		if (thread->currentThrowable) {
 #ifdef FY_LATE_DECLARATION
-			fy_uint ivalue, ivalue2;
+			fy_uint i1, i2;
 #endif
-			ivalue = processThrowable(context, frame, thread->currentThrowable,
-					lpc, exception);
-			if (exception->exceptionType != exception_none) {
-				/*Drop to thread manager with critical exception*/
-				message->messageType = message_exception;
-				break;
-			} else {
-				if (ivalue & 0x80000000) {
-					/*Not found, will return*/
-					if (method->access_flags & FY_ACC_SYNCHRONIZED) {
-						if (method->access_flags & FY_ACC_STATIC) {
-							ivalue2 = fy_vmGetClassObjHandle(context,
-									method->owner, exception);
-							if (exception->exceptionType != exception_none) {
-								message->messageType = message_exception;
-								break;
-							}
-							fy_threadMonitorExit(context, thread, ivalue2,
-									exception);
-						} else {
-							fy_threadMonitorExit(context, thread, stack[sb],
-									exception);
-						}
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							break;
-						}
+			i1 = processThrowable(context, frame, thread->currentThrowable,
+					frame->lpc, exception);
+			FYEH();
+			if (i1 & 0x80000000) {
+				/*Not found, will return*/
+				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+					if (method->access_flags & FY_ACC_STATIC) {
+						i2 = fy_vmGetClassObjHandle(context, method->owner,
+								exception);
+						FYEH();
+						ops = fy_threadMonitorExit(context, thread, i2, ops,
+								exception);
+						FYEH();
+					} else {
+						ops = fy_threadMonitorExit(context, thread,
+								frame->baseSpp->uvalue, ops,
+								exception);
+						FYEH();
 					}
-					fy_threadPopFrame(context, thread);
-					continue;
-				} else {
-
-					/*Found*/
-					sp = sb + method->max_locals;
-					lpc = pc = ivalue;
-					fy_threadPushHandle(thread->currentThrowable);
-					thread->currentThrowable = 0;
 				}
-			}
-		}
-#ifndef FY_GOTO
-		fallout = fallout_none;
-#endif
-		lpc = pc;
-		if ((method->access_flags & FY_ACC_CLINIT) && pc == 0) {
-			//!CLINIT
-			fy_localToFrame(context, frame);
-			if (fy_threadClinit(context, thread, frame, method->owner->super,
-					exception)) {
-				FY_FALLOUT_INVOKE;
-			}
-			if (exception->exceptionType != exception_none) {
-				FY_FALLOUT_NOINVOKE
+				fy_threadPopFrame(context, thread);
+				continue;
+			} else {
+				/*Found*/
+				frame->lpc = i1;
+				frame->pcofs = 0;
+				(frame->baseSpp+method->max_locals)->uvalue = thread->currentThrowable;
+				thread->currentThrowable = 0;
 			}
 		}
 
-		for (; opCount < ops
-#ifndef FY_GOTO
-				&& fallout == fallout_none
+		ops = (*(method->engine))(context, thread, frame, ops,
+				intrenalException).ops;
+
+		if (intrenalException->exceptionType != exception_none) {
+			if (intrenalException->exceptionName[0] == 0) {
+				*exception = *intrenalException;
+				FYEH();
+			} else {
+#ifdef FY_LATE_DECLARATION
+				fy_exception exceptionToPrepare;
 #endif
-				; opCount++) {
-			/*RUN_ONE_INST!!!!!*/
-			lpc = pc;
-			instruction = instructions + (pc++);
-#ifdef FY_STRICT_CHECK
-			if (sp - sb != instruction->sp) {
-				fy_fault(exception, NULL,
-						"Sp mismatch running %s at %"FY_PRINT32"d, current: %"FY_PRINT32"d, frame: %"FY_PRINT32"d",
-						method->utf8Name, lpc, sp - sb, instruction->sp);
+				exceptionToPrepare = *intrenalException;
+				intrenalException->exceptionType = exception_none;
+				intrenalException->exceptionName[0] = 0;
+				intrenalException->exceptionDesc[0] = 0;
+				fy_heapBeginProtect(context);
+				thread->currentThrowable = fy_threadPrepareThrowable(context,
+						thread, &exceptionToPrepare, intrenalException);
 				FYEH();
 			}
-#endif
-#ifdef FY_PROFILE
-			context->opUsage[instruction->op].count++;
-			context->opCombine[(context->lastOp << 8) + instruction->op].count++;
-			context->lastOp = instruction->op;
-#endif
-#ifdef FY_VERBOSE
-#ifdef FY_LATE_DECLARATION
-			char msg[256];
-#endif
-			fy_strSPrint(msg, 256, method->uniqueName);
-			context->logDVar(context, "##%2d %6d/%6d %s %d %s SB=%d SP=%d\n",
-					thread->threadId, opCount, ops, msg, lpc,
-					FY_OP_NAME[instruction->op], sb, sp);
-#endif
-
-			switch (instruction->op) {
-			case AALOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopHandle(ivalue2);
-				fy_threadPushHandle(
-						fy_heapGetArrayHandle(context, ivalue2, ivalue,
-								exception));
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				break;
-			}
-			case FALOAD:
-			case IALOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopHandle(ivalue2);
-				fy_threadPushInt(
-						fy_heapGetArrayHandle(context, ivalue2, ivalue,
-								exception));
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				break;
-			}
-			case AASTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-				fy_class *clazz1, *clazz2;
-#endif
-				fy_threadPopHandle(ivalue);
-				fy_threadPopInt(ivalue2);
-				fy_threadPopHandle(ivalue3);
-				clazz1 = fy_heapGetClassOfObject(context, ivalue3, exception);
-				clazz2 = clazz1->ci.arr.contentClass;
-				if (ivalue != 0
-						&& !fy_classCanCastTo(context,
-								fy_heapGetClassOfObject(context, ivalue,
-										exception), clazz2, TRUE)) {
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_STORE);
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Data type not compatable!");
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				fy_heapPutArrayHandle(context, ivalue3, ivalue2, ivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				break;
-			}
-			case FASTORE:
-			case IASTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopInt(ivalue2);
-				fy_threadPopHandle(ivalue3);
-				fy_heapPutArrayInt(context, ivalue3, ivalue2, ivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				break;
-			}
-			case ACONST_NULL: {
-				fy_threadPushHandle(0);
-				break;
-			}
-
-			case ILOAD:
-			case FLOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2;
-#endif
-				fy_threadGetLocalInt(instruction->params.int_params.param1,
-						ivalue2);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "[%"FY_PRINT32"d]: %"FY_PRINT32"d",
-						instruction->params.int_params.param1, ivalue2);
-#endif
-				fy_threadPushInt(ivalue2);
-				break;
-			}
-			case ALOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2;
-#endif
-				fy_threadGetLocalHandle(instruction->params.int_params.param1,
-						ivalue2);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "[%"FY_PRINT32"d]: %"FY_PRINT32"d",
-						instruction->params.int_params.param1, ivalue2);
-#endif
-				fy_threadPushHandle(ivalue2);
-				break;
-			}
-			case ILOAD_0:
-			case FLOAD_0: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalInt(0, ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case ALOAD_0: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalHandle(0, ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPushHandle(ivalue);
-				break;
-			}
-			case ILOAD_1:
-			case FLOAD_1: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalInt(1, ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case ALOAD_1: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalHandle(1, ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPushHandle(ivalue);
-				break;
-			}
-			case ILOAD_2:
-			case FLOAD_2: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalInt(2, ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case ALOAD_2: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalHandle(2, ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPushHandle(ivalue);
-				break;
-			}
-			case ILOAD_3:
-			case FLOAD_3: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalInt(3, ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case ALOAD_3: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalHandle(3, ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPushHandle(ivalue);
-				break;
-			}
-			case ANEWARRAY: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_class *clazz1, *clazz2;
-				fy_str str1;
-#endif
-				fy_threadPopInt(ivalue);
-				if (((fy_int) ivalue) < 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_AIOOB);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "%d<0", ivalue);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-
-				clazz1 = instruction->params.clazz;
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				str1.content = NULL;
-				fy_strInit(block, &str1, 64, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				if (clazz1->type == object_class) {
-					fy_strAppendUTF8(block, &str1, "[L", 3, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-					fy_strAppend(block, &str1, clazz1->className, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-					fy_strAppendUTF8(block, &str1, ";", 3, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-				} else if (clazz1->type == array_class) {
-					fy_strAppendUTF8(block, &str1, "[", 3, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-					fy_strAppend(block, &str1, clazz1->className, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-				}
-				clazz2 = fy_vmLookupClass(context, &str1, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_strDestroy(block, &str1);
-				fy_threadPushHandle(
-						fy_heapAllocateArray(context, clazz2, ivalue,
-								exception));
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				break;
-			}
-			case IRETURN:
-			case FRETURN: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue);
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
-					if (method->access_flags & FY_ACC_STATIC) {
-						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
-								exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
-						fy_threadMonitorExit(context, thread, ivalue2,
-								exception);
-					} else {
-						/*CUSTOM*/
-						fy_threadMonitorExit(context, thread, stack[sb],
-								exception);
-					}
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-				}
-				/*CUSTOM*/
-				fy_localToFrame(context, frame);
-				fy_threadPopFrame(context, thread);
-				fy_threadReturnInt(context, thread, ivalue);
-				FY_FALLOUT_INVOKE
-				break;
-			}
-			case ARETURN: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopHandle(ivalue);
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
-					if (method->access_flags & FY_ACC_STATIC) {
-						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
-								exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
-						fy_threadMonitorExit(context, thread, ivalue2,
-								exception);
-					} else {
-						fy_threadMonitorExit(context, thread, stack[sb],
-								exception);
-					}
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-				}
-				/*CUSTOM*/
-				fy_localToFrame(context, frame);
-				fy_threadPopFrame(context, thread);
-				fy_threadReturnHandle(context, thread, ivalue);
-				FY_FALLOUT_INVOKE
-				break;
-			}
-			case ARRAYLENGTH: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopHandle(ivalue);
-				ivalue2 = fy_heapArrayLength(context, ivalue, exception);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "%d\n", ivalue2);
-#endif
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-
-				fy_threadPushInt(ivalue2);
-				break;
-			}
-			case ISTORE:
-			case FSTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPutLocalInt(instruction->params.int_params.param1,
-						ivalue2);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "[%"FY_PRINT32"d] = %"FY_PRINT32"d",
-						instruction->params.int_params.param1, ivalue2);
-#endif
-				break;
-			}
-			case ASTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2;
-				fy_uint type;
-#endif
-				fy_threadPopType(ivalue2, type);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "[%"FY_PRINT32"d] = %"FY_PRINT32"d",
-						instruction->params.int_params.param1, ivalue2);
-#endif
-				fy_threadPutLocalType(instruction->params.int_params.param1,
-						ivalue2, type);
-				break;
-			}
-			case ISTORE_0:
-			case FSTORE_0: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPutLocalInt(0, ivalue);
-				break;
-			}
-			case ASTORE_0: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_uint type;
-#endif
-				fy_threadPopType(ivalue, type);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPutLocalType(0, ivalue, type);
-				break;
-			}
-			case ISTORE_1:
-			case FSTORE_1: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPutLocalInt(1, ivalue);
-				break;
-			}
-			case ASTORE_1: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_uint type;
-#endif
-				fy_threadPopType(ivalue, type);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPutLocalType(1, ivalue, type);
-				break;
-			}
-			case ISTORE_2:
-			case FSTORE_2: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPutLocalInt(2, ivalue);
-				break;
-			}
-			case ASTORE_2: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_uint type;
-#endif
-				fy_threadPopType(ivalue, type);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPutLocalType(2, ivalue, type);
-				break;
-			}
-			case ISTORE_3:
-			case FSTORE_3: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPutLocalInt(3, ivalue);
-				break;
-			}
-			case ASTORE_3: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_uint type;
-#endif
-				fy_threadPopType(ivalue, type);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				fy_threadPutLocalType(3, ivalue, type);
-				break;
-			}
-			case ATHROW: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopHandle(ivalue);
-				thread->currentThrowable = ivalue;
-				FY_FALLOUT_NOINVOKE
-				break;
-			}
-			case BALOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-#endif
-				fy_threadPopInt(ivalue3);
-				fy_threadPopHandle(ivalue2);
-				ivalue = fy_heapGetArrayByte(context, ivalue2, ivalue3,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case BASTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopInt(ivalue3);
-				fy_threadPopHandle(ivalue2);
-				fy_heapPutArrayByte(context, ivalue2, ivalue3, (fy_byte) ivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				break;
-			}
-			case BIPUSH: {
-				fy_threadPushInt(instruction->params.int_params.param1);
-				break;
-			}
-			case CALOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-#endif
-				fy_threadPopInt(ivalue3);
-				fy_threadPopHandle(ivalue2);
-				ivalue = fy_heapGetArrayChar(context, ivalue2, ivalue3,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case CASTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopInt(ivalue3);
-				fy_threadPopHandle(ivalue2);
-				fy_heapPutArrayChar(context, ivalue2, ivalue3, ivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				break;
-			}
-			case CHECKCAST: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2;
-				fy_class *clazz1, *clazz2;
-				fy_str str1;
-#endif
-				/*CUSTOM*/
-				ivalue2 = stack[sp - 1];
-				if (ivalue2 != 0) {
-					clazz1 = fy_heapGetClassOfObject(context, ivalue2,
-							exception);
-					clazz2 = instruction->params.clazz;
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-					if (!fy_classCanCastTo(context, clazz1, clazz2, TRUE)) {
-						message->messageType = message_exception;
-						strcpy_s(exception->exceptionName,
-								sizeof(exception->exceptionName),
-								FY_EXCEPTION_CAST);
-						str1.content = NULL;
-						fy_strInit(block, &str1, 64, exception);
-						fy_strAppendUTF8(block, &str1, "from ", 99, exception);
-						fy_strAppend(block, &str1, clazz1->className,
-								exception);
-						fy_strAppendUTF8(block, &str1, " to ", 99, exception);
-						fy_strAppend(block, &str1, clazz2->className,
-								exception);
-						fy_strSPrint(exception->exceptionDesc,
-								sizeof(exception->exceptionDesc), &str1);
-						fy_strDestroy(block, &str1);
-						exception->exceptionType = exception_normal;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-				}
-				break;
-			}
-			case D2F: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-				fy_threadPushInt(
-						fy_floatToInt((fy_float )fy_longToDouble(lvalue)));
-				break;
-			}
-			case D2I: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-				fy_threadPushInt((fy_int )fy_longToDouble(lvalue));
-				break;
-			}
-			case D2L: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-				lvalue = (fy_long) fy_longToDouble(lvalue);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DADD: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue, dvalue2;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopDouble(dvalue);
-				fy_threadPopDouble(dvalue2);
-				lvalue = fy_doubleToLong(dvalue + dvalue2);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LALOAD:
-			case DALOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-				fy_uint ivalue2, ivalue3;
-#endif
-				fy_threadPopInt(ivalue3);
-				fy_threadPopHandle(ivalue2);
-				lvalue = fy_heapGetArrayLong(context, ivalue2, ivalue3,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LASTORE:
-			case DASTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-				fy_uint ivalue2, ivalue3;
-#endif
-				fy_threadPopLong(lvalue);
-				fy_threadPopInt(ivalue3);
-				fy_threadPopHandle(ivalue2);
-				fy_heapPutArrayLong(context, ivalue2, ivalue3, lvalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				break;
-			}
-			case DCMPG: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue, dvalue2;
-#endif
-				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue);
-				if (fy_isnand(dvalue) || fy_isnand(dvalue2)) {
-					fy_threadPushInt(1);
-				} else {
-					fy_threadPushInt(
-							dvalue == dvalue2 ? 0 :
-							(dvalue - dvalue2 > 0) ? 1 : -1);
-
-				}
-				break;
-			}
-			case DCMPL: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue, dvalue2;
-#endif
-				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue);
-				if (fy_isnand(dvalue) || fy_isnand(dvalue2)) {
-					fy_threadPushInt(-1);
-				} else {
-					fy_threadPushInt(
-							dvalue == dvalue2 ? 0 :
-							(dvalue - dvalue2 > 0) ? 1 : -1);
-
-				}
-				break;
-			}
-			case DCONST_0: {
-				fy_threadPushLong(fy_doubleToLong(0));
-				break;
-			}
-			case DCONST_1: {
-				fy_threadPushLong(fy_doubleToLong(1));
-				break;
-			}
-			case DDIV: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue, dvalue2;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue);
-				lvalue = fy_doubleToLong(dvalue / dvalue2);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DMUL: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue, dvalue2;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue);
-				lvalue = fy_doubleToLong(dvalue * dvalue2);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DNEG: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopDouble(dvalue);
-				lvalue = fy_doubleToLong(-dvalue);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DREM: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue, dvalue2;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue);
-				if (dvalue2 == 0) {
-					lvalue = fy_doubleToLong(0.0 / dvalue2);
-					fy_threadPushLong(lvalue);
-				} else {
-					lvalue = fy_doubleToLong(
-							dvalue - floor(dvalue / dvalue2) * dvalue2);
-					fy_threadPushLong(lvalue);
-				}
-
-				break;
-			}
-			case DRETURN: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue;
-				fy_uint ivalue2;
-#endif
-				fy_threadPopDouble(dvalue);
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
-					if (method->access_flags & FY_ACC_STATIC) {
-						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
-								exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
-						fy_threadMonitorExit(context, thread, ivalue2,
-								exception);
-					} else {
-						fy_threadMonitorExit(context, thread, stack[sb],
-								exception);
-					}
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-				}
-				/*CUSTOM*/
-				fy_localToFrame(context, frame);
-				fy_threadPopFrame(context, thread);
-				fy_threadReturnDouble(context, thread, dvalue);
-				FY_FALLOUT_INVOKE
-				break;
-			}
-			case DSUB: {
-#ifdef FY_LATE_DECLARATION
-				fy_double dvalue, dvalue2;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopDouble(dvalue2);
-				fy_threadPopDouble(dvalue);
-				lvalue = fy_doubleToLong(dvalue - dvalue2);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DUP: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_uint type;
-#endif
-				fy_threadPopType(ivalue, type);
-				fy_threadPushType(ivalue, type);
-				fy_threadPushType(ivalue, type);
-				break;
-			}
-			case DUP_X1: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-				fy_uint type, type2;
-#endif
-				fy_threadPopType(ivalue, type);
-				fy_threadPopType(ivalue2, type2);
-
-				fy_threadPushType(ivalue, type);
-				fy_threadPushType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				break;
-			}
-			case DUP_X2: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-				fy_uint type, type2, type3;
-#endif
-				fy_threadPopType(ivalue, type);
-				fy_threadPopType(ivalue2, type2);
-				fy_threadPopType(ivalue3, type3);
-
-				fy_threadPushType(ivalue, type);
-				fy_threadPushType(ivalue3, type3);
-				fy_threadPushType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				break;
-			}
-			case DUP2: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-				fy_uint type, type2;
-#endif
-				fy_threadPopType(ivalue, type);
-				fy_threadPopType(ivalue2, type2);
-
-				fy_threadPushType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				fy_threadPushType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				break;
-			}
-			case DUP2_X1: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-				fy_uint type, type2, type3;
-#endif
-				fy_threadPopType(ivalue, type);
-				fy_threadPopType(ivalue2, type2);
-				fy_threadPopType(ivalue3, type3);
-
-				fy_threadPushType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				fy_threadPushType(ivalue3, type3);
-				fy_threadPushType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				break;
-			}
-			case DUP2_X2: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3, ivalue4;
-				fy_uint type, type2, type3, type4;
-#endif
-				fy_threadPopType(ivalue, type);
-				fy_threadPopType(ivalue2, type2);
-				fy_threadPopType(ivalue3, type3);
-				fy_threadPopType(ivalue4, type4);
-
-				fy_threadPushType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				fy_threadPushType(ivalue4, type4);
-				fy_threadPushType(ivalue3, type3);
-				fy_threadPushType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				break;
-			}
-			case F2D: {
-#ifdef FY_LATE_DECLARATION
-				fy_float fvalue;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopFloat(fvalue);
-				lvalue = fy_doubleToLong(fvalue);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case F2I: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				ivalue = (fy_uint) (fy_int) fy_intToFloat(ivalue);
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case F2L: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopInt(ivalue);
-				lvalue = (fy_ulong) (fy_long) fy_intToFloat(ivalue);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case FADD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopInt(ivalue2);
-				ivalue = fy_floatToInt(
-						fy_intToFloat(ivalue) + fy_intToFloat(ivalue2));
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case FCMPG: {
-#ifdef FY_LATE_DECLARATION
-				fy_float fvalue, fvalue2;
-#endif
-				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue);
-				if (fy_isnanf(fvalue) || fy_isnanf(fvalue2)) {
-					fy_threadPushInt(1);
-				} else {
-					fy_threadPushInt(
-							fvalue == fvalue2 ? 0 :
-							(fvalue - fvalue2 > 0) ? 1 : -1);
-				}
-				break;
-			}
-			case FCMPL: {
-#ifdef FY_LATE_DECLARATION
-				fy_float fvalue, fvalue2;
-#endif
-				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue);
-				if (fy_isnanf(fvalue) || fy_isnanf(fvalue2)) {
-					fy_threadPushInt(-1);
-				} else {
-					fy_threadPushInt(
-							fvalue == fvalue2 ? 0 :
-							(fvalue - fvalue2 > 0) ? 1 : -1);
-				}
-				break;
-			}
-			case FCONST_0: {
-				fy_threadPushInt(fy_floatToInt(0.0f));
-				break;
-			}
-			case FCONST_1: {
-				fy_threadPushInt(fy_floatToInt(1.0f));
-				break;
-			}
-			case FCONST_2: {
-				fy_threadPushInt(fy_floatToInt(2.0f));
-				break;
-			}
-			case FDIV: {
-#ifdef FY_LATE_DECLARATION
-				fy_float fvalue, fvalue2;
-#endif
-				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue);
-				fy_threadPushInt(fy_floatToInt(fvalue / fvalue2));
-				break;
-			}
-			case FMUL: {
-#ifdef FY_LATE_DECLARATION
-				fy_float fvalue, fvalue2;
-#endif
-				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue);
-				fy_threadPushInt(fy_floatToInt(fvalue * fvalue2));
-				break;
-			}
-			case FNEG: {
-#ifdef FY_LATE_DECLARATION
-				fy_float fvalue;
-#endif
-				fy_threadPopFloat(fvalue);
-				fy_threadPushInt(fy_floatToInt(-fvalue));
-				break;
-			}
-			case FREM: {
-#ifdef FY_LATE_DECLARATION
-				fy_float fvalue, fvalue2;
-#endif
-				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue);
-				if (fvalue2 == 0) {
-					fy_threadPushInt(fy_floatToInt(0.0f / fvalue2));
-				} else {
-					fy_threadPushInt(
-							fy_floatToInt(
-									fvalue
-											- (float ) floor(fvalue / fvalue2)
-													* fvalue2));
-				}
-				break;
-			}
-			case FSUB: {
-#ifdef FY_LATE_DECLARATION
-				fy_float fvalue, fvalue2;
-#endif
-				fy_threadPopFloat(fvalue2);
-				fy_threadPopFloat(fvalue);
-				fy_threadPushInt(fy_floatToInt(fvalue - fvalue2));
-				break;
-			}
-			case GETFIELD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2;
-				fy_field *field;
-				fy_uint type;
-#endif
-				fy_threadPopHandle(ivalue2);
-				field = instruction->params.field;
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if (field->access_flags & FY_ACC_STATIC) {
-#ifdef FY_LATE_DECLARATION
-					char msg[256];
-#endif
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_INCOMPAT_CHANGE);
-					fy_strSPrint(msg, 256, field->uniqueName);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"field %s is static", msg);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				type = (fy_byte) fy_strGet(field->descriptor, 0);
-				switch (type) {
-				case 'D':
-				case 'J': {
-#ifdef FY_LATE_DECLARATION
-					fy_ulong lvalue;
-#endif
-					lvalue = fy_heapGetFieldLong(context, ivalue2, field,
-							exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-					fy_threadPushLong(lvalue);
-#ifdef FY_VERBOSE
-					context->logDVar(context, "Long field:[");
-					context->logDStr(context, field->uniqueName);
-					context->logDVar(context, "] = %"FY_PRINT64"d\n", lvalue);
-#endif
-					break;
-				}
-				case 'L':
-				case '[': {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					ivalue = fy_heapGetFieldHandle(context, ivalue2, field,
-							exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-					fy_threadPushHandle(ivalue);
-#ifdef FY_VERBOSE
-					context->logDVar(context, "Handle field:[");
-					context->logDStr(context, field->uniqueName);
-					context->logDVar(context, "] = %d\n", ivalue);
-#endif
-				}
-					break;
-				default: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					ivalue = fy_heapGetFieldInt(context, ivalue2, field,
-							exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-					fy_threadPushInt(ivalue);
-#ifdef FY_VERBOSE
-					context->logDVar(context, "Integer field:[");
-					context->logDStr(context, field->uniqueName);
-					context->logDVar(context, "] = %d\n", ivalue);
-#endif
-					break;
-				}
-				}
-				break;
-			}
-			case GETSTATIC: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint type;
-				fy_field *field;
-				fy_class *clazz1;
-#endif
-
-				field = instruction->params.field;
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				clazz1 = field->owner;
-				//!CLINIT
-				fy_localToFrame(context, frame);
-				if (fy_threadClinit(context, thread, frame, clazz1,
-						exception)) {
-					FY_FALLOUT_INVOKE
-					break;
-				}
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-
-				type = (fy_byte) fy_strGet(field->descriptor, 0);
-				switch (type) {
-				case 'D':
-				case 'J': {
-#ifdef FY_LATE_DECLARATION
-					fy_ulong lvalue;
-#endif
-					lvalue = fy_heapGetStaticLong(context, field, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-					fy_threadPushLong(lvalue);
-
-					break;
-				}
-				case 'L':
-				case '[': {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue2;
-#endif
-					ivalue2 = fy_heapGetStaticInt(context, field, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-					fy_threadPushHandle(ivalue2);
-
-					break;
-				}
-				default: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					ivalue = fy_heapGetStaticInt(context, field, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-					fy_threadPushInt(ivalue);
-
-					break;
-				}
-				}
-				break;
-			}
-			case GOTO_W:
-			case GOTO: {
-				pc = instruction->params.int_params.param1;
-				break;
-			}
-			case I2B: {
-				fy_checkPop(0, 0);
-				stack[sp - 1] = (fy_byte) stack[sp - 1];
-				break;
-			}
-			case I2C: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				ivalue &= 0xffff;
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case I2D: {
-#ifdef FY_LATE_DECLARATION
-				fy_int ivalue;
-				fy_long lvalue;
-#endif
-				fy_threadPopInt(ivalue);
-				lvalue = fy_doubleToLong(ivalue);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case I2F: {
-				/*CUSTOM*/
-				fy_checkPop(0, 0);
-				stack[sp - 1] = fy_floatToInt((fy_int) stack[sp - 1]);
-				break;
-			}
-			case I2L: {
-#ifdef FY_LATE_DECLARATION
-				fy_int ivalue;
-				fy_long lvalue;
-#endif
-				fy_threadPopInt(ivalue);
-				lvalue = ivalue;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case I2S: {
-				/*CUSTOM*/
-				fy_checkPop(0, 0);
-				stack[sp - 1] = (fy_short) stack[sp - 1];
-				break;
-			}
-			case IADD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "%d+%d=%d\n", ivalue, ivalue2,
-						ivalue + ivalue2);
-#endif
-				fy_threadPushInt(ivalue + ivalue2);
-				break;
-			}
-			case IAND: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				fy_threadPushInt(ivalue & ivalue2);
-				break;
-			}
-			case ICONST_M1: {
-				fy_threadPushInt(-1);
-				break;
-			}
-			case ICONST_0: {
-				fy_threadPushInt(0);
-				break;
-			}
-			case ICONST_1: {
-				fy_threadPushInt(1);
-				break;
-			}
-			case ICONST_2: {
-				fy_threadPushInt(2);
-				break;
-			}
-			case ICONST_3: {
-				fy_threadPushInt(3);
-				break;
-			}
-			case ICONST_4: {
-				fy_threadPushInt(4);
-				break;
-			}
-			case ICONST_5: {
-				fy_threadPushInt(5);
-				break;
-			}
-			case IDIV: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				if (ivalue2 == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ARITHMETIC);
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Divided by zero!");
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPopInt(ivalue);
-				ivalue = (fy_int) ivalue / (fy_int) ivalue2;
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case IF_ICMPEQ: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				if (ivalue == ivalue2) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IF_ACMPEQ: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopHandle(ivalue2);
-				fy_threadPopHandle(ivalue);
-				if (ivalue == ivalue2) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IF_ICMPNE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				if (ivalue != ivalue2) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IF_ACMPNE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopHandle(ivalue2);
-				fy_threadPopHandle(ivalue);
-				if (ivalue != ivalue2) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IF_ICMPLT: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				if ((fy_int) ivalue < (fy_int) ivalue2) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IF_ICMPLE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				if ((fy_int) ivalue <= (fy_int) ivalue2) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IF_ICMPGT: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				if ((fy_int) ivalue > (fy_int) ivalue2) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IF_ICMPGE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				if ((fy_int) ivalue >= (fy_int) ivalue2) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-
-			case IFEQ: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				if (ivalue == 0) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IFNULL: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopHandle(ivalue);
-				if (ivalue == 0) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-
-			case IFNE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				if (ivalue != 0) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IFNONNULL: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopHandle(ivalue);
-				if (ivalue != 0) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-
-			case IFLT: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				if ((fy_int) ivalue < 0) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IFLE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				if ((fy_int) ivalue <= 0) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IFGT: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				if ((fy_int) ivalue > 0) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IFGE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				if ((fy_int) ivalue >= 0) {
-					pc = instruction->params.int_params.param1;
-				}
-				break;
-			}
-			case IINC: {
-				/*CUSTOM*/
-				stack[sb + instruction->params.int_params.param1] +=
-						instruction->params.int_params.param2;
-				break;
-			}
-			case IMUL: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopInt(ivalue2);
-				fy_threadPushInt(
-						(fy_uint )((fy_int )ivalue2) * ((fy_int )ivalue));
-				break;
-			}
-			case INEG: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPushInt(-ivalue);
-				break;
-			}
-			case INSTANCEOF: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2;
-				fy_class *clazz1, *clazz2;
-#endif
-				fy_threadPopHandle(ivalue2);
-				if (ivalue2 == 0) {
-					fy_threadPushInt(0);
-				} else {
-					clazz1 = fy_heapGetClassOfObject(context, ivalue2,
-							exception);
-					clazz2 = instruction->params.clazz;
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-					fy_threadPushInt(
-							fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0);
-				}
-				break;
-			}
-			case INVOKESPECIAL: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_class *clazz1, *clazz2;
-				fy_method *mvalue;
-#endif
-				clazz1 = method->owner;
-				mvalue = instruction->params.method;
-#ifdef FY_VERBOSE
-				context->logDVar(context,
-						"Before: SB=%"FY_PRINT32"d SP=%"FY_PRINT32"d\n", sb,
-						sp);
-				context->logDVar(context, "Invoke special: ");
-				context->logDStr(context, mvalue->uniqueName);
-				context->logDVar(context, "\n");
-#endif
-				clazz2 = mvalue->owner;
-				ivalue = mvalue->paramStackUsage + 1;/*count*/
-				fy_checkCall(ivalue);
-				sp -= ivalue;
-				if ((clazz1->accessFlags & FY_ACC_SUPER)
-						&& fy_classIsSuperClassOf(context, clazz2, clazz1)
-						&& fy_strCmp(mvalue->name, context->sInit)) {
-					mvalue = fy_vmLookupMethodVirtualByMethod(context,
-							clazz1->super, mvalue, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;
-					}
-				}
-				if (mvalue == NULL) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ABSTRACT);
-					exception->exceptionDesc[0] = 0;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if (fy_strCmp(mvalue->name, context->sInit) > 0
-						&& mvalue->owner != clazz2) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_NO_METHOD);
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if (mvalue->access_flags & FY_ACC_STATIC) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_INCOMPAT_CHANGE);
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if (mvalue->access_flags & FY_ACC_ABSTRACT) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ABSTRACT);
-					fy_strSPrint(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							mvalue->uniqueName);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_localToFrame(context, frame);
-#ifdef FY_VERBOSE
-				context->logDStr(context, mvalue->uniqueName);
-				context->logDVar(context, "\n");
-#endif
-				if (mvalue->access_flags & FY_ACC_NATIVE) {
-#ifdef FY_LATE_DECLARATION
-					fy_nh *nh;
-#endif
-					nh = mvalue->nh;
-					if (nh == NULL) {
-						nh = fy_hashMapGet(block, context->mapMUNameToNH,
-								mvalue->uniqueName);
-						nh = mvalue->nh = (nh == NULL ? NO_HANDLER : nh);
-					}
-					if (nh == NO_HANDLER) {
-						message->messageType = message_invoke_native;
-						message->body.call.method = mvalue;
-						message->body.call.paramCount = ivalue;
-						message->body.call.params = stack + sp;
-					} else {
-						fy_heapBeginProtect(context);
-#ifdef FY_VERBOSE
-						context->logDVar(context, "Invoke special native: ");
-						context->logDStr(context, mvalue->uniqueName);
-						context->logDVar(context, " %p=>%p\n", nh, nh->handler);
-#endif
-						(nh->handler)(context, thread, nh->data, stack + sp,
-								ivalue, message, exception);
-#ifdef FY_VERBOSE
-						context->logDVar(context,
-								"After: SB=%"FY_PRINT32"d SP=%"FY_PRINT32"d\n",
-								sb, sp);
-#endif
-						fy_heapEndProtect(context);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;
-						}
-					}
-				} else {
-					fy_threadPushMethod(context, thread, mvalue, exception);
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-				}
-				FY_FALLOUT_INVOKE
-				break;
-			}
-			case INVOKESTATIC: {
-				//!CLINIT
-				fy_localToFrame(context, frame);
-				if (fy_threadClinit(context, thread, frame,
-						instruction->params.method->owner, exception)) {
-					FY_FALLOUT_INVOKE
-					break;
-				}
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-
-				invokeStatic(context, thread, frame, instruction->params.method,
-						exception, message);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-				}
-				FY_FALLOUT_INVOKE
-				break;
-			}
-			case INVOKEINTERFACE:
-			case INVOKEVIRTUAL: {
-				fy_localToFrame(context, frame);
-				invokeVirtual(context, thread, frame,
-						instruction->params.method, exception, message);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-				}
-				FY_FALLOUT_INVOKE
-				break;
-			}
-			case IOR: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				fy_threadPushInt(ivalue | ivalue2);
-				break;
-				break;
-			}
-			case IREM: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				if (ivalue2 == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ARITHMETIC);
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Divided by zero!");
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				ivalue = (fy_int) ivalue % (fy_int) ivalue2;
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case ISHL: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				fy_threadPushInt(ivalue << ivalue2);
-				break;
-			}
-			case ISHR: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				fy_threadPushInt(((fy_int )ivalue) >> ((fy_int )ivalue2));
-				break;
-			}
-			case ISUB: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				fy_threadPushInt(ivalue - ivalue2);
-				break;
-				break;
-			}
-			case IUSHR: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				fy_threadPushInt(ivalue >> ivalue2);
-				break;
-			}
-			case IXOR: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-#endif
-				fy_threadPopInt(ivalue2);
-				fy_threadPopInt(ivalue);
-				fy_threadPushInt(ivalue ^ ivalue2);
-				break;
-			}
-			case JSR:
-			case JSR_W: {
-				fy_threadPushReturn(pc);
-				pc = instruction->params.int_params.param1;
-				break;
-			}
-			case L2D: {
-#ifdef FY_LATE_DECLARATION
-				fy_long lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-				lvalue = fy_doubleToLong(lvalue);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case L2F: {
-#ifdef FY_LATE_DECLARATION
-				fy_long lvalue;
-				fy_uint ivalue;
-#endif
-				fy_threadPopLong(lvalue);
-				ivalue = fy_floatToInt((float) lvalue);
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case L2I: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-				fy_threadPushInt((fy_uint )lvalue);
-				break;
-			}
-			case LADD: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context,
-						"%"FY_PRINT64"d+%"FY_PRINT64"d=%"FY_PRINT64"d\n",
-						lvalue, lvalue2, lvalue + lvalue2);
-#endif
-				lvalue += lvalue2;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LAND: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-				lvalue &= lvalue2;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LCMP: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-				fy_threadPushInt(
-						lvalue == lvalue2 ?
-								0 :
-								((fy_long )lvalue > (fy_long )lvalue2 ? 1 : -1));
-				break;
-			}
-			case LCONST_0: {
-				fy_threadPushLong((fy_ulong )0);
-				break;
-			}
-			case LCONST_1: {
-				fy_threadPushLong((fy_ulong )1);
-				break;
-			}
-			case LDC: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_uint type;
-#endif
-				ivalue = opLDC(context, method->owner,
-						instruction->params.ldc.value, &type, exception);
-#ifdef FY_VERBOSE
-				context->logDVarLn(context, "%"FY_PRINT32"d", ivalue);
-#endif
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-
-				fy_threadPushType(ivalue, type);
-				break;
-			}
-			case LDC_W: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_uint type;
-#endif
-				ivalue = opLDC(context, method->owner,
-						instruction->params.ldc.value, &type, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushType(ivalue, type);
-				break;
-			}
-			case LDC2_W: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				lvalue = opLDC2(context, method->owner,
-						instruction->params.ldc.value, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LDIV: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-				if (lvalue2 == 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ARITHMETIC);
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Divided by zero!");
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				lvalue = (fy_ulong) ((fy_long) lvalue / (fy_long) lvalue2);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DLOAD:
-			case LLOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadGetLocalLong(instruction->params.int_params.param1,
-						lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "LOCAL[%d]=%"FY_PRINT64"d\n",
-						instruction->params.int_params.param1, lvalue);
-#endif
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DLOAD_0:
-			case LLOAD_0: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadGetLocalLong(0, lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "LOCAL[0]=%"FY_PRINT64"d\n", lvalue);
-#endif
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DLOAD_1:
-			case LLOAD_1: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadGetLocalLong(1, lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "LOCAL[1]=%"FY_PRINT64"d\n", lvalue);
-#endif
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DLOAD_2:
-			case LLOAD_2: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadGetLocalLong(2, lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "LOCAL[2]=%"FY_PRINT64"d\n", lvalue);
-#endif
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DLOAD_3:
-			case LLOAD_3: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadGetLocalLong(3, lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "LOCAL[3]=%"FY_PRINT64"d\n", lvalue);
-#endif
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LMUL: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-				lvalue = (fy_ulong) ((fy_long) lvalue * (fy_long) lvalue2);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LNEG: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-				fy_threadPushLong(-lvalue);
-				break;
-			}
-			case LOOKUPSWITCH: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-				fy_uint i;
-				fy_boolean bvalue1;
-				fy_switch_lookup *swlookup;
-#endif
-				swlookup = instruction->params.swlookup;
-				ivalue = swlookup->count;
-				fy_threadPopInt(ivalue2);
-				bvalue1 = FALSE;
-				for (i = 0; i < ivalue; i++) {
-					if (swlookup->targets[i].value == ivalue2) {
-						pc = swlookup->targets[i].target;
-						bvalue1 = TRUE;
-					}
-				}
-				if (!bvalue1) {
-					pc = swlookup->defaultJump;
-				}
-				break;
-			}
-			case LOR: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-				lvalue |= lvalue2;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LREM: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-				if (lvalue2 == 0) {
-					message->messageType = message_exception;
-
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ARITHMETIC);
-					strcpy_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Divided by zero!");
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				lvalue = (fy_ulong) ((fy_long) lvalue % (fy_long) lvalue2);
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LRETURN: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-				fy_uint ivalue2;
-#endif
-				fy_threadPopLong(lvalue);
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
-					if (method->access_flags & FY_ACC_STATIC) {
-						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
-								exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
-						fy_threadMonitorExit(context, thread, ivalue2,
-								exception);
-					} else {
-						/*CUSTOM*/
-						fy_threadMonitorExit(context, thread, stack[sb],
-								exception);
-					}
-				}
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				fy_localToFrame(context, frame);
-				fy_threadPopFrame(context, thread);
-				fy_threadReturnLong(context, thread, lvalue);
-				FY_FALLOUT_INVOKE
-				break;
-			}
-			case LSHL: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopLong(lvalue);
-				lvalue <<= ivalue;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LSHR: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_ulong lvalue;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopLong(lvalue);
-				lvalue = ((fy_long) lvalue) >> ivalue;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LUSHR: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-				fy_uint ivalue;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopLong(lvalue);
-				lvalue >>= ivalue;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case DSTORE:
-			case LSTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
-						instruction->params.int_params.param1);
-#endif
-				fy_threadPutLocalLong(instruction->params.int_params.param1,
-						lvalue);
-				break;
-			}
-			case DSTORE_0:
-			case LSTORE_0: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
-						0);
-#endif
-				fy_threadPutLocalLong(0, lvalue);
-				break;
-			}
-			case DSTORE_1:
-			case LSTORE_1: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
-						1);
-#endif
-				fy_threadPutLocalLong(1, lvalue);
-				break;
-			}
-			case DSTORE_2:
-			case LSTORE_2: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
-						2);
-#endif
-				fy_threadPutLocalLong(2, lvalue);
-				break;
-			}
-			case DSTORE_3:
-			case LSTORE_3: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue;
-#endif
-				fy_threadPopLong(lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context, "%"FY_PRINT64"d->LOCAL[%d]\n", lvalue,
-						3);
-#endif
-				fy_threadPutLocalLong(3, lvalue);
-				break;
-			}
-			case LSUB: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-#ifdef FY_VERBOSE
-				context->logDVar(context,
-						"%"FY_PRINT64"d-%"FY_PRINT64"d=%"FY_PRINT64"d\n",
-						lvalue, lvalue2, lvalue - lvalue2);
-#endif
-				lvalue -= lvalue2;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case LXOR: {
-#ifdef FY_LATE_DECLARATION
-				fy_ulong lvalue, lvalue2;
-#endif
-				fy_threadPopLong(lvalue2);
-				fy_threadPopLong(lvalue);
-				lvalue ^= lvalue2;
-				fy_threadPushLong(lvalue);
-				break;
-			}
-			case MONITORENTER: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopHandle(ivalue);
-				fy_threadMonitorEnter(context, thread, ivalue);
-				break;
-			}
-			case MONITOREXIT: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadPopHandle(ivalue);
-				fy_threadMonitorExit(context, thread, ivalue, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				break;
-			}
-			case MULTIANEWARRAY: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-				fy_int *pivalue;
-				fy_class *clazz1;
-				fy_int i;
-#endif
-				ivalue3 = instruction->params.int_params.param1;
-				ivalue = instruction->params.int_params.param2;
-				clazz1 = fy_vmLookupClassFromConstant(context,
-						(ConstantClass*) method->owner->constantPools[ivalue3],
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				pivalue = /*TEMP*/fy_allocate(sizeof(int) * ivalue, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				for (i = ivalue - 1; i >= 0; i--) {
-					fy_threadPopInt(pivalue[i]);
-				}
-				fy_heapBeginProtect(context);
-				ivalue2 = fy_heapMultiArray(context, clazz1, ivalue, pivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushHandle(ivalue2);
-				fy_free(pivalue);
-				break;
-			}
-			case NEW: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-				fy_class *clazz1;
-#endif
-				clazz1 = instruction->params.clazz;
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if (clazz1->accessFlags
-						& (FY_ACC_INTERFACE | FY_ACC_ABSTRACT)) {
-#ifdef FY_LATE_DECLARATION
-					char msg[256];
-#endif
-					fy_strSPrint(msg, 256, clazz1->className);
-					fy_fault(exception, NULL, "InstantiationErro %s", msg);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				//!CLINIT
-				fy_localToFrame(context, frame);
-				if (fy_threadClinit(context, thread, frame, clazz1,
-						exception)) {
-					FY_FALLOUT_INVOKE
-					break;
-				}
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-
-				ivalue = fy_heapAllocate(context, clazz1, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushHandle(ivalue);
-				break;
-			}
-			case NEWARRAY: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue3, ivalue2;
-				fy_uint type;
-				fy_str *pstr1;
-				fy_class *clazz1;
-#endif
-				type = instruction->params.int_params.param1;
-				fy_threadPopInt(ivalue3);
-				if (((fy_int) ivalue3) < 0) {
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_NASE);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc), "%d", ivalue3);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				switch (type) {
-				case 4:
-					pstr1 = context->sArrayBoolean;
-					break;
-				case 5:
-					pstr1 = context->sArrayChar;
-					break;
-				case 6:
-					pstr1 = context->sArrayFloat;
-					break;
-				case 7:
-					pstr1 = context->sArrayDouble;
-					break;
-				case 8:
-					pstr1 = context->sArrayByte;
-					break;
-				case 9:
-					pstr1 = context->sArrayShort;
-					break;
-				case 10:
-					pstr1 = context->sArrayInteger;
-					break;
-				case 11:
-					pstr1 = context->sArrayLong;
-					break;
-				default:
-					pstr1 = NULL; /*make compiler happy*/
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName), FY_EXCEPTION_VM);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Unknown array type in NEWARRAY type=%d", type);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if (message->messageType == message_exception) {
-					break;
-				}
-				clazz1 = fy_vmLookupClass(context, pstr1, exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				ivalue2 = fy_heapAllocateArray(context, clazz1, ivalue3,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushHandle(ivalue2);
-				break;
-			}
-			case NOP: {
-				break;
-			}
-			case POP: {
-				sp--;
-				break;
-			}
-			case POP2: {
-				sp--;
-				sp--;
-				break;
-			}
-			case PUTFIELD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue = 0, ivalue2;
-				fy_ulong lvalue = 0;
-				fy_uint type;
-				fy_field *field;
-#endif
-				field = instruction->params.field;
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				type = (fy_byte) fy_strGet(field->descriptor, 0);
-				switch (type) {
-				case 'D':
-				case 'J':
-					fy_threadPopLong(lvalue)
-					;
-					break;
-				case 'L':
-				case '[':
-					fy_threadPopHandle(ivalue)
-					;
-					break;
-				default:
-					fy_threadPopInt(ivalue)
-					;
-				}
-				fy_threadPopHandle(ivalue2);
-				if (field->access_flags & FY_ACC_STATIC) {
-#ifdef FY_LATE_DECLARATION
-					char msg[256];
-#endif
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_INCOMPAT_CHANGE);
-					fy_strSPrint(msg, 256, field->uniqueName);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Field %s is static", msg);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-
-				if ((field->access_flags & FY_ACC_FINAL)
-						&& method->owner != field->owner) {
-#ifdef FY_LATE_DECLARATION
-					char msg[256];
-#endif
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ACCESS);
-					fy_strSPrint(msg, 256, field->uniqueName);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Field %s is final", msg);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-
-				switch (type) {
-				case 'D':
-				case 'J':
-					fy_heapPutFieldLong(context, ivalue2, field, lvalue,
-							exception);
-#ifdef FY_VERBOSE
-					context->logDVar(context, "Long field:[");
-					context->logDStr(context, field->uniqueName);
-					context->logDVar(context,
-							"] = %"FY_PRINT64"d(%"FY_PRINT64"x)\n", lvalue,
-							lvalue);
-#endif
-					break;
-				default:
-					fy_heapPutFieldInt(context, ivalue2, field, ivalue,
-							exception);
-#ifdef FY_VERBOSE
-					context->logDVar(context, "Field:[");
-					context->logDStr(context, field->uniqueName);
-					context->logDVar(context, "] = %d(%x)\n", ivalue, ivalue);
-#endif
-					break;
-				}
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				break;
-			}
-			case PUTSTATIC: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint type;
-				fy_field *field;
-				fy_class *clazz1;
-#endif
-				field = instruction->params.field;
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				if ((field->access_flags & FY_ACC_FINAL)
-						&& (field->owner != method->owner)) {
-#ifdef FY_LATE_DECLARATION
-					char msg[256];
-#endif
-					message->messageType = message_exception;
-					exception->exceptionType = exception_normal;
-					strcpy_s(exception->exceptionName,
-							sizeof(exception->exceptionName),
-							FY_EXCEPTION_ACCESS);
-					fy_strSPrint(msg, sizeof(msg), field->uniqueName);
-					sprintf_s(exception->exceptionDesc,
-							sizeof(exception->exceptionDesc),
-							"Field %s is final", msg);
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				clazz1 = field->owner;
-				//!CLINIT
-				fy_localToFrame(context, frame);
-				if (fy_threadClinit(context, thread, frame, clazz1,
-						exception)) {
-					FY_FALLOUT_INVOKE
-					break;
-				}
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;/*EXCEPTION_THROWN*/
-				}
-				type = (fy_byte) fy_strGet(field->descriptor, 0);
-				switch (type) {
-				case 'D':
-				case 'J': {
-#ifdef FY_LATE_DECLARATION
-					fy_ulong lvalue;
-#endif
-					fy_threadPopLong(lvalue);
-					fy_heapPutStaticLong(context, field, lvalue, exception);
-					break;
-				}
-				case 'L':
-				case '[': {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					fy_threadPopHandle(ivalue)
-					fy_heapPutStaticHandle(context, field, ivalue, exception);
-					break;
-				}
-				default: {
-#ifdef FY_LATE_DECLARATION
-					fy_uint ivalue;
-#endif
-					fy_threadPopInt(ivalue)
-					fy_heapPutStaticHandle(context, field, ivalue, exception);
-					break;
-				}
-				}
-				break;
-			}
-			case RET: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				fy_threadGetLocalReturn(instruction->params.int_params.param1,
-						ivalue);
-				pc = ivalue;
-				break;
-			}
-			case RETURN: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue2;
-#endif
-				if (method->access_flags & FY_ACC_SYNCHRONIZED) {
-					if (method->access_flags & FY_ACC_STATIC) {
-						ivalue2 = fy_vmGetClassObjHandle(context, method->owner,
-								exception);
-						if (exception->exceptionType != exception_none) {
-							message->messageType = message_exception;
-							FY_FALLOUT_NOINVOKE
-							break;/*EXCEPTION_THROWN*/
-						}
-						fy_threadMonitorExit(context, thread, ivalue2,
-								exception);
-					} else {
-						fy_threadMonitorExit(context, thread, stack[sb],
-								exception);
-					}
-					if (exception->exceptionType != exception_none) {
-						message->messageType = message_exception;
-						FY_FALLOUT_NOINVOKE
-						break;/*EXCEPTION_THROWN*/
-					}
-				}
-				if (method->access_flags & FY_ACC_CLINIT) {
-					method->owner->clinitThreadId = -1;
-				}
-				fy_threadPopFrame(context, thread);
-				FY_FALLOUT_INVOKE
-				break;
-			}
-			case SALOAD: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-#endif
-				fy_threadPopInt(ivalue3);
-				fy_threadPopHandle(ivalue2);
-				ivalue = fy_heapGetArrayShort(context, ivalue2, ivalue3,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case SASTORE: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-#endif
-				fy_threadPopInt(ivalue);
-				fy_threadPopInt(ivalue3);
-				fy_threadPopHandle(ivalue2);
-				fy_heapPutArrayShort(context, ivalue2, ivalue3, (short) ivalue,
-						exception);
-				if (exception->exceptionType != exception_none) {
-					message->messageType = message_exception;
-					FY_FALLOUT_NOINVOKE
-					break;
-				}
-				break;
-			}
-			case SIPUSH: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue;
-#endif
-				ivalue = instruction->params.int_params.param1;
-				fy_threadPushInt(ivalue);
-				break;
-			}
-			case SWAP: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2;
-				fy_uint type, type2;
-#endif
-				fy_threadPopType(ivalue, type);
-				fy_threadPopType(ivalue2, type2);
-				fy_threadPushType(ivalue, type);
-				fy_threadPushType(ivalue2, type2);
-				break;
-			}
-			case TABLESWITCH: {
-#ifdef FY_LATE_DECLARATION
-				fy_uint ivalue, ivalue2, ivalue3;
-				/*fy_uint i;*/
-#endif
-				fy_threadPopInt(ivalue);
-				ivalue2 = instruction->params.swtable->lowest;/*lb*/
-				ivalue3 = instruction->params.swtable->highest;/*hb*/
-				if ((fy_int) ivalue < (fy_int) ivalue2
-						|| (fy_int) ivalue > (fy_int) ivalue3) {
-					pc = instruction->params.swtable->defaultJump;
-				} else {
-					pc = instruction->params.swtable->targets[ivalue - ivalue2];
-				}
-				break;
-			}
-			default: {
-				fy_fault(exception, NULL, "Unknown OPCode %d", instruction->op);
-				FY_FALLOUT_NOINVOKE
-				break;
-			}
-			}
-			/*lpc = pc;*/
 		}
-#ifdef FY_GOTO
-		label_fallout_noinvoke:
-#else
-		if (fallout != fallout_invoke) {
-#endif
-		fy_localToFrame(context, frame);
-#ifdef FY_GOTO
-		label_fallout_invoke:
-#else
-	}
-#endif
-
-		if (message->messageType == message_continue) {
-			if (thread->yield) {
-				thread->yield = FALSE;
-				message->messageType = message_none;
-				break;
-			}
-		} else if (message->messageType == message_invoke_native) {
-			break;
-		} else if (message->messageType == message_exception) {
-			//send the exception to the VM caller for PI handle.
-#ifdef FY_LATE_DECLARATION
-			fy_exception exceptionToPrepare;
-#endif
-			if (exception->exceptionName[0] == 0) {
-				break;
-			}
-			exceptionToPrepare = *exception;
-			exception->exceptionType = exception_none;
-			exception->exceptionName[0] = 0;
-			exception->exceptionDesc[0] = 0;
-			fy_heapBeginProtect(context);
-			thread->currentThrowable = fy_threadPrepareThrowable(context,
-					thread, &exceptionToPrepare, exception);
-			if (exception->exceptionType != exception_none) {
-				break;
-			}
-			message->messageType = message_continue;
-		} else if (message->messageType == message_thread_dead) {
-			break;
-		} else {
-			fy_fault(NULL, NULL, "Fault! Invalid message type %d\n",
-					message->messageType);
+		if (thread->pendingNative.method) {
+			thread->pendingNative.method = NULL;
+			message->messageType = message_invoke_native;
+			message->thread = thread;
+			message->body.call = thread->pendingNative;
 		}
-	}
-	if (message->messageType == message_continue) {
-		message->messageType = message_none;
 	}
 }
 
@@ -3968,51 +838,24 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	return ivalue;
 }
 
-void fy_threadReturnInt(fy_context *context, fy_thread *thread, fy_int value) {
-	fy_frame *frame = fy_threadCurrentFrame(context, thread);
-	/*As both run and main are void, no need to consider frame is NULL*/
-	fy_uint sp = frame->sp;
-	fy_uint *stack = thread->stack;
-	fy_uint *typeStack = thread->typeStack;
-	stack[sp] = value;
-	fy_bitClear(typeStack, sp);
-	frame->sp = sp + 1;
+void fy_threadReturnInt(fy_stack_item *spp, fy_int value) {
+	spp->ivalue = value;
 }
 
-void fy_threadReturnHandle(fy_context *context, fy_thread *thread, fy_int value) {
-	fy_frame *frame = fy_threadCurrentFrame(context, thread);
-	/*As both run and main are void, no need to consider frame is NULL*/
-	fy_uint sp = frame->sp;
-	fy_uint *stack = thread->stack;
-	fy_uint *typeStack = thread->typeStack;
-	stack[sp] = value;
-	fy_bitSet(typeStack, sp);
-	frame->sp = sp + 1;
-#if FY_VERBOSE
-	context->logDVar(context,"Native return %"FY_PRINT32"d"
-			" sp=%"FY_PRINT32"d->%"FY_PRINT32"d\n",value,sp,frame->sp);
-#endif
+void fy_threadReturnHandle(fy_stack_item *spp, fy_int value) {
+	spp->ivalue = value;
 }
 
-void fy_threadReturnLong(fy_context *context, fy_thread *thread, fy_long value) {
-	fy_frame *frame = fy_threadCurrentFrame(context, thread);
-	/*As both run and main are void, no need to consider frame is NULL*/
-	fy_uint sp = frame->sp;
-	fy_uint *stack = thread->stack;
-	fy_uint *typeStack = thread->typeStack;
-	stack[sp] = fy_HOFL(value);
-	stack[sp + 1] = fy_LOFL(value);
-	fy_bitClear(typeStack, sp);
-	fy_bitClear(typeStack, sp + 1);
-	frame->sp = sp + 2;
+void fy_threadReturnLong(fy_stack_item *spp, fy_long value) {
+	spp->uvalue = fy_HOFL(value);
+	(spp + 1)->uvalue = fy_LOFL(value);
 }
 
 void fy_threadScanRef(fy_context *context, fy_thread *thread,
 		fy_arrayList *from, fy_exception *exception) {
-	fy_uint i, imax, handle;
+	fy_uint handle;
+	fy_stack_item *i, *imax;
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
-	fy_uint *stack = thread->stack;
-	fy_uint *typeStack = thread->typeStack;
 	fy_object *object;
 
 	if (frame == NULL) {
@@ -4020,18 +863,20 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 		return;
 	}
 
-	imax = frame->sb + frame->method->max_locals + frame->method->max_stack;
-	ASSERT(imax<=STACK_SIZE-thread->frameCount*FY_FRAME_ENTRIES);
-	for (i = 0; i < imax; i++) {
+	imax = frame->baseSpp + frame->method->max_locals
+			+ frame->method->max_stack;
+	ASSERT((void* )imax <= (void* )frame);
+	for (i = thread->stack; i < imax; i++) {
 		/*TODO we can scan 32bits a time first and skip all-zero blocks*/
-		if (fy_bitGet(typeStack, i)) {
-			handle = stack[i];
-			if (handle == 0) {
+		if (/*TODO use p0cl to determin stack type*/1) {
+			handle = i->uvalue;
+			if (handle
+					== 0|| handle > MAX_OBJECTS || fy_heapGetObject(context,handle)->object_data == NULL) {
 				continue;
 			}
 			/**/
 			ASSERT(
-					i>=frame->sb || (handle > 0 && handle < MAX_OBJECTS && fy_heapGetObject(context,handle)->object_data!= NULL));
+					i>=frame->baseSpp || (handle > 0 && handle < MAX_OBJECTS && fy_heapGetObject(context,handle)->object_data!= NULL));
 			if (handle > 0 && handle < MAX_OBJECTS) {
 				object = fy_heapGetObject(context, handle);
 				if (object->object_data != NULL
@@ -4045,3 +890,4 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 		}
 	}
 }
+

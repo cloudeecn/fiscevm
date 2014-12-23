@@ -6,6 +6,10 @@ public class TestService {
 	public static native void fail0(String message);
 
 	public static void fail(String message) {
+		if (FiScEVM.isFiScE) {
+			FiScEVM.errorOut(message);
+			FiScEVM.breakpoint();
+		}
 		try {
 			throw new RuntimeException(message);
 		} catch (RuntimeException e) {
@@ -43,6 +47,21 @@ public class TestService {
 			if (!expected.equals(actual)) {
 				fail("Assertion error: expected[" + expected + "] but actual["
 						+ actual + "]");
+			}
+		}
+	}
+
+	public static void assertEqual(Object expected, Object actual,
+			String description) {
+		if (expected == null) {
+			if (actual != null) {
+				fail("Assertion error:[" + description + "] = expected["
+						+ expected + "] but actual[" + actual + "]");
+			}
+		} else {
+			if (!expected.equals(actual)) {
+				fail("Assertion error:[" + description + "] = expected["
+						+ expected + "] but actual[" + actual + "]");
 			}
 		}
 	}

@@ -1,23 +1,27 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef _FY_FISCEPRT_H
 #define _FY_FISCEPRT_H
+
+#if 0
+# define FY_VERBOSE 1
+#endif
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -40,6 +44,12 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<stdarg.h>
+
+#if defined(__GNUC__) && ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=7)||(__GNUC__>2))
+#define MAYBE_UNUSED __attribute__((unused))
+#else
+#define MAYBE_UNUSED
+#endif
 
 #ifdef	__cplusplus
 extern "C" {
@@ -181,6 +191,26 @@ typedef struct fy_port {
 #else
 # define FY_PRINT32 ""
 #endif
+
+#ifdef __GNUC__
+# ifndef likely
+#  define likely(X) __builtin_expect(!!(X), 1)
+# endif
+
+# ifndef unlikely
+#  define unlikely(X) __builtin_expect(!!(X), 0)
+# endif
+#else
+# ifndef likely
+#  define likely(X) (X)
+# endif
+
+# ifndef unlikely
+#  define unlikely(X) (X)
+# endif
+#endif
+
+#define FY_PDIFF(TYPE, B, A) ((fy_int)(((size_t)B - (size_t)A)/sizeof(TYPE)))
 #define fy_I2TOL(I1,I2) ((fy_long)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
 #define fy_I2TOUL(I1,I2) ((fy_ulong)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
 #define fy_B2TOUI(B1,B2) ((((fy_uint)(fy_ubyte)(B1))<<8)|((fy_uint)(fy_ubyte)(B2)))
@@ -208,6 +238,9 @@ FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd);
 FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd);
     
 FY_ATTR_EXPORT fy_boolean fy_portValidate();
+
+#define fy_stack_item2iarray(spp) ((int*)(void*)(spp))
+#define fy_stack_item2farray(spp) ((float*)(void*)(spp))
 
 #ifdef	__cplusplus
 }

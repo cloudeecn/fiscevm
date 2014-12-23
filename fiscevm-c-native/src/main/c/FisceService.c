@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "com_cirnoworks_libfisce_shell_FisceService.h"
@@ -44,12 +44,11 @@ typedef struct fy_contextData {
 } fy_contextData;
 
 #define INIT_HEADER \
-fy_exception ex; \
-fy_exception *exception = &ex; \
+MAYBE_UNUSED fy_exception exception[1]; \
 fy_context *context = (*env)->GetDirectBufferAddress(env, buf); \
 fy_contextData *cdata; \
 cdata = context->additionalData; \
-ex.exceptionType=exception_none; \
+exception->exceptionType=exception_none; \
 
 #define GENERIC_HEADER \
 	INIT_HEADER \
@@ -426,7 +425,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		}
 	}
 
-	ex.exceptionType = exception_none;
+	exception->exceptionType = exception_none;
 	memset(context, 0, sizeof(fy_context));
 	fisceInitContext(context, exception);
 	if (exception->exceptionType != exception_none) {
@@ -467,8 +466,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 
 JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 		JNIEnv *env, jclass self, jobject buf, jobject ret, jintArray params) {
-	fy_message _msg;
-	fy_message *message = &_msg;
+	fy_message message[1];
 
 #ifndef FY_LATE_DECLARATION
 
@@ -479,7 +477,6 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 	GENERIC_HEADER
 
 	message->messageType = message_none;
-	message->body.exception.exceptionType = exception_none;
 	fisceRun(context, message, exception);
 	if (exception->exceptionType != exception_none) {
 		fillException(env, exception);
@@ -511,17 +508,6 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 		(*env)->SetIntArrayRegion(env, params, 0, len,
 				(jint*) message->body.call.params);
 
-		(*env)->SetIntField(env, ret, threadIdField, message->thread->threadId);
-		break;
-	}
-	case message_exception: {
-
-		obj = (*env)->NewStringUTF(env, message->body.exception.exceptionName);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetObjectField(env, ret, exceptionNameField, obj);
-		obj = (*env)->NewStringUTF(env, message->body.exception.exceptionDesc);
-		CHECK_JNI_EXCEPTION;
-		(*env)->SetObjectField(env, ret, exceptionDescField, obj);
 		(*env)->SetIntField(env, ret, threadIdField, message->thread->threadId);
 		break;
 	}
@@ -793,7 +779,8 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnHandle(
 	fy_thread *thread;
 	GENERIC_HEADER
 	thread = context->threads[threadId];
-	fy_nativeReturnHandle(context, thread, value);
+	fy_fault(NULL, NULL, "TODO");
+	/*fy_nativeReturnHandle(context, thread, value);*/
 }
 
 /*
@@ -805,8 +792,11 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnInt(
 		JNIEnv *env, jclass self, jobject buf, jint threadId, jint value) {
 	fy_thread *thread;
 	GENERIC_HEADER
+	fy_frame *frame;
 	thread = context->threads[threadId];
-	fy_nativeReturnInt(context, thread, value);
+	frame = fy_threadCurrentFrame(context, thread);
+	fy_fault(NULL, NULL, "TODO");
+	/*fy_nativeReturnInt(context, thread, value);*/
 }
 
 /*
@@ -819,7 +809,8 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnWide(
 	fy_thread *thread;
 	GENERIC_HEADER
 	thread = context->threads[threadId];
-	fy_nativeReturnLong(context, thread, value);
+	fy_fault(NULL, NULL, "TODO");
+	/*fy_nativeReturnLong(context, thread, value);*/
 }
 
 /*
