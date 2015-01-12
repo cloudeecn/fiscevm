@@ -19,18 +19,10 @@
 #ifndef _FY_FISCEPRT_H
 #define _FY_FISCEPRT_H
 
-#if 0
-# define FY_VERBOSE 1
-#endif
-
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
-
 #if defined(_WIN32)
 # include <windows.h>
 # define FY_PRT_WIN32 1
-#elif defined(_POSIX_VERSION) || defined(_DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE) \
+#elif defined(_POSIX_VERSION) || defined(_POSIX_C_SOURCE) || defined(_DARWIN_FEATURE_UNIX_CONFORMANCE) \
 	|| defined(__linux) || defined(__unix) || defined(__posix) || defined(__APPLE__)
 # include <sys/time.h>
 # include <errno.h>
@@ -56,7 +48,7 @@ extern "C" {
 #endif
 
 #ifndef NULL
-#define NULL 0
+#define NULL ((void*)0)
 #endif
 
 /*We should define it on platforms which doesn't support __PRETTY_FUNCTION__*/
@@ -82,6 +74,7 @@ typedef unsigned long long fy_ulong;
 typedef long long fy_long;
 #endif
 
+
 typedef struct fy_exception {
 	enum exceptionType {
 		exception_none = 0, exception_normal
@@ -91,8 +84,7 @@ typedef struct fy_exception {
 	char exceptionDesc[256];
 } fy_exception;
 /*#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)!=NULL&&(EXCEPTION)->exceptionType!=exception_none) return*/
-#define FYEH() if((exception)!=NULL&&(exception)->exceptionType!=exception_none) return
-#define FYEG(X) if((exception)!=NULL&&(exception)->exceptionType!=exception_none) goto X
+
 typedef struct fy_port {
 	fy_long initTimeInMillSec;
 #if defined(FY_PRT_WIN32)
@@ -241,6 +233,19 @@ FY_ATTR_EXPORT fy_boolean fy_portValidate();
 
 #define fy_stack_item2iarray(spp) ((int*)(void*)(spp))
 #define fy_stack_item2farray(spp) ((float*)(void*)(spp))
+
+#define FYEH() if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) return
+#define FYEG(X) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) goto X
+
+#define FY_ENGINE_COUNT 1
+
+MAYBE_UNUSED inline static fy_int fy_mini(fy_int x,fy_int y){
+	return y ^ ((x ^ y) & -(x < y));
+}
+
+MAYBE_UNUSED inline static fy_int fy_maxi(fy_int x,fy_int y){
+	return x ^ ((x ^ y) & -(x < y));
+}
 
 #ifdef	__cplusplus
 }

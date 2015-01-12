@@ -26,8 +26,6 @@
 #include "fyc/VMContext.h"
 #include "fyc/Instructions.h"
 
-extern fy_nh *FY_NH_NO_HANDLER;
-
 #ifdef FY_VERBOSE
 #define VM_DEBUG
 #endif
@@ -60,7 +58,7 @@ extern fy_nh *FY_NH_NO_HANDLER;
 #endif
 
 #ifdef VM_DEBUG
-#define NAME(_x) if (vm_debug) {fprintf(vm_out, "%5d %p: %-20s, ", FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, stack));}
+#define NAME(_x) if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, stack));}
 #else
 #define NAME(_x)
 #endif
@@ -222,7 +220,7 @@ if(unlikely(ops <= 0)){ \
 	frame->pcofs = PCURR_INST->params.int_params.param1 - frame->lpc; \
 	SET_IP(FY_IP_dropout); NEXT_P1; NEXT_P2; \
 } else { \
-	SET_IP(PCURR_INST->params.int_params.param1); NEXT_P1; NEXT_P2; \
+	SET_IP(PCURR_INST->params.int_params.param1); \
 }
 
 #ifdef FY_STRICT_CHECK
@@ -294,6 +292,7 @@ if(unlikely(ops <= 0)){ \
 #else
 #define fy_localToFrame(context,ptrFrame) { \
 	ptrFrame->lpc = FY_PDIFF(fy_instruction, PCURR_INST, instructions); \
+	ptrFrame->pcofs = 1; \
 }
 #endif
 
@@ -302,14 +301,14 @@ if(unlikely(ops <= 0)){ \
 }
 
 #define FY_THEH(FINALLY) \
-if(exception->exceptionType != exception_none){ \
+if(unlikely(exception->exceptionType != exception_none)){ \
 	ops = 0; \
 	FINALLY; \
 	FY_FALLOUT_NOINVOKE; \
 }
 
-#define FY_ENGINE_CLINIT(CLASS) { \
-	ops = fy_threadClinit(context, thread, (CLASS), spp, ops, exception); \
+#define FY_ENGINE_CLINIT(CLASS, SPSS) { \
+	ops = fy_threadClinit(context, thread, (CLASS), spp + (SPSS), ops, exception); \
 	FY_THEH(); \
 	FY_CHECK_OPS_INVOKE; \
 }
@@ -365,6 +364,49 @@ static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
 	}
 }
 
-#define FY_ENGINE_NAME fy_thread_runner_01
 #define FY_ENGINE_HEADER
+
+#define FY_ENGINE_NAME fy_thread_runner_01
 #include "fisce-vm.i"
+#undef FY_ENGINE_NAME
+#if FY_ENGINE_COUNT >= 2
+# define FY_ENGINE_NAME fy_thread_runner_02
+# include "fisce-vm.i"
+# undef FY_ENGINE_NAME
+#endif
+
+#if FY_ENGINE_COUNT >= 3
+#define FY_ENGINE_NAME fy_thread_runner_03
+#include "fisce-vm.i"
+#undef FY_ENGINE_NAME
+#endif
+
+#if FY_ENGINE_COUNT >= 4
+#define FY_ENGINE_NAME fy_thread_runner_04
+#include "fisce-vm.i"
+#undef FY_ENGINE_NAME
+#endif
+
+#if FY_ENGINE_COUNT >= 5
+#define FY_ENGINE_NAME fy_thread_runner_05
+#include "fisce-vm.i"
+#undef FY_ENGINE_NAME
+#endif
+
+#if FY_ENGINE_COUNT >= 6
+#define FY_ENGINE_NAME fy_thread_runner_06
+#include "fisce-vm.i"
+#undef FY_ENGINE_NAME
+#endif
+
+#if FY_ENGINE_COUNT >= 7
+#define FY_ENGINE_NAME fy_thread_runner_07
+#include "fisce-vm.i"
+#undef FY_ENGINE_NAME
+#endif
+
+#if FY_ENGINE_COUNT >= 8
+#define FY_ENGINE_NAME fy_thread_runner_08
+#include "fisce-vm.i"
+#undef FY_ENGINE_NAME
+#endif

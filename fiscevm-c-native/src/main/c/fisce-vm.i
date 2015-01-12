@@ -89,9 +89,9 @@ fy_engine_result FY_ENGINE_NAME(
       i2 = method->max_locals + method->max_stack;
       for(i1 = 0; i1 < i2; i1++){
         printarg_i(sbase + i1);
-        if(i1 < i2 - 1) fputs(vm_out, ", ");
+        if(i1 < i2 - 1) fputs(", ", vm_out);
       }
-      fputs(vm_out, "]\n");
+      fputs("]\n", vm_out);
 #endif
     }
   }
@@ -108,7 +108,7 @@ fy_engine_result FY_ENGINE_NAME(
     //!CLINIT
     ipp = method->instructions;
     spp = frame->baseSpp + method->max_locals;
-    FY_ENGINE_CLINIT(method->owner)
+    FY_ENGINE_CLINIT(method->owner, 0)
   }
 
   SET_IP(frame->lpc += frame->pcofs);
@@ -3644,7 +3644,7 @@ spp += -1;
 {
 
 {
-  if (fy_isnand(f2) || fy_isnand(f1)) {
+  if (unlikely(fy_isnand(f2) || fy_isnand(f1))) {
     ir = 1;
   } else {
     ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
@@ -3686,7 +3686,7 @@ spp += -1;
 {
 
 {
-  if (fy_isnand(f2) || fy_isnand(f1)) {
+  if (unlikely(fy_isnand(f2) || fy_isnand(f1))) {
     ir = -1;
   } else {
     ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
@@ -3956,7 +3956,7 @@ spp += -3;
 {
 
 {
-  if (fy_isnand(d2) || fy_isnand(d1)) {
+  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
     ir = 1;
   } else {
     ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
@@ -3998,7 +3998,7 @@ spp += -3;
 {
 
 {
-  if (fy_isnand(d2) || fy_isnand(d1)) {
+  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
     ir = -1;
   } else {
     ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
@@ -4618,7 +4618,7 @@ spp += -2;
 {
 
 {
-  if (l2 == 0) {
+  if (unlikely(l2 == 0)) {
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
     FY_THEH()
   }
@@ -4660,7 +4660,7 @@ spp += -2;
 {
 
 {
-  if (l2 == 0) {
+  if (unlikely(l2 == 0)) {
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
     FY_THEH()
   }
@@ -5261,11 +5261,11 @@ spp += -3;
   fy_class *clazz1, *clazz2;
   clazz1 = fy_heapGetClassOfObject(context, i1, exception);
   clazz2 = clazz1->ci.arr.contentClass;
-  if (i3 != 0 &&
+  if (unlikely(i3 != 0 &&
       !fy_classCanCastTo(context,
                          fy_heapGetClassOfObject(context, i3, exception),
                          clazz2,
-                         TRUE)) {
+                         TRUE))) {
     exception->exceptionType = exception_normal;
     strcpy_s(exception->exceptionName,
              sizeof(exception->exceptionName),
@@ -5785,7 +5785,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
   fy_class *clazz1, *clazz2;
   fy_str str1;
   
-  if (((fy_int) i1) < 0) {
+  if (unlikely(((fy_int) i1) < 0)) {
     exception->exceptionType = exception_normal;
     strcpy_s(exception->exceptionName,
         sizeof(exception->exceptionName),
@@ -5853,8 +5853,20 @@ spp += 1;
   clazz1 = fy_vmLookupClassFromConstant(context, (ConstantClass*) method->owner->constantPools[PCURR_INST->params.int_params.param1], exception);
   FY_THEH()
   spp -= PCURR_INST->params.int_params.param2;
+#ifdef VM_DEBUG
+  if(vm_debug){
+# ifdef FY_LATE_DECLARATION
+    fy_int i1;
+# endif
+    fputc(' ', vm_out);
+    for(i1 = 0; i1 < PCURR_INST->params.int_params.param2; i1 ++){
+      fprintf(vm_out, "[%"FY_PRINT32"d]", spp[i1].ivalue);
+    }
+    fputc(' ', vm_out);
+  }
+#endif
   fy_heapBeginProtect(context);
-  ir = fy_heapMultiArray(context, clazz1, PCURR_INST->params.int_params.param2, fy_stack_item2iarray(spp),
+  ir = fy_heapMultiArray(context, clazz1, PCURR_INST->params.int_params.param2, fy_stack_item2iarray(spp - 1),
       exception);
   FY_THEH()
 }
@@ -5891,8 +5903,8 @@ spp += 1;
 {
   fy_class *clazz1;
   clazz1 = PCURR_INST->params.clazz;
-  if (clazz1->accessFlags
-      & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT)) {
+  if (unlikely(clazz1->accessFlags
+      & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT))) {
 #ifdef FY_LATE_DECLARATION
     char msg[256];
 #endif
@@ -5902,7 +5914,7 @@ spp += 1;
   }
   //!CLINIT
   fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1);
+  FY_ENGINE_CLINIT(clazz1, 0);
 
   ir = fy_heapAllocate(context, clazz1, exception);
   FY_THEH()
@@ -5941,7 +5953,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
   fy_class *clazz1;
   fy_str *pstr1;
-  if (((fy_int) i1) < 0) {
+  if (unlikely(((fy_int) i1) < 0)) {
     fy_fault(exception, FY_EXCEPTION_NASE, "%d", i1);
     FY_THEH()
   }
@@ -6013,14 +6025,23 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
-  fy_field *field = PCURR_INST->params.field;
-  if (field->access_flags & FY_ACC_STATIC) {
-    char msg[256];
-    fy_strSPrint(msg, 256, field->uniqueName);
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", msg);
+  fy_field *field;
+  field = PCURR_INST->params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
     FY_THEH()
   }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
   ir = fy_heapGetFieldInt(context, i1, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
+  }
+#endif
   FY_THEH()
 }
 
@@ -6061,17 +6082,19 @@ spp += -2;
   fy_field *field;
 
   field = PCURR_INST->params.field;
-  if (field->access_flags & FY_ACC_STATIC) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
     FY_THEH()
   }
-  if ((field->access_flags & FY_ACC_FINAL)
-            && method->owner != field->owner) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
     FY_THEH()
   }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", field->utf8Name, i1, i2);
+  }
+#endif
   fy_heapPutFieldInt(context, i1, field, i2, exception);
   FY_THEH()
 }
@@ -6107,14 +6130,23 @@ spp += 1;
 {
 
 {
-  fy_field *field = PCURR_INST->params.field;
-  if (field->access_flags & FY_ACC_STATIC) {
-    char msg[256];
-    fy_strSPrint(msg, 256, field->uniqueName);
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", msg);
+  fy_field *field;
+  field = PCURR_INST->params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
     FY_THEH()
   }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
   lr = fy_heapGetFieldLong(context, i1, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
+  }
+#endif
   FY_THEH()
 }
 
@@ -6155,17 +6187,19 @@ spp += -3;
   fy_field *field;
 
   field = PCURR_INST->params.field;
-  if (field->access_flags & FY_ACC_STATIC) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
     FY_THEH()
   }
-  if ((field->access_flags & FY_ACC_FINAL)
-            && method->owner != field->owner) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
     FY_THEH()
   }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", field->utf8Name, i1, l1);
+  }
+#endif
   fy_heapPutFieldLong(context, i1, field, l1, exception);
   FY_THEH()
 }
@@ -6199,12 +6233,30 @@ spp += 1;
 {
 
 {
-  fy_field *field = PCURR_INST->params.field;
-  fy_class *clazz1 = field->owner;
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+  field = PCURR_INST->params.field;
+  clazz1 = field->owner;
+  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
+  }
+#endif
   //!CLINIT
   fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1);
+  FY_ENGINE_CLINIT(clazz1, 0);
   ir = fy_heapGetStaticInt(context, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, ir);
+  }
+#endif
   FY_THEH()
 }
 
@@ -6239,19 +6291,31 @@ spp += -1;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_field *field;
   fy_class *clazz1;
+#endif
   
   field = PCURR_INST->params.field;
-  if ((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner)) {
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
     fy_fault(exception, FY_EXCEPTION_ACCESS, "");
     fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
     FY_THEH()
   }
   clazz1 = field->owner;
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
   //!CLINIT
   fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1);
+  FY_ENGINE_CLINIT(clazz1, 1);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
   fy_heapPutStaticInt(context, field, i1, exception);
   FY_THEH()
 }
@@ -6285,12 +6349,30 @@ spp += 2;
 {
 
 {
-  fy_field *field = PCURR_INST->params.field;
-  fy_class *clazz1 = field->owner;
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+  field = PCURR_INST->params.field;
+  clazz1 =  field->owner;
+  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
+  }
+#endif
   //!CLINIT
   fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1);
+  FY_ENGINE_CLINIT(clazz1, 0);
   lr = fy_heapGetStaticLong(context, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s value = %"FY_PRINT64"d# ", field->utf8Name, lr);
+  }
+#endif
   FY_THEH()
 }
 
@@ -6325,19 +6407,31 @@ spp += -2;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_field *field;
   fy_class *clazz1;
-  
+#endif
+
   field = PCURR_INST->params.field;
-  if ((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner)) {
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
     fy_fault(exception, FY_EXCEPTION_ACCESS, "");
     fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
     FY_THEH()
   }
   clazz1 = field->owner;
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
+  }
+#endif
   //!CLINIT
   fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1);
+  FY_ENGINE_CLINIT(clazz1, 2);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
+  }
+#endif
   fy_heapPutStaticLong(context, field, l1, exception);
   FY_THEH()
 }
@@ -6372,14 +6466,16 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_class *clazz1, *clazz2;
   fy_str str1;
+#endif
   if (i1 != 0) {
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
     clazz2 = PCURR_INST->params.clazz;
     
     FY_THEH()
-    if (!fy_classCanCastTo(context, clazz1, clazz2, TRUE)) {
+    if (unlikely(!fy_classCanCastTo(context, clazz1, clazz2, TRUE))) {
       strcpy_s(exception->exceptionName,
           sizeof(exception->exceptionName),
           FY_EXCEPTION_CAST);
@@ -6436,8 +6532,10 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_class *clazz1, *clazz2;
-  
+#endif
+
   if(i1 == 0){
     ir = 0;
   } else {
@@ -6579,7 +6677,7 @@ if (vm_debug) {
 {
   //!CLINIT
   fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(PCURR_INST->params.method->owner);
+  FY_ENGINE_CLINIT(PCURR_INST->params.method->owner, 0);
   ops = fy_threadInvokeStatic(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
   FY_THEH();
   FY_CHECK_OPS_INVOKE;
@@ -6678,9 +6776,11 @@ if (vm_debug) {
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_uint i2;
+#endif
 
-  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
@@ -6691,7 +6791,7 @@ if (vm_debug) {
     }
     FY_THEH()
   }
-  if (method->access_flags & FY_ACC_CLINIT) {
+  if (unlikely(method->access_flags & FY_ACC_CLINIT)) {
     method->owner->clinitThreadId = -1;
   }
   fy_localToFrame(context, frame);
@@ -6740,9 +6840,11 @@ spp += -1;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_uint i2;
+#endif
 
-  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
@@ -6800,9 +6902,11 @@ spp += -1;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_uint i2;
+#endif
 
-  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
@@ -6860,9 +6964,11 @@ spp += -1;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_uint i2;
+#endif
 
-  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
@@ -6920,9 +7026,11 @@ spp += -2;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_uint i2;
+#endif
 
-  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+  if ((method->access_flags & FY_ACC_SYNCHRONIZED)) {
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
@@ -6980,9 +7088,11 @@ spp += -2;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_uint i2;
+#endif
 
-  if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
@@ -7891,9 +8001,10 @@ spp += -1;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_uint i2, i3;
   fy_switch_lookup *swlookup;
-  
+#endif
   swlookup = PCURR_INST->params.swlookup;
   i3 = swlookup->count;
   for(i2 = 0; i2 < i3; i2++){
@@ -7948,7 +8059,9 @@ spp += -1;
 {
 
 {
+#ifdef FY_LATE_DECLARATION
   fy_uint i2, i3;
+#endif
   i2 = PCURR_INST->params.swtable->lowest;/*lb*/
   i3 = PCURR_INST->params.swtable->highest;/*hb*/
   if ((fy_int) i1 < (fy_int) i2

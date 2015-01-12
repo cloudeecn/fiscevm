@@ -63,8 +63,11 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 					fetchNextHandle(context, FALSE, exception) : toHandle;
 	FYEH()0;
 #ifdef FY_VERBOSE
-	context->logDVar(context, "Allocating object #%d for class", handle);
+	context->logDVar(context, "Allocating object #%"FY_PRINT32"d for class ", handle);
 	context->logDStr(context, clazz->className);
+	if(fy_strGet(clazz->className, 0) == '['){
+		context->logDVar(context, " length = %"FY_PRINT32"d", multiUsageData);
+	}
 	context->logDVarLn(context, "");
 #endif
 	obj = fy_heapGetObject(context, handle);
@@ -208,7 +211,7 @@ fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 	fy_field *valueField, *offsetField, *countField;
 	fy_int ofs, len;
 	fy_int cah;
-	if (handle == 0) {
+	if (unlikely(handle == 0)) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				FY_EXCEPTION_NPT);
@@ -216,7 +219,7 @@ fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 		return target;
 	}
 	fy_vmLookupClass(context, context->sString, exception);
-	if (exception->exceptionType != exception_none) {
+	if (unlikely(exception->exceptionType != exception_none)) {
 		return NULL;
 	}
 	valueField = fy_vmGetField(context, context->sStringValue);
@@ -228,7 +231,7 @@ fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 	len = fy_heapGetFieldInt(context, handle, countField, exception);
 	cah = fy_heapGetFieldInt(context, handle, valueField, exception);
 	ASSERT(exception->exceptionType == exception_none);
-	if (cah == 0) {
+	if (unlikely(cah == 0)) {
 		exception->exceptionType = exception_normal;
 		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
 				FY_EXCEPTION_NPT);
@@ -239,7 +242,7 @@ fy_str* fy_heapGetString(fy_context *context, fy_int handle, fy_str *target,
 		fy_strAppendChar(context->memblocks, target,
 				fy_heapGetArrayChar(context, cah, ofs + i, exception),
 				exception);
-		if (exception->exceptionType != exception_none) {
+		if (unlikely(exception->exceptionType != exception_none)) {
 			return 0;
 		}
 	}
@@ -254,7 +257,7 @@ fy_int fy_heapMakeString(fy_context *context, fy_str *target,
 	fy_int len;
 	fy_int cah;
 	fy_int ret;
-	if (target == NULL) {
+	if (unlikely(target == NULL)) {
 		return 0;
 	}
 	len = target->length;
@@ -262,7 +265,7 @@ fy_int fy_heapMakeString(fy_context *context, fy_str *target,
 			fy_vmLookupClass(context, context->sArrayChar, exception),
 			target->length, exception);
 	fy_vmLookupClass(context, context->sString, exception);
-	if (exception->exceptionType != exception_none) {
+	if (unlikely(exception->exceptionType != exception_none)) {
 		return 0;
 	}
 	valueField = fy_vmGetField(context, context->sStringValue);
@@ -289,7 +292,7 @@ fy_int fy_heapLiteral(fy_context *context, fy_str *str, fy_exception *exception)
 	fy_int *pInt;
 	fy_memblock *block = context->memblocks;
 	pInt = fy_hashMapGet(block, context->literals, str);
-	if (pInt == NULL) {
+	if (unlikely(pInt == NULL)) {
 		pInt = fy_mmAllocatePerm(block, sizeof(fy_int), exception);
 		FYEH()0;
 		*pInt = fy_heapMakeString(context, str, exception);
@@ -307,27 +310,27 @@ void fy_heapArrayCopy(fy_context *context, fy_int src, fy_int srcPos,
 		fy_int dest, fy_int destPos, fy_int len, fy_exception *exception) {
 	fy_object *sObject, *dObject;
 	fy_class *sClass, *dClass;
-	if (src == 0 || dest == 0) {
+	if (unlikely(src == 0 || dest == 0)) {
 		fy_fault(exception, FY_EXCEPTION_STORE, "%s is null",
 				src == 0 ? dest == 0 ? "both" : "src":"dest");
 		return;
 	}
 	sObject = fy_heapGetObject(context, src);
 	dObject = fy_heapGetObject(context, dest);
-	if (srcPos < 0 || destPos < 0 || len < 0
+	if (unlikely(srcPos < 0 || destPos < 0 || len < 0
 			|| (srcPos + len > sObject->object_data->arrayLength)
-			|| (destPos + len > dObject->object_data->arrayLength)) {
+			|| (destPos + len > dObject->object_data->arrayLength))) {
 		fy_fault(exception, FY_EXCEPTION_AIOOB, "0");
 		return;
 	}
 	sClass = sObject->object_data->clazz;
 	dClass = dObject->object_data->clazz;
-	if (sClass->type != array_class || dClass->type != array_class
+	if (unlikely(sClass->type != array_class || dClass->type != array_class
 	/*TODO still need more study...
 	 * || !fy_classCanCastTo(context, sClass, dClass)
 	 * @see also void com.cirnoworks.fisce.vm.default_impl.ArrayHeap.arrayCopy
 	 * (int srcHandle, int srcOfs, int dstHandle, int dstOfs, int count) throws VMException
-	 * */) {
+	 * */)) {
 		fy_fault(exception, FY_EXCEPTION_STORE, "class cast");
 		return;
 	}
@@ -400,14 +403,14 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 	return ret;
 }
 
-#define CHECK_NPT(X) if (handle == 0) { \
+#define CHECK_NPT(X) if (unlikely(handle == 0)) { \
 		exception->exceptionType = exception_normal; \
 		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_NPT); \
 		exception->exceptionDesc[0] = 0; \
 		return X; \
 	} else ASSERT(obj->object_data!=NULL);
 
-#define CHECK_IOOB(X) if (index < 0 || index >= obj->object_data->arrayLength) {\
+#define CHECK_IOOB(X) if (unlikely(index < 0 || index >= obj->object_data->arrayLength)) {\
 		exception->exceptionType = exception_normal;\
 		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_AIOOB);\
 		sprintf_s(exception->exceptionDesc, sizeof(exception->exceptionDesc),\
@@ -415,7 +418,7 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 		return X;\
 	}
 
-#define CHECK_STATIC(X) if((field->access_flags & FY_ACC_STATIC)==0){\
+#define CHECK_STATIC(X) if(unlikely((field->access_flags & FY_ACC_STATIC)==0)){\
 		exception->exceptionType=exception_normal;\
 		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName),FY_EXCEPTION_INCOMPAT_CHANGE);\
 		strcpy_s(exception->exceptionDesc,sizeof(exception->exceptionDesc),"get/set static field is not static!");\
@@ -688,8 +691,8 @@ void fy_heapPutFieldBoolean(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(boolean) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) obj->object_data->data + field->posAbs), value);
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -698,8 +701,8 @@ void fy_heapPutFieldHandle(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(handle) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) obj->object_data->data + field->posAbs), value);
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -708,8 +711,8 @@ void fy_heapPutFieldByte(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(byte) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) obj->object_data->data + field->posAbs), value);
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -718,8 +721,8 @@ void fy_heapPutFieldShort(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(short) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) obj->object_data->data + field->posAbs), value);
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -728,8 +731,8 @@ void fy_heapPutFieldChar(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(char) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) obj->object_data->data + field->posAbs), value);
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -738,8 +741,8 @@ void fy_heapPutFieldInt(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(int) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) obj->object_data->data + field->posAbs), value);
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = value;
 }
@@ -748,10 +751,8 @@ void fy_heapPutFieldLong(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVar(context, "value=%"FY_PRINT64"d\nhigh=%ud\nlow=%ud\n",
-			value, fy_HOFL(value), fy_LOFL(value));
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(long) address=%p value=%"FY_PRINT32"d %"FY_PRINT32"d as %"FY_PRINT64"d",
+			((fy_int*) obj->object_data->data + field->posAbs), fy_HOFL(value), fy_LOFL(value), value);
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = fy_HOFL(value);
 	((fy_int*) obj->object_data->data)[field->posAbs + 1] = fy_LOFL(value);
@@ -761,8 +762,8 @@ void fy_heapPutFieldFloat(fy_context *context, fy_int handle, fy_field *field,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(float) address=%p value=%"FY_PRINT32"d as %f",
+			((fy_int*) obj->object_data->data + field->posAbs), fy_floatToInt(value), value);
 #endif
 	((fy_int*) obj->object_data->data)[field->posAbs] = fy_floatToInt(value);
 }
@@ -772,8 +773,8 @@ void fy_heapPutFieldDouble(fy_context *context, fy_int handle, fy_field *field,
 	fy_long longValue;
 	CHECK_NPT() validate(context, handle, field);
 #ifdef FY_VERBOSE
-	context->logDVarLn(context, "address=%"FY_PRINT64"x",
-			(fy_long) ((fy_int*) obj->object_data->data + field->posAbs));
+	context->logDVarLn(context, "putField(double) address=%p value=%"FY_PRINT32"d %"FY_PRINT32"d as %f",
+			((fy_int*) obj->object_data->data + field->posAbs), fy_doubleToLong(value), value);
 #endif
 	longValue = fy_doubleToLong(value);
 	((fy_int*) obj->object_data->data)[field->posAbs] = fy_HOFL(longValue);
@@ -783,42 +784,77 @@ void fy_heapPutFieldDouble(fy_context *context, fy_int handle, fy_field *field,
 fy_boolean fy_heapGetStaticBoolean(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(boolean) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs]);
+#endif
 	return field->owner->staticArea[field->posAbs];
 }
 fy_int fy_heapGetStaticHandle(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(handle) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs]);
+#endif
 	return field->owner->staticArea[field->posAbs];
 }
 fy_byte fy_heapGetStaticByte(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(byte) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs]);
+#endif
 	return field->owner->staticArea[field->posAbs];
 }
 fy_short fy_heapGetStaticShort(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(short) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs]);
+#endif
 	return field->owner->staticArea[field->posAbs];
 }
 fy_char fy_heapGetStaticChar(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(char) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs]);
+#endif
 	return field->owner->staticArea[field->posAbs];
 }
 fy_int fy_heapGetStaticInt(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(int) address=%p value=%"FY_PRINT32"d",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs]);
+#endif
 	return field->owner->staticArea[field->posAbs];
 }
 fy_long fy_heapGetStaticLong(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(long) address=%p value=%"FY_PRINT32"d %"FY_PRINT32"d as %"FY_PRINT64"d",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs],
+			field->owner->staticArea[field->posAbs + 1], fy_I2TOL(field->owner->staticArea[field->posAbs],
+			field->owner->staticArea[field->posAbs + 1]));
+#endif
 	return fy_I2TOL(field->owner->staticArea[field->posAbs],
 			field->owner->staticArea[field->posAbs + 1]);
 }
 fy_float fy_heapGetStaticFloat(fy_context *context, fy_field *field,
 		fy_exception *exception) {
 	CHECK_STATIC(0)
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(int) address=%p value=%"FY_PRINT32"d as %f",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs],
+			*(float*) (field->owner->staticArea + field->posAbs));
+#endif
 	return *(float*) (field->owner->staticArea + field->posAbs);
 }
 fy_double fy_heapGetStaticDouble(fy_context *context, fy_field *field,
@@ -827,6 +863,11 @@ fy_double fy_heapGetStaticDouble(fy_context *context, fy_field *field,
 	CHECK_STATIC(0)
 	lvalue = fy_I2TOL(field->owner->staticArea[field->posAbs],
 			field->owner->staticArea[field->posAbs + 1]);
+#ifdef FY_VERBOSE
+	context->logDVarLn(context, "getStatic(long) address=%p value=%"FY_PRINT32"d %"FY_PRINT32"d as %f",
+			((fy_int*) field->owner->staticArea + field->posAbs), field->owner->staticArea[field->posAbs],
+			field->owner->staticArea[field->posAbs + 1], fy_longToDouble(lvalue));
+#endif
 	return fy_longToDouble(lvalue);
 }
 

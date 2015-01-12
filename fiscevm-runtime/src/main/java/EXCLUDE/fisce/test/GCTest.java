@@ -65,10 +65,10 @@ public class GCTest extends TestService {
 			assertTrue(wr.get() == null, "Weak ref is not cleared abnormally #"
 					+ System.identityHashCode(wr));
 			Thread.sleep(2000);
-			assertTrue(weakQueue.poll() == wr);
-			assertTrue(phantomQueue.poll() == pr);
-			assertTrue(weakQueue.poll() == null);
-			assertTrue(phantomQueue.poll() == null);
+			assertTrue(weakQueue.poll() == wr, ":68 weakQueue.poll() == wr");
+			assertTrue(phantomQueue.poll() == pr, ":69 phantomQueue.poll() == pr");
+			assertTrue(weakQueue.poll() == null, ":70 weakQueue.poll() == null");
+			assertTrue(phantomQueue.poll() == null, ":71 phantomQueue.poll() == null");
 		}
 		FiScEVM.debugOut("#####SOFT REF#####");
 		clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -85,9 +85,9 @@ public class GCTest extends TestService {
 				if (i == 10) {
 					System.gc();
 					Thread.sleep(500);
-					assertTrue(softQueue.poll() == null);
-					assertTrue(refs[0].get() != null);
-					assertTrue(refs[1].get() != null);
+					assertTrue(softQueue.poll() == null, ":88 softQueue.poll() == null");
+					assertTrue(refs[0].get() != null, ":89 refs[0].get() != null");
+					assertTrue(refs[1].get() != null, ":90 refs[1].get() != null");
 				}
 			}
 			FiScEVM.debugOut("#####SOFT REF SLEEP#####");
@@ -95,7 +95,7 @@ public class GCTest extends TestService {
 			FiScEVM.debugOut("#####SOFT REF BEFORE GC#####");
 			System.gc();
 			FiScEVM.debugOut("#####SOFT REF AFTER GC#####");
-			assertTrue(softQueue.poll() != null);
+			assertTrue(softQueue.poll() != null, ":98 softQueue.poll() != null");
 			Thread.sleep(500);
 			boolean ok = false;
 			for (int i = 0; i < 2000; i++) {
@@ -103,7 +103,7 @@ public class GCTest extends TestService {
 					ok = true;
 				}
 			}
-			assertTrue(ok);
+			assertTrue(ok, ":106 ok");
 		}
 		clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		{
@@ -129,16 +129,16 @@ public class GCTest extends TestService {
 			System.gc();
 			assertTrue(wr.get() == null, "Weak ref is not cleared abnormally");
 			Thread.sleep(1000);
-			assertTrue(weakQueue.poll() == wr, "#1");
-			assertTrue(StrongReferent.holder != null, "#2");
-			assertTrue(phantomQueue.poll() == null, "#3");
+			assertTrue(weakQueue.poll() == wr, ":132");
+			assertTrue(StrongReferent.holder != null, ":133");
+			assertTrue(phantomQueue.poll() == null, ":134");
 			StrongReferent.holder = null;
 			clearStack(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			FiScEVM.breakpoint();
 			System.gc();
 			Thread.sleep(2000);
-			assertTrue(weakQueue.poll() == null, "#4");
-			assertTrue(phantomQueue.poll() == pr, "#5");
+			assertTrue(weakQueue.poll() == null, ":140");
+			assertTrue(phantomQueue.poll() == pr, ":141");
 		}
 	}
 

@@ -883,8 +883,8 @@ static fy_int methodInvoke(struct fy_context *context, struct fy_thread *thread,
 		fy_threadReturnHandle(args, args[1].uvalue);
 		args++;
 	} else {
-		ops = fy_threadClinit(context, thread, method->owner, args + 3, ops,
-				exception);
+		ops = fy_threadClinit(context, thread, method->owner, args + argsCount,
+				ops, exception);
 		FYEH()0;
 		if (ops <= 0) {
 			return 0;
@@ -957,7 +957,7 @@ static fy_int methodInvoke(struct fy_context *context, struct fy_thread *thread,
 			}
 			}
 		} else {
-			fy_threadReturnHandle(args, paramHandle);
+			fy_threadReturnHandle(args++, paramHandle);
 		}
 	}
 	context->logDVar(context, "Invoking: ");
@@ -1156,7 +1156,7 @@ static fy_int constructorNewInstance(struct fy_context *context,
 			}
 			}
 		} else {
-			fy_threadReturnHandle(args, paramHandle);
+			fy_threadReturnHandle(args++, paramHandle);
 		}
 	}
 	return fy_threadInvokeSpecial(context, thread,
@@ -1910,7 +1910,8 @@ static fy_int classForName(struct fy_context *context, struct fy_thread *thread,
 	fy_strReplaceOne(&str, '.', '/');
 	clazz = fy_vmLookupClass(context, &str, exception);
 	fy_strDestroy(context->memblocks, &str);
-	ops = fy_threadClinit(context, thread, clazz, args + 1, ops, exception);
+	ops = fy_threadClinit(context, thread, clazz, args + argsCount, ops,
+			exception);
 	if (ops < 0) {
 		return 0;
 	}
@@ -2184,12 +2185,14 @@ static fy_int arrayNewInstance(struct fy_context *context,
 	fy_str name[1];
 	fy_class *targetClass;
 	FYEH()0;
-	ops = fy_threadClinit(context, thread, targetClass, args + 1, ops,
-			exception);
-	if (ops < 0) {
-		return 0;
+	if (clazz->type == object_class) {
+		ops = fy_threadClinit(context, thread, clazz, args + argsCount, ops,
+				exception);
+		if (ops < 0) {
+			return 0;
+		}
+		FYEH()0;
 	}
-	FYEH()0;
 	len = fy_heapArrayLength(context, args[1].uvalue, exception);
 	FYEH()0;
 	for (i = 0; i < len; i++) {
@@ -2198,7 +2201,7 @@ static fy_int arrayNewInstance(struct fy_context *context,
 	}
 	name->content = NULL;
 	switch (clazz->type) {
-	case object_class:
+	case object_class: {
 		fy_strInit(context->memblocks, name, clazz->className->length + 2 + len,
 				exception);
 		FYEH()0;
@@ -2225,7 +2228,8 @@ static fy_int arrayNewInstance(struct fy_context *context,
 		fy_strDestroy(context->memblocks, name);
 		FYEH()0;
 		break;
-		case array_class:
+	}
+	case array_class: {
 		fy_strInit(context->memblocks, name, clazz->className->length + len,
 				exception);
 		FYEH()0;
@@ -2237,9 +2241,11 @@ static fy_int arrayNewInstance(struct fy_context *context,
 		fy_strDestroy(context->memblocks, name);
 		FYEH()0;
 		break;
-		default:
+	}
+	default: {
 		fy_fault(exception, "", "Illegal class type %d", clazz->type);
 		return 0;
+	}
 	}
 
 	fy_threadReturnHandle(args,

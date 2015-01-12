@@ -402,7 +402,7 @@ extern "C" {
 	}fy_frame;
 
 #define FY_FRAME_ENTRIES ((sizeof(struct fy_frame)+3)/4)
-#define FY_GET_FRAME(THREAD,FRAMEID) ((fy_frame*)((THREAD)->stack+(STACK_SIZE-((FRAMEID)+1)*FY_FRAME_ENTRIES)))
+#define FY_GET_FRAME(THREAD,FRAMEID) ((fy_frame*)((THREAD)->stack+STACK_SIZE)-((FRAMEID)+1))
 
 	typedef union fy_stack_wide_item {
 		struct {

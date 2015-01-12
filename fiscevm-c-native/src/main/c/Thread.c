@@ -342,7 +342,7 @@ static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz)
 		return NULL;
 	}
 	tid = clazz->clinitThreadId;
-	if (tid == -1 || tid == thread->threadId) {
+	if (likely(tid == -1 || tid == thread->threadId)) {
 		return NULL;
 	}
 	if (clazz->clinit == NULL) {
@@ -659,7 +659,7 @@ fy_int fy_threadClinit(fy_context *context, fy_thread *thread, fy_class *clazz,
 	fy_class *clinitClazz = NULL;
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	clinitClazz = clinit(context, thread, clazz);
-	if (clinitClazz) {
+	if (unlikely(clinitClazz)) {
 		frame->pcofs = 0;
 		if (clinitClazz->clinitThreadId == 0) {
 #ifdef FY_VERBOSE
@@ -705,7 +705,6 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				FYEH();
 				frame->baseSpp->uvalue = thread->currentThrowable;
 				thread->currentThrowable = 0;
-				/* TODO check continue; */
 			} else {
 				message->messageType = message_thread_dead;
 				break;
@@ -854,38 +853,64 @@ void fy_threadReturnLong(fy_stack_item *spp, fy_long value) {
 void fy_threadScanRef(fy_context *context, fy_thread *thread,
 		fy_arrayList *from, fy_exception *exception) {
 	fy_uint handle;
-	fy_stack_item *i, *imax;
-	fy_frame *frame = fy_threadCurrentFrame(context, thread);
+	fy_stack_item *sbase;
+	fy_frame *frame;
+	fy_method *method;
 	fy_object *object;
+	fy_int i, maxSp;
+	fy_int frameId, frameIdMax;
+	fy_instruction *ipp, *nipp;
 
-	if (frame == NULL) {
+	frameIdMax = thread->frameCount - 1;
+	if (frameIdMax == 0) {
 		/*Thread already dead but not removed*/
 		return;
 	}
-
-	imax = frame->baseSpp + frame->method->max_locals
-			+ frame->method->max_stack;
-	ASSERT((void* )imax <= (void* )frame);
-	for (i = thread->stack; i < imax; i++) {
-		/*TODO we can scan 32bits a time first and skip all-zero blocks*/
-		if (/*TODO use p0cl to determin stack type*/1) {
-			handle = i->uvalue;
-			if (handle
-					== 0|| handle > MAX_OBJECTS || fy_heapGetObject(context,handle)->object_data == NULL) {
-				continue;
-			}
-			/**/
-			ASSERT(
-					i>=frame->baseSpp || (handle > 0 && handle < MAX_OBJECTS && fy_heapGetObject(context,handle)->object_data!= NULL));
-			if (handle > 0 && handle < MAX_OBJECTS) {
+	for (frameId = 0; frameId < frameIdMax; frameId++) {
+		/*not last frame, must be an a invoke, or clinit by invoke, new, get/put static op, or lpc=0, pcofs=1, or thread is holding. It's ok to use nipp for all situation */
+		frame = FY_GET_FRAME(thread, frameId);
+		method = frame->method;
+		ipp = method->instructions + frame->lpc + frame->pcofs;
+		maxSp = ipp->sp;
+		sbase = frame->baseSpp;
+		for (i = 0; i < maxSp; i++) {
+			if (fy_instGetStackItem(ipp, i)) {
+				handle = sbase[i].uvalue;
+				if (handle
+						== 0|| handle >= MAX_OBJECTS || fy_heapGetObject(context,handle)->object_data == NULL) {
+					continue;
+				}
+				/**/
 				object = fy_heapGetObject(context, handle);
-				if (object->object_data != NULL
-						&& object->object_data->data != NULL) {
+				if (object->object_data->data != NULL) {
 					/*Valid handle*/
 					fy_arrayListAdd(context->memblocks, from, &handle,
 							exception);
 					FYEH();
 				}
+			}
+		}
+	}
+	frame = FY_GET_FRAME(thread, frameId);
+	method = frame->method;
+	ipp = method->instructions + frame->lpc;
+	nipp = ipp + frame->pcofs
+			- ((frame->lpc + frame->pcofs >= method->codeLength) & 1);
+	maxSp = fy_maxi(ipp->sp, nipp->sp);
+	sbase = frame->baseSpp;
+	for (i = 0; i < maxSp; i++) {
+		if (fy_instGetStackItem(ipp, i) || fy_instGetStackItem(nipp, i)) {
+			handle = sbase[i].uvalue;
+			if (handle
+					== 0|| handle >= MAX_OBJECTS || fy_heapGetObject(context,handle)->object_data == NULL) {
+				continue;
+			}
+			/**/
+			object = fy_heapGetObject(context, handle);
+			if (object->object_data->data != NULL) {
+				/*Valid handle*/
+				fy_arrayListAdd(context->memblocks, from, &handle, exception);
+				FYEH();
 			}
 		}
 	}

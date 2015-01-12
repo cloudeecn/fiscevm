@@ -89,9 +89,9 @@ fy_engine_result FY_ENGINE_NAME(
       i2 = method->max_locals + method->max_stack;
       for(i1 = 0; i1 < i2; i1++){
         printarg_i(sbase + i1);
-        if(i1 < i2 - 1) fputs(vm_out, ", ");
+        if(i1 < i2 - 1) fputs(", ", vm_out);
       }
-      fputs(vm_out, "]\n");
+      fputs("]\n", vm_out);
 #endif
     }
   }
@@ -108,7 +108,7 @@ fy_engine_result FY_ENGINE_NAME(
     //!CLINIT
     ipp = method->instructions;
     spp = frame->baseSpp + method->max_locals;
-    FY_ENGINE_CLINIT(method->owner)
+    FY_ENGINE_CLINIT(method->owner, 0)
   }
 
   SET_IP(frame->lpc += frame->pcofs);

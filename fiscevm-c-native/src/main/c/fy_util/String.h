@@ -70,7 +70,7 @@ typedef struct fy_strVA {
 #define FY_STR_HASHED 4
 
 /*Set to 1 for eclipse to search all direct usage of string->content*/
-#if 1
+#if 0
 FY_ATTR_EXPORT fy_char fy_strGet0(const fy_str *str, fy_int pos);
 # define fy_strGet(STR,POS) fy_strGet0((STR),(POS))
 #else

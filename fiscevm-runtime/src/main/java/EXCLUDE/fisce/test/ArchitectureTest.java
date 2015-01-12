@@ -35,8 +35,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 
 	public static void strictTestLong() {
 		assertEqual("1", String.valueOf((int) longData[0]), "l2i 1l");
-		assertEqual("1.0", String.valueOf((float) longData[0]), "l2f 1l");
-		assertEqual("1.0", String.valueOf((double) longData[0]), "l2d 1l");
 		assertEqual("-1", String.valueOf(-longData[0]), "lneg 1l");
 		assertEqual("1", String.valueOf(longData[0] >> 0), "1l >> 0");
 		assertEqual("1", String.valueOf(longData[0] >>> 0), "1l >>> 0");
@@ -453,8 +451,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 		assertEqual("true", String.valueOf(longData[0] <= longData[7]),
 				"1l <= 1080880403494997760l");
 		assertEqual("-1", String.valueOf((int) longData[1]), "l2i -1l");
-		assertEqual("-1.0", String.valueOf((float) longData[1]), "l2f -1l");
-		assertEqual("-1.0", String.valueOf((double) longData[1]), "l2d -1l");
 		assertEqual("1", String.valueOf(-longData[1]), "lneg -1l");
 		assertEqual("-1", String.valueOf(longData[1] >> 0), "-1l >> 0");
 		assertEqual("-1", String.valueOf(longData[1] >>> 0), "-1l >>> 0");
@@ -930,8 +926,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 		assertEqual("true", String.valueOf(longData[1] <= longData[7]),
 				"-1l <= 1080880403494997760l");
 		assertEqual("17", String.valueOf((int) longData[2]), "l2i 17l");
-		assertEqual("17.0", String.valueOf((float) longData[2]), "l2f 17l");
-		assertEqual("17.0", String.valueOf((double) longData[2]), "l2d 17l");
 		assertEqual("-17", String.valueOf(-longData[2]), "lneg 17l");
 		assertEqual("17", String.valueOf(longData[2] >> 0), "17l >> 0");
 		assertEqual("17", String.valueOf(longData[2] >>> 0), "17l >>> 0");
@@ -1369,8 +1363,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 		assertEqual("true", String.valueOf(longData[2] <= longData[7]),
 				"17l <= 1080880403494997760l");
 		assertEqual("-17", String.valueOf((int) longData[3]), "l2i -17l");
-		assertEqual("-17.0", String.valueOf((float) longData[3]), "l2f -17l");
-		assertEqual("-17.0", String.valueOf((double) longData[3]), "l2d -17l");
 		assertEqual("17", String.valueOf(-longData[3]), "lneg -17l");
 		assertEqual("-17", String.valueOf(longData[3] >> 0), "-17l >> 0");
 		assertEqual("-17", String.valueOf(longData[3] >>> 0), "-17l >>> 0");
@@ -1870,10 +1862,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 				"-17l <= 1080880403494997760l");
 		assertEqual("-268374016", String.valueOf((int) longData[4]),
 				"l2i 4026593280l");
-		assertEqual("4.02659328E9", String.valueOf((float) longData[4]),
-				"l2f 4026593280l");
-		assertEqual("4.02659328E9", String.valueOf((double) longData[4]),
-				"l2d 4026593280l");
 		assertEqual("-4026593280", String.valueOf(-longData[4]),
 				"lneg 4026593280l");
 		assertEqual("4026593280", String.valueOf(longData[4] >> 0),
@@ -2435,10 +2423,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 				"4026593280l <= 1080880403494997760l");
 		assertEqual("251662080", String.valueOf((int) longData[5]),
 				"l2i 251662080l");
-		assertEqual("2.5166208E8", String.valueOf((float) longData[5]),
-				"l2f 251662080l");
-		assertEqual("2.5166208E8", String.valueOf((double) longData[5]),
-				"l2d 251662080l");
 		assertEqual("-251662080", String.valueOf(-longData[5]),
 				"lneg 251662080l");
 		assertEqual("251662080", String.valueOf(longData[5] >> 0),
@@ -2997,11 +2981,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 				"251662080l <= 1080880403494997760l");
 		assertEqual("-268374016", String.valueOf((int) longData[6]),
 				"l2i -1152657617789587456l");
-		assertEqual("-1.15265762E18", String.valueOf((float) longData[6]),
-				"l2f -1152657617789587456l");
-		assertEqual("-1.15265761778958746E18",
-				String.valueOf((double) longData[6]),
-				"l2d -1152657617789587456l");
 		assertEqual("1152657617789587456", String.valueOf(-longData[6]),
 				"lneg -1152657617789587456l");
 		assertEqual("-1152657617789587456", String.valueOf(longData[6] >> 0),
@@ -3642,11 +3621,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 				"-1152657617789587456l <= 1080880403494997760l");
 		assertEqual("251662080", String.valueOf((int) longData[7]),
 				"l2i 1080880403494997760l");
-		assertEqual("1.0808804E18", String.valueOf((float) longData[7]),
-				"l2f 1080880403494997760l");
-		assertEqual("1.08088040349499776E18",
-				String.valueOf((double) longData[7]),
-				"l2d 1080880403494997760l");
 		assertEqual("-1080880403494997760", String.valueOf(-longData[7]),
 				"lneg 1080880403494997760l");
 		assertEqual("1080880403494997760", String.valueOf(longData[7] >> 0),
@@ -4290,8 +4264,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 	
 	public static void strictTestInt(){
 		assertEqual("1", String.valueOf((long)intData[0]), "i2l 1");
-		assertEqual("1.0", String.valueOf((float)intData[0]), "i2f 1");
-		assertEqual("1.0", String.valueOf((double)intData[0]), "i2d 1");
 		assertEqual("1", String.valueOf((byte)intData[0]), "i2b 1");
 		assertEqual("1", String.valueOf((short)intData[0]), "i2s 1");
 		assertEqual("-1", String.valueOf(-intData[0]), "ineg 1");
@@ -4470,8 +4442,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 		assertEqual("false", String.valueOf(intData[0] >= intData[5]), "1 >= 251662080"); 
 		assertEqual("true", String.valueOf(intData[0] <= intData[5]), "1 <= 251662080"); 
 		assertEqual("-1", String.valueOf((long)intData[1]), "i2l -1");
-		assertEqual("-1.0", String.valueOf((float)intData[1]), "i2f -1");
-		assertEqual("-1.0", String.valueOf((double)intData[1]), "i2d -1");
 		assertEqual("-1", String.valueOf((byte)intData[1]), "i2b -1");
 		assertEqual("-1", String.valueOf((short)intData[1]), "i2s -1");
 		assertEqual("1", String.valueOf(-intData[1]), "ineg -1");
@@ -4650,8 +4620,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 		assertEqual("false", String.valueOf(intData[1] >= intData[5]), "-1 >= 251662080"); 
 		assertEqual("true", String.valueOf(intData[1] <= intData[5]), "-1 <= 251662080"); 
 		assertEqual("17", String.valueOf((long)intData[2]), "i2l 17");
-		assertEqual("17.0", String.valueOf((float)intData[2]), "i2f 17");
-		assertEqual("17.0", String.valueOf((double)intData[2]), "i2d 17");
 		assertEqual("17", String.valueOf((byte)intData[2]), "i2b 17");
 		assertEqual("17", String.valueOf((short)intData[2]), "i2s 17");
 		assertEqual("-17", String.valueOf(-intData[2]), "ineg 17");
@@ -4830,8 +4798,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 		assertEqual("false", String.valueOf(intData[2] >= intData[5]), "17 >= 251662080"); 
 		assertEqual("true", String.valueOf(intData[2] <= intData[5]), "17 <= 251662080"); 
 		assertEqual("-17", String.valueOf((long)intData[3]), "i2l -17");
-		assertEqual("-17.0", String.valueOf((float)intData[3]), "i2f -17");
-		assertEqual("-17.0", String.valueOf((double)intData[3]), "i2d -17");
 		assertEqual("-17", String.valueOf((byte)intData[3]), "i2b -17");
 		assertEqual("-17", String.valueOf((short)intData[3]), "i2s -17");
 		assertEqual("17", String.valueOf(-intData[3]), "ineg -17");
@@ -5010,8 +4976,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 		assertEqual("false", String.valueOf(intData[3] >= intData[5]), "-17 >= 251662080"); 
 		assertEqual("true", String.valueOf(intData[3] <= intData[5]), "-17 <= 251662080"); 
 		assertEqual("-268374016", String.valueOf((long)intData[4]), "i2l -268374016");
-		assertEqual("-2.6837402E8", String.valueOf((float)intData[4]), "i2f -268374016");
-		assertEqual("-2.68374016E8", String.valueOf((double)intData[4]), "i2d -268374016");
 		assertEqual("0", String.valueOf((byte)intData[4]), "i2b -268374016");
 		assertEqual("-4096", String.valueOf((short)intData[4]), "i2s -268374016");
 		assertEqual("268374016", String.valueOf(-intData[4]), "ineg -268374016");
@@ -5190,8 +5154,6 @@ public class ArchitectureTest extends TestService implements IF1 {
 		assertEqual("false", String.valueOf(intData[4] >= intData[5]), "-268374016 >= 251662080"); 
 		assertEqual("true", String.valueOf(intData[4] <= intData[5]), "-268374016 <= 251662080"); 
 		assertEqual("251662080", String.valueOf((long)intData[5]), "i2l 251662080");
-		assertEqual("2.5166208E8", String.valueOf((float)intData[5]), "i2f 251662080");
-		assertEqual("2.5166208E8", String.valueOf((double)intData[5]), "i2d 251662080");
 		assertEqual("0", String.valueOf((byte)intData[5]), "i2b 251662080");
 		assertEqual("3840", String.valueOf((short)intData[5]), "i2s 251662080");
 		assertEqual("-251662080", String.valueOf(-intData[5]), "ineg 251662080");

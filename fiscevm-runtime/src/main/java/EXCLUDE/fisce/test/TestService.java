@@ -23,8 +23,23 @@ public class TestService {
 	}
 
 	public static void fail(String message, Throwable e) {
+		if (FiScEVM.isFiScE) {
+			FiScEVM.errorOut("Exception occored");
+			FiScEVM.errorOut(e.getClass().getName());
+			FiScEVM.errorOut(message);
+			FiScEVM.breakpoint();
+		}
 		e.printStackTrace(FiScEVM.debug);
-		fail(message);
+		try {
+			throw new RuntimeException(message);
+		} catch (RuntimeException ex) {
+			ex.printStackTrace(FiScEVM.debug);
+		}
+		if (FiScEVM.isFiScE) {
+			fail0(message);
+		} else {
+			System.out.println("Test Failed: " + message);
+		}
 	}
 
 	public static void assertTrue(boolean value) {

@@ -943,7 +943,7 @@ int main(int argc, char *argv[]) {
 		dirs[0] = argv[1];
 	}
 	printf("Base dir: %s\n", dirs[0]);
-	if (argc > 2) {
+	if (argc > 2 && strcmp("--", argv[2])) {
 		printf("Testing %s:", argv[2]);
 		customTest = argv[2];
 		fn = "test.custom.fail.log";
