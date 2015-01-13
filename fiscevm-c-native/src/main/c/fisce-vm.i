@@ -5,13 +5,14 @@ fy_engine_result FY_ENGINE_NAME(
     fy_context *context,
     fy_thread *thread,
     fy_frame *frame,
-    fy_int ops,
+    fy_int oops,
     fy_exception *exception) {
 #ifndef FY_LATE_DECLARATION
 #ifdef USE_CFA
-  register fy_instruction cfa;
+  register fy_e2_label cfa;
 #endif
   register fy_instruction *ipp;
+  register fy_int ops = oops;
 #ifdef FY_USE_TOS
   register fy_stack_item sppTOS;
 #endif
@@ -54,13 +55,18 @@ fy_engine_result FY_ENGINE_NAME(
 
 
 #ifdef USE_CFA
-  register fy_instruction cfa;
+  register
+  fy_e2_label cfa;
 #endif
-  register fy_instruction *ipp;
+  register
+  fy_instruction *ipp;
+  register
+  fy_int ops = oops;
 #ifdef FY_USE_TOS
   register fy_stack_item sppTOS;
 #endif
-  register fy_stack_item *spp;
+  register
+  fy_stack_item *spp;
 
   fy_instruction *instructions;
   fy_stack_item *stack, *sbase;
@@ -111,11 +117,7 @@ fy_engine_result FY_ENGINE_NAME(
     FY_ENGINE_CLINIT(method->owner, 0)
   }
 
-  SET_IP(frame->lpc += frame->pcofs);
-  frame->pcofs = 0;
-  NEXT_P1;
-  spp = frame->baseSpp + PCURR_INST->sp;
-  NEXT_P2;
+  ENGINE_ENTER;
 #endif
 LABEL(dropout) /* dropout ( -- ) */
 /*  */
@@ -259,10 +261,10 @@ spp += 1;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadGetLocalInt(PCURR_INST->params.int_params.param1, ir);
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
 }
@@ -297,10 +299,10 @@ spp += 1;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #fload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #fload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadGetLocalInt(PCURR_INST->params.int_params.param1, ir);
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
 }
@@ -335,10 +337,10 @@ spp += 1;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #aload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #aload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadGetLocalHandle(PCURR_INST->params.int_params.param1, ir);
+  fy_threadGetLocalHandle(CURR_INST.params.int_params.param1, ir);
 }
 
 }
@@ -770,10 +772,10 @@ spp += -1;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #istore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #istore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadPutLocalInt(PCURR_INST->params.int_params.param1, i1);
+  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
 }
 
 }
@@ -808,10 +810,10 @@ spp += -1;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #fstore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #fstore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadPutLocalInt(PCURR_INST->params.int_params.param1, i1);
+  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
 }
 
 }
@@ -846,10 +848,10 @@ spp += -1;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #astore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #astore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadPutLocalHandle(PCURR_INST->params.int_params.param1, i1);
+  fy_threadPutLocalHandle(CURR_INST.params.int_params.param1, i1);
 }
 
 }
@@ -1279,10 +1281,10 @@ spp += 2;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #dload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #dload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadGetLocalLong(PCURR_INST->params.int_params.param1, lr);
+  fy_threadGetLocalLong(CURR_INST.params.int_params.param1, lr);
 }
 
 }
@@ -1317,10 +1319,10 @@ spp += 2;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #lload_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #lload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadGetLocalLong(PCURR_INST->params.int_params.param1, lr);
+  fy_threadGetLocalLong(CURR_INST.params.int_params.param1, lr);
 }
 
 }
@@ -1620,10 +1622,10 @@ spp += -2;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #dstore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #dstore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadPutLocalLong(PCURR_INST->params.int_params.param1, l1);
+  fy_threadPutLocalLong(CURR_INST.params.int_params.param1, l1);
 }
 
 }
@@ -1658,10 +1660,10 @@ spp += -2;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #lstore_%"FY_PRINT32"d# ", PCURR_INST->params.int_params.param1);
+    fprintf(vm_out, " #lstore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
 #endif
-  fy_threadPutLocalLong(PCURR_INST->params.int_params.param1, l1);
+  fy_threadPutLocalLong(CURR_INST.params.int_params.param1, l1);
 }
 
 }
@@ -1954,7 +1956,7 @@ if (vm_debug) {
 {
 
 {
-  sbase[PCURR_INST->params.int_params.param1].uvalue += PCURR_INST->params.int_params.param2;
+  sbase[CURR_INST.params.int_params.param1].uvalue += CURR_INST.params.int_params.param2;
 }
 
 }
@@ -2332,7 +2334,7 @@ spp += 1;
 {
 
 {
-  ir = PCURR_INST->params.int_params.param1;
+  ir = CURR_INST.params.int_params.param1;
 }
 
 }
@@ -2365,7 +2367,7 @@ spp += 1;
 {
 
 {
-  ir = PCURR_INST->params.int_params.param1;
+  ir = CURR_INST.params.int_params.param1;
 }
 
 }
@@ -4997,7 +4999,7 @@ spp += 1;
 {
 
 {
-  ir = opLDC(context, method->owner, PCURR_INST->params.ldc.value, exception);
+  ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
   FY_THEH()
 }
 
@@ -5031,7 +5033,7 @@ spp += 1;
 {
 
 {
-  ir = opLDC(context, method->owner, PCURR_INST->params.ldc.value, exception);
+  ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
   FY_THEH()
 }
 
@@ -5065,7 +5067,7 @@ spp += 2;
 {
 
 {
-  lr = opLDC2(context, method->owner, PCURR_INST->params.ldc.value, exception);
+  lr = opLDC2(context, method->owner, CURR_INST.params.ldc.value, exception);
   FY_THEH()
 }
 
@@ -5794,7 +5796,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
         sizeof(exception->exceptionDesc), "%d<0", i1);
     FY_THEH()
   }
-  clazz1 = PCURR_INST->params.clazz;
+  clazz1 = CURR_INST.params.clazz;
   FY_THEH()
   str1.content = NULL;
   fy_strInit(block, &str1, 64, exception);
@@ -5850,23 +5852,23 @@ spp += 1;
 
 {
   fy_class *clazz1;
-  clazz1 = fy_vmLookupClassFromConstant(context, (ConstantClass*) method->owner->constantPools[PCURR_INST->params.int_params.param1], exception);
+  clazz1 = fy_vmLookupClassFromConstant(context, (ConstantClass*) method->owner->constantPools[CURR_INST.params.int_params.param1], exception);
   FY_THEH()
-  spp -= PCURR_INST->params.int_params.param2;
+  spp -= CURR_INST.params.int_params.param2;
 #ifdef VM_DEBUG
   if(vm_debug){
 # ifdef FY_LATE_DECLARATION
     fy_int i1;
 # endif
     fputc(' ', vm_out);
-    for(i1 = 0; i1 < PCURR_INST->params.int_params.param2; i1 ++){
+    for(i1 = 0; i1 < CURR_INST.params.int_params.param2; i1 ++){
       fprintf(vm_out, "[%"FY_PRINT32"d]", spp[i1].ivalue);
     }
     fputc(' ', vm_out);
   }
 #endif
   fy_heapBeginProtect(context);
-  ir = fy_heapMultiArray(context, clazz1, PCURR_INST->params.int_params.param2, fy_stack_item2iarray(spp - 1),
+  ir = fy_heapMultiArray(context, clazz1, CURR_INST.params.int_params.param2, fy_stack_item2iarray(spp - 1),
       exception);
   FY_THEH()
 }
@@ -5902,7 +5904,7 @@ spp += 1;
 
 {
   fy_class *clazz1;
-  clazz1 = PCURR_INST->params.clazz;
+  clazz1 = CURR_INST.params.clazz;
   if (unlikely(clazz1->accessFlags
       & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT))) {
 #ifdef FY_LATE_DECLARATION
@@ -5957,7 +5959,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     fy_fault(exception, FY_EXCEPTION_NASE, "%d", i1);
     FY_THEH()
   }
-  switch(PCURR_INST->params.int_params.param1){
+  switch(CURR_INST.params.int_params.param1){
   case 4:
     pstr1 = context->sArrayBoolean;
     break;
@@ -5984,7 +5986,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     break;
   default:
     pstr1 = NULL; /*make compiler happy*/
-    fy_fault(exception, FY_EXCEPTION_VM, "%d", PCURR_INST->params.int_params.param1);
+    fy_fault(exception, FY_EXCEPTION_VM, "%d", CURR_INST.params.int_params.param1);
     FY_THEH()
     break;
   }
@@ -6026,7 +6028,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 
 {
   fy_field *field;
-  field = PCURR_INST->params.field;
+  field = CURR_INST.params.field;
   if (unlikely(field->access_flags & FY_ACC_STATIC)) {
     fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
     FY_THEH()
@@ -6081,7 +6083,7 @@ spp += -2;
 {
   fy_field *field;
 
-  field = PCURR_INST->params.field;
+  field = CURR_INST.params.field;
   if (unlikely(field->access_flags & FY_ACC_STATIC)) {
     fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
     FY_THEH()
@@ -6131,7 +6133,7 @@ spp += 1;
 
 {
   fy_field *field;
-  field = PCURR_INST->params.field;
+  field = CURR_INST.params.field;
   if (unlikely(field->access_flags & FY_ACC_STATIC)) {
     fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
     FY_THEH()
@@ -6186,7 +6188,7 @@ spp += -3;
 {
   fy_field *field;
 
-  field = PCURR_INST->params.field;
+  field = CURR_INST.params.field;
   if (unlikely(field->access_flags & FY_ACC_STATIC)) {
     fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
     FY_THEH()
@@ -6237,7 +6239,7 @@ spp += 1;
   fy_field *field;
   fy_class *clazz1;
 #endif
-  field = PCURR_INST->params.field;
+  field = CURR_INST.params.field;
   clazz1 = field->owner;
   if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
     fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
@@ -6296,7 +6298,7 @@ spp += -1;
   fy_class *clazz1;
 #endif
   
-  field = PCURR_INST->params.field;
+  field = CURR_INST.params.field;
   if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
     fy_fault(exception, FY_EXCEPTION_ACCESS, "");
     fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
@@ -6353,7 +6355,7 @@ spp += 2;
   fy_field *field;
   fy_class *clazz1;
 #endif
-  field = PCURR_INST->params.field;
+  field = CURR_INST.params.field;
   clazz1 =  field->owner;
   if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
     fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
@@ -6412,7 +6414,7 @@ spp += -2;
   fy_class *clazz1;
 #endif
 
-  field = PCURR_INST->params.field;
+  field = CURR_INST.params.field;
   if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
     fy_fault(exception, FY_EXCEPTION_ACCESS, "");
     fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
@@ -6472,7 +6474,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
   if (i1 != 0) {
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
-    clazz2 = PCURR_INST->params.clazz;
+    clazz2 = CURR_INST.params.clazz;
     
     FY_THEH()
     if (unlikely(!fy_classCanCastTo(context, clazz1, clazz2, TRUE))) {
@@ -6540,7 +6542,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     ir = 0;
   } else {
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
-    clazz2 = PCURR_INST->params.clazz;
+    clazz2 = CURR_INST.params.clazz;
     FY_THEH()
     ir = fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0;
   }
@@ -6643,7 +6645,7 @@ if (vm_debug) {
 
 {
   fy_localToFrame(context, frame);
-  ops = fy_threadInvokeSpecial(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
+  ops = fy_threadInvokeSpecial(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH();
   FY_CHECK_OPS_INVOKE;
   FY_UPDATE_SP(context, frame);
@@ -6677,8 +6679,8 @@ if (vm_debug) {
 {
   //!CLINIT
   fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(PCURR_INST->params.method->owner, 0);
-  ops = fy_threadInvokeStatic(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
+  FY_ENGINE_CLINIT(CURR_INST.params.method->owner, 0);
+  ops = fy_threadInvokeStatic(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH();
   FY_CHECK_OPS_INVOKE;
   FY_UPDATE_SP(context, frame);
@@ -6711,7 +6713,7 @@ if (vm_debug) {
 
 {
   fy_localToFrame(context, frame);
-  ops = fy_threadInvokeVirtual(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
+  ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH();
   FY_CHECK_OPS_INVOKE;
   FY_UPDATE_SP(context, frame);
@@ -6744,7 +6746,7 @@ if (vm_debug) {
 
 {
   fy_localToFrame(context, frame);
-  ops = fy_threadInvokeVirtual(context, thread, frame, PCURR_INST->params.method, spp, ops, exception);
+  ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH();
   FY_CHECK_OPS_INVOKE;
   FY_UPDATE_SP(context, frame);
@@ -8005,7 +8007,7 @@ spp += -1;
   fy_uint i2, i3;
   fy_switch_lookup *swlookup;
 #endif
-  swlookup = PCURR_INST->params.swlookup;
+  swlookup = CURR_INST.params.swlookup;
   i3 = swlookup->count;
   for(i2 = 0; i2 < i3; i2++){
     if(swlookup->targets[i2].value == i1){
@@ -8062,11 +8064,11 @@ spp += -1;
 #ifdef FY_LATE_DECLARATION
   fy_uint i2, i3;
 #endif
-  i2 = PCURR_INST->params.swtable->lowest;/*lb*/
-  i3 = PCURR_INST->params.swtable->highest;/*hb*/
+  i2 = CURR_INST.params.swtable->lowest;/*lb*/
+  i3 = CURR_INST.params.swtable->highest;/*hb*/
   if ((fy_int) i1 < (fy_int) i2
       || (fy_int) i1 > (fy_int) i3) {
-    SET_IP(PCURR_INST->params.swtable->defaultJump);
+    SET_IP(CURR_INST.params.swtable->defaultJump);
     SUPER_END;
 
 #ifdef VM_DEBUG
@@ -8079,7 +8081,7 @@ IF_sppTOS(sppTOS = spp[-1]);
 NEXT_P2;
 
   } else {
-    SET_IP(PCURR_INST->params.swtable->targets[i1 - i2]);
+    SET_IP(CURR_INST.params.swtable->targets[i1 - i2]);
     SUPER_END;
 
 #ifdef VM_DEBUG

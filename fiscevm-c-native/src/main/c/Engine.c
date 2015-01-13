@@ -74,62 +74,68 @@
  for Gforth "make bench" on a 486, whereas scheme 5 is fastest for
  "mini fib.mini" on an Athlon */
 #ifndef THREADING_SCHEME
-#define THREADING_SCHEME 5
+#define THREADING_SCHEME 10
 #endif /* defined(THREADING_SCHEME) */
 
 #ifdef __GNUC__
 #if THREADING_SCHEME==1
 /* direct threading scheme 1: autoinc, long latency (HPPA, Sharc) */
 #  define USE_CFA 1
-#  define NEXT_P0	({cfa=*ip++;})
-#  define IP		(ip-1)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
-#  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + NEXT_INST.sp; NEXT_P2;})
+#  define NEXT_P0	({cfa=(ipp++)->inst;})
+#  define IP		(ipp-1)
+#  define PCURR_INST		(ipp-2)
+#  define CURR_INST		(*(ipp-2))
+#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
+#  define NEXT_INST	(*(ipp-1))
 #  define DEF_CA
-#  define NEXT_P1
-#  define NEXT_P2	({goto *(cfa.inst);})
+#  define NEXT_P1	({ops--;})
+#  define NEXT_P2	({goto *cfa;})
 #endif
 
 #if THREADING_SCHEME==3
 /* direct threading scheme 3: autoinc, low latency (68K) */
 #  define USE_CFA 1
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + PCURR_INST->sp; NEXT_P2;})
 #  define NEXT_P0
-#  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
-#  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define IP		(ipp)
+#  define PCURR_INST		(ipp - 1)
+#  define CURR_INST		(*(ipp - 1))
+#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
+#  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1	({cfa=*ip++;})
-#  define NEXT_P2	({goto *(cfa.inst);})
+#  define NEXT_P1	({cfa=(ipp++)->inst; ops--;})
+#  define NEXT_P2	({goto *cfa;})
 #endif
 
 #if THREADING_SCHEME==5
 /* direct threading scheme 5: early fetching (Alpha, MIPS) */
 #  define USE_CFA 1
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + PCURR_INST->sp; NEXT_P2;})
 #  define CFA_NEXT
-#  define NEXT_P0	({cfa=*ipp;})
+#  define NEXT_P0	({cfa=ipp->inst;})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
-#  define NEXT_INST (cfa)
+#  define CURR_INST		(*(ipp-1))
 #  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0; /*fprintf(vm_out, "\njumping to %"FY_PRINT32"d [%p]\n", cfa.op, cfa.inst); if(cfa.inst == NULL){fy_breakpoint();}*/})
-#  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=ipp[const_inc]; ipp+=(const_inc);})
+#  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1	(ops--, ipp++)
-#  define NEXT_P2	({goto *(cfa.inst);})
+#  define NEXT_P1	(ipp++, ops--)
+#  define NEXT_P2	({goto *cfa;})
 #endif
 
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
 #  define NEXT_P0
-#  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + PCURR_INST->sp; NEXT_P2;})
+#  define IP		(ipp)
+#  define PCURR_INST		(ipp-1)
+#  define CURR_INST		(*(ipp-1))
+#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
 #  define NEXT_INST	(*IP)
-#  define INC_IP(const_inc)	({ ip+=(const_inc);})
 #  define DEF_CA
-#  define NEXT_P1	(ip++)
-#  define NEXT_P2	({goto *((*(ip-1)).inst);})
+#  define NEXT_P1	(ipp++, ops--)
+#  define NEXT_P2	({goto *((*(ipp-1)).inst);})
 #endif
 
 #if THREADING_SCHEME==9
@@ -139,27 +145,33 @@
  schedule the mtctr instruction. */
 #  define USE_CFA 1
 #  define NEXT_P0
-#  define IP		ip
-#  define SET_IP(p)	({ip=(p); next_cfa=*ip; NEXT_P0;})
-#  define NEXT_INST	(next_cfa)
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + PCURR_INST->sp; NEXT_P2;})
+#  define IP		ipp
+#  define SET_IP(p)	({ipp=instructions + (p); next_cfa=ipp->inst; NEXT_P0;})
+#  define PCURR_INST		(ipp-1)
+#  define CURR_INST		(*(ipp-1))
+#  define NEXT_INST	(*ipp)
 #  define INC_IP(const_inc)	({next_cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
-#  define NEXT_P1	({cfa=next_cfa; ip++; next_cfa=*ip;})
-#  define NEXT_P2	({goto *(cfa.inst);})
-#  define MORE_VARS	Cell next_cfa;
+#  define NEXT_P1	({cfa=next_cfa; ipp++; next_cfa=ipp->inst;ops--;})
+#  define NEXT_P2	({goto *cfa;})
+#  define MORE_VARS	fy_e2_label next_cfa;
 #endif
 
 #if THREADING_SCHEME==10
 /* direct threading scheme 10: plain (no attempt at scheduling) */
-#  define USE_CFA 1
+#  define USE_CFA
+#  define REGISTER_CFA
+#  define ENGINE_ENTER ({NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + CURR_INST.sp; NEXT_P2;})
 #  define NEXT_P0
 #  define IP		(ipp)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
-#  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define PCURR_INST		(ipp - 1)
+#  define CURR_INST (*(ipp - 1))
+#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
+#  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1
-#  define NEXT_P2	({cfa=*ip++; goto *(cfa.inst);})
+#  define NEXT_P1	({cfa = (ipp++)->inst; ops--;})
+#  define NEXT_P2	({goto *cfa;})
 #endif
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
@@ -217,10 +229,10 @@ enum {
 # define FY_CHECK_OPS_AND_GOTO \
 if(unlikely(ops <= 0)){ \
 	fy_localToFrame(context, frame); \
-	frame->pcofs = PCURR_INST->params.int_params.param1 - frame->lpc; \
+	frame->pcofs = CURR_INST.params.int_params.param1 - frame->lpc; \
 	SET_IP(FY_IP_dropout); NEXT_P1; NEXT_P2; \
 } else { \
-	SET_IP(PCURR_INST->params.int_params.param1); \
+	SET_IP(CURR_INST.params.int_params.param1); \
 }
 
 #ifdef FY_STRICT_CHECK
