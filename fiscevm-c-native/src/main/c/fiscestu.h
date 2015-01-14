@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "fisceprt.h"
 #include "fisceclz.h"
@@ -58,7 +58,7 @@
 #define FY_ACC_ENUM			0x00004000
 #define FY_ACC_SOFT_REF		0x00008000
 #define FY_ACC_WEAK_REF		0x00010000
-#define FY_ACC_PHANTOM_REF		0x00020000
+#define FY_ACC_PHANTOM_REF	0x00020000
 #define FY_ACC_CONSTRUCTOR	0x00100000
 #define FY_ACC_CLINIT		0x00200000
 #define FY_ACC_VERIFIED		0x80000000
@@ -205,14 +205,41 @@ extern "C" {
 		classInfo ci;
 	}fy_exceptionHandler;
 
-	typedef struct fy_stack_map_table{
+	typedef struct fy_stack_map_table {
 		fy_uint length;
 		fy_int count;
 		FY_VLS(fy_ubyte, entries);
-	} fy_stack_map_table;
+	}fy_stack_map_table;
 
 	struct fy_nh;
 	struct fy_class;
+	struct fy_context;
+	struct fy_thread;
+	struct fy_message;
+	struct fy_frame;
+
+#ifdef __GNUC__
+	typedef void *fy_e2_label;
+#else
+	typedef fy_int fy_e2_label;
+#endif
+
+	typedef struct fy_e2_label_holder {
+		fy_e2_label label;
+		fy_int op;
+	}fy_e2_label_holder;
+
+	typedef union fy_engine_result {
+		fy_int ops;
+		fy_e2_label_holder *labels;
+	}fy_engine_result;
+
+	typedef fy_engine_result (*fy_engine)(struct fy_context *context,
+			struct fy_thread *thread,
+			struct fy_frame *frame,
+			fy_int ops,
+			struct fy_exception *exception);
+
 	typedef struct fy_method {
 		fy_int method_id;
 		fy_uint access_flags;
@@ -256,6 +283,7 @@ extern "C" {
 		fy_uint parameterCount;
 		fy_arrayList* parameterTypes;
 		struct fy_class *returnTypeClass;
+		fy_engine engine;
 	}fy_method;
 
 	typedef enum fy_arrayType {
@@ -355,25 +383,43 @@ extern "C" {
 		fy_object_data *object_data;
 	}fy_object;
 
+	typedef union fy_stack_item {
+		fy_uint uvalue;
+		fy_int ivalue;
+		fy_float fvalue;
+	}fy_stack_item;
+
 	typedef struct fy_frame {
 		fy_method *method;
-		fy_instruction *instructions;
-		fy_uint sb;
+		fy_stack_item *baseSpp;
 #ifdef FY_STRICT_CHECK
 		fy_uint size;
 		fy_uint localCount;
 		fy_uint codeSize;
 #endif
-		fy_uint methodId;
-		fy_uint sp;
-		fy_uint pc;
 		fy_uint lpc;
+		fy_uint pcofs;
 	}fy_frame;
 
 #define FY_FRAME_ENTRIES ((sizeof(struct fy_frame)+3)/4)
-#define FY_GET_FRAME(THREAD,FRAMEID) ((fy_frame*)((THREAD)->stack+(STACK_SIZE-((FRAMEID)+1)*FY_FRAME_ENTRIES)))
+#define FY_GET_FRAME(THREAD,FRAMEID) ((fy_frame*)((THREAD)->stack+STACK_SIZE)-((FRAMEID)+1))
+
+	typedef union fy_stack_wide_item {
+		struct {
+			fy_stack_item lower_item;
+			fy_stack_item higher_item;
+		}fy_stack_items;
+		fy_double dvalue;
+		fy_long lvalue;
+	}fy_stack_wide_item;
+
+	typedef struct fy_nativeCall {
+		fy_method *method;
+		fy_uint paramCount;
+		fy_stack_item *params;
+	}fy_nativeCall;
+
 	typedef struct fy_thread {
-		fy_boolean yield;
 
 		fy_uint handle;
 		fy_uint currentThrowable;
@@ -382,8 +428,7 @@ extern "C" {
 		fy_int threadId;
 
 		fy_uint frameCount;
-		fy_uint stack[STACK_SIZE];
-		fy_uint typeStack[(STACK_SIZE + 31) / 32];
+		fy_stack_item stack[STACK_SIZE];
 
 		/*Used by thread manager*/
 		fy_int waitForLockId;
@@ -394,20 +439,15 @@ extern "C" {
 		fy_boolean daemon;
 		fy_boolean destroyPending;
 
+		fy_nativeCall pendingNative;
 	}fy_thread;
 
-	typedef struct fy_nativeCall {
-		fy_method *method;
-		fy_uint paramCount;
-		fy_uint *params;
-	}fy_nativeCall;
-
 	typedef enum fy_messageType {
-		message_continue = 0, /*In thread*/
+		/*message_continue = 0, In thread*/
 		message_none = 1, /*Thread Only*/
 		message_thread_dead = 2, /*Thread Only*/
 		message_invoke_native = 3,/*Thread And TM pass thread*/
-		message_exception = 4, /*Thread And TM pass thread*/
+		/*message_exception = 4, Thread And TM pass thread*/
 		message_sleep = 5, /*TM Only*/
 		message_vm_dead = 6
 		/*TM Only*/
@@ -419,7 +459,6 @@ extern "C" {
 		/*We care more about stability than some hundreds bytes of memory*/
 		struct {
 			fy_nativeCall call;
-			fy_exception exception;
 			fy_long sleepTime;
 		}body;
 
@@ -460,7 +499,7 @@ extern "C" {
 		fy_inputStream* aliveStreams[MAX_STREAMS];
 
 		/*Status Saver*/
-        const void *saveloadParam;
+		const void *saveloadParam;
 		void* (*saveBegin)(struct fy_context *context, fy_exception *exception);
 		void (*savePrepareClass)(struct fy_context *context, void *saver,
 				fy_uint classCount, fy_exception *exception);
@@ -501,12 +540,11 @@ extern "C" {
 				fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
 				fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 				fy_uint pendingLockCount, fy_uint waitForLockId,
-				fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
-				fy_uint *typeStack, fy_exception *exception);
+				fy_uint waitForNotifyId, fy_uint stackSize, fy_stack_item *stack, fy_exception *exception);
 		void (*savePrepareFrame)(struct fy_context *context, void *saver,
 				fy_uint count, fy_exception *exception);
 		void (*saveFrame)(struct fy_context *context, void *saver, fy_uint methodId,
-				fy_uint sb, fy_uint sp, fy_uint pc, fy_uint lpc,
+				fy_uint sb, fy_uint lpc, fy_int pcofs,
 				fy_exception *exception);
 		void (*saveEndFrame)(struct fy_context *context, void *saver,
 				fy_exception *exception);
@@ -641,6 +679,7 @@ extern "C" {
 		fy_int methodsCount;
 		fy_method *methods[MAX_METHODS];
 		fy_hashMap mapMethodNameToId[1];
+		fy_hashMap stackPool[1];
 
 		fy_int fieldsCount;
 		fy_field *fields[MAX_FIELDS];
@@ -652,11 +691,11 @@ extern "C" {
 		fy_hashMapI methodObjIds[1];
 		fy_hashMapI fieldObjIds[1];
 		fy_hashMapI constructorObjIds[1];
-        
-        void *gcCustomData;
-        void (*beforeGC)(void *data);
-        void (*getExtraGCKeep)(void *data, fy_int *count, fy_int **content);
-        void (*afterGC)(void *data);
+
+		void *gcCustomData;
+		void (*beforeGC)(void *data);
+		void (*getExtraGCKeep)(void *data, fy_int *count, fy_int **content);
+		void (*afterGC)(void *data);
 
 		fy_hashMap customClassData[1];
 
@@ -685,6 +724,8 @@ extern "C" {
 		fy_int exitCode;
 		fy_long nextGCTime;
 		fy_long nextForceGCTime;
+		fy_int engineCount;
+		fy_engine *engines;
 		/* #END THREAD MANAGER*/
 
 		/* #BEGIN HEAP*/
@@ -702,9 +743,15 @@ extern "C" {
 
 	}fy_context;
 
-	typedef void (*fy_nhFunction)(struct fy_context *context,
-			struct fy_thread *thread, void *data, fy_uint *args, fy_int argsCount,
-			fy_message *message, fy_exception *exception);
+	typedef fy_int (*fy_nhFunction)(
+			struct fy_context *context,
+			struct fy_thread *thread,
+			void *data,
+			fy_stack_item *args,
+			fy_int argsCount,
+			fy_int ops,
+			fy_exception *exception
+	);
 
 	typedef struct fy_nh {
 		void *data;
@@ -727,15 +774,16 @@ extern "C" {
 	}fy_switch_table;
 
 	struct fy_instruction {
-		fy_int op;
-		fy_uint sp;
+		fy_e2_label inst;
+		fy_int sp;
 #ifdef FY_STRICT_CHECK
+		fy_int op;
 		fy_uint localSize;
 #endif
 		union {
 			fy_ulong stackTypeContent;
 			fy_ulong *stackTypeContents;
-		} s;
+		}s;
 		union {
 			struct {
 				fy_int param1;

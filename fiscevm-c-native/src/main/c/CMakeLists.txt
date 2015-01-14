@@ -42,6 +42,7 @@ SET(SRC_LIST_LIB
     Instructions.c
     Preverifier.c
     Thread.c
+    Engine.c
     ThreadManager.c
     VMContext.c
     ExpDev.c

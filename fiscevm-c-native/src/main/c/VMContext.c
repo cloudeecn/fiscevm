@@ -24,6 +24,7 @@
 #include "fyc/BinarySaver.h"
 #include "fyc/BAIS.h"
 #include "fyc/RIS.h"
+#include "fyc/Engine.h"
 
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {
@@ -448,17 +449,53 @@ static void initThreadManager(fy_context *context, fy_exception *exception) {
 
 	context->state = FY_TM_STATE_NEW;
 
-	context->pricmds[0] = 10;
-	context->pricmds[1] = 125;
-	context->pricmds[2] = 250;
-	context->pricmds[3] = 500;
-	context->pricmds[4] = 1000;
-	context->pricmds[5] = 2000;
-	context->pricmds[6] = 4000;
-	context->pricmds[7] = 8000;
-	context->pricmds[8] = 16000;
-	context->pricmds[9] = 32000;
-	context->pricmds[10] = 64000;
+	context->pricmds[0] = 10 * 4;
+	context->pricmds[1] = 125 * 4;
+	context->pricmds[2] = 250 * 4;
+	context->pricmds[3] = 500 * 4;
+	context->pricmds[4] = 1000 * 4;
+	context->pricmds[5] = 2000 * 4;
+	context->pricmds[6] = 4000 * 4;
+	context->pricmds[7] = 8000 * 4;
+	context->pricmds[8] = 16000 * 4;
+	context->pricmds[9] = 32000 * 4;
+	context->pricmds[10] = 64000 * 4;
+}
+
+static void initEngine(fy_context *context, fy_exception *exception) {
+	context->engines = fy_mmAllocatePerm(context->memblocks, sizeof(fy_engine) * FY_ENGINE_COUNT,
+			exception);
+	FYEH();
+	context->engines[0] = fy_thread_runner_01;
+
+#if FY_ENGINE_COUNT >= 2
+	context->engines[1] = fy_thread_runner_02;
+#endif
+
+#if FY_ENGINE_COUNT >= 3
+	context->engines[2] = fy_thread_runner_03;
+#endif
+
+#if FY_ENGINE_COUNT >= 4
+	context->engines[3] = fy_thread_runner_04;
+#endif
+
+#if FY_ENGINE_COUNT >= 5
+	context->engines[4] = fy_thread_runner_05;
+#endif
+
+#if FY_ENGINE_COUNT >= 6
+	context->engines[5] = fy_thread_runner_06;
+#endif
+
+#if FY_ENGINE_COUNT >= 7
+	context->engines[6] = fy_thread_runner_07;
+#endif
+
+#if FY_ENGINE_COUNT >= 8
+	context->engines[7] = fy_thread_runner_08;
+#endif
+	context->engineCount = FY_ENGINE_COUNT;
 }
 
 static void initHeap(fy_context *context, fy_exception *exception) {
@@ -486,10 +523,12 @@ static void initHeap(fy_context *context, fy_exception *exception) {
 
 void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	fy_debugInit(context);
-	ILOG(context,
+	ILOG(
+			context,
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
-			MAX_OBJECTS * (fy_int) sizeof(fy_object));
+			MAX_OBJECTS * (fy_int) sizeof(fy_object))
+;
 	fy_mmInit(context->memblocks, exception);
 	FYEH();
 	fy_bsRegisterBinarySaver(context);
@@ -505,6 +544,9 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 	FYEH();
 
 	initThreadManager(context, exception);
+	FYEH();
+
+	initEngine(context, exception);
 	FYEH();
 
 	initConstantStrings(context, exception);
@@ -625,7 +667,7 @@ void fy_vmRegisterField(fy_context *context, fy_field *field,
 fy_field *fy_vmGetField(fy_context *context, fy_str *uniqueName) {
 	int *pFid = fy_hashMapGet(context->memblocks, context->mapFieldNameToId,
 			uniqueName);
-	if (pFid == NULL) {
+	if (unlikely(pFid == NULL)) {
 		return NULL;
 	}
 	return context->fields[*pFid];
@@ -747,7 +789,7 @@ void fy_vmRegisterMethod(fy_context *context, fy_method *method,
 fy_method *fy_vmGetMethod(fy_context *context, fy_str *uniqueName) {
 	int *pMid = fy_hashMapGet(context->memblocks, context->mapMethodNameToId,
 			uniqueName);
-	if (pMid == NULL) {
+	if (unlikely(pMid == NULL)) {
 		return NULL;
 	}
 	return context->methods[*pMid];
@@ -760,7 +802,7 @@ fy_method *fy_vmLookupMethodVirtualByMethod(fy_context *context,
 	char msg[256];
 	actureMethodId = fy_hashMapIGet(context->memblocks, clazz->virtualTable,
 			method->method_id);
-	if (actureMethodId == -1) {
+	if (unlikely(actureMethodId == -1)) {
 		actureMethod = fy_vmLookupMethodVirtual(context, clazz,
 				method->fullName, exception);
 		FYEH()NULL;
@@ -917,7 +959,7 @@ fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
 		fy_exception *exception) {
 	fy_class *clazz;
 	clazz = getClass(context, name);
-	if (clazz == NULL) {
+	if (unlikely(clazz == NULL)) {
 		clazz = fy_clLoadclass(context, name, exception);
 		if (exception->exceptionType != exception_none) {
 			return NULL;
@@ -968,7 +1010,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 	inputClass = fy_heapGetClassOfObject(context, handle, exception);
 	FYEH()NULL;
 	classClass = fy_vmLookupClass(context, context->sClassClass, exception);
-	if (exception->exceptionType != exception_none) {
+	if (unlikely(exception->exceptionType != exception_none)) {
 		return NULL;
 	}
 	if (inputClass != classClass) {
@@ -985,7 +1027,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 
 fy_class *fy_vmLookupClassFromConstant(fy_context *context,
 		ConstantClass *classInfo, fy_exception *exception) {
-	if (classInfo->derefed == 0) {
+	if (unlikely(classInfo->derefed == 0)) {
 		classInfo->ci.clazz = fy_vmLookupClass(context, classInfo->ci.className,
 				exception);
 		if (exception->exceptionType != exception_none) {
@@ -1000,7 +1042,7 @@ fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 		ConstantFieldRef *fieldInfo, fy_exception *exception) {
 	fy_field *field;
 
-	if (fieldInfo->derefed == 0) {
+	if (unlikely(fieldInfo->derefed == 0)) {
 		fieldInfo->clazz = fy_vmLookupClassFromConstant(context,
 				fieldInfo->constantClass, exception);
 		if (exception->exceptionType != exception_none) {
@@ -1024,7 +1066,7 @@ fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
 		ConstantMethodRef *methodInfo, fy_exception *exception) {
 	fy_method *method;
-	if (methodInfo->derefed == 0) {
+	if (unlikely(methodInfo->derefed == 0)) {
 		methodInfo->clazz = fy_vmLookupClassFromConstant(context,
 				methodInfo->constantClass, exception);
 		if (exception->exceptionType != exception_none) {
@@ -1062,7 +1104,7 @@ void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
 	fy_memblock *block = context->memblocks;
 	str = fy_vmCreateStringByPoolV(context, exception, "a", name);/*fy_strCreatePermFromUTF8(block, name, 0, exception);*/
 	FYEH();
-	if (fy_hashMapGet(block, context->mapMUNameToNH, str) != NULL) {
+	if (unlikely(fy_hashMapGet(block, context->mapMUNameToNH, str) != NULL)) {
 		fy_fault(exception, NULL, "Native handler conflict %s", name);
 	}
 	nh = fy_mmAllocatePerm(block, sizeof(fy_nh), exception);
@@ -1091,7 +1133,7 @@ void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
 		fy_exceptionHandler *exceptionHandler, fy_exception *exception) {
 	fy_class *clazz;
-	if (exceptionHandler->catchTypeDerefed == 0) {
+	if (unlikely(exceptionHandler->catchTypeDerefed == 0)) {
 		clazz = fy_vmLookupClassFromConstant(context,
 				exceptionHandler->ci.constantClass, exception);
 		if (exception->exceptionType != exception_none) {
@@ -1117,9 +1159,9 @@ fy_boolean fy_vmBootup(fy_context *context, const char* bootStrapClass,
 	 FYEH();
 	 */
 	name.content = NULL;
-    if(exception == NULL){
-        return FALSE;
-    }
+	if (unlikely(exception == NULL)) {
+		return FALSE;
+	}
 	fy_strInitWithUTF8(context->memblocks, &name, bootStrapClass, exception);
 	FYEH()FALSE;
 	clazz = fy_vmLookupClass(context, &name, exception);
@@ -1127,7 +1169,7 @@ fy_boolean fy_vmBootup(fy_context *context, const char* bootStrapClass,
 	FYEH()FALSE;
 	fy_tmBootFromMain(context, clazz, exception);
 	FYEH()FALSE;
-    return TRUE;
+	return TRUE;
 }
 
 static void fillValues(fy_str *key, void *value, void *addition) {
@@ -1241,19 +1283,24 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 		fy_arrayListGet(context->memblocks, context->runningThreads, i,
 				&thread);
 		jmax = thread->frameCount;
+		/*last frame*/
+		frame = FY_GET_FRAME(thread, jmax - 1);
 		context->saveThread(context, saver, thread->threadId, thread->handle,
 				thread->priority, thread->daemon, thread->destroyPending,
 				thread->interrupted, thread->nextWakeTime,
 				thread->pendingLockCount, thread->waitForLockId,
-				thread->waitForNotifyId, FY_GET_FRAME(thread,jmax-1)->sp,
-				thread->stack, thread->typeStack, exception);
+				thread->waitForNotifyId,
+				FY_PDIFF(fy_stack_item, frame->baseSpp, thread->stack)
+						+ frame->method->max_locals + frame->method->max_stack,
+				thread->stack, exception);
 		FYEH();
 		context->savePrepareFrame(context, saver, jmax, exception);
 		FYEH();
 		for (j = 0; j < jmax; j++) {
 			frame = FY_GET_FRAME(thread, j);
-			context->saveFrame(context, saver, frame->methodId, frame->sb,
-					frame->sp, frame->pc, frame->lpc, exception);
+			context->saveFrame(context, saver, frame->method->method_id,
+					FY_PDIFF(fy_stack_item, frame->baseSpp, thread->stack),
+					frame->lpc, frame->pcofs, exception);
 			FYEH();
 		}
 		context->saveEndFrame(context, saver, exception);
@@ -1285,7 +1332,7 @@ fy_int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
 	fy_int handle = fy_hashMapIGet(context->memblocks, context->classObjIds,
 			clazz->classId);
 	FYEH()-1;
-	if (handle == -1) {
+	if (unlikely(handle == -1)) {
 		fy_heapBeginProtect(context);
 		handle = fy_heapAllocate(context, clcl, exception);
 		fy_heapGetObject(context,handle)->object_data->classId = clazz->classId;
@@ -1305,7 +1352,7 @@ fy_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
 	fy_int handle = fy_hashMapIGet(context->memblocks, context->methodObjIds,
 			method->method_id);
 	FYEH()-1;
-	if (handle == -1) {
+	if (unlikely(handle == -1)) {
 		fy_heapBeginProtect(context);
 		if (method->access_flags & FY_ACC_CONSTRUCTOR) {
 			handle = fy_heapAllocate(context, cocl, exception);
@@ -1327,7 +1374,7 @@ fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 	fy_int handle = fy_hashMapIGet(context->memblocks, context->fieldObjIds,
 			field->field_id);
 	FYEH()-1;
-	if (handle == -1) {
+	if (unlikely(handle == -1)) {
 		fy_heapBeginProtect(context);
 		handle = fy_heapAllocate(context, ficl, exception);
 		fy_heapGetObject(context,handle)->object_data->fieldId =
@@ -1355,7 +1402,7 @@ fy_str *fy_vmCreateStringByPool(fy_context *context, fy_str *tmp,
 #ifdef FY_DEBUG
 	context->stringPoolTimes++;
 #endif
-	if (ret == NULL) {
+	if (unlikely(ret == NULL)) {
 		ret = fy_strCreatePermPersistClone(context->memblocks, tmp, exception);
 		FYEH()NULL;
 		fy_hashMapPut(context->memblocks, context->stringPool, ret, ret,
@@ -1383,7 +1430,7 @@ fy_str *fy_vmCreateStringByPoolVA(fy_context *context, fy_strVA *va,
 #ifdef FY_DEBUG
 	context->stringPoolTimes++;
 #endif
-	if (ret == NULL) {
+	if (unlikely(ret == NULL)) {
 		ret = fy_strCreatePermPersistVA(context->memblocks, va, exception);
 		FYEH()NULL;
 		fy_hashMapPut(context->memblocks, context->stringPool, ret, ret,

@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef FISCEDEV_H_
@@ -26,14 +26,11 @@
 extern "C" {
 #endif
 
-FY_ATTR_EXPORT void fy_nativeReturnInt(fy_context *context, fy_thread *thread,
-		fy_int value);
+FY_ATTR_EXPORT void fy_nativeReturnInt(fy_stack_item *spp, fy_int value);
 
-FY_ATTR_EXPORT void fy_nativeReturnHandle(fy_context *context,
-		fy_thread *thread, fy_int value);
+FY_ATTR_EXPORT void fy_nativeReturnHandle(fy_stack_item *spp, fy_int value);
 
-FY_ATTR_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
-		fy_long value);
+FY_ATTR_EXPORT void fy_nativeReturnLong(fy_stack_item *spp, fy_long value);
 #define fy_nativeReturnFloat(C,T,V) fy_nativeReturnInt(C,T,fy_floatToInt(V))
 #define fy_nativeReturnDouble(C,T,V) fy_nativeReturnLong(C,T,fy_doubleToLong(V))
 FY_ATTR_EXPORT fy_class *fy_nativeLookupClass(fy_context *context, fy_str *name,
@@ -187,8 +184,9 @@ FY_ATTR_EXPORT void fy_nativePutStaticFloat(fy_context *context,
 FY_ATTR_EXPORT void fy_nativePutStaticDouble(fy_context *context,
 		fy_field *field, fy_double value, fy_exception *exception);
 
-FY_ATTR_EXPORT void fy_nativeRegisterNativeHandler(fy_context *context, const char *name,
-        void *data, fy_nhFunction handler, fy_exception *exception);
+FY_ATTR_EXPORT void fy_nativeRegisterNativeHandler(fy_context *context,
+		const char *name, void *data, fy_nhFunction handler,
+		fy_exception *exception);
 FY_ATTR_EXPORT void fy_nativeUnRegisterNativeHandler(fy_context *context,
 		const char *name, fy_exception *exception);
 #ifdef	__cplusplus

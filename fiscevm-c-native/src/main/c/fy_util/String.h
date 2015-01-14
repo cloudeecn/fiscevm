@@ -70,7 +70,7 @@ typedef struct fy_strVA {
 #define FY_STR_HASHED 4
 
 /*Set to 1 for eclipse to search all direct usage of string->content*/
-#if 1
+#if 0
 FY_ATTR_EXPORT fy_char fy_strGet0(const fy_str *str, fy_int pos);
 # define fy_strGet(STR,POS) fy_strGet0((STR),(POS))
 #else
@@ -114,7 +114,7 @@ FY_ATTR_EXPORT fy_boolean fy_strEndsWith(fy_str *this, fy_str *comp);
 
 FY_ATTR_EXPORT void fy_strClear(fy_str *this);
 
-FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, fy_str *str);
+FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, const fy_str *str);
 FY_ATTR_EXPORT char *fy_strToUTF8Perm(fy_memblock *block, fy_str *from,
 		fy_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to);

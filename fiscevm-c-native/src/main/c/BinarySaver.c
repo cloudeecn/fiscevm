@@ -1,7 +1,7 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
  *fiscevmis free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,7 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "fyc/BinarySaver.h"
@@ -132,7 +132,8 @@ static void writeChar(FILE *fp, fy_char value, fy_exception *exception) {
 static void* saveBegin(struct fy_context *context, fy_exception *exception) {/*TODO*/
 	FILE *fp = fopen(context->saveloadParam, "wb");
 	if (fp == NULL) {
-		fy_fault(exception, FY_EXCEPTION_IO, "Can't open %s for save.", context->saveloadParam);
+		fy_fault(exception, FY_EXCEPTION_IO, "Can't open %s for save.",
+				context->saveloadParam);
 		return NULL;
 	}
 	writeInt(fp, 0x11BF15CE, exception);
@@ -157,7 +158,7 @@ static void saveClass(struct fy_context *context, void *saver, fy_uint classId,
 	writeInt(fp, clinited, exception);
 	writeInt(fp, imax = name->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeChar(fp, fy_strGet(name,i), exception);
+		writeChar(fp, fy_strGet(name, i), exception);
 	}
 	writeInt(fp, imax = staticSize, exception);
 	for (i = 0; i < imax; i++) {
@@ -184,7 +185,7 @@ static void saveMethod(struct fy_context *context, void *saver,
 	writeInt(fp, handle, exception);
 	writeInt(fp, imax = uniqueName->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeChar(fp, fy_strGet(uniqueName,i), exception);
+		writeChar(fp, fy_strGet(uniqueName, i), exception);
 	}
 }
 static void saveEndMethod(struct fy_context *context, void *saver,
@@ -206,7 +207,7 @@ static void saveField(struct fy_context *context, void *saver, fy_uint fieldId,
 	writeInt(fp, handle, exception);
 	writeInt(fp, imax = uniqueName->length, exception);
 	for (i = 0; i < imax; i++) {
-		writeChar(fp, fy_strGet(uniqueName,i), exception);
+		writeChar(fp, fy_strGet(uniqueName, i), exception);
 	}
 }
 static void saveEndField(struct fy_context *context, void *saver,
@@ -273,8 +274,8 @@ static void saveThread(struct fy_context *context, void *saver,
 		fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
 		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
 		fy_uint pendingLockCount, fy_uint waitForLockId,
-		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
-		fy_uint *typeStack, fy_exception *exception) {
+		fy_uint waitForNotifyId, fy_uint stackSize, fy_stack_item *stack,
+		fy_exception *exception) {
 	FILE *fp = saver;
 	int i;
 	writeInt(fp, 0xF15CE00D, exception);
@@ -291,10 +292,7 @@ static void saveThread(struct fy_context *context, void *saver,
 	writeInt(fp, waitForNotifyId, exception);
 	writeInt(fp, stackSize, exception);
 	for (i = 0; i < stackSize; i++) {
-		writeInt(fp, stack[i], exception);
-	}
-	for (i = 0; i < (stackSize + 31) / 32; i++) {
-		writeInt(fp, typeStack[i], exception);
+		writeInt(fp, stack[i].ivalue, exception);
 	}
 }
 static void savePrepareFrame(struct fy_context *context, void *saver,
@@ -303,15 +301,13 @@ static void savePrepareFrame(struct fy_context *context, void *saver,
 	writeInt(fp, count, exception);
 }
 static void saveFrame(struct fy_context *context, void *saver, fy_uint methodId,
-		fy_uint sb, fy_uint sp, fy_uint pc, fy_uint lpc,
-		fy_exception *exception) {
+		fy_uint sb, fy_uint lpc, fy_int pcofs, fy_exception *exception) {
 	FILE *fp = saver;
 	writeInt(fp, 0xf15ce00e, exception);
 	writeInt(fp, methodId, exception);
 	writeInt(fp, sb, exception);
-	writeInt(fp, sp, exception);
-	writeInt(fp, pc, exception);
 	writeInt(fp, lpc, exception);
+	writeInt(fp, pcofs, exception);
 }
 static void saveEndFrame(struct fy_context *context, void *saver,
 		fy_exception *exception) {
@@ -428,16 +424,16 @@ static void readString(fy_context *context, FILE *fp, fy_str *str, fy_int size,
 
 static void loadData(struct fy_context *context, fy_exception *exception) {
 	FILE *fp = fopen(context->saveloadParam, "rb");
-    if(fp == NULL){
-        fy_fault(exception, FY_EXCEPTION_IO, "Can't load %s for load.", context->saveloadParam);
-    }
+	if (fp == NULL) {
+		fy_fault(exception, FY_EXCEPTION_IO, "Can't load %s for load.",
+				context->saveloadParam);
+	}
 	void *loader;
 	fy_uint i, j;
 	fy_uint classCount;
 	fy_str strbuf[1];
 	fy_int uintbufSize = 0;
 	fy_uint *uintbuf;
-	fy_int uintbufSize2 = 0;
 	fy_uint *uintbuf2 = NULL;
 
 	fy_uint nameSize;
@@ -484,9 +480,8 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	fy_int frameCount;
 	fy_int methodId;
 	fy_int sb;
-	fy_int sp;
-	fy_int pc;
 	fy_int lpc;
+	fy_int pcofs;
 
 	fy_thread *thread;
 
@@ -646,14 +641,10 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 		readUIntBlock(context, fp, &uintbufSize, &uintbuf, stackSize,
 				exception);
 		FYEH();
-		readUIntBlock(context, fp, &uintbufSize2, &uintbuf2,
-				(stackSize + 31) / 32, exception);
-		FYEH();
 		thread = fy_loadThread(context, loader, id, handle, priority, daemon,
 				destroyPending, interrupted,
-				fy_I2TOL(nextWakeUpTimeH,nextWakeUpTimeL), pendingLockCount,
-				waitForLockId, waitForNotifyId, stackSize, uintbuf, uintbuf2,
-				exception);
+				fy_I2TOL(nextWakeUpTimeH, nextWakeUpTimeL), pendingLockCount,
+				waitForLockId, waitForNotifyId, stackSize, uintbuf, exception);
 		FYEH();
 		frameCount = readInt(fp, exception);
 		FYEH();
@@ -665,13 +656,11 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 			FYEH();
 			sb = readInt(fp, exception);
 			FYEH();
-			sp = readInt(fp, exception);
-			FYEH();
-			pc = readInt(fp, exception);
-			FYEH();
 			lpc = readInt(fp, exception);
 			FYEH();
-			fy_loadFrame(context, loader, thread, methodId, sb, sp, pc, lpc,
+			pcofs = readInt(fp, exception);
+			FYEH();
+			fy_loadFrame(context, loader, thread, methodId, sb, lpc, pcofs,
 					exception);
 			FYEH();
 		}

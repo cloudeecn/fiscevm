@@ -1,20 +1,20 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
- *fiscevmis free software: you can redistribute it and/or modify
+ * fiscevm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- *fiscevmis distributed in the hope that it will be useful,
+ * fiscevm is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef FY_THREADMANAGER_H_
@@ -24,17 +24,17 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-void fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
-		fy_uint monitorId);
-void fy_tmMonitorExit(fy_context *context, fy_thread *thread, fy_uint monitorId,
+fy_int fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
+		fy_uint monitorId, fy_int ops);
+fy_int fy_tmMonitorExit(fy_context *context, fy_thread *thread, fy_uint monitorId, fy_int ops,
 		fy_exception *exception);
 void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time);
 void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
 		fy_exception *exception);
 fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
 		fy_boolean clear, fy_exception *exception);
-void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
-		fy_long time, fy_exception *exception);
+fy_int fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
+		fy_long time, fy_int ops, fy_exception *exception);
 void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 		fy_boolean all, fy_exception *exception);
 fy_boolean fy_tmIsAlive(fy_context *context, fy_uint threadHandle,

@@ -1,7 +1,7 @@
 /**
  *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- * This file is part offiscevm
+ * This file is part of fiscevm
  *
  *fiscevmis free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,12 +14,12 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "fyc/Instructions.h"
 #include <math.h>
 
-const char *FY_OP_NAME[256] = { /**/
+const char *FY_OP_NAME[512] = { /**/
 "NOP", /* 0x00 */
 "ACONST_NULL", /* 0x01 */
 "ICONST_M1", /* 0x02 */

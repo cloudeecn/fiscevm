@@ -6,6 +6,10 @@ public class TestService {
 	public static native void fail0(String message);
 
 	public static void fail(String message) {
+		if (FiScEVM.isFiScE) {
+			FiScEVM.errorOut(message);
+			FiScEVM.breakpoint();
+		}
 		try {
 			throw new RuntimeException(message);
 		} catch (RuntimeException e) {
@@ -19,8 +23,23 @@ public class TestService {
 	}
 
 	public static void fail(String message, Throwable e) {
+		if (FiScEVM.isFiScE) {
+			FiScEVM.errorOut("Exception occored");
+			FiScEVM.errorOut(e.getClass().getName());
+			FiScEVM.errorOut(message);
+			FiScEVM.breakpoint();
+		}
 		e.printStackTrace(FiScEVM.debug);
-		fail(message);
+		try {
+			throw new RuntimeException(message);
+		} catch (RuntimeException ex) {
+			ex.printStackTrace(FiScEVM.debug);
+		}
+		if (FiScEVM.isFiScE) {
+			fail0(message);
+		} else {
+			System.out.println("Test Failed: " + message);
+		}
 	}
 
 	public static void assertTrue(boolean value) {
@@ -43,6 +62,21 @@ public class TestService {
 			if (!expected.equals(actual)) {
 				fail("Assertion error: expected[" + expected + "] but actual["
 						+ actual + "]");
+			}
+		}
+	}
+
+	public static void assertEqual(Object expected, Object actual,
+			String description) {
+		if (expected == null) {
+			if (actual != null) {
+				fail("Assertion error:[" + description + "] = expected["
+						+ expected + "] but actual[" + actual + "]");
+			}
+		} else {
+			if (!expected.equals(actual)) {
+				fail("Assertion error:[" + description + "] = expected["
+						+ expected + "] but actual[" + actual + "]");
 			}
 		}
 	}
