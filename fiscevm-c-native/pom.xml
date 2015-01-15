@@ -359,7 +359,7 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-out/osx64" />
-										<exec executable="${cross.prefix.osx64}-clang" dir="${project.build.directory}/libfisce-out/osx64" failonerror="true">
+										<exec executable="${cross.prefix.osx64}-gcc" dir="${project.build.directory}/libfisce-out/osx64" failonerror="true">
 											<!-- 
 											<arg value="-I/usr/x86_64-apple-darwin9/lib/gcc/x86_64-apple-darwin9/4.0.1/include" />
 											 -->
@@ -371,6 +371,7 @@
 											<arg value="-Wl,-headerpad_max_install_names" />
 											<arg value="-m64" />
 											<arg value="-fPIC" />
+											<arg value="-flto" />
 											<arg value="-o" />
 											<arg value="libfyjni64.jnilib" />
 											<arg value="${basedir}/src/main/c/Debug.c" />
@@ -392,6 +393,7 @@
 											<arg value="${basedir}/src/main/c/Instructions.c" />
 											<arg value="${basedir}/src/main/c/Preverifier.c" />
 											<arg value="${basedir}/src/main/c/Thread.c" />
+											<arg value="${basedir}/src/main/c/Engine.c" />
 											<arg value="${basedir}/src/main/c/ThreadManager.c" />
 											<arg value="${basedir}/src/main/c/VMContext.c" />
 											<arg value="${basedir}/src/main/c/ExpDev.c" />
@@ -405,7 +407,7 @@
 										</exec>
 										
 										<mkdir dir="${project.build.directory}/libfisce-out/osx32" />
-										<exec executable="${cross.prefix.osx32}-clang" dir="${project.build.directory}/libfisce-out/osx32" failonerror="true">
+										<exec executable="${cross.prefix.osx32}-gcc" dir="${project.build.directory}/libfisce-out/osx32" failonerror="true">
 											<!-- 
 											<arg value="-I/usr/i686-apple-darwin9/lib/gcc/i686-apple-darwin9/4.0.1/include" />
 												 -->
@@ -417,6 +419,7 @@
 											<arg value="-Wl,-headerpad_max_install_names" />
 											<arg value="-m64" />
 											<arg value="-fPIC" />
+											<arg value="-flto" />
 											<arg value="-o" />
 											<arg value="libfyjni.jnilib" />
 											<arg value="${basedir}/src/main/c/Debug.c" />
@@ -438,6 +441,7 @@
 											<arg value="${basedir}/src/main/c/Instructions.c" />
 											<arg value="${basedir}/src/main/c/Preverifier.c" />
 											<arg value="${basedir}/src/main/c/Thread.c" />
+											<arg value="${basedir}/src/main/c/Engine.c" />
 											<arg value="${basedir}/src/main/c/ThreadManager.c" />
 											<arg value="${basedir}/src/main/c/VMContext.c" />
 											<arg value="${basedir}/src/main/c/ExpDev.c" />
