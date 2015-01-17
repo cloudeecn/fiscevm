@@ -249,6 +249,33 @@
 						</executions>
 					</plugin>
 					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>2.6</version>
+						<executions>
+							<execution>
+								<id>native-linux-copy-lib-native-test-java</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${project.build.directory}/libfisce-out/linux</directory>
+											<filtering>false</filtering>
+											<includes>
+												<include>*.so</include>
+												<include>*.dll</include>
+												<include>*.jnilib</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<version>2.4</version>
 						<executions>
@@ -268,15 +295,6 @@
 					</plugin>
 				</plugins>
 			</build>
-			<dependencies>
-				<dependency>
-					<groupId>com.cirnoworks.fisce</groupId>
-					<artifactId>fiscevm-c-native</artifactId>
-					<version>${project.version}</version>
-					<classifier>linux</classifier>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
 		</profile>
 		<profile>
 			<id>cross-windows</id>
