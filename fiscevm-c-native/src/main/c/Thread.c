@@ -769,10 +769,10 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			}
 		}
 		if (thread->pendingNative.method) {
-			thread->pendingNative.method = NULL;
 			message->messageType = message_invoke_native;
 			message->thread = thread;
 			message->body.call = thread->pendingNative;
+            thread->pendingNative.method = NULL;
 		}
 	}
 }
