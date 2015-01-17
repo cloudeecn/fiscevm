@@ -20,11 +20,6 @@
 			<artifactId>fiscevm-intf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.cirnoworks.fisce</groupId>
-			<artifactId>fiscevm-intf</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 	</dependencies>
 </project>
 
