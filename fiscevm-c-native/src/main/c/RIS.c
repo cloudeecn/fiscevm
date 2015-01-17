@@ -21,6 +21,7 @@
 #include "fy_util/String.h"
 #include "fyc/Heap.h"
 #include "fyc/VMContext.h"
+#include "fyc/Thread.h"
 
 static fy_int RISBind0(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
@@ -96,7 +97,7 @@ static fy_int RISRead0(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	fy_object *stream = fy_heapGetObject(context,args[0].uvalue);
 	fy_inputStream *is = context->aliveStreams[stream->object_data->streamId];
-	fy_nativeReturnInt(args, is->isRead(context, is, exception));
+	fy_threadReturnInt(args, is->isRead(context, is, exception));
 	FYEH()0;
 	return ops - 1;
 }
@@ -125,7 +126,7 @@ static fy_int RISRead0BII(struct fy_context *context, struct fy_thread *thread,
 	if (len >= 0) {
 		memcpy(target + pos, buf, len);
 	}
-	fy_nativeReturnInt(args, len);
+	fy_threadReturnInt(args, len);
 	return ops - 1;
 }
 

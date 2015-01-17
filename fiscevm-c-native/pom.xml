@@ -46,6 +46,26 @@
 								</configuration>
 							</execution>
 							<execution>
+								<id>native-make-test-java</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test-java/native" />
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test-java/native" failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Debug" />
+											<arg value="-DENABLE_TEST=OFF" />
+											<arg value="-DENABLE_LIBS=OFF" />
+											<arg value="-DENABLE_JNI=ON" />
+											<arg value="${basedir}/src/main/c" />
+										</exec>
+										<exec executable="make" dir="${project.build.directory}/libfisce-test-java/native" failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
 								<id>native-make-test</id>
 								<phase>generate-test-resources</phase>
 								<goals>
@@ -85,6 +105,7 @@
 						<artifactId>maven-resources-plugin</artifactId>
 						<version>2.6</version>
 						<executions>
+<!-- 
 							<execution>
 								<id>copy-lib-native</id>
 								<phase>process-resources</phase>
@@ -96,6 +117,28 @@
 									<resources>
 										<resource>
 											<directory>${project.build.directory}/libfisce-out/native</directory>
+											<filtering>false</filtering>
+											<includes>
+												<include>*.so</include>
+												<include>*.dll</include>
+												<include>*.jnilib</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+ -->
+							<execution>
+								<id>copy-lib-native-test-java</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${project.build.directory}/libfisce-test-java/native</directory>
 											<filtering>false</filtering>
 											<includes>
 												<include>*.so</include>
@@ -664,7 +707,12 @@
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>com.cirnoworks.fisce</groupId>
+			<artifactId>fiscevm-c</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.cirnoworks.fisce</groupId>
 			<artifactId>fiscevm-runtime</artifactId>

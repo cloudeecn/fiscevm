@@ -31,7 +31,6 @@ static jfieldID nativeUniqueNameField;
 static jfieldID exceptionNameField;
 static jfieldID exceptionDescField;
 static jfieldID sleepTimeField;
-static jfieldID sppField;
 static jclass fisceService;
 static jmethodID logD, logI, logW, logE, getInputStream;
 static jclass inputStream;
@@ -319,7 +318,7 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 	if (messageClass == NULL) {
 		messageClass = (*env)->NewGlobalRef(env,
 				(*env)->FindClass(env,
-						"com/cirnoworks/libfisce/shell/FyMessage"));
+						"com/cirnoworks/fisce/intf/idata/Message"));
 		if ((*env)->ExceptionOccurred(env)) {
 			(*env)->ExceptionDescribe(env);
 			return;
@@ -357,11 +356,6 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_initContext(
 		}
 		sleepTimeField = (*env)->GetFieldID(env, messageClass, "sleepTime",
 				"J");
-		if ((*env)->ExceptionOccurred(env)) {
-			(*env)->ExceptionDescribe(env);
-			return;
-		}
-		sppField = (*env)->GetFieldID(env, messageClass, "spp", "J");
 		if ((*env)->ExceptionOccurred(env)) {
 			(*env)->ExceptionDescribe(env);
 			return;
@@ -783,17 +777,9 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldOwner(
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnHandle(
 		JNIEnv *env, jclass self, jobject buf, jint threadId, jint value) {
 	fy_thread *thread;
-	fy_frame *frame;
-	fy_int sp;
 	GENERIC_HEADER
 	thread = context->threads[threadId];
-	frame = fy_threadCurrentFrame(context, thread);
-	sp = frame->method->instructions[frame->lpc + 1].sp - 1;
-	if (sp < frame->method->max_stack
-			|| sp >= frame->method->max_stack + frame->method->max_locals) {
-		fy_fault(exception, NULL, "Illegal sp %"FY_PRINT32"d", sp);
-	}
-	fy_nativeReturnHandle(frame->baseSpp + sp, value);
+	fy_nativeReturnHandle(context, thread, value);
 }
 
 /*
@@ -804,17 +790,9 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnHandle(
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnInt(
 		JNIEnv *env, jclass self, jobject buf, jint threadId, jint value) {
 	fy_thread *thread;
-	fy_frame *frame;
-	fy_int sp;
 	GENERIC_HEADER
 	thread = context->threads[threadId];
-	frame = fy_threadCurrentFrame(context, thread);
-	sp = frame->method->instructions[frame->lpc + 1].sp - 1;
-	if (sp < frame->method->max_stack
-			|| sp >= frame->method->max_stack + frame->method->max_locals) {
-		fy_fault(exception, NULL, "Illegal sp %"FY_PRINT32"d", sp);
-	}
-	fy_nativeReturnInt(frame->baseSpp + sp, value);
+	fy_nativeReturnInt(context, thread, value);
 }
 
 /*
@@ -825,17 +803,9 @@ void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnInt(
 void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_threadReturnWide(
 		JNIEnv *env, jclass self, jobject buf, jint threadId, jlong value) {
 	fy_thread *thread;
-	fy_frame *frame;
-	fy_int sp;
 	GENERIC_HEADER
 	thread = context->threads[threadId];
-	frame = fy_threadCurrentFrame(context, thread);
-	sp = frame->method->instructions[frame->lpc + 1].sp - 1;
-	if (sp < frame->method->max_stack
-			|| sp >= frame->method->max_stack + frame->method->max_locals) {
-		fy_fault(exception, NULL, "Illegal sp %"FY_PRINT32"d", sp);
-	}
-	fy_nativeReturnLong(frame->baseSpp + sp, value);
+	fy_nativeReturnLong(context, thread, value);
 }
 
 /*

@@ -26,13 +26,15 @@
 extern "C" {
 #endif
 
-FY_ATTR_EXPORT void fy_nativeReturnInt(fy_stack_item *spp, fy_int value);
-
-FY_ATTR_EXPORT void fy_nativeReturnHandle(fy_stack_item *spp, fy_int value);
-
-FY_ATTR_EXPORT void fy_nativeReturnLong(fy_stack_item *spp, fy_long value);
+FY_ATTR_EXPORT void fy_nativeReturnInt(fy_context *context, fy_thread *thread,
+		fy_int value);
+FY_ATTR_EXPORT void fy_nativeReturnHandle(fy_context *context,
+		fy_thread *thread, fy_int value);
+FY_ATTR_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
+		fy_long value);
 #define fy_nativeReturnFloat(C,T,V) fy_nativeReturnInt(C,T,fy_floatToInt(V))
 #define fy_nativeReturnDouble(C,T,V) fy_nativeReturnLong(C,T,fy_doubleToLong(V))
+
 FY_ATTR_EXPORT fy_class *fy_nativeLookupClass(fy_context *context, fy_str *name,
 		fy_exception *exception);
 FY_ATTR_EXPORT fy_field *fy_nativeGetField(fy_context *context, fy_str *name);

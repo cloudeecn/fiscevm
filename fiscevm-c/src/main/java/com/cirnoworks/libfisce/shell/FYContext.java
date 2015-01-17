@@ -194,11 +194,16 @@ public class FYContext extends AbstractVM implements Runnable {
 		}
 		return 0;
 	}
-
+	
 	public void start() throws VMException {
 		runningSet.set(true);
 		runningCurrent.set(true);
 		new Thread(this).start();
+	}
+	
+	public void runSync() throws VMException{
+		runningSet.set(true);
+		run();
 	}
 
 	public void addStateListener(IStateListener isl) {
