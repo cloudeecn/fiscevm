@@ -224,7 +224,7 @@ const char *FY_OP_NAME[512] = { /**/
 "JSR_W", /* 0xC9 */
 "BREAKPOINT" /* 0xCA */};
 
-void fy_instInitStackItem(fy_memblock *block, fy_instruction *instruction,
+void fy_instInitStackItem(fy_memblock *block, fy_instruction_extra *instruction,
 		fy_int size, fy_exception *exception) {
 	instruction->sp = size;
 	if (size <= 64) {
@@ -239,7 +239,7 @@ static inline fy_int imin(fy_int a, fy_int b) {
 	return a < b ? a : b;
 }
 
-void fy_instStackItemClone(fy_instruction *from, fy_instruction *to) {
+void fy_instStackItemClone(fy_instruction_extra *from, fy_instruction_extra *to) {
 	fy_int size;
 	if (from->sp <= 64 && to->sp <= 64) {
 		to->s.stackTypeContent = from->s.stackTypeContent;
@@ -257,7 +257,7 @@ void fy_instStackItemClone(fy_instruction *from, fy_instruction *to) {
 #endif
 }
 
-void fy_instMarkStackItem(fy_instruction *instruction, fy_int pos,
+void fy_instMarkStackItem(fy_instruction_extra *instruction, fy_int pos,
 		fy_long isHandle) {
 	fy_ulong mkOr;
 	fy_ulong mkAnd;
@@ -280,7 +280,7 @@ void fy_instMarkStackItem(fy_instruction *instruction, fy_int pos,
 	}
 }
 
-fy_int fy_instGetStackItem(fy_instruction *instruction, fy_int pos) {
+fy_int fy_instGetStackItem(fy_instruction_extra *instruction, fy_int pos) {
 	if (instruction->sp <= 64) {
 		return -((instruction->s.stackTypeContent >> pos) & 1);
 	} else {

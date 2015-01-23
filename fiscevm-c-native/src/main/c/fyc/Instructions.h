@@ -273,12 +273,12 @@ extern "C" {
 #endif
 extern const char *FY_OP_NAME[512];
 
-void fy_instInitStackItem(fy_memblock *block, fy_instruction *instruction,
+void fy_instInitStackItem(fy_memblock *block, fy_instruction_extra *instruction,
 		fy_int size, fy_exception *exception) ;
-void fy_instStackItemClone(fy_instruction *from, fy_instruction *to);
-void fy_instMarkStackItem(fy_instruction *instruction, fy_int pos,
+void fy_instStackItemClone(fy_instruction_extra *from, fy_instruction_extra *to);
+void fy_instMarkStackItem(fy_instruction_extra *instruction, fy_int pos,
 		fy_long isHandle);
-fy_int fy_instGetStackItem(fy_instruction *instruction, fy_int pos);
+fy_int fy_instGetStackItem(fy_instruction_extra *instruction, fy_int pos);
 #ifdef	__cplusplus
 }
 #endif

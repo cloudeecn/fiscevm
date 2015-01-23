@@ -25,7 +25,7 @@ FY_ATTR_EXPORT void fy_nativeReturnInt(fy_context *context, fy_thread *thread,
 	fy_int sp;
 	fy_stack_item *spp;
 	frame = fy_threadCurrentFrame(context, thread);
-	sp = frame->method->instructions[frame->lpc + frame->pcofs].sp - 1;
+	sp = frame->method->instruction_extras[frame->lpc + frame->pcofs].sp - 1;
 	if (sp < frame->method->max_stack
 			|| sp >= frame->method->max_stack + frame->method->max_locals) {
 		fy_fault(NULL, NULL, "Illegal sp %"FY_PRINT32"d", sp);
@@ -40,7 +40,7 @@ FY_ATTR_EXPORT void fy_nativeReturnHandle(fy_context *context,
 	fy_int sp;
 	fy_stack_item *spp;
 	frame = fy_threadCurrentFrame(context, thread);
-	sp = frame->method->instructions[frame->lpc + frame->pcofs].sp - 1;
+	sp = frame->method->instruction_extras[frame->lpc + frame->pcofs].sp - 1;
 	if (sp < frame->method->max_stack
 			|| sp >= frame->method->max_stack + frame->method->max_locals) {
 		fy_fault(NULL, NULL, "Illegal sp %"FY_PRINT32"d", sp);
@@ -55,7 +55,7 @@ FY_ATTR_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
 	fy_int sp;
 	fy_stack_item *spp;
 	frame = fy_threadCurrentFrame(context, thread);
-	sp = frame->method->instructions[frame->lpc + frame->pcofs].sp - 1;
+	sp = frame->method->instruction_extras[frame->lpc + frame->pcofs].sp - 1;
 	if (sp < frame->method->max_stack
 			|| sp >= frame->method->max_stack + frame->method->max_locals) {
 		fy_fault(NULL, NULL, "Illegal sp %"FY_PRINT32"d", sp);

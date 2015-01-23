@@ -772,7 +772,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 			message->messageType = message_invoke_native;
 			message->thread = thread;
 			message->body.call = thread->pendingNative;
-            thread->pendingNative.method = NULL;
+			thread->pendingNative.method = NULL;
 		}
 	}
 }
@@ -859,7 +859,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 	fy_object *object;
 	fy_int i, maxSp;
 	fy_int frameId, frameIdMax;
-	fy_instruction *ipp, *nipp;
+	fy_instruction_extra *ipp, *nipp;
 
 	frameIdMax = thread->frameCount - 1;
 	if (frameIdMax == 0) {
@@ -870,7 +870,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 		/*not last frame, must be an a invoke, or clinit by invoke, new, get/put static op, or lpc=0, pcofs=1, or thread is holding. It's ok to use nipp for all situation */
 		frame = FY_GET_FRAME(thread, frameId);
 		method = frame->method;
-		ipp = method->instructions + frame->lpc + frame->pcofs;
+		ipp = method->instruction_extras + frame->lpc + frame->pcofs;
 		maxSp = ipp->sp;
 		sbase = frame->baseSpp;
 		for (i = 0; i < maxSp; i++) {
@@ -893,7 +893,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 	}
 	frame = FY_GET_FRAME(thread, frameId);
 	method = frame->method;
-	ipp = method->instructions + frame->lpc;
+	ipp = method->instruction_extras + frame->lpc;
 	nipp = ipp + frame->pcofs
 			- ((frame->lpc + frame->pcofs >= method->codeLength) & 1);
 	maxSp = fy_maxi(ipp->sp, nipp->sp);

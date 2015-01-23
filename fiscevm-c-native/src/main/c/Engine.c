@@ -81,7 +81,7 @@
 #if THREADING_SCHEME==1
 /* direct threading scheme 1: autoinc, long latency (HPPA, Sharc) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + NEXT_INST.sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
 #  define NEXT_P0	({cfa=(ipp++)->inst;})
 #  define IP		(ipp-1)
 #  define PCURR_INST		(ipp-2)
@@ -96,7 +96,7 @@
 #if THREADING_SCHEME==3
 /* direct threading scheme 3: autoinc, low latency (68K) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + PCURR_INST->sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
 #  define NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
@@ -111,7 +111,7 @@
 #if THREADING_SCHEME==5
 /* direct threading scheme 5: early fetching (Alpha, MIPS) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + PCURR_INST->sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
 #  define CFA_NEXT
 #  define NEXT_P0	({cfa=ipp->inst;})
 #  define IP		(ipp)
@@ -127,7 +127,7 @@
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
 #  define NEXT_P0
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + PCURR_INST->sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
@@ -145,7 +145,7 @@
  schedule the mtctr instruction. */
 #  define USE_CFA 1
 #  define NEXT_P0
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + PCURR_INST->sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
 #  define IP		ipp
 #  define SET_IP(p)	({ipp=instructions + (p); next_cfa=ipp->inst; NEXT_P0;})
 #  define PCURR_INST		(ipp-1)
@@ -162,7 +162,7 @@
 /* direct threading scheme 10: plain (no attempt at scheduling) */
 #  define USE_CFA
 #  define REGISTER_CFA
-#  define ENGINE_ENTER ({NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + CURR_INST.sp; NEXT_P2;})
+#  define ENGINE_ENTER ({NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
 #  define NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
@@ -173,6 +173,7 @@
 #  define NEXT_P1	({cfa = (ipp++)->inst; ops--;})
 #  define NEXT_P2	({goto *cfa;})
 #endif
+
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
 #define IPTOS ((NEXT_INST))
@@ -309,7 +310,7 @@ if(unlikely(ops <= 0)){ \
 #endif
 
 #define FY_UPDATE_SP(context, ptrFrame) { \
-	spp = ptrFrame->baseSpp + NEXT_INST.sp; \
+	spp = ptrFrame->baseSpp + method->instruction_extras[ptrFrame->lpc + ptrFrame->pcofs].sp; \
 }
 
 #define FY_THEH(FINALLY) \

@@ -81,6 +81,7 @@ extern "C" {
 #endif
 
 	typedef struct fy_instruction fy_instruction;
+	typedef struct fy_instruction_extra fy_instruction_extra;
 
 	typedef union stringInfo {
 		fy_char string_index;
@@ -260,7 +261,10 @@ extern "C" {
 		fy_uint codeLength;
 		union {
 			fy_ubyte *code;
-			fy_instruction *instructions;
+			struct{
+				fy_instruction *instructions;
+				fy_instruction_extra *instruction_extras;
+			};
 			struct fy_nh *nh;
 		};
 		fy_stack_map_table *stackMapTable;
@@ -773,8 +777,7 @@ extern "C" {
 		FY_VLS(fy_int,targets);
 	}fy_switch_table;
 
-	struct fy_instruction {
-		fy_e2_label inst;
+	struct fy_instruction_extra {
 		fy_int sp;
 #ifdef FY_STRICT_CHECK
 		fy_int op;
@@ -784,6 +787,11 @@ extern "C" {
 			fy_ulong stackTypeContent;
 			fy_ulong *stackTypeContents;
 		}s;
+	};
+
+	struct fy_instruction {
+		fy_e2_label inst;
+
 		union {
 			struct {
 				fy_int param1;
