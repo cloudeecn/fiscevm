@@ -30,6 +30,10 @@
 #define VM_DEBUG
 #endif
 
+#if 0
+# define ASM_CHECK
+#endif
+
 #define vm_fy_stack_item2i(_cell,_x)	((_x)=(_cell).uvalue)
 #define vm_i2fy_stack_item(_x,_cell)	((_cell).uvalue=(_x))
 #define vm_fy_stack_item2f(_cell,_x)	((_x)=(_cell).fvalue)
@@ -58,9 +62,19 @@
 #endif
 
 #ifdef VM_DEBUG
-#define NAME(_x) if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, stack));}
+# define NAME(_x) if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, stack));}
 #else
-#define NAME(_x)
+# ifdef ASM_CHECK
+#  define NAME(_x) puts(_x);
+# else
+#  define NAME(_x)
+# endif
+#endif
+
+#ifdef ASM_CHECK
+# define TRAP ({*((char*)0) = 1;})
+#else
+# define TRAP
 #endif
 
 /* different threading schemes for different architectures; the sparse
@@ -74,14 +88,14 @@
  for Gforth "make bench" on a 486, whereas scheme 5 is fastest for
  "mini fib.mini" on an Athlon */
 #ifndef THREADING_SCHEME
-#define THREADING_SCHEME 10
+#define THREADING_SCHEME 8
 #endif /* defined(THREADING_SCHEME) */
 
 #ifdef __GNUC__
 #if THREADING_SCHEME==1
 /* direct threading scheme 1: autoinc, long latency (HPPA, Sharc) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define NEXT_P0	({cfa=(ipp++)->inst;})
 #  define IP		(ipp-1)
 #  define PCURR_INST		(ipp-2)
@@ -96,7 +110,7 @@
 #if THREADING_SCHEME==3
 /* direct threading scheme 3: autoinc, low latency (68K) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
@@ -111,7 +125,7 @@
 #if THREADING_SCHEME==5
 /* direct threading scheme 5: early fetching (Alpha, MIPS) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define CFA_NEXT
 #  define NEXT_P0	({cfa=ipp->inst;})
 #  define IP		(ipp)
@@ -127,7 +141,7 @@
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
 #  define NEXT_P0
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
@@ -145,7 +159,7 @@
  schedule the mtctr instruction. */
 #  define USE_CFA 1
 #  define NEXT_P0
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
+#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define IP		ipp
 #  define SET_IP(p)	({ipp=instructions + (p); next_cfa=ipp->inst; NEXT_P0;})
 #  define PCURR_INST		(ipp-1)
@@ -162,7 +176,7 @@
 /* direct threading scheme 10: plain (no attempt at scheduling) */
 #  define USE_CFA
 #  define REGISTER_CFA
-#  define ENGINE_ENTER ({NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; NEXT_P2;})
+#  define ENGINE_ENTER ({NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
@@ -222,8 +236,13 @@ enum {
  ####### #     #  #####    ###   #     # ####### #######
  */
 
+#ifdef __GNUC__
+# define FY_FALLOUT_INVOKE {goto I_dropout;}
+# define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); goto I_dropout;}
+#else
 # define FY_FALLOUT_INVOKE {SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
 # define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
+#endif
 
 # define FY_CHECK_OPS if(unlikely(ops <= 0)){FY_FALLOUT_NOINVOKE}
 # define FY_CHECK_OPS_INVOKE if(unlikely(ops <= 0)){FY_FALLOUT_INVOKE}

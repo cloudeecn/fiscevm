@@ -18,7 +18,7 @@
 \C  register fy_stack_item *spp;
 \C
 \C  fy_instruction *instructions;
-\C  fy_stack_item *stack, *sbase;
+\C  fy_stack_item *sbase;
 \C
 \C  fy_memblock *block;
 \C
@@ -836,7 +836,7 @@ imul (i1 i2 -- ir)
 
 idiv (i1 i2 -- ir)
 {
-  if(i2 == 0){
+  if(unlikely(i2 == 0)){
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
     FY_THEH()
     ir = 0;
@@ -847,7 +847,7 @@ idiv (i1 i2 -- ir)
 
 irem (i1 i2 -- ir)
 {
-  if(i2 == 0){
+  if(unlikely(i2 == 0)){
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
     FY_THEH()
     ir = 0;
