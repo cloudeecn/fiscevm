@@ -210,12 +210,6 @@ typedef struct fy_port {
 #define fy_B4TOI(B1,B2,B3,B4) ((((fy_uint)(fy_ubyte)(B1))<<24)|(((fy_uint)(fy_ubyte)(B2))<<16)|(((fy_uint)(fy_ubyte)(B3))<<8)|((fy_uint)(fy_ubyte)(B4)))
 #define fy_HOFL(L) ((fy_int)(L>>32))
 #define fy_LOFL(L) ((fy_int)(L))
-FY_ATTR_EXPORT fy_long fy_doubleToLong(fy_double value);
-FY_ATTR_EXPORT fy_double fy_longToDouble(fy_long value);
-FY_ATTR_EXPORT fy_int fy_floatToInt(fy_float value);
-FY_ATTR_EXPORT fy_float fy_intToFloat(fy_int value);
-FY_ATTR_EXPORT fy_boolean fy_isnand(fy_double d);
-FY_ATTR_EXPORT fy_boolean fy_isnanf(fy_float f);
 
 FY_ATTR_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception);
 FY_ATTR_EXPORT void fy_free(void *target);
@@ -245,6 +239,44 @@ MAYBE_UNUSED inline static fy_int fy_mini(fy_int x,fy_int y){
 
 MAYBE_UNUSED inline static fy_int fy_maxi(fy_int x,fy_int y){
 	return x ^ ((x ^ y) & -(x < y));
+}
+
+union fy_dtol {
+	fy_double d;
+	fy_long l;
+};
+
+union fy_itof {
+	fy_float f;
+	fy_int i;
+};
+
+MAYBE_UNUSED inline static  fy_long fy_doubleToLong(fy_double value) {
+	union fy_dtol d;
+	d.d = value;
+	return d.l;
+}
+MAYBE_UNUSED inline static  fy_double fy_longToDouble(fy_long value) {
+	union fy_dtol d;
+	d.l = value;
+	return d.d;
+}
+MAYBE_UNUSED inline static  fy_int fy_floatToInt(fy_float value) {
+	union fy_itof d;
+	d.f = value;
+	return d.i;
+}
+MAYBE_UNUSED inline static  fy_float fy_intToFloat(fy_int value) {
+	union fy_itof d;
+	d.i = value;
+	return d.f;
+}
+
+MAYBE_UNUSED inline static  fy_boolean fy_isnand(fy_double d) {
+	return d != d;
+}
+MAYBE_UNUSED inline static  fy_boolean fy_isnanf(fy_float f) {
+	return f != f;
 }
 
 #ifdef	__cplusplus

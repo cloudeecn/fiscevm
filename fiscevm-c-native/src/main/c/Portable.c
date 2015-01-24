@@ -106,44 +106,6 @@ void vm_dummy() {
 
 }
 
-union fy_dtol {
-	fy_double d;
-	fy_long l;
-};
-
-union fy_itof {
-	fy_float f;
-	fy_int i;
-};
-
-FY_ATTR_EXPORT fy_long fy_doubleToLong(fy_double value) {
-	union fy_dtol d;
-	d.d = value;
-	return d.l;
-}
-FY_ATTR_EXPORT fy_double fy_longToDouble(fy_long value) {
-	union fy_dtol d;
-	d.l = value;
-	return d.d;
-}
-FY_ATTR_EXPORT fy_int fy_floatToInt(fy_float value) {
-	union fy_itof d;
-	d.f = value;
-	return d.i;
-}
-FY_ATTR_EXPORT fy_float fy_intToFloat(fy_int value) {
-	union fy_itof d;
-	d.i = value;
-	return d.f;
-}
-
-FY_ATTR_EXPORT fy_boolean fy_isnand(fy_double d) {
-	return d != d;
-}
-FY_ATTR_EXPORT fy_boolean fy_isnanf(fy_float f) {
-	return f != f;
-}
-
 FY_ATTR_EXPORT void fy_portInit(fy_port *data) {
 	data->initTimeInMillSec = (fy_long) time(NULL) * 1000;
 #if defined(FY_PRT_WIN32)
