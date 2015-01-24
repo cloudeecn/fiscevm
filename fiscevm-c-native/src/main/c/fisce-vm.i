@@ -5,14 +5,13 @@ fy_engine_result FY_ENGINE_NAME(
     fy_context *context,
     fy_thread *thread,
     fy_frame *frame,
-    fy_int oops,
+    fy_int ops,
     fy_exception *exception) {
 #ifndef FY_LATE_DECLARATION
 #ifdef USE_CFA
   register fy_e2_label cfa;
 #endif
   register fy_instruction *ipp;
-  register fy_int ops = oops;
 #ifdef FY_USE_TOS
   register fy_stack_item sppTOS;
 #endif
@@ -55,18 +54,13 @@ fy_engine_result FY_ENGINE_NAME(
 
 
 #ifdef USE_CFA
-  register
-  fy_e2_label cfa;
+  register fy_e2_label cfa;
 #endif
-  register
-  fy_instruction *ipp;
-  register
-  fy_int ops = oops;
+  register fy_instruction *ipp;
 #ifdef FY_USE_TOS
   register fy_stack_item sppTOS;
 #endif
-  register
-  fy_stack_item *spp;
+  register fy_stack_item *spp;
 
   fy_instruction *instructions;
   fy_stack_item *stack, *sbase;
@@ -117,6 +111,7 @@ fy_engine_result FY_ENGINE_NAME(
     FY_ENGINE_CLINIT(method->owner, 0)
   }
 
+  
   ENGINE_ENTER;
 #endif
 LABEL(dropout) /* dropout ( -- ) */
@@ -130,7 +125,7 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 140 "fisce.vmg"
 {
   #ifdef VM_DEBUG
   if (vm_debug) {
@@ -139,7 +134,7 @@ if (vm_debug) {
   #endif
   goto label_fallout_invoke;
 }
-
+#line 138 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -163,9 +158,9 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 158 "fisce.vmg"
 ;
-
+#line 164 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -193,9 +188,9 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 161 "fisce.vmg"
 ;
-
+#line 194 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -227,9 +222,9 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 164 "fisce.vmg"
 ;
-
+#line 228 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -257,7 +252,7 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 175 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -266,7 +261,7 @@ spp += 1;
 #endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
-
+#line 265 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -295,7 +290,7 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 185 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -304,7 +299,7 @@ spp += 1;
 #endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
-
+#line 303 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -333,7 +328,7 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 195 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -342,7 +337,7 @@ spp += 1;
 #endif
   fy_threadGetLocalHandle(CURR_INST.params.int_params.param1, ir);
 }
-
+#line 341 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -371,11 +366,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 205 "fisce.vmg"
 {
   fy_threadGetLocalInt(0, ir);
 }
-
+#line 374 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -404,11 +399,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 210 "fisce.vmg"
 {
   fy_threadGetLocalInt(0, ir);
 }
-
+#line 407 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -437,11 +432,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 215 "fisce.vmg"
 {
   fy_threadGetLocalHandle(0, ir);
 }
-
+#line 440 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -470,11 +465,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 220 "fisce.vmg"
 {
   fy_threadGetLocalInt(1, ir);
 }
-
+#line 473 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -503,11 +498,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 225 "fisce.vmg"
 {
   fy_threadGetLocalInt(1, ir);
 }
-
+#line 506 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -536,11 +531,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 230 "fisce.vmg"
 {
   fy_threadGetLocalHandle(1, ir);
 }
-
+#line 539 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -569,11 +564,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 235 "fisce.vmg"
 {
   fy_threadGetLocalInt(2, ir);
 }
-
+#line 572 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -602,11 +597,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 240 "fisce.vmg"
 {
   fy_threadGetLocalInt(2, ir);
 }
-
+#line 605 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -635,11 +630,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 245 "fisce.vmg"
 {
   fy_threadGetLocalHandle(2, ir);
 }
-
+#line 638 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -668,11 +663,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 250 "fisce.vmg"
 {
   fy_threadGetLocalInt(3, ir);
 }
-
+#line 671 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -701,11 +696,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 255 "fisce.vmg"
 {
   fy_threadGetLocalInt(3, ir);
 }
-
+#line 704 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -734,11 +729,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 260 "fisce.vmg"
 {
   fy_threadGetLocalHandle(3, ir);
 }
-
+#line 737 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -768,7 +763,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 265 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -777,7 +772,7 @@ spp += -1;
 #endif
   fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
 }
-
+#line 776 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -806,7 +801,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 275 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -815,7 +810,7 @@ spp += -1;
 #endif
   fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
 }
-
+#line 814 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -844,7 +839,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 285 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -853,7 +848,7 @@ spp += -1;
 #endif
   fy_threadPutLocalHandle(CURR_INST.params.int_params.param1, i1);
 }
-
+#line 852 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -882,11 +877,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 295 "fisce.vmg"
 {
   fy_threadPutLocalInt(0, i1);
 }
-
+#line 885 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -915,11 +910,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 300 "fisce.vmg"
 {
   fy_threadPutLocalInt(0, i1);
 }
-
+#line 918 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -948,11 +943,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 305 "fisce.vmg"
 {
   fy_threadPutLocalHandle(0, i1);
 }
-
+#line 951 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -981,11 +976,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 310 "fisce.vmg"
 {
   fy_threadPutLocalInt(1, i1);
 }
-
+#line 984 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1014,11 +1009,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 315 "fisce.vmg"
 {
   fy_threadPutLocalInt(1, i1);
 }
-
+#line 1017 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1047,11 +1042,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 320 "fisce.vmg"
 {
   fy_threadPutLocalHandle(1, i1);
 }
-
+#line 1050 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1080,11 +1075,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 325 "fisce.vmg"
 {
   fy_threadPutLocalInt(2, i1);
 }
-
+#line 1083 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1113,11 +1108,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 330 "fisce.vmg"
 {
   fy_threadPutLocalInt(2, i1);
 }
-
+#line 1116 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1146,11 +1141,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 335 "fisce.vmg"
 {
   fy_threadPutLocalHandle(2, i1);
 }
-
+#line 1149 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1179,11 +1174,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 340 "fisce.vmg"
 {
   fy_threadPutLocalInt(3, i1);
 }
-
+#line 1182 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1212,11 +1207,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 345 "fisce.vmg"
 {
   fy_threadPutLocalInt(3, i1);
 }
-
+#line 1215 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1245,11 +1240,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 350 "fisce.vmg"
 {
   fy_threadPutLocalHandle(3, i1);
 }
-
+#line 1248 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1277,7 +1272,7 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 355 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -1286,7 +1281,7 @@ spp += 2;
 #endif
   fy_threadGetLocalLong(CURR_INST.params.int_params.param1, lr);
 }
-
+#line 1285 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1315,7 +1310,7 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 365 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -1324,7 +1319,7 @@ spp += 2;
 #endif
   fy_threadGetLocalLong(CURR_INST.params.int_params.param1, lr);
 }
-
+#line 1323 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1353,11 +1348,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 375 "fisce.vmg"
 {
   fy_threadGetLocalLong(0, lr);
 }
-
+#line 1356 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1386,11 +1381,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 380 "fisce.vmg"
 {
   fy_threadGetLocalLong(0, lr);
 }
-
+#line 1389 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1419,11 +1414,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 385 "fisce.vmg"
 {
   fy_threadGetLocalLong(1, lr);
 }
-
+#line 1422 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1452,11 +1447,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 390 "fisce.vmg"
 {
   fy_threadGetLocalLong(1, lr);
 }
-
+#line 1455 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1485,11 +1480,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 395 "fisce.vmg"
 {
   fy_threadGetLocalLong(2, lr);
 }
-
+#line 1488 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1518,11 +1513,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 400 "fisce.vmg"
 {
   fy_threadGetLocalLong(2, lr);
 }
-
+#line 1521 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1551,11 +1546,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 405 "fisce.vmg"
 {
   fy_threadGetLocalLong(3, lr);
 }
-
+#line 1554 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1584,11 +1579,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 410 "fisce.vmg"
 {
   fy_threadGetLocalLong(3, lr);
 }
-
+#line 1587 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1618,7 +1613,7 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 415 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -1627,7 +1622,7 @@ spp += -2;
 #endif
   fy_threadPutLocalLong(CURR_INST.params.int_params.param1, l1);
 }
-
+#line 1626 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1656,7 +1651,7 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 425 "fisce.vmg"
 {
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -1665,7 +1660,7 @@ spp += -2;
 #endif
   fy_threadPutLocalLong(CURR_INST.params.int_params.param1, l1);
 }
-
+#line 1664 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1694,11 +1689,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 435 "fisce.vmg"
 {
   fy_threadPutLocalLong(0, l1);
 }
-
+#line 1697 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1727,11 +1722,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 440 "fisce.vmg"
 {
   fy_threadPutLocalLong(0, l1);
 }
-
+#line 1730 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1760,11 +1755,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 445 "fisce.vmg"
 {
   fy_threadPutLocalLong(1, l1);
 }
-
+#line 1763 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1793,11 +1788,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 450 "fisce.vmg"
 {
   fy_threadPutLocalLong(1, l1);
 }
-
+#line 1796 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1826,11 +1821,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 455 "fisce.vmg"
 {
   fy_threadPutLocalLong(2, l1);
 }
-
+#line 1829 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1859,11 +1854,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 460 "fisce.vmg"
 {
   fy_threadPutLocalLong(2, l1);
 }
-
+#line 1862 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1892,11 +1887,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 465 "fisce.vmg"
 {
   fy_threadPutLocalLong(3, l1);
 }
-
+#line 1895 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1925,11 +1920,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 470 "fisce.vmg"
 {
   fy_threadPutLocalLong(3, l1);
 }
-
+#line 1928 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1954,11 +1949,11 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 475 "fisce.vmg"
 {
   sbase[CURR_INST.params.int_params.param1].uvalue += CURR_INST.params.int_params.param2;
 }
-
+#line 1957 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -1988,11 +1983,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += 1;
 {
-
+#line 491 "fisce.vmg"
 {
   ir1 = ir2 = i1;
 }
-
+#line 1991 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2030,13 +2025,13 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += 1;
 {
-
+#line 496 "fisce.vmg"
 {
   ir1 = i2;
   ir2 = i1;
   ir3 = i2;
 }
-
+#line 2035 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2080,14 +2075,14 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += 1;
 {
-
+#line 503 "fisce.vmg"
 {
   ir1 = i3;
   ir2 = i1;
   ir3 = i2;
   ir4 = i3;
 }
-
+#line 2086 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2130,12 +2125,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += 2;
 {
-
+#line 511 "fisce.vmg"
 {
   ir3 = ir1 = i1;
   ir4 = ir2 = i2;
 }
-
+#line 2134 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2182,7 +2177,7 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += 2;
 {
-
+#line 517 "fisce.vmg"
 {
   ir1 = i2;
   ir2 = i3;
@@ -2190,7 +2185,7 @@ spp += 2;
   ir4 = i2;
   ir5 = i3;
 }
-
+#line 2189 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2243,7 +2238,7 @@ fputs(" i4=", vm_out); printarg_i(i4);
 #endif
 spp += 2;
 {
-
+#line 526 "fisce.vmg"
 {
   ir1 = i3;
   ir2 = i4;
@@ -2252,7 +2247,7 @@ spp += 2;
   ir5 = i3;
   ir6 = i4;
 }
-
+#line 2251 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2296,12 +2291,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
 {
-
+#line 536 "fisce.vmg"
 {
   ir1 = i2;
   ir2 = i1;
 }
-
+#line 2300 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2332,11 +2327,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 544 "fisce.vmg"
 {
   ir = CURR_INST.params.int_params.param1;
 }
-
+#line 2335 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2365,11 +2360,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 549 "fisce.vmg"
 {
   ir = CURR_INST.params.int_params.param1;
 }
-
+#line 2368 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2398,11 +2393,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 554 "fisce.vmg"
 {
   ir = -1;
 }
-
+#line 2401 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2431,11 +2426,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 560 "fisce.vmg"
 {
   ir = 0;
 }
-
+#line 2434 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2464,11 +2459,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 565 "fisce.vmg"
 {
   ir = 0;
 }
-
+#line 2467 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2497,11 +2492,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 570 "fisce.vmg"
 {
   fr = 0.0f;
 }
-
+#line 2500 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2530,11 +2525,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 575 "fisce.vmg"
 {
   dr = 0.0;
 }
-
+#line 2533 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2563,11 +2558,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 580 "fisce.vmg"
 {
   lr = 0;
 }
-
+#line 2566 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2596,11 +2591,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 586 "fisce.vmg"
 {
   ir = 1;
 }
-
+#line 2599 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2629,11 +2624,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 591 "fisce.vmg"
 {
   fr = 1.0f;
 }
-
+#line 2632 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2662,11 +2657,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 596 "fisce.vmg"
 {
   dr = 1.0;
 }
-
+#line 2665 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2695,11 +2690,11 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 601 "fisce.vmg"
 {
   lr = 1;
 }
-
+#line 2698 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2728,11 +2723,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 607 "fisce.vmg"
 {
   ir = 2;
 }
-
+#line 2731 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2761,11 +2756,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 612 "fisce.vmg"
 {
   fr = 2.0f;
 }
-
+#line 2764 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2794,11 +2789,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 618 "fisce.vmg"
 {
   ir = 3;
 }
-
+#line 2797 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2827,11 +2822,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 624 "fisce.vmg"
 {
   ir = 4;
 }
-
+#line 2830 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2860,11 +2855,11 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 630 "fisce.vmg"
 {
   ir = 5;
 }
-
+#line 2863 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2895,11 +2890,11 @@ fputs(" d1=", vm_out); printarg_d(d1);
 #endif
 spp += -1;
 {
-
+#line 638 "fisce.vmg"
 {
   fr = (fy_float)d1;
 }
-
+#line 2898 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2930,11 +2925,11 @@ fputs(" d1=", vm_out); printarg_d(d1);
 #endif
 spp += -1;
 {
-
+#line 643 "fisce.vmg"
 {
   ir = (fy_int)d1;
 }
-
+#line 2933 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2964,11 +2959,11 @@ fputs(" d1=", vm_out); printarg_d(d1);
 }
 #endif
 {
-
+#line 648 "fisce.vmg"
 {
   lr = (fy_long)d1;
 }
-
+#line 2967 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -2999,11 +2994,11 @@ fputs(" f1=", vm_out); printarg_f(f1);
 #endif
 spp += 1;
 {
-
+#line 653 "fisce.vmg"
 {
   dr = f1;
 }
-
+#line 3002 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3033,11 +3028,11 @@ fputs(" f1=", vm_out); printarg_f(f1);
 }
 #endif
 {
-
+#line 658 "fisce.vmg"
 {
   ir = (fy_int)f1;
 }
-
+#line 3036 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3068,11 +3063,11 @@ fputs(" f1=", vm_out); printarg_f(f1);
 #endif
 spp += 1;
 {
-
+#line 663 "fisce.vmg"
 {
   lr = (fy_long)f1;
 }
-
+#line 3071 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3102,11 +3097,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 668 "fisce.vmg"
 {
   ir = (fy_byte)i1;
 }
-
+#line 3105 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3136,11 +3131,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 673 "fisce.vmg"
 {
   ir = i1 & 0xffff;
 }
-
+#line 3139 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3171,11 +3166,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += 1;
 {
-
+#line 678 "fisce.vmg"
 {
   dr = (fy_int)i1;
 }
-
+#line 3174 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3205,11 +3200,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 683 "fisce.vmg"
 {
   fr = (fy_int)i1;
 }
-
+#line 3208 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3240,11 +3235,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += 1;
 {
-
+#line 688 "fisce.vmg"
 {
   lr = (fy_int)i1;
 }
-
+#line 3243 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3274,11 +3269,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 693 "fisce.vmg"
 {
   ir = (fy_short)i1;
 }
-
+#line 3277 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3308,11 +3303,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 }
 #endif
 {
-
+#line 698 "fisce.vmg"
 {
   dr = (fy_long)l1;
 }
-
+#line 3311 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3343,11 +3338,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -1;
 {
-
+#line 703 "fisce.vmg"
 {
   fr = (fy_long)l1;
 }
-
+#line 3346 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3378,11 +3373,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -1;
 {
-
+#line 708 "fisce.vmg"
 {
   ir = (fy_uint)l1;
 }
-
+#line 3381 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3416,11 +3411,11 @@ fputs(" f2=", vm_out); printarg_f(f2);
 #endif
 spp += -1;
 {
-
+#line 717 "fisce.vmg"
 {
   fr = f1 + f2;
 }
-
+#line 3419 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3454,11 +3449,11 @@ fputs(" f2=", vm_out); printarg_f(f2);
 #endif
 spp += -1;
 {
-
+#line 722 "fisce.vmg"
 {
   fr = f1 - f2;
 }
-
+#line 3457 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3492,11 +3487,11 @@ fputs(" f2=", vm_out); printarg_f(f2);
 #endif
 spp += -1;
 {
-
+#line 727 "fisce.vmg"
 {
   fr = f1 * f2;
 }
-
+#line 3495 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3530,11 +3525,11 @@ fputs(" f2=", vm_out); printarg_f(f2);
 #endif
 spp += -1;
 {
-
+#line 732 "fisce.vmg"
 {
   fr = f1 / f2;
 }
-
+#line 3533 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3568,7 +3563,7 @@ fputs(" f2=", vm_out); printarg_f(f2);
 #endif
 spp += -1;
 {
-
+#line 737 "fisce.vmg"
 {
   if(f2 == 0){
     fr = 0.0 / f2;
@@ -3576,7 +3571,7 @@ spp += -1;
     fr = f1 - floor(f1 / f2) * f2;
   }
 }
-
+#line 3575 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3606,11 +3601,11 @@ fputs(" f1=", vm_out); printarg_f(f1);
 }
 #endif
 {
-
+#line 746 "fisce.vmg"
 {
   fr = -f1;
 }
-
+#line 3609 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3644,7 +3639,7 @@ fputs(" f2=", vm_out); printarg_f(f2);
 #endif
 spp += -1;
 {
-
+#line 751 "fisce.vmg"
 {
   if (unlikely(fy_isnand(f2) || fy_isnand(f1))) {
     ir = 1;
@@ -3652,7 +3647,7 @@ spp += -1;
     ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
   }
 }
-
+#line 3651 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3686,7 +3681,7 @@ fputs(" f2=", vm_out); printarg_f(f2);
 #endif
 spp += -1;
 {
-
+#line 760 "fisce.vmg"
 {
   if (unlikely(fy_isnand(f2) || fy_isnand(f1))) {
     ir = -1;
@@ -3694,7 +3689,7 @@ spp += -1;
     ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
   }
 }
-
+#line 3693 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3728,11 +3723,11 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-
+#line 771 "fisce.vmg"
 {
   dr = d1 + d2;
 }
-
+#line 3731 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3766,11 +3761,11 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-
+#line 776 "fisce.vmg"
 {
   dr = d1 - d2;
 }
-
+#line 3769 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3804,11 +3799,11 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-
+#line 781 "fisce.vmg"
 {
   dr = d1 / d2;
 }
-
+#line 3807 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3842,11 +3837,11 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-
+#line 786 "fisce.vmg"
 {
   dr = d1 * d2;
 }
-
+#line 3845 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3880,7 +3875,7 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-
+#line 791 "fisce.vmg"
 {
   if(d2 == 0){
     dr = 0.0 / d2;
@@ -3888,7 +3883,7 @@ spp += -2;
     dr = d1 - floor(d1 / d2) * d2;
   }
 }
-
+#line 3887 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3918,11 +3913,11 @@ fputs(" d1=", vm_out); printarg_d(d1);
 }
 #endif
 {
-
+#line 800 "fisce.vmg"
 {
   dr = -d1;
 }
-
+#line 3921 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3956,7 +3951,7 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -3;
 {
-
+#line 805 "fisce.vmg"
 {
   if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
     ir = 1;
@@ -3964,7 +3959,7 @@ spp += -3;
     ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
   }
 }
-
+#line 3963 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3998,7 +3993,7 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -3;
 {
-
+#line 814 "fisce.vmg"
 {
   if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
     ir = -1;
@@ -4006,7 +4001,7 @@ spp += -3;
     ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
   }
 }
-
+#line 4005 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4040,11 +4035,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 823 "fisce.vmg"
 {
   ir = i1 + i2;
 }
-
+#line 4043 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4078,11 +4073,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 828 "fisce.vmg"
 {
   ir = i1 - i2;
 }
-
+#line 4081 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4116,11 +4111,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 833 "fisce.vmg"
 {
   ir = (fy_uint)((fy_int)i1 * (fy_int)i2);
 }
-
+#line 4119 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4154,7 +4149,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 838 "fisce.vmg"
 {
   if(i2 == 0){
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
@@ -4164,7 +4159,7 @@ spp += -1;
     ir = ((fy_int)i1) / ((fy_int)i2);
   }
 }
-
+#line 4163 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4198,7 +4193,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 849 "fisce.vmg"
 {
   if(i2 == 0){
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
@@ -4208,7 +4203,7 @@ spp += -1;
     ir = ((fy_int)i1) % ((fy_int)i2);
   }
 }
-
+#line 4207 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4238,11 +4233,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 860 "fisce.vmg"
 {
   ir = -i1;
 }
-
+#line 4241 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4276,11 +4271,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 865 "fisce.vmg"
 {
   ir = i1 & i2;
 }
-
+#line 4279 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4314,11 +4309,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 870 "fisce.vmg"
 {
   ir = i1 | i2;
 }
-
+#line 4317 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4352,11 +4347,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 875 "fisce.vmg"
 {
   ir = i1 ^ i2;
 }
-
+#line 4355 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4390,11 +4385,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 880 "fisce.vmg"
 {
   ir = i1 << i2;
 }
-
+#line 4393 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4428,11 +4423,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 885 "fisce.vmg"
 {
   ir = ((fy_int)i1) >> ((fy_int)i2);
 }
-
+#line 4431 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4466,11 +4461,11 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 890 "fisce.vmg"
 {
   ir = i1 >> i2;
 }
-
+#line 4469 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4504,11 +4499,11 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -2;
 {
-
+#line 895 "fisce.vmg"
 {
   lr = l1 + l2;
 }
-
+#line 4507 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4542,11 +4537,11 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -2;
 {
-
+#line 900 "fisce.vmg"
 {
   lr = l1 - l2;
 }
-
+#line 4545 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4580,11 +4575,11 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -2;
 {
-
+#line 905 "fisce.vmg"
 {
   lr = (fy_long) l1 * (fy_long) l2;
 }
-
+#line 4583 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4618,7 +4613,7 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -2;
 {
-
+#line 910 "fisce.vmg"
 {
   if (unlikely(l2 == 0)) {
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
@@ -4626,7 +4621,7 @@ spp += -2;
   }
   lr = (fy_long) l1 / (fy_long) l2;
 }
-
+#line 4625 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4660,7 +4655,7 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -2;
 {
-
+#line 919 "fisce.vmg"
 {
   if (unlikely(l2 == 0)) {
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
@@ -4668,7 +4663,7 @@ spp += -2;
   }
   lr = (fy_long) l1 % (fy_long) l2;
 }
-
+#line 4667 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4698,11 +4693,11 @@ fputs(" l1=", vm_out); printarg_l(l1);
 }
 #endif
 {
-
+#line 928 "fisce.vmg"
 {
   lr = -l1;
 }
-
+#line 4701 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4736,11 +4731,11 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -2;
 {
-
+#line 933 "fisce.vmg"
 {
   lr = l1 & l2;
 }
-
+#line 4739 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4774,11 +4769,11 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -2;
 {
-
+#line 938 "fisce.vmg"
 {
   lr = l1 | l2;
 }
-
+#line 4777 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4812,11 +4807,11 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -2;
 {
-
+#line 943 "fisce.vmg"
 {
   lr = l1 ^ l2;
 }
-
+#line 4815 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4850,11 +4845,11 @@ fputs(" l2=", vm_out); printarg_l(l2);
 #endif
 spp += -3;
 {
-
+#line 948 "fisce.vmg"
 {
   ir = l1 == l2 ? 0 : ((fy_long)l1 > (fy_long)l2 ? 1 : -1) ;
 }
-
+#line 4853 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4888,11 +4883,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 953 "fisce.vmg"
 {
   lr = l1 << i1;
 }
-
+#line 4891 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4926,11 +4921,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 958 "fisce.vmg"
 {
   lr = ((fy_long)l1) >> i1;
 }
-
+#line 4929 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4964,11 +4959,11 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 963 "fisce.vmg"
 {
   lr = l1 >> i1;
 }
-
+#line 4967 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4997,12 +4992,12 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 969 "fisce.vmg"
 {
   ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
   FY_THEH()
 }
-
+#line 5001 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5031,12 +5026,12 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 975 "fisce.vmg"
 {
   ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
   FY_THEH()
 }
-
+#line 5035 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5065,12 +5060,12 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 981 "fisce.vmg"
 {
   lr = opLDC2(context, method->owner, CURR_INST.params.ldc.value, exception);
   FY_THEH()
 }
-
+#line 5069 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5100,12 +5095,12 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 996 "fisce.vmg"
 {
   ir = fy_heapArrayLength(context, i1, exception);
   FY_THEH()
 }
-
+#line 5104 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5139,12 +5134,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 1002 "fisce.vmg"
 {
   ir = fy_heapGetArrayHandle(context, i1, i2, exception);
   FY_THEH()
 }
-
+#line 5143 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5178,12 +5173,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 1008 "fisce.vmg"
 {
   ir = fy_heapGetArrayHandle(context, i1, i2, exception);
   FY_THEH()
 }
-
+#line 5182 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5217,12 +5212,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 1014 "fisce.vmg"
 {
   ir = fy_heapGetArrayHandle(context, i1, i2, exception);
   FY_THEH()
 }
-
+#line 5221 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5258,7 +5253,7 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-
+#line 1020 "fisce.vmg"
 {
   fy_class *clazz1, *clazz2;
   clazz1 = fy_heapGetClassOfObject(context, i1, exception);
@@ -5280,7 +5275,7 @@ spp += -3;
   fy_heapPutArrayHandle(context, i1, i2, i3, exception);
   FY_THEH()
 }
-
+#line 5279 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5315,12 +5310,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-
+#line 1043 "fisce.vmg"
 {
   fy_heapPutArrayInt(context, i1, i2, i3, exception);
   FY_THEH()
 }
-
+#line 5319 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5355,12 +5350,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-
+#line 1049 "fisce.vmg"
 {
   fy_heapPutArrayInt(context, i1, i2, i3, exception);
   FY_THEH()
 }
-
+#line 5359 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5393,12 +5388,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 1055 "fisce.vmg"
 { /*handle index -- value*/
   ir = fy_heapGetArrayByte(context, i1, i2, exception);
   FY_THEH()
 }
-
+#line 5397 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5434,12 +5429,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-
+#line 1061 "fisce.vmg"
 { /*handle index value*/
   fy_heapPutArrayByte(context, i1, i2, (fy_byte) i3, exception);
   FY_THEH()
 }
-
+#line 5438 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5472,12 +5467,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 1067 "fisce.vmg"
 { /*index handle -- value*/
   ir = fy_heapGetArrayChar(context, i1, i2, exception);
   FY_THEH()
 }
-
+#line 5476 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5513,12 +5508,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-
+#line 1073 "fisce.vmg"
 { /*value index handle*/
   fy_heapPutArrayChar(context, i1, i2, (fy_char) i3, exception);
   FY_THEH()
 }
-
+#line 5517 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5551,12 +5546,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-
+#line 1079 "fisce.vmg"
 { /*index handle -- value*/
   ir = fy_heapGetArrayShort(context, i1, i2, exception);
   FY_THEH()
 }
-
+#line 5555 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5592,12 +5587,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-
+#line 1085 "fisce.vmg"
 { /*value index handle*/
   fy_heapPutArrayShort(context, i1, i2, (fy_short) i3, exception);
   FY_THEH()
 }
-
+#line 5596 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5629,12 +5624,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
 {
-
+#line 1091 "fisce.vmg"
 {
   lr = fy_heapGetArrayLong(context, i1, i2, exception);
   FY_THEH()
 }
-
+#line 5633 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5670,12 +5665,12 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -4;
 {
-
+#line 1097 "fisce.vmg"
 {
   fy_heapPutArrayLong(context, i1, i2, l1, exception);
   FY_THEH()
 }
-
+#line 5674 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5707,12 +5702,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
 {
-
+#line 1103 "fisce.vmg"
 {
   lr = fy_heapGetArrayLong(context, i1, i2, exception);
   FY_THEH()
 }
-
+#line 5711 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5748,12 +5743,12 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -4;
 {
-
+#line 1109 "fisce.vmg"
 {
   fy_heapPutArrayLong(context, i1, i2, l1, exception);
   FY_THEH()
 }
-
+#line 5752 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5782,7 +5777,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 1115 "fisce.vmg"
 {
   fy_class *clazz1, *clazz2;
   fy_str str1;
@@ -5820,7 +5815,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
   ir = fy_heapAllocateArray(context, clazz2, i1, exception);
   FY_THEH()
 }
-
+#line 5819 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5849,7 +5844,7 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 1154 "fisce.vmg"
 {
   fy_class *clazz1;
   clazz1 = fy_vmLookupClassFromConstant(context, (ConstantClass*) method->owner->constantPools[CURR_INST.params.int_params.param1], exception);
@@ -5872,7 +5867,7 @@ spp += 1;
       exception);
   FY_THEH()
 }
-
+#line 5871 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5901,7 +5896,7 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 1189 "fisce.vmg"
 {
   fy_class *clazz1;
   clazz1 = CURR_INST.params.clazz;
@@ -5921,7 +5916,7 @@ spp += 1;
   ir = fy_heapAllocate(context, clazz1, exception);
   FY_THEH()
 }
-
+#line 5920 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5951,7 +5946,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 1210 "fisce.vmg"
 {
   fy_class *clazz1;
   fy_str *pstr1;
@@ -5995,7 +5990,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
   ir = fy_heapAllocateArray(context, clazz1, i1, exception);
   FY_THEH()
 }
-
+#line 5994 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6025,7 +6020,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 1255 "fisce.vmg"
 {
   fy_field *field;
   field = CURR_INST.params.field;
@@ -6046,7 +6041,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
   FY_THEH()
 }
-
+#line 6045 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6079,7 +6074,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1277 "fisce.vmg"
 {
   fy_field *field;
 
@@ -6100,7 +6095,7 @@ spp += -2;
   fy_heapPutFieldInt(context, i1, field, i2, exception);
   FY_THEH()
 }
-
+#line 6099 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6130,7 +6125,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += 1;
 {
-
+#line 1299 "fisce.vmg"
 {
   fy_field *field;
   field = CURR_INST.params.field;
@@ -6151,7 +6146,7 @@ spp += 1;
 #endif
   FY_THEH()
 }
-
+#line 6150 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6184,7 +6179,7 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -3;
 {
-
+#line 1321 "fisce.vmg"
 {
   fy_field *field;
 
@@ -6205,7 +6200,7 @@ spp += -3;
   fy_heapPutFieldLong(context, i1, field, l1, exception);
   FY_THEH()
 }
-
+#line 6204 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6233,7 +6228,7 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-
+#line 1343 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_field *field;
@@ -6261,7 +6256,7 @@ spp += 1;
 #endif
   FY_THEH()
 }
-
+#line 6260 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6291,7 +6286,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1372 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_field *field;
@@ -6321,7 +6316,7 @@ spp += -1;
   fy_heapPutStaticInt(context, field, i1, exception);
   FY_THEH()
 }
-
+#line 6320 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6349,7 +6344,7 @@ if (vm_debug) {
 #endif
 spp += 2;
 {
-
+#line 1403 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_field *field;
@@ -6377,7 +6372,7 @@ spp += 2;
 #endif
   FY_THEH()
 }
-
+#line 6376 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6407,7 +6402,7 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 1432 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_field *field;
@@ -6437,7 +6432,7 @@ spp += -2;
   fy_heapPutStaticLong(context, field, l1, exception);
   FY_THEH()
 }
-
+#line 6436 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6466,7 +6461,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 1471 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_class *clazz1, *clazz2;
@@ -6502,7 +6497,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     ir = i1;
   }
 }
-
+#line 6501 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6532,7 +6527,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-
+#line 1508 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_class *clazz1, *clazz2;
@@ -6547,7 +6542,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     ir = fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0;
   }
 }
-
+#line 6546 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6577,12 +6572,12 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1535 "fisce.vmg"
 {
   ops = fy_threadMonitorEnter(context, thread, i1, ops);
   FY_CHECK_OPS;
 }
-
+#line 6581 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6611,13 +6606,13 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1541 "fisce.vmg"
 {
   ops = fy_threadMonitorExit(context, thread, i1, ops, exception);
   FY_THEH()
   FY_CHECK_OPS;
 }
-
+#line 6616 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6642,7 +6637,7 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 1559 "fisce.vmg"
 {
   fy_localToFrame(context, frame);
   ops = fy_threadInvokeSpecial(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
@@ -6651,7 +6646,7 @@ if (vm_debug) {
   FY_UPDATE_SP(context, frame);
   SUPER_END;
 }
-
+#line 6650 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6675,7 +6670,7 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 1569 "fisce.vmg"
 {
   //!CLINIT
   fy_localToFrame(context, frame);
@@ -6686,7 +6681,7 @@ if (vm_debug) {
   FY_UPDATE_SP(context, frame);
   SUPER_END;
 }
-
+#line 6685 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6710,7 +6705,7 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 1581 "fisce.vmg"
 {
   fy_localToFrame(context, frame);
   ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
@@ -6719,7 +6714,7 @@ if (vm_debug) {
   FY_UPDATE_SP(context, frame);
   SUPER_END;
 }
-
+#line 6718 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6743,7 +6738,7 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 1591 "fisce.vmg"
 {
   fy_localToFrame(context, frame);
   ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
@@ -6752,7 +6747,7 @@ if (vm_debug) {
   FY_UPDATE_SP(context, frame);
   SUPER_END;
 }
-
+#line 6751 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6776,7 +6771,7 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 1611 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -6812,7 +6807,7 @@ if (vm_debug) {
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-
+#line 6811 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6840,7 +6835,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1648 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -6873,7 +6868,7 @@ spp += -1;
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-
+#line 6872 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6902,7 +6897,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1682 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -6935,7 +6930,7 @@ spp += -1;
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-
+#line 6934 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -6964,7 +6959,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1716 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -6997,7 +6992,7 @@ spp += -1;
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-
+#line 6996 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7026,7 +7021,7 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 1750 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -7059,7 +7054,7 @@ spp += -2;
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-
+#line 7058 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7088,7 +7083,7 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-
+#line 1784 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -7121,7 +7116,7 @@ spp += -2;
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-
+#line 7120 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7150,13 +7145,13 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1826 "fisce.vmg"
 {
   thread->currentThrowable = i1;
   SUPER_END;
   FY_FALLOUT_NOINVOKE;
 }
-
+#line 7155 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7181,11 +7176,11 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 1841 "fisce.vmg"
 {
   FY_CHECK_OPS_AND_GOTO;
 }
-
+#line 7184 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7209,11 +7204,11 @@ if (vm_debug) {
 }
 #endif
 {
-
+#line 1846 "fisce.vmg"
 {
   FY_CHECK_OPS_AND_GOTO;
 }
-
+#line 7212 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7244,7 +7239,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1851 "fisce.vmg"
 {
   if(i1 == i2){
     FY_CHECK_OPS_AND_GOTO;
@@ -7261,7 +7256,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7260 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7293,7 +7288,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1860 "fisce.vmg"
 {
   if(i1 == i2){
     FY_CHECK_OPS_AND_GOTO;
@@ -7310,7 +7305,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7309 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7342,7 +7337,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1869 "fisce.vmg"
 {
   if(i1 != i2){
     FY_CHECK_OPS_AND_GOTO;
@@ -7359,7 +7354,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7358 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7391,7 +7386,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1878 "fisce.vmg"
 {
   if(i1 != i2){
     FY_CHECK_OPS_AND_GOTO;
@@ -7408,7 +7403,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7407 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7440,7 +7435,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1887 "fisce.vmg"
 {
   if((fy_int)i1 < (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO;
@@ -7457,7 +7452,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7456 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7489,7 +7484,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1896 "fisce.vmg"
 {
   if((fy_int)i1 <= (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO;
@@ -7506,7 +7501,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7505 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7538,7 +7533,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1905 "fisce.vmg"
 {
   if((fy_int)i1 > (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO;
@@ -7555,7 +7550,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7554 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7587,7 +7582,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-
+#line 1914 "fisce.vmg"
 {
   if((fy_int)i1 >= (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO;
@@ -7604,7 +7599,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7603 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7633,7 +7628,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1923 "fisce.vmg"
 {
   if(i1 == 0){
     FY_CHECK_OPS_AND_GOTO;
@@ -7650,7 +7645,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7649 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7679,7 +7674,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1932 "fisce.vmg"
 {
   if(i1 == 0){
     FY_CHECK_OPS_AND_GOTO;
@@ -7696,7 +7691,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7695 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7725,7 +7720,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1941 "fisce.vmg"
 {
   if(i1 != 0){
     FY_CHECK_OPS_AND_GOTO;
@@ -7742,7 +7737,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7741 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7771,7 +7766,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1950 "fisce.vmg"
 {
   if(i1 != 0){
     FY_CHECK_OPS_AND_GOTO;
@@ -7788,7 +7783,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7787 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7817,7 +7812,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1959 "fisce.vmg"
 {
   if((fy_int)i1 < 0){
     FY_CHECK_OPS_AND_GOTO;
@@ -7834,7 +7829,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7833 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7863,7 +7858,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1968 "fisce.vmg"
 {
   if((fy_int)i1 <= 0){
     FY_CHECK_OPS_AND_GOTO;
@@ -7880,7 +7875,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7879 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7909,7 +7904,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1977 "fisce.vmg"
 {
   if((fy_int)i1 > 0){
     FY_CHECK_OPS_AND_GOTO;
@@ -7926,7 +7921,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7925 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -7955,7 +7950,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1986 "fisce.vmg"
 {
   if((fy_int)i1 >= 0){
     FY_CHECK_OPS_AND_GOTO;
@@ -7972,7 +7967,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-
+#line 7971 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -8001,7 +7996,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 1995 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2, i3;
@@ -8029,7 +8024,7 @@ NEXT_P2;
 
   SET_IP(swlookup->defaultJump);
 }
-
+#line 8028 "fisce-vm.i"
 }
 SUPER_END;
 
@@ -8059,7 +8054,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-
+#line 2014 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2, i3;
@@ -8095,7 +8090,7 @@ NEXT_P2;
 
   }
 }
-
+#line 8094 "fisce-vm.i"
 }
 SUPER_END;
 

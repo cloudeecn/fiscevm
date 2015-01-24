@@ -5,9 +5,10 @@
 \C    fy_context *context,
 \C    fy_thread *thread,
 \C    fy_frame *frame,
-\C    fy_int ops,
+\C    fy_int oops,
 \C    fy_exception *exception) {
 \C#ifndef FY_LATE_DECLARATION
+\C  register fy_int ops = oops;
 \C#ifdef USE_CFA
 \C  register fy_e2_label cfa;
 \C#endif
@@ -51,8 +52,7 @@
 \C    ret.labels = labels;
 \C  }else{
 \C#ifdef FY_LATE_DECLARATION
-\C
-\C
+\C  register fy_int ops = oops;
 \C#ifdef USE_CFA
 \C  register fy_e2_label cfa;
 \C#endif
