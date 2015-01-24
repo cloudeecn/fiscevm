@@ -74,7 +74,7 @@
  for Gforth "make bench" on a 486, whereas scheme 5 is fastest for
  "mini fib.mini" on an Athlon */
 #ifndef THREADING_SCHEME
-#define THREADING_SCHEME 10
+#define THREADING_SCHEME 8
 #endif /* defined(THREADING_SCHEME) */
 
 #ifdef __GNUC__

@@ -9,7 +9,7 @@ fy_engine_result FY_ENGINE_NAME(
     fy_exception *exception) {
 #ifndef FY_LATE_DECLARATION
 #ifdef USE_CFA
-  register fy_instruction cfa;
+  register fy_e2_label cfa;
 #endif
   register fy_instruction *ipp;
 #ifdef FY_USE_TOS
@@ -54,7 +54,7 @@ fy_engine_result FY_ENGINE_NAME(
 
 
 #ifdef USE_CFA
-  register fy_instruction cfa;
+  register fy_e2_label cfa;
 #endif
   register fy_instruction *ipp;
 #ifdef FY_USE_TOS
@@ -111,11 +111,8 @@ fy_engine_result FY_ENGINE_NAME(
     FY_ENGINE_CLINIT(method->owner, 0)
   }
 
-  SET_IP(frame->lpc += frame->pcofs);
-  frame->pcofs = 0;
-  NEXT_P1;
-  spp = frame->baseSpp + PCURR_INST->sp;
-  NEXT_P2;
+  
+  ENGINE_ENTER;
 #endif
 INST_ADDR(dropout),
 INST_ADDR(nop),
