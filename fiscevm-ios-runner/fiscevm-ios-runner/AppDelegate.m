@@ -24,7 +24,7 @@
         runner = [[FiScERunner alloc] init];
     }
     runner.classPaths = @[@"classes"];
-    runner.mainClassName = @"com/cirnoworks/fisce/privat/Sieve";
+    runner.mainClassName = @"com/cirnoworks/fisce/privat/Linpack";
     [runner start];
     return YES;
 }
