@@ -8,9 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		680577141A145D660048D21F /* FiScERunner.m in Sources */ = {isa = PBXBuildFile; fileRef = 680577131A145D660048D21F /* FiScERunner.m */; };
-		6873C2421A033A66006C201B /* FiScEVM.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6873C2411A033A66006C201B /* FiScEVM.h */; };
+		6814D3FD1A6AC9BE00B8F945 /* FiScERunner.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 680577121A145D660048D21F /* FiScERunner.h */; };
+		684ED6001A6B81770091BDBB /* Engine.c in Sources */ = {isa = PBXBuildFile; fileRef = 684ED5FD1A6B81770091BDBB /* Engine.c */; };
+		684ED6011A6B81770091BDBB /* fisce-labels.i in Sources */ = {isa = PBXBuildFile; fileRef = 684ED5FE1A6B81770091BDBB /* fisce-labels.i */; };
+		684ED6021A6B81770091BDBB /* fisce-vm.i in Sources */ = {isa = PBXBuildFile; fileRef = 684ED5FF1A6B81770091BDBB /* fisce-vm.i */; };
+		6873C2421A033A66006C201B /* FiScEVM.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 6873C2411A033A66006C201B /* FiScEVM.h */; };
 		6873C2441A033A66006C201B /* FiScEVM.m in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2431A033A66006C201B /* FiScEVM.m */; };
-		6873C24A1A033A66006C201B /* libFiScEVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6873C23E1A033A66006C201B /* libFiScEVM.a */; };
 		6873C27C1A033B27006C201B /* ArrList.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C25F1A033B27006C201B /* ArrList.c */; };
 		6873C27D1A033B27006C201B /* BAIS.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2601A033B27006C201B /* BAIS.c */; };
 		6873C27E1A033B27006C201B /* BinarySaver.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2611A033B27006C201B /* BinarySaver.c */; };
@@ -39,12 +42,13 @@
 		6873C2961A033B27006C201B /* ThreadManager.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2791A033B27006C201B /* ThreadManager.c */; };
 		6873C2971A033B27006C201B /* Utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C27A1A033B27006C201B /* Utf8.c */; };
 		6873C2981A033B27006C201B /* VMContext.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C27B1A033B27006C201B /* VMContext.c */; };
-		6873C4941A0F97EC006C201B /* FiScEVMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6873C4931A0F97EC006C201B /* FiScEVMTest.m */; };
-		6873C4961A0F98DB006C201B /* classes in Resources */ = {isa = PBXBuildFile; fileRef = 6873C4951A0F98DB006C201B /* classes */; };
+		68BCDCC01A6FED550065EC5A /* libFiScEVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6873C23E1A033A66006C201B /* libFiScEVM.a */; };
+		68BCDCC61A6FED7F0065EC5A /* FiScEVMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6873C4931A0F97EC006C201B /* FiScEVMTest.m */; };
+		68BCDCC71A6FED850065EC5A /* classes in Resources */ = {isa = PBXBuildFile; fileRef = 6873C4951A0F98DB006C201B /* classes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		6873C24B1A033A66006C201B /* PBXContainerItemProxy */ = {
+		68BCDCC11A6FED550065EC5A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6873C2361A033A66006C201B /* Project object */;
 			proxyType = 1;
@@ -54,14 +58,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		6873C23C1A033A66006C201B /* CopyFiles */ = {
+		6873C23C1A033A66006C201B /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				6873C2421A033A66006C201B /* FiScEVM.h in CopyFiles */,
+				6814D3FD1A6AC9BE00B8F945 /* FiScERunner.h in Copy Files */,
+				6873C2421A033A66006C201B /* FiScEVM.h in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -69,10 +75,12 @@
 /* Begin PBXFileReference section */
 		680577121A145D660048D21F /* FiScERunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FiScERunner.h; sourceTree = "<group>"; };
 		680577131A145D660048D21F /* FiScERunner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiScERunner.m; sourceTree = "<group>"; };
+		684ED5FD1A6B81770091BDBB /* Engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Engine.c; path = "../../fiscevm-c-native/src/main/c/Engine.c"; sourceTree = "<group>"; };
+		684ED5FE1A6B81770091BDBB /* fisce-labels.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = "fisce-labels.i"; path = "../../fiscevm-c-native/src/main/c/fisce-labels.i"; sourceTree = "<group>"; };
+		684ED5FF1A6B81770091BDBB /* fisce-vm.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = "fisce-vm.i"; path = "../../fiscevm-c-native/src/main/c/fisce-vm.i"; sourceTree = "<group>"; };
 		6873C23E1A033A66006C201B /* libFiScEVM.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFiScEVM.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6873C2411A033A66006C201B /* FiScEVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FiScEVM.h; sourceTree = "<group>"; };
 		6873C2431A033A66006C201B /* FiScEVM.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FiScEVM.m; sourceTree = "<group>"; };
-		6873C2491A033A66006C201B /* fiscevm-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "fiscevm-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6873C24F1A033A66006C201B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6873C25A1A033AF3006C201B /* fisce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisce.h; path = "../../fiscevm-c-native/src/main/c/fisce.h"; sourceTree = "<group>"; };
 		6873C25B1A033AF3006C201B /* fisceclz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisceclz.h; path = "../../fiscevm-c-native/src/main/c/fisceclz.h"; sourceTree = "<group>"; };
@@ -111,6 +119,7 @@
 		6873C3EF1A0A033E006C201B /* fyc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fyc; path = "../../fiscevm-c-native/src/main/c/fyc"; sourceTree = "<group>"; };
 		6873C4931A0F97EC006C201B /* FiScEVMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiScEVMTest.m; sourceTree = "<group>"; };
 		6873C4951A0F98DB006C201B /* classes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = classes; path = "../../fiscevm-runtime/target/classes"; sourceTree = "<group>"; };
+		68BCDCBA1A6FED550065EC5A /* fiscevm-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "fiscevm-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,11 +130,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		6873C2461A033A66006C201B /* Frameworks */ = {
+		68BCDCB71A6FED550065EC5A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6873C24A1A033A66006C201B /* libFiScEVM.a in Frameworks */,
+				68BCDCC01A6FED550065EC5A /* libFiScEVM.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,6 +156,7 @@
 				6873C2661A033B27006C201B /* Data.c */,
 				6873C2671A033B27006C201B /* DataLoader.c */,
 				6873C2681A033B27006C201B /* Debug.c */,
+				684ED5FD1A6B81770091BDBB /* Engine.c */,
 				6873C2691A033B27006C201B /* ExpDev.c */,
 				6873C26A1A033B27006C201B /* FileInputStream.c */,
 				6873C26B1A033B27006C201B /* FiScE.c */,
@@ -165,6 +175,8 @@
 				6873C2791A033B27006C201B /* ThreadManager.c */,
 				6873C27A1A033B27006C201B /* Utf8.c */,
 				6873C27B1A033B27006C201B /* VMContext.c */,
+				684ED5FF1A6B81770091BDBB /* fisce-vm.i */,
+				684ED5FE1A6B81770091BDBB /* fisce-labels.i */,
 				6873C25A1A033AF3006C201B /* fisce.h */,
 				6873C25B1A033AF3006C201B /* fisceclz.h */,
 				6873C25C1A033AF3006C201B /* fiscedev.h */,
@@ -187,7 +199,7 @@
 			isa = PBXGroup;
 			children = (
 				6873C23E1A033A66006C201B /* libFiScEVM.a */,
-				6873C2491A033A66006C201B /* fiscevm-iosTests.xctest */,
+				68BCDCBA1A6FED550065EC5A /* fiscevm-iosTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -231,7 +243,7 @@
 			buildPhases = (
 				6873C23A1A033A66006C201B /* Sources */,
 				6873C23B1A033A66006C201B /* Frameworks */,
-				6873C23C1A033A66006C201B /* CopyFiles */,
+				6873C23C1A033A66006C201B /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -242,22 +254,22 @@
 			productReference = 6873C23E1A033A66006C201B /* libFiScEVM.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		6873C2481A033A66006C201B /* fiscevm-iosTests */ = {
+		68BCDCB91A6FED550065EC5A /* fiscevm-iosTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6873C2551A033A66006C201B /* Build configuration list for PBXNativeTarget "fiscevm-iosTests" */;
+			buildConfigurationList = 68BCDCC31A6FED550065EC5A /* Build configuration list for PBXNativeTarget "fiscevm-iosTests" */;
 			buildPhases = (
-				6873C2451A033A66006C201B /* Sources */,
-				6873C2461A033A66006C201B /* Frameworks */,
-				6873C2471A033A66006C201B /* Resources */,
+				68BCDCB61A6FED550065EC5A /* Sources */,
+				68BCDCB71A6FED550065EC5A /* Frameworks */,
+				68BCDCB81A6FED550065EC5A /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				6873C24C1A033A66006C201B /* PBXTargetDependency */,
+				68BCDCC21A6FED550065EC5A /* PBXTargetDependency */,
 			);
 			name = "fiscevm-iosTests";
-			productName = "fiscevm-iosTests";
-			productReference = 6873C2491A033A66006C201B /* fiscevm-iosTests.xctest */;
+			productName = "fiscevm-ios Tests";
+			productReference = 68BCDCBA1A6FED550065EC5A /* fiscevm-iosTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -272,8 +284,8 @@
 					6873C23D1A033A66006C201B = {
 						CreatedOnToolsVersion = 6.1;
 					};
-					6873C2481A033A66006C201B = {
-						CreatedOnToolsVersion = 6.1;
+					68BCDCB91A6FED550065EC5A = {
+						CreatedOnToolsVersion = 6.1.1;
 					};
 				};
 			};
@@ -290,17 +302,17 @@
 			projectRoot = "";
 			targets = (
 				6873C23D1A033A66006C201B /* fiscevm-ios */,
-				6873C2481A033A66006C201B /* fiscevm-iosTests */,
+				68BCDCB91A6FED550065EC5A /* fiscevm-iosTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		6873C2471A033A66006C201B /* Resources */ = {
+		68BCDCB81A6FED550065EC5A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6873C4961A0F98DB006C201B /* classes in Resources */,
+				68BCDCC71A6FED850065EC5A /* classes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,17 +327,20 @@
 				6873C2801A033B27006C201B /* Class.c in Sources */,
 				6873C2981A033B27006C201B /* VMContext.c in Sources */,
 				6873C2961A033B27006C201B /* ThreadManager.c in Sources */,
+				684ED6011A6B81770091BDBB /* fisce-labels.i in Sources */,
 				6873C2861A033B27006C201B /* ExpDev.c in Sources */,
 				6873C28B1A033B27006C201B /* HashMapI.c in Sources */,
 				6873C28C1A033B27006C201B /* Heap.c in Sources */,
 				6873C2871A033B27006C201B /* FileInputStream.c in Sources */,
 				6873C2821A033B27006C201B /* CoreHandlers.c in Sources */,
 				6873C27F1A033B27006C201B /* BitSet.c in Sources */,
+				684ED6021A6B81770091BDBB /* fisce-vm.i in Sources */,
 				6873C2951A033B27006C201B /* Thread.c in Sources */,
 				6873C27E1A033B27006C201B /* BinarySaver.c in Sources */,
 				6873C2841A033B27006C201B /* DataLoader.c in Sources */,
 				6873C28E1A033B27006C201B /* LnkList.c in Sources */,
 				6873C2851A033B27006C201B /* Debug.c in Sources */,
+				684ED6001A6B81770091BDBB /* Engine.c in Sources */,
 				6873C28F1A033B27006C201B /* MathHandlers.c in Sources */,
 				6873C2441A033A66006C201B /* FiScEVM.m in Sources */,
 				6873C2811A033B27006C201B /* ClassLoader.c in Sources */,
@@ -344,21 +359,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		6873C2451A033A66006C201B /* Sources */ = {
+		68BCDCB61A6FED550065EC5A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6873C4941A0F97EC006C201B /* FiScEVMTest.m in Sources */,
+				68BCDCC61A6FED7F0065EC5A /* FiScEVMTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		6873C24C1A033A66006C201B /* PBXTargetDependency */ = {
+		68BCDCC21A6FED550065EC5A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 6873C23D1A033A66006C201B /* fiscevm-ios */;
-			targetProxy = 6873C24B1A033A66006C201B /* PBXContainerItemProxy */;
+			targetProxy = 68BCDCC11A6FED550065EC5A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -396,7 +411,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -432,7 +447,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -452,13 +467,14 @@
 		6873C2541A033A66006C201B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 3;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = FiScEVM;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
-		6873C2561A033A66006C201B /* Debug */ = {
+		68BCDCC41A6FED550065EC5A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
@@ -469,20 +485,22 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "fiscevm-iosTests/Info.plist";
+				INFOPLIST_FILE = "fiscevm-iosTests/Supporting Files/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
-		6873C2571A033A66006C201B /* Release */ = {
+		68BCDCC51A6FED550065EC5A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "fiscevm-iosTests/Info.plist";
+				INFOPLIST_FILE = "fiscevm-iosTests/Supporting Files/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -509,14 +527,13 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6873C2551A033A66006C201B /* Build configuration list for PBXNativeTarget "fiscevm-iosTests" */ = {
+		68BCDCC31A6FED550065EC5A /* Build configuration list for PBXNativeTarget "fiscevm-iosTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				6873C2561A033A66006C201B /* Debug */,
-				6873C2571A033A66006C201B /* Release */,
+				68BCDCC41A6FED550065EC5A /* Debug */,
+				68BCDCC51A6FED550065EC5A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

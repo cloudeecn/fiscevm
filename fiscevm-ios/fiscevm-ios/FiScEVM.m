@@ -79,14 +79,14 @@ fy_field *field;
 static void releaseValue(fy_str *key, void *value, void *additional){
     CFRelease(value);
 }
-
-static void SOSWrite(struct fy_context *context, struct fy_thread *thread,
-                     void *data, fy_uint *args, fy_int argsCount, fy_message *message,
-                     fy_exception *exception) {
+static fy_int SOSWrite(struct fy_context *context, struct fy_thread *thread,
+                       void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
+                       fy_exception *exception) {
     FiScEVM *vm=(__bridge FiScEVM*)data;
-    NSString *channel=[vm getStringFromObject:args[2]];
-    char ch = (char)args[1];
+    NSString *channel=[vm getStringFromObject:args[2].ivalue];
+    char ch = (char)args[1].ivalue;
     [vm appendLog:channel content:ch];
+    return ops - 1;
 }
 
 @interface FiScEDefaultLogger : NSObject <FiScELogger>
@@ -680,9 +680,7 @@ static void SOSWrite(struct fy_context *context, struct fy_thread *thread,
 - (void)runWithMessageHolder:(FiScEMessage*)m{
     fisceRun(context, message, ex);
     if(ex->exceptionType != exception_none){
-        m.messageType = message_exception;
-        m.exceptionName = [NSString stringWithUTF8String:ex->exceptionName];
-        m.exceptionDesc = [NSString stringWithUTF8String:ex->exceptionDesc];
+        NSLog(@"Exception occored");
     }else{
         m.messageType = message->messageType;
         if(message->thread){
@@ -694,7 +692,7 @@ static void SOSWrite(struct fy_context *context, struct fy_thread *thread,
             case message_invoke_native:
                 m.nativeCallName = [self getNSStringWith:message->body.call.method->uniqueName];
                 m.paramCount = message->body.call.paramCount;
-                m.params = message->body.call.params;
+                m.params = (uint32_t*)message->body.call.params;
                 switch(message->body.call.method->returnType){
                     case FY_TYPE_UNKNOWN:
                         m.returnType = FISCE_RETURN_NONE;
@@ -709,15 +707,9 @@ static void SOSWrite(struct fy_context *context, struct fy_thread *thread,
                         m.returnType = FISCE_RETURN_HANDLE;
                         break;
                     default:
-                        m.messageType = message_exception;
-                        m.exceptionName = @"";
-                        m.exceptionDesc = [NSString stringWithUTF8String:ex->exceptionDesc];
+                        NSLog(@"Exception occored");
                         break;
                 }
-                break;
-            case message_exception:
-                m.exceptionName = [NSString stringWithUTF8String:message->body.exception.exceptionName];
-                m.exceptionDesc = [NSString stringWithUTF8String:message->body.exception.exceptionDesc];
                 break;
             case message_sleep:
                 m.sleepTime = message->body.sleepTime/1000.0;
@@ -725,12 +717,9 @@ static void SOSWrite(struct fy_context *context, struct fy_thread *thread,
             case message_vm_dead:
                 break;
             case message_none:
-            case message_continue:
             case message_thread_dead:
             default:
-                m.messageType = message_exception;
-                m.exceptionName = @"";
-                m.exceptionDesc = [NSString stringWithFormat:@"Invalid message type: %d" , message->messageType];
+                NSLog(@"Exception occored");
                 break;
         }
     }
