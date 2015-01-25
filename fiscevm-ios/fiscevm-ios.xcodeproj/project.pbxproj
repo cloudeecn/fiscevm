@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		680577141A145D660048D21F /* FiScERunner.m in Sources */ = {isa = PBXBuildFile; fileRef = 680577131A145D660048D21F /* FiScERunner.m */; };
+		68121FFB1A74C4ED00AF86E9 /* libFiScEVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6873C23E1A033A66006C201B /* libFiScEVM.a */; };
+		681220041A74C54A00AF86E9 /* FiScEVMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 681220031A74C54A00AF86E9 /* FiScEVMTest.m */; };
 		6814D3FD1A6AC9BE00B8F945 /* FiScERunner.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 680577121A145D660048D21F /* FiScERunner.h */; };
 		684ED6001A6B81770091BDBB /* Engine.c in Sources */ = {isa = PBXBuildFile; fileRef = 684ED5FD1A6B81770091BDBB /* Engine.c */; };
 		684ED6011A6B81770091BDBB /* fisce-labels.i in Sources */ = {isa = PBXBuildFile; fileRef = 684ED5FE1A6B81770091BDBB /* fisce-labels.i */; };
@@ -42,13 +44,10 @@
 		6873C2961A033B27006C201B /* ThreadManager.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2791A033B27006C201B /* ThreadManager.c */; };
 		6873C2971A033B27006C201B /* Utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C27A1A033B27006C201B /* Utf8.c */; };
 		6873C2981A033B27006C201B /* VMContext.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C27B1A033B27006C201B /* VMContext.c */; };
-		68BCDCC01A6FED550065EC5A /* libFiScEVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6873C23E1A033A66006C201B /* libFiScEVM.a */; };
-		68BCDCC61A6FED7F0065EC5A /* FiScEVMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6873C4931A0F97EC006C201B /* FiScEVMTest.m */; };
-		68BCDCC71A6FED850065EC5A /* classes in Resources */ = {isa = PBXBuildFile; fileRef = 6873C4951A0F98DB006C201B /* classes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		68BCDCC11A6FED550065EC5A /* PBXContainerItemProxy */ = {
+		68121FFC1A74C4ED00AF86E9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6873C2361A033A66006C201B /* Project object */;
 			proxyType = 1;
@@ -75,13 +74,15 @@
 /* Begin PBXFileReference section */
 		680577121A145D660048D21F /* FiScERunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FiScERunner.h; sourceTree = "<group>"; };
 		680577131A145D660048D21F /* FiScERunner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiScERunner.m; sourceTree = "<group>"; };
+		68121FF51A74C4EC00AF86E9 /* fiscevm-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "fiscevm-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		68121FF81A74C4ED00AF86E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		681220031A74C54A00AF86E9 /* FiScEVMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiScEVMTest.m; sourceTree = "<group>"; };
 		684ED5FD1A6B81770091BDBB /* Engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Engine.c; path = "../../fiscevm-c-native/src/main/c/Engine.c"; sourceTree = "<group>"; };
 		684ED5FE1A6B81770091BDBB /* fisce-labels.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = "fisce-labels.i"; path = "../../fiscevm-c-native/src/main/c/fisce-labels.i"; sourceTree = "<group>"; };
 		684ED5FF1A6B81770091BDBB /* fisce-vm.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = "fisce-vm.i"; path = "../../fiscevm-c-native/src/main/c/fisce-vm.i"; sourceTree = "<group>"; };
 		6873C23E1A033A66006C201B /* libFiScEVM.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFiScEVM.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6873C2411A033A66006C201B /* FiScEVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FiScEVM.h; sourceTree = "<group>"; };
 		6873C2431A033A66006C201B /* FiScEVM.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FiScEVM.m; sourceTree = "<group>"; };
-		6873C24F1A033A66006C201B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6873C25A1A033AF3006C201B /* fisce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisce.h; path = "../../fiscevm-c-native/src/main/c/fisce.h"; sourceTree = "<group>"; };
 		6873C25B1A033AF3006C201B /* fisceclz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisceclz.h; path = "../../fiscevm-c-native/src/main/c/fisceclz.h"; sourceTree = "<group>"; };
 		6873C25C1A033AF3006C201B /* fiscedev.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fiscedev.h; path = "../../fiscevm-c-native/src/main/c/fiscedev.h"; sourceTree = "<group>"; };
@@ -117,12 +118,18 @@
 		6873C27B1A033B27006C201B /* VMContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = VMContext.c; path = "../../fiscevm-c-native/src/main/c/VMContext.c"; sourceTree = "<group>"; };
 		6873C3EE1A0A033E006C201B /* fy_util */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fy_util; path = "../../fiscevm-c-native/src/main/c/fy_util"; sourceTree = "<group>"; };
 		6873C3EF1A0A033E006C201B /* fyc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fyc; path = "../../fiscevm-c-native/src/main/c/fyc"; sourceTree = "<group>"; };
-		6873C4931A0F97EC006C201B /* FiScEVMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiScEVMTest.m; sourceTree = "<group>"; };
 		6873C4951A0F98DB006C201B /* classes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = classes; path = "../../fiscevm-runtime/target/classes"; sourceTree = "<group>"; };
-		68BCDCBA1A6FED550065EC5A /* fiscevm-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "fiscevm-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		68121FF21A74C4EC00AF86E9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				68121FFB1A74C4ED00AF86E9 /* libFiScEVM.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6873C23B1A033A66006C201B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -130,17 +137,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		68BCDCB71A6FED550065EC5A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				68BCDCC01A6FED550065EC5A /* libFiScEVM.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		68121FF61A74C4EC00AF86E9 /* fiscevm-iosTests */ = {
+			isa = PBXGroup;
+			children = (
+				681220031A74C54A00AF86E9 /* FiScEVMTest.m */,
+				6873C4951A0F98DB006C201B /* classes */,
+				68121FF71A74C4ED00AF86E9 /* Supporting Files */,
+			);
+			path = "fiscevm-iosTests";
+			sourceTree = "<group>";
+		};
+		68121FF71A74C4ED00AF86E9 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				68121FF81A74C4ED00AF86E9 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		68420CF31A199D8A0066B591 /* fiscevm-c-native */ = {
 			isa = PBXGroup;
 			children = (
@@ -190,7 +207,7 @@
 			isa = PBXGroup;
 			children = (
 				6873C2401A033A66006C201B /* fiscevm-ios */,
-				6873C24D1A033A66006C201B /* fiscevm-iosTests */,
+				68121FF61A74C4EC00AF86E9 /* fiscevm-iosTests */,
 				6873C23F1A033A66006C201B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -199,7 +216,7 @@
 			isa = PBXGroup;
 			children = (
 				6873C23E1A033A66006C201B /* libFiScEVM.a */,
-				68BCDCBA1A6FED550065EC5A /* fiscevm-iosTests.xctest */,
+				68121FF51A74C4EC00AF86E9 /* fiscevm-iosTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -216,27 +233,27 @@
 			path = "fiscevm-ios";
 			sourceTree = "<group>";
 		};
-		6873C24D1A033A66006C201B /* fiscevm-iosTests */ = {
-			isa = PBXGroup;
-			children = (
-				6873C4951A0F98DB006C201B /* classes */,
-				6873C24E1A033A66006C201B /* Supporting Files */,
-				6873C4931A0F97EC006C201B /* FiScEVMTest.m */,
-			);
-			path = "fiscevm-iosTests";
-			sourceTree = "<group>";
-		};
-		6873C24E1A033A66006C201B /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				6873C24F1A033A66006C201B /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		68121FF41A74C4EC00AF86E9 /* fiscevm-iosTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 68121FFE1A74C4ED00AF86E9 /* Build configuration list for PBXNativeTarget "fiscevm-iosTests" */;
+			buildPhases = (
+				68121FF11A74C4EC00AF86E9 /* Sources */,
+				68121FF21A74C4EC00AF86E9 /* Frameworks */,
+				68121FF31A74C4EC00AF86E9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				68121FFD1A74C4ED00AF86E9 /* PBXTargetDependency */,
+			);
+			name = "fiscevm-iosTests";
+			productName = "fiscevm-iosTests";
+			productReference = 68121FF51A74C4EC00AF86E9 /* fiscevm-iosTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		6873C23D1A033A66006C201B /* fiscevm-ios */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6873C2521A033A66006C201B /* Build configuration list for PBXNativeTarget "fiscevm-ios" */;
@@ -254,24 +271,6 @@
 			productReference = 6873C23E1A033A66006C201B /* libFiScEVM.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		68BCDCB91A6FED550065EC5A /* fiscevm-iosTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 68BCDCC31A6FED550065EC5A /* Build configuration list for PBXNativeTarget "fiscevm-iosTests" */;
-			buildPhases = (
-				68BCDCB61A6FED550065EC5A /* Sources */,
-				68BCDCB71A6FED550065EC5A /* Frameworks */,
-				68BCDCB81A6FED550065EC5A /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				68BCDCC21A6FED550065EC5A /* PBXTargetDependency */,
-			);
-			name = "fiscevm-iosTests";
-			productName = "fiscevm-ios Tests";
-			productReference = 68BCDCBA1A6FED550065EC5A /* fiscevm-iosTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -281,11 +280,11 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = Cloudee;
 				TargetAttributes = {
+					68121FF41A74C4EC00AF86E9 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
 					6873C23D1A033A66006C201B = {
 						CreatedOnToolsVersion = 6.1;
-					};
-					68BCDCB91A6FED550065EC5A = {
-						CreatedOnToolsVersion = 6.1.1;
 					};
 				};
 			};
@@ -302,23 +301,30 @@
 			projectRoot = "";
 			targets = (
 				6873C23D1A033A66006C201B /* fiscevm-ios */,
-				68BCDCB91A6FED550065EC5A /* fiscevm-iosTests */,
+				68121FF41A74C4EC00AF86E9 /* fiscevm-iosTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		68BCDCB81A6FED550065EC5A /* Resources */ = {
+		68121FF31A74C4EC00AF86E9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				68BCDCC71A6FED850065EC5A /* classes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		68121FF11A74C4EC00AF86E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				681220041A74C54A00AF86E9 /* FiScEVMTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6873C23A1A033A66006C201B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -359,25 +365,51 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		68BCDCB61A6FED550065EC5A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				68BCDCC61A6FED7F0065EC5A /* FiScEVMTest.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		68BCDCC21A6FED550065EC5A /* PBXTargetDependency */ = {
+		68121FFD1A74C4ED00AF86E9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 6873C23D1A033A66006C201B /* fiscevm-ios */;
-			targetProxy = 68BCDCC11A6FED550065EC5A /* PBXContainerItemProxy */;
+			targetProxy = 68121FFC1A74C4ED00AF86E9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		68121FFF1A74C4ED00AF86E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "fiscevm-iosTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		681220001A74C4ED00AF86E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "fiscevm-iosTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		6873C2501A033A66006C201B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -474,41 +506,17 @@
 			};
 			name = Release;
 		};
-		68BCDCC41A6FED550065EC5A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "fiscevm-iosTests/Supporting Files/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		68BCDCC51A6FED550065EC5A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "fiscevm-iosTests/Supporting Files/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		68121FFE1A74C4ED00AF86E9 /* Build configuration list for PBXNativeTarget "fiscevm-iosTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				68121FFF1A74C4ED00AF86E9 /* Debug */,
+				681220001A74C4ED00AF86E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		6873C2391A033A66006C201B /* Build configuration list for PBXProject "fiscevm-ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -526,14 +534,6 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
-		};
-		68BCDCC31A6FED550065EC5A /* Build configuration list for PBXNativeTarget "fiscevm-iosTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				68BCDCC41A6FED550065EC5A /* Debug */,
-				68BCDCC51A6FED550065EC5A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
