@@ -72,7 +72,7 @@
 #endif
 
 #ifdef ASM_CHECK
-# define TRAP ({*((char*)0) = 1;})
+# define TRAP ({if(likely(exception != NULL)){*((char*)0) = 1;}})
 #else
 # define TRAP
 #endif
