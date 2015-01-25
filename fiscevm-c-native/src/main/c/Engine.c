@@ -62,7 +62,7 @@
 #endif
 
 #ifdef VM_DEBUG
-# define NAME(_x) if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, stack));}
+# define NAME(_x) if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, thread->stack));}
 #else
 # ifdef ASM_CHECK
 #  define NAME(_x) puts(_x);
@@ -72,7 +72,7 @@
 #endif
 
 #ifdef ASM_CHECK
-# define TRAP ({if(likely(exception != NULL)){*((char*)0) = 1;}})
+# define TRAP ({if(likely(exception != NULL)){*((volatile char*)0) = 1;}})
 #else
 # define TRAP
 #endif
@@ -140,7 +140,7 @@
 
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
-#  define NEXT_P0
+#  define NEXT_P0 ({--ops;})
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
@@ -148,8 +148,8 @@
 #  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
 #  define NEXT_INST	(*IP)
 #  define DEF_CA
-#  define NEXT_P1	(ipp++, ops--)
-#  define NEXT_P2	({goto *((*(ipp-1)).inst);})
+#  define NEXT_P1	
+#  define NEXT_P2	({goto *((ipp++)->inst);})
 #endif
 
 #if THREADING_SCHEME==9
@@ -244,13 +244,13 @@ enum {
 # define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
 #endif
 
-# define FY_CHECK_OPS if(unlikely(ops <= 0)){FY_FALLOUT_NOINVOKE}
-# define FY_CHECK_OPS_INVOKE if(unlikely(ops <= 0)){FY_FALLOUT_INVOKE}
-# define FY_CHECK_OPS_AND_GOTO \
-if(unlikely(ops <= 0)){ \
+# define FY_CHECK_OPS(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_NOINVOKE}
+# define FY_CHECK_OPS_INVOKE(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_INVOKE}
+# define FY_CHECK_OPS_AND_GOTO(OPS) \
+if(unlikely(OPS <= 0)){ \
 	fy_localToFrame(context, frame); \
 	frame->pcofs = CURR_INST.params.int_params.param1 - frame->lpc; \
-	SET_IP(FY_IP_dropout); NEXT_P1; NEXT_P2; \
+	FY_FALLOUT_INVOKE; \
 } else { \
 	SET_IP(CURR_INST.params.int_params.param1); \
 }
@@ -342,7 +342,7 @@ if(unlikely(exception->exceptionType != exception_none)){ \
 #define FY_ENGINE_CLINIT(CLASS, SPSS) { \
 	ops = fy_threadClinit(context, thread, (CLASS), spp + (SPSS), ops, exception); \
 	FY_THEH(); \
-	FY_CHECK_OPS_INVOKE; \
+	FY_CHECK_OPS_INVOKE(ops); \
 }
 
 static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,

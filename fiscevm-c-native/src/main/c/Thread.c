@@ -474,7 +474,7 @@ static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 			return 0;
 		}
 		ops = (*(method->engine))(context, thread,
-				fy_threadCurrentFrame(context, thread), ops, exception).ops;
+				fy_threadCurrentFrame(context, thread), ops, exception, NULL);
 	}
 	return ops;
 }
@@ -748,7 +748,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		}
 
 		ops = (*(method->engine))(context, thread, frame, ops,
-				intrenalException).ops;
+				intrenalException, NULL);
 
 		if (intrenalException->exceptionType != exception_none) {
 			if (intrenalException->exceptionName[0] == 0) {

@@ -230,16 +230,12 @@ extern "C" {
 		fy_int op;
 	}fy_e2_label_holder;
 
-	typedef union fy_engine_result {
-		fy_int ops;
-		fy_e2_label_holder *labels;
-	}fy_engine_result;
-
-	typedef fy_engine_result (*fy_engine)(struct fy_context *context,
+	typedef fy_int (*fy_engine)(struct fy_context *context,
 			struct fy_thread *thread,
 			struct fy_frame *frame,
 			fy_int ops,
-			struct fy_exception *exception);
+			struct fy_exception *exception,
+            fy_e2_label_holder **out_labels);
 
 	typedef struct fy_method {
 		fy_int method_id;

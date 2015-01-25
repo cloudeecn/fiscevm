@@ -37,10 +37,38 @@
 #include<stdio.h>
 #include<stdarg.h>
 
-#if defined(__GNUC__) && ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=7)||(__GNUC__>2))
-#define MAYBE_UNUSED __attribute__((unused))
+/*
+ GCC attributes for optimize
+ */
+#ifdef __GNUC__
+# ifndef likely
+#  define likely(X) __builtin_expect(!!(X), 1)
+# endif
+# ifndef unlikely
+#  define unlikely(X) __builtin_expect(!!(X), 0)
+# endif
+# define FY_PREFETCH(ADDR) __builtin_prefetch(ADDR)
+# if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=7)||(__GNUC__>2))
+#  define MAYBE_UNUSED __attribute__((unused))
+# else
+#  define MAYBE_UNUSED
+# endif
+# if ((__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=3)||(__GNUC__>4))
+#  define FY_HOT __attribute__((hot))
+# else
+#  define FY_HOT
+# endif
 #else
-#define MAYBE_UNUSED
+# ifndef likely
+#  define likely(X) (X)
+# endif
+# ifndef unlikely
+#  define unlikely(X) (X)
+# endif
+# define FY_PREFETCH(ADDR)
+# define MAYBE_UNUSED
+# define FY_HOT
+# define FY_PREFETCH
 #endif
 
 #ifdef	__cplusplus
@@ -184,24 +212,6 @@ typedef struct fy_port {
 # define FY_PRINT32 ""
 #endif
 
-#ifdef __GNUC__
-# ifndef likely
-#  define likely(X) __builtin_expect(!!(X), 1)
-# endif
-
-# ifndef unlikely
-#  define unlikely(X) __builtin_expect(!!(X), 0)
-# endif
-#else
-# ifndef likely
-#  define likely(X) (X)
-# endif
-
-# ifndef unlikely
-#  define unlikely(X) (X)
-# endif
-#endif
-
 #define FY_PDIFF(TYPE, B, A) ((fy_int)(((size_t)B - (size_t)A)/sizeof(TYPE)))
 #define fy_I2TOL(I1,I2) ((fy_long)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
 #define fy_I2TOUL(I1,I2) ((fy_ulong)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
@@ -229,6 +239,7 @@ FY_ATTR_EXPORT fy_boolean fy_portValidate();
 #define fy_stack_item2farray(spp) ((float*)(void*)(spp))
 
 #define FYEH() if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) return
+#define FYEX(HANDLER) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) {HANDLER;}
 #define FYEG(X) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) goto X
 
 #define FY_ENGINE_COUNT 1

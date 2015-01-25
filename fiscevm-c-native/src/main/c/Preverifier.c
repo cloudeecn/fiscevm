@@ -930,7 +930,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 	engine = context->engines[method->method_id % context->engineCount];
 	memset(labelsByOp, 0, sizeof(labelsByOp));
 
-	labels = ((*engine)(context, NULL, NULL, 0, exception)).labels;
+	(*engine)(context, NULL, NULL, 0, exception, &labels);
 	FYEH();
 	while (labels->op >= 0) {
 		labelsByOp[labels->op] = labels->label;

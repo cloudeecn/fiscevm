@@ -186,14 +186,43 @@ fy_uint fy_heapAllocateArray(fy_context *context, fy_class *clazz,
 		fy_int length, fy_exception *exception) {
 	fy_int size;
 
-	if (clazz->type != array_class) {
+	if (unlikely(clazz->type != array_class) ){
 		fy_fault(exception, NULL, "Cannot instance Array with object class");
 		return 0;
 	}
+    if(unlikely(length<0)){
+        fy_fault(exception, FY_EXCEPTION_AIOOB, "%d", length);
+        return 0;
+    }
 
 	size = fy_heapGetArraySizeFromLength(clazz, length);
 
 	return allocate(context, size, clazz, length, 0, automatic, exception);
+}
+
+fy_uint fy_heapAllocateArrayWithContentType(fy_context *context, fy_class *clazz, fy_int length,fy_exception *exception){
+    fy_str className;
+    fy_memblock *block=context->memblocks;
+    className.content = NULL;
+    fy_strInit(block, &className, 64, exception);
+    FYEX({return 0;});
+    if (clazz->type == object_class) {
+        fy_strAppendUTF8(block, &className, "[L", 3, exception);
+        FYEX({fy_strDestroy(block, &className); return 0;});
+        fy_strAppend(block, &className, clazz->className, exception);
+        FYEX({fy_strDestroy(block, &className); return 0;});
+        fy_strAppendUTF8(block, &className, ";", 3, exception);
+        FYEX({fy_strDestroy(block, &className); return 0;});
+    } else if (clazz->type == array_class) {
+        fy_strAppendUTF8(block, &className, "[", 3, exception);
+        FYEX({fy_strDestroy(block, &className); return 0;});
+        fy_strAppend(block, &className, clazz->className, exception);
+        FYEX({fy_strDestroy(block, &className); return 0;});
+    }
+    clazz = fy_vmLookupClass(context, &className, exception);
+    fy_strDestroy(block, &className);
+    FYEX({return 0;});
+    return fy_heapAllocateArray(context, clazz, length, exception);
 }
 
 fy_class* fy_heapGetClassOfObject(fy_context *context, fy_int handle,
@@ -553,8 +582,11 @@ void fy_heapPutArrayHandle(fy_context *context, fy_int handle, fy_int index,
 	fy_object *obj = fy_heapGetObject(context, handle);
 	CHECK_NPT()
 	CHECK_IOOB()
-
-	((fy_int*) obj->object_data->data)[index] = value;
+    if (unlikely(value != 0 && !fy_classCanCastTo(context, fy_heapGetClassOfObject(context, value, exception), fy_heapGetClassOfObject(context, handle, exception)->ci.arr.contentClass, TRUE))) {
+        fy_fault(exception, FY_EXCEPTION_STORE, "Data type not compatable");
+    }else{
+        ((fy_int*) obj->object_data->data)[index] = value;
+    }
 }
 void fy_heapPutArrayByte(fy_context *context, fy_int handle, fy_int index,
 		fy_byte value, fy_exception *exception) {

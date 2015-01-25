@@ -1,14 +1,15 @@
 #ifdef FY_ENGINE_HEADER
 #define Cell fy_stack_item
 
-fy_engine_result FY_ENGINE_NAME(
+
+FY_HOT fy_int FY_ENGINE_NAME(
     fy_context *context,
     fy_thread *thread,
     fy_frame *frame,
-    fy_int oops,
-    fy_exception *exception) {
+    fy_int ops,
+    fy_exception *exception,
+    fy_e2_label_holder **out_labels) {
 #ifndef FY_LATE_DECLARATION
-  register fy_int ops = oops;
 #ifdef USE_CFA
   register fy_e2_label cfa;
 #endif
@@ -30,7 +31,6 @@ fy_engine_result FY_ENGINE_NAME(
   fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
 #endif
 
-  fy_engine_result ret;
   static fy_e2_label_holder labels[] = {
 #undef FY_ENGINE_HEADER
 #include "fisce-labels.i"
@@ -48,11 +48,11 @@ fy_engine_result FY_ENGINE_NAME(
 
 
 
-  if(thread == NULL){
-    ret.labels = labels;
+  if(unlikely(thread == NULL)){
+    *out_labels = labels;
+    return 0;
   }else{
 #ifdef FY_LATE_DECLARATION
-  register fy_int ops = oops;
 #ifdef USE_CFA
   register fy_e2_label cfa;
 #endif
@@ -317,9 +317,8 @@ INST_ADDR(lookupswitch),
 INST_ADDR(tableswitch),
 #ifdef FY_ENGINE_HEADER
     label_fallout_invoke:
-    ret.ops = ops;
+    return ops;
   }
-  return ret;
 }
 #undef FY_ENGINE_NAME
 #endif
