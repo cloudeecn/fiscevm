@@ -5,9 +5,10 @@ fy_engine_result FY_ENGINE_NAME(
     fy_context *context,
     fy_thread *thread,
     fy_frame *frame,
-    fy_int ops,
+    fy_int oops,
     fy_exception *exception) {
 #ifndef FY_LATE_DECLARATION
+  register fy_int ops = oops;
 #ifdef USE_CFA
   register fy_e2_label cfa;
 #endif
@@ -18,7 +19,7 @@ fy_engine_result FY_ENGINE_NAME(
   register fy_stack_item *spp;
 
   fy_instruction *instructions;
-  fy_stack_item *stack, *sbase;
+  register fy_stack_item *sbase;
 
   fy_memblock *block;
 
@@ -51,8 +52,7 @@ fy_engine_result FY_ENGINE_NAME(
     ret.labels = labels;
   }else{
 #ifdef FY_LATE_DECLARATION
-
-
+  register fy_int ops = oops;
 #ifdef USE_CFA
   register fy_e2_label cfa;
 #endif
@@ -63,14 +63,13 @@ fy_engine_result FY_ENGINE_NAME(
   register fy_stack_item *spp;
 
   fy_instruction *instructions;
-  fy_stack_item *stack, *sbase;
+  register fy_stack_item *sbase;
 
   fy_memblock *block;
 
   fy_method *method = NULL;
 #endif
 
-  stack = thread->stack;
   block = context->memblocks;
 
   method = frame->method;
@@ -81,7 +80,7 @@ fy_engine_result FY_ENGINE_NAME(
   if(vm_debug){
     fprintf(vm_out, "\nInvoking: ");
     fy_strFPrint(vm_out, method->uniqueName);
-    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, stack));
+    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, thread->stack));
     if(frame->lpc + frame->pcofs == FY_IP_begin){
 #ifndef FY_LATE_DECLARATION
       fy_uint i1, i2;

@@ -19,7 +19,7 @@
 \C  register fy_stack_item *spp;
 \C
 \C  fy_instruction *instructions;
-\C  fy_stack_item *sbase;
+\C  register fy_stack_item *sbase;
 \C
 \C  fy_memblock *block;
 \C
@@ -63,14 +63,13 @@
 \C  register fy_stack_item *spp;
 \C
 \C  fy_instruction *instructions;
-\C  fy_stack_item *stack, *sbase;
+\C  register fy_stack_item *sbase;
 \C
 \C  fy_memblock *block;
 \C
 \C  fy_method *method = NULL;
 \C#endif
 \C
-\C  stack = thread->stack;
 \C  block = context->memblocks;
 \C
 \C  method = frame->method;
@@ -81,7 +80,7 @@
 \C  if(vm_debug){
 \C    fprintf(vm_out, "\nInvoking: ");
 \C    fy_strFPrint(vm_out, method->uniqueName);
-\C    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, stack));
+\C    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, thread->stack));
 \C    if(frame->lpc + frame->pcofs == FY_IP_begin){
 \C#ifndef FY_LATE_DECLARATION
 \C      fy_uint i1, i2;
