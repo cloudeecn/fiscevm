@@ -841,10 +841,6 @@ void fy_threadReturnInt(fy_stack_item *spp, fy_int value) {
 	spp->ivalue = value;
 }
 
-void fy_threadReturnHandle(fy_stack_item *spp, fy_int value) {
-	spp->ivalue = value;
-}
-
 void fy_threadReturnLong(fy_stack_item *spp, fy_long value) {
 	spp->uvalue = fy_HOFL(value);
 	(spp + 1)->uvalue = fy_LOFL(value);

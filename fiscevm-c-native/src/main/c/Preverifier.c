@@ -2317,9 +2317,233 @@ void fy_preverify(fy_context *context, fy_method *method,
 				instruction->params.int_params.param1,
 				instruction->params.int_params.param2);
 #endif
+        switch (op) {
+            case FY_OP_fload:
+            case FY_OP_aload:
+                op = FY_OP_iload;
+                break;
+            case FY_OP_iload_0:
+            case FY_OP_aload_0:
+            case FY_OP_fload_0:
+                op = FY_OP_iload;
+                instruction->params.int_params.param1 = 0;
+                break;
+            case FY_OP_iload_1:
+            case FY_OP_aload_1:
+            case FY_OP_fload_1:
+                op = FY_OP_iload;
+                instruction->params.int_params.param1 = 1;
+                break;
+            case FY_OP_iload_2:
+            case FY_OP_aload_2:
+            case FY_OP_fload_2:
+                op = FY_OP_iload;
+                instruction->params.int_params.param1 = 2;
+                break;
+            case FY_OP_iload_3:
+            case FY_OP_aload_3:
+            case FY_OP_fload_3:
+                op = FY_OP_iload;
+                instruction->params.int_params.param1 = 3;
+                break;
+            case FY_OP_fstore:
+            case FY_OP_astore:
+                op = FY_OP_istore;
+                break;
+            case FY_OP_istore_0:
+            case FY_OP_astore_0:
+            case FY_OP_fstore_0:
+                op = FY_OP_istore;
+                instruction->params.int_params.param1 = 0;
+                break;
+            case FY_OP_istore_1:
+            case FY_OP_astore_1:
+            case FY_OP_fstore_1:
+                op = FY_OP_istore;
+                instruction->params.int_params.param1 = 1;
+                break;
+            case FY_OP_istore_2:
+            case FY_OP_astore_2:
+            case FY_OP_fstore_2:
+                op = FY_OP_istore;
+                instruction->params.int_params.param1 = 2;
+                break;
+            case FY_OP_istore_3:
+            case FY_OP_astore_3:
+            case FY_OP_fstore_3:
+                op = FY_OP_istore;
+                instruction->params.int_params.param1 = 3;
+                break;
+            
+            case FY_OP_dload:
+                op = FY_OP_lload;
+                break;
+            case FY_OP_dload_0:
+            case FY_OP_lload_0:
+                op = FY_OP_lload;
+                instruction->params.int_params.param1 = 0;
+                break;
+            case FY_OP_dload_1:
+            case FY_OP_lload_1:
+                op = FY_OP_lload;
+                instruction->params.int_params.param1 = 1;
+                break;
+            case FY_OP_dload_2:
+            case FY_OP_lload_2:
+                op = FY_OP_lload;
+                instruction->params.int_params.param1 = 2;
+                break;
+            case FY_OP_dload_3:
+            case FY_OP_lload_3:
+                op = FY_OP_lload;
+                instruction->params.int_params.param1 = 3;
+                break;
+            case FY_OP_dstore:
+                op = FY_OP_lstore;
+                break;
+            case FY_OP_dstore_0:
+            case FY_OP_lstore_0:
+                op = FY_OP_lstore;
+                instruction->params.int_params.param1 = 0;
+                break;
+            case FY_OP_dstore_1:
+            case FY_OP_lstore_1:
+                op = FY_OP_lstore;
+                instruction->params.int_params.param1 = 1;
+                break;
+            case FY_OP_dstore_2:
+            case FY_OP_lstore_2:
+                op = FY_OP_lstore;
+                instruction->params.int_params.param1 = 2;
+                break;
+            case FY_OP_dstore_3:
+            case FY_OP_lstore_3:
+                op = FY_OP_lstore;
+                instruction->params.int_params.param1 = 3;
+                break;
+                
+            case FY_OP_bipush:
+                op = FY_OP_sipush;
+                break;
+                
+            case FY_OP_iconst_m1:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = -1;
+                break;
+                
+            case FY_OP_iconst_0:
+            case FY_OP_aconst_null:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = 0;
+                break;
+                
+            case FY_OP_iconst_1:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = 1;
+                break;
+                
+            case FY_OP_iconst_2:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = 2;
+                break;
+                
+            case FY_OP_iconst_3:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = 3;
+                break;
+                
+            case FY_OP_iconst_4:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = 4;
+                break;
+                
+            case FY_OP_iconst_5:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = 5;
+                break;
+                
+            case FY_OP_fconst_0:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = fy_floatToInt(0.0f);
+                break;
+                
+            case FY_OP_fconst_1:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = fy_floatToInt(1.0f);
+                break;
+                
+            case FY_OP_fconst_2:
+                op = FY_OP_sipush;
+                instruction->params.int_params.param1 = fy_floatToInt(2.0f);
+                break;
+            
+            case FY_OP_dconst_0:
+                op = FY_OP_slpush;
+                instruction->params.int_params.param1 = fy_HOFL(fy_doubleToLong(0.0));
+                instruction->params.int_params.param2 = fy_LOFL(fy_doubleToLong(0.0));
+                break;
+            case FY_OP_lconst_0:
+                op = FY_OP_slpush;
+                instruction->params.int_params.param1 = 0;
+                instruction->params.int_params.param2 = 0;
+                break;
+            case FY_OP_dconst_1:
+                op = FY_OP_slpush;
+                instruction->params.int_params.param1 = fy_HOFL(fy_doubleToLong(1.0));
+                instruction->params.int_params.param2 = fy_LOFL(fy_doubleToLong(1.0));
+                break;
+            case FY_OP_lconst_1:
+                op = FY_OP_slpush;
+                instruction->params.int_params.param1 = 0;
+                instruction->params.int_params.param2 = 1;
+                break;
+                
+            case FY_OP_ldc_w:
+                op = FY_OP_ldc;
+                break;
+                
+            case FY_OP_aaload:
+            case FY_OP_faload:
+                op = FY_OP_iaload;
+                break;
+                
+            case FY_OP_aastore:
+            case FY_OP_fastore:
+                op = FY_OP_iastore;
+                break;
+                
+            case FY_OP_dastore:
+                op = FY_OP_lastore;
+                break;
+                
+            case FY_OP_invokeinterface:
+                op = FY_OP_invokevirtual;
+                break;
+                
+            case FY_OP_if_acmpeq:
+                op = FY_OP_if_icmpeq;
+                break;
+            case FY_OP_if_acmpne:
+                op = FY_OP_if_icmpne;
+                break;
+
+            case FY_OP_areturn:
+            case FY_OP_freturn:
+                op = FY_OP_ireturn;
+                break;
+            case FY_OP_dreturn:
+                op = FY_OP_lreturn;
+                break;
+            case FY_OP_goto_w:
+                op = FY_OP_goto;
+                break;
+            default:
+                break;
+        }
 		instruction->inst = labelsByOp[op];
 		if(instruction->inst == NULL){
 			fy_breakpoint();
+            fy_fault(NULL, "Illegal op", "Illegal op: %s", FY_OP_NAME[op]);
 		}
 #ifdef FY_STRICT_CHECK
 		instruction_extra->op = op;

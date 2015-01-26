@@ -88,7 +88,7 @@
  for Gforth "make bench" on a 486, whereas scheme 5 is fastest for
  "mini fib.mini" on an Athlon */
 #ifndef THREADING_SCHEME
-#define THREADING_SCHEME 8
+#define THREADING_SCHEME 5
 #endif /* defined(THREADING_SCHEME) */
 
 #ifdef __GNUC__
@@ -111,7 +111,7 @@
 /* direct threading scheme 3: autoinc, low latency (68K) */
 #  define USE_CFA 1
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0
+#  define NEXT_P0   ({ops--;})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST		(*(ipp - 1))
@@ -127,20 +127,20 @@
 #  define USE_CFA 1
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define CFA_NEXT
-#  define NEXT_P0	({cfa=ipp->inst;})
+#  define NEXT_P0	({cfa=ipp->inst; --ops;})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
 #  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0; /*fprintf(vm_out, "\njumping to %"FY_PRINT32"d [%p]\n", cfa.op, cfa.inst); if(cfa.inst == NULL){fy_breakpoint();}*/})
-#  define NEXT_INST	(*ipp)
+#  define NEXT_INST	(*IP)
 #  define DEF_CA
-#  define NEXT_P1	(ipp++, ops--)
+#  define NEXT_P1	({ipp++;})
 #  define NEXT_P2	({goto *cfa;})
 #endif
 
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
-#  define NEXT_P0 ({--ops;})
+#  define NEXT_P0 ({--ops;/*FY_PREFETCH(ipp);*/})
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
@@ -177,7 +177,7 @@
 #  define USE_CFA
 #  define REGISTER_CFA
 #  define ENGINE_ENTER ({NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0
+#  define NEXT_P0   ({ops--;})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST (*(ipp - 1))

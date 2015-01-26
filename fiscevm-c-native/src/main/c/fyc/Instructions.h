@@ -251,12 +251,19 @@
 #define FY_OP_jsr_w  0xc9
 #define FY_OP_breakpoint  0xca
 
-#define FY_OP_getstatic_x  0xf2
-#define FY_OP_putstatic_x  0xf3
-#define FY_OP_getfield_x  0xf4
-#define FY_OP_putfield_x  0xf5
+#define FY_OP_slpush  0xd0
 
-#define FY_OP_dropout  0x1f0
+#define FY_OP_getstatic_r  0xd2
+#define FY_OP_putstatic_r  0xd3
+#define FY_OP_getfield_r  0xd4
+#define FY_OP_putfield_r  0xd5
+
+#define FY_OP_getstatic_x  0xe2
+#define FY_OP_putstatic_x  0xe3
+#define FY_OP_getfield_x  0xe4
+#define FY_OP_putfield_x  0xe5
+
+#define FY_OP_dropout  0xff
 
 #define FY_IP_dropout 0x00
 

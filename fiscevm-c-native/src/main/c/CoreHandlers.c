@@ -101,14 +101,14 @@ static fy_int SystemSetErr(struct fy_context *context, struct fy_thread *thread,
 static fy_int SystemGetProperty(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_stack_item *args,
 		fy_int argsCount, fy_int ops, fy_exception *exception) {/*TODO stub*/
-	fy_threadReturnHandle(args, 0);
+	fy_threadReturnInt(args, 0);
 	return ops - 1;
 }
 
 static fy_int SystemSetProperty(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_stack_item *args,
 		fy_int argsCount, fy_int ops, fy_exception *exception) {/*TODO stub*/
-	fy_threadReturnHandle(args, 0);
+	fy_threadReturnInt(args, 0);
 	return ops - 1;
 }
 
@@ -165,7 +165,7 @@ static fy_int StringIntern(struct fy_context *context, struct fy_thread *thread,
 	}
 	ret = fy_heapLiteral(context, &str, exception);
 	fy_strDestroy(context->memblocks, &str);
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 static fy_int doubleLongBitsToDouble(struct fy_context *context,
@@ -220,7 +220,7 @@ static fy_int ObjectGetClass(struct fy_context *context,
 		fy_int argsCount, fy_int ops, fy_exception *exception) {
 	fy_class *clazz = fy_heapGetClassOfObject(context, args[0].ivalue,
 			exception);
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_vmGetClassObjHandle(context, clazz, exception));
 	return ops - 1;
 }
@@ -229,7 +229,7 @@ static fy_int ObjectClone(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	fy_int ret = fy_heapClone(context, args[0].ivalue, exception);
 	FYEH()0;
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 static fy_int ObjectWait(struct fy_context *context, struct fy_thread *thread,
@@ -261,7 +261,7 @@ static fy_int ObjectNotifyAll(struct fy_context *context,
 static fy_int ThreadCurrentThread(struct fy_context *context,
 		struct fy_thread *thread, void *data, fy_stack_item *args,
 		fy_int argsCount, fy_int ops, fy_exception *exception) {
-	fy_threadReturnHandle(args, thread->handle);
+	fy_threadReturnInt(args, thread->handle);
 	return ops - 1;
 }
 
@@ -397,12 +397,12 @@ static fy_int VMDecode(struct fy_context *context, struct fy_thread *thread,
 	fy_memblock *block = context->memblocks;
 	charArray = fy_vmLookupClass(context, context->sArrayChar, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadReturnHandle(args, 0);
+		fy_threadReturnInt(args, 0);
 		return 0;
 	}
 	array = fy_heapGetArrayBytes(context, handleSrc, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadReturnHandle(args, 0);
+		fy_threadReturnInt(args, 0);
 		return 0;
 	}
 
@@ -418,7 +418,7 @@ static fy_int VMDecode(struct fy_context *context, struct fy_thread *thread,
 	handleRet = fy_heapAllocateArray(context, charArray, maxi = str->length,
 			exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadReturnHandle(args, 0);
+		fy_threadReturnInt(args, 0);
 		fy_strDestroy(block, str);
 		return 0;
 	}
@@ -426,13 +426,13 @@ static fy_int VMDecode(struct fy_context *context, struct fy_thread *thread,
 		fy_heapPutArrayChar(context, handleRet, i, fy_strGet(str, i),
 				exception);
 		if (exception->exceptionType != exception_none) {
-			fy_threadReturnHandle(args, 0);
+			fy_threadReturnInt(args, 0);
 			fy_strDestroy(block, str);
 			return 0;
 		}
 	}
 	fy_strDestroy(block, str);
-	fy_threadReturnHandle(args, handleRet);
+	fy_threadReturnInt(args, handleRet);
 	return ops - 1;
 }
 
@@ -453,7 +453,7 @@ static fy_int VMEncode(struct fy_context *context, struct fy_thread *thread,
 	fy_char ch;
 	byteClass = fy_vmLookupClass(context, context->sArrayByte, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadReturnHandle(args, 0);
+		fy_threadReturnInt(args, 0);
 		return 0;
 	}
 	left = len * 3 + 1;
@@ -463,7 +463,7 @@ static fy_int VMEncode(struct fy_context *context, struct fy_thread *thread,
 	for (i = 0; i < len; i++) {
 		ch = fy_heapGetArrayChar(context, handleSrc, i + ofs, exception);
 		if (exception->exceptionType != exception_none) {
-			fy_threadReturnHandle(args, 0);
+			fy_threadReturnInt(args, 0);
 			fy_free(out);
 			return 0;
 		}
@@ -475,21 +475,21 @@ static fy_int VMEncode(struct fy_context *context, struct fy_thread *thread,
 	}
 	handleRet = fy_heapAllocateArray(context, byteClass, olen, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadReturnHandle(args, 0);
+		fy_threadReturnInt(args, 0);
 		fy_free(out);
 		return 0;
 	}
 
 	outTmp = fy_heapGetArrayBytes(context, handleRet, exception);
 	if (exception->exceptionType != exception_none) {
-		fy_threadReturnHandle(args, 0);
+		fy_threadReturnInt(args, 0);
 		fy_free(out);
 		return 0;
 	}
 
 	memcpy(outTmp, out, olen);
 	fy_free(out);
-	fy_threadReturnHandle(args, handleRet);
+	fy_threadReturnInt(args, handleRet);
 	return ops - 1;
 }
 
@@ -543,7 +543,7 @@ static fy_int VMDoubleToString(struct fy_context *context,
 	handleRet = fy_heapMakeString(context, str, exception);
 	fy_strDestroy(context->memblocks, str);
 	FYEH()0;
-	fy_threadReturnHandle(args, handleRet);
+	fy_threadReturnInt(args, handleRet);
 	return ops - 1;
 }
 
@@ -588,7 +588,7 @@ static fy_int VMFloatToString(struct fy_context *context,
 	if (exception->exceptionType != exception_none) {
 		return 0;
 	}
-	fy_threadReturnHandle(args, handleRet);
+	fy_threadReturnInt(args, handleRet);
 	return ops - 1;
 }
 
@@ -637,7 +637,7 @@ static fy_int finalizerGetFinalizee(struct fy_context *context,
 		object->object_data->finalizeStatus = finalized;
 	}
 	fy_arrayListClear(context->memblocks, context->toFinalize);
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -666,7 +666,7 @@ static fy_int finalizerGetReferencesToEnqueue(struct fy_context *context,
 		FYEH()0;
 	}
 	fy_arrayListClear(context->memblocks, context->toEnqueue);
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -730,7 +730,7 @@ static fy_int methodGetDeclaringClass(struct fy_context *context,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_vmGetClassObjHandle(context, method->owner, exception));
 	return ops - 1;
 }
@@ -763,7 +763,7 @@ static fy_int methodExceptionTypes(struct fy_context *context,
 		fy_heapPutArrayHandle(context, ret, i, handler, exception);
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -792,7 +792,7 @@ static fy_int methodGetName(struct fy_context *context,
 	}
 	ret = fy_heapLiteral(context, method->name, exception);
 	FYEH()0;
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -818,7 +818,7 @@ static fy_int methodGetParameterTypes(struct fy_context *context,
 		fy_heapPutArrayHandle(context, ret, i, handle, exception);
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -831,7 +831,7 @@ static fy_int methodGetReturnType(struct fy_context *context,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_vmGetClassObjHandle(context, method->returnTypeClass,
 					exception));
 	return ops - 1;
@@ -880,7 +880,7 @@ static fy_int methodInvoke(struct fy_context *context, struct fy_thread *thread,
 		fy_fault(exception, NULL, "parameter count mismatch");
 	}
 	if (!(method->access_flags & FY_ACC_STATIC)) {
-		fy_threadReturnHandle(args, args[1].uvalue);
+		fy_threadReturnInt(args, args[1].uvalue);
 		args++;
 	} else {
 		ops = fy_threadClinit(context, thread, method->owner, args + argsCount,
@@ -957,7 +957,7 @@ static fy_int methodInvoke(struct fy_context *context, struct fy_thread *thread,
 			}
 			}
 		} else {
-			fy_threadReturnHandle(args++, paramHandle);
+			fy_threadReturnInt(args++, paramHandle);
 		}
 	}
 	context->logDVar(context, "Invoking: ");
@@ -975,7 +975,7 @@ static fy_int methodGetUniqueName(struct fy_context *context,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_heapLiteral(context, method->uniqueName, exception));
 	return ops - 1;
 }
@@ -1087,8 +1087,8 @@ static fy_int constructorNewInstance(struct fy_context *context,
 	}
 	paramHandle = fy_heapAllocate(context, method->owner, exception);
 	FYEH()0;
-	fy_threadReturnHandle(args++, paramHandle);
-	fy_threadReturnHandle(args++, paramHandle);
+	fy_threadReturnInt(args++, paramHandle);
+	fy_threadReturnInt(args++, paramHandle);
 	for (i = 0; i < count; i++) {
 		fy_arrayListGet(context->memblocks, method->parameterTypes, i,
 				&paramType);
@@ -1156,7 +1156,7 @@ static fy_int constructorNewInstance(struct fy_context *context,
 			}
 			}
 		} else {
-			fy_threadReturnHandle(args++, paramHandle);
+			fy_threadReturnInt(args++, paramHandle);
 		}
 	}
 	return fy_threadInvokeSpecial(context, thread,
@@ -1263,16 +1263,16 @@ static fy_int fieldGetObject(struct fy_context *context,
 		if (field->access_flags & FY_ACC_FINAL) {
 			if (field->constant_value_index > 0) {
 				/*This must be string*/
-				fy_threadReturnHandle(args,
+				fy_threadReturnInt(args,
 						fy_heapLookupStringFromConstant(context,
 								field->owner->constantPools[field->constant_value_index],
 								exception));
 			} else {
-				fy_threadReturnHandle(args,
+				fy_threadReturnInt(args,
 						fy_heapGetStaticHandle(context, field, exception));
 			}
 		} else {
-			fy_threadReturnHandle(args,
+			fy_threadReturnInt(args,
 					fy_heapGetStaticHandle(context, field, exception));
 		}
 	} else {
@@ -1282,7 +1282,7 @@ static fy_int fieldGetObject(struct fy_context *context,
 			fy_fault(exception, FY_EXCEPTION_ARGU, "Class cast exception");
 			FYEH()0;
 		}
-		fy_threadReturnHandle(args,
+		fy_threadReturnInt(args,
 				fy_heapGetFieldHandle(context, args[1].uvalue, field,
 						exception));
 	}
@@ -1604,7 +1604,7 @@ static fy_int fieldGetName(struct fy_context *context, struct fy_thread *thread,
 	}
 	ret = fy_heapLiteral(context, field->name, exception);
 	FYEH()0;
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -1617,7 +1617,7 @@ static fy_int fieldGetType(struct fy_context *context, struct fy_thread *thread,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_vmGetClassObjHandle(context, field->type, exception));
 	return ops - 1;
 }
@@ -1631,7 +1631,7 @@ static fy_int fieldGetDeclaringClass(struct fy_context *context,
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Method not found!");
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_vmGetClassObjHandle(context, field->owner, exception));
 	return ops - 1;
 }
@@ -1717,7 +1717,7 @@ static fy_int fieldGetUniqueName(struct fy_context *context,
 	}
 	ret = fy_heapLiteral(context, field->uniqueName, exception);
 	FYEH()0;
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -1844,7 +1844,7 @@ static fy_int classPrivateGetDeclaredMethods(struct fy_context *context,
 				exception);
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 static fy_int classPrivateGetDeclaredFields(struct fy_context *context,
@@ -1871,7 +1871,7 @@ static fy_int classPrivateGetDeclaredFields(struct fy_context *context,
 				exception);
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 static fy_int classGetComponentType(struct fy_context *context,
@@ -1880,11 +1880,11 @@ static fy_int classGetComponentType(struct fy_context *context,
 	fy_class *clazz = fy_vmGetClassFromClassObject(context, args[0].uvalue,
 			exception);
 	if (clazz->type == array_class) {
-		fy_threadReturnHandle(args,
+		fy_threadReturnInt(args,
 				fy_vmGetClassObjHandle(context, clazz->ci.arr.contentClass,
 						exception));
 	} else {
-		fy_threadReturnHandle(args, 0);
+		fy_threadReturnInt(args, 0);
 	}
 	return ops - 1;
 }
@@ -1916,7 +1916,7 @@ static fy_int classForName(struct fy_context *context, struct fy_thread *thread,
 		return 0;
 	}
 	FYEH()0;
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_vmGetClassObjHandle(context, clazz, exception));
 	return ops - 1;
 }
@@ -1938,8 +1938,8 @@ static fy_int classNewInstanceO(struct fy_context *context,
 	handle = fy_heapAllocate(context, clazz, exception);
 	FYEH()0;
 
-	fy_threadReturnHandle(args++, handle);
-	fy_threadReturnHandle(args++, handle);
+	fy_threadReturnInt(args++, handle);
+	fy_threadReturnInt(args++, handle);
 
 	str.content = NULL;
 	fy_strInitWithUTF8(context->memblocks, &str, "."FY_METHOD_INIT".()V",
@@ -2016,7 +2016,7 @@ static fy_int classGetSuperclass(struct fy_context *context,
 			exception);
 	FYEH()0;
 	clazz = clazz->super;
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			clazz == NULL ?
 					0 : fy_vmGetClassObjHandle(context, clazz, exception));
 	return ops - 1;
@@ -2040,7 +2040,7 @@ static fy_int classGetInterfaces(struct fy_context *context,
 		fy_heapPutArrayHandle(context, ret, i, tmp, exception);
 		FYEH()0;
 	}
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -2052,7 +2052,7 @@ static fy_int classGetNativeName(struct fy_context *context,
 	fy_uint ret;
 	FYEH()0;
 	ret = fy_heapLiteral(context, clazz->className, exception);
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 
@@ -2156,7 +2156,7 @@ static fy_int refClear(struct fy_context *context, struct fy_thread *thread,
 static fy_int refGet(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
 		fy_exception *exception) {
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_hashMapIGet(context->memblocks, context->references,
 					args[0].uvalue));
 	return ops - 1;
@@ -2248,7 +2248,7 @@ static fy_int arrayNewInstance(struct fy_context *context,
 	}
 	}
 
-	fy_threadReturnHandle(args,
+	fy_threadReturnInt(args,
 			fy_heapMultiArray(context, targetClass, len, sizes, exception));
 	return ops - 1;
 }
@@ -2286,7 +2286,7 @@ static fy_int proxyDefineClassImpl(struct fy_context *context,
 	FYEH()0;
 	ret = fy_vmGetClassObjHandle(context, clazz, exception);
 	FYEH()0;
-	fy_threadReturnHandle(args, ret);
+	fy_threadReturnInt(args, ret);
 	return ops - 1;
 }
 

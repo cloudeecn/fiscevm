@@ -98,7 +98,7 @@ FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
 		const char *utf8, fy_exception *exception) {
 	size_t size;
 	size = fy_utf8SizeS(utf8, -1);
-	fy_strInit(block, str, size, exception);
+	fy_strInit(block, str, (fy_int)size, exception);
 	FYEH();
 	fy_strAppendUTF8(block, str, utf8, -1, exception);
 	FYEH();
@@ -175,7 +175,7 @@ FY_ATTR_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *block, fy_str *_this,
 		const char *utf8, fy_int size, fy_exception *exception) {
 	const char *inbuf = utf8;
 	fy_char outbuf;
-	fy_int sl = strlen(utf8);
+	fy_int sl = (fy_int)strlen(utf8);
 	if (_this->status & FY_STR_PERSIST) {
 		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
 		return NULL;
@@ -288,7 +288,7 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 			break;
 		case 'a':
 			rightArray = va->vars[i].a;
-			utf8Left = strlen(rightArray);
+			utf8Left = (fy_int)strlen(rightArray);
 			while (utf8Left > 0) {
 				if (pos >= left->length) {
 					return -1;
@@ -364,7 +364,7 @@ FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, const fy_str 
 	char *tmp;
 	fy_int left;
 	tmp = target;
-	left = targetSize;
+	left = (fy_int)targetSize;
 	count = str->length;
 	for (i = 0; i < count; i++) {
 		unicode = str->content[i];
@@ -439,7 +439,7 @@ FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va) {
 			break;
 		case 'a':
 			arrayBase = vars[i].a;
-			left = strlen(arrayBase);
+			left = (fy_int)strlen(arrayBase);
 			while (left > 0) {
 				value = fy_utf8Read((char const **) &arrayBase, &left);
 				ret = (ret << 5) + (ret << 2) + (ret >> 30) + value;

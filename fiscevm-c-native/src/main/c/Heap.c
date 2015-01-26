@@ -1966,3 +1966,31 @@ fy_int fy_heapMultiArray(fy_context *context, fy_class *clazz, fy_int layers,
 	}
 	return ret;
 }
+
+void fy_heapCheckCast(fy_context *context, fy_int fromHandle, fy_class *toClass, fy_exception *exception){
+    fy_class *clazz1;
+    fy_memblock *block = context->memblocks;
+    fy_str str1;
+    if (fromHandle != 0) {
+        clazz1 = fy_heapGetClassOfObject(context, fromHandle, exception);
+        FYEH();
+        if (unlikely(!fy_classCanCastTo(context, clazz1, toClass, TRUE))) {
+            strcpy_s(exception->exceptionName,
+                     sizeof(exception->exceptionName),
+                     FY_EXCEPTION_CAST);
+            str1.content = NULL;
+            fy_strInit(block, &str1, 64, exception);
+            fy_strAppendUTF8(block, &str1, "from ", 99, exception);
+            fy_strAppend(block, &str1, clazz1->className,
+                         exception);
+            fy_strAppendUTF8(block, &str1, " to ", 99, exception);
+            fy_strAppend(block, &str1, toClass->className,
+                         exception);
+            fy_strSPrint(exception->exceptionDesc,
+                         sizeof(exception->exceptionDesc), &str1);
+            fy_strDestroy(block, &str1);
+            exception->exceptionType = exception_normal;
+            FYEH();
+        }
+    }
+}

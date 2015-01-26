@@ -82,7 +82,7 @@ FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address) {
 
 void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
 		fy_exception *exception) {
-	fy_int blocks = (size + 3) >> 2;
+	fy_int blocks = (fy_int)((size + 3) >> 2);
 	if (block->posInOld >= block->oldTop - blocks) {
 		block->gcProvider(block->gcContext, TRUE, exception);
 		FYEH()NULL;

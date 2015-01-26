@@ -46,7 +46,7 @@ FY_ATTR_EXPORT void fy_nativeReturnHandle(fy_context *context,
 		fy_fault(NULL, NULL, "Illegal sp %"FY_PRINT32"d", sp);
 	}
 	spp = frame->baseSpp + sp;
-	return fy_threadReturnHandle(spp, value);
+	return fy_threadReturnInt(spp, value);
 }
 
 FY_ATTR_EXPORT void fy_nativeReturnLong(fy_context *context, fy_thread *thread,

@@ -241,7 +241,7 @@ fy_uint fy_heapLookupStringFromConstant(fy_context *context,
 
 fy_int fy_heapMultiArray(fy_context *context, fy_class *clazz, fy_int layers,
 		fy_int *elementsForEachLayer, fy_exception *exception);
-
+void fy_heapCheckCast(fy_context *context, fy_int fromHandle, fy_class *toClass, fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif

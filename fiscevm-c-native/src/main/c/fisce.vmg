@@ -22,7 +22,6 @@
 \C  fy_instruction *instructions;
 \C  register fy_stack_item *sbase;
 \C
-\C  fy_memblock *block;
 \C
 \C  fy_method *method = NULL;
 \C#endif
@@ -65,12 +64,9 @@
 \C  fy_instruction *instructions;
 \C  register fy_stack_item *sbase;
 \C
-\C  fy_memblock *block;
-\C
 \C  fy_method *method = NULL;
 \C#endif
 \C
-\C  block = context->memblocks;
 \C
 \C  method = frame->method;
 \C  instructions = method->instructions;
@@ -145,23 +141,6 @@ dropout ( -- )
   goto label_fallout_invoke;
 }
 
-\ #     # ####### ####### ######
-\ ##    # #     # #     # #     #
-\ # #   # #     # #     # #     #
-\ #  #  # #     # #     # ######
-\ #   # # #     # #     # #
-\ #    ## #     # #     # #
-\ #     # ####### ####### #
-
-nop ( -- )
-;
-
-pop (i1 -- )
-;
-
-pop2 (i1 i2 -- )
-;
-
 \ #       #######  #####     #    #
 \ #       #     # #     #   # #   #
 \ #       #     # #        #   #  #
@@ -180,86 +159,6 @@ iload ( -- ir)
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-fload ( -- ir)
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #fload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
-}
-
-aload ( -- ir)
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #aload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadGetLocalHandle(CURR_INST.params.int_params.param1, ir);
-}
-
-iload_0 ( -- ir)
-{
-  fy_threadGetLocalInt(0, ir);
-}
-
-fload_0 ( -- ir)
-{
-  fy_threadGetLocalInt(0, ir);
-}
-
-aload_0 ( -- ir)
-{
-  fy_threadGetLocalHandle(0, ir);
-}
-
-iload_1 ( -- ir)
-{
-  fy_threadGetLocalInt(1, ir);
-}
-
-fload_1 ( -- ir)
-{
-  fy_threadGetLocalInt(1, ir);
-}
-
-aload_1 ( -- ir)
-{
-  fy_threadGetLocalHandle(1, ir);
-}
-
-iload_2 ( -- ir)
-{
-  fy_threadGetLocalInt(2, ir);
-}
-
-fload_2 ( -- ir)
-{
-  fy_threadGetLocalInt(2, ir);
-}
-
-aload_2 ( -- ir)
-{
-  fy_threadGetLocalHandle(2, ir);
-}
-
-iload_3 ( -- ir)
-{
-  fy_threadGetLocalInt(3, ir);
-}
-
-fload_3 ( -- ir)
-{
-  fy_threadGetLocalInt(3, ir);
-}
-
-aload_3 ( -- ir)
-{
-  fy_threadGetLocalHandle(3, ir);
-}
-
 istore (i1 -- )
 {
 #ifdef VM_DEBUG
@@ -268,96 +167,6 @@ istore (i1 -- )
   }
 #endif
   fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
-}
-
-fstore (i1 -- )
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #fstore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
-}
-
-astore (i1 -- )
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #astore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadPutLocalHandle(CURR_INST.params.int_params.param1, i1);
-}
-
-istore_0 (i1 -- )
-{
-  fy_threadPutLocalInt(0, i1);
-}
-
-fstore_0 (i1 -- )
-{
-  fy_threadPutLocalInt(0, i1);
-}
-
-astore_0 (i1 -- )
-{
-  fy_threadPutLocalHandle(0, i1);
-}
-
-istore_1 (i1 -- )
-{
-  fy_threadPutLocalInt(1, i1);
-}
-
-fstore_1 (i1 -- )
-{
-  fy_threadPutLocalInt(1, i1);
-}
-
-astore_1 (i1 -- )
-{
-  fy_threadPutLocalHandle(1, i1);
-}
-
-istore_2 (i1 -- )
-{
-  fy_threadPutLocalInt(2, i1);
-}
-
-fstore_2 (i1 -- )
-{
-  fy_threadPutLocalInt(2, i1);
-}
-
-astore_2 (i1 -- )
-{
-  fy_threadPutLocalHandle(2, i1);
-}
-
-istore_3 (i1 -- )
-{
-  fy_threadPutLocalInt(3, i1);
-}
-
-fstore_3 (i1 -- )
-{
-  fy_threadPutLocalInt(3, i1);
-}
-
-astore_3 (i1 -- )
-{
-  fy_threadPutLocalHandle(3, i1);
-}
-
-dload ( -- lr)
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #dload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadGetLocalLong(CURR_INST.params.int_params.param1, lr);
 }
 
 lload ( -- lr)
@@ -370,56 +179,6 @@ lload ( -- lr)
   fy_threadGetLocalLong(CURR_INST.params.int_params.param1, lr);
 }
 
-dload_0 ( -- lr)
-{
-  fy_threadGetLocalLong(0, lr);
-}
-
-lload_0 ( -- lr)
-{
-  fy_threadGetLocalLong(0, lr);
-}
-
-dload_1 ( -- lr)
-{
-  fy_threadGetLocalLong(1, lr);
-}
-
-lload_1 ( -- lr)
-{
-  fy_threadGetLocalLong(1, lr);
-}
-
-dload_2 ( -- lr)
-{
-  fy_threadGetLocalLong(2, lr);
-}
-
-lload_2 ( -- lr)
-{
-  fy_threadGetLocalLong(2, lr);
-}
-
-dload_3 ( -- lr)
-{
-  fy_threadGetLocalLong(3, lr);
-}
-
-lload_3 ( -- lr)
-{
-  fy_threadGetLocalLong(3, lr);
-}
-
-dstore (l1 -- )
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #dstore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadPutLocalLong(CURR_INST.params.int_params.param1, l1);
-}
-
 lstore (l1 -- )
 {
 #ifdef VM_DEBUG
@@ -428,46 +187,6 @@ lstore (l1 -- )
   }
 #endif
   fy_threadPutLocalLong(CURR_INST.params.int_params.param1, l1);
-}
-
-dstore_0 (l1 -- )
-{
-  fy_threadPutLocalLong(0, l1);
-}
-
-lstore_0 (l1 -- )
-{
-  fy_threadPutLocalLong(0, l1);
-}
-
-dstore_1 (l1 -- )
-{
-  fy_threadPutLocalLong(1, l1);
-}
-
-lstore_1 (l1 -- )
-{
-  fy_threadPutLocalLong(1, l1);
-}
-
-dstore_2 (l1 -- )
-{
-  fy_threadPutLocalLong(2, l1);
-}
-
-lstore_2 (l1 -- )
-{
-  fy_threadPutLocalLong(2, l1);
-}
-
-dstore_3 (l1 -- )
-{
-  fy_threadPutLocalLong(3, l1);
-}
-
-lstore_3 (l1 -- )
-{
-  fy_threadPutLocalLong(3, l1);
 }
 
 iinc ( -- )
@@ -539,97 +258,16 @@ swap (i1 i2 -- ir1 ir2)
 
 \ CONST
 
-bipush ( -- ir)
-{
-  ir = CURR_INST.params.int_params.param1;
-}
-
 sipush ( -- ir)
 {
   ir = CURR_INST.params.int_params.param1;
 }
 
-iconst_m1 ( -- ir)
+slpush ( -- ir1 ir2)
 {
-  ir = -1;
+  ir1 = CURR_INST.params.int_params.param1;
+  ir2 = CURR_INST.params.int_params.param2;
 }
-
-
-aconst_null ( -- ir)
-{
-  ir = 0;
-}
-
-iconst_0 ( -- ir)
-{
-  ir = 0;
-}
-
-fconst_0 ( -- fr)
-{
-  fr = 0.0f;
-}
-
-dconst_0 ( -- dr)
-{
-  dr = 0.0;
-}
-
-lconst_0 ( -- lr)
-{
-  lr = 0;
-}
-
-
-iconst_1 ( -- ir)
-{
-  ir = 1;
-}
-
-fconst_1 ( -- fr)
-{
-  fr = 1.0f;
-}
-
-dconst_1 ( -- dr)
-{
-  dr = 1.0;
-}
-
-lconst_1 ( -- lr)
-{
-  lr = 1;
-}
-
-
-iconst_2 ( -- ir)
-{
-  ir = 2;
-}
-
-fconst_2 ( -- fr)
-{
-  fr = 2.0f;
-}
-
-
-iconst_3 ( -- ir)
-{
-  ir = 3;
-}
-
-
-iconst_4 ( -- ir)
-{
-  ir = 4;
-}
-
-
-iconst_5 ( -- ir)
-{
-  ir = 5;
-}
-
 
 \ CONVERT
 
@@ -764,60 +402,6 @@ fcmpl (f1 f2 -- ir)
   }
 }
 
-
-
-dadd (d1 d2 -- dr)
-{
-  dr = d1 + d2;
-}
-
-dsub (d1 d2 -- dr)
-{
-  dr = d1 - d2;
-}
-
-ddiv (d1 d2 -- dr)
-{
-  dr = d1 / d2;
-}
-
-dmul (d1 d2 -- dr)
-{
-  dr = d1 * d2;
-}
-
-drem (d1 d2 -- dr)
-{
-  if(d2 == 0){
-    dr = 0.0 / d2;
-  } else {
-    dr = d1 - floor(d1 / d2) * d2;
-  }
-}
-
-dneg (d1 -- dr)
-{
-  dr = -d1;
-}
-
-dcmpg (d1 d2 -- ir)
-{
-  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
-    ir = 1;
-  } else {
-    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
-  }
-}
-
-dcmpl (d1 d2 -- ir)
-{
-  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
-    ir = -1;
-  } else {
-    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
-  }
-}
-
 iadd (i1 i2 -- ir)
 {
   ir = i1 + i2;
@@ -928,19 +512,22 @@ lneg (l1 -- lr)
   lr = -l1;
 }
 
-land (l1 l2 -- lr)
+land (i1 i2 i3 i4 -- ir1 ir2)
 {
-  lr = l1 & l2;
+  ir1 = i1 & i3;
+  ir2 = i2 & i4;
 }
 
-lor (l1 l2 -- lr)
+lor (i1 i2 i3 i4 -- ir1 ir2)
 {
-  lr = l1 | l2;
+  ir1 = i1 | i3;
+  ir2 = i2 | i4;
 }
 
-lxor (l1 l2 -- lr)
+lxor (i1 i2 i3 i4 -- ir1 ir2)
 {
-  lr = l1 ^ l2;
+  ir1 = i1 ^ i3;
+  ir2 = i2 ^ i4;
 }
 
 lcmp (l1 l2 -- ir)
@@ -970,12 +557,6 @@ ldc ( -- ir)
   FY_THEH()
 }
 
-ldc_w ( -- ir)
-{
-  ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
-  FY_THEH()
-}
-
 ldc2_w ( -- lr)
 {
   lr = opLDC2(context, method->owner, CURR_INST.params.ldc.value, exception);
@@ -997,37 +578,13 @@ arraylength (i1 -- ir)
   FY_THEH()
 }
 
-aaload (i1 i2 -- ir)
-{
-  ir = fy_heapGetArrayHandle(context, i1, i2, exception);
-  FY_THEH()
-}
-
 iaload (i1 i2 -- ir)
 {
-  ir = fy_heapGetArrayHandle(context, i1, i2, exception);
-  FY_THEH()
-}
-
-faload (i1 i2 -- ir)
-{
-  ir = fy_heapGetArrayHandle(context, i1, i2, exception);
-  FY_THEH()
-}
-
-aastore (i1 i2 i3 -- )
-{
-  fy_heapPutArrayHandle(context, i1, i2, i3, exception);
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
   FY_THEH()
 }
 
 iastore (i1 i2 i3 -- )
-{
-  fy_heapPutArrayInt(context, i1, i2, i3, exception);
-  FY_THEH()
-}
-
-fastore (i1 i2 i3 -- )
 {
   fy_heapPutArrayInt(context, i1, i2, i3, exception);
   FY_THEH()
@@ -1066,18 +623,6 @@ saload (i1 i2 -- ir)
 sastore (i1 i2 i3 -- )
 { /*value index handle*/
   fy_heapPutArrayShort(context, i1, i2, (fy_short) i3, exception);
-  FY_THEH()
-}
-
-daload (i1 i2 -- lr)
-{
-  lr = fy_heapGetArrayLong(context, i1, i2, exception);
-  FY_THEH()
-}
-
-dastore (i1 i2 l1 -- )
-{
-  fy_heapPutArrayLong(context, i1, i2, l1, exception);
   FY_THEH()
 }
 
@@ -1416,41 +961,14 @@ putstatic_x(l1 -- )
 \ #     # #     # #     #    #
 \  #####  #     #  #####     #
 
-checkcast (i1 -- ir)
+checkcast ( -- )
 {
 #ifdef FY_LATE_DECLARATION
-  fy_class *clazz1, *clazz2;
-  fy_str str1;
+  fy_class *clazz1;
 #endif
-  if (i1 != 0) {
-    clazz1 = fy_heapGetClassOfObject(context, i1, exception);
-    clazz2 = CURR_INST.params.clazz;
-    
-    FY_THEH()
-    if (unlikely(!fy_classCanCastTo(context, clazz1, clazz2, TRUE))) {
-      strcpy_s(exception->exceptionName,
-          sizeof(exception->exceptionName),
-          FY_EXCEPTION_CAST);
-      str1.content = NULL;
-      fy_strInit(block, &str1, 64, exception);
-      fy_strAppendUTF8(block, &str1, "from ", 99, exception);
-      fy_strAppend(block, &str1, clazz1->className,
-          exception);
-      fy_strAppendUTF8(block, &str1, " to ", 99, exception);
-      fy_strAppend(block, &str1, clazz2->className,
-          exception);
-      fy_strSPrint(exception->exceptionDesc,
-          sizeof(exception->exceptionDesc), &str1);
-      fy_strDestroy(block, &str1);
-      exception->exceptionType = exception_normal;
-      FY_THEH()
-      ir = 0;
-    } else {
-      ir = i1;
-    }
-  } else {
-    ir = i1;
-  }
+  clazz1 = CURR_INST.params.clazz;
+  fy_heapCheckCast(context, sppTOS.ivalue, clazz1, exception);
+  FY_THEH()
 }
 
 instanceof (i1 -- ir)
@@ -1520,16 +1038,6 @@ invokestatic ( -- )
   fy_localToFrame(context, frame);
   FY_ENGINE_CLINIT(CURR_INST.params.method->owner, 0);
   ops = fy_threadInvokeStatic(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
-  FY_THEH();
-  FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
-  SUPER_END;
-}
-
-invokeinterface ( -- )
-{
-  fy_localToFrame(context, frame);
-  ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH();
   FY_CHECK_OPS_INVOKE(ops);
   FY_UPDATE_SP(context, frame);
@@ -1627,108 +1135,6 @@ ireturn (i1 -- )
   FY_FALLOUT_INVOKE;
 }
 
-freturn (i1 -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
-
-  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH()
-      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
-    } else {
-      /*CUSTOM*/
-      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
-    }
-    FY_THEH()
-  }
-  fy_threadReturnInt(frame->baseSpp, i1);
-  fy_localToFrame(context, frame);
-  fy_threadPopFrame(context, thread);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #Return %f to %s @%d + %d# ",
-      fy_intToFloat(sbase->ivalue),
-      fy_threadCurrentFrame(context, thread)->method->utf8Name,
-      fy_threadCurrentFrame(context, thread)->lpc,
-      fy_threadCurrentFrame(context, thread)->pcofs
-    );
-  }
-#endif
-  SUPER_END;
-  FY_FALLOUT_INVOKE;
-}
-
-areturn (i1 -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
-
-  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH()
-      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
-    } else {
-      /*CUSTOM*/
-      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
-    }
-    FY_THEH()
-  }
-  fy_threadReturnHandle(frame->baseSpp, i1);
-  fy_localToFrame(context, frame);
-  fy_threadPopFrame(context, thread);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #Return #%d to %s @%d + %d# ",
-      sbase->ivalue,
-      fy_threadCurrentFrame(context, thread)->method->utf8Name,
-      fy_threadCurrentFrame(context, thread)->lpc,
-      fy_threadCurrentFrame(context, thread)->pcofs
-    );
-  }
-#endif
-  SUPER_END;
-  FY_FALLOUT_INVOKE;
-}
-
-dreturn (l1 -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
-
-  if ((method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH()
-      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
-    } else {
-      /*CUSTOM*/
-      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
-    }
-    FY_THEH()
-  }
-  fy_threadReturnLong(frame->baseSpp, l1);
-  fy_localToFrame(context, frame);
-  fy_threadPopFrame(context, thread);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #Return %f to %s @%d + %d# ",
-      fy_longToDouble(fy_I2TOL(sbase->ivalue, (sbase + 1)->ivalue)),
-      fy_threadCurrentFrame(context, thread)->method->utf8Name,
-      fy_threadCurrentFrame(context, thread)->lpc,
-      fy_threadCurrentFrame(context, thread)->pcofs
-    );
-  }
-#endif
-  SUPER_END;
-  FY_FALLOUT_INVOKE;
-}
-
 lreturn (l1 -- )
 {
 #ifdef FY_LATE_DECLARATION
@@ -1791,11 +1197,6 @@ goto ( -- )
   FY_CHECK_OPS_AND_GOTO(ops);
 }
 
-goto_w ( -- )
-{
-  FY_CHECK_OPS_AND_GOTO(ops);
-}
-
 if_icmpeq (i1 i2 -- )
 {
   if(i1 == i2){
@@ -1805,25 +1206,7 @@ if_icmpeq (i1 i2 -- )
   SUPER_CONTINUE;
 }
 
-if_acmpeq (i1 i2 -- )
-{
-  if(i1 == i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
-  }
-  SUPER_CONTINUE;
-}
-
 if_icmpne (i1 i2 -- )
-{
-  if(i1 != i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
-  }
-  SUPER_CONTINUE;
-}
-
-if_acmpne (i1 i2 -- )
 {
   if(i1 != i2){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -1975,6 +1358,83 @@ tableswitch (i1 -- )
     INST_TAIL;
   }
 }
+
+\ ######  ####### #     # ######  #       #######
+\ #     # #     # #     # #     # #       #
+\ #     # #     # #     # #     # #       #
+\ #     # #     # #     # ######  #       #####
+\ #     # #     # #     # #     # #       #
+\ #     # #     # #     # #     # #       #
+\ ######  #######  #####  ######  ####### #######
+
+dadd (d1 d2 -- dr)
+{
+  dr = d1 + d2;
+}
+
+dsub (d1 d2 -- dr)
+{
+  dr = d1 - d2;
+}
+
+ddiv (d1 d2 -- dr)
+{
+  dr = d1 / d2;
+}
+
+dmul (d1 d2 -- dr)
+{
+  dr = d1 * d2;
+}
+
+drem (d1 d2 -- dr)
+{
+  if(d2 == 0){
+    dr = 0.0 / d2;
+  } else {
+    dr = d1 - floor(d1 / d2) * d2;
+  }
+}
+
+dneg (d1 -- dr)
+{
+  dr = -d1;
+}
+
+dcmpg (d1 d2 -- ir)
+{
+  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
+    ir = 1;
+  } else {
+    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
+  }
+}
+
+dcmpl (d1 d2 -- ir)
+{
+  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
+    ir = -1;
+  } else {
+    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
+  }
+}
+
+\ #     # ####### ####### ######
+\ ##    # #     # #     # #     #
+\ # #   # #     # #     # #     #
+\ #  #  # #     # #     # ######
+\ #   # # #     # #     # #
+\ #    ## #     # #     # #
+\ #     # ####### ####### #
+
+nop ( -- )
+;
+
+pop (i1 -- )
+;
+
+pop2 (i1 i2 -- )
+;
 
 \C#ifdef FY_ENGINE_HEADER
 \C    label_fallout_invoke:

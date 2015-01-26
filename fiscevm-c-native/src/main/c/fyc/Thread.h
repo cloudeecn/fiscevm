@@ -71,9 +71,8 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 		FY_ATTR_RESTRICT fy_exception *toPrepare,
 		FY_ATTR_RESTRICT fy_exception *exception);
 
-void fy_threadReturnInt(fy_stack_item *spp, fy_int value);
 
-void fy_threadReturnHandle(fy_stack_item *spp, fy_int value);
+void fy_threadReturnInt(fy_stack_item *spp, fy_int value);
 
 void fy_threadReturnLong(fy_stack_item *spp, fy_long value);
 
