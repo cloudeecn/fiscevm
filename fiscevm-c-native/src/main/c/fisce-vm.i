@@ -2906,79 +2906,6 @@ LABEL2(lushr)
 NEXT_P2;
 }
 
-LABEL(ldc) /* ldc ( -- ir) */
-/*  */
-NAME("ldc")
-{
-DEF_CA
-fy_uint ir;
-NEXT_P0;
-IF_sppTOS(spp[-1] = sppTOS);
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-spp += 1;
-{
-#line 661 "fisce.vmg"
-{
-  ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
-  FY_THEH()
-  CURR_INST.inst=INST_OF(sipush);
-  CURR_INST.params.int_params.param1 = ir;
-}
-#line 2931 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(ldc)
-NEXT_P2;
-}
-
-LABEL(ldc2_w) /* ldc2_w ( -- lr) */
-/*  */
-NAME("ldc2_w")
-{
-DEF_CA
-fy_ulong lr;
-NEXT_P0;
-IF_sppTOS(spp[-1] = sppTOS);
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-spp += 2;
-{
-#line 669 "fisce.vmg"
-{
-  lr = opLDC2(context, method->owner, CURR_INST.params.ldc.value, exception);
-  FY_THEH()
-  CURR_INST.inst=INST_OF(slpush);
-  CURR_INST.params.int_params.param1 = fy_HOFL(lr);
-  CURR_INST.params.int_params.param2 = fy_LOFL(lr);
-}
-#line 2968 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" lr=", vm_out); printarg_l(lr);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
-LABEL2(ldc2_w)
-NEXT_P2;
-}
-
 LABEL(arraylength) /* arraylength ( i1 -- ir) */
 /*  */
 NAME("arraylength")
@@ -2994,12 +2921,12 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-#line 687 "fisce.vmg"
+#line 668 "fisce.vmg"
 {
   ir = fy_heapArrayLength(context, i1, exception);
   FY_THEH()
 }
-#line 3003 "fisce-vm.i"
+#line 2930 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3033,12 +2960,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-#line 693 "fisce.vmg"
+#line 674 "fisce.vmg"
 {
   ir = fy_heapGetArrayInt(context, i1, i2, exception);
   FY_THEH()
 }
-#line 3042 "fisce-vm.i"
+#line 2969 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3074,12 +3001,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-#line 699 "fisce.vmg"
+#line 680 "fisce.vmg"
 {
   fy_heapPutArrayInt(context, i1, i2, i3, exception);
   FY_THEH()
 }
-#line 3083 "fisce-vm.i"
+#line 3010 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3112,12 +3039,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-#line 705 "fisce.vmg"
+#line 686 "fisce.vmg"
 { /*handle index -- value*/
   ir = fy_heapGetArrayByte(context, i1, i2, exception);
   FY_THEH()
 }
-#line 3121 "fisce-vm.i"
+#line 3048 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3153,12 +3080,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-#line 711 "fisce.vmg"
+#line 692 "fisce.vmg"
 { /*handle index value*/
   fy_heapPutArrayByte(context, i1, i2, (fy_byte) i3, exception);
   FY_THEH()
 }
-#line 3162 "fisce-vm.i"
+#line 3089 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3191,12 +3118,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-#line 717 "fisce.vmg"
+#line 698 "fisce.vmg"
 { /*index handle -- value*/
   ir = fy_heapGetArrayChar(context, i1, i2, exception);
   FY_THEH()
 }
-#line 3200 "fisce-vm.i"
+#line 3127 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3232,12 +3159,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-#line 723 "fisce.vmg"
+#line 704 "fisce.vmg"
 { /*value index handle*/
   fy_heapPutArrayChar(context, i1, i2, (fy_char) i3, exception);
   FY_THEH()
 }
-#line 3241 "fisce-vm.i"
+#line 3168 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3270,12 +3197,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -1;
 {
-#line 729 "fisce.vmg"
+#line 710 "fisce.vmg"
 { /*index handle -- value*/
   ir = fy_heapGetArrayShort(context, i1, i2, exception);
   FY_THEH()
 }
-#line 3279 "fisce-vm.i"
+#line 3206 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3311,12 +3238,12 @@ fputs(" i3=", vm_out); printarg_i(i3);
 #endif
 spp += -3;
 {
-#line 735 "fisce.vmg"
+#line 716 "fisce.vmg"
 { /*value index handle*/
   fy_heapPutArrayShort(context, i1, i2, (fy_short) i3, exception);
   FY_THEH()
 }
-#line 3320 "fisce-vm.i"
+#line 3247 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3348,12 +3275,12 @@ fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
 {
-#line 741 "fisce.vmg"
+#line 722 "fisce.vmg"
 {
   lr = fy_heapGetArrayLong(context, i1, i2, exception);
   FY_THEH()
 }
-#line 3357 "fisce-vm.i"
+#line 3284 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3389,12 +3316,12 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -4;
 {
-#line 747 "fisce.vmg"
+#line 728 "fisce.vmg"
 {
   fy_heapPutArrayLong(context, i1, i2, l1, exception);
   FY_THEH()
 }
-#line 3398 "fisce-vm.i"
+#line 3325 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3423,12 +3350,12 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-#line 753 "fisce.vmg"
+#line 734 "fisce.vmg"
 {
   ir = fy_heapAllocateArrayWithContentType(context, CURR_INST.params.clazz, i1, exception);
   FY_THEH()
 }
-#line 3432 "fisce-vm.i"
+#line 3359 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3457,7 +3384,7 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-#line 759 "fisce.vmg"
+#line 740 "fisce.vmg"
 {
   fy_class *clazz1;
   clazz1 = fy_vmLookupClassFromConstant(context, (ConstantClass*) method->owner->constantPools[CURR_INST.params.int_params.param1], exception);
@@ -3480,7 +3407,7 @@ spp += 1;
       exception);
   FY_THEH()
 }
-#line 3484 "fisce-vm.i"
+#line 3411 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3509,7 +3436,7 @@ if (vm_debug) {
 #endif
 spp += 1;
 {
-#line 794 "fisce.vmg"
+#line 775 "fisce.vmg"
 {
   fy_class *clazz1;
   clazz1 = CURR_INST.params.clazz;
@@ -3529,7 +3456,7 @@ spp += 1;
   ir = fy_heapAllocate(context, clazz1, exception);
   FY_THEH()
 }
-#line 3533 "fisce-vm.i"
+#line 3460 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3559,7 +3486,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-#line 815 "fisce.vmg"
+#line 796 "fisce.vmg"
 {
   fy_class *clazz1;
   fy_str *pstr1;
@@ -3603,7 +3530,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
   ir = fy_heapAllocateArray(context, clazz1, i1, exception);
   FY_THEH()
 }
-#line 3607 "fisce-vm.i"
+#line 3534 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -3618,459 +3545,6 @@ LABEL2(newarray)
 NEXT_P2;
 }
 
-LABEL(getfield) /* getfield ( i1 -- ir) */
-/*  */
-NAME("getfield")
-{
-DEF_CA
-fy_uint i1;
-fy_uint ir;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-{
-#line 860 "fisce.vmg"
-{
-  fy_field *field;
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  ir = fy_heapGetFieldInt(context, i1, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
-  }
-#endif
-  FY_THEH()
-  CURR_INST.inst = INST_OF(getfield_n);
-}
-#line 3659 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(getfield)
-NEXT_P2;
-}
-
-LABEL(putfield) /* putfield ( i1 i2 --) */
-/*  */
-NAME("putfield")
-{
-DEF_CA
-fy_uint i1;
-fy_uint i2;
-NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
-}
-#endif
-spp += -2;
-{
-#line 883 "fisce.vmg"
-{
-  fy_field *field;
-
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH()
-  }
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", field->utf8Name, i1, i2);
-  }
-#endif
-  fy_heapPutFieldInt(context, i1, field, i2, exception);
-  FY_THEH()
-  CURR_INST.inst = INST_OF(putfield_n);
-}
-#line 3714 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putfield)
-NEXT_P2;
-}
-
-LABEL(getfield_x) /* getfield_x ( i1 -- lr) */
-/*  */
-NAME("getfield_x")
-{
-DEF_CA
-fy_uint i1;
-fy_ulong lr;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-spp += 1;
-{
-#line 906 "fisce.vmg"
-{
-  fy_field *field;
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  lr = fy_heapGetFieldLong(context, i1, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
-  }
-#endif
-  FY_THEH()
-  CURR_INST.inst = INST_OF(getfield_nx);
-}
-#line 3766 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" lr=", vm_out); printarg_l(lr);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
-LABEL2(getfield_x)
-NEXT_P2;
-}
-
-LABEL(putfield_x) /* putfield_x ( i1 l1 --) */
-/*  */
-NAME("putfield_x")
-{
-DEF_CA
-fy_uint i1;
-fy_ulong l1;
-NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_twofy_stack_item2l((Cell)spp[-2], (Cell)sppTOS, l1)
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" l1=", vm_out); printarg_l(l1);
-}
-#endif
-spp += -3;
-{
-#line 929 "fisce.vmg"
-{
-  fy_field *field;
-
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH()
-  }
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", field->utf8Name, i1, l1);
-  }
-#endif
-  fy_heapPutFieldLong(context, i1, field, l1, exception);
-  FY_THEH()
-  CURR_INST.inst = INST_OF(putfield_nx);
-}
-#line 3821 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putfield_x)
-NEXT_P2;
-}
-
-LABEL(getstatic) /* getstatic ( -- ir) */
-/*  */
-NAME("getstatic")
-{
-DEF_CA
-fy_uint ir;
-NEXT_P0;
-IF_sppTOS(spp[-1] = sppTOS);
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-spp += 1;
-{
-#line 952 "fisce.vmg"
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  field = CURR_INST.params.field;
-  clazz1 = field->owner;
-  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
-  }
-#endif
-  //!CLINIT
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  ir = fy_heapGetStaticInt(context, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, ir);
-  }
-#endif
-  FY_THEH()
-  CURR_INST.inst = INST_OF(getstatic_n);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-#line 3879 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(getstatic)
-NEXT_P2;
-}
-
-LABEL(putstatic) /* putstatic ( i1 -- ) */
-/*  */
-NAME("putstatic")
-{
-DEF_CA
-fy_uint i1;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-spp += -1;
-{
-#line 983 "fisce.vmg"
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  
-  field = CURR_INST.params.field;
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
-    FY_THEH()
-  }
-  clazz1 = field->owner;
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  //!CLINIT
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 1);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  fy_heapPutStaticInt(context, field, i1, exception);
-  FY_THEH()
-  CURR_INST.inst = INST_OF(putstatic_n);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-#line 3941 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putstatic)
-NEXT_P2;
-}
-
-LABEL(getstatic_x) /* getstatic_x ( -- lr) */
-/*  */
-NAME("getstatic_x")
-{
-DEF_CA
-fy_ulong lr;
-NEXT_P0;
-IF_sppTOS(spp[-1] = sppTOS);
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-spp += 2;
-{
-#line 1016 "fisce.vmg"
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  field = CURR_INST.params.field;
-  clazz1 =  field->owner;
-  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
-  }
-#endif
-  //!CLINIT
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  lr = fy_heapGetStaticLong(context, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s value = %"FY_PRINT64"d# ", field->utf8Name, lr);
-  }
-#endif
-  FY_THEH()
-  CURR_INST.inst = INST_OF(getstatic_nx);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-#line 3999 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" lr=", vm_out); printarg_l(lr);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
-LABEL2(getstatic_x)
-NEXT_P2;
-}
-
-LABEL(putstatic_x) /* putstatic_x ( l1 -- ) */
-/*  */
-NAME("putstatic_x")
-{
-DEF_CA
-fy_ulong l1;
-NEXT_P0;
-vm_twofy_stack_item2l((Cell)spp[-2], (Cell)sppTOS, l1)
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" l1=", vm_out); printarg_l(l1);
-}
-#endif
-spp += -2;
-{
-#line 1047 "fisce.vmg"
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-
-  field = CURR_INST.params.field;
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
-    FY_THEH()
-  }
-  clazz1 = field->owner;
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
-  }
-#endif
-  //!CLINIT
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 2);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
-  }
-#endif
-  fy_heapPutStaticLong(context, field, l1, exception);
-  FY_THEH()
-  CURR_INST.inst = INST_OF(putstatic_nx);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-#line 4061 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putstatic_x)
-NEXT_P2;
-}
-
 LABEL(checkcast) /* checkcast ( -- ) */
 /*  */
 NAME("checkcast")
@@ -4082,7 +3556,7 @@ if (vm_debug) {
 }
 #endif
 {
-#line 1088 "fisce.vmg"
+#line 849 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_class *clazz1;
@@ -4091,7 +3565,7 @@ if (vm_debug) {
   fy_heapCheckCast(context, sppTOS.ivalue, clazz1, exception);
   FY_THEH()
 }
-#line 4095 "fisce-vm.i"
+#line 3569 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4119,7 +3593,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
 {
-#line 1098 "fisce.vmg"
+#line 859 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_class *clazz1, *clazz2;
@@ -4134,7 +3608,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     ir = fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0;
   }
 }
-#line 4138 "fisce-vm.i"
+#line 3612 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4164,12 +3638,12 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1125 "fisce.vmg"
+#line 886 "fisce.vmg"
 {
   ops = fy_threadMonitorEnter(context, thread, i1, ops);
   FY_CHECK_OPS(ops);
 }
-#line 4173 "fisce-vm.i"
+#line 3647 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4198,13 +3672,13 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1131 "fisce.vmg"
+#line 892 "fisce.vmg"
 {
   ops = fy_threadMonitorExit(context, thread, i1, ops, exception);
   FY_THEH()
   FY_CHECK_OPS(ops);
 }
-#line 4208 "fisce-vm.i"
+#line 3682 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4229,7 +3703,7 @@ if (vm_debug) {
 }
 #endif
 {
-#line 1149 "fisce.vmg"
+#line 910 "fisce.vmg"
 {
   fy_localToFrame(context, frame);
   ops = fy_threadInvokeSpecial(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
@@ -4238,7 +3712,7 @@ if (vm_debug) {
   FY_UPDATE_SP(context, frame);
   SUPER_END;
 }
-#line 4242 "fisce-vm.i"
+#line 3716 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4262,7 +3736,7 @@ if (vm_debug) {
 }
 #endif
 {
-#line 1159 "fisce.vmg"
+#line 920 "fisce.vmg"
 {
   //!CLINIT
   fy_localToFrame(context, frame);
@@ -4273,7 +3747,7 @@ if (vm_debug) {
   FY_UPDATE_SP(context, frame);
   SUPER_END;
 }
-#line 4277 "fisce-vm.i"
+#line 3751 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4297,7 +3771,7 @@ if (vm_debug) {
 }
 #endif
 {
-#line 1171 "fisce.vmg"
+#line 932 "fisce.vmg"
 {
   fy_localToFrame(context, frame);
   ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
@@ -4306,7 +3780,7 @@ if (vm_debug) {
   FY_UPDATE_SP(context, frame);
   SUPER_END;
 }
-#line 4310 "fisce-vm.i"
+#line 3784 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4330,7 +3804,7 @@ if (vm_debug) {
 }
 #endif
 {
-#line 1191 "fisce.vmg"
+#line 952 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -4366,7 +3840,7 @@ if (vm_debug) {
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-#line 4370 "fisce-vm.i"
+#line 3844 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4394,7 +3868,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1228 "fisce.vmg"
+#line 989 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -4427,7 +3901,7 @@ spp += -1;
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-#line 4431 "fisce-vm.i"
+#line 3905 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4456,7 +3930,7 @@ fputs(" l1=", vm_out); printarg_l(l1);
 #endif
 spp += -2;
 {
-#line 1262 "fisce.vmg"
+#line 1023 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2;
@@ -4489,7 +3963,7 @@ spp += -2;
   SUPER_END;
   FY_FALLOUT_INVOKE;
 }
-#line 4493 "fisce-vm.i"
+#line 3967 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4518,13 +3992,13 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1304 "fisce.vmg"
+#line 1065 "fisce.vmg"
 {
   thread->currentThrowable = i1;
   SUPER_END;
   FY_FALLOUT_NOINVOKE;
 }
-#line 4528 "fisce-vm.i"
+#line 4002 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4549,11 +4023,11 @@ if (vm_debug) {
 }
 #endif
 {
-#line 1319 "fisce.vmg"
+#line 1080 "fisce.vmg"
 {
   FY_CHECK_OPS_AND_GOTO(ops);
 }
-#line 4557 "fisce-vm.i"
+#line 4031 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4584,7 +4058,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-#line 1324 "fisce.vmg"
+#line 1085 "fisce.vmg"
 {
   if(i1 == i2){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4601,7 +4075,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4605 "fisce-vm.i"
+#line 4079 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4633,7 +4107,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-#line 1333 "fisce.vmg"
+#line 1094 "fisce.vmg"
 {
   if(i1 != i2){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4650,7 +4124,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4654 "fisce-vm.i"
+#line 4128 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4682,7 +4156,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-#line 1342 "fisce.vmg"
+#line 1103 "fisce.vmg"
 {
   if((fy_int)i1 < (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4699,7 +4173,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4703 "fisce-vm.i"
+#line 4177 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4731,7 +4205,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-#line 1351 "fisce.vmg"
+#line 1112 "fisce.vmg"
 {
   if((fy_int)i1 <= (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4748,7 +4222,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4752 "fisce-vm.i"
+#line 4226 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4780,7 +4254,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-#line 1360 "fisce.vmg"
+#line 1121 "fisce.vmg"
 {
   if((fy_int)i1 > (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4797,7 +4271,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4801 "fisce-vm.i"
+#line 4275 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4829,7 +4303,7 @@ fputs(" i2=", vm_out); printarg_i(i2);
 #endif
 spp += -2;
 {
-#line 1369 "fisce.vmg"
+#line 1130 "fisce.vmg"
 {
   if((fy_int)i1 >= (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4846,7 +4320,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4850 "fisce-vm.i"
+#line 4324 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4875,7 +4349,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1378 "fisce.vmg"
+#line 1139 "fisce.vmg"
 {
   if(i1 == 0){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4892,7 +4366,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4896 "fisce-vm.i"
+#line 4370 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4921,7 +4395,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1387 "fisce.vmg"
+#line 1148 "fisce.vmg"
 {
   if(i1 == 0){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4938,7 +4412,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4942 "fisce-vm.i"
+#line 4416 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -4967,7 +4441,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1396 "fisce.vmg"
+#line 1157 "fisce.vmg"
 {
   if(i1 != 0){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -4984,7 +4458,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 4988 "fisce-vm.i"
+#line 4462 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5013,7 +4487,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1405 "fisce.vmg"
+#line 1166 "fisce.vmg"
 {
   if(i1 != 0){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -5030,7 +4504,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 5034 "fisce-vm.i"
+#line 4508 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5059,7 +4533,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1414 "fisce.vmg"
+#line 1175 "fisce.vmg"
 {
   if((fy_int)i1 < 0){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -5076,7 +4550,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 5080 "fisce-vm.i"
+#line 4554 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5105,7 +4579,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1423 "fisce.vmg"
+#line 1184 "fisce.vmg"
 {
   if((fy_int)i1 <= 0){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -5122,7 +4596,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 5126 "fisce-vm.i"
+#line 4600 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5151,7 +4625,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1432 "fisce.vmg"
+#line 1193 "fisce.vmg"
 {
   if((fy_int)i1 > 0){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -5168,7 +4642,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 5172 "fisce-vm.i"
+#line 4646 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5197,7 +4671,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1441 "fisce.vmg"
+#line 1202 "fisce.vmg"
 {
   if((fy_int)i1 >= 0){
     FY_CHECK_OPS_AND_GOTO(ops);
@@ -5214,7 +4688,7 @@ NEXT_P2;
   }
   SUPER_CONTINUE;
 }
-#line 5218 "fisce-vm.i"
+#line 4692 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5243,7 +4717,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1450 "fisce.vmg"
+#line 1211 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2, i3;
@@ -5271,7 +4745,7 @@ NEXT_P2;
 
   SET_IP(swlookup->defaultJump);
 }
-#line 5275 "fisce-vm.i"
+#line 4749 "fisce-vm.i"
 }
 SUPER_END;
 
@@ -5301,7 +4775,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 #endif
 spp += -1;
 {
-#line 1469 "fisce.vmg"
+#line 1230 "fisce.vmg"
 {
 #ifdef FY_LATE_DECLARATION
   fy_uint i2, i3;
@@ -5337,7 +4811,7 @@ NEXT_P2;
 
   }
 }
-#line 5341 "fisce-vm.i"
+#line 4815 "fisce-vm.i"
 }
 SUPER_END;
 
@@ -5349,6 +4823,623 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 NEXT_P1;
 IF_sppTOS(sppTOS = spp[-1]);
 LABEL2(tableswitch)
+NEXT_P2;
+}
+
+LABEL(nop) /* nop ( -- ) */
+/*  */
+NAME("nop")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+#line 1257 "fisce.vmg"
+;
+#line 4843 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(nop)
+NEXT_P2;
+}
+
+LABEL(pop) /* pop ( i1 -- ) */
+/*  */
+NAME("pop")
+{
+DEF_CA
+fy_uint i1;
+NEXT_P0;
+vm_fy_stack_item2i(sppTOS,i1);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+}
+#endif
+spp += -1;
+{
+#line 1260 "fisce.vmg"
+;
+#line 4873 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+IF_sppTOS(sppTOS = spp[-1]);
+LABEL2(pop)
+NEXT_P2;
+}
+
+LABEL(pop2) /* pop2 ( i1 i2 -- ) */
+/*  */
+NAME("pop2")
+{
+DEF_CA
+fy_uint i1;
+fy_uint i2;
+NEXT_P0;
+vm_fy_stack_item2i(spp[-2],i1);
+vm_fy_stack_item2i(sppTOS,i2);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+fputs(" i2=", vm_out); printarg_i(i2);
+}
+#endif
+spp += -2;
+{
+#line 1263 "fisce.vmg"
+;
+#line 4907 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+IF_sppTOS(sppTOS = spp[-1]);
+LABEL2(pop2)
+NEXT_P2;
+}
+
+LABEL(ldc) /* ldc ( -- ir) */
+/*  */
+NAME("ldc")
+{
+DEF_CA
+fy_uint ir;
+NEXT_P0;
+IF_sppTOS(spp[-1] = sppTOS);
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+spp += 1;
+{
+#line 1276 "fisce.vmg"
+{
+  ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
+  FY_THEH()
+  CURR_INST.inst=INST_OF(sipush);
+  CURR_INST.params.int_params.param1 = ir;
+}
+#line 4942 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
+fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+vm_i2fy_stack_item(ir,sppTOS);
+LABEL2(ldc)
+NEXT_P2;
+}
+
+LABEL(ldc2_w) /* ldc2_w ( -- lr) */
+/*  */
+NAME("ldc2_w")
+{
+DEF_CA
+fy_ulong lr;
+NEXT_P0;
+IF_sppTOS(spp[-1] = sppTOS);
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+spp += 2;
+{
+#line 1284 "fisce.vmg"
+{
+  lr = opLDC2(context, method->owner, CURR_INST.params.ldc.value, exception);
+  FY_THEH()
+  CURR_INST.inst=INST_OF(slpush);
+  CURR_INST.params.int_params.param1 = fy_HOFL(lr);
+  CURR_INST.params.int_params.param2 = fy_LOFL(lr);
+}
+#line 4979 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputs(" lr=", vm_out); printarg_l(lr);
+fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+LABEL2(ldc2_w)
+NEXT_P2;
+}
+
+LABEL(getfield) /* getfield ( i1 -- ir) */
+/*  */
+NAME("getfield")
+{
+DEF_CA
+fy_uint i1;
+fy_uint ir;
+NEXT_P0;
+vm_fy_stack_item2i(sppTOS,i1);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+}
+#endif
+{
+#line 1293 "fisce.vmg"
+{
+  fy_field *field;
+  field = CURR_INST.params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
+  ir = fy_heapGetFieldInt(context, i1, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
+  }
+#endif
+  FY_THEH()
+  CURR_INST.inst = INST_OF(getfield_n);
+}
+#line 5031 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
+fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+vm_i2fy_stack_item(ir,sppTOS);
+LABEL2(getfield)
+NEXT_P2;
+}
+
+LABEL(putfield) /* putfield ( i1 i2 --) */
+/*  */
+NAME("putfield")
+{
+DEF_CA
+fy_uint i1;
+fy_uint i2;
+NEXT_P0;
+vm_fy_stack_item2i(spp[-2],i1);
+vm_fy_stack_item2i(sppTOS,i2);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+fputs(" i2=", vm_out); printarg_i(i2);
+}
+#endif
+spp += -2;
+{
+#line 1316 "fisce.vmg"
+{
+  fy_field *field;
+
+  field = CURR_INST.params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
+    FY_THEH()
+  }
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", field->utf8Name, i1, i2);
+  }
+#endif
+  fy_heapPutFieldInt(context, i1, field, i2, exception);
+  FY_THEH()
+  CURR_INST.inst = INST_OF(putfield_n);
+}
+#line 5086 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+IF_sppTOS(sppTOS = spp[-1]);
+LABEL2(putfield)
+NEXT_P2;
+}
+
+LABEL(getfield_x) /* getfield_x ( i1 -- lr) */
+/*  */
+NAME("getfield_x")
+{
+DEF_CA
+fy_uint i1;
+fy_ulong lr;
+NEXT_P0;
+vm_fy_stack_item2i(sppTOS,i1);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+}
+#endif
+spp += 1;
+{
+#line 1339 "fisce.vmg"
+{
+  fy_field *field;
+  field = CURR_INST.params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
+  lr = fy_heapGetFieldLong(context, i1, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
+  }
+#endif
+  FY_THEH()
+  CURR_INST.inst = INST_OF(getfield_nx);
+}
+#line 5138 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputs(" lr=", vm_out); printarg_l(lr);
+fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+LABEL2(getfield_x)
+NEXT_P2;
+}
+
+LABEL(putfield_x) /* putfield_x ( i1 l1 --) */
+/*  */
+NAME("putfield_x")
+{
+DEF_CA
+fy_uint i1;
+fy_ulong l1;
+NEXT_P0;
+vm_fy_stack_item2i(spp[-3],i1);
+vm_twofy_stack_item2l((Cell)spp[-2], (Cell)sppTOS, l1)
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+fputs(" l1=", vm_out); printarg_l(l1);
+}
+#endif
+spp += -3;
+{
+#line 1362 "fisce.vmg"
+{
+  fy_field *field;
+
+  field = CURR_INST.params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
+    FY_THEH()
+  }
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", field->utf8Name, i1, l1);
+  }
+#endif
+  fy_heapPutFieldLong(context, i1, field, l1, exception);
+  FY_THEH()
+  CURR_INST.inst = INST_OF(putfield_nx);
+}
+#line 5193 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+IF_sppTOS(sppTOS = spp[-1]);
+LABEL2(putfield_x)
+NEXT_P2;
+}
+
+LABEL(getstatic) /* getstatic ( -- ir) */
+/*  */
+NAME("getstatic")
+{
+DEF_CA
+fy_uint ir;
+NEXT_P0;
+IF_sppTOS(spp[-1] = sppTOS);
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+spp += 1;
+{
+#line 1385 "fisce.vmg"
+{
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+  field = CURR_INST.params.field;
+  clazz1 = field->owner;
+  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
+  }
+#endif
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  ir = fy_heapGetStaticInt(context, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, ir);
+  }
+#endif
+  FY_THEH()
+  CURR_INST.inst = INST_OF(getstatic_n);
+  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+#line 5251 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
+fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+vm_i2fy_stack_item(ir,sppTOS);
+LABEL2(getstatic)
+NEXT_P2;
+}
+
+LABEL(putstatic) /* putstatic ( i1 -- ) */
+/*  */
+NAME("putstatic")
+{
+DEF_CA
+fy_uint i1;
+NEXT_P0;
+vm_fy_stack_item2i(sppTOS,i1);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+}
+#endif
+spp += -1;
+{
+#line 1416 "fisce.vmg"
+{
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+  
+  field = CURR_INST.params.field;
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  clazz1 = field->owner;
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 1);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
+  fy_heapPutStaticInt(context, field, i1, exception);
+  FY_THEH()
+  CURR_INST.inst = INST_OF(putstatic_n);
+  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+#line 5313 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+IF_sppTOS(sppTOS = spp[-1]);
+LABEL2(putstatic)
+NEXT_P2;
+}
+
+LABEL(getstatic_x) /* getstatic_x ( -- lr) */
+/*  */
+NAME("getstatic_x")
+{
+DEF_CA
+fy_ulong lr;
+NEXT_P0;
+IF_sppTOS(spp[-1] = sppTOS);
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+spp += 2;
+{
+#line 1449 "fisce.vmg"
+{
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+  field = CURR_INST.params.field;
+  clazz1 =  field->owner;
+  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
+  }
+#endif
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  lr = fy_heapGetStaticLong(context, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s value = %"FY_PRINT64"d# ", field->utf8Name, lr);
+  }
+#endif
+  FY_THEH()
+  CURR_INST.inst = INST_OF(getstatic_nx);
+  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+#line 5371 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputs(" lr=", vm_out); printarg_l(lr);
+fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+LABEL2(getstatic_x)
+NEXT_P2;
+}
+
+LABEL(putstatic_x) /* putstatic_x ( l1 -- ) */
+/*  */
+NAME("putstatic_x")
+{
+DEF_CA
+fy_ulong l1;
+NEXT_P0;
+vm_twofy_stack_item2l((Cell)spp[-2], (Cell)sppTOS, l1)
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" l1=", vm_out); printarg_l(l1);
+}
+#endif
+spp += -2;
+{
+#line 1480 "fisce.vmg"
+{
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+
+  field = CURR_INST.params.field;
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  clazz1 = field->owner;
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
+  }
+#endif
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 2);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
+  }
+#endif
+  fy_heapPutStaticLong(context, field, l1, exception);
+  FY_THEH()
+  CURR_INST.inst = INST_OF(putstatic_nx);
+  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+#line 5433 "fisce-vm.i"
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+IF_sppTOS(sppTOS = spp[-1]);
+LABEL2(putstatic_x)
 NEXT_P2;
 }
 
@@ -5371,11 +5462,11 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-#line 1494 "fisce.vmg"
+#line 1521 "fisce.vmg"
 {
   dr = d1 + d2;
 }
-#line 5379 "fisce-vm.i"
+#line 5470 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5409,11 +5500,11 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-#line 1499 "fisce.vmg"
+#line 1526 "fisce.vmg"
 {
   dr = d1 - d2;
 }
-#line 5417 "fisce-vm.i"
+#line 5508 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5447,11 +5538,11 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-#line 1504 "fisce.vmg"
+#line 1531 "fisce.vmg"
 {
   dr = d1 / d2;
 }
-#line 5455 "fisce-vm.i"
+#line 5546 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5485,11 +5576,11 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-#line 1509 "fisce.vmg"
+#line 1536 "fisce.vmg"
 {
   dr = d1 * d2;
 }
-#line 5493 "fisce-vm.i"
+#line 5584 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5523,7 +5614,7 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -2;
 {
-#line 1514 "fisce.vmg"
+#line 1541 "fisce.vmg"
 {
   if(d2 == 0){
     dr = 0.0 / d2;
@@ -5531,7 +5622,7 @@ spp += -2;
     dr = d1 - floor(d1 / d2) * d2;
   }
 }
-#line 5535 "fisce-vm.i"
+#line 5626 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5561,11 +5652,11 @@ fputs(" d1=", vm_out); printarg_d(d1);
 }
 #endif
 {
-#line 1523 "fisce.vmg"
+#line 1550 "fisce.vmg"
 {
   dr = -d1;
 }
-#line 5569 "fisce-vm.i"
+#line 5660 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5599,7 +5690,7 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -3;
 {
-#line 1528 "fisce.vmg"
+#line 1555 "fisce.vmg"
 {
   if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
     ir = 1;
@@ -5607,7 +5698,7 @@ spp += -3;
     ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
   }
 }
-#line 5611 "fisce-vm.i"
+#line 5702 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5641,7 +5732,7 @@ fputs(" d2=", vm_out); printarg_d(d2);
 #endif
 spp += -3;
 {
-#line 1537 "fisce.vmg"
+#line 1564 "fisce.vmg"
 {
   if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
     ir = -1;
@@ -5649,7 +5740,7 @@ spp += -3;
     ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
   }
 }
-#line 5653 "fisce-vm.i"
+#line 5744 "fisce-vm.i"
 }
 
 #ifdef VM_DEBUG
@@ -5661,97 +5752,6 @@ fputc('\n', vm_out);
 NEXT_P1;
 vm_i2fy_stack_item(ir,sppTOS);
 LABEL2(dcmpl)
-NEXT_P2;
-}
-
-LABEL(nop) /* nop ( -- ) */
-/*  */
-NAME("nop")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-#line 1554 "fisce.vmg"
-;
-#line 5681 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(nop)
-NEXT_P2;
-}
-
-LABEL(pop) /* pop ( i1 -- ) */
-/*  */
-NAME("pop")
-{
-DEF_CA
-fy_uint i1;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-spp += -1;
-{
-#line 1557 "fisce.vmg"
-;
-#line 5711 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(pop)
-NEXT_P2;
-}
-
-LABEL(pop2) /* pop2 ( i1 i2 -- ) */
-/*  */
-NAME("pop2")
-{
-DEF_CA
-fy_uint i1;
-fy_uint i2;
-NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
-}
-#endif
-spp += -2;
-{
-#line 1560 "fisce.vmg"
-;
-#line 5745 "fisce-vm.i"
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(pop2)
 NEXT_P2;
 }
 

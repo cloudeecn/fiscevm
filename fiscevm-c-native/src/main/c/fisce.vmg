@@ -656,25 +656,6 @@ lushr (l1 i1 -- lr)
   lr = l1 >> i1;
 }
 
-\ LDC
-ldc ( -- ir)
-{
-  ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
-  FY_THEH()
-  CURR_INST.inst=INST_OF(sipush);
-  CURR_INST.params.int_params.param1 = ir;
-}
-
-ldc2_w ( -- lr)
-{
-  lr = opLDC2(context, method->owner, CURR_INST.params.ldc.value, exception);
-  FY_THEH()
-  CURR_INST.inst=INST_OF(slpush);
-  CURR_INST.params.int_params.param1 = fy_HOFL(lr);
-  CURR_INST.params.int_params.param2 = fy_LOFL(lr);
-}
-
-
 \    #    ######  ######     #    #     #
 \   # #   #     # #     #   # #    #   #
 \  #   #  #     # #     #  #   #    # #
@@ -854,226 +835,6 @@ newarray (i1 -- ir)
   FY_THEH()
   ir = fy_heapAllocateArray(context, clazz1, i1, exception);
   FY_THEH()
-}
-
-getfield (i1 -- ir)
-{
-  fy_field *field;
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  ir = fy_heapGetFieldInt(context, i1, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
-  }
-#endif
-  FY_THEH()
-  CURR_INST.inst = INST_OF(getfield_n);
-}
-
-putfield (i1 i2 --)
-{
-  fy_field *field;
-
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH()
-  }
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", field->utf8Name, i1, i2);
-  }
-#endif
-  fy_heapPutFieldInt(context, i1, field, i2, exception);
-  FY_THEH()
-  CURR_INST.inst = INST_OF(putfield_n);
-}
-
-getfield_x (i1 -- lr)
-{
-  fy_field *field;
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  lr = fy_heapGetFieldLong(context, i1, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
-  }
-#endif
-  FY_THEH()
-  CURR_INST.inst = INST_OF(getfield_nx);
-}
-
-putfield_x (i1 l1 --)
-{
-  fy_field *field;
-
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH()
-  }
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", field->utf8Name, i1, l1);
-  }
-#endif
-  fy_heapPutFieldLong(context, i1, field, l1, exception);
-  FY_THEH()
-  CURR_INST.inst = INST_OF(putfield_nx);
-}
-
-getstatic( -- ir)
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  field = CURR_INST.params.field;
-  clazz1 = field->owner;
-  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
-  }
-#endif
-  //!CLINIT
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  ir = fy_heapGetStaticInt(context, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, ir);
-  }
-#endif
-  FY_THEH()
-  CURR_INST.inst = INST_OF(getstatic_n);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-
-putstatic(i1 -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  
-  field = CURR_INST.params.field;
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
-    FY_THEH()
-  }
-  clazz1 = field->owner;
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  //!CLINIT
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 1);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  fy_heapPutStaticInt(context, field, i1, exception);
-  FY_THEH()
-  CURR_INST.inst = INST_OF(putstatic_n);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-
-getstatic_x( -- lr)
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  field = CURR_INST.params.field;
-  clazz1 =  field->owner;
-  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
-    FY_THEH()
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
-  }
-#endif
-  //!CLINIT
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  lr = fy_heapGetStaticLong(context, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s value = %"FY_PRINT64"d# ", field->utf8Name, lr);
-  }
-#endif
-  FY_THEH()
-  CURR_INST.inst = INST_OF(getstatic_nx);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-
-putstatic_x(l1 -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-
-  field = CURR_INST.params.field;
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
-    FY_THEH()
-  }
-  clazz1 = field->owner;
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
-  }
-#endif
-  //!CLINIT
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 2);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
-  }
-#endif
-  fy_heapPutStaticLong(context, field, l1, exception);
-  FY_THEH()
-  CURR_INST.inst = INST_OF(putstatic_nx);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
 }
 
 \  #####     #     #####  #######
@@ -1482,6 +1243,272 @@ tableswitch (i1 -- )
   }
 }
 
+
+
+\ #     # ####### ####### ######
+\ ##    # #     # #     # #     #
+\ # #   # #     # #     # #     #
+\ #  #  # #     # #     # ######
+\ #   # # #     # #     # #
+\ #    ## #     # #     # #
+\ #     # ####### ####### #
+
+nop ( -- )
+;
+
+pop (i1 -- )
+;
+
+pop2 (i1 i2 -- )
+;
+
+
+\ #     # #     # ####### ######  #######
+\ #     # ##    # #     # #     #    #
+\ #     # # #   # #     # #     #    #
+\ #     # #  #  # #     # ######     #
+\ #     # #   # # #     # #          #
+\ #     # #    ## #     # #          #
+\  #####  #     # ####### #          #
+
+
+ldc ( -- ir)
+{
+  ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
+  FY_THEH()
+  CURR_INST.inst=INST_OF(sipush);
+  CURR_INST.params.int_params.param1 = ir;
+}
+
+ldc2_w ( -- lr)
+{
+  lr = opLDC2(context, method->owner, CURR_INST.params.ldc.value, exception);
+  FY_THEH()
+  CURR_INST.inst=INST_OF(slpush);
+  CURR_INST.params.int_params.param1 = fy_HOFL(lr);
+  CURR_INST.params.int_params.param2 = fy_LOFL(lr);
+}
+
+getfield (i1 -- ir)
+{
+  fy_field *field;
+  field = CURR_INST.params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
+  ir = fy_heapGetFieldInt(context, i1, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
+  }
+#endif
+  FY_THEH()
+  CURR_INST.inst = INST_OF(getfield_n);
+}
+
+putfield (i1 i2 --)
+{
+  fy_field *field;
+
+  field = CURR_INST.params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
+    FY_THEH()
+  }
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", field->utf8Name, i1, i2);
+  }
+#endif
+  fy_heapPutFieldInt(context, i1, field, i2, exception);
+  FY_THEH()
+  CURR_INST.inst = INST_OF(putfield_n);
+}
+
+getfield_x (i1 -- lr)
+{
+  fy_field *field;
+  field = CURR_INST.params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
+  lr = fy_heapGetFieldLong(context, i1, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
+  }
+#endif
+  FY_THEH()
+  CURR_INST.inst = INST_OF(getfield_nx);
+}
+
+putfield_x (i1 l1 --)
+{
+  fy_field *field;
+
+  field = CURR_INST.params.field;
+  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
+    FY_THEH()
+  }
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", field->utf8Name, i1, l1);
+  }
+#endif
+  fy_heapPutFieldLong(context, i1, field, l1, exception);
+  FY_THEH()
+  CURR_INST.inst = INST_OF(putfield_nx);
+}
+
+getstatic( -- ir)
+{
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+  field = CURR_INST.params.field;
+  clazz1 = field->owner;
+  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
+  }
+#endif
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  ir = fy_heapGetStaticInt(context, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, ir);
+  }
+#endif
+  FY_THEH()
+  CURR_INST.inst = INST_OF(getstatic_n);
+  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+
+putstatic(i1 -- )
+{
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+  
+  field = CURR_INST.params.field;
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  clazz1 = field->owner;
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 1);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
+  }
+#endif
+  fy_heapPutStaticInt(context, field, i1, exception);
+  FY_THEH()
+  CURR_INST.inst = INST_OF(putstatic_n);
+  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+
+getstatic_x( -- lr)
+{
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+  field = CURR_INST.params.field;
+  clazz1 =  field->owner;
+  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
+    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
+    FY_THEH()
+  }
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
+  }
+#endif
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  lr = fy_heapGetStaticLong(context, field, exception);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %s value = %"FY_PRINT64"d# ", field->utf8Name, lr);
+  }
+#endif
+  FY_THEH()
+  CURR_INST.inst = INST_OF(getstatic_nx);
+  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+
+putstatic_x(l1 -- )
+{
+#ifdef FY_LATE_DECLARATION
+  fy_field *field;
+  fy_class *clazz1;
+#endif
+
+  field = CURR_INST.params.field;
+  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
+    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
+    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
+    FY_THEH()
+  }
+  clazz1 = field->owner;
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
+  }
+#endif
+  //!CLINIT
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 2);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
+  }
+#endif
+  fy_heapPutStaticLong(context, field, l1, exception);
+  FY_THEH()
+  CURR_INST.inst = INST_OF(putstatic_nx);
+  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+
 \ ######  ####### #     # ######  #       #######
 \ #     # #     # #     # #     # #       #
 \ #     # #     # #     # #     # #       #
@@ -1541,23 +1568,6 @@ dcmpl (d1 d2 -- ir)
     ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
   }
 }
-
-\ #     # ####### ####### ######
-\ ##    # #     # #     # #     #
-\ # #   # #     # #     # #     #
-\ #  #  # #     # #     # ######
-\ #   # # #     # #     # #
-\ #    ## #     # #     # #
-\ #     # ####### ####### #
-
-nop ( -- )
-;
-
-pop (i1 -- )
-;
-
-pop2 (i1 i2 -- )
-;
 
 \C#ifdef FY_ENGINE_HEADER
 \C    label_fallout_invoke:
