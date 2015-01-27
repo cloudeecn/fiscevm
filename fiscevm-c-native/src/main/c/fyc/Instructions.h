@@ -253,10 +253,14 @@
 
 #define FY_OP_slpush  0xd0
 
-#define FY_OP_getstatic_r  0xd2
-#define FY_OP_putstatic_r  0xd3
-#define FY_OP_getfield_r  0xd4
-#define FY_OP_putfield_r  0xd5
+#define FY_OP_getstatic_n  0xd2
+#define FY_OP_putstatic_n  0xd3
+#define FY_OP_getfield_n  0xd4
+#define FY_OP_putfield_n  0xd5
+#define FY_OP_getstatic_nx  0xd6
+#define FY_OP_putstatic_nx  0xd7
+#define FY_OP_getfield_nx  0xd8
+#define FY_OP_putfield_nx  0xd9
 
 #define FY_OP_getstatic_x  0xe2
 #define FY_OP_putstatic_x  0xe3

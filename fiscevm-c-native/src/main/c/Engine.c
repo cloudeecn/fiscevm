@@ -194,6 +194,8 @@
 
 #define INST_ADDR(name) {&&I_##name , FY_OP_##name}
 #define LABEL(name) I_##name:
+#define INST_OF(name) (&&I_##name)
+
 #else /* !defined(__GNUC__) */
 /* use switch dispatch */
 #define DEF_CA

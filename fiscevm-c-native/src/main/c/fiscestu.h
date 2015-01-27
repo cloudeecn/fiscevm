@@ -798,6 +798,7 @@ extern "C" {
 			fy_field *field;
 			fy_switch_lookup *swlookup;
 			fy_switch_table *swtable;
+            fy_int *isfield;
 			struct {
 				fy_int derefed;
 				fy_uint value;

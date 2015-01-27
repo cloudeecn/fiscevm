@@ -110,6 +110,14 @@ FY_HOT fy_int FY_ENGINE_NAME(
   ENGINE_ENTER;
 #endif
 INST_ADDR(dropout),
+INST_ADDR(getfield_n),
+INST_ADDR(putfield_n),
+INST_ADDR(getfield_nx),
+INST_ADDR(putfield_nx),
+INST_ADDR(getstatic_n),
+INST_ADDR(putstatic_n),
+INST_ADDR(getstatic_nx),
+INST_ADDR(putstatic_nx),
 INST_ADDR(iload),
 INST_ADDR(istore),
 INST_ADDR(lload),
