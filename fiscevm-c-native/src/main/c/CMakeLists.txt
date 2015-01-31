@@ -68,6 +68,8 @@ option (ENABLE_LIBS "Generate shared libraries" ON)
 option (ENABLE_JNI "Enable fyjni build" ON)
 option (ENABLE_32 "Enable 32bit" ON)
 option (ENABLE_64 "Enable 64bit" ON)
+option (ENABLE_IC "Enable instructions count" OFF)
+option (ENABLE_LTO "Enable Link time optimization" ON)
 
 if(EMSCRIPTEN)
     message("Using emscripten default configure...")
@@ -109,8 +111,10 @@ else(EMSCRIPTEN)
 endif(EMSCRIPTEN)
 
 if(HAS_LTO)
+    if(ENABLE_LTO)
     message("Link time optimization supported")
     set(FLAG_LTO "-flto")
+    endif(ENABLE_LTO)
 endif(HAS_LTO)
         
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
@@ -131,6 +135,10 @@ ENDIF(CMAKE_COMPILER_IS_GNUCC)
 IF(ENABLE_VERBOSE)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFY_VERBOSE")
 ENDIF(ENABLE_VERBOSE)
+
+IF(ENABLE_IC)
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFY_INSTRUCTION_COUNT")
+ENDIF(ENABLE_IC)
 
 set(JNI_ADD_FLAGS "")
 

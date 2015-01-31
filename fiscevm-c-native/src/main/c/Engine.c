@@ -77,6 +77,24 @@
 # define TRAP
 #endif
 
+#ifdef FY_INSTRUCTION_COUNT
+# define INST_COUNT(ipp) ({ \
+	context->instructionPairCount[context->last_op * MAX_INSTRUCTIONS + ipp->op].op1 = context->last_op; \
+	context->instructionPairCount[context->last_op * MAX_INSTRUCTIONS + ipp->op].op2 = ipp->op; \
+	context->instructionPairCount[context->last_op * MAX_INSTRUCTIONS + ipp->op].count++; \
+	context->last_op = \
+	context->instructionCount[ipp->op].op = ipp->op; \
+	context->instructionCount[ipp->op].count++; \
+})
+#else
+# define INST_COUNT(ipp)
+#endif
+
+#if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
+# define MODIFY_CURR_INST(OP) ({CURR_INST.inst=INST_OF(OP);CURR_INST.op=CODE_OF(OP);})
+#else
+# define MODIFY_CURR_INST(OP) ({CURR_INST.inst=INST_OF(OP);})
+#endif
 /* different threading schemes for different architectures; the sparse
  numbering is there for historical reasons */
 
@@ -88,7 +106,7 @@
  for Gforth "make bench" on a 486, whereas scheme 5 is fastest for
  "mini fib.mini" on an Athlon */
 #ifndef THREADING_SCHEME
-#define THREADING_SCHEME 5
+#define THREADING_SCHEME 8
 #endif /* defined(THREADING_SCHEME) */
 
 #ifdef __GNUC__
@@ -96,7 +114,7 @@
 /* direct threading scheme 1: autoinc, long latency (HPPA, Sharc) */
 #  define USE_CFA 1
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0	({cfa=(ipp++)->inst;})
+#  define NEXT_P0	({cfa=(ipp++)->inst; INST_COUNT(PCURR_INST);})
 #  define IP		(ipp-1)
 #  define PCURR_INST		(ipp-2)
 #  define CURR_INST		(*(ipp-2))
@@ -111,7 +129,7 @@
 /* direct threading scheme 3: autoinc, low latency (68K) */
 #  define USE_CFA 1
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0   ({ops--;})
+#  define NEXT_P0   ({ops--; INST_COUNT(PCURR_INST);})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST		(*(ipp - 1))
@@ -127,7 +145,7 @@
 #  define USE_CFA 1
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define CFA_NEXT
-#  define NEXT_P0	({cfa=ipp->inst; --ops;})
+#  define NEXT_P0	({cfa=ipp->inst; --ops; INST_COUNT(PCURR_INST);})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
@@ -140,15 +158,15 @@
 
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
-#  define NEXT_P0 ({--ops;/*FY_PREFETCH(ipp);*/})
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
+#  define NEXT_P0 ({--ops;/*FY_PREFETCH(ipp);*/INST_COUNT(PCURR_INST);})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
 #  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
 #  define NEXT_INST	(*IP)
 #  define DEF_CA
-#  define NEXT_P1	
+#  define NEXT_P1
 #  define NEXT_P2	({goto *((ipp++)->inst);})
 #endif
 
@@ -158,8 +176,8 @@
  works out better with the capabilities of gcc to introduce and
  schedule the mtctr instruction. */
 #  define USE_CFA 1
-#  define NEXT_P0
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
+#  define NEXT_P0 ({INST_COUNT(PCURR_INST);})
 #  define IP		ipp
 #  define SET_IP(p)	({ipp=instructions + (p); next_cfa=ipp->inst; NEXT_P0;})
 #  define PCURR_INST		(ipp-1)
@@ -184,7 +202,7 @@
 #  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
 #  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1	({cfa = (ipp++)->inst; ops--;})
+#  define NEXT_P1	({INST_COUNT(ipp); cfa = (ipp++)->inst; ops--;})
 #  define NEXT_P2	({goto *cfa;})
 #endif
 
@@ -195,6 +213,7 @@
 #define INST_ADDR(name) {&&I_##name , FY_OP_##name}
 #define LABEL(name) I_##name:
 #define INST_OF(name) (&&I_##name)
+#define CODE_OF(name) (FY_OP_##name)
 
 #else /* !defined(__GNUC__) */
 /* use switch dispatch */

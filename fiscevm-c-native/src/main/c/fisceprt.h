@@ -192,6 +192,9 @@ typedef struct fy_port {
 #else
 #define FY_FASTCALL
 #endif
+
+
+
 #ifdef FY_DEBUG
 #define FY_STRICT_CHECK
 #endif

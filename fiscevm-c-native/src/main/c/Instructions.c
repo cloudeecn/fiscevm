@@ -19,7 +19,7 @@
 #include "fyc/Instructions.h"
 #include <math.h>
 
-const char *FY_OP_NAME[512] = { /**/
+const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "NOP", /* 0x00 */
 "ACONST_NULL", /* 0x01 */
 "ICONST_M1", /* 0x02 */
@@ -246,10 +246,10 @@ const char *FY_OP_NAME[512] = { /**/
 "<undef>", /* 0xDF */
 "<undef>", /* 0xE0 */
 "<undef>", /* 0xE1 */
-"<undef>", /* 0xE2 */
-"<undef>", /* 0xE3 */
-"<undef>", /* 0xE4 */
-"<undef>", /* 0xE5 */
+"GETSTATIC_X", /* 0xE2 */
+"PUTSTATIC_X", /* 0xE3 */
+"GETFIELD_X", /* 0xE4 */
+"PUTFIELD_X", /* 0xE5 */
 "<undef>", /* 0xE6 */
 "<undef>", /* 0xE7 */
 "<undef>", /* 0xE8 */
@@ -262,10 +262,10 @@ const char *FY_OP_NAME[512] = { /**/
 "<undef>", /* 0xEF */
 "<undef>", /* 0xF0 */
 "<undef>", /* 0xF1 */
-"GETSTATIC_W", /* 0xF2 */
-"PUTSTATIC_W", /* 0xF3 */
-"GETFIELD_W", /* 0xF4 */
-"PUTFIELD_W", /* 0xF5 */
+"<undef>", /* 0xF2 */
+"<undef>", /* 0xF3 */
+"<undef>", /* 0xF4 */
+"<undef>", /* 0xF5 */
 "<undef>", /* 0xF6 */
 "<undef>", /* 0xF7 */
 "<undef>", /* 0xF8 */
@@ -275,7 +275,264 @@ const char *FY_OP_NAME[512] = { /**/
 "<undef>", /* 0xFC */
 "<undef>", /* 0xFD */
 "<undef>", /* 0xFE */
-"<undef>"  /* 0xFF */
+"<undef>", /* 0xFF */
+
+"<undef>", /* 0x100*/
+"<undef>", /* 0x101*/
+"<undef>", /* 0x102*/
+"<undef>", /* 0x103*/
+"<undef>", /* 0x104*/
+"<undef>", /* 0x105*/
+"<undef>", /* 0x106*/
+"<undef>", /* 0x107*/
+"<undef>", /* 0x108*/
+"<undef>", /* 0x109*/
+"<undef>", /* 0x10A*/
+"<undef>", /* 0x10B*/
+"<undef>", /* 0x10C*/
+"<undef>", /* 0x10D*/
+"<undef>", /* 0x10E*/
+"<undef>", /* 0x10F*/
+"<undef>", /* 0x110*/
+"<undef>", /* 0x111*/
+"<undef>", /* 0x112*/
+"<undef>", /* 0x113*/
+"<undef>", /* 0x114*/
+"<undef>", /* 0x115*/
+"<undef>", /* 0x116*/
+"<undef>", /* 0x117*/
+"<undef>", /* 0x118*/
+"<undef>", /* 0x119*/
+"<undef>", /* 0x11A*/
+"<undef>", /* 0x11B*/
+"<undef>", /* 0x11C*/
+"<undef>", /* 0x11D*/
+"<undef>", /* 0x11E*/
+"<undef>", /* 0x11F*/
+"<undef>", /* 0x120*/
+"<undef>", /* 0x121*/
+"<undef>", /* 0x122*/
+"<undef>", /* 0x123*/
+"<undef>", /* 0x124*/
+"<undef>", /* 0x125*/
+"<undef>", /* 0x126*/
+"<undef>", /* 0x127*/
+"<undef>", /* 0x128*/
+"<undef>", /* 0x129*/
+"<undef>", /* 0x12A*/
+"<undef>", /* 0x12B*/
+"<undef>", /* 0x12C*/
+"<undef>", /* 0x12D*/
+"<undef>", /* 0x12E*/
+"<undef>", /* 0x12F*/
+"<undef>", /* 0x130*/
+"<undef>", /* 0x131*/
+"<undef>", /* 0x132*/
+"<undef>", /* 0x133*/
+"<undef>", /* 0x134*/
+"<undef>", /* 0x135*/
+"<undef>", /* 0x136*/
+"<undef>", /* 0x137*/
+"<undef>", /* 0x138*/
+"<undef>", /* 0x139*/
+"<undef>", /* 0x13A*/
+"<undef>", /* 0x13B*/
+"<undef>", /* 0x13C*/
+"<undef>", /* 0x13D*/
+"<undef>", /* 0x13E*/
+"<undef>", /* 0x13F*/
+"<undef>", /* 0x140*/
+"<undef>", /* 0x141*/
+"<undef>", /* 0x142*/
+"<undef>", /* 0x143*/
+"<undef>", /* 0x144*/
+"<undef>", /* 0x145*/
+"<undef>", /* 0x146*/
+"<undef>", /* 0x147*/
+"<undef>", /* 0x148*/
+"<undef>", /* 0x149*/
+"<undef>", /* 0x14A*/
+"<undef>", /* 0x14B*/
+"<undef>", /* 0x14C*/
+"<undef>", /* 0x14D*/
+"<undef>", /* 0x14E*/
+"<undef>", /* 0x14F*/
+"<undef>", /* 0x150*/
+"<undef>", /* 0x151*/
+"<undef>", /* 0x152*/
+"<undef>", /* 0x153*/
+"<undef>", /* 0x154*/
+"<undef>", /* 0x155*/
+"<undef>", /* 0x156*/
+"<undef>", /* 0x157*/
+"<undef>", /* 0x158*/
+"<undef>", /* 0x159*/
+"<undef>", /* 0x15A*/
+"<undef>", /* 0x15B*/
+"<undef>", /* 0x15C*/
+"<undef>", /* 0x15D*/
+"<undef>", /* 0x15E*/
+"<undef>", /* 0x15F*/
+"<undef>", /* 0x160*/
+"<undef>", /* 0x161*/
+"<undef>", /* 0x162*/
+"<undef>", /* 0x163*/
+"<undef>", /* 0x164*/
+"<undef>", /* 0x165*/
+"<undef>", /* 0x166*/
+"<undef>", /* 0x167*/
+"<undef>", /* 0x168*/
+"<undef>", /* 0x169*/
+"<undef>", /* 0x16A*/
+"<undef>", /* 0x16B*/
+"<undef>", /* 0x16C*/
+"<undef>", /* 0x16D*/
+"<undef>", /* 0x16E*/
+"<undef>", /* 0x16F*/
+"<undef>", /* 0x170*/
+"<undef>", /* 0x171*/
+"<undef>", /* 0x172*/
+"<undef>", /* 0x173*/
+"<undef>", /* 0x174*/
+"<undef>", /* 0x175*/
+"<undef>", /* 0x176*/
+"<undef>", /* 0x177*/
+"<undef>", /* 0x178*/
+"<undef>", /* 0x179*/
+"<undef>", /* 0x17A*/
+"<undef>", /* 0x17B*/
+"<undef>", /* 0x17C*/
+"<undef>", /* 0x17D*/
+"<undef>", /* 0x17E*/
+"<undef>", /* 0x17F*/
+"<undef>", /* 0x180*/
+"<undef>", /* 0x181*/
+"<undef>", /* 0x182*/
+"<undef>", /* 0x183*/
+"<undef>", /* 0x184*/
+"<undef>", /* 0x185*/
+"<undef>", /* 0x186*/
+"<undef>", /* 0x187*/
+"<undef>", /* 0x188*/
+"<undef>", /* 0x189*/
+"<undef>", /* 0x18A*/
+"<undef>", /* 0x18B*/
+"<undef>", /* 0x18C*/
+"<undef>", /* 0x18D*/
+"<undef>", /* 0x18E*/
+"<undef>", /* 0x18F*/
+"<undef>", /* 0x190*/
+"<undef>", /* 0x191*/
+"<undef>", /* 0x192*/
+"<undef>", /* 0x193*/
+"<undef>", /* 0x194*/
+"<undef>", /* 0x195*/
+"<undef>", /* 0x196*/
+"<undef>", /* 0x197*/
+"<undef>", /* 0x198*/
+"<undef>", /* 0x199*/
+"<undef>", /* 0x19A*/
+"<undef>", /* 0x19B*/
+"<undef>", /* 0x19C*/
+"<undef>", /* 0x19D*/
+"<undef>", /* 0x19E*/
+"<undef>", /* 0x19F*/
+"<undef>", /* 0x1A0*/
+"<undef>", /* 0x1A1*/
+"<undef>", /* 0x1A2*/
+"<undef>", /* 0x1A3*/
+"<undef>", /* 0x1A4*/
+"<undef>", /* 0x1A5*/
+"<undef>", /* 0x1A6*/
+"<undef>", /* 0x1A7*/
+"<undef>", /* 0x1A8*/
+"<undef>", /* 0x1A9*/
+"<undef>", /* 0x1AA*/
+"<undef>", /* 0x1AB*/
+"<undef>", /* 0x1AC*/
+"<undef>", /* 0x1AD*/
+"<undef>", /* 0x1AE*/
+"<undef>", /* 0x1AF*/
+"<undef>", /* 0x1B0*/
+"<undef>", /* 0x1B1*/
+"<undef>", /* 0x1B2*/
+"<undef>", /* 0x1B3*/
+"<undef>", /* 0x1B4*/
+"<undef>", /* 0x1B5*/
+"<undef>", /* 0x1B6*/
+"<undef>", /* 0x1B7*/
+"<undef>", /* 0x1B8*/
+"<undef>", /* 0x1B9*/
+"<undef>", /* 0x1BA*/
+"<undef>", /* 0x1BB*/
+"<undef>", /* 0x1BC*/
+"<undef>", /* 0x1BD*/
+"<undef>", /* 0x1BE*/
+"<undef>", /* 0x1BF*/
+"<undef>", /* 0x1C0*/
+"<undef>", /* 0x1C1*/
+"<undef>", /* 0x1C2*/
+"<undef>", /* 0x1C3*/
+"<undef>", /* 0x1C4*/
+"<undef>", /* 0x1C5*/
+"<undef>", /* 0x1C6*/
+"<undef>", /* 0x1C7*/
+"<undef>", /* 0x1C8*/
+"<undef>", /* 0x1C9*/
+"<undef>", /* 0x1CA*/
+"<undef>", /* 0x1CB*/
+"<undef>", /* 0x1CC*/
+"<undef>", /* 0x1CD*/
+"<undef>", /* 0x1CE*/
+"<undef>", /* 0x1CF*/
+"<undef>", /* 0x1D0*/
+"<undef>", /* 0x1D1*/
+"<undef>", /* 0x1D2*/
+"<undef>", /* 0x1D3*/
+"<undef>", /* 0x1D4*/
+"<undef>", /* 0x1D5*/
+"<undef>", /* 0x1D6*/
+"<undef>", /* 0x1D7*/
+"<undef>", /* 0x1D8*/
+"<undef>", /* 0x1D9*/
+"<undef>", /* 0x1DA*/
+"<undef>", /* 0x1DB*/
+"<undef>", /* 0x1DC*/
+"<undef>", /* 0x1DD*/
+"<undef>", /* 0x1DE*/
+"<undef>", /* 0x1DF*/
+"<undef>", /* 0x1E0*/
+"<undef>", /* 0x1E1*/
+"<undef>", /* 0x1E2*/
+"<undef>", /* 0x1E3*/
+"<undef>", /* 0x1E4*/
+"<undef>", /* 0x1E5*/
+"<undef>", /* 0x1E6*/
+"<undef>", /* 0x1E7*/
+"<undef>", /* 0x1E8*/
+"<undef>", /* 0x1E9*/
+"<undef>", /* 0x1EA*/
+"<undef>", /* 0x1EB*/
+"<undef>", /* 0x1EC*/
+"<undef>", /* 0x1ED*/
+"<undef>", /* 0x1EE*/
+"<undef>", /* 0x1EF*/
+"<undef>", /* 0x1F0*/
+"<undef>", /* 0x1F1*/
+"<undef>", /* 0x1F2*/
+"<undef>", /* 0x1F3*/
+"<undef>", /* 0x1F4*/
+"<undef>", /* 0x1F5*/
+"<undef>", /* 0x1F6*/
+"<undef>", /* 0x1F7*/
+"<undef>", /* 0x1F8*/
+"<undef>", /* 0x1F9*/
+"<undef>", /* 0x1FA*/
+"<undef>", /* 0x1FB*/
+"<undef>", /* 0x1FC*/
+"<undef>", /* 0x1FD*/
+"<undef>", /* 0x1FE*/
+"<none>"  /* 0x1FF*/
 };
 
 void fy_instInitStackItem(fy_memblock *block, fy_instruction_extra *instruction,

@@ -570,6 +570,11 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 
 	fy_risInit(context, exception);
 	FYEH();
+#ifdef FY_INSTRUCTION_COUNT
+	memset(context->instructionCount, 0, sizeof(context->instructionCount));
+	memset(context->instructionPairCount, 0, sizeof(context->instructionPairCount));
+	context->last_op = FY_OP_none;
+#endif
 }
 
 static fy_class* getClass(fy_context *context, fy_str *name) {

@@ -2545,8 +2545,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_breakpoint();
             fy_fault(NULL, "Illegal op", "Illegal op: %s", FY_OP_NAME[op]);
 		}
-#ifdef FY_STRICT_CHECK
-		instruction_extra->op = op;
+#if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
+		instruction->op = op;
 #endif
 	}
 	method->instructions[0].inst = labelsByOp[FY_OP_dropout];

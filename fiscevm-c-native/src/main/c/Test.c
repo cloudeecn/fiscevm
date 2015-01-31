@@ -29,8 +29,9 @@
 #include "fyc/Data.h"
 #include "fyc/ClassLoader.h"
 #include "fyc/Thread.h"
+#include "fyc/Instructions.h"
 
-static const char* dirs[] = { NULL, NULL };
+static const char** dirs;
 
 typedef struct FY_TEST_FUN {
 	char *name;
@@ -443,8 +444,8 @@ void testClassLoaderFull() {
 	fy_class *clObj;
 	exception->exceptionType = exception_none;
 	while ((nm = names[i++]) != NULL) {
-		DLOG(context, "###Full loading class %s\n", nm)
-;		snm->content = NULL;
+		DLOG(context, "###Full loading class %s\n", nm);
+		snm->content = NULL;
 		fy_strInitWithUTF8(block, snm, nm, exception);
 		TEST_EXCEPTION(exception);
 		clazz = fy_vmLookupClass(context, snm, exception);
@@ -518,8 +519,7 @@ void testHeap() {
 	TEST_EXCEPTION(exception);
 
 	sHandle = fy_heapLiteral(context, str, exception);
-	TEST_EXCEPTION(exception);
-	ASSERT(sHandle != 0);
+	TEST_EXCEPTION(exception);ASSERT(sHandle != 0);
 	fy_heapGetString(context, sHandle, compare, exception);
 	TEST_EXCEPTION(exception);
 	FY_ASSERT(fy_strCmp(str, compare) == 0);
@@ -566,6 +566,32 @@ static fy_int testFail(struct fy_context *context, struct fy_thread *thread,
 	return ops - 1;
 
 }
+
+#ifdef FY_INSTRUCTION_COUNT
+static int compareOpCount(const void *left, const void *right) {
+	const fy_instruction_count *l = (fy_instruction_count*) left;
+	const fy_instruction_count *r = (fy_instruction_count*) right;
+	if (l->count > r->count) {
+		return 1;
+	} else if (l->count == r->count) {
+		return 0;
+	} else {
+		return -1;
+	}
+}
+static int compairOpPairCount(const void *left, const void *right) {
+	const fy_instruction_pair_count *l = (fy_instruction_pair_count*) left;
+	const fy_instruction_pair_count *r = (fy_instruction_pair_count*) right;
+	if (l->count > r->count) {
+		return 1;
+	} else if (l->count == r->count) {
+		return 0;
+	} else {
+		return -1;
+	}
+}
+#endif
+
 static void hltest(char *name) {
 //	fy_class *clazz;
 	fy_message message;
@@ -573,6 +599,8 @@ static void hltest(char *name) {
 	fy_exception ex;
 	fy_context *context;
 	fy_exception *exception = &ex;
+	int i = 0;
+	fy_long total = 0;
 	if (name == NULL) {
 		fy_log("+++Executing test case Load+++\n", name);
 	} else {
@@ -606,6 +634,7 @@ static void hltest(char *name) {
 
 		switch (message.messageType) {
 		case message_invoke_native:
+#if 0
 			fy_strSPrint(msg, sizeof(msg),
 					message.body.call.method->uniqueName);
 			fy_log("Stopped at invoke native for thread %d: %s\n",
@@ -613,12 +642,53 @@ static void hltest(char *name) {
 			FY_ASSERT("Core native functions not implemented"==NULL)
 			;
 			dead = 1;
+#endif
 			break;
 		case message_sleep:
 //			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
 			break;
 		case message_vm_dead:
 			fy_log("VM dead\n");
+#ifdef FY_INSTRUCTION_COUNT
+			printf("Instructions usage:\n");
+			qsort(context->instructionCount, MAX_INSTRUCTIONS,
+					sizeof(fy_instruction_count), compareOpCount);
+			for (i = 0; i < MAX_INSTRUCTIONS; i++) {
+				total += context->instructionCount[i].count;
+			}
+			printf("Total: %"FY_PRINT64"d\n", total);
+			for (i = 0; i < MAX_INSTRUCTIONS; i++) {
+				if (context->instructionCount[i].count > 0) {
+					printf("%s(%d): %d (%f%%)\n",
+							FY_OP_NAME[context->instructionCount[i].op],
+							context->instructionCount[i].op,
+							context->instructionCount[i].count,
+							context->instructionCount[i].count * 100.0 / total);
+				}
+			}
+
+			printf("Instructions pair usage:\n");
+			qsort(context->instructionPairCount,
+			MAX_INSTRUCTIONS * MAX_INSTRUCTIONS,
+					sizeof(fy_instruction_pair_count), compairOpPairCount);
+			total = 0;
+			for (i = 0; i < MAX_INSTRUCTIONS * MAX_INSTRUCTIONS; i++) {
+				total += context->instructionPairCount[i].count;
+			}
+			printf("Total: %"FY_PRINT64"d\n", total);
+			for (i = 0; i < MAX_INSTRUCTIONS * MAX_INSTRUCTIONS; i++) {
+				if (context->instructionPairCount[i].count > 0) {
+					printf("%s(%d) -> %s(%d): %d (%f%%)\n",
+							FY_OP_NAME[context->instructionPairCount[i].op1],
+							context->instructionPairCount[i].op1,
+							FY_OP_NAME[context->instructionPairCount[i].op2],
+							context->instructionPairCount[i].op2,
+							context->instructionPairCount[i].count,
+							context->instructionPairCount[i].count * 100.0
+									/ total);
+				}
+			}
+#endif
 			dead = 1;
 			break;
 		case message_none:
@@ -698,7 +768,7 @@ static void hltest2(char *name) {
 			dead = 1;
 			break;
 		case message_none:
- 		case message_thread_dead:
+		case message_thread_dead:
 		default:
 			fy_log("Invalid message type %d\n", message.messageType);
 			break;
@@ -937,19 +1007,44 @@ int main(int argc, char *argv[]) {
 	char *customTest;
 	char *fn;
 	setvbuf(stdout, NULL, _IONBF, 1024);
-	if (argc < 2) {
-		dirs[0] = "runtime";
-	} else {
-		dirs[0] = argv[1];
+
+	for (i = argc - 1; i > 0; i--) {
+		if (strcmp("--", argv[i]) == 0) {
+			argc = i;
+			break;
+		}
 	}
-	printf("Base dir: %s\n", dirs[0]);
-	if (argc > 2 && strcmp("--", argv[2])) {
-		printf("Testing %s:", argv[2]);
-		customTest = argv[2];
-		fn = "test.custom.fail.log";
-	} else {
+
+	if (argc == 1) {
+		dirs = malloc(sizeof(char*) * 2);
+		dirs[0] = "runtime";
+		dirs[1] = NULL;
 		customTest = NULL;
 		fn = "test.fail.log";
+	} else if (argc == 2) {
+		dirs = malloc(sizeof(char*) * 2);
+		dirs[0] = argv[1];
+		dirs[1] = NULL;
+		customTest = NULL;
+		fn = "test.fail.log";
+	} else {
+		dirs = malloc(sizeof(char*) * argc);
+		for (i = 1; i < argc - 1; i++) {
+			dirs[i - 1] = argv[i];
+		}
+		dirs[i - 1] = NULL;
+		printf("Testing %s:", argv[argc - 1]);
+		customTest = argv[argc - 1];
+		fn = "test.custom.fail.log";
+	}
+	printf("Classpaths:\n");
+	i = 0;
+	while (1) {
+		if (dirs[i] == NULL) {
+			break;
+		}
+		printf("%s\n", dirs[i]);
+		i++;
 	}
 	fails = fopen(fn, "w");
 	if (fails == NULL) {
@@ -968,6 +1063,7 @@ int main(int argc, char *argv[]) {
 		printf("Testing %s\n", customTest);
 		testCustom(customTest);
 	} else {
+		i = 0;
 		while (1) {
 			tf = testcases + i;
 			name = tf->name;
@@ -985,5 +1081,6 @@ int main(int argc, char *argv[]) {
 	if (failCount) {
 		printf("Test FAILED! %"FY_PRINT64"d\n", failCount);
 	}
+	free(dirs);
 	return failCount > 0;
 }

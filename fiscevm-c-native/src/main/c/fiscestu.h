@@ -33,6 +33,7 @@
 #define MAX_OBJECTS 65536
 #define MAX_THREADS 32
 #define MAX_STREAMS 16
+#define MAX_INSTRUCTIONS 512
 
 #define STACK_SIZE 16384
 
@@ -488,6 +489,19 @@ extern "C" {
 				fy_exception *exception);
 	}fy_inputStream;
 
+#ifdef FY_INSTRUCTION_COUNT
+	typedef struct fy_instruction_count{
+		fy_int op;
+		fy_int count;
+	} fy_instruction_count;
+
+	typedef struct fy_instruction_pair_count{
+			fy_int op1;
+			fy_int op2;
+			fy_int count;
+		} fy_instruction_pair_count;
+#endif
+
 	typedef struct fy_context {
 		/*Service Function Table*/
 		/*INPUTSTREAM*/
@@ -740,7 +754,11 @@ extern "C" {
 		fy_object objects[MAX_OBJECTS];
 		fy_int END_MARK[1];
 		/* #END HEAP*/
-
+#ifdef FY_INSTRUCTION_COUNT
+		fy_instruction_count instructionCount[MAX_INSTRUCTIONS];
+		fy_instruction_pair_count instructionPairCount[MAX_INSTRUCTIONS * MAX_INSTRUCTIONS];
+		fy_int last_op;
+#endif
 	}fy_context;
 
 	typedef fy_int (*fy_nhFunction)(
@@ -776,7 +794,6 @@ extern "C" {
 	struct fy_instruction_extra {
 		fy_int sp;
 #ifdef FY_STRICT_CHECK
-		fy_int op;
 		fy_uint localSize;
 #endif
 		union {
@@ -787,7 +804,9 @@ extern "C" {
 
 	struct fy_instruction {
 		fy_e2_label inst;
-
+#if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
+		fy_int op;
+#endif
 		union {
 			struct {
 				fy_int param1;

@@ -269,6 +269,8 @@
 
 #define FY_OP_dropout  0xff
 
+#define FY_OP_none 0x1ff
+
 #define FY_IP_dropout 0x00
 
 #define FY_IP_begin 0x01
@@ -282,7 +284,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-extern const char *FY_OP_NAME[512];
+extern const char *FY_OP_NAME[MAX_INSTRUCTIONS];
 
 void fy_instInitStackItem(fy_memblock *block, fy_instruction_extra *instruction,
 		fy_int size, fy_exception *exception) ;

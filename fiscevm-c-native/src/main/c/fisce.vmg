@@ -123,6 +123,39 @@
 \E s" fy_double" double data-stack type-prefix d
 \E s" fy_ulong" double data-stack type-prefix l
 
+\ ####### ######  #######   ###   #     #   ###   ####### #######
+\ #     # #     #    #       #    ##   ##    #         #  #
+\ #     # #     #    #       #    # # # #    #        #   #
+\ #     # ######     #       #    #  #  #    #       #    #####
+\ #     # #          #       #    #     #    #      #     #
+\ #     # #          #       #    #     #    #     #      #
+\ ####### #          #      ###   #     #   ###   ####### #######
+
+iload ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iaload (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iadd (i1 i2 -- ir)
+{
+  ir = i1 + i2;
+}
+
+nop ( -- )
+;
+
+
 \ ######  ######    ###   #     #    #    ####### #######
 \ #     # #     #    #    #     #   # #      #    #
 \ #     # #     #    #    #     #  #   #     #    #
@@ -130,16 +163,6 @@
 \ #       #   #      #     #   #  #######    #    #
 \ #       #    #     #      # #   #     #    #    #
 \ #       #     #   ###      #    #     #    #    #######
-
-dropout ( -- )
-{
-  #ifdef VM_DEBUG
-  if (vm_debug) {
-  fputs(" ### ", vm_out); fputc('\n', vm_out);
-  }
-  #endif
-  goto label_fallout_invoke;
-}
 
 getfield_n (i1 -- ir)
 {
@@ -199,13 +222,13 @@ getstatic_n( -- ir)
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #getstatic %s# ", CURR_INST.params.field->utf8Name);
+    fprintf(vm_out, " #getstatic %p# ", CURR_INST.params.isfield);
   }
 #endif
   ir = CURR_INST.params.isfield[0];
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #getstatic %s value=%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, ir);
+    fprintf(vm_out, " #getstatic %p value=%"FY_PRINT32"d# ", CURR_INST.params.isfield, ir);
   }
 #endif
 }
@@ -214,7 +237,7 @@ putstatic_n(i1 -- )
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1);
+    fprintf(vm_out, " #putstatic %p value=%"FY_PRINT32"d# ", CURR_INST.params.isfield, i1);
   }
 #endif
   CURR_INST.params.isfield[0] = i1;
@@ -224,14 +247,14 @@ getstatic_nx( -- ir1 ir2)
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #getstatic %s# ", CURR_INST.params.field->utf8Name);
+    fprintf(vm_out, " #getstatic %p# ", CURR_INST.params.isfield);
   }
 #endif
   ir1 = CURR_INST.params.isfield[0];
   ir2 = CURR_INST.params.isfield[1];
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #getstatic %s value = %"FY_PRINT64"d# ", CURR_INST.params.field->utf8Name, fy_I2TOL(ir1, ir2));
+    fprintf(vm_out, " #getstatic %p value = %"FY_PRINT64"d# ", CURR_INST.params.isfield, fy_I2TOL(ir1, ir2));
   }
 #endif
 }
@@ -240,7 +263,7 @@ putstatic_nx(i1 i2 -- )
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT64"d# ", CURR_INST.params.field->utf8Name, fy_I2TOL(ir1, ir2));
+    fprintf(vm_out, " #putstatic %p value=%"FY_PRINT64"d# ", CURR_INST.params.isfield, fy_I2TOL(i1, i2));
   }
 #endif
   CURR_INST.params.isfield[0] = i1;
@@ -255,15 +278,7 @@ putstatic_nx(i1 i2 -- )
 \ #       #     # #     # #     # #
 \ ####### #######  #####  #     # #######
 
-iload ( -- ir)
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
-}
+
 
 istore (i1 -- )
 {
@@ -273,26 +288,6 @@ istore (i1 -- )
   }
 #endif
   fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
-}
-
-lload ( -- lr)
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #lload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadGetLocalLong(CURR_INST.params.int_params.param1, lr);
-}
-
-lstore (l1 -- )
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #lstore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadPutLocalLong(CURR_INST.params.int_params.param1, l1);
 }
 
 iinc ( -- )
@@ -309,13 +304,148 @@ iinc ( -- )
 \ #     #    #    #     # #     # #   #
 \  #####     #    #     #  #####  #    #
 
-\ DUP
+\ CONST
+
+sipush ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+slpush ( -- ir1 ir2)
+{
+  ir1 = CURR_INST.params.int_params.param1;
+  ir2 = CURR_INST.params.int_params.param2;
+}
+
+\ DUP (common)
 
 dup (i1 -- ir1 ir2)
 {
   ir1 = ir2 = i1;
 }
 
+\ CALC
+
+isub (i1 i2 -- ir)
+{
+  ir = i1 - i2;
+}
+
+imul (i1 i2 -- ir)
+{
+  ir = (fy_uint)((fy_int)i1 * (fy_int)i2);
+}
+
+idiv (i1 i2 -- ir)
+{
+  if(unlikely(i2 == 0)){
+    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
+    FY_THEH()
+    ir = 0;
+  } else {
+    ir = ((fy_int)i1) / ((fy_int)i2);
+  }
+}
+
+irem (i1 i2 -- ir)
+{
+  if(unlikely(i2 == 0)){
+    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
+    FY_THEH()
+    ir = 0;
+  } else {
+    ir = ((fy_int)i1) % ((fy_int)i2);
+  }
+}
+
+ineg (i1 -- ir)
+{
+  ir = -i1;
+}
+
+iand (i1 i2 -- ir)
+{
+  ir = i1 & i2;
+}
+
+ior (i1 i2 -- ir)
+{
+  ir = i1 | i2;
+}
+
+ixor (i1 i2 -- ir)
+{
+  ir = i1 ^ i2;
+}
+
+ishl (i1 i2 -- ir)
+{
+  ir = i1 << i2;
+}
+
+ishr (i1 i2 -- ir)
+{
+  ir = ((fy_int)i1) >> ((fy_int)i2);
+}
+
+iushr (i1 i2 -- ir)
+{
+  ir = i1 >> i2;
+}
+
+fadd (f1 f2 -- fr)
+{
+  fr = f1 + f2;
+}
+
+fsub (f1 f2 -- fr)
+{
+  fr = f1 - f2;
+}
+
+fmul (f1 f2 -- fr)
+{
+  fr = f1 * f2;
+}
+
+fdiv (f1 f2 -- fr)
+{
+  fr = f1 / f2;
+}
+
+frem (f1 f2 -- fr)
+{
+  if(f2 == 0){
+    fr = 0.0 / f2;
+  } else {
+    fr = f1 - floor(f1 / f2) * f2;
+  }
+}
+
+fneg (f1 -- fr)
+{
+  fr = -f1;
+}
+
+fcmpg (f1 f2 -- ir)
+{
+  if (unlikely(fy_isnand(f2) || fy_isnand(f1))) {
+    ir = 1;
+  } else {
+    ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
+  }
+}
+
+fcmpl (f1 f2 -- ir)
+{
+  if (unlikely(fy_isnand(f2) || fy_isnand(f1))) {
+    ir = -1;
+  } else {
+    ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
+  }
+}
+
+\ DUP (not so common)
 dup_x1 (i1 i2 -- ir1 ir2 ir3)
 {
   ir1 = i2;
@@ -360,19 +490,6 @@ swap (i1 i2 -- ir1 ir2)
 {
   ir1 = i2;
   ir2 = i1;
-}
-
-\ CONST
-
-sipush ( -- ir)
-{
-  ir = CURR_INST.params.int_params.param1;
-}
-
-slpush ( -- ir1 ir2)
-{
-  ir1 = CURR_INST.params.int_params.param1;
-  ir2 = CURR_INST.params.int_params.param2;
 }
 
 \ CONVERT
@@ -452,132 +569,24 @@ l2i (l1 -- ir)
   ir = (fy_uint)l1;
 }
 
-
-
-\ CALC
-
-fadd (f1 f2 -- fr)
+lload ( -- lr)
 {
-  fr = f1 + f2;
-}
-
-fsub (f1 f2 -- fr)
-{
-  fr = f1 - f2;
-}
-
-fmul (f1 f2 -- fr)
-{
-  fr = f1 * f2;
-}
-
-fdiv (f1 f2 -- fr)
-{
-  fr = f1 / f2;
-}
-
-frem (f1 f2 -- fr)
-{
-  if(f2 == 0){
-    fr = 0.0 / f2;
-  } else {
-    fr = f1 - floor(f1 / f2) * f2;
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #lload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
+#endif
+  fy_threadGetLocalLong(CURR_INST.params.int_params.param1, lr);
 }
 
-fneg (f1 -- fr)
+lstore (l1 -- )
 {
-  fr = -f1;
-}
-
-fcmpg (f1 f2 -- ir)
-{
-  if (unlikely(fy_isnand(f2) || fy_isnand(f1))) {
-    ir = 1;
-  } else {
-    ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #lstore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
   }
-}
-
-fcmpl (f1 f2 -- ir)
-{
-  if (unlikely(fy_isnand(f2) || fy_isnand(f1))) {
-    ir = -1;
-  } else {
-    ir = f1 == f2 ? 0 : (f1 - f2 > 0) ? 1 : -1;
-  }
-}
-
-iadd (i1 i2 -- ir)
-{
-  ir = i1 + i2;
-}
-
-isub (i1 i2 -- ir)
-{
-  ir = i1 - i2;
-}
-
-imul (i1 i2 -- ir)
-{
-  ir = (fy_uint)((fy_int)i1 * (fy_int)i2);
-}
-
-idiv (i1 i2 -- ir)
-{
-  if(unlikely(i2 == 0)){
-    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
-    FY_THEH()
-    ir = 0;
-  } else {
-    ir = ((fy_int)i1) / ((fy_int)i2);
-  }
-}
-
-irem (i1 i2 -- ir)
-{
-  if(unlikely(i2 == 0)){
-    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
-    FY_THEH()
-    ir = 0;
-  } else {
-    ir = ((fy_int)i1) % ((fy_int)i2);
-  }
-}
-
-ineg (i1 -- ir)
-{
-  ir = -i1;
-}
-
-iand (i1 i2 -- ir)
-{
-  ir = i1 & i2;
-}
-
-ior (i1 i2 -- ir)
-{
-  ir = i1 | i2;
-}
-
-ixor (i1 i2 -- ir)
-{
-  ir = i1 ^ i2;
-}
-
-ishl (i1 i2 -- ir)
-{
-  ir = i1 << i2;
-}
-
-ishr (i1 i2 -- ir)
-{
-  ir = ((fy_int)i1) >> ((fy_int)i2);
-}
-
-iushr (i1 i2 -- ir)
-{
-  ir = i1 >> i2;
+#endif
+  fy_threadPutLocalLong(CURR_INST.params.int_params.param1, l1);
 }
 
 ladd (l1 l2 -- lr)
@@ -667,12 +676,6 @@ lushr (l1 i1 -- lr)
 arraylength (i1 -- ir)
 {
   ir = fy_heapArrayLength(context, i1, exception);
-  FY_THEH()
-}
-
-iaload (i1 i2 -- ir)
-{
-  ir = fy_heapGetArrayInt(context, i1, i2, exception);
   FY_THEH()
 }
 
@@ -1253,9 +1256,6 @@ tableswitch (i1 -- )
 \ #    ## #     # #     # #
 \ #     # ####### ####### #
 
-nop ( -- )
-;
-
 pop (i1 -- )
 ;
 
@@ -1276,7 +1276,7 @@ ldc ( -- ir)
 {
   ir = opLDC(context, method->owner, CURR_INST.params.ldc.value, exception);
   FY_THEH()
-  CURR_INST.inst=INST_OF(sipush);
+  MODIFY_CURR_INST(sipush);
   CURR_INST.params.int_params.param1 = ir;
 }
 
@@ -1284,7 +1284,7 @@ ldc2_w ( -- lr)
 {
   lr = opLDC2(context, method->owner, CURR_INST.params.ldc.value, exception);
   FY_THEH()
-  CURR_INST.inst=INST_OF(slpush);
+  MODIFY_CURR_INST(slpush);
   CURR_INST.params.int_params.param1 = fy_HOFL(lr);
   CURR_INST.params.int_params.param2 = fy_LOFL(lr);
 }
@@ -1309,7 +1309,7 @@ getfield (i1 -- ir)
   }
 #endif
   FY_THEH()
-  CURR_INST.inst = INST_OF(getfield_n);
+  MODIFY_CURR_INST(getfield_n);
 }
 
 putfield (i1 i2 --)
@@ -1332,7 +1332,7 @@ putfield (i1 i2 --)
 #endif
   fy_heapPutFieldInt(context, i1, field, i2, exception);
   FY_THEH()
-  CURR_INST.inst = INST_OF(putfield_n);
+  MODIFY_CURR_INST(putfield_n);
 }
 
 getfield_x (i1 -- lr)
@@ -1355,7 +1355,7 @@ getfield_x (i1 -- lr)
   }
 #endif
   FY_THEH()
-  CURR_INST.inst = INST_OF(getfield_nx);
+  MODIFY_CURR_INST(getfield_nx);
 }
 
 putfield_x (i1 l1 --)
@@ -1378,7 +1378,7 @@ putfield_x (i1 l1 --)
 #endif
   fy_heapPutFieldLong(context, i1, field, l1, exception);
   FY_THEH()
-  CURR_INST.inst = INST_OF(putfield_nx);
+  MODIFY_CURR_INST(putfield_nx);
 }
 
 getstatic( -- ir)
@@ -1408,7 +1408,7 @@ getstatic( -- ir)
   }
 #endif
   FY_THEH()
-  CURR_INST.inst = INST_OF(getstatic_n);
+  MODIFY_CURR_INST(getstatic_n);
   CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
 }
 
@@ -1441,7 +1441,7 @@ putstatic(i1 -- )
 #endif
   fy_heapPutStaticInt(context, field, i1, exception);
   FY_THEH()
-  CURR_INST.inst = INST_OF(putstatic_n);
+  MODIFY_CURR_INST(putstatic_n);
   CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
 }
 
@@ -1472,7 +1472,7 @@ getstatic_x( -- lr)
   }
 #endif
   FY_THEH()
-  CURR_INST.inst = INST_OF(getstatic_nx);
+  MODIFY_CURR_INST(getstatic_nx);
   CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
 }
 
@@ -1505,7 +1505,7 @@ putstatic_x(l1 -- )
 #endif
   fy_heapPutStaticLong(context, field, l1, exception);
   FY_THEH()
-  CURR_INST.inst = INST_OF(putstatic_nx);
+  MODIFY_CURR_INST(putstatic_nx);
   CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
 }
 
@@ -1569,8 +1569,21 @@ dcmpl (d1 d2 -- ir)
   }
 }
 
+dropout ( -- )
+{
+  #ifdef VM_DEBUG
+  if (vm_debug) {
+  fputs(" ### ", vm_out); fputc('\n', vm_out);
+  }
+  #endif
+  goto label_fallout_invoke;
+}
+
 \C#ifdef FY_ENGINE_HEADER
 \C    label_fallout_invoke:
+\C#ifdef FY_INSTRUCTION_COUNT
+\C    context->last_op = 0x1ff;
+\C#endif
 \C    return ops;
 \C  }
 \C}
