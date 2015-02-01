@@ -141,6 +141,86 @@ iload ( -- ir)
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
+iload1 ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload2 ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload3 ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload4 ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload5 ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload6 ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload7 ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload8 ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
 iaload (i1 i2 -- ir)
 {
   ir = fy_heapGetArrayInt(context, i1, i2, exception);
