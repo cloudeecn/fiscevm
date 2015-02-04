@@ -650,23 +650,6 @@ static void hltest(char *name) {
 		case message_vm_dead:
 			fy_log("VM dead\n");
 #ifdef FY_INSTRUCTION_COUNT
-			printf("Instructions usage:\n");
-			qsort(context->instructionCount, MAX_INSTRUCTIONS,
-					sizeof(fy_instruction_count), compareOpCount);
-			for (i = 0; i < MAX_INSTRUCTIONS; i++) {
-				total += context->instructionCount[i].count;
-			}
-			printf("Total: %"FY_PRINT64"d\n", total);
-			for (i = 0; i < MAX_INSTRUCTIONS; i++) {
-				if (context->instructionCount[i].count > 0) {
-					printf("%s(%d): %d (%f%%)\n",
-							FY_OP_NAME[context->instructionCount[i].op],
-							context->instructionCount[i].op,
-							context->instructionCount[i].count,
-							context->instructionCount[i].count * 100.0 / total);
-				}
-			}
-
 			printf("Instructions pair usage:\n");
 			qsort(context->instructionPairCount,
 			MAX_INSTRUCTIONS * MAX_INSTRUCTIONS,
@@ -678,6 +661,13 @@ static void hltest(char *name) {
 			printf("Total: %"FY_PRINT64"d\n", total);
 			for (i = 0; i < MAX_INSTRUCTIONS * MAX_INSTRUCTIONS; i++) {
 				if (context->instructionPairCount[i].count > 0) {
+					context->instructionCount[context->instructionPairCount[i].op1].entropy -= 
+						(double)context->instructionPairCount[i].count *
+						log(
+							(double)context->instructionPairCount[i].count /
+							context->instructionCount[context->instructionPairCount[i].op1].count
+						)/log(2) /
+						context->instructionCount[context->instructionPairCount[i].op1].count;
 					printf("%s(%d) -> %s(%d): %d (%f%%)\n",
 							FY_OP_NAME[context->instructionPairCount[i].op1],
 							context->instructionPairCount[i].op1,
@@ -688,6 +678,28 @@ static void hltest(char *name) {
 									/ total);
 				}
 			}
+
+			printf("\n\n\n\nInstructions usage:\n");
+			qsort(context->instructionCount, MAX_INSTRUCTIONS,
+					sizeof(fy_instruction_count), compareOpCount);
+			for (i = 0; i < MAX_INSTRUCTIONS; i++) {
+				total += context->instructionCount[i].count;
+			}
+			printf("Total: %"FY_PRINT64"d\n", total);
+			for (i = 0; i < MAX_INSTRUCTIONS; i++) {
+				if (context->instructionCount[i].count > 0) {
+					printf("%s(%d): %d (%f%%) entropy: %f%% / %f%%\n",
+							FY_OP_NAME[context->instructionCount[i].op],
+							context->instructionCount[i].op,
+							context->instructionCount[i].count,
+							context->instructionCount[i].count * 100.0 / total,
+							context->instructionCount[i].entropy * 100.0,
+							context->instructionCount[i].entropy * 100.0 * context->instructionCount[i].count / total
+							);
+				}
+			}
+
+			
 #endif
 			dead = 1;
 			break;

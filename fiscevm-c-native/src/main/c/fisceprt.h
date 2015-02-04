@@ -245,7 +245,7 @@ FY_ATTR_EXPORT fy_boolean fy_portValidate();
 #define FYEX(HANDLER) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) {HANDLER;}
 #define FYEG(X) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) goto X
 
-#define FY_ENGINE_COUNT 1
+#define FY_ENGINE_COUNT 4
 
 MAYBE_UNUSED inline static fy_int fy_mini(fy_int x,fy_int y){
 	return y ^ ((x ^ y) & -(x < y));

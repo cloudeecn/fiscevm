@@ -493,13 +493,14 @@ extern "C" {
 	typedef struct fy_instruction_count{
 		fy_int op;
 		fy_int count;
+		fy_double entropy;
 	} fy_instruction_count;
 
 	typedef struct fy_instruction_pair_count{
-			fy_int op1;
-			fy_int op2;
-			fy_int count;
-		} fy_instruction_pair_count;
+		fy_int op1;
+		fy_int op2;
+		fy_int count;
+	} fy_instruction_pair_count;
 #endif
 
 	typedef struct fy_context {
