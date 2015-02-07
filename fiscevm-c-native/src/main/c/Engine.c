@@ -34,6 +34,13 @@
 # define ASM_CHECK
 #endif
 
+#define REPL_MIN 10000
+#ifdef FY_INSTRUCTION_COUNT
+# define DEBUG_REPL 1
+#else
+# define DEBUG_REPL 0
+#endif
+
 #define vm_fy_stack_item2i(_cell,_x)	((_x)=(_cell).uvalue)
 #define vm_i2fy_stack_item(_x,_cell)	((_cell).uvalue=(_x))
 #define vm_fy_stack_item2f(_cell,_x)	((_x)=(_cell).fvalue)
@@ -79,12 +86,12 @@
 
 #ifdef FY_INSTRUCTION_COUNT
 # define INST_COUNT(ipp) ({ \
-	context->instructionPairCount[context->last_op * MAX_INSTRUCTIONS + ipp->op].op1 = context->last_op; \
-	context->instructionPairCount[context->last_op * MAX_INSTRUCTIONS + ipp->op].op2 = ipp->op; \
-	context->instructionPairCount[context->last_op * MAX_INSTRUCTIONS + ipp->op].count++; \
-	context->last_op = \
-	context->instructionCount[ipp->op].op = ipp->op; \
-	context->instructionCount[ipp->op].count++; \
+	context->engineReplData[FY_ENGINE_NUM].instructionPairCount[context->engineReplData[FY_ENGINE_NUM].last_op * MAX_INSTRUCTIONS + ipp->op].op1 = context->engineReplData[FY_ENGINE_NUM].last_op; \
+	context->engineReplData[FY_ENGINE_NUM].instructionPairCount[context->engineReplData[FY_ENGINE_NUM].last_op * MAX_INSTRUCTIONS + ipp->op].op2 = ipp->op; \
+	context->engineReplData[FY_ENGINE_NUM].instructionPairCount[context->engineReplData[FY_ENGINE_NUM].last_op * MAX_INSTRUCTIONS + ipp->op].count++; \
+	context->engineReplData[FY_ENGINE_NUM].last_op = \
+	context->engineReplData[FY_ENGINE_NUM].instructionCount[ipp->op].op = ipp->op; \
+	context->engineReplData[FY_ENGINE_NUM].instructionCount[ipp->op].count++; \
 })
 #else
 # define INST_COUNT(ipp)
@@ -205,7 +212,6 @@
 #  define NEXT_P1	({INST_COUNT(ipp); cfa = (ipp++)->inst; ops--;})
 #  define NEXT_P2	({goto *cfa;})
 #endif
-
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
 #define IPTOS ((NEXT_INST))
@@ -366,12 +372,120 @@ if(unlikely(exception->exceptionType != exception_none)){ \
 	FY_CHECK_OPS_INVOKE(ops); \
 }
 
-static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
+static fy_int lookup_op(fy_e2_label_holder *labels, fy_e2_label label) {
+	fy_e2_label_holder *holder = labels;
+	while (holder->op >= 0) {
+		if (holder->label == label) {
+			return holder->op;
+		}
+		holder++;
+	}
+	return -1;
+}
+
+static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
+	fy_e2_label_holder *holder = labels;
+	while (holder->op >= 0) {
+		if (holder->op == op) {
+			return holder->label;
+		}
+		holder++;
+	}
+	return (fy_e2_label) -1;
+}
+
+__attribute__((noinline)) static void calc_repl(fy_context *context,
+		fy_method *method, fy_int op, fy_instruction *currInst,
+		fy_engine_repl_data *engine_repl_data, fy_e2_label_holder *labels,
 		fy_exception *exception) {
+#define PAIR_OF(OP, NEXT_OP) ((OP) * 1031 + (NEXT_OP))
+	fy_repl_data **repl_data = engine_repl_data->repl_data;
+	fy_hashMapI *repl_count = engine_repl_data->repl_count;
+	fy_hashMapI *repl_result = engine_repl_data->repl_result;
+	fy_int nextOp;
+	fy_int count;
+	fy_int toOp;
+	asm ("");
+	if (repl_data[op] != NULL) {
+		nextOp = lookup_op(labels, currInst[1].inst);
+		if (nextOp < 0) {
+			WLOG(context, "Can't find op from label %p", currInst[1].inst)
+;		} else if (repl_data[nextOp] == NULL) {
+			toOp = fy_hashMapIGet(context->memblocks, repl_result,
+					PAIR_OF(op, nextOp));
+			if (toOp >= 0) {
+				currInst->inst = lookup_label(labels, toOp);
+#if DEBUG_REPL
+				ILOG(
+						context,
+						"OP %s(%d / %p) (-> %s(%d)) replicated to %s(%d / %p) in method %s inst %p from cache",
+						FY_OP_NAME[op], op, currInst->inst, FY_OP_NAME[nextOp], nextOp, FY_OP_NAME[toOp], toOp, currInst->inst, method->utf8Name, currInst)
+				;					//
+#endif
+#if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
+				currInst->op = toOp;
+#endif
+				if (currInst->inst == (fy_e2_label) -1) {
+					fy_fault(exception, NULL,
+							"Can't find label for op %s(%d)",
+							FY_OP_NAME[toOp], toOp);
+					FYEH();
+				}
+			} else {
+				count = fy_hashMapIInc(context->memblocks, repl_count,
+						PAIR_OF(op, nextOp), 1, exception);
+				FYEH();
+				if (count > REPL_MIN) {
+					toOp = repl_data[op]->ops[0];
+#if DEBUG_REPL
+					ILOG(
+							context,
+							"OP %s(%d / %p) (-> %s(%d)) replicated to %s(%d / %p) in method %s inst %p",
+							FY_OP_NAME[op], op, currInst->inst, FY_OP_NAME[nextOp], nextOp, FY_OP_NAME[toOp], toOp, currInst->inst, method->utf8Name, currInst)
+					;				//
+#endif
+					fy_hashMapIPut(context->memblocks, repl_result, PAIR_OF(op, nextOp), toOp, exception);
+					FYEH();
+					currInst->inst = lookup_label(labels, toOp);
+#if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
+					currInst->op = toOp;
+#endif
+					if (currInst->inst == (fy_e2_label) -1) {
+						fy_fault(exception, NULL,
+								"Can't find label for op %s(%d)",
+								FY_OP_NAME[toOp], toOp);
+						FYEH();
+					}
+					if (repl_data[op]->repl_count > 1) {
+						repl_data[op]->repl_count--;
+						memmove(repl_data[op]->ops, repl_data[op]->ops + 1,
+								sizeof(int) * repl_data[op]->repl_count);
+					} else {
+#if DEBUG_REPL
+						ILOG(
+								context, "WARN: REPL_OP %s overloaded", FY_OP_NAME[toOp])
+						;						//
+#endif
+					}
+				}
+			}
+		}
+	}
+}
+
+#if REPL_MIN > 0
+#define RCAL(OP) ({calc_repl(context, method, OP, PCURR_INST, context->engineReplData + FY_ENGINE_NUM, labels, exception);})
+#else
+#define RCAL(OP)
+#endif
+
+__attribute__((noinline))    static fy_int opLDC(fy_context *context,
+		fy_class *owner, fy_char index, fy_exception *exception) {
 	ConstantStringInfo *constantStringInfo;
 	ConstantClass *constantClass;
 	fy_class *clazz;
 	fy_int hvalue;
+	asm ("");
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Integer:
 	case CONSTANT_Float:
@@ -400,8 +514,9 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 	}
 }
 
-static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
-		fy_exception *exception) {
+__attribute__((noinline))    static fy_long opLDC2(fy_context *context,
+		fy_class *owner, fy_char index, fy_exception *exception) {
+	asm ("");
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Double:
 	case CONSTANT_Long:
@@ -419,47 +534,48 @@ static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
 
 #define FY_ENGINE_HEADER
 
-#define FY_ENGINE_NAME fy_thread_runner_01
+#define FY_ENGINE_NUM 00
 #include "fisce-vm.i"
-#undef FY_ENGINE_NAME
-#if FY_ENGINE_COUNT >= 2
-# define FY_ENGINE_NAME fy_thread_runner_02
-# include "fisce-vm.i"
-# undef FY_ENGINE_NAME
+#undef FY_ENGINE_NUM
+
+#if FY_ENGINE_COUNT > 1
+#define FY_ENGINE_NUM 01
+#include "fisce-vm.i"
+#undef FY_ENGINE_NUM
 #endif
 
-#if FY_ENGINE_COUNT >= 3
-#define FY_ENGINE_NAME fy_thread_runner_03
+#if FY_ENGINE_COUNT > 2
+#define FY_ENGINE_NUM 02
 #include "fisce-vm.i"
-#undef FY_ENGINE_NAME
+#undef FY_ENGINE_NUM
 #endif
 
-#if FY_ENGINE_COUNT >= 4
-#define FY_ENGINE_NAME fy_thread_runner_04
+#if FY_ENGINE_COUNT > 3
+#define FY_ENGINE_NUM 03
 #include "fisce-vm.i"
-#undef FY_ENGINE_NAME
+#undef FY_ENGINE_NUM
 #endif
 
-#if FY_ENGINE_COUNT >= 5
-#define FY_ENGINE_NAME fy_thread_runner_05
+#if FY_ENGINE_COUNT > 4
+#define FY_ENGINE_NUM 04
 #include "fisce-vm.i"
-#undef FY_ENGINE_NAME
+#undef FY_ENGINE_NUM
 #endif
 
-#if FY_ENGINE_COUNT >= 6
-#define FY_ENGINE_NAME fy_thread_runner_06
+#if FY_ENGINE_COUNT > 5
+#define FY_ENGINE_NUM 05
 #include "fisce-vm.i"
-#undef FY_ENGINE_NAME
+#undef FY_ENGINE_NUM
 #endif
 
-#if FY_ENGINE_COUNT >= 7
-#define FY_ENGINE_NAME fy_thread_runner_07
+#if FY_ENGINE_COUNT > 6
+#define FY_ENGINE_NUM 06
 #include "fisce-vm.i"
-#undef FY_ENGINE_NAME
+#undef FY_ENGINE_NUM
 #endif
 
-#if FY_ENGINE_COUNT >= 8
-#define FY_ENGINE_NAME fy_thread_runner_08
+#if FY_ENGINE_COUNT > 7
+#define FY_ENGINE_NUM 07
 #include "fisce-vm.i"
-#undef FY_ENGINE_NAME
+#undef FY_ENGINE_NUM
 #endif

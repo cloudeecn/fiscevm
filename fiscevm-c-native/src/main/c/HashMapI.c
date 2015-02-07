@@ -333,6 +333,17 @@ FY_ATTR_EXPORT fy_int fy_hashMapIGet(fy_memblock *mem, fy_hashMapI *this,
 	return entry == NULL ? this->nullValue : entry->value;
 }
 
+FY_ATTR_EXPORT fy_int fy_hashMapIInc(fy_memblock *mem, fy_hashMapI *this,
+		fy_int key, fy_int value, fy_exception *exception) {
+	fy_hashMapIEntry *entry = getBucket(mem, this, key);
+	if (entry == NULL) {
+		fy_hashMapIPut(mem, this, key, value, exception);
+		return value;
+	} else {
+		return entry->value += value;
+	}
+}
+
 FY_ATTR_EXPORT void fy_hashMapIEachValue(fy_memblock *mem, fy_hashMapI *map,
 		void (*fn)(fy_int key, fy_int value, fy_int nullValue, void *addition),
 		void *addition) {

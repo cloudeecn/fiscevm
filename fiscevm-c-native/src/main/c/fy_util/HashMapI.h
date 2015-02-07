@@ -49,6 +49,8 @@ FY_ATTR_EXPORT fy_int fy_hashMapIRemove(fy_memblock *mem, fy_hashMapI *this,
 		int key);
 FY_ATTR_EXPORT fy_int fy_hashMapIGet(fy_memblock *mem, fy_hashMapI *this,
 		fy_int key);
+FY_ATTR_EXPORT fy_int fy_hashMapIInc(fy_memblock *mem, fy_hashMapI *this,
+		fy_int key, fy_int value, fy_exception *exception);
 FY_ATTR_EXPORT void fy_hashMapIDestroy(fy_memblock *mem, fy_hashMapI *this);
 FY_ATTR_EXPORT void fy_hashMapIEachValue(fy_memblock *mem, fy_hashMapI *map,
 		void (*fn)(fy_int key, fy_int value, fy_int nullValue, void *addition),

@@ -1,8 +1,10 @@
 #ifdef FY_ENGINE_HEADER
 #define Cell fy_stack_item
-
-
-FY_HOT fy_int FY_ENGINE_NAME(
+#ifndef FY_ENGINE_NAME
+# define FY_ENGINE_NAME(NUM) fy_thread_runner_##NUM
+# define X_FY_ENGINE_NAME(NUM) FY_ENGINE_NAME(NUM)
+#endif
+FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
     fy_context *context,
     fy_thread *thread,
     fy_frame *frame,
@@ -44,8 +46,6 @@ FY_HOT fy_int FY_ENGINE_NAME(
   FILE *vm_out = stdout;
   const fy_uint vm_debug = 1;
 #endif
-
-
 
   if(unlikely(thread == NULL)){
     *out_labels = labels;
@@ -110,20 +110,87 @@ FY_HOT fy_int FY_ENGINE_NAME(
   ENGINE_ENTER;
 #endif
 INST_ADDR(iload),
-INST_ADDR(iaload),
+INST_ADDR(iload_r0),
+INST_ADDR(iload_r1),
+INST_ADDR(iload_r2),
+INST_ADDR(iload_r3),
+INST_ADDR(iload_r4),
+INST_ADDR(iload_r5),
+INST_ADDR(iload_r6),
+INST_ADDR(iload_r7),
+INST_ADDR(iload_r8),
+INST_ADDR(iload_r9),
+INST_ADDR(iload_r10),
+INST_ADDR(iload_r11),
+INST_ADDR(istore),
+INST_ADDR(istore_r0),
+INST_ADDR(istore_r1),
+INST_ADDR(istore_r2),
+INST_ADDR(istore_r3),
+INST_ADDR(sipush),
+INST_ADDR(sipush_r0),
+INST_ADDR(sipush_r1),
+INST_ADDR(sipush_r2),
+INST_ADDR(sipush_r3),
+INST_ADDR(sipush_r4),
+INST_ADDR(sipush_r5),
+INST_ADDR(sipush_r6),
+INST_ADDR(sipush_r7),
+INST_ADDR(iinc),
+INST_ADDR(iinc_r0),
+INST_ADDR(iinc_r1),
+INST_ADDR(iinc_r2),
+INST_ADDR(iinc_r3),
 INST_ADDR(iadd),
-INST_ADDR(nop),
+INST_ADDR(iadd_r0),
+INST_ADDR(iadd_r1),
+INST_ADDR(iadd_r2),
+INST_ADDR(fadd),
+INST_ADDR(fadd_r0),
+INST_ADDR(fadd_r1),
+INST_ADDR(fadd_r2),
 INST_ADDR(getfield_n),
+INST_ADDR(getfield_n_r0),
+INST_ADDR(getfield_n_r1),
+INST_ADDR(getfield_n_r2),
+INST_ADDR(getfield_n_r3),
+INST_ADDR(getfield_n_r4),
+INST_ADDR(getfield_n_r5),
+INST_ADDR(getfield_n_r6),
+INST_ADDR(getfield_n_r7),
 INST_ADDR(putfield_n),
+INST_ADDR(putfield_n_r0),
+INST_ADDR(putfield_n_r1),
+INST_ADDR(putfield_n_r2),
+INST_ADDR(putfield_n_r3),
+INST_ADDR(iaload),
+INST_ADDR(iaload_r0),
+INST_ADDR(iaload_r1),
+INST_ADDR(iaload_r2),
+INST_ADDR(iastore),
+INST_ADDR(iastore_r0),
+INST_ADDR(iastore_r1),
+INST_ADDR(iastore_r2),
+INST_ADDR(getstatic_n),
+INST_ADDR(getstatic_n_r0),
+INST_ADDR(getstatic_n_r1),
+INST_ADDR(getstatic_n_r2),
+INST_ADDR(getstatic_n_r3),
+INST_ADDR(getstatic_n_r4),
+INST_ADDR(getstatic_n_r5),
+INST_ADDR(putstatic_n),
+INST_ADDR(putstatic_n_r0),
+INST_ADDR(putstatic_n_r1),
+INST_ADDR(putstatic_n_r2),
+INST_ADDR(putstatic_n_r3),
+INST_ADDR(nop),
+INST_ADDR(nop_r0),
+INST_ADDR(nop_r1),
+INST_ADDR(nop_r2),
 INST_ADDR(getfield_nx),
 INST_ADDR(putfield_nx),
-INST_ADDR(getstatic_n),
-INST_ADDR(putstatic_n),
 INST_ADDR(getstatic_nx),
 INST_ADDR(putstatic_nx),
-INST_ADDR(istore),
-INST_ADDR(iinc),
-INST_ADDR(sipush),
 INST_ADDR(slpush),
 INST_ADDR(dup),
 INST_ADDR(isub),
@@ -137,7 +204,6 @@ INST_ADDR(ixor),
 INST_ADDR(ishl),
 INST_ADDR(ishr),
 INST_ADDR(iushr),
-INST_ADDR(fadd),
 INST_ADDR(fsub),
 INST_ADDR(fmul),
 INST_ADDR(fdiv),
@@ -182,7 +248,6 @@ INST_ADDR(lshl),
 INST_ADDR(lshr),
 INST_ADDR(lushr),
 INST_ADDR(arraylength),
-INST_ADDR(iastore),
 INST_ADDR(baload),
 INST_ADDR(bastore),
 INST_ADDR(caload),
@@ -247,7 +312,7 @@ INST_ADDR(dropout),
 #ifdef FY_ENGINE_HEADER
     label_fallout_invoke:
 #ifdef FY_INSTRUCTION_COUNT
-    context->last_op = 0x1ff;
+    context->engineReplData[FY_ENGINE_NUM].last_op = 0x1ff;
 #endif
     return ops;
   }

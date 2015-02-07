@@ -1,8 +1,10 @@
 \C#ifdef FY_ENGINE_HEADER
 \C#define Cell fy_stack_item
-\C
-\C
-\CFY_HOT fy_int FY_ENGINE_NAME(
+\C#ifndef FY_ENGINE_NAME
+\C# define FY_ENGINE_NAME(NUM) fy_thread_runner_##NUM
+\C# define X_FY_ENGINE_NAME(NUM) FY_ENGINE_NAME(NUM)
+\C#endif
+\CFY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 \C    fy_context *context,
 \C    fy_thread *thread,
 \C    fy_frame *frame,
@@ -44,8 +46,6 @@
 \C  FILE *vm_out = stdout;
 \C  const fy_uint vm_debug = 1;
 \C#endif
-\C
-\C
 \C
 \C  if(unlikely(thread == NULL)){
 \C    *out_labels = labels;
@@ -139,110 +139,218 @@ iload ( -- ir)
   }
 #endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+  RCAL(FY_OP_iload);
 }
 
-iload1 ( -- ir)
+iload_r0 ( -- ir)
 {
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-iload2 ( -- ir)
+iload_r1 ( -- ir)
 {
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-iload3 ( -- ir)
+iload_r2 ( -- ir)
 {
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-iload4 ( -- ir)
+iload_r3 ( -- ir)
 {
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-iload5 ( -- ir)
+iload_r4 ( -- ir)
 {
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-iload6 ( -- ir)
+iload_r5 ( -- ir)
 {
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-iload7 ( -- ir)
+iload_r6 ( -- ir)
 {
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-iload8 ( -- ir)
+iload_r7 ( -- ir)
 {
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #iload_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
-iaload (i1 i2 -- ir)
+iload_r8 ( -- ir)
 {
-  ir = fy_heapGetArrayInt(context, i1, i2, exception);
-  FY_THEH()
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r9 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r10 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r11 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+istore (i1 -- )
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #istore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
+  RCAL(FY_OP_istore);
+}
+
+istore_r0 (i1 -- )
+{
+  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
+}
+
+istore_r1 (i1 -- )
+{
+  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
+}
+
+istore_r2 (i1 -- )
+{
+  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
+}
+
+istore_r3 (i1 -- )
+{
+  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
+}
+
+sipush ( -- ir)
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #sipush %"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
+  }
+#endif
+  ir = CURR_INST.params.int_params.param1;
+  RCAL(FY_OP_sipush);
+}
+
+sipush_r0 ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+sipush_r1 ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+sipush_r2 ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+sipush_r3 ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+sipush_r4 ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+sipush_r5 ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+sipush_r6 ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+sipush_r7 ( -- ir)
+{
+  ir = CURR_INST.params.int_params.param1;
+}
+
+iinc ( -- )
+{
+  sbase[CURR_INST.params.int_params.param1].uvalue += CURR_INST.params.int_params.param2;
+  RCAL(FY_OP_iinc);
+}
+
+iinc_r0 ( -- )
+{
+  sbase[CURR_INST.params.int_params.param1].uvalue += CURR_INST.params.int_params.param2;
+}
+
+iinc_r1 ( -- )
+{
+  sbase[CURR_INST.params.int_params.param1].uvalue += CURR_INST.params.int_params.param2;
+}
+
+iinc_r2 ( -- )
+{
+  sbase[CURR_INST.params.int_params.param1].uvalue += CURR_INST.params.int_params.param2;
+}
+
+iinc_r3 ( -- )
+{
+  sbase[CURR_INST.params.int_params.param1].uvalue += CURR_INST.params.int_params.param2;
 }
 
 iadd (i1 i2 -- ir)
 {
   ir = i1 + i2;
+  RCAL(FY_OP_iadd);
 }
 
-nop ( -- )
-;
+iadd_r0 (i1 i2 -- ir)
+{
+  ir = i1 + i2;
+}
 
+iadd_r1 (i1 i2 -- ir)
+{
+  ir = i1 + i2;
+}
 
-\ ######  ######    ###   #     #    #    ####### #######
-\ #     # #     #    #    #     #   # #      #    #
-\ #     # #     #    #    #     #  #   #     #    #
-\ ######  ######     #    #     # #     #    #    #####
-\ #       #   #      #     #   #  #######    #    #
-\ #       #    #     #      # #   #     #    #    #
-\ #       #     #   ###      #    #     #    #    #######
+iadd_r2 (i1 i2 -- ir)
+{
+  ir = i1 + i2;
+}
+
+fadd (f1 f2 -- fr)
+{
+  fr = f1 + f2;
+  RCAL(FY_OP_fadd);
+}
+
+fadd_r0 (f1 f2 -- fr)
+{
+  fr = f1 + f2;
+}
+
+fadd_r1 (f1 f2 -- fr)
+{
+  fr = f1 + f2;
+}
+
+fadd_r2 (f1 f2 -- fr)
+{
+  fr = f1 + f2;
+}
 
 getfield_n (i1 -- ir)
 {
@@ -258,6 +366,55 @@ getfield_n (i1 -- ir)
     fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
   }
 #endif
+  RCAL(FY_OP_getfield_n);
+}
+
+getfield_n_r0 (i1 -- ir)
+{
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
+  FY_THEH()
+}
+
+getfield_n_r1 (i1 -- ir)
+{
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
+  FY_THEH()
+}
+
+getfield_n_r2 (i1 -- ir)
+{
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
+  FY_THEH()
+}
+
+getfield_n_r3 (i1 -- ir)
+{
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
+  FY_THEH()
+}
+
+getfield_n_r4 (i1 -- ir)
+{
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
+  FY_THEH()
+}
+
+getfield_n_r5 (i1 -- ir)
+{
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
+  FY_THEH()
+}
+
+getfield_n_r6 (i1 -- ir)
+{
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
+  FY_THEH()
+}
+
+getfield_n_r7 (i1 -- ir)
+{
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
+  FY_THEH()
 }
 
 putfield_n (i1 i2 --)
@@ -269,7 +426,176 @@ putfield_n (i1 i2 --)
 #endif
   fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
   FY_THEH()
+  RCAL(FY_OP_putfield_n);
 }
+
+putfield_n_r0 (i1 i2 --)
+{
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
+  FY_THEH()
+}
+
+putfield_n_r1 (i1 i2 --)
+{
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
+  FY_THEH()
+}
+
+putfield_n_r2 (i1 i2 --)
+{
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
+  FY_THEH()
+}
+
+putfield_n_r3 (i1 i2 --)
+{
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
+  FY_THEH()
+}
+
+iaload (i1 i2 -- ir)
+{
+  RCAL(FY_OP_iaload);
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iaload_r0 (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iaload_r1 (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iaload_r2 (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iastore (i1 i2 i3 -- )
+{
+  RCAL(FY_OP_iastore);
+  fy_heapPutArrayInt(context, i1, i2, i3, exception);
+  FY_THEH()
+}
+
+iastore_r0 (i1 i2 i3 -- )
+{
+  fy_heapPutArrayInt(context, i1, i2, i3, exception);
+  FY_THEH()
+}
+
+iastore_r1 (i1 i2 i3 -- )
+{
+  fy_heapPutArrayInt(context, i1, i2, i3, exception);
+  FY_THEH()
+}
+
+iastore_r2 (i1 i2 i3 -- )
+{
+  fy_heapPutArrayInt(context, i1, i2, i3, exception);
+  FY_THEH()
+}
+
+getstatic_n( -- ir)
+{
+  RCAL(FY_OP_getstatic_n);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %p# ", CURR_INST.params.isfield);
+  }
+#endif
+  ir = CURR_INST.params.isfield[0];
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %p value=%"FY_PRINT32"d# ", CURR_INST.params.isfield, ir);
+  }
+#endif
+}
+
+getstatic_n_r0( -- ir)
+{
+  ir = CURR_INST.params.isfield[0];
+}
+
+getstatic_n_r1( -- ir)
+{
+  ir = CURR_INST.params.isfield[0];
+}
+
+getstatic_n_r2( -- ir)
+{
+  ir = CURR_INST.params.isfield[0];
+}
+
+getstatic_n_r3( -- ir)
+{
+  ir = CURR_INST.params.isfield[0];
+}
+
+getstatic_n_r4( -- ir)
+{
+  ir = CURR_INST.params.isfield[0];
+}
+
+getstatic_n_r5( -- ir)
+{
+  ir = CURR_INST.params.isfield[0];
+}
+
+putstatic_n(i1 -- )
+{
+  RCAL(FY_OP_putstatic_n);
+  CURR_INST.params.isfield[0] = i1;
+}
+
+putstatic_n_r0(i1 -- )
+{
+  CURR_INST.params.isfield[0] = i1;
+}
+
+putstatic_n_r1(i1 -- )
+{
+  CURR_INST.params.isfield[0] = i1;
+}
+
+putstatic_n_r2(i1 -- )
+{
+  CURR_INST.params.isfield[0] = i1;
+}
+
+putstatic_n_r3(i1 -- )
+{
+  CURR_INST.params.isfield[0] = i1;
+}
+
+nop ( -- )
+{
+  RCAL(FY_OP_nop);
+}
+
+nop_r0 ( -- )
+;
+
+nop_r1 ( -- )
+;
+
+nop_r2 ( -- )
+;
+
+\ ######  ######    ###   #     #    #    ####### #######
+\ #     # #     #    #    #     #   # #      #    #
+\ #     # #     #    #    #     #  #   #     #    #
+\ ######  ######     #    #     # #     #    #    #####
+\ #       #   #      #     #   #  #######    #    #
+\ #       #    #     #      # #   #     #    #    #
+\ #       #     #   ###      #    #     #    #    #######
 
 getfield_nx (i1 -- lr)
 {
@@ -296,31 +622,6 @@ putfield_nx (i1 l1 --)
 #endif
   fy_heapPutFieldLong(context, i1, CURR_INST.params.field, l1, exception);
   FY_THEH()
-}
-
-getstatic_n( -- ir)
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %p# ", CURR_INST.params.isfield);
-  }
-#endif
-  ir = CURR_INST.params.isfield[0];
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %p value=%"FY_PRINT32"d# ", CURR_INST.params.isfield, ir);
-  }
-#endif
-}
-
-putstatic_n(i1 -- )
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putstatic %p value=%"FY_PRINT32"d# ", CURR_INST.params.isfield, i1);
-  }
-#endif
-  CURR_INST.params.isfield[0] = i1;
 }
 
 getstatic_nx( -- ir1 ir2)
@@ -359,23 +660,6 @@ putstatic_nx(i1 i2 -- )
 \ ####### #######  #####  #     # #######
 
 
-
-istore (i1 -- )
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #istore_%"FY_PRINT32"d# ", CURR_INST.params.int_params.param1);
-  }
-#endif
-  fy_threadPutLocalInt(CURR_INST.params.int_params.param1, i1);
-}
-
-iinc ( -- )
-{
-  sbase[CURR_INST.params.int_params.param1].uvalue += CURR_INST.params.int_params.param2;
-}
-
-
 \  #####  #######    #     #####  #    #
 \ #     #    #      # #   #     # #   #
 \ #          #     #   #  #       #  #
@@ -385,11 +669,6 @@ iinc ( -- )
 \  #####     #    #     #  #####  #    #
 
 \ CONST
-
-sipush ( -- ir)
-{
-  ir = CURR_INST.params.int_params.param1;
-}
 
 slpush ( -- ir1 ir2)
 {
@@ -471,11 +750,6 @@ ishr (i1 i2 -- ir)
 iushr (i1 i2 -- ir)
 {
   ir = i1 >> i2;
-}
-
-fadd (f1 f2 -- fr)
-{
-  fr = f1 + f2;
 }
 
 fsub (f1 f2 -- fr)
@@ -756,12 +1030,6 @@ lushr (l1 i1 -- lr)
 arraylength (i1 -- ir)
 {
   ir = fy_heapArrayLength(context, i1, exception);
-  FY_THEH()
-}
-
-iastore (i1 i2 i3 -- )
-{
-  fy_heapPutArrayInt(context, i1, i2, i3, exception);
   FY_THEH()
 }
 
@@ -1662,7 +1930,7 @@ dropout ( -- )
 \C#ifdef FY_ENGINE_HEADER
 \C    label_fallout_invoke:
 \C#ifdef FY_INSTRUCTION_COUNT
-\C    context->last_op = 0x1ff;
+\C    context->engineReplData[FY_ENGINE_NUM].last_op = 0x1ff;
 \C#endif
 \C    return ops;
 \C  }

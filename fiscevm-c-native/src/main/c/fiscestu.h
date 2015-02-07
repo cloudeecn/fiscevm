@@ -503,6 +503,23 @@ extern "C" {
 	} fy_instruction_pair_count;
 #endif
 
+	typedef struct fy_repl_data{
+		fy_int op;
+		fy_int repl_count;
+		fy_int *ops;
+	} fy_repl_data;
+
+	typedef struct fy_engine_repl_data{
+		fy_repl_data *repl_data[MAX_INSTRUCTIONS];
+		fy_hashMapI repl_count[1];
+		fy_hashMapI repl_result[1];
+#ifdef FY_INSTRUCTION_COUNT
+		fy_instruction_count instructionCount[MAX_INSTRUCTIONS];
+		fy_instruction_pair_count instructionPairCount[MAX_INSTRUCTIONS * MAX_INSTRUCTIONS];
+		fy_int last_op;
+#endif
+	} fy_engine_repl_data;
+
 	typedef struct fy_context {
 		/*Service Function Table*/
 		/*INPUTSTREAM*/
@@ -741,6 +758,7 @@ extern "C" {
 		fy_long nextForceGCTime;
 		fy_int engineCount;
 		fy_engine *engines;
+		fy_engine_repl_data engineReplData[FY_ENGINE_COUNT];
 		/* #END THREAD MANAGER*/
 
 		/* #BEGIN HEAP*/
@@ -755,11 +773,6 @@ extern "C" {
 		fy_object objects[MAX_OBJECTS];
 		fy_int END_MARK[1];
 		/* #END HEAP*/
-#ifdef FY_INSTRUCTION_COUNT
-		fy_instruction_count instructionCount[MAX_INSTRUCTIONS];
-		fy_instruction_pair_count instructionPairCount[MAX_INSTRUCTIONS * MAX_INSTRUCTIONS];
-		fy_int last_op;
-#endif
 	}fy_context;
 
 	typedef fy_int (*fy_nhFunction)(
@@ -818,7 +831,7 @@ extern "C" {
 			fy_field *field;
 			fy_switch_lookup *swlookup;
 			fy_switch_table *swtable;
-            fy_int *isfield;
+			fy_int *isfield;
 			struct {
 				fy_int derefed;
 				fy_uint value;

@@ -269,6 +269,85 @@
 
 #define FY_OP_dropout  0xff
 
+#define FY_OP_iload_r0  0x100
+#define FY_OP_iload_r1  0x101
+#define FY_OP_iload_r2  0x102
+#define FY_OP_iload_r3  0x103
+#define FY_OP_iload_r4  0x104
+#define FY_OP_iload_r5  0x105
+#define FY_OP_iload_r6  0x106
+#define FY_OP_iload_r7  0x107
+#define FY_OP_iload_r8  0x108
+#define FY_OP_iload_r9  0x109
+#define FY_OP_iload_r10  0x10a
+#define FY_OP_iload_r11  0x10b
+
+#define FY_OP_istore_r0 0x10c
+#define FY_OP_istore_r1 0x10d
+#define FY_OP_istore_r2 0x10e
+#define FY_OP_istore_r3 0x10f
+
+#define FY_OP_sipush_r0 0x110
+#define FY_OP_sipush_r1 0x111
+#define FY_OP_sipush_r2 0x112
+#define FY_OP_sipush_r3 0x113
+#define FY_OP_sipush_r4 0x114
+#define FY_OP_sipush_r5 0x115
+#define FY_OP_sipush_r6 0x116
+#define FY_OP_sipush_r7 0x117
+
+#define FY_OP_iinc_r0 0x11c
+#define FY_OP_iinc_r1 0x11d
+#define FY_OP_iinc_r2 0x11e
+#define FY_OP_iinc_r3 0x11f
+
+#define FY_OP_getfield_n_r0 0x120
+#define FY_OP_getfield_n_r1 0x121
+#define FY_OP_getfield_n_r2 0x122
+#define FY_OP_getfield_n_r3 0x123
+#define FY_OP_getfield_n_r4 0x124
+#define FY_OP_getfield_n_r5 0x125
+#define FY_OP_getfield_n_r6 0x126
+#define FY_OP_getfield_n_r7 0x127
+
+#define FY_OP_putfield_n_r0 0x12c
+#define FY_OP_putfield_n_r1 0x12d
+#define FY_OP_putfield_n_r2 0x12e
+#define FY_OP_putfield_n_r3 0x12f
+
+#define FY_OP_getstatic_n_r0 0x130
+#define FY_OP_getstatic_n_r1 0x131
+#define FY_OP_getstatic_n_r2 0x132
+#define FY_OP_getstatic_n_r3 0x133
+#define FY_OP_getstatic_n_r4 0x134
+#define FY_OP_getstatic_n_r5 0x135
+
+#define FY_OP_putstatic_n_r0 0x13c
+#define FY_OP_putstatic_n_r1 0x13d
+#define FY_OP_putstatic_n_r2 0x13e
+#define FY_OP_putstatic_n_r3 0x13f
+
+#define FY_OP_fadd_r0 0x140
+#define FY_OP_fadd_r1 0x141
+#define FY_OP_fadd_r2 0x142
+
+#define FY_OP_iadd_r0 0x148
+#define FY_OP_iadd_r1 0x149
+#define FY_OP_iadd_r2 0x14a
+
+#define FY_OP_iastore_r0 0x150
+#define FY_OP_iastore_r1 0x151
+#define FY_OP_iastore_r2 0x152
+
+#define FY_OP_iaload_r0 0x158
+#define FY_OP_iaload_r1 0x159
+#define FY_OP_iaload_r2 0x15a
+
+#define FY_OP_nop_r0 0x1f0
+#define FY_OP_nop_r1 0x1f1
+#define FY_OP_nop_r2 0x1f2
+
+
 #define FY_OP_none 0x1ff
 
 #define FY_IP_dropout 0x00
