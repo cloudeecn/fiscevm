@@ -202,6 +202,66 @@ iload_r11 ( -- ir)
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
 }
 
+iload_r12 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r13 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r14 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r15 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r16 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r17 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r18 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r19 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r20 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r21 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r22 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
+iload_r23 ( -- ir)
+{
+  fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
+}
+
 istore (i1 -- )
 {
 #ifdef VM_DEBUG
@@ -473,6 +533,24 @@ iaload_r1 (i1 i2 -- ir)
 }
 
 iaload_r2 (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iaload_r3 (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iaload_r4 (i1 i2 -- ir)
+{
+  ir = fy_heapGetArrayInt(context, i1, i2, exception);
+  FY_THEH()
+}
+
+iaload_r5 (i1 i2 -- ir)
 {
   ir = fy_heapGetArrayInt(context, i1, i2, exception);
   FY_THEH()

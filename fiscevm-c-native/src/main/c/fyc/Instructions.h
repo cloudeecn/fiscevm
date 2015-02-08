@@ -342,6 +342,22 @@
 #define FY_OP_iaload_r0 0x158
 #define FY_OP_iaload_r1 0x159
 #define FY_OP_iaload_r2 0x15a
+#define FY_OP_iaload_r3 0x15b
+#define FY_OP_iaload_r4 0x15c
+#define FY_OP_iaload_r5 0x15d
+
+#define FY_OP_iload_r12  0x160
+#define FY_OP_iload_r13  0x161
+#define FY_OP_iload_r14  0x162
+#define FY_OP_iload_r15  0x163
+#define FY_OP_iload_r16  0x164
+#define FY_OP_iload_r17  0x165
+#define FY_OP_iload_r18  0x166
+#define FY_OP_iload_r19  0x167
+#define FY_OP_iload_r20  0x168
+#define FY_OP_iload_r21  0x169
+#define FY_OP_iload_r22  0x16a
+#define FY_OP_iload_r23  0x16b
 
 #define FY_OP_nop_r0 0x1f0
 #define FY_OP_nop_r1 0x1f1

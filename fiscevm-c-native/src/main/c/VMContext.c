@@ -466,14 +466,16 @@ static void mkReplData(fy_context *context, fy_exception *exception,
 		fy_repl_data **replDatas, fy_int op, fy_int count, ...) {
 	int i;
 	va_list arg_ptr;
-	replDatas[op] = fy_mmAllocatePerm(context->memblocks, sizeof(fy_repl_data), exception);
+	replDatas[op] = fy_mmAllocatePerm(context->memblocks, sizeof(fy_repl_data),
+			exception);
 	FYEH();
 	replDatas[op]->op = op;
 	replDatas[op]->repl_count = count;
-	replDatas[op]->ops = fy_mmAllocatePerm(context->memblocks, sizeof(fy_int) * count, exception);
+	replDatas[op]->ops = fy_mmAllocatePerm(context->memblocks,
+			sizeof(fy_int) * count, exception);
 	FYEH();
 	va_start(arg_ptr, count);
-	for(i=0; i<count; i++) {
+	for (i = 0; i < count; i++) {
 		replDatas[op]->ops[i] = va_arg(arg_ptr, fy_int);
 	}
 	va_end(arg_ptr);
@@ -484,7 +486,7 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 
 	for (i = 0; i < FY_ENGINE_COUNT; i++) {
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_iload, 12, //
+		FY_OP_iload, 24, //
 				FY_OP_iload_r0,
 				FY_OP_iload_r1,
 				FY_OP_iload_r2,
@@ -496,15 +498,27 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_iload_r8,
 				FY_OP_iload_r9,
 				FY_OP_iload_r10,
-				FY_OP_iload_r11);
+				FY_OP_iload_r11,
+				FY_OP_iload_r12,
+				FY_OP_iload_r13,
+				FY_OP_iload_r14,
+				FY_OP_iload_r15,
+				FY_OP_iload_r16,
+				FY_OP_iload_r17,
+				FY_OP_iload_r18,
+				FY_OP_iload_r19,
+				FY_OP_iload_r20,
+				FY_OP_iload_r21,
+				FY_OP_iload_r22,
+				FY_OP_iload_r23);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_istore, 4, //
+		FY_OP_istore, 4, //
 				FY_OP_istore_r0,
 				FY_OP_istore_r1,
 				FY_OP_istore_r2,
 				FY_OP_istore_r3);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_sipush, 8, //
+		FY_OP_sipush, 8, //
 				FY_OP_sipush_r0,
 				FY_OP_sipush_r1,
 				FY_OP_sipush_r2,
@@ -514,13 +528,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_sipush_r6,
 				FY_OP_sipush_r7);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_iinc, 4, //
+		FY_OP_iinc, 4, //
 				FY_OP_iinc_r0,
 				FY_OP_iinc_r1,
 				FY_OP_iinc_r2,
 				FY_OP_iinc_r3);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_getfield_n, 8, //
+		FY_OP_getfield_n, 8, //
 				FY_OP_getfield_n_r0,
 				FY_OP_getfield_n_r1,
 				FY_OP_getfield_n_r2,
@@ -530,13 +544,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_getfield_n_r6,
 				FY_OP_getfield_n_r7);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_putfield_n, 4, //
+		FY_OP_putfield_n, 4, //
 				FY_OP_putfield_n_r0,
 				FY_OP_putfield_n_r1,
 				FY_OP_putfield_n_r2,
 				FY_OP_putfield_n_r3);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_getstatic_n, 6, //
+		FY_OP_getstatic_n, 6, //
 				FY_OP_getstatic_n_r0,
 				FY_OP_getstatic_n_r1,
 				FY_OP_getstatic_n_r2,
@@ -544,33 +558,36 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_getstatic_n_r4,
 				FY_OP_getstatic_n_r5);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_putstatic_n, 12, //
+		FY_OP_putstatic_n, 12, //
 				FY_OP_putstatic_n_r0,
 				FY_OP_putstatic_n_r1,
 				FY_OP_putstatic_n_r2,
 				FY_OP_putstatic_n_r3);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_fadd, 3, //
+		FY_OP_fadd, 3, //
 				FY_OP_fadd_r0,
 				FY_OP_fadd_r1,
 				FY_OP_fadd_r2);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_iadd, 3, //
+		FY_OP_iadd, 3, //
 				FY_OP_iadd_r0,
 				FY_OP_iadd_r1,
 				FY_OP_iadd_r2);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_iastore, 3, //
+		FY_OP_iastore, 3, //
 				FY_OP_iastore_r0,
 				FY_OP_iastore_r1,
 				FY_OP_iastore_r2);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_iaload, 3, //
+		FY_OP_iaload, 6, //
 				FY_OP_iaload_r0,
 				FY_OP_iaload_r1,
-				FY_OP_iaload_r2);
+				FY_OP_iaload_r2,
+				FY_OP_iaload_r3,
+				FY_OP_iaload_r4,
+				FY_OP_iaload_r5);
 		mkReplData(context, exception, context->engineReplData[i].repl_data,
-				FY_OP_nop, 3, //
+		FY_OP_nop, 3, //
 				FY_OP_nop_r0,
 				FY_OP_nop_r1,
 				FY_OP_nop_r2);
