@@ -261,6 +261,7 @@ extern "C" {
 			struct{
 				fy_instruction *instructions;
 				fy_instruction_extra *instruction_extras;
+				fy_short *instruction_ops;
 			};
 			struct fy_nh *nh;
 		};

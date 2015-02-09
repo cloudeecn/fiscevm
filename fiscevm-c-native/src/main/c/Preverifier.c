@@ -1035,7 +1035,11 @@ void fy_preverify(fy_context *context, fy_method *method,
 	method->instructions = fy_mmAllocatePerm(context->memblocks,
 			instCount * sizeof(fy_instruction), exception);
 	FYEH();
-	method->instruction_extras = fy_mmAllocatePerm(context->memblocks, instCount * sizeof(fy_instruction_extra),exception);
+	method->instruction_extras = fy_mmAllocatePerm(context->memblocks,
+			instCount * sizeof(fy_instruction_extra), exception);
+	FYEH();
+	method->instruction_ops = fy_mmAllocatePerm(context->memblocks,
+			instCount * sizeof(fy_short), exception);
 	FYEH();
 	pc = 0;
 	ic = FY_IP_begin;
@@ -2541,6 +2545,7 @@ void fy_preverify(fy_context *context, fy_method *method,
                 break;
         }
 		instruction->inst = labelsByOp[op];
+		method->instruction_ops[FY_PDIFF(fy_instruction, instruction, method->instructions)] = op;
 		if(instruction->inst == NULL){
 			fy_breakpoint();
             fy_fault(NULL, "Illegal op", "Illegal op: %s", FY_OP_NAME[op]);

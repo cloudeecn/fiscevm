@@ -34,7 +34,7 @@
 # define ASM_CHECK
 #endif
 
-#define REPL_MIN 10000
+#define REPL_MIN 3000
 #ifdef FY_INSTRUCTION_COUNT
 # define DEBUG_REPL 1
 #else
@@ -98,9 +98,9 @@
 #endif
 
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
-# define MODIFY_CURR_INST(OP) ({CURR_INST.inst=INST_OF(OP);CURR_INST.op=CODE_OF(OP);})
+# define MODIFY_CURR_INST(OP) ({CURR_INST.inst=INST_OF(OP);method->instruction_ops[FY_PDIFF(fy_instruction, PCURR_INST, instructions)]=CODE_OF(OP);CURR_INST.op=CODE_OF(OP);})
 #else
-# define MODIFY_CURR_INST(OP) ({CURR_INST.inst=INST_OF(OP);})
+# define MODIFY_CURR_INST(OP) ({CURR_INST.inst=INST_OF(OP);method->instruction_ops[FY_PDIFF(fy_instruction, PCURR_INST, instructions)]=CODE_OF(OP);})
 #endif
 /* different threading schemes for different architectures; the sparse
  numbering is there for historical reasons */
@@ -396,9 +396,10 @@ static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
 
 __attribute__((noinline)) static void calc_repl(fy_context *context,
 		fy_method *method, fy_int op, fy_instruction *currInst,
-		fy_engine_repl_data *engine_repl_data, fy_e2_label_holder *labels,
+		fy_int engineNum, fy_e2_label_holder *labels,
 		fy_exception *exception) {
 #define PAIR_OF(OP, NEXT_OP) ((OP) * 1031 + (NEXT_OP))
+    fy_engine_repl_data *engine_repl_data = context->engineReplData + engineNum;
 	fy_repl_data **repl_data = engine_repl_data->repl_data;
 	fy_hashMapI *repl_count = engine_repl_data->repl_count;
 	fy_hashMapI *repl_result = engine_repl_data->repl_result;
@@ -407,10 +408,11 @@ __attribute__((noinline)) static void calc_repl(fy_context *context,
 	fy_int toOp;
 	asm ("");
 	if (repl_data[op] != NULL) {
-		nextOp = lookup_op(labels, currInst[1].inst);
+		nextOp = method->instruction_ops[FY_PDIFF(fy_instruction, currInst, method->instructions) + 1];
 		if (nextOp < 0) {
-			WLOG(context, "Can't find op from label %p", currInst[1].inst)
-;		} else if (repl_data[nextOp] == NULL) {
+            WLOG(context, "Can't find op from label %p in engine %d method %s ip %d", currInst[1].inst, engineNum, method->utf8Name, FY_PDIFF(fy_instruction, currInst + 1, method->instructions));
+            nextOp = -1;
+		} else if (repl_data[nextOp] == NULL) {
 			toOp = fy_hashMapIGet(context->memblocks, repl_result,
 					PAIR_OF(op, nextOp));
 			if (toOp >= 0) {
@@ -447,6 +449,7 @@ __attribute__((noinline)) static void calc_repl(fy_context *context,
 					fy_hashMapIPut(context->memblocks, repl_result, PAIR_OF(op, nextOp), toOp, exception);
 					FYEH();
 					currInst->inst = lookup_label(labels, toOp);
+					method->instruction_ops[FY_PDIFF(fy_instruction, currInst, method->instructions)] = toOp;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 					currInst->op = toOp;
 #endif
@@ -474,7 +477,7 @@ __attribute__((noinline)) static void calc_repl(fy_context *context,
 }
 
 #if REPL_MIN > 0
-#define RCAL(OP) ({calc_repl(context, method, OP, PCURR_INST, context->engineReplData + FY_ENGINE_NUM, labels, exception);})
+#define RCAL(OP) ({calc_repl(context, method, OP, PCURR_INST, FY_ENGINE_NUM, labels, exception);})
 #else
 #define RCAL(OP)
 #endif
