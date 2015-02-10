@@ -132,4 +132,5 @@
 #define FY_EXCEPTION_INTR "java/lang/InterruptedException"
 #define FY_EXCEPTION_IMSE "java/lang/IllegalMonitorStateException"
 #define FY_EXCEPTION_ARGU "java/lang/IllegalArgumentException"
+#define FY_EXCEPTION_NEW "java/lang/InstantiationError"
 #endif /*FISCE_CLZ_H*/
