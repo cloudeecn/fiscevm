@@ -449,17 +449,17 @@ static void initThreadManager(fy_context *context, fy_exception *exception) {
 
 	context->state = FY_TM_STATE_NEW;
 
-	context->pricmds[0] = 10 * 4;
-	context->pricmds[1] = 125 * 4;
-	context->pricmds[2] = 250 * 4;
-	context->pricmds[3] = 500 * 4;
-	context->pricmds[4] = 1000 * 4;
-	context->pricmds[5] = 2000 * 4;
-	context->pricmds[6] = 4000 * 4;
-	context->pricmds[7] = 8000 * 4;
-	context->pricmds[8] = 16000 * 4;
-	context->pricmds[9] = 32000 * 4;
-	context->pricmds[10] = 64000 * 4;
+	context->pricmds[0] = 10;
+	context->pricmds[1] = 125;
+	context->pricmds[2] = 250;
+	context->pricmds[3] = 500;
+	context->pricmds[4] = 1000;
+	context->pricmds[5] = 2000;
+	context->pricmds[6] = 4000;
+	context->pricmds[7] = 8000;
+	context->pricmds[8] = 16000;
+	context->pricmds[9] = 32000;
+	context->pricmds[10] = 64000;
 }
 
 static void mkReplData(fy_context *context, fy_exception *exception,

@@ -128,7 +128,7 @@
 #  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
 #  define NEXT_INST	(*(ipp-1))
 #  define DEF_CA
-#  define NEXT_P1	({ops--;})
+#  define NEXT_P1	({})
 #  define NEXT_P2	({goto *cfa;})
 #endif
 
@@ -136,14 +136,14 @@
 /* direct threading scheme 3: autoinc, low latency (68K) */
 #  define USE_CFA 1
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0   ({ops--; INST_COUNT(PCURR_INST);})
+#  define NEXT_P0   ({INST_COUNT(PCURR_INST);})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST		(*(ipp - 1))
 #  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
 #  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1	({cfa=(ipp++)->inst; ops--;})
+#  define NEXT_P1	({cfa=(ipp++)->inst;})
 #  define NEXT_P2	({goto *cfa;})
 #endif
 
@@ -152,7 +152,7 @@
 #  define USE_CFA 1
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define CFA_NEXT
-#  define NEXT_P0	({cfa=ipp->inst; --ops; INST_COUNT(PCURR_INST);})
+#  define NEXT_P0	({cfa=ipp->inst; INST_COUNT(PCURR_INST);})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
@@ -166,7 +166,7 @@
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
 #  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0 ({--ops;/*FY_PREFETCH(ipp);*/INST_COUNT(PCURR_INST);})
+#  define NEXT_P0 ({/*FY_PREFETCH(ipp);*/INST_COUNT(PCURR_INST);})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
@@ -192,7 +192,7 @@
 #  define NEXT_INST	(*ipp)
 #  define INC_IP(const_inc)	({next_cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
-#  define NEXT_P1	({cfa=next_cfa; ipp++; next_cfa=ipp->inst;ops--;})
+#  define NEXT_P1	({cfa=next_cfa; ipp++; next_cfa=ipp->inst;})
 #  define NEXT_P2	({goto *cfa;})
 #  define MORE_VARS	fy_e2_label next_cfa;
 #endif
@@ -202,14 +202,14 @@
 #  define USE_CFA
 #  define REGISTER_CFA
 #  define ENGINE_ENTER ({NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0   ({ops--;})
+#  define NEXT_P0   ({})
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST (*(ipp - 1))
 #  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
 #  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1	({INST_COUNT(ipp); cfa = (ipp++)->inst; ops--;})
+#  define NEXT_P1	({INST_COUNT(ipp); cfa = (ipp++)->inst;})
 #  define NEXT_P2	({goto *cfa;})
 #endif
 
@@ -271,6 +271,7 @@ enum {
 # define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
 #endif
 
+# define FY_GOTO ({SET_IP(CURR_INST.params.int_params.param1);})
 # define FY_CHECK_OPS(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_NOINVOKE}
 # define FY_CHECK_OPS_INVOKE(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_INVOKE}
 # define FY_CHECK_OPS_AND_GOTO(OPS) \

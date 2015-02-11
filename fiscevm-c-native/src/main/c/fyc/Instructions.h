@@ -267,6 +267,24 @@
 #define FY_OP_getfield_x  0xe4
 #define FY_OP_putfield_x  0xe5
 
+#define FY_OP_ifnull_b  0xe6
+#define FY_OP_ifnonnull_b  0xe7
+#define FY_OP_ifeq_b  0xe8
+#define FY_OP_ifne_b  0xe9
+#define FY_OP_iflt_b  0xea
+#define FY_OP_ifge_b  0xeb
+#define FY_OP_ifgt_b  0xec
+#define FY_OP_ifle_b  0xed
+#define FY_OP_if_icmpeq_b  0xee
+#define FY_OP_if_icmpne_b  0xef
+#define FY_OP_if_icmplt_b  0xf0
+#define FY_OP_if_icmpge_b  0xf1
+#define FY_OP_if_icmpgt_b  0xf2
+#define FY_OP_if_icmple_b  0xf3
+#define FY_OP_if_acmpeq_b  0xf4
+#define FY_OP_if_acmpne_b  0xf5
+#define FY_OP_goto_b  0xf6
+
 #define FY_OP_dropout  0xff
 
 #define FY_OP_iload_r0  0x100

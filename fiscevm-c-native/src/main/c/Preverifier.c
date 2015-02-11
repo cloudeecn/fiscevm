@@ -2523,14 +2523,6 @@ void fy_preverify(fy_context *context, fy_method *method,
             case FY_OP_invokeinterface:
                 op = FY_OP_invokevirtual;
                 break;
-                
-            case FY_OP_if_acmpeq:
-                op = FY_OP_if_icmpeq;
-                break;
-            case FY_OP_if_acmpne:
-                op = FY_OP_if_icmpne;
-                break;
-
             case FY_OP_areturn:
             case FY_OP_freturn:
                 op = FY_OP_ireturn;
@@ -2541,6 +2533,95 @@ void fy_preverify(fy_context *context, fy_method *method,
             case FY_OP_goto_w:
                 op = FY_OP_goto;
                 break;
+            case FY_OP_ifnull:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_ifnull_b;
+            	}
+            	break;
+            case FY_OP_ifnonnull:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_ifnonnull_b;
+            	}
+            	break;
+            case FY_OP_ifeq:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_ifeq_b;
+            	}
+            	break;
+            case FY_OP_ifne:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_ifne_b;
+            	}
+            	break;
+            case FY_OP_iflt:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_iflt_b;
+            	}
+            	break;
+            case FY_OP_ifge:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_ifge_b;
+            	}
+            	break;
+            case FY_OP_ifgt:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_ifgt_b;
+            	}
+            	break;
+            case FY_OP_ifle:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_ifle_b;
+            	}
+            	break;
+            case FY_OP_if_icmpeq:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_if_icmpeq_b;
+            	}
+            	break;
+            case FY_OP_if_icmpne:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_if_icmpne_b;
+            	}
+            	break;
+            case FY_OP_if_acmpeq:
+                if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_if_icmpeq_b;
+            	} else {
+            		op = FY_OP_if_icmpeq;
+            	}
+                break;
+            case FY_OP_if_acmpne:
+                if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_if_icmpne_b;
+            	} else {
+            		op = FY_OP_if_icmpne;
+            	}
+                break;
+            case FY_OP_if_icmplt:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_if_icmplt_b;
+            	}
+            	break;
+            case FY_OP_if_icmpge:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_if_icmpge_b;
+            	}
+            	break;
+            case FY_OP_if_icmpgt:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_if_icmpgt_b;
+            	}
+            	break;
+            case FY_OP_if_icmple:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_if_icmple_b;
+            	}
+            	break;
+            case FY_OP_goto:
+            	if(instruction->params.int_params.param1 < ic){
+            		op = FY_OP_goto_b;
+            	}
+            	break;
             default:
                 break;
         }

@@ -250,23 +250,23 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "PUTSTATIC_X", /* 0xE3 */
 "GETFIELD_X", /* 0xE4 */
 "PUTFIELD_X", /* 0xE5 */
-"<undef>", /* 0xE6 */
-"<undef>", /* 0xE7 */
-"<undef>", /* 0xE8 */
-"<undef>", /* 0xE9 */
-"<undef>", /* 0xEA */
-"<undef>", /* 0xEB */
-"<undef>", /* 0xEC */
-"<undef>", /* 0xED */
-"<undef>", /* 0xEE */
-"<undef>", /* 0xEF */
-"<undef>", /* 0xF0 */
-"<undef>", /* 0xF1 */
-"<undef>", /* 0xF2 */
-"<undef>", /* 0xF3 */
-"<undef>", /* 0xF4 */
-"<undef>", /* 0xF5 */
-"<undef>", /* 0xF6 */
+"IFNULL_B", /* 0xE6 */
+"IFNONNULL_B", /* 0xE7 */
+"IFEQ_B", /* 0xE8 */
+"IFNE_B", /* 0xE9 */
+"IFLT_B", /* 0xEA */
+"IFGE_B", /* 0xEB */
+"IFGT_B", /* 0xEC */
+"IFLE_B", /* 0xED */
+"IF_ICMPEQ_B", /* 0xEE */
+"IF_ICMPNE_B", /* 0xEF */
+"IF_ICMPLT_B", /* 0xF0 */
+"IF_ICMPGE_B", /* 0xF1 */
+"IF_ICMPGT_B", /* 0xF2 */
+"IF_ICMPLE_B", /* 0xF3 */
+"IF_ACMPEQ_B", /* 0xF4 */
+"IF_ACMPNE_B", /* 0xF5 */
+"GOTO_B", /* 0xF6 */
 "<undef>", /* 0xF7 */
 "<undef>", /* 0xF8 */
 "<undef>", /* 0xF9 */
@@ -275,7 +275,7 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "<undef>", /* 0xFC */
 "<undef>", /* 0xFD */
 "<undef>", /* 0xFE */
-"<undef>", /* 0xFF */
+"<dropout>", /* 0xFF */
 
 "ILOAD_R0", /* 0x100*/
 "ILOAD_R1", /* 0x101*/

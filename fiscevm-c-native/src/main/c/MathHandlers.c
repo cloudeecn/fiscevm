@@ -27,7 +27,7 @@ static fy_int MathACos(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, acos(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathASin(struct fy_context *context, struct fy_thread *thread,
@@ -35,7 +35,7 @@ static fy_int MathASin(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, asin(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathATan(struct fy_context *context, struct fy_thread *thread,
@@ -43,7 +43,7 @@ static fy_int MathATan(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, atan(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathATan2(struct fy_context *context, struct fy_thread *thread,
@@ -52,7 +52,7 @@ static fy_int MathATan2(struct fy_context *context, struct fy_thread *thread,
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	double param2 = fy_longToDouble(fy_I2TOL(args[2].uvalue,args[3].uvalue));
 	fy_threadReturnDouble(args, atan2(param, param2));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathCbrt(struct fy_context *context, struct fy_thread *thread,
@@ -60,7 +60,7 @@ static fy_int MathCbrt(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, cbrt(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathCeil(struct fy_context *context, struct fy_thread *thread,
@@ -68,7 +68,7 @@ static fy_int MathCeil(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, ceil(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathCos(struct fy_context *context, struct fy_thread *thread,
@@ -76,7 +76,7 @@ static fy_int MathCos(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, cos(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathCosh(struct fy_context *context, struct fy_thread *thread,
@@ -84,7 +84,7 @@ static fy_int MathCosh(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, cosh(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathExp(struct fy_context *context, struct fy_thread *thread,
@@ -92,7 +92,7 @@ static fy_int MathExp(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, exp(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathExpM1(struct fy_context *context, struct fy_thread *thread,
@@ -100,7 +100,7 @@ static fy_int MathExpM1(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, expm1(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathFloor(struct fy_context *context, struct fy_thread *thread,
@@ -108,7 +108,7 @@ static fy_int MathFloor(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, floor(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathHypot(struct fy_context *context, struct fy_thread *thread,
@@ -117,7 +117,7 @@ static fy_int MathHypot(struct fy_context *context, struct fy_thread *thread,
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	double param2 = fy_longToDouble(fy_I2TOL(args[2].uvalue,args[3].uvalue));
 	fy_threadReturnDouble(args, hypot(param, param2));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathIEEERemainder(struct fy_context *context,
@@ -131,7 +131,7 @@ static fy_int MathIEEERemainder(struct fy_context *context,
 		fy_threadReturnDouble(args,
 				param - floor(param / param2) * param2);
 	}
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathLog(struct fy_context *context, struct fy_thread *thread,
@@ -139,7 +139,7 @@ static fy_int MathLog(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue, args[1].uvalue));
 	fy_threadReturnDouble(args, log(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathLog10(struct fy_context *context, struct fy_thread *thread,
@@ -147,7 +147,7 @@ static fy_int MathLog10(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, log10(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathLog1p(struct fy_context *context, struct fy_thread *thread,
@@ -155,7 +155,7 @@ static fy_int MathLog1p(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, log1p(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathPow(struct fy_context *context, struct fy_thread *thread,
@@ -164,7 +164,7 @@ static fy_int MathPow(struct fy_context *context, struct fy_thread *thread,
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	double param2 = fy_longToDouble(fy_I2TOL(args[2].uvalue,args[3].uvalue));
 	fy_threadReturnDouble(args, pow(param, param2));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathRint(struct fy_context *context, struct fy_thread *thread,
@@ -172,7 +172,7 @@ static fy_int MathRint(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, rint(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathSignum(struct fy_context *context, struct fy_thread *thread,
@@ -185,7 +185,7 @@ static fy_int MathSignum(struct fy_context *context, struct fy_thread *thread,
 		fy_threadReturnDouble(args,
 				param > 0 ? 1.0 : (param < 0 ? -1.0 : 0.0));
 	}
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathSignumf(struct fy_context *context, struct fy_thread *thread,
@@ -198,7 +198,7 @@ static fy_int MathSignumf(struct fy_context *context, struct fy_thread *thread,
 		fy_threadReturnFloat(args,
 				param > 0 ? 1.0f : (param < 0 ? -1.0f : 0.0f));
 	}
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathSin(struct fy_context *context, struct fy_thread *thread,
@@ -206,7 +206,7 @@ static fy_int MathSin(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, sin(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathSinh(struct fy_context *context, struct fy_thread *thread,
@@ -214,7 +214,7 @@ static fy_int MathSinh(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, sinh(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathSqrt(struct fy_context *context, struct fy_thread *thread,
@@ -222,7 +222,7 @@ static fy_int MathSqrt(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, sqrt(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathTan(struct fy_context *context, struct fy_thread *thread,
@@ -230,7 +230,7 @@ static fy_int MathTan(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, tan(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathTanh(struct fy_context *context, struct fy_thread *thread,
@@ -238,7 +238,7 @@ static fy_int MathTanh(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	double param = fy_longToDouble(fy_I2TOL(args[0].uvalue,args[1].uvalue));
 	fy_threadReturnDouble(args, tanh(param));
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathUlp(struct fy_context *context, struct fy_thread *thread,
@@ -246,7 +246,7 @@ static fy_int MathUlp(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	/*TODO*/
 	fy_threadReturnDouble(args, 0);
-	return ops - 1;
+	return ops;
 }
 
 static fy_int MathUlpf(struct fy_context *context, struct fy_thread *thread,
@@ -254,7 +254,7 @@ static fy_int MathUlpf(struct fy_context *context, struct fy_thread *thread,
 		fy_exception *exception) {
 	/*TODO*/
 	fy_threadReturnFloat(args, 0);
-	return ops - 1;
+	return ops;
 }
 
 void fy_coreRegisterMathHandlers(fy_context *context, fy_exception *exception) {

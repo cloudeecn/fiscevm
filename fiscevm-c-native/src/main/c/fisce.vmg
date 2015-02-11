@@ -1337,6 +1337,7 @@ monitorexit(i1 -- )
 
 invokespecial ( -- )
 {
+  ops--;
   fy_localToFrame(context, frame);
   ops = fy_threadInvokeSpecial(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH();
@@ -1347,6 +1348,7 @@ invokespecial ( -- )
 
 invokestatic ( -- )
 {
+  ops--;
   //!CLINIT
   fy_localToFrame(context, frame);
   FY_ENGINE_CLINIT(CURR_INST.params.method->owner, 0);
@@ -1359,6 +1361,7 @@ invokestatic ( -- )
 
 invokevirtual ( -- )
 {
+  ops--;
   fy_localToFrame(context, frame);
   ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH();
@@ -1507,11 +1510,29 @@ athrow (i1 -- )
 
 goto ( -- )
 {
+  ops--;
+  FY_GOTO;
+}
+
+goto_b ( -- )
+{
+  ops--;
   FY_CHECK_OPS_AND_GOTO(ops);
 }
 
 if_icmpeq (i1 i2 -- )
 {
+  ops--;
+  if(i1 == i2){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmpeq_b (i1 i2 -- )
+{
+  ops--;
   if(i1 == i2){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1521,6 +1542,17 @@ if_icmpeq (i1 i2 -- )
 
 if_icmpne (i1 i2 -- )
 {
+  ops--;
+  if(i1 != i2){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmpne_b (i1 i2 -- )
+{
+  ops--;
   if(i1 != i2){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1530,6 +1562,17 @@ if_icmpne (i1 i2 -- )
 
 if_icmplt (i1 i2 -- )
 {
+  ops--;
+  if((fy_int)i1 < (fy_int)i2){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmplt_b (i1 i2 -- )
+{
+  ops--;
   if((fy_int)i1 < (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1539,6 +1582,17 @@ if_icmplt (i1 i2 -- )
 
 if_icmple (i1 i2 -- )
 {
+  ops--;
+  if((fy_int)i1 <= (fy_int)i2){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmple_b (i1 i2 -- )
+{
+  ops--;
   if((fy_int)i1 <= (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1548,6 +1602,17 @@ if_icmple (i1 i2 -- )
 
 if_icmpgt (i1 i2 -- )
 {
+  ops--;
+  if((fy_int)i1 > (fy_int)i2){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmpgt_b (i1 i2 -- )
+{
+  ops--;
   if((fy_int)i1 > (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1557,6 +1622,17 @@ if_icmpgt (i1 i2 -- )
 
 if_icmpge (i1 i2 -- )
 {
+  ops--;
+  if((fy_int)i1 >= (fy_int)i2){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+if_icmpge_b (i1 i2 -- )
+{
+  ops--;
   if((fy_int)i1 >= (fy_int)i2){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1566,6 +1642,17 @@ if_icmpge (i1 i2 -- )
 
 ifeq (i1 -- )
 {
+  ops--;
+  if(i1 == 0){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifeq_b (i1 -- )
+{
+  ops--;
   if(i1 == 0){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1575,6 +1662,17 @@ ifeq (i1 -- )
 
 ifnull (i1 -- )
 {
+  ops--;
+  if(i1 == 0){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifnull_b (i1 -- )
+{
+  ops--;
   if(i1 == 0){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1584,6 +1682,17 @@ ifnull (i1 -- )
 
 ifne (i1 -- )
 {
+  ops--;
+  if(i1 != 0){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifne_b (i1 -- )
+{
+  ops--;
   if(i1 != 0){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1593,6 +1702,17 @@ ifne (i1 -- )
 
 ifnonnull (i1 -- )
 {
+  ops--;
+  if(i1 != 0){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifnonnull_b (i1 -- )
+{
+  ops--;
   if(i1 != 0){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1602,6 +1722,17 @@ ifnonnull (i1 -- )
 
 iflt (i1 -- )
 {
+  ops--;
+  if((fy_int)i1 < 0){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+iflt_b (i1 -- )
+{
+  ops--;
   if((fy_int)i1 < 0){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1611,6 +1742,17 @@ iflt (i1 -- )
 
 ifle (i1 -- )
 {
+  ops--;
+  if((fy_int)i1 <= 0){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifle_b (i1 -- )
+{
+  ops--;
   if((fy_int)i1 <= 0){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1620,6 +1762,17 @@ ifle (i1 -- )
 
 ifgt (i1 -- )
 {
+  ops--;
+  if((fy_int)i1 > 0){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifgt_b (i1 -- )
+{
+  ops--;
   if((fy_int)i1 > 0){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1629,6 +1782,17 @@ ifgt (i1 -- )
 
 ifge (i1 -- )
 {
+  ops--;
+  if((fy_int)i1 >= 0){
+    FY_GOTO;
+    INST_TAIL;
+  }
+  SUPER_CONTINUE;
+}
+
+ifge_b (i1 -- )
+{
+  ops--;
   if((fy_int)i1 >= 0){
     FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
@@ -1642,6 +1806,7 @@ lookupswitch (i1 -- )
   fy_uint i2, i3;
   fy_switch_lookup *swlookup;
 #endif
+  ops--;
   swlookup = CURR_INST.params.swlookup;
   i3 = swlookup->count;
   for(i2 = 0; i2 < i3; i2++){
@@ -1660,6 +1825,7 @@ tableswitch (i1 -- )
 #ifdef FY_LATE_DECLARATION
   fy_uint i2, i3;
 #endif
+  ops--;
   i2 = CURR_INST.params.swtable->lowest;/*lb*/
   i3 = CURR_INST.params.swtable->highest;/*hb*/
   if ((fy_int) i1 < (fy_int) i2
@@ -1668,7 +1834,6 @@ tableswitch (i1 -- )
     INST_TAIL;
   } else {
     SET_IP(CURR_INST.params.swtable->targets[i1 - i2]);
-    INST_TAIL;
   }
 }
 
