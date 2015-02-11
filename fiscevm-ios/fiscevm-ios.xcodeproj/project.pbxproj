@@ -501,7 +501,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_DYNAMIC_NO_PIC = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_THREADSAFE_STATICS = NO;
 				LLVM_LTO = YES;
 				OTHER_LDFLAGS = "-ObjC";
