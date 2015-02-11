@@ -29,8 +29,9 @@
 #include "fyc/Data.h"
 #include "fyc/ClassLoader.h"
 #include "fyc/Thread.h"
+#include "fyc/Instructions.h"
 
-static const char* dirs[] = { NULL, NULL };
+static const char** dirs;
 
 typedef struct FY_TEST_FUN {
 	char *name;
@@ -443,8 +444,8 @@ void testClassLoaderFull() {
 	fy_class *clObj;
 	exception->exceptionType = exception_none;
 	while ((nm = names[i++]) != NULL) {
-		DLOG(context, "###Full loading class %s\n", nm)
-;		snm->content = NULL;
+		DLOG(context, "###Full loading class %s\n", nm);
+		snm->content = NULL;
 		fy_strInitWithUTF8(block, snm, nm, exception);
 		TEST_EXCEPTION(exception);
 		clazz = fy_vmLookupClass(context, snm, exception);
@@ -518,8 +519,7 @@ void testHeap() {
 	TEST_EXCEPTION(exception);
 
 	sHandle = fy_heapLiteral(context, str, exception);
-	TEST_EXCEPTION(exception);
-	ASSERT(sHandle != 0);
+	TEST_EXCEPTION(exception);ASSERT(sHandle != 0);
 	fy_heapGetString(context, sHandle, compare, exception);
 	TEST_EXCEPTION(exception);
 	FY_ASSERT(fy_strCmp(str, compare) == 0);
@@ -573,6 +573,8 @@ static void hltest(char *name) {
 	fy_exception ex;
 	fy_context *context;
 	fy_exception *exception = &ex;
+	int i = 0;
+	fy_long total = 0;
 	if (name == NULL) {
 		fy_log("+++Executing test case Load+++\n", name);
 	} else {
@@ -606,6 +608,7 @@ static void hltest(char *name) {
 
 		switch (message.messageType) {
 		case message_invoke_native:
+#if 0
 			fy_strSPrint(msg, sizeof(msg),
 					message.body.call.method->uniqueName);
 			fy_log("Stopped at invoke native for thread %d: %s\n",
@@ -613,6 +616,7 @@ static void hltest(char *name) {
 			FY_ASSERT("Core native functions not implemented"==NULL)
 			;
 			dead = 1;
+#endif
 			break;
 		case message_sleep:
 //			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
@@ -698,7 +702,7 @@ static void hltest2(char *name) {
 			dead = 1;
 			break;
 		case message_none:
- 		case message_thread_dead:
+		case message_thread_dead:
 		default:
 			fy_log("Invalid message type %d\n", message.messageType);
 			break;
@@ -937,19 +941,44 @@ int main(int argc, char *argv[]) {
 	char *customTest;
 	char *fn;
 	setvbuf(stdout, NULL, _IONBF, 1024);
-	if (argc < 2) {
-		dirs[0] = "runtime";
-	} else {
-		dirs[0] = argv[1];
+
+	for (i = argc - 1; i > 0; i--) {
+		if (strcmp("--", argv[i]) == 0) {
+			argc = i;
+			break;
+		}
 	}
-	printf("Base dir: %s\n", dirs[0]);
-	if (argc > 2 && strcmp("--", argv[2])) {
-		printf("Testing %s:", argv[2]);
-		customTest = argv[2];
-		fn = "test.custom.fail.log";
-	} else {
+
+	if (argc == 1) {
+		dirs = malloc(sizeof(char*) * 2);
+		dirs[0] = "runtime";
+		dirs[1] = NULL;
 		customTest = NULL;
 		fn = "test.fail.log";
+	} else if (argc == 2) {
+		dirs = malloc(sizeof(char*) * 2);
+		dirs[0] = argv[1];
+		dirs[1] = NULL;
+		customTest = NULL;
+		fn = "test.fail.log";
+	} else {
+		dirs = malloc(sizeof(char*) * argc);
+		for (i = 1; i < argc - 1; i++) {
+			dirs[i - 1] = argv[i];
+		}
+		dirs[i - 1] = NULL;
+		printf("Testing %s:", argv[argc - 1]);
+		customTest = argv[argc - 1];
+		fn = "test.custom.fail.log";
+	}
+	printf("Classpaths:\n");
+	i = 0;
+	while (1) {
+		if (dirs[i] == NULL) {
+			break;
+		}
+		printf("%s\n", dirs[i]);
+		i++;
 	}
 	fails = fopen(fn, "w");
 	if (fails == NULL) {
@@ -968,6 +997,7 @@ int main(int argc, char *argv[]) {
 		printf("Testing %s\n", customTest);
 		testCustom(customTest);
 	} else {
+		i = 0;
 		while (1) {
 			tf = testcases + i;
 			name = tf->name;
@@ -985,5 +1015,6 @@ int main(int argc, char *argv[]) {
 	if (failCount) {
 		printf("Test FAILED! %"FY_PRINT64"d\n", failCount);
 	}
+	free(dirs);
 	return failCount > 0;
 }
