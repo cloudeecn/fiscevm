@@ -490,6 +490,7 @@
 		6873C2531A033A66006C201B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_THREADSAFE_STATICS = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = FiScEVM;
 				SKIP_INSTALL = YES;
@@ -499,7 +500,10 @@
 		6873C2541A033A66006C201B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_THREADSAFE_STATICS = NO;
+				LLVM_LTO = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = FiScEVM;
 				SKIP_INSTALL = YES;
@@ -516,6 +520,7 @@
 				681220001A74C4ED00AF86E9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6873C2391A033A66006C201B /* Build configuration list for PBXProject "fiscevm-ios" */ = {
 			isa = XCConfigurationList;
