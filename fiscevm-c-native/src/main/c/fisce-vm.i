@@ -3350,7 +3350,7 @@ spp += 1;
     fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1);
   }
 #endif
-  lr = delegateGetFieldX(context, i1, CURR_INST.params.field, exception);
+  lr = fy_heapGetFieldLong(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -3398,7 +3398,7 @@ spp += -3;
     fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", CURR_INST.params.field->utf8Name, i1, l1);
   }
 #endif
-  delegatePutFieldX(context, i1, CURR_INST.params.field, l1, exception);
+  fy_heapPutFieldLong(context, i1, CURR_INST.params.field, l1, exception);
   FY_THEH()
 }
 #line 3405 "fisce-vm.i"
@@ -8025,7 +8025,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
   }
 #endif
-  ir = delegateGetField(context, i1, field, exception);
+  ir = fy_heapGetFieldInt(context, i1, field, exception);
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
@@ -8085,7 +8085,7 @@ spp += -2;
     fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", field->utf8Name, i1, i2);
   }
 #endif
-  delegatePutField(context, i1, field, i2, exception);
+  fy_heapPutFieldInt(context, i1, field, i2, exception);
   FY_THEH()
   MODIFY_CURR_INST(putfield_n);
 }
@@ -8132,7 +8132,7 @@ spp += 1;
     fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
   }
 #endif
-  lr = delegateGetFieldX(context, i1, field, exception);
+  lr = fy_heapGetFieldLong(context, i1, field, exception);
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
@@ -8192,7 +8192,7 @@ spp += -3;
     fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", field->utf8Name, i1, l1);
   }
 #endif
-  delegatePutFieldX(context, i1, field, l1, exception);
+  fy_heapPutFieldLong(context, i1, field, l1, exception);
   FY_THEH()
   MODIFY_CURR_INST(putfield_nx);
 }
