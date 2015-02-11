@@ -34,7 +34,11 @@
 # define ASM_CHECK
 #endif
 
-#define REPL_MIN 3000
+#if 0
+# define ASM_SHOW
+#endif
+
+#define REPL_MIN 5000
 #ifdef FY_INSTRUCTION_COUNT
 # define DEBUG_REPL 1
 #else
@@ -68,11 +72,11 @@
 #define sppTOS spp[-1]
 #endif
 
-#ifdef VM_DEBUG
-# define NAME(_x) if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, thread->stack));}
+#ifdef ASM_SHOW
+# define NAME(_x) puts(_x);
 #else
-# ifdef ASM_CHECK
-#  define NAME(_x) puts(_x);
+# ifdef VM_DEBUG
+#  define NAME(_x) if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, thread->stack));}
 # else
 #  define NAME(_x)
 # endif
@@ -271,7 +275,7 @@ enum {
 # define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
 #endif
 
-# define FY_GOTO ({SET_IP(CURR_INST.params.int_params.param1);})
+# define FY_OP_GOTO ({SET_IP(CURR_INST.params.int_params.param1);})
 # define FY_CHECK_OPS(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_NOINVOKE}
 # define FY_CHECK_OPS_INVOKE(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_INVOKE}
 # define FY_CHECK_OPS_AND_GOTO(OPS) \
