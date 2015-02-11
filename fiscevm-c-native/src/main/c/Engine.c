@@ -366,16 +366,21 @@ if(unlikely(exception->exceptionType != exception_none)){ \
 	FY_FALLOUT_NOINVOKE; \
 }
 
-#define FY_THEHD \
-{ \
-	ops = 0; \
-	FY_FALLOUT_NOINVOKE; \
-}
-
 #define FY_ENGINE_CLINIT(CLASS, SPSS) { \
 	ops = fy_threadClinit(context, thread, (CLASS), spp + (SPSS), ops, exception); \
 	FY_THEH(); \
 	FY_CHECK_OPS_INVOKE(ops); \
+}
+
+static fy_int lookup_op(fy_e2_label_holder *labels, fy_e2_label label) {
+	fy_e2_label_holder *holder = labels;
+	while (holder->op >= 0) {
+		if (holder->label == label) {
+			return holder->op;
+		}
+		holder++;
+	}
+	return -1;
 }
 
 static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
@@ -389,44 +394,42 @@ static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
 	return (fy_e2_label) -1;
 }
 
-FY_NO_INLINE static void calc_repl(fy_context *context, fy_method *method,
-		fy_int op, fy_instruction *currInst, fy_int engineNum,
-		fy_e2_label_holder *labels, fy_exception *exception) {
+__attribute__((noinline)) static void calc_repl(fy_context *context,
+		fy_method *method, fy_int op, fy_instruction *currInst,
+		fy_int engineNum, fy_e2_label_holder *labels,
+		fy_exception *exception) {
 #define PAIR_OF(OP, NEXT_OP) ((OP) * 1031 + (NEXT_OP))
-	fy_engine_repl_data *engine_repl_data = context->engineReplData + engineNum;
+    fy_engine_repl_data *engine_repl_data = context->engineReplData + engineNum;
 	fy_repl_data **repl_data = engine_repl_data->repl_data;
 	fy_hashMapI *repl_count = engine_repl_data->repl_count;
 	fy_hashMapI *repl_result = engine_repl_data->repl_result;
 	fy_int nextOp;
 	fy_int count;
 	fy_int toOp;
+	asm ("");
 	if (repl_data[op] != NULL) {
-		nextOp = method->instruction_ops[FY_PDIFF(fy_instruction, currInst,
-				method->instructions) + 1];
+		nextOp = method->instruction_ops[FY_PDIFF(fy_instruction, currInst, method->instructions) + 1];
 		if (nextOp < 0) {
-			WLOG(
-					context, "Can't find op from label %p in engine %d method %s ip %d", currInst[1].inst, engineNum, method->utf8Name, FY_PDIFF(fy_instruction, currInst + 1, method->instructions))
-;
-			nextOp = -1;
+            WLOG(context, "Can't find op from label %p in engine %d method %s ip %d", currInst[1].inst, engineNum, method->utf8Name, FY_PDIFF(fy_instruction, currInst + 1, method->instructions));
+            nextOp = -1;
 		} else if (repl_data[nextOp] == NULL) {
 			toOp = fy_hashMapIGet(context->memblocks, repl_result,
 					PAIR_OF(op, nextOp));
 			if (toOp >= 0) {
 				currInst->inst = lookup_label(labels, toOp);
-				method->instruction_ops[FY_PDIFF(fy_instruction, currInst,
-						method->instructions)] = toOp;
 #if DEBUG_REPL
 				ILOG(
 						context,
 						"OP %s(%d / %p) (-> %s(%d)) replicated to %s(%d / %p) in method %s inst %p from cache",
 						FY_OP_NAME[op], op, currInst->inst, FY_OP_NAME[nextOp], nextOp, FY_OP_NAME[toOp], toOp, currInst->inst, method->utf8Name, currInst)
-;				//
+				;					//
 #endif
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 				currInst->op = toOp;
 #endif
 				if (currInst->inst == (fy_e2_label) -1) {
-					fy_fault(exception, NULL, "Can't find label for op %s(%d)",
+					fy_fault(exception, NULL,
+							"Can't find label for op %s(%d)",
 							FY_OP_NAME[toOp], toOp);
 					FYEH();
 				}
@@ -479,52 +482,13 @@ FY_NO_INLINE static void calc_repl(fy_context *context, fy_method *method,
 #define RCAL(OP)
 #endif
 
-FY_NO_INLINE static fy_int delegateGetField(fy_context *context, int handle,
-		fy_field *field, fy_exception *exception) {
-	return fy_heapGetFieldInt(context, handle, field, exception);
-}
-
-FY_NO_INLINE static void delegatePutField(fy_context *context, fy_int handle,
-		fy_field *field, fy_int value, fy_exception *exception) {
-	fy_heapPutFieldInt(context, handle, field, value, exception);
-}
-
-FY_NO_INLINE static fy_long delegateGetFieldX(fy_context *context, int handle,
-		fy_field *field, fy_exception *exception) {
-	return fy_heapGetFieldLong(context, handle, field, exception);
-}
-
-FY_NO_INLINE static void delegatePutFieldX(fy_context *context, fy_int handle,
-		fy_field *field, fy_long value, fy_exception *exception) {
-	fy_heapPutFieldLong(context, handle, field, value, exception);
-}
-
-FY_NO_INLINE static fy_int delegateNew(fy_context *context, fy_class *clazz,
-		fy_exception *exception) {
-	return fy_heapAllocate(context, clazz, exception);
-}
-
-FY_NO_INLINE static fy_int delegateNewArray(fy_context *context,
-		fy_class *clazz, fy_int length, fy_exception *exception) {
-	return fy_heapAllocateArray(context, clazz, length, exception);
-}
-
-FY_NO_INLINE static fy_int delegateMonitorEnter(fy_context *context,
-		fy_thread *thread, fy_int handle, fy_int ops) {
-	return fy_tmMonitorEnter(context, thread, handle, ops);
-}
-
-FY_NO_INLINE static fy_int delegateMonitorExit(fy_context *context,
-		fy_thread *thread, fy_int handle, fy_int ops, fy_exception *exception) {
-	return fy_tmMonitorExit(context, thread, handle, ops, exception);
-}
-
-FY_NO_INLINE static fy_int opLDC(fy_context *context, fy_class *owner,
-		fy_char index, fy_exception *exception) {
+__attribute__((noinline))    static fy_int opLDC(fy_context *context,
+		fy_class *owner, fy_char index, fy_exception *exception) {
 	ConstantStringInfo *constantStringInfo;
 	ConstantClass *constantClass;
 	fy_class *clazz;
 	fy_int hvalue;
+	asm ("");
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Integer:
 	case CONSTANT_Float:
@@ -553,8 +517,9 @@ FY_NO_INLINE static fy_int opLDC(fy_context *context, fy_class *owner,
 	}
 }
 
-FY_NO_INLINE static fy_long opLDC2(fy_context *context, fy_class *owner,
-		fy_char index, fy_exception *exception) {
+__attribute__((noinline))    static fy_long opLDC2(fy_context *context,
+		fy_class *owner, fy_char index, fy_exception *exception) {
+	asm ("");
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Double:
 	case CONSTANT_Long:

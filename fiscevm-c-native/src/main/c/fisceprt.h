@@ -47,7 +47,6 @@
 # ifndef unlikely
 #  define unlikely(X) __builtin_expect(!!(X), 0)
 # endif
-# define FY_NO_INLINE __attribute__((noinline))
 # define FY_PREFETCH(ADDR) __builtin_prefetch(ADDR)
 # if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=7)||(__GNUC__>2))
 #  define MAYBE_UNUSED __attribute__((unused))
@@ -66,7 +65,6 @@
 # ifndef unlikely
 #  define unlikely(X) (X)
 # endif
-# define FY_NO_INLINE
 # define FY_PREFETCH(ADDR)
 # define MAYBE_UNUSED
 # define FY_HOT

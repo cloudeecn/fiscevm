@@ -419,7 +419,7 @@ getfield_n (i1 -- ir)
     fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1);
   }
 #endif
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -431,49 +431,49 @@ getfield_n (i1 -- ir)
 
 getfield_n_r0 (i1 -- ir)
 {
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 }
 
 getfield_n_r1 (i1 -- ir)
 {
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 }
 
 getfield_n_r2 (i1 -- ir)
 {
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 }
 
 getfield_n_r3 (i1 -- ir)
 {
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 }
 
 getfield_n_r4 (i1 -- ir)
 {
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 }
 
 getfield_n_r5 (i1 -- ir)
 {
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 }
 
 getfield_n_r6 (i1 -- ir)
 {
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 }
 
 getfield_n_r7 (i1 -- ir)
 {
-  ir = delegateGetField(context, i1, CURR_INST.params.field, exception);
+  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
   FY_THEH()
 }
 
@@ -484,32 +484,32 @@ putfield_n (i1 i2 --)
     fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1, i2);
   }
 #endif
-  delegatePutField(context, i1, CURR_INST.params.field, i2, exception);
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
   FY_THEH()
   RCAL(FY_OP_putfield_n);
 }
 
 putfield_n_r0 (i1 i2 --)
 {
-  delegatePutField(context, i1, CURR_INST.params.field, i2, exception);
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
   FY_THEH()
 }
 
 putfield_n_r1 (i1 i2 --)
 {
-  delegatePutField(context, i1, CURR_INST.params.field, i2, exception);
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
   FY_THEH()
 }
 
 putfield_n_r2 (i1 i2 --)
 {
-  delegatePutField(context, i1, CURR_INST.params.field, i2, exception);
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
   FY_THEH()
 }
 
 putfield_n_r3 (i1 i2 --)
 {
-  delegatePutField(context, i1, CURR_INST.params.field, i2, exception);
+  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
   FY_THEH()
 }
 
@@ -1206,14 +1206,18 @@ new ( -- ir)
   clazz1 = CURR_INST.params.clazz;
   if (unlikely(clazz1->accessFlags
       & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT))) {
-    fy_fault(exception, FY_EXCEPTION_NEW, clazz1->utf8Name);
-    FY_THEHD;
+#ifdef FY_LATE_DECLARATION
+    char msg[256];
+#endif
+    fy_strSPrint(msg, 256, clazz1->className);
+    fy_fault(exception, NULL, "InstantiationErro %s", msg);
+    FY_THEH();
   }
   //!CLINIT
   fy_localToFrame(context, frame);
   FY_ENGINE_CLINIT(clazz1, 0);
 
-  ir = delegateNew(context, clazz1, exception);
+  ir = fy_heapAllocate(context, clazz1, exception);
   FY_THEH()
 }
 
@@ -1223,7 +1227,7 @@ newarray (i1 -- ir)
   fy_str *pstr1;
   if (unlikely(((fy_int) i1) < 0)) {
     fy_fault(exception, FY_EXCEPTION_NASE, "%d", i1);
-    FY_THEHD
+    FY_THEH()
   }
   switch(CURR_INST.params.int_params.param1){
   case 4:
@@ -1253,12 +1257,12 @@ newarray (i1 -- ir)
   default:
     pstr1 = NULL; /*make compiler happy*/
     fy_fault(exception, FY_EXCEPTION_VM, "%d", CURR_INST.params.int_params.param1);
-    FY_THEHD
+    FY_THEH()
     break;
   }
   clazz1 = fy_vmLookupClass(context, pstr1, exception);
   FY_THEH()
-  ir = delegateNewArray(context, clazz1, i1, exception);
+  ir = fy_heapAllocateArray(context, clazz1, i1, exception);
   FY_THEH()
 }
 
@@ -1309,13 +1313,13 @@ instanceof (i1 -- ir)
 
 monitorenter(i1 -- )
 {
-  ops = delegateMonitorEnter(context, thread, i1, ops);
+  ops = fy_threadMonitorEnter(context, thread, i1, ops);
   FY_CHECK_OPS(ops);
 }
 
 monitorexit(i1 -- )
 {
-  ops = delegateMonitorExit(context, thread, i1, ops, exception);
+  ops = fy_threadMonitorExit(context, thread, i1, ops, exception);
   FY_THEH()
   FY_CHECK_OPS(ops);
 }
@@ -1383,10 +1387,10 @@ return ( -- )
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
-      ops = delegateMonitorExit(context, thread, i2, ops, exception);
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
     } else {
       /*CUSTOM*/
-      ops = delegateMonitorExit(context, thread, sbase->uvalue, ops, exception);
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
     }
     FY_THEH()
   }
@@ -1420,10 +1424,10 @@ ireturn (i1 -- )
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
-      ops = delegateMonitorExit(context, thread, i2, ops, exception);
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
     } else {
       /*CUSTOM*/
-      ops = delegateMonitorExit(context, thread, sbase->uvalue, ops, exception);
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
     }
     FY_THEH()
   }
@@ -1454,10 +1458,10 @@ lreturn (l1 -- )
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH()
-      ops = delegateMonitorExit(context, thread, i2, ops, exception);
+      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
     } else {
       /*CUSTOM*/
-      ops = delegateMonitorExit(context, thread, sbase->uvalue, ops, exception);
+      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
     }
     FY_THEH()
   }
@@ -1683,66 +1687,6 @@ pop (i1 -- )
 
 pop2 (i1 i2 -- )
 ;
-
-\ ######  ####### #     # ######  #       #######
-\ #     # #     # #     # #     # #       #
-\ #     # #     # #     # #     # #       #
-\ #     # #     # #     # ######  #       #####
-\ #     # #     # #     # #     # #       #
-\ #     # #     # #     # #     # #       #
-\ ######  #######  #####  ######  ####### #######
-
-dadd (d1 d2 -- dr)
-{
-  dr = d1 + d2;
-}
-
-dsub (d1 d2 -- dr)
-{
-  dr = d1 - d2;
-}
-
-ddiv (d1 d2 -- dr)
-{
-  dr = d1 / d2;
-}
-
-dmul (d1 d2 -- dr)
-{
-  dr = d1 * d2;
-}
-
-drem (d1 d2 -- dr)
-{
-  if(d2 == 0){
-    dr = 0.0 / d2;
-  } else {
-    dr = d1 - floor(d1 / d2) * d2;
-  }
-}
-
-dneg (d1 -- dr)
-{
-  dr = -d1;
-}
-
-dcmpg (d1 d2 -- ir)
-{
-  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
-    ir = 1;
-  } else {
-    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
-  }
-}
-
-dcmpl (d1 d2 -- ir)
-{
-  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
-    ir = -1;
-  } else {
-    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
-  }
-}
 
 
 \ #     # #     # ####### ######  #######
@@ -1989,6 +1933,66 @@ putstatic_x(l1 -- )
   FY_THEH()
   MODIFY_CURR_INST(putstatic_nx);
   CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
+}
+
+\ ######  ####### #     # ######  #       #######
+\ #     # #     # #     # #     # #       #
+\ #     # #     # #     # #     # #       #
+\ #     # #     # #     # ######  #       #####
+\ #     # #     # #     # #     # #       #
+\ #     # #     # #     # #     # #       #
+\ ######  #######  #####  ######  ####### #######
+
+dadd (d1 d2 -- dr)
+{
+  dr = d1 + d2;
+}
+
+dsub (d1 d2 -- dr)
+{
+  dr = d1 - d2;
+}
+
+ddiv (d1 d2 -- dr)
+{
+  dr = d1 / d2;
+}
+
+dmul (d1 d2 -- dr)
+{
+  dr = d1 * d2;
+}
+
+drem (d1 d2 -- dr)
+{
+  if(d2 == 0){
+    dr = 0.0 / d2;
+  } else {
+    dr = d1 - floor(d1 / d2) * d2;
+  }
+}
+
+dneg (d1 -- dr)
+{
+  dr = -d1;
+}
+
+dcmpg (d1 d2 -- ir)
+{
+  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
+    ir = 1;
+  } else {
+    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
+  }
+}
+
+dcmpl (d1 d2 -- ir)
+{
+  if (unlikely(fy_isnand(d2) || fy_isnand(d1))) {
+    ir = -1;
+  } else {
+    ir = d1 == d2 ? 0 : (d1 - d2 > 0) ? 1 : -1;
+  }
 }
 
 dropout ( -- )

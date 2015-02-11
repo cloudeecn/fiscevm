@@ -49,14 +49,13 @@ FY_ATTR_EXPORT long int fy_getAllocated() {
 	return blocks;
 }
 
-FY_NO_INLINE FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
+FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 		const char *format, ...) {
 	va_list arg_ptr;
 	int i = 0;
 #ifdef EMSCRIPTEN
 	char msg[512];
 #endif
-	asm("");
 	if (clazz == NULL) {
 		clazz = "";
 	}
