@@ -675,6 +675,13 @@ static void hltest(char *name) {
 								repl->instructionCount[repl->instructionPairCount[i].op1].count
 							)/log(2) /
 							repl->instructionCount[repl->instructionPairCount[i].op1].count;
+						repl->instructionCount[repl->instructionPairCount[i].op2].entropyRev -=
+							(double)repl->instructionPairCount[i].count *
+							log(
+								(double)repl->instructionPairCount[i].count /
+								repl->instructionCount[repl->instructionPairCount[i].op2].count
+							)/log(2) /
+							repl->instructionCount[repl->instructionPairCount[i].op2].count;
 						printf("%s(%d) -> %s(%d): %d (%f%%)\n",
 								FY_OP_NAME[repl->instructionPairCount[i].op1],
 								repl->instructionPairCount[i].op1,
@@ -695,13 +702,18 @@ static void hltest(char *name) {
 				printf("Total: %"FY_PRINT64"d\n", total);
 				for (i = 0; i < MAX_INSTRUCTIONS; i++) {
 					if (repl->instructionCount[i].count > 0) {
-						printf("%s(%d): %d (%f%%) entropy: %f%% / %f%%\n",
+						printf("%s(%d): %d (%f%%) entropy: %f%% / %f%% - %f%% / %f%% = %f%% / %f%%\n",
 								FY_OP_NAME[repl->instructionCount[i].op],
 								repl->instructionCount[i].op,
 								repl->instructionCount[i].count,
 								repl->instructionCount[i].count * 100.0 / total,
 								repl->instructionCount[i].entropy * 100.0,
-								repl->instructionCount[i].entropy * 100.0 * repl->instructionCount[i].count / total
+								repl->instructionCount[i].entropy * 100.0 * repl->instructionCount[i].count / total,
+								repl->instructionCount[i].entropyRev * 100.0,
+								repl->instructionCount[i].entropyRev * 100.0 * repl->instructionCount[i].count / total,
+								repl->instructionCount[i].entropy * 100.0 - repl->instructionCount[i].entropyRev * 100.0,
+								(repl->instructionCount[i].entropy * 100.0 - repl->instructionCount[i].entropyRev * 100.0) *
+									repl->instructionCount[i].count / total
 								);
 					}
 				}

@@ -38,7 +38,10 @@
 # define ASM_SHOW
 #endif
 
-#define REPL_MIN 5000
+#ifndef REPL_MIN
+# define REPL_MIN 5000
+#endif
+
 #ifdef FY_INSTRUCTION_COUNT
 # define DEBUG_REPL 1
 #else
@@ -377,17 +380,6 @@ if(unlikely(exception->exceptionType != exception_none)){ \
 	FY_CHECK_OPS_INVOKE(ops); \
 }
 
-static fy_int lookup_op(fy_e2_label_holder *labels, fy_e2_label label) {
-	fy_e2_label_holder *holder = labels;
-	while (holder->op >= 0) {
-		if (holder->label == label) {
-			return holder->op;
-		}
-		holder++;
-	}
-	return -1;
-}
-
 static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
 	fy_e2_label_holder *holder = labels;
 	while (holder->op >= 0) {
@@ -399,7 +391,7 @@ static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
 	return (fy_e2_label) -1;
 }
 
-__attribute__((noinline)) static void calc_repl(fy_context *context,
+static void calc_repl(fy_context *context,
 		fy_method *method, fy_int op, fy_instruction *currInst,
 		fy_int engineNum, fy_e2_label_holder *labels,
 		fy_exception *exception) {
@@ -411,7 +403,6 @@ __attribute__((noinline)) static void calc_repl(fy_context *context,
 	fy_int nextOp;
 	fy_int count;
 	fy_int toOp;
-	asm ("");
 	if (repl_data[op] != NULL) {
 		nextOp = method->instruction_ops[FY_PDIFF(fy_instruction, currInst, method->instructions) + 1];
 		if (nextOp < 0) {
@@ -429,6 +420,7 @@ __attribute__((noinline)) static void calc_repl(fy_context *context,
 						FY_OP_NAME[op], op, currInst->inst, FY_OP_NAME[nextOp], nextOp, FY_OP_NAME[toOp], toOp, currInst->inst, method->utf8Name, currInst)
 				;					//
 #endif
+				method->instruction_ops[FY_PDIFF(fy_instruction, currInst, method->instructions)] = toOp;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 				currInst->op = toOp;
 #endif
@@ -487,13 +479,12 @@ __attribute__((noinline)) static void calc_repl(fy_context *context,
 #define RCAL(OP)
 #endif
 
-__attribute__((noinline))    static fy_int opLDC(fy_context *context,
+static fy_int opLDC(fy_context *context,
 		fy_class *owner, fy_char index, fy_exception *exception) {
 	ConstantStringInfo *constantStringInfo;
 	ConstantClass *constantClass;
 	fy_class *clazz;
 	fy_int hvalue;
-	asm ("");
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Integer:
 	case CONSTANT_Float:
@@ -522,9 +513,8 @@ __attribute__((noinline))    static fy_int opLDC(fy_context *context,
 	}
 }
 
-__attribute__((noinline))    static fy_long opLDC2(fy_context *context,
+static fy_long opLDC2(fy_context *context,
 		fy_class *owner, fy_char index, fy_exception *exception) {
-	asm ("");
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Double:
 	case CONSTANT_Long:
