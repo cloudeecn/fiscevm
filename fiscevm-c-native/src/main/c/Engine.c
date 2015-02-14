@@ -93,12 +93,12 @@
 
 #ifdef FY_INSTRUCTION_COUNT
 # define INST_COUNT(ipp) ({ \
-	context->engineReplData[FY_ENGINE_NUM].instructionPairCount[context->engineReplData[FY_ENGINE_NUM].last_op * MAX_INSTRUCTIONS + ipp->op].op1 = context->engineReplData[FY_ENGINE_NUM].last_op; \
-	context->engineReplData[FY_ENGINE_NUM].instructionPairCount[context->engineReplData[FY_ENGINE_NUM].last_op * MAX_INSTRUCTIONS + ipp->op].op2 = ipp->op; \
-	context->engineReplData[FY_ENGINE_NUM].instructionPairCount[context->engineReplData[FY_ENGINE_NUM].last_op * MAX_INSTRUCTIONS + ipp->op].count++; \
-	context->engineReplData[FY_ENGINE_NUM].last_op = \
-	context->engineReplData[FY_ENGINE_NUM].instructionCount[ipp->op].op = ipp->op; \
-	context->engineReplData[FY_ENGINE_NUM].instructionCount[ipp->op].count++; \
+	context->engines[FY_ENGINE_NUM].replData.instructionPairCount[context->engines[FY_ENGINE_NUM].replData.last_op * MAX_INSTRUCTIONS + ipp->op].op1 = context->engines[FY_ENGINE_NUM].replData.last_op; \
+	context->engines[FY_ENGINE_NUM].replData.instructionPairCount[context->engines[FY_ENGINE_NUM].replData.last_op * MAX_INSTRUCTIONS + ipp->op].op2 = ipp->op; \
+	context->engines[FY_ENGINE_NUM].replData.instructionPairCount[context->engines[FY_ENGINE_NUM].replData.last_op * MAX_INSTRUCTIONS + ipp->op].count++; \
+	context->engines[FY_ENGINE_NUM].replData.last_op = \
+	context->engines[FY_ENGINE_NUM].replData.instructionCount[ipp->op].op = ipp->op; \
+	context->engines[FY_ENGINE_NUM].replData.instructionCount[ipp->op].count++; \
 })
 #else
 # define INST_COUNT(ipp)
@@ -396,7 +396,7 @@ static void calc_repl(fy_context *context,
 		fy_int engineNum, fy_e2_label_holder *labels,
 		fy_exception *exception) {
 #define PAIR_OF(OP, NEXT_OP) ((OP) * 1031 + (NEXT_OP))
-    fy_engine_repl_data *engine_repl_data = context->engineReplData + engineNum;
+    fy_engine_repl_data *engine_repl_data = &context->engines[engineNum].replData;
 	fy_repl_data **repl_data = engine_repl_data->repl_data;
 	fy_hashMapI *repl_count = engine_repl_data->repl_count;
 	fy_hashMapI *repl_result = engine_repl_data->repl_result;

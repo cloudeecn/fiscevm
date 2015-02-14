@@ -2180,7 +2180,7 @@ dropout ( -- )
 \C#ifdef FY_ENGINE_HEADER
 \C    label_fallout_invoke:
 \C#ifdef FY_INSTRUCTION_COUNT
-\C    context->engineReplData[FY_ENGINE_NUM].last_op = 0x1ff;
+\C    context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;
 \C#endif
 \C    return ops;
 \C  }

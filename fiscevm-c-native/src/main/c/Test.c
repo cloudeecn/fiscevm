@@ -655,7 +655,7 @@ static void hltest(char *name) {
 			fy_log("VM dead\n");
 #ifdef FY_INSTRUCTION_COUNT
 			for(engineNum = 0; engineNum < FY_ENGINE_COUNT; engineNum++){
-				repl = context->engineReplData + engineNum;
+				repl = &context->engines[engineNum].replData;
 				total = 0;
 				printf("\n\n\nInstructions pair usage %d:\n", engineNum);
 				qsort(repl->instructionPairCount,

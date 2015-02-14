@@ -24,7 +24,7 @@
 #include "../fy_util/MemMan.h"
 #include "../fy_util/String.h"
 #include "../fy_util/Debug.h"
-#include "../fiscestu.h"
+#include "ClassStruct.h"
 #include "VMContext.h"
 #include "Class.h"
 #include "Data.h"
@@ -32,6 +32,8 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+void fy_clDefineClass(fy_context *context, fy_str *name, fy_byte *data,
+		fy_int dataLen, fy_exception *exception);
 fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
 		fy_char idx);
 fy_class *fy_clLoadclass(fy_context *context, fy_str *name,

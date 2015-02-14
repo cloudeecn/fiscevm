@@ -484,8 +484,12 @@ static void mkReplData(fy_context *context, fy_exception *exception,
 static void initEngine(fy_context *context, fy_exception *exception) {
 	int i;
 
+	context->engines = fy_mmAllocatePerm(context->memblocks,
+			sizeof(fy_engine) * FY_ENGINE_COUNT, exception);
+	FYEH();
+
 	for (i = 0; i < FY_ENGINE_COUNT; i++) {
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_iload, 24, //
 				FY_OP_iload_r0,
 				FY_OP_iload_r1,
@@ -511,13 +515,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_iload_r21,
 				FY_OP_iload_r22,
 				FY_OP_iload_r23);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_istore, 4, //
 				FY_OP_istore_r0,
 				FY_OP_istore_r1,
 				FY_OP_istore_r2,
 				FY_OP_istore_r3);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_sipush, 8, //
 				FY_OP_sipush_r0,
 				FY_OP_sipush_r1,
@@ -527,13 +531,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_sipush_r5,
 				FY_OP_sipush_r6,
 				FY_OP_sipush_r7);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_iinc, 4, //
 				FY_OP_iinc_r0,
 				FY_OP_iinc_r1,
 				FY_OP_iinc_r2,
 				FY_OP_iinc_r3);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_getfield_n, 8, //
 				FY_OP_getfield_n_r0,
 				FY_OP_getfield_n_r1,
@@ -543,13 +547,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_getfield_n_r5,
 				FY_OP_getfield_n_r6,
 				FY_OP_getfield_n_r7);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_putfield_n, 4, //
 				FY_OP_putfield_n_r0,
 				FY_OP_putfield_n_r1,
 				FY_OP_putfield_n_r2,
 				FY_OP_putfield_n_r3);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_getstatic_n, 6, //
 				FY_OP_getstatic_n_r0,
 				FY_OP_getstatic_n_r1,
@@ -557,28 +561,28 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_getstatic_n_r3,
 				FY_OP_getstatic_n_r4,
 				FY_OP_getstatic_n_r5);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_putstatic_n, 12, //
 				FY_OP_putstatic_n_r0,
 				FY_OP_putstatic_n_r1,
 				FY_OP_putstatic_n_r2,
 				FY_OP_putstatic_n_r3);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_fadd, 3, //
 				FY_OP_fadd_r0,
 				FY_OP_fadd_r1,
 				FY_OP_fadd_r2);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_iadd, 3, //
 				FY_OP_iadd_r0,
 				FY_OP_iadd_r1,
 				FY_OP_iadd_r2);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_iastore, 3, //
 				FY_OP_iastore_r0,
 				FY_OP_iastore_r1,
 				FY_OP_iastore_r2);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_iaload, 6, //
 				FY_OP_iaload_r0,
 				FY_OP_iaload_r1,
@@ -586,52 +590,50 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_iaload_r3,
 				FY_OP_iaload_r4,
 				FY_OP_iaload_r5);
-		mkReplData(context, exception, context->engineReplData[i].repl_data,
+		mkReplData(context, exception, context->engines[i].replData.repl_data,
 		FY_OP_nop, 3, //
 				FY_OP_nop_r0,
 				FY_OP_nop_r1,
 				FY_OP_nop_r2);
 		fy_hashMapIInit(context->memblocks,
-				context->engineReplData[i].repl_count, 8, 12, 0, exception);
+				context->engines[i].replData.repl_count, 8, 12, 0, exception);
 		FYEH();
 		fy_hashMapIInit(context->memblocks,
-				context->engineReplData[i].repl_result, 6, 12, -1, exception);
+				context->engines[i].replData.repl_result, 6, 12, -1, exception);
 		FYEH();
 #ifdef FY_INSTRUCTION_COUNT
-		context->engineReplData[i].last_op = FY_OP_none;
+		context->engines[i].replData.last_op = FY_OP_none;
 #endif
 	}
-	context->engines = fy_mmAllocatePerm(context->memblocks,
-			sizeof(fy_engine) * FY_ENGINE_COUNT, exception);
-	FYEH();
-	context->engines[0] = fy_thread_runner_00;
+
+	context->engines[0].runner = fy_thread_runner_00;
 
 #if FY_ENGINE_COUNT >= 2
-	context->engines[1] = fy_thread_runner_01;
+	context->engines[1].runner = fy_thread_runner_01;
 #endif
 
 #if FY_ENGINE_COUNT >= 3
-	context->engines[2] = fy_thread_runner_02;
+	context->engines[2].runner = fy_thread_runner_02;
 #endif
 
 #if FY_ENGINE_COUNT >= 4
-	context->engines[3] = fy_thread_runner_03;
+	context->engines[3].runner = fy_thread_runner_03;
 #endif
 
 #if FY_ENGINE_COUNT >= 5
-	context->engines[4] = fy_thread_runner_04;
+	context->engines[4].runner = fy_thread_runner_04;
 #endif
 
 #if FY_ENGINE_COUNT >= 6
-	context->engines[5] = fy_thread_runner_05;
+	context->engines[5].runner = fy_thread_runner_05;
 #endif
 
 #if FY_ENGINE_COUNT >= 7
-	context->engines[6] = fy_thread_runner_06;
+	context->engines[6].runner = fy_thread_runner_06;
 #endif
 
 #if FY_ENGINE_COUNT >= 8
-	context->engines[7] = fy_thread_runner_07;
+	context->engines[7].runner = fy_thread_runner_07;
 #endif
 	context->engineCount = FY_ENGINE_COUNT;
 }
@@ -666,7 +668,8 @@ void fy_vmContextInit(fy_context *context, fy_exception *exception) {
 			"Initialing vm, context size=%d bytes including heap size=%d bytes,including object meta=%d bytes\n",
 			(fy_int) sizeof(fy_context), (fy_int) sizeof(fy_memblock),
 			MAX_OBJECTS * (fy_int) sizeof(fy_object))
-;	fy_mmInit(context->memblocks, exception);
+;
+	fy_mmInit(context->memblocks, exception);
 	FYEH();
 	fy_bsRegisterBinarySaver(context);
 	fy_fisInitInputStream(context, exception);
@@ -1113,24 +1116,6 @@ fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
 		}
 	}
 	return clazz;
-}
-
-void fy_vmDefineClass(fy_context *context, fy_str *name, fy_byte *data,
-		fy_int dataLen, fy_exception *exception) {
-	fy_classDefine *cd;
-	cd = fy_hashMapGet(context->memblocks, context->customClassData, name);
-	if (cd == NULL) {
-		cd = fy_mmAllocatePerm(context->memblocks, sizeof(fy_int) + dataLen,
-				exception);
-		FYEH();
-		cd->size = dataLen;
-		memcpy(cd->data, data, dataLen);
-		fy_hashMapPut(context->memblocks, context->customClassData, name, cd,
-				exception);
-		FYEH();
-	} else {
-		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Class define dup.");
-	}
 }
 
 /*Likes com.cirnoworks.fisce.vm.VMContext.getClass(String name)*/

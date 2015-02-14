@@ -24,6 +24,11 @@
 # endif
 #endif
 
+typedef struct fy_classDefine {
+	fy_int size;
+	FY_VLS(fy_byte,data);
+}fy_classDefine;
+
 #ifdef FY_DEBUG
 static int checkConstantBonud(fy_class *clazz, int idx, fy_exception *exception) {
 	if (idx > clazz->constantPoolCount) {
@@ -1343,4 +1348,22 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	fy_hashMapIInitPerm(block, clazz->virtualTable, 3, -1, exception);
 	FYEH()NULL;
 	return clazz;
+}
+
+void fy_clDefineClass(fy_context *context, fy_str *name, fy_byte *data,
+		fy_int dataLen, fy_exception *exception) {
+	fy_classDefine *cd;
+	cd = fy_hashMapGet(context->memblocks, context->customClassData, name);
+	if (cd == NULL) {
+		cd = fy_mmAllocatePerm(context->memblocks, sizeof(fy_int) + dataLen,
+				exception);
+		FYEH();
+		cd->size = dataLen;
+		memcpy(cd->data, data, dataLen);
+		fy_hashMapPut(context->memblocks, context->customClassData, name, cd,
+				exception);
+		FYEH();
+	} else {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "Class define dup.");
+	}
 }

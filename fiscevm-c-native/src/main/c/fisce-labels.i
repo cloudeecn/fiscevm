@@ -342,7 +342,7 @@ INST_ADDR(dropout),
 #ifdef FY_ENGINE_HEADER
     label_fallout_invoke:
 #ifdef FY_INSTRUCTION_COUNT
-    context->engineReplData[FY_ENGINE_NUM].last_op = 0x1ff;
+    context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;
 #endif
     return ops;
   }

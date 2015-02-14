@@ -2276,7 +2276,7 @@ static fy_int proxyDefineClassImpl(struct fy_context *context,
 		fy_strDestroy(context->memblocks, str);
 		return 0;
 	}
-	fy_vmDefineClass(context, str, buf + offset, length, exception);
+	fy_clDefineClass(context, str, buf + offset, length, exception);
 	if (exception->exceptionType != exception_none) {
 		fy_strDestroy(context->memblocks, str);
 		return 0;

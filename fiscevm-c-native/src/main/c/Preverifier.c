@@ -911,7 +911,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 
 	fy_e2_label_holder *labels;
 	fy_e2_label labelsByOp[0x200];
-	fy_engine engine;
+	fy_engine *engine;
 
 	fy_uint ivalue3, ivalue, ivalue2, ivalue4;
 #ifdef FY_VERBOSE_PREVERIFIER
@@ -927,10 +927,11 @@ void fy_preverify(fy_context *context, fy_method *method,
 		FYEH();
 	}
 
-	engine = context->engines[method->method_id % context->engineCount];
+	engine = context->engines + (method->method_id % context->engineCount);
 	memset(labelsByOp, 0, sizeof(labelsByOp));
 
-	(*engine)(context, NULL, NULL, 0, exception, &labels);
+
+	(*(engine->runner))(context, NULL, NULL, 0, exception, &labels);
 	FYEH();
 	while (labels->op >= 0) {
 		labelsByOp[labels->op] = labels->label;
