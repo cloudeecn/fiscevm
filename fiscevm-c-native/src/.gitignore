@@ -1,0 +1,8 @@
+/.settings
+/.project
+/.cproject
+/Build
+/Debug
+/Release
+/*.dat
+/*.log
