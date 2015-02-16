@@ -20,7 +20,7 @@
 #ifndef FY_THREADMANAGER_H_
 #define FY_THREADMANAGER_H_
 
-#include "fisce.h"
+#include "fy_util/Portable.h"
 #include "fyc/VMContext.h"
 #include "fyc/Thread.h"
 

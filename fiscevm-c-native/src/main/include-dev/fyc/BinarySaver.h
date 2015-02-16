@@ -3,12 +3,12 @@
  *
  * This file is part of fiscevm
  *
- * fiscevm is free software: you can redistribute it and/or modify
+ *fiscevmis free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- * fiscevm is distributed in the hope that it will be useful,
+ *fiscevmis distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
@@ -17,19 +17,15 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RIS_H_
-#define RIS_H_
+#ifndef BINARYSAVER_H_
+#define BINARYSAVER_H_
 
-#include "fisce.h"
 #include "fyc/VMContext.h"
-
 #ifdef	__cplusplus
 extern "C" {
 #endif
-void fy_risInit(fy_context *context, fy_exception *exception);
-void fy_risDestroy(fy_context *context);
-
+void fy_bsRegisterBinarySaver(fy_context *context);
 #ifdef	__cplusplus
-|
+}
 #endif
-#endif /* RIS_H_ */
+#endif /* BINARYSAVER_H_ */

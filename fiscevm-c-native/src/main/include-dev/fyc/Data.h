@@ -17,25 +17,29 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FY_CLASSLOADER_H
-#define	FY_CLASSLOADER_H
+#ifndef FY_DATA_H
+#define	FY_DATA_H
 
-#include "fisce.h"
-#include "fyc/ClassStruct.h"
+#include "fy_util/Portable.h"
 #include "fyc/VMContext.h"
+#include "fyc/InputStream.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-void fy_clDefineClass(fy_context *context, fy_str *name, fy_byte *data,
-		fy_int dataLen, fy_exception *exception);
-fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
-		fy_char idx);
-fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
+
+fy_ubyte fy_dataRead(fy_context *context, fy_inputStream *is, fy_exception *exception);
+fy_char fy_dataRead2(fy_context *context, fy_inputStream *is, fy_exception *exception);
+fy_uint fy_dataRead4(fy_context *context, fy_inputStream *is, fy_exception *exception);
+fy_ulong fy_dataRead8(fy_context *context, fy_inputStream *is, fy_exception *exception);
+void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT fy_inputStream* is,
+		FY_ATTR_RESTRICT void* buffer, fy_int size, fy_exception *exception);
+void fy_dataSkip(fy_context *context, fy_inputStream *is, int size,
 		fy_exception *exception);
-void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception);
+
 #ifdef	__cplusplus
 }
 #endif
-#endif	/* FY_CLASSLOADER_H */
+
+#endif	/* FY_DATA_H */
 

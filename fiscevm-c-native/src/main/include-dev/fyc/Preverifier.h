@@ -3,12 +3,12 @@
  *
  * This file is part of fiscevm
  *
- * fiscevm is free software: you can redistribute it and/or modify
+ *fiscevmis free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- * fiscevm is distributed in the hope that it will be useful,
+ *fiscevmis distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
@@ -16,19 +16,20 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FY_COREHANDLERS_H_
-#define FY_COREHANDLERS_H_
+#ifndef PREVERIFER_H_
+#define PREVERIFER_H_
 
-#include "fisce.h"
+#include "fy_util/Portable.h"
+
+#include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif
-void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception);
-
-void fy_coreRegisterMathHandlers(fy_context *context, fy_exception *exception);
+void fy_preverify(fy_context *context, fy_method *method,
+		fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif
 
-#endif /* FY_COREHANDLERS_H_ */
+#endif /* PREVERIFER_H_ */

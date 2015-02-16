@@ -17,17 +17,22 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/Instructions.h"
-#include <math.h>
-#include <string.h>
-#include <time.h>
-
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
 #include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
+#include "fyc/Thread.h"
+
+#include "fy_util/Debug.h"
+#include "fyc/Debug.h"
+
 #include "fy_util/ArrList.h"
 #include "fy_util/HashMap.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
-#include "fyc/Config.h"
+
+#include "fyc/Instructions.h"
 #include "fyc/Constants.h"
 #include "fyc/Class.h"
 #include "fyc/Heap.h"
@@ -35,7 +40,10 @@
 #include "fyc/ThreadManager.h"
 #include "fyc/VMContext.h"
 
-#include "fyc/Thread.h"
+#include <math.h>
+#include <string.h>
+#include <time.h>
+
 
 static fy_nh _NO_HANDLER;
 fy_nh *FY_NH_NO_HANDLER = &_NO_HANDLER;

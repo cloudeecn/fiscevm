@@ -19,6 +19,11 @@
 #ifndef FY_CLASS_STRUCT_H
 #define	FY_CLASS_STRUCT_H
 
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
 #include "fisce.h"
 #include "fy_util/String.h"
 #include "fy_util/HashMapI.h"

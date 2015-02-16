@@ -17,46 +17,27 @@
  * along with fiscevm. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
 #include "fy_util/Debug.h"
+#include "fyc/Debug.h"
 #include <stdarg.h>
 
-static void fy_strPrint0(FILE *fp, const fy_str *str) {
-	int i, count;
-	fy_char unicode;
-	char buf[4];
-	char *tmp;
-	fy_int left;
-	count = str->length;
-	for (i = 0; i < count; i++) {
-		unicode = fy_strGet(str,i);
-		tmp = buf;
-		left = 3;
-		fy_utf8Write(unicode, &tmp, &left);
-		*tmp = 0;
-		fprintf(fp, "%s", buf);
-	}
+static void stdoutLogStr(fy_context *context, const fy_str *str) {
+	fy_strFPrint(stdout, str);
 }
 
-FY_ATTR_EXPORT void fy_strFPrint(FILE *fp, const fy_str *str) {
-	fy_strPrint0(fp, str);
-}
-
-FY_ATTR_EXPORT void fy_strPrint(const fy_str *str) {
-	fy_strPrint0(stdout, str);
-}
-
-static void stdoutLogStr(struct fy_context *context, const fy_str *str) {
-	fy_strPrint0(stdout, str);
-}
-
-static void stdoutLogVar(struct fy_context *context, const char *format, ...) {
+static void stdoutLogVar(fy_context *context, const char *format, ...) {
 	va_list arg_ptr;
 	va_start(arg_ptr, format);
 	vfprintf(stdout, format, arg_ptr);
 	va_end(arg_ptr);
 }
 
-static void stdoutLogVarLn(struct fy_context *context, const char *format, ...) {
+static void stdoutLogVarLn(fy_context *context, const char *format, ...) {
 	va_list arg_ptr;
 	va_start(arg_ptr, format);
 	vfprintf(stdout, format, arg_ptr);
@@ -64,18 +45,18 @@ static void stdoutLogVarLn(struct fy_context *context, const char *format, ...) 
 	fprintf(stdout, "\n");
 }
 
-static void stderrLogStr(struct fy_context *context, const fy_str *str) {
-	fy_strPrint0(stderr, str);
+static void stderrLogStr(fy_context *context, const fy_str *str) {
+	fy_strFPrint(stderr, str);
 }
 
-static void stderrLogVar(struct fy_context *context, const char *format, ...) {
+static void stderrLogVar(fy_context *context, const char *format, ...) {
 	va_list arg_ptr;
 	va_start(arg_ptr, format);
 	vfprintf(stderr, format, arg_ptr);
 	va_end(arg_ptr);
 }
 
-static void stderrLogVarLn(struct fy_context *context, const char *format, ...) {
+static void stderrLogVarLn(fy_context *context, const char *format, ...) {
 	va_list arg_ptr;
 	va_start(arg_ptr, format);
 	vfprintf(stderr, format, arg_ptr);
@@ -83,13 +64,13 @@ static void stderrLogVarLn(struct fy_context *context, const char *format, ...) 
 	fprintf(stderr, "\n");
 }
 #ifndef FY_DEBUG
-static void nullLogStr(struct fy_context *context, const fy_str *str) {
+static void nullLogStr(fy_context *context, const fy_str *str) {
 }
 
-static void nullLogVar(struct fy_context *context, const char *format, ...) {
+static void nullLogVar(fy_context *context, const char *format, ...) {
 }
 
-static void nullLogVarLn(struct fy_context *context, const char *format, ...) {
+static void nullLogVarLn(fy_context *context, const char *format, ...) {
 }
 #endif
 

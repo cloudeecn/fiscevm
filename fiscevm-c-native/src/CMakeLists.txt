@@ -22,7 +22,7 @@ project (fiscevm-c-native)
 
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 
-include_directories(main/include main/include-public)
+include_directories(main/include main/include-public main/include-dev)
 
 SET(SRC_LIST_UTILS
     main/utils/Portable.c
@@ -42,6 +42,7 @@ SET(SRC_LIST_LIB
     main/vmcore/ClassLoader.c
     main/vmcore/CoreHandlers.c
     main/vmcore/MathHandlers.c
+    main/vmcore/Debug.c
     main/vmcore/Data.c
     main/vmcore/Heap.c
     main/vmcore/Instructions.c

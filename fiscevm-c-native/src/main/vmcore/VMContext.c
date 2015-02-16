@@ -17,6 +17,13 @@
  * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
+#include "fy_util/Debug.h"
+#include "fyc/Debug.h"
 #include "fyc/VMContext.h"
 #include "fyc/Constants.h"
 #include "fyc/ClassLoader.h"

@@ -17,6 +17,11 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
 #include "fyc/BAIS.h"
 typedef struct baisData {
 	fy_byte *buf;

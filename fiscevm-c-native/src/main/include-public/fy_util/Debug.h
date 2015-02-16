@@ -34,7 +34,7 @@ FY_ATTR_EXPORT void fy_strPrint(const fy_str *str);
 #ifdef FY_DEBUG
 # define ASSERT(TEST) {if(!(TEST)) fy_fault(NULL,NULL,"ASSERTION ERROR IN %s:%d", __FILE__,__LINE__);}
 #else
-#define ASSERT(TEST)
+# define ASSERT(TEST)
 # endif
 
 #ifdef	__cplusplus

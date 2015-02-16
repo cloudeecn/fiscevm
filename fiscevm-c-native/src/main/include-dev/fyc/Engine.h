@@ -20,6 +20,11 @@
 #ifndef FYC_ENGINE_H_
 #define FYC_ENGINE_H_
 
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
 #include "fisce.h"
 #include "fyc/Config.h"
 #include "fyc/ClassStruct.h"

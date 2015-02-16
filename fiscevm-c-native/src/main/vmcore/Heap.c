@@ -17,10 +17,17 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/Heap.h"
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
 #include "fyc/Config.h"
+
+#include "fyc/Heap.h"
+
+#include "fy_util/Debug.h"
 #include "fyc/Constants.h"
 #include "fyc/Thread.h"
+#include "fyc/Debug.h"
 
 #if 0
 # ifndef FY_GC_DEBUG

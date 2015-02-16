@@ -20,8 +20,11 @@
 #ifndef FISCEDEV_H_
 #define FISCEDEV_H_
 
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
 #include "fy_util/Portable.h"
 #include "fyc/Config.h"
+
 #include "fyc/ClassStruct.h"
 #include "fyc/Thread.h"
 #include "fyc/VMContext.h"

@@ -16,24 +16,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FY_BAIS_H_
-#define FY_BAIS_H_
 
-#include "fisce.h"
-#include "fyc/Config.h"
+#ifndef FY_CLASSLOADER_H
+#define	FY_CLASSLOADER_H
+
+#include "fy_util/Portable.h"
+#include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
-#include "fyc/InputStream.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-FY_ATTR_EXPORT fy_inputStream *fy_baisOpenByteArrayInputStream(
-		fy_context *context, void *buffer, fy_int bufferLen,
+void fy_clDefineClass(fy_context *context, fy_str *name, fy_byte *data,
+		fy_int dataLen, fy_exception *exception);
+fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
+		fy_char idx);
+fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		fy_exception *exception);
-
+void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception);
 #ifdef	__cplusplus
 }
 #endif
+#endif	/* FY_CLASSLOADER_H */
 
-#endif /* ARRLIST_H_ */

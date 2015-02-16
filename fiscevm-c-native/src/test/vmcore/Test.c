@@ -17,13 +17,21 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fisceprt.h"
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
+#include "fisce.h"
+#include "fy_util/Debug.h"
+#include "fyc/Debug.h"
 #include "fy_util/HashMap.h"
 #include "fy_util/LnkList.h"
 #include "fy_util/String.h"
 #include "fy_util/Utf8.h"
 #include "fy_util/Debug.h"
-#include "fiscestu.h"
+#include "fyc/Constants.h"
+#include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
 #include "fyc/Class.h"
 #include "fyc/Data.h"
@@ -775,10 +783,8 @@ static void hltest2(char *name) {
 
 		switch (message.messageType) {
 		case message_invoke_native:
-			fy_strSPrint(msg, sizeof(msg),
-					message.body.call.method->uniqueName);
 			fy_log("Stopped at invoke native for thread %d: %s\n",
-					message.thread->threadId, msg);
+					message.threadId, message.body.call.methodName);
 			FY_ASSERT("Core native functions not implemented"==NULL)
 			;
 			dead = 1;

@@ -20,8 +20,11 @@
 #ifndef INSTRUCTIONS_H_
 #define INSTRUCTIONS_H_
 
-#include "fisce.h"
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
 #include "fyc/Config.h"
+
 #include "fyc/Engine.h"
 
 #define FY_OP_nop  0x00

@@ -39,7 +39,7 @@ public class Linpack {
 
   public static void main(String[] args) throws InterruptedException
   {
-	  for(int i=0;i<20;i++){
+	  for(int i=0;i<40;i++){
 	    Linpack l = new Linpack();
 	    l.run_benchmark();
 	    Thread.sleep(500);

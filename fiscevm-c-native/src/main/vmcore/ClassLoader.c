@@ -16,6 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along withfiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
 #include "fyc/ClassLoader.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"

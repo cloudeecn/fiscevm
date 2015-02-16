@@ -16,8 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "fiscedev.h"
 
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
+#include "fiscedev.h"
+#include "fyc/Instructions.h"
 #include "fyc/Thread.h"
 FY_ATTR_EXPORT void fy_nativeReturnInt(fy_context *context, fy_thread *thread,
 		fy_int value) {

@@ -17,11 +17,16 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+
 #include "com_cirnoworks_libfisce_shell_FisceService.h"
 #include "fisce.h"
-#include "fisceprt.h"
-#include "fiscestu.h"
 #include "fiscedev.h"
+#include "fyc/ClassStruct.h"
+#include "fyc/Heap.h"
 
 static jclass messageClass = NULL;
 

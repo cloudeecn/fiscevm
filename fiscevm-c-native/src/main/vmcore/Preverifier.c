@@ -17,8 +17,12 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "fyc/Preverifier.h"
+/* pedantic: Every C code and header with structure definition in FiScE
+ * should include following two headers at very first*/
+#include "fy_util/Portable.h"
 #include "fyc/Config.h"
+
+#include "fyc/Preverifier.h"
 #include "fyc/Constants.h"
 #include "fyc/Instructions.h"
 

@@ -16,52 +16,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "fisceprt.h"
-#include "fisceclz.h"
-#include "fy_util/LnkList.h"
-#include "fy_util/MemMan.h"
-#include "fy_util/String.h"
-#include "fy_util/HashMap.h"
-#include "fy_util/HashMapI.h"
-#include "fy_util/ArrList.h"
-#include "fyc/ClassStruct.h"
-#include "fyc/Engine.h"
-#ifndef FISCESTU_H_
-#define FISCESTU_H_
+#ifndef FY_BAIS_H_
+#define FY_BAIS_H_
 
-
-
+#include "fy_util/Portable.h"
+#include "fyc/VMContext.h"
+#include "fyc/InputStream.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-	typedef struct fy_instruction fy_instruction;
-	typedef struct fy_instruction_extra fy_instruction_extra;
-
-	struct fy_nh;
-	struct fy_class;
-	struct fy_context;
-	struct fy_thread;
-	struct fy_message;
-	struct fy_frame;
-
-
-
-
-
-
-
-	struct fy_context;
-
-
-
-
-
-
+FY_ATTR_EXPORT fy_inputStream *fy_baisOpenByteArrayInputStream(
+		fy_context *context, void *buffer, fy_int bufferLen,
+		fy_exception *exception);
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif /* FISCESTU_H_ */
+#endif /* ARRLIST_H_ */
