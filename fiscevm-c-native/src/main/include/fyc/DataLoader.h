@@ -20,7 +20,7 @@
 #ifndef DATALOADER_H_
 #define DATALOADER_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/VMContext.h"
 
 #ifdef	__cplusplus

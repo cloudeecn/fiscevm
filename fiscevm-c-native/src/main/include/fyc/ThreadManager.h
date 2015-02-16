@@ -20,7 +20,10 @@
 #ifndef FY_THREADMANAGER_H_
 #define FY_THREADMANAGER_H_
 
-#include "VMContext.h"
+#include "fisce.h"
+#include "fyc/VMContext.h"
+#include "fyc/Thread.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

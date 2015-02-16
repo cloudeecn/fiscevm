@@ -20,23 +20,13 @@
 #ifndef FY_THREAD_H_
 #define FY_THREAD_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/ClassStruct.h"
+#include "fyc/VMContext.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-typedef struct fy_nh {
-	void *data;
-	fy_nhFunction handler;
-}fy_nh;
-
-typedef union fy_stack_item {
-	fy_uint uvalue;
-	fy_int ivalue;
-	fy_float fvalue;
-}fy_stack_item;
 
 typedef struct fy_frame {
 	fy_method *method;
@@ -62,33 +52,6 @@ typedef union fy_stack_wide_item {
 	fy_long lvalue;
 }fy_stack_wide_item;
 
-typedef struct fy_nativeCall {
-	fy_method *method;
-	fy_uint paramCount;
-	fy_stack_item *params;
-}fy_nativeCall;
-
-typedef enum fy_messageType {
-	/*message_continue = 0, In thread*/
-	message_none = 1, /*Thread Only*/
-	message_thread_dead = 2, /*Thread Only*/
-	message_invoke_native = 3,/*Thread And TM pass thread*/
-	/*message_exception = 4, Thread And TM pass thread*/
-	message_sleep = 5, /*TM Only*/
-	message_vm_dead = 6
-	/*TM Only*/
-}fy_messageType;
-
-typedef struct fy_message {
-	fy_messageType messageType;
-	fy_thread *thread;
-	/*We care more about stability than some hundreds bytes of memory*/
-	struct {
-		fy_nativeCall call;
-		fy_long sleepTime;
-	}body;
-
-}fy_message;
 
 typedef struct fy_thread {
 

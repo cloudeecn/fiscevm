@@ -20,7 +20,7 @@
 #ifndef FY_DATA_H
 #define	FY_DATA_H
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/VMContext.h"
 #include "fyc/InputStream.h"
 

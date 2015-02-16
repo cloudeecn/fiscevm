@@ -20,7 +20,7 @@
 #ifndef RIS_H_
 #define RIS_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/VMContext.h"
 
 #ifdef	__cplusplus

@@ -17,21 +17,23 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include "fyc/CoreHandlers.h"
+#include "fyc/CoreHandlers.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 
 #include "fiscedev.h"
-#include "fisceprt.h"
-#include "fiscestu.h"
+#include "fy_util/Portable.h"
 #include "fy_util/ArrList.h"
 #include "fy_util/HashMap.h"
 #include "fy_util/HashMapI.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
 #include "fy_util/Utf8.h"
+#include "fyc/Config.h"
+#include "fyc/Constants.h"
+#include "fyc/ClassStruct.h"
 #include "fyc/Class.h"
 #include "fyc/Heap.h"
 #include "fyc/Thread.h"

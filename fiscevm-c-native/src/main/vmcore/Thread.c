@@ -22,12 +22,13 @@
 #include <string.h>
 #include <time.h>
 
-#include "fisceprt.h"
-#include "fiscestu.h"
+#include "fy_util/Portable.h"
 #include "fy_util/ArrList.h"
 #include "fy_util/HashMap.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
+#include "fyc/Config.h"
+#include "fyc/Constants.h"
 #include "fyc/Class.h"
 #include "fyc/Heap.h"
 #include "fyc/Preverifier.h"
@@ -456,7 +457,7 @@ static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 			nh = method->nh = (nh == NULL ? FY_NH_NO_HANDLER : nh);
 		}
 		if (nh == FY_NH_NO_HANDLER) {
-			thread->pendingNative.method = method;
+			thread->pendingNative.methodName = method->utf8Name;
 			thread->pendingNative.paramCount = paramsCount;
 			thread->pendingNative.params = spp;
 			ops = 0;
@@ -768,11 +769,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				FYEH();
 			}
 		}
-		if (thread->pendingNative.method) {
+		if (thread->pendingNative.methodName) {
 			message->messageType = message_invoke_native;
-			message->thread = thread;
+			message->threadId = thread->threadId;
 			message->body.call = thread->pendingNative;
-			thread->pendingNative.method = NULL;
+			thread->pendingNative.methodName = NULL;
 		}
 	}
 }

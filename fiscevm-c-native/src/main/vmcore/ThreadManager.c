@@ -18,7 +18,9 @@
  */
 
 #include "fyc/ThreadManager.h"
-#include "fyc/NConfig.h"
+#include "fyc/Config.h"
+#include "fyc/Constants.h"
+#include "fyc/Heap.h"
 
 static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 		fy_exception *exception) {
@@ -457,7 +459,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 							context->pricmds[thread->priority], exception);
 					fy_heapEndProtect(context);
 					if(exception->exceptionType != exception_none){
-						message->thread = thread;
+						message->threadId = thread->threadId;
 						return;
 					}
 					switch (message->messageType) {
@@ -471,7 +473,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 						break;
 					case message_invoke_native:
 						/*send invoke native message*/
-						message->thread = thread;
+						message->threadId = thread->threadId;
 						fy_heapBeginProtect(context);
 						return;
 					case message_thread_dead:

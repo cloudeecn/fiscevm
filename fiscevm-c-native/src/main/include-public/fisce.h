@@ -16,16 +16,54 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _FY_FISCE_H
-#define _FY_FISCE_H
 
-#include "fisceprt.h"
-#include "fiscestu.h"
-#include "fiscedev.h"
+#ifndef MAIN_INCLUDE_PUBLIC_FISCE_H_
+#define MAIN_INCLUDE_PUBLIC_FISCE_H_
 
-#ifdef	__cplusplus
+#include "fy_util/Portable.h"
+
+#ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct fy_context fy_context;
+
+typedef union fy_stack_item {
+	fy_uint uvalue;
+	fy_int ivalue;
+	fy_float fvalue;
+}fy_stack_item;
+
+
+typedef struct fy_nativeCall {
+	char *methodName;
+	fy_uint paramCount;
+	fy_stack_item *params;
+}fy_nativeCall;
+
+typedef enum fy_messageType {
+	/*message_continue = 0, In thread*/
+	message_none = 1, /*Thread Only*/
+	message_thread_dead = 2, /*Thread Only*/
+	message_invoke_native = 3,/*Thread And TM pass thread*/
+	/*message_exception = 4, Thread And TM pass thread*/
+	message_sleep = 5, /*TM Only*/
+	message_vm_dead = 6
+	/*TM Only*/
+}fy_messageType;
+
+typedef struct fy_message {
+	fy_messageType messageType;
+	fy_int threadId;
+	/*We care more about stability than some hundreds bytes of memory*/
+	struct {
+		fy_nativeCall call;
+		fy_long sleepTime;
+	}body;
+
+}fy_message;
+
+FY_ATTR_EXPORT fy_context *fisceAllocateContext();
 
 FY_ATTR_EXPORT void fisceInitContext(fy_context *context,
 		fy_exception *exception);
@@ -34,18 +72,18 @@ FY_ATTR_EXPORT void fisceDestroyContext(fy_context *context);
 
 FY_ATTR_EXPORT void fisceBootFromMain(fy_context *context, const char *name,
 		fy_exception *exception);
-    
+
 FY_ATTR_EXPORT void fisceBootFromData(fy_context *context,
                                       fy_exception *exception);
-    
+
 FY_ATTR_EXPORT void fisceSave(fy_context *context,
                                   fy_exception *exception);
 
 FY_ATTR_EXPORT void fisceRun(fy_context *context, fy_message *message,
 		fy_exception *exception);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* MAIN_INCLUDE_PUBLIC_FISCE_H_ */

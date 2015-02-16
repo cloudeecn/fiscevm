@@ -18,6 +18,8 @@
  */
 
 #include "fyc/Preverifier.h"
+#include "fyc/Config.h"
+#include "fyc/Constants.h"
 #include "fyc/Instructions.h"
 
 static fy_int code_length[255] = {

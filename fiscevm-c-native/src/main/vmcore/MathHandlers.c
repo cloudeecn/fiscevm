@@ -19,6 +19,9 @@
 
 #include "fyc/CoreHandlers.h"
 #include "fiscedev.h"
+#include "fyc/Config.h"
+#include "fyc/Constants.h"
+
 #include <math.h>
 #include <float.h>
 

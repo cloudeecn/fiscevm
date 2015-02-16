@@ -18,7 +18,8 @@
  */
 #ifndef FY_BAIS_H_
 #define FY_BAIS_H_
-#include "fy_util/Portable.h"
+
+#include "fisce.h"
 #include "fyc/Config.h"
 #include "fyc/VMContext.h"
 #include "fyc/InputStream.h"

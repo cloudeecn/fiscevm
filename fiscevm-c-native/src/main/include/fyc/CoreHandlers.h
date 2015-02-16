@@ -19,7 +19,7 @@
 #ifndef FY_COREHANDLERS_H_
 #define FY_COREHANDLERS_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/VMContext.h"
 #ifdef	__cplusplus
 extern "C" {

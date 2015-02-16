@@ -18,7 +18,9 @@
  */
 
 #include "fyc/Heap.h"
-#include "fyc/NConfig.h"
+#include "fyc/Config.h"
+#include "fyc/Constants.h"
+#include "fyc/Thread.h"
 
 #if 0
 # ifndef FY_GC_DEBUG
@@ -437,7 +439,7 @@ fy_int fy_heapClone(fy_context *context, fy_int src, fy_exception *exception) {
 		strcpy_s(exception->exceptionName,sizeof(exception->exceptionName), FY_EXCEPTION_NPT); \
 		exception->exceptionDesc[0] = 0; \
 		return X; \
-	} else ASSERT(obj->object_data!=NULL);
+	} else ASSERT(fy_heapGetObject(context, handle)->object_data!=NULL);
 
 #define CHECK_IOOB(X) if (unlikely(index < 0 || index >= obj->object_data->arrayLength)) {\
 		exception->exceptionType = exception_normal;\

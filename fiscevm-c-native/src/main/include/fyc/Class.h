@@ -18,7 +18,8 @@
  */
 #ifndef FY_CLASS_H_
 #define FY_CLASS_H_
-#include "fy_util/Portable.h"
+
+#include "fisce.h"
 #include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
 

@@ -20,7 +20,7 @@
 #ifndef FY_CLASSLOADER_H
 #define	FY_CLASSLOADER_H
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
 

@@ -19,7 +19,7 @@
 #ifndef MAIN_INCLUDE_FYC_INPUTSTREAM_H_
 #define MAIN_INCLUDE_FYC_INPUTSTREAM_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/VMContext.h"
 
 

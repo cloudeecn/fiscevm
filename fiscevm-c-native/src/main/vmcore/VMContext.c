@@ -18,9 +18,11 @@
  */
 
 #include "fyc/VMContext.h"
+#include "fyc/Constants.h"
+#include "fyc/ClassLoader.h"
+#include "fyc/Heap.h"
 #include "fyc/Instructions.h"
 #include "fyc/FileInputStream.h"
-#include "fyc/NConfig.h"
 #include "fyc/BinarySaver.h"
 #include "fyc/BAIS.h"
 #include "fyc/RIS.h"

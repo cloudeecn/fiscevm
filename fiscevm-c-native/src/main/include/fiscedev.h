@@ -20,8 +20,11 @@
 #ifndef FISCEDEV_H_
 #define FISCEDEV_H_
 
-#include "fiscestu.h"
-
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+#include "fyc/ClassStruct.h"
+#include "fyc/Thread.h"
+#include "fyc/VMContext.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif

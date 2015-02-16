@@ -20,7 +20,9 @@
 #ifndef INSTRUCTIONS_H_
 #define INSTRUCTIONS_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
+#include "fyc/Config.h"
+#include "fyc/Engine.h"
 
 #define FY_OP_nop  0x00
 #define FY_OP_aconst_null  0x01
@@ -414,7 +416,7 @@ typedef struct fy_switch_table {
 	FY_VLS(fy_int,targets);
 }fy_switch_table;
 
-struct fy_instruction_extra {
+typedef struct fy_instruction_extra {
 	fy_int sp;
 #ifdef FY_STRICT_CHECK
 	fy_uint localSize;
@@ -423,9 +425,9 @@ struct fy_instruction_extra {
 		fy_ulong stackTypeContent;
 		fy_ulong *stackTypeContents;
 	}s;
-};
+} fy_instruction_extra;
 
-struct fy_instruction {
+typedef struct fy_instruction {
 	fy_e2_label inst;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 	fy_int op;
@@ -446,7 +448,7 @@ struct fy_instruction {
 			fy_uint value;
 		}ldc;
 	}params;
-};
+} fy_instruction;
 
 void fy_instInitStackItem(fy_memblock *block, fy_instruction_extra *instruction,
 		fy_int size, fy_exception *exception) ;

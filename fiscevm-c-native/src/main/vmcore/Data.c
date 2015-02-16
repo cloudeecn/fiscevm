@@ -18,6 +18,7 @@
  */
 
 #include "fyc/Data.h"
+#include "fyc/Constants.h"
 
 /*****************public*********************/
 fy_ubyte fy_dataRead(fy_context *context, fy_inputStream *is,

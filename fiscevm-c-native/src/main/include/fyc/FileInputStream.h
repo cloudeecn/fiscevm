@@ -20,7 +20,7 @@
 #ifndef FILEINPUTSTREAM_H_
 #define FILEINPUTSTREAM_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/VMContext.h"
 
 #ifdef	__cplusplus

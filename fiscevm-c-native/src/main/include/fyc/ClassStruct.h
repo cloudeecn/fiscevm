@@ -1,15 +1,55 @@
-
+/**
+ *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
+ *
+ * This file is part of fiscevm
+ *
+ * fiscevm is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * fiscevm is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
+ */
 #ifndef FY_CLASS_STRUCT_H
 #define	FY_CLASS_STRUCT_H
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fy_util/String.h"
 #include "fy_util/HashMapI.h"
 #include "fy_util/ArrList.h"
 
-struct fy_engine;
-struct fy_instruction;
-struct fy_instruction_extra;
+typedef struct fy_engine fy_engine;
+typedef struct fy_instruction fy_instruction;
+typedef struct fy_instruction_extra fy_instruction_extra;
+typedef struct fy_thread fy_thread;
+
+typedef struct ConstantClass ConstantClass;
+typedef struct ConstantNameAndTypeInfo ConstantNameAndTypeInfo;
+typedef struct fy_class fy_class;
+typedef struct fy_method fy_method;
+typedef struct fy_engine fy_engine;
+typedef struct fy_object_data fy_object_data;
+
+typedef fy_int (*fy_nhFunction)(
+		fy_context *context,
+		fy_thread *thread,
+		void *data,
+		fy_stack_item *args,
+		fy_int argsCount,
+		fy_int ops,
+		fy_exception *exception
+);
+
+typedef struct fy_nh {
+	void *data;
+	fy_nhFunction handler;
+}fy_nh;
 
 typedef union stringInfo {
 	fy_char string_index;
@@ -20,8 +60,8 @@ typedef union stringInfo {
 typedef union classInfo {
 	fy_char name_index;
 	fy_str* className;
-	struct ConstantClass *constantClass;
-	struct fy_class *clazz;
+	ConstantClass *constantClass;
+	fy_class *clazz;
 }classInfo;
 
 typedef struct ConstantClass {
@@ -42,7 +82,7 @@ typedef struct ConstantFieldRef {
 	};
 	union {
 		fy_char name_type_index;
-		struct ConstantNameAndTypeInfo *constantNameType;
+		ConstantNameAndTypeInfo *constantNameType;
 		fy_str* nameType;
 	};
 	struct fy_field *field;
@@ -54,14 +94,14 @@ typedef struct ConstantMethodRef {
 
 	fy_char class_index;
 	ConstantClass *constantClass;
-	struct fy_class *clazz;
+	fy_class *clazz;
 
 	fy_char name_type_index;
-	struct ConstantNameAndTypeInfo *constantNameType;
+	ConstantNameAndTypeInfo *constantNameType;
 	fy_str* nameType;
 
 	/*The orignal method, not overridden.*/
-	struct fy_method *method;
+	fy_method *method;
 }ConstantMethodRef;
 
 typedef struct ConstantStringInfo {
@@ -112,8 +152,8 @@ typedef struct fy_field {
 	fy_str* fullName;
 	fy_str* uniqueName;
 
-	struct fy_class* owner;
-	struct fy_class *type;
+	fy_class* owner;
+	fy_class *type;
 
 	fy_uint posRel;
 	fy_uint posAbs;
@@ -152,7 +192,7 @@ typedef struct fy_method {
 	fy_str* fullName;
 	fy_str* uniqueName;
 
-	struct fy_class* owner;
+	fy_class* owner;
 
 	fy_char max_stack;
 	fy_char max_locals;
@@ -161,18 +201,18 @@ typedef struct fy_method {
 	union {
 		fy_ubyte *code;
 		struct{
-			struct fy_instruction *instructions;
-			struct fy_instruction_extra *instruction_extras;
+			fy_instruction *instructions;
+			fy_instruction_extra *instruction_extras;
 			fy_short *instruction_ops;
 		};
-		struct fy_nh *nh;
+		fy_nh *nh;
 	};
 	fy_stack_map_table *stackMapTable;
 	fy_char exception_table_length;
-	struct fy_exceptionHandler *exception_table;
+	fy_exceptionHandler *exception_table;
 
 	fy_char line_number_table_length;
-	struct fy_lineNumber* line_number_table;
+	fy_lineNumber* line_number_table;
 
 	/*The count of the parameters (long/double will be counted as 2)*/
 	fy_int paramStackUsage;
@@ -186,8 +226,8 @@ typedef struct fy_method {
 	/*real count parameters (long/double will be counted as 1)*/
 	fy_uint parameterCount;
 	fy_arrayList* parameterTypes;
-	struct fy_class *returnTypeClass;
-	struct fy_engine *engine;
+	fy_class *returnTypeClass;
+	fy_engine *engine;
 }fy_method;
 
 typedef enum fy_arrayType {
@@ -220,7 +260,7 @@ typedef struct fy_class {
 	};
 	fy_char interfacesCount;
 	ConstantClass** interfaceClasses;
-	struct fy_class** interfaces;
+	fy_class** interfaces;
 	fy_char fieldCount;
 	fy_field** fields;
 	/*BEGIN GC Only*/
@@ -244,7 +284,7 @@ typedef struct fy_class {
 	union {
 		struct {
 			fy_arrayType arrayType;
-			struct fy_class *contentClass;
+			fy_class *contentClass;
 		}arr;
 		struct {
 			fy_char pType;
@@ -257,7 +297,6 @@ typedef struct fy_class {
 	fy_int clinitThreadId;
 }fy_class;
 
-typedef struct fy_object_data fy_object_data;
 typedef struct fy_object {
 	fy_object_data *object_data;
 }fy_object;

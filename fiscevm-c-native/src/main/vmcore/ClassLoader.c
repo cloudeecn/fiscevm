@@ -20,6 +20,8 @@
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
 #include "fy_util/Debug.h"
+#include "fyc/Config.h"
+#include "fyc/Constants.h"
 #include "fyc/Class.h"
 #include "fyc/Data.h"
 #include "fyc/BAIS.h"
@@ -786,7 +788,7 @@ static void loadMethods(fy_context *context, fy_class *clazz,
 				FYEH();
 				method->codeLength = fy_dataRead4(context, is, exception);
 				FYEH();
-				/*临时分配到堆里，Preverify之后销毁*/
+				/*������������������������Preverify������������*/
 				method->code = fy_mmAllocate(block, method->codeLength,
 						exception);
 				FYEH();
@@ -1060,7 +1062,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			}
 #endif
 
-			/*貌似加载顺序的问题会导致父类的sizeAbs不正确，我们暂时枚举所有的父类把sizeRel加起来
+			/*���������������������������������������������sizeAbs������������������������������������������������sizeRel���������
 			 clazz->sizeAbs = clazz->super->sizeAbs + clazz->sizeRel;
 			 */
 			tmp = clazz;

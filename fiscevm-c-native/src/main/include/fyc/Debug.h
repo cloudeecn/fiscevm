@@ -20,7 +20,7 @@
 #ifndef FY_DEBUG_H_
 #define FY_DEBUG_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fy_util/String.h"
 #include "fy_util/Debug.h"
 #include "fyc/Config.h"

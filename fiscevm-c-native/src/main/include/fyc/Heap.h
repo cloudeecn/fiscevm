@@ -20,7 +20,7 @@
 #ifndef FY_HEAP_H_
 #define FY_HEAP_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/BitSet.h"
 #include "fy_util/String.h"

@@ -19,12 +19,15 @@
 
 #include "fyc/Engine.h"
 
-#include "fisceprt.h"
-#include "fiscestu.h"
+#include "fy_util/Portable.h"
+#include "fyc/Config.h"
+#include "fyc/Constants.h"
+#include "fyc/ClassStruct.h"
 #include "fyc/Class.h"
 #include "fyc/Heap.h"
 #include "fyc/VMContext.h"
 #include "fyc/Instructions.h"
+#include <math.h>
 
 #ifdef FY_VERBOSE
 #define VM_DEBUG

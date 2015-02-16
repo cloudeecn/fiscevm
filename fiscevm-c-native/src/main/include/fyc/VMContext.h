@@ -20,7 +20,7 @@
 #ifndef FY_VMCONTEXT_H_
 #define FY_VMCONTEXT_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fy_util/LnkList.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/HashMap.h"
@@ -31,20 +31,10 @@ extern "C" {
 #endif
 
 typedef struct fy_inputStream fy_inputStream;
-typedef struct fy_stack_item fy_stack_item;
+typedef union fy_stack_item fy_stack_item;
 typedef struct fy_thread fy_thread;
 typedef struct fy_engine fy_engine;
 typedef struct fy_context fy_context;
-
-typedef fy_int (*fy_nhFunction)(
-		fy_context *context,
-		fy_thread *thread,
-		void *data,
-		fy_stack_item *args,
-		fy_int argsCount,
-		fy_int ops,
-		fy_exception *exception
-);
 
 typedef struct fy_context {
 	/*Service Function Table*/

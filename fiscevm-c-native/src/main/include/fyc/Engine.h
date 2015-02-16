@@ -1,19 +1,30 @@
-/*
- * Engine.h
+/**
+ *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
  *
- *  Created on: Dec 18, 2014
- *      Author: cloudee
+ * This file is part of fiscevm
+ *
+ * fiscevm is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * fiscevm is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef FYC_ENGINE_H_
 #define FYC_ENGINE_H_
 
-#include "fy_util/Portable.h"
+#include "fisce.h"
 #include "fyc/Config.h"
 #include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
 #include "fyc/Thread.h"
-#include "fyc/Instructions.h"
 
 #ifdef	__cplusplus
 extern "C" {
