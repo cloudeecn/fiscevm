@@ -569,11 +569,12 @@ static void jstrToFyStr(JNIEnv *env, jstring str, fy_str *fstr, fy_exception *ex
 	fstr->maxLength = len;
 	fstr->status &= ~FY_STR_HASHED;
 	fstr->content = fy_allocate(len * sizeof(jchar), exception);
-	FYEH();
+	FYEX((*env)->ReleaseStringChars(env, str, chars); return);
+	memcpy(fstr->content, chars, len * sizeof(jchar));
+	(*env)->ReleaseStringChars(env, str, chars);
 }
 
 static void releaseStrJstr(JNIEnv *env, jstring str, fy_str *fstr) {
-	(*env)->ReleaseStringChars(env, str, fstr->content);
 	if(fstr->content){
 		fy_free(fstr->content);
 	}
