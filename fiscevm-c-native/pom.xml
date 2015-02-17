@@ -494,9 +494,12 @@
 											<arg value="-m64" />
 											<arg value="-fPIC" />
 											<arg value="-flto" />
+											<arg value="-I${basedir}/src/main/include" />
+											<arg value="-I${basedir}/src/main/include-public" />
+											<arg value="-I${basedir}/src/main/include-dev" />
 											<arg value="-o" />
 											<arg value="libfyjni64.jnilib" />
-											
+
 											<arg value="${basedir}/src/main/utils/Portable.c" />
 											<arg value="${basedir}/src/main/utils/MemMan.c" />
 											<arg value="${basedir}/src/main/utils/Utf8.c" />
@@ -507,7 +510,7 @@
 											<arg value="${basedir}/src/main/utils/ArrList.c" />
 											<arg value="${basedir}/src/main/utils/LnkList.c" />
 											<arg value="${basedir}/src/main/utils/Debug.c" />
-											
+
 											<arg value="${basedir}/src/main/vmcore/Class.c" />
 											<arg value="${basedir}/src/main/vmcore/ClassLoader.c" />
 											<arg value="${basedir}/src/main/vmcore/CoreHandlers.c" />
@@ -528,7 +531,7 @@
 											<arg value="${basedir}/src/main/vmcore/DataLoader.c" />
 											<arg value="${basedir}/src/main/vmcore/BAIS.c" />
 											<arg value="${basedir}/src/main/vmcore/RIS.c" />
-											
+
 											<arg value="${basedir}/src/main/vmcore/JNIService.c" />
 										</exec>
 
@@ -547,8 +550,12 @@
 											<arg value="-m64" />
 											<arg value="-fPIC" />
 											<arg value="-flto" />
+											<arg value="-I${basedir}/src/main/include" />
+											<arg value="-I${basedir}/src/main/include-public" />
+											<arg value="-I${basedir}/src/main/include-dev" />
 											<arg value="-o" />
 											<arg value="libfyjni.jnilib" />
+
 											<arg value="${basedir}/src/main/utils/Portable.c" />
 											<arg value="${basedir}/src/main/utils/MemMan.c" />
 											<arg value="${basedir}/src/main/utils/Utf8.c" />
@@ -559,7 +566,7 @@
 											<arg value="${basedir}/src/main/utils/ArrList.c" />
 											<arg value="${basedir}/src/main/utils/LnkList.c" />
 											<arg value="${basedir}/src/main/utils/Debug.c" />
-											
+
 											<arg value="${basedir}/src/main/vmcore/Class.c" />
 											<arg value="${basedir}/src/main/vmcore/ClassLoader.c" />
 											<arg value="${basedir}/src/main/vmcore/CoreHandlers.c" />
@@ -580,7 +587,7 @@
 											<arg value="${basedir}/src/main/vmcore/DataLoader.c" />
 											<arg value="${basedir}/src/main/vmcore/BAIS.c" />
 											<arg value="${basedir}/src/main/vmcore/RIS.c" />
-											
+
 											<arg value="${basedir}/src/main/vmcore/JNIService.c" />
 										</exec>
 									</tasks>
