@@ -87,8 +87,8 @@ fy_ulong fy_dataRead8(fy_context *context, fy_inputStream *is,
 	}
 	return ret;
 }
-void fy_dataReadBlock(fy_context *context, FY_ATTR_RESTRICT fy_inputStream* is,
-		FY_ATTR_RESTRICT void* buffer, fy_int size, fy_exception *exception) {
+void fy_dataReadBlock(fy_context *context, fy_inputStream* is,
+        void* buffer, fy_int size, fy_exception *exception) {
 	fy_int read;
 	fy_int pos = 0;
 	while ((read = is->isReadBlock(context, is, (fy_byte*) buffer + pos, size,

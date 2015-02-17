@@ -25,6 +25,7 @@
 #include "com_cirnoworks_libfisce_shell_FisceService.h"
 #include "fisce.h"
 #include "fiscedev.h"
+#include "fyc/Constants.h"
 #include "fyc/ClassStruct.h"
 #include "fyc/Heap.h"
 
@@ -493,15 +494,15 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 	switch (message->messageType) {
 	case message_invoke_native: {
 		obj = fy_hashMapGet(context->memblocks, cdata->nativeCache,
-				message->body.call.method->uniqueName);
+				message->body.call.methodName);
 		if (obj == NULL) {
 			obj = (*env)->NewString(env,
-					message->body.call.method->uniqueName->content,
-					message->body.call.method->uniqueName->length);
+					message->body.call.methodName,
+					message->body.call.methodName);
 			CHECK_JNI_EXCEPTION;
 			obj = (*env)->NewGlobalRef(env, obj);
 			fy_hashMapPut(context->memblocks, cdata->nativeCache,
-					message->body.call.method->uniqueName, obj, exception);
+					message->body.call.methodName, obj, exception);
 			if (exception->exceptionType != exception_none) {
 				fillException(env, exception);
 				return;
@@ -513,7 +514,7 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 		(*env)->SetIntArrayRegion(env, params, 0, len,
 				(jint*) message->body.call.params);
 
-		(*env)->SetIntField(env, ret, threadIdField, message->thread->threadId);
+		(*env)->SetIntField(env, ret, threadIdField, message->threadId);
 		break;
 	}
 	case message_sleep: {

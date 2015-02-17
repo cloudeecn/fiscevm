@@ -37,7 +37,6 @@ typedef NS_ENUM(int32_t, FiScEReturnType){
 @property (nonatomic) NSString *nativeCallName;
 @property (nonatomic) int32_t paramCount;
 @property (nonatomic) uint32_t *params;
-@property (nonatomic) FiScEReturnType returnType;
 @property (nonatomic) NSString *exceptionName;
 @property (nonatomic) NSString *exceptionDesc;
 @property (nonatomic) NSTimeInterval sleepTime;

@@ -9,6 +9,7 @@
 #import "FiScEVM.h"
 #import "fisce.h"
 #import "fiscedev.h"
+#import "fyc/Constants.h"
 
 #define HANDLE_EXCEPTION if(ex->exceptionType!=exception_none){ \
 @throw [[NSException alloc] initWithName:@"FyException" reason:[NSString stringWithFormat:@"Exception %s occored: %s" , ex->exceptionName , ex->exceptionDesc] userInfo:nil]; \
@@ -107,7 +108,7 @@ static fy_int SOSWrite(struct fy_context *context, struct fy_thread *thread,
     fy_hashMap classCache[1];
     fy_hashMap methodCache[1];
     fy_hashMap fieldCache[1];
-    fy_hashMap stringCache[1];
+    NSMutableDictionary *stringCache;
     fy_message message[1];
     char systemOutBuf[1000];
     int32_t sobPos;
@@ -121,7 +122,7 @@ static fy_int SOSWrite(struct fy_context *context, struct fy_thread *thread,
     self = [super init];
     [self setSystemErrLogger:[[FiScEDefaultLogger alloc] init]];
     [self setSystemOutLogger:[[FiScEDefaultLogger alloc] init]];
-    
+    stringCache = [NSMutableDictionary dictionary];
     
     context = fy_allocate(sizeof(fy_context), ex);
     HANDLE_EXCEPTION
@@ -158,8 +159,6 @@ static fy_int SOSWrite(struct fy_context *context, struct fy_thread *thread,
     HANDLE_EXCEPTION
     fy_hashMapInit(context->memblocks, fieldCache, 128, 14, ex);
     HANDLE_EXCEPTION
-    fy_hashMapInit(context->memblocks, stringCache, 128, 14, ex);
-    HANDLE_EXCEPTION
     fy_nativeUnRegisterNativeHandler(context, "com/cirnoworks/fisce/privat/SystemOutputStream.write0.(IL"FY_BASE_STRING";)V", ex);
     HANDLE_EXCEPTION
     fy_nativeRegisterNativeHandler(context,
@@ -174,8 +173,6 @@ static fy_int SOSWrite(struct fy_context *context, struct fy_thread *thread,
     fy_hashMapEachValue(context->memblocks, fieldCache, releaseValue, NULL);
     fy_hashMapEachValue(context->memblocks, methodCache, releaseValue, NULL);
     fy_hashMapEachValue(context->memblocks, classCache, releaseValue, NULL);
-    fy_hashMapEachValue(context->memblocks, stringCache, releaseValue, NULL);
-    
     fisceDestroyContext(context);
     fy_free(context);
     NSLog(@"FiScEVM destroyed at %p", (__bridge void*)self);
@@ -287,30 +284,13 @@ static fy_int SOSWrite(struct fy_context *context, struct fy_thread *thread,
     return ret;
 }
 
-- (NSString*)getNSStringWith:(fy_str*)str{
+- (NSString*)getCachedNSStringWith:(const char*)str{
     NSString *ret;
-    char chs[500];
-    char *ch = chs;
-    int32_t size;
-    if(str==NULL){
-        ret=nil;
-    }else{
-        ret=(__bridge NSString *)(fy_hashMapGetConst(context->memblocks, stringCache, str));
-        if(ret==NULL){
-            size=fy_strUtf8Count(str);
-            if(size>=500){
-                ch=fy_mmAllocate(context->memblocks, size+1, ex);
-                HANDLE_EXCEPTION
-                fy_strSPrint(ch, size+1, str);
-                ret=[NSString stringWithUTF8String:ch];
-                fy_free(ch);
-            }else{
-                fy_strSPrint(ch, size+1, str);
-                ret=[NSString stringWithUTF8String:ch];
-            }
-            
-            fy_hashMapPutConst(context->memblocks, stringCache, str, CFBridgingRetain(ret), ex);
-        }
+    NSNumber *key = [NSNumber numberWithLongLong:(size_t)str];
+    ret = [stringCache objectForKey:[NSNumber numberWithLongLong:(size_t)str]];
+    if(!ret){
+        ret = [NSString stringWithUTF8String:str];
+        [stringCache setObject:ret forKey:key];
     }
     return ret;
 }
@@ -433,17 +413,31 @@ static fy_int SOSWrite(struct fy_context *context, struct fy_thread *thread,
 }
 
 - (NSString*)getStringFromObject:(int32_t)handle{
+    const int CHARS_ON_STACK = 512;
     fy_str str;
+    char ustr[CHARS_ON_STACK];
+    char *us = ustr;
+    int len;
+    
     NSString *ret;
     str.content = NULL;
     fy_strInit(context->memblocks, &str, 1024, ex);
     HANDLE_EXCEPTION
     fy_nativeGetString(context, handle, &str, ex);
     HANDLE_EXCEPTION_CUSTOM(fy_strDestroy(context->memblocks, &str))
+    len = fy_strUtf8Count(&str);
+    if(len + 1 >= CHARS_ON_STACK){
+        us = fy_allocate(len + 1, ex);
+        HANDLE_EXCEPTION_CUSTOM(fy_strDestroy(context->memblocks, &str))
+    }
+    fy_strSPrint(us, len + 1, &str);
     @try{
-        ret=[self getNSStringWith:&str];
+        ret=[self getCachedNSStringWith:us];
     }
     @finally{
+        if(us != ustr){
+            fy_free(us);
+        }
         fy_strDestroy(context->memblocks, &str);
     }
     return ret;
@@ -683,33 +677,16 @@ static fy_int SOSWrite(struct fy_context *context, struct fy_thread *thread,
         NSLog(@"Exception occored");
     }else{
         m.messageType = message->messageType;
-        if(message->thread){
-            m.threadId = message->thread->threadId;
+        if(message->threadId){
+            m.threadId = message->threadId;
         }else{
             m.threadId = -1;
         }
         switch (message->messageType) {
             case message_invoke_native:
-                m.nativeCallName = [self getNSStringWith:message->body.call.method->uniqueName];
+                m.nativeCallName = [self getCachedNSStringWith:message->body.call.methodName];
                 m.paramCount = message->body.call.paramCount;
                 m.params = (uint32_t*)message->body.call.params;
-                switch(message->body.call.method->returnType){
-                    case FY_TYPE_UNKNOWN:
-                        m.returnType = FISCE_RETURN_NONE;
-                        break;
-                    case FY_TYPE_INT:
-                        m.returnType = FISCE_RETURN_INT;
-                        break;
-                    case FY_TYPE_WIDE:
-                        m.returnType = FISCE_RETURN_LONG;
-                        break;
-                    case FY_TYPE_HANDLE:
-                        m.returnType = FISCE_RETURN_HANDLE;
-                        break;
-                    default:
-                        NSLog(@"Exception occored");
-                        break;
-                }
                 break;
             case message_sleep:
                 m.sleepTime = message->body.sleepTime/1000.0;

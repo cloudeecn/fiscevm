@@ -26,6 +26,7 @@
 #include "fyc/VMContext.h"
 #include "fyc/Thread.h"
 #include "fyc/Heap.h"
+#include "fyc/ThreadManager.h"
 
 FY_ATTR_EXPORT void fisceInitContext(fy_context *context,
 		fy_exception *exception) {
@@ -76,8 +77,8 @@ FY_ATTR_EXPORT fy_method *fy_nativeLookupMethodVirtual(fy_context *context,
 	return fy_vmLookupMethodVirtual(context, clazz, name, exception);
 }
 FY_ATTR_EXPORT fy_uint fy_nativePrepareThrowable(fy_context *context,
-		fy_thread *thread, FY_ATTR_RESTRICT fy_exception* toPrepare,
-		FY_ATTR_RESTRICT fy_exception* exception) {
+		fy_thread *thread, fy_exception* toPrepare,
+        fy_exception* exception) {
 	return fy_threadPrepareThrowable(context, thread, toPrepare, exception);
 }
 

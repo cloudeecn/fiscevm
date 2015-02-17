@@ -25,6 +25,7 @@
 #include "fyc/ClassLoader.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
+#include "fy_util/Utf8.h"
 #include "fy_util/Debug.h"
 #include "fyc/Config.h"
 #include "fyc/Constants.h"

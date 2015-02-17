@@ -42,7 +42,7 @@
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=ON" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-out/native"
@@ -66,7 +66,7 @@
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=ON" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-test-java/native"
@@ -90,7 +90,7 @@
 											<arg value="-DENABLE_TEST=ON" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=OFF" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-test/native"
@@ -195,7 +195,7 @@
 											<arg value="-DENABLE_TEST=ON" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=OFF" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-test/linux"
@@ -238,7 +238,7 @@
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=ON" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-out/linux"
@@ -323,7 +323,7 @@
 											<arg value="-DENABLE_TEST=ON" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=OFF" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-test/win32"
@@ -369,7 +369,7 @@
 											<arg value="-DENABLE_TEST=ON" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=OFF" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-test/win64"
@@ -415,7 +415,7 @@
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=ON" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-out/win32"
@@ -432,7 +432,7 @@
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=ON" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-out/win64"
@@ -496,36 +496,40 @@
 											<arg value="-flto" />
 											<arg value="-o" />
 											<arg value="libfyjni64.jnilib" />
-											<arg value="${basedir}/src/main/c/Debug.c" />
-											<arg value="${basedir}/src/main/c/HashMap.c" />
-											<arg value="${basedir}/src/main/c/HashMapI.c" />
-											<arg value="${basedir}/src/main/c/ArrList.c" />
-											<arg value="${basedir}/src/main/c/LnkList.c" />
-											<arg value="${basedir}/src/main/c/MemMan.c" />
-											<arg value="${basedir}/src/main/c/Portable.c" />
-											<arg value="${basedir}/src/main/c/String.c" />
-											<arg value="${basedir}/src/main/c/BitSet.c" />
-											<arg value="${basedir}/src/main/c/Utf8.c" />
-											<arg value="${basedir}/src/main/c/Class.c" />
-											<arg value="${basedir}/src/main/c/ClassLoader.c" />
-											<arg value="${basedir}/src/main/c/CoreHandlers.c" />
-											<arg value="${basedir}/src/main/c/MathHandlers.c" />
-											<arg value="${basedir}/src/main/c/Data.c" />
-											<arg value="${basedir}/src/main/c/Heap.c" />
-											<arg value="${basedir}/src/main/c/Instructions.c" />
-											<arg value="${basedir}/src/main/c/Preverifier.c" />
-											<arg value="${basedir}/src/main/c/Thread.c" />
-											<arg value="${basedir}/src/main/c/Engine.c" />
-											<arg value="${basedir}/src/main/c/ThreadManager.c" />
-											<arg value="${basedir}/src/main/c/VMContext.c" />
-											<arg value="${basedir}/src/main/c/ExpDev.c" />
-											<arg value="${basedir}/src/main/c/FiScE.c" />
-											<arg value="${basedir}/src/main/c/FileInputStream.c" />
-											<arg value="${basedir}/src/main/c/BinarySaver.c" />
-											<arg value="${basedir}/src/main/c/DataLoader.c" />
-											<arg value="${basedir}/src/main/c/BAIS.c" />
-											<arg value="${basedir}/src/main/c/RIS.c" />
-											<arg value="${basedir}/src/main/c/FisceService.c" />
+											
+											<arg value="${basedir}/src/main/utils/Portable.c" />
+											<arg value="${basedir}/src/main/utils/MemMan.c" />
+											<arg value="${basedir}/src/main/utils/Utf8.c" />
+											<arg value="${basedir}/src/main/utils/String.c" />
+											<arg value="${basedir}/src/main/utils/BitSet.c" />
+											<arg value="${basedir}/src/main/utils/HashMap.c" />
+											<arg value="${basedir}/src/main/utils/HashMapI.c" />
+											<arg value="${basedir}/src/main/utils/ArrList.c" />
+											<arg value="${basedir}/src/main/utils/LnkList.c" />
+											<arg value="${basedir}/src/main/utils/Debug.c" />
+											
+											<arg value="${basedir}/src/main/vmcore/Class.c" />
+											<arg value="${basedir}/src/main/vmcore/ClassLoader.c" />
+											<arg value="${basedir}/src/main/vmcore/CoreHandlers.c" />
+											<arg value="${basedir}/src/main/vmcore/MathHandlers.c" />
+											<arg value="${basedir}/src/main/vmcore/Debug.c" />
+											<arg value="${basedir}/src/main/vmcore/Data.c" />
+											<arg value="${basedir}/src/main/vmcore/Heap.c" />
+											<arg value="${basedir}/src/main/vmcore/Instructions.c" />
+											<arg value="${basedir}/src/main/vmcore/Preverifier.c" />
+											<arg value="${basedir}/src/main/vmcore/Thread.c" />
+											<arg value="${basedir}/src/main/vmcore/Engine.c" />
+											<arg value="${basedir}/src/main/vmcore/ThreadManager.c" />
+											<arg value="${basedir}/src/main/vmcore/VMContext.c" />
+											<arg value="${basedir}/src/main/vmcore/ExpDev.c" />
+											<arg value="${basedir}/src/main/vmcore/FiScE.c" />
+											<arg value="${basedir}/src/main/vmcore/FileInputStream.c" />
+											<arg value="${basedir}/src/main/vmcore/BinarySaver.c" />
+											<arg value="${basedir}/src/main/vmcore/DataLoader.c" />
+											<arg value="${basedir}/src/main/vmcore/BAIS.c" />
+											<arg value="${basedir}/src/main/vmcore/RIS.c" />
+											
+											<arg value="main/vmcore/JNIService.c" />
 										</exec>
 
 										<mkdir dir="${project.build.directory}/libfisce-out/osx32" />
@@ -545,36 +549,39 @@
 											<arg value="-flto" />
 											<arg value="-o" />
 											<arg value="libfyjni.jnilib" />
-											<arg value="${basedir}/src/main/c/Debug.c" />
-											<arg value="${basedir}/src/main/c/HashMap.c" />
-											<arg value="${basedir}/src/main/c/HashMapI.c" />
-											<arg value="${basedir}/src/main/c/ArrList.c" />
-											<arg value="${basedir}/src/main/c/LnkList.c" />
-											<arg value="${basedir}/src/main/c/MemMan.c" />
-											<arg value="${basedir}/src/main/c/Portable.c" />
-											<arg value="${basedir}/src/main/c/String.c" />
-											<arg value="${basedir}/src/main/c/BitSet.c" />
-											<arg value="${basedir}/src/main/c/Utf8.c" />
-											<arg value="${basedir}/src/main/c/Class.c" />
-											<arg value="${basedir}/src/main/c/ClassLoader.c" />
-											<arg value="${basedir}/src/main/c/CoreHandlers.c" />
-											<arg value="${basedir}/src/main/c/MathHandlers.c" />
-											<arg value="${basedir}/src/main/c/Data.c" />
-											<arg value="${basedir}/src/main/c/Heap.c" />
-											<arg value="${basedir}/src/main/c/Instructions.c" />
-											<arg value="${basedir}/src/main/c/Preverifier.c" />
-											<arg value="${basedir}/src/main/c/Thread.c" />
-											<arg value="${basedir}/src/main/c/Engine.c" />
-											<arg value="${basedir}/src/main/c/ThreadManager.c" />
-											<arg value="${basedir}/src/main/c/VMContext.c" />
-											<arg value="${basedir}/src/main/c/ExpDev.c" />
-											<arg value="${basedir}/src/main/c/FiScE.c" />
-											<arg value="${basedir}/src/main/c/FileInputStream.c" />
-											<arg value="${basedir}/src/main/c/BinarySaver.c" />
-											<arg value="${basedir}/src/main/c/DataLoader.c" />
-											<arg value="${basedir}/src/main/c/BAIS.c" />
-											<arg value="${basedir}/src/main/c/RIS.c" />
-											<arg value="${basedir}/src/main/c/FisceService.c" />
+											<arg value="${basedir}/src/main/utils/Portable.c" />
+											<arg value="${basedir}/src/main/utils/MemMan.c" />
+											<arg value="${basedir}/src/main/utils/Utf8.c" />
+											<arg value="${basedir}/src/main/utils/String.c" />
+											<arg value="${basedir}/src/main/utils/BitSet.c" />
+											<arg value="${basedir}/src/main/utils/HashMap.c" />
+											<arg value="${basedir}/src/main/utils/HashMapI.c" />
+											<arg value="${basedir}/src/main/utils/ArrList.c" />
+											<arg value="${basedir}/src/main/utils/LnkList.c" />
+											<arg value="${basedir}/src/main/utils/Debug.c" />
+											
+											<arg value="${basedir}/src/main/vmcore/Class.c" />
+											<arg value="${basedir}/src/main/vmcore/ClassLoader.c" />
+											<arg value="${basedir}/src/main/vmcore/CoreHandlers.c" />
+											<arg value="${basedir}/src/main/vmcore/MathHandlers.c" />
+											<arg value="${basedir}/src/main/vmcore/Debug.c" />
+											<arg value="${basedir}/src/main/vmcore/Data.c" />
+											<arg value="${basedir}/src/main/vmcore/Heap.c" />
+											<arg value="${basedir}/src/main/vmcore/Instructions.c" />
+											<arg value="${basedir}/src/main/vmcore/Preverifier.c" />
+											<arg value="${basedir}/src/main/vmcore/Thread.c" />
+											<arg value="${basedir}/src/main/vmcore/Engine.c" />
+											<arg value="${basedir}/src/main/vmcore/ThreadManager.c" />
+											<arg value="${basedir}/src/main/vmcore/VMContext.c" />
+											<arg value="${basedir}/src/main/vmcore/ExpDev.c" />
+											<arg value="${basedir}/src/main/vmcore/FiScE.c" />
+											<arg value="${basedir}/src/main/vmcore/FileInputStream.c" />
+											<arg value="${basedir}/src/main/vmcore/BinarySaver.c" />
+											<arg value="${basedir}/src/main/vmcore/DataLoader.c" />
+											<arg value="${basedir}/src/main/vmcore/BAIS.c" />
+											<arg value="${basedir}/src/main/vmcore/RIS.c" />
+											
+											<arg value="main/vmcore/JNIService.c" />
 										</exec>
 									</tasks>
 								</configuration>
@@ -631,7 +638,7 @@
 											<arg value="-DLIBRARY_OUTPUT_PATH_ROOT=." />
 											<arg value="-DANDROID_ABI=armeabi" />
 											<arg value="-DANDROID_NATIVE_API_LEVEL=android-4" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/output/android-arm"
@@ -660,7 +667,7 @@
 											<arg value="-DLIBRARY_OUTPUT_PATH_ROOT=." />
 											<arg value="-DANDROID_ABI=x86" />
 											<arg value="-DANDROID_NATIVE_API_LEVEL=android-9" />
-											<arg value="${basedir}/src/main/c" />
+											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/output/android-x86"

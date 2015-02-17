@@ -787,8 +787,8 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 }
 
 fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
-		FY_ATTR_RESTRICT fy_exception *toPrepare,
-		FY_ATTR_RESTRICT fy_exception *exception) {
+        fy_exception *toPrepare,
+        fy_exception *exception) {
 	fy_class *clazz1;
 	fy_str str1[1];
 	fy_uint ivalue, ivalue2;

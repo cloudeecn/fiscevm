@@ -34,6 +34,8 @@
 #include "fyc/BAIS.h"
 #include "fyc/RIS.h"
 #include "fyc/Engine.h"
+#include "fyc/ThreadManager.h"
+#include "fyc/CoreHandlers.h"
 
 /***********private***********/
 static void initConstantStrings(fy_context *context, fy_exception *exception) {

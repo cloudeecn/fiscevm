@@ -11,39 +11,40 @@
 		68121FFB1A74C4ED00AF86E9 /* libFiScEVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6873C23E1A033A66006C201B /* libFiScEVM.a */; };
 		681220041A74C54A00AF86E9 /* FiScEVMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 681220031A74C54A00AF86E9 /* FiScEVMTest.m */; };
 		6814D3FD1A6AC9BE00B8F945 /* FiScERunner.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 680577121A145D660048D21F /* FiScERunner.h */; };
-		684ED6001A6B81770091BDBB /* Engine.c in Sources */ = {isa = PBXBuildFile; fileRef = 684ED5FD1A6B81770091BDBB /* Engine.c */; };
-		684ED6011A6B81770091BDBB /* fisce-labels.i in Sources */ = {isa = PBXBuildFile; fileRef = 684ED5FE1A6B81770091BDBB /* fisce-labels.i */; };
-		684ED6021A6B81770091BDBB /* fisce-vm.i in Sources */ = {isa = PBXBuildFile; fileRef = 684ED5FF1A6B81770091BDBB /* fisce-vm.i */; };
 		6873C2421A033A66006C201B /* FiScEVM.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 6873C2411A033A66006C201B /* FiScEVM.h */; };
 		6873C2441A033A66006C201B /* FiScEVM.m in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2431A033A66006C201B /* FiScEVM.m */; };
-		6873C27C1A033B27006C201B /* ArrList.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C25F1A033B27006C201B /* ArrList.c */; };
-		6873C27D1A033B27006C201B /* BAIS.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2601A033B27006C201B /* BAIS.c */; };
-		6873C27E1A033B27006C201B /* BinarySaver.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2611A033B27006C201B /* BinarySaver.c */; };
-		6873C27F1A033B27006C201B /* BitSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2621A033B27006C201B /* BitSet.c */; };
-		6873C2801A033B27006C201B /* Class.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2631A033B27006C201B /* Class.c */; };
-		6873C2811A033B27006C201B /* ClassLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2641A033B27006C201B /* ClassLoader.c */; };
-		6873C2821A033B27006C201B /* CoreHandlers.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2651A033B27006C201B /* CoreHandlers.c */; };
-		6873C2831A033B27006C201B /* Data.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2661A033B27006C201B /* Data.c */; };
-		6873C2841A033B27006C201B /* DataLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2671A033B27006C201B /* DataLoader.c */; };
-		6873C2851A033B27006C201B /* Debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2681A033B27006C201B /* Debug.c */; };
-		6873C2861A033B27006C201B /* ExpDev.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2691A033B27006C201B /* ExpDev.c */; };
-		6873C2871A033B27006C201B /* FileInputStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C26A1A033B27006C201B /* FileInputStream.c */; };
-		6873C2881A033B27006C201B /* FiScE.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C26B1A033B27006C201B /* FiScE.c */; };
-		6873C28A1A033B27006C201B /* HashMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C26D1A033B27006C201B /* HashMap.c */; };
-		6873C28B1A033B27006C201B /* HashMapI.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C26E1A033B27006C201B /* HashMapI.c */; };
-		6873C28C1A033B27006C201B /* Heap.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C26F1A033B27006C201B /* Heap.c */; };
-		6873C28D1A033B27006C201B /* Instructions.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2701A033B27006C201B /* Instructions.c */; };
-		6873C28E1A033B27006C201B /* LnkList.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2711A033B27006C201B /* LnkList.c */; };
-		6873C28F1A033B27006C201B /* MathHandlers.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2721A033B27006C201B /* MathHandlers.c */; };
-		6873C2901A033B27006C201B /* MemMan.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2731A033B27006C201B /* MemMan.c */; };
-		6873C2911A033B27006C201B /* Portable.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2741A033B27006C201B /* Portable.c */; };
-		6873C2921A033B27006C201B /* Preverifier.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2751A033B27006C201B /* Preverifier.c */; };
-		6873C2931A033B27006C201B /* RIS.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2761A033B27006C201B /* RIS.c */; };
-		6873C2941A033B27006C201B /* String.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2771A033B27006C201B /* String.c */; };
-		6873C2951A033B27006C201B /* Thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2781A033B27006C201B /* Thread.c */; };
-		6873C2961A033B27006C201B /* ThreadManager.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C2791A033B27006C201B /* ThreadManager.c */; };
-		6873C2971A033B27006C201B /* Utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C27A1A033B27006C201B /* Utf8.c */; };
-		6873C2981A033B27006C201B /* VMContext.c in Sources */ = {isa = PBXBuildFile; fileRef = 6873C27B1A033B27006C201B /* VMContext.c */; };
+		68DAD3AE1A9265790053C05B /* Debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3971A9265790053C05B /* Debug.c */; };
+		68DAD3AF1A9265790053C05B /* Thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3981A9265790053C05B /* Thread.c */; };
+		68DAD3B01A9265790053C05B /* Heap.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3991A9265790053C05B /* Heap.c */; };
+		68DAD3B11A9265790053C05B /* ThreadManager.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD39A1A9265790053C05B /* ThreadManager.c */; };
+		68DAD3B21A9265790053C05B /* Engine.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD39B1A9265790053C05B /* Engine.c */; };
+		68DAD3B31A9265790053C05B /* VMContext.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD39C1A9265790053C05B /* VMContext.c */; };
+		68DAD3B41A9265790053C05B /* RIS.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD39D1A9265790053C05B /* RIS.c */; };
+		68DAD3B51A9265790053C05B /* Preverifier.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD39E1A9265790053C05B /* Preverifier.c */; };
+		68DAD3B61A9265790053C05B /* MathHandlers.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD39F1A9265790053C05B /* MathHandlers.c */; };
+		68DAD3B71A9265790053C05B /* Instructions.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A01A9265790053C05B /* Instructions.c */; };
+		68DAD3B91A9265790053C05B /* FiScE.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A21A9265790053C05B /* FiScE.c */; };
+		68DAD3BA1A9265790053C05B /* FileInputStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A31A9265790053C05B /* FileInputStream.c */; };
+		68DAD3BB1A9265790053C05B /* ExpDev.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A41A9265790053C05B /* ExpDev.c */; };
+		68DAD3BC1A9265790053C05B /* Data.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A51A9265790053C05B /* Data.c */; };
+		68DAD3BD1A9265790053C05B /* CoreHandlers.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A61A9265790053C05B /* CoreHandlers.c */; };
+		68DAD3BE1A9265790053C05B /* ClassLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A71A9265790053C05B /* ClassLoader.c */; };
+		68DAD3BF1A9265790053C05B /* Class.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A81A9265790053C05B /* Class.c */; };
+		68DAD3C01A9265790053C05B /* BinarySaver.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3A91A9265790053C05B /* BinarySaver.c */; };
+		68DAD3C11A9265790053C05B /* BAIS.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3AA1A9265790053C05B /* BAIS.c */; };
+		68DAD3C21A9265790053C05B /* DataLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3AB1A9265790053C05B /* DataLoader.c */; };
+		68DAD3C31A9265790053C05B /* fisce-labels.i in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3AC1A9265790053C05B /* fisce-labels.i */; };
+		68DAD3C41A9265790053C05B /* fisce-vm.i in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3AD1A9265790053C05B /* fisce-vm.i */; };
+		68DAD3CF1A92658E0053C05B /* ArrList.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3C51A92658E0053C05B /* ArrList.c */; };
+		68DAD3D01A92658E0053C05B /* BitSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3C61A92658E0053C05B /* BitSet.c */; };
+		68DAD3D11A92658E0053C05B /* Debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3C71A92658E0053C05B /* Debug.c */; };
+		68DAD3D21A92658E0053C05B /* HashMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3C81A92658E0053C05B /* HashMap.c */; };
+		68DAD3D31A92658E0053C05B /* HashMapI.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3C91A92658E0053C05B /* HashMapI.c */; };
+		68DAD3D41A92658E0053C05B /* LnkList.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3CA1A92658E0053C05B /* LnkList.c */; };
+		68DAD3D51A92658E0053C05B /* MemMan.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3CB1A92658E0053C05B /* MemMan.c */; };
+		68DAD3D61A92658E0053C05B /* Portable.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3CC1A92658E0053C05B /* Portable.c */; };
+		68DAD3D71A92658E0053C05B /* String.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3CD1A92658E0053C05B /* String.c */; };
+		68DAD3D81A92658E0053C05B /* Utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 68DAD3CE1A92658E0053C05B /* Utf8.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,48 +78,45 @@
 		68121FF51A74C4EC00AF86E9 /* fiscevm-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "fiscevm-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		68121FF81A74C4ED00AF86E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		681220031A74C54A00AF86E9 /* FiScEVMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiScEVMTest.m; sourceTree = "<group>"; };
-		684ED5FD1A6B81770091BDBB /* Engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Engine.c; path = "../../fiscevm-c-native/src/main/c/Engine.c"; sourceTree = "<group>"; };
-		684ED5FE1A6B81770091BDBB /* fisce-labels.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = "fisce-labels.i"; path = "../../fiscevm-c-native/src/main/c/fisce-labels.i"; sourceTree = "<group>"; };
-		684ED5FF1A6B81770091BDBB /* fisce-vm.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = "fisce-vm.i"; path = "../../fiscevm-c-native/src/main/c/fisce-vm.i"; sourceTree = "<group>"; };
 		6873C23E1A033A66006C201B /* libFiScEVM.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFiScEVM.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6873C2411A033A66006C201B /* FiScEVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FiScEVM.h; sourceTree = "<group>"; };
 		6873C2431A033A66006C201B /* FiScEVM.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FiScEVM.m; sourceTree = "<group>"; };
-		6873C25A1A033AF3006C201B /* fisce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisce.h; path = "../../fiscevm-c-native/src/main/c/fisce.h"; sourceTree = "<group>"; };
-		6873C25B1A033AF3006C201B /* fisceclz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisceclz.h; path = "../../fiscevm-c-native/src/main/c/fisceclz.h"; sourceTree = "<group>"; };
-		6873C25C1A033AF3006C201B /* fiscedev.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fiscedev.h; path = "../../fiscevm-c-native/src/main/c/fiscedev.h"; sourceTree = "<group>"; };
-		6873C25D1A033AF3006C201B /* fisceprt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisceprt.h; path = "../../fiscevm-c-native/src/main/c/fisceprt.h"; sourceTree = "<group>"; };
-		6873C25E1A033AF3006C201B /* fiscestu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fiscestu.h; path = "../../fiscevm-c-native/src/main/c/fiscestu.h"; sourceTree = "<group>"; };
-		6873C25F1A033B27006C201B /* ArrList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ArrList.c; path = "../../fiscevm-c-native/src/main/c/ArrList.c"; sourceTree = "<group>"; };
-		6873C2601A033B27006C201B /* BAIS.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = BAIS.c; path = "../../fiscevm-c-native/src/main/c/BAIS.c"; sourceTree = "<group>"; };
-		6873C2611A033B27006C201B /* BinarySaver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = BinarySaver.c; path = "../../fiscevm-c-native/src/main/c/BinarySaver.c"; sourceTree = "<group>"; };
-		6873C2621A033B27006C201B /* BitSet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = BitSet.c; path = "../../fiscevm-c-native/src/main/c/BitSet.c"; sourceTree = "<group>"; };
-		6873C2631A033B27006C201B /* Class.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Class.c; path = "../../fiscevm-c-native/src/main/c/Class.c"; sourceTree = "<group>"; };
-		6873C2641A033B27006C201B /* ClassLoader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ClassLoader.c; path = "../../fiscevm-c-native/src/main/c/ClassLoader.c"; sourceTree = "<group>"; };
-		6873C2651A033B27006C201B /* CoreHandlers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = CoreHandlers.c; path = "../../fiscevm-c-native/src/main/c/CoreHandlers.c"; sourceTree = "<group>"; };
-		6873C2661A033B27006C201B /* Data.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Data.c; path = "../../fiscevm-c-native/src/main/c/Data.c"; sourceTree = "<group>"; };
-		6873C2671A033B27006C201B /* DataLoader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DataLoader.c; path = "../../fiscevm-c-native/src/main/c/DataLoader.c"; sourceTree = "<group>"; };
-		6873C2681A033B27006C201B /* Debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Debug.c; path = "../../fiscevm-c-native/src/main/c/Debug.c"; sourceTree = "<group>"; };
-		6873C2691A033B27006C201B /* ExpDev.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ExpDev.c; path = "../../fiscevm-c-native/src/main/c/ExpDev.c"; sourceTree = "<group>"; };
-		6873C26A1A033B27006C201B /* FileInputStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = FileInputStream.c; path = "../../fiscevm-c-native/src/main/c/FileInputStream.c"; sourceTree = "<group>"; };
-		6873C26B1A033B27006C201B /* FiScE.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = FiScE.c; path = "../../fiscevm-c-native/src/main/c/FiScE.c"; sourceTree = "<group>"; };
-		6873C26D1A033B27006C201B /* HashMap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = HashMap.c; path = "../../fiscevm-c-native/src/main/c/HashMap.c"; sourceTree = "<group>"; };
-		6873C26E1A033B27006C201B /* HashMapI.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = HashMapI.c; path = "../../fiscevm-c-native/src/main/c/HashMapI.c"; sourceTree = "<group>"; };
-		6873C26F1A033B27006C201B /* Heap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Heap.c; path = "../../fiscevm-c-native/src/main/c/Heap.c"; sourceTree = "<group>"; };
-		6873C2701A033B27006C201B /* Instructions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Instructions.c; path = "../../fiscevm-c-native/src/main/c/Instructions.c"; sourceTree = "<group>"; };
-		6873C2711A033B27006C201B /* LnkList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = LnkList.c; path = "../../fiscevm-c-native/src/main/c/LnkList.c"; sourceTree = "<group>"; };
-		6873C2721A033B27006C201B /* MathHandlers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MathHandlers.c; path = "../../fiscevm-c-native/src/main/c/MathHandlers.c"; sourceTree = "<group>"; };
-		6873C2731A033B27006C201B /* MemMan.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MemMan.c; path = "../../fiscevm-c-native/src/main/c/MemMan.c"; sourceTree = "<group>"; };
-		6873C2741A033B27006C201B /* Portable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Portable.c; path = "../../fiscevm-c-native/src/main/c/Portable.c"; sourceTree = "<group>"; };
-		6873C2751A033B27006C201B /* Preverifier.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Preverifier.c; path = "../../fiscevm-c-native/src/main/c/Preverifier.c"; sourceTree = "<group>"; };
-		6873C2761A033B27006C201B /* RIS.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = RIS.c; path = "../../fiscevm-c-native/src/main/c/RIS.c"; sourceTree = "<group>"; };
-		6873C2771A033B27006C201B /* String.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = String.c; path = "../../fiscevm-c-native/src/main/c/String.c"; sourceTree = "<group>"; };
-		6873C2781A033B27006C201B /* Thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Thread.c; path = "../../fiscevm-c-native/src/main/c/Thread.c"; sourceTree = "<group>"; };
-		6873C2791A033B27006C201B /* ThreadManager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ThreadManager.c; path = "../../fiscevm-c-native/src/main/c/ThreadManager.c"; sourceTree = "<group>"; };
-		6873C27A1A033B27006C201B /* Utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Utf8.c; path = "../../fiscevm-c-native/src/main/c/Utf8.c"; sourceTree = "<group>"; };
-		6873C27B1A033B27006C201B /* VMContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = VMContext.c; path = "../../fiscevm-c-native/src/main/c/VMContext.c"; sourceTree = "<group>"; };
-		6873C3EE1A0A033E006C201B /* fy_util */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fy_util; path = "../../fiscevm-c-native/src/main/c/fy_util"; sourceTree = "<group>"; };
-		6873C3EF1A0A033E006C201B /* fyc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fyc; path = "../../fiscevm-c-native/src/main/c/fyc"; sourceTree = "<group>"; };
 		6873C4951A0F98DB006C201B /* classes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = classes; path = "../../fiscevm-runtime/target/classes"; sourceTree = "<group>"; };
+		68DAD3971A9265790053C05B /* Debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Debug.c; path = "../../fiscevm-c-native/src/main/vmcore/Debug.c"; sourceTree = "<group>"; };
+		68DAD3981A9265790053C05B /* Thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Thread.c; path = "../../fiscevm-c-native/src/main/vmcore/Thread.c"; sourceTree = "<group>"; };
+		68DAD3991A9265790053C05B /* Heap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Heap.c; path = "../../fiscevm-c-native/src/main/vmcore/Heap.c"; sourceTree = "<group>"; };
+		68DAD39A1A9265790053C05B /* ThreadManager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ThreadManager.c; path = "../../fiscevm-c-native/src/main/vmcore/ThreadManager.c"; sourceTree = "<group>"; };
+		68DAD39B1A9265790053C05B /* Engine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Engine.c; path = "../../fiscevm-c-native/src/main/vmcore/Engine.c"; sourceTree = "<group>"; };
+		68DAD39C1A9265790053C05B /* VMContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = VMContext.c; path = "../../fiscevm-c-native/src/main/vmcore/VMContext.c"; sourceTree = "<group>"; };
+		68DAD39D1A9265790053C05B /* RIS.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = RIS.c; path = "../../fiscevm-c-native/src/main/vmcore/RIS.c"; sourceTree = "<group>"; };
+		68DAD39E1A9265790053C05B /* Preverifier.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Preverifier.c; path = "../../fiscevm-c-native/src/main/vmcore/Preverifier.c"; sourceTree = "<group>"; };
+		68DAD39F1A9265790053C05B /* MathHandlers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MathHandlers.c; path = "../../fiscevm-c-native/src/main/vmcore/MathHandlers.c"; sourceTree = "<group>"; };
+		68DAD3A01A9265790053C05B /* Instructions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Instructions.c; path = "../../fiscevm-c-native/src/main/vmcore/Instructions.c"; sourceTree = "<group>"; };
+		68DAD3A21A9265790053C05B /* FiScE.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = FiScE.c; path = "../../fiscevm-c-native/src/main/vmcore/FiScE.c"; sourceTree = "<group>"; };
+		68DAD3A31A9265790053C05B /* FileInputStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = FileInputStream.c; path = "../../fiscevm-c-native/src/main/vmcore/FileInputStream.c"; sourceTree = "<group>"; };
+		68DAD3A41A9265790053C05B /* ExpDev.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ExpDev.c; path = "../../fiscevm-c-native/src/main/vmcore/ExpDev.c"; sourceTree = "<group>"; };
+		68DAD3A51A9265790053C05B /* Data.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Data.c; path = "../../fiscevm-c-native/src/main/vmcore/Data.c"; sourceTree = "<group>"; };
+		68DAD3A61A9265790053C05B /* CoreHandlers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = CoreHandlers.c; path = "../../fiscevm-c-native/src/main/vmcore/CoreHandlers.c"; sourceTree = "<group>"; };
+		68DAD3A71A9265790053C05B /* ClassLoader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ClassLoader.c; path = "../../fiscevm-c-native/src/main/vmcore/ClassLoader.c"; sourceTree = "<group>"; };
+		68DAD3A81A9265790053C05B /* Class.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Class.c; path = "../../fiscevm-c-native/src/main/vmcore/Class.c"; sourceTree = "<group>"; };
+		68DAD3A91A9265790053C05B /* BinarySaver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = BinarySaver.c; path = "../../fiscevm-c-native/src/main/vmcore/BinarySaver.c"; sourceTree = "<group>"; };
+		68DAD3AA1A9265790053C05B /* BAIS.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = BAIS.c; path = "../../fiscevm-c-native/src/main/vmcore/BAIS.c"; sourceTree = "<group>"; };
+		68DAD3AB1A9265790053C05B /* DataLoader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DataLoader.c; path = "../../fiscevm-c-native/src/main/vmcore/DataLoader.c"; sourceTree = "<group>"; };
+		68DAD3AC1A9265790053C05B /* fisce-labels.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; name = "fisce-labels.i"; path = "../../fiscevm-c-native/src/main/vmcore/fisce-labels.i"; sourceTree = "<group>"; };
+		68DAD3AD1A9265790053C05B /* fisce-vm.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = "fisce-vm.i"; path = "../../fiscevm-c-native/src/main/vmcore/fisce-vm.i"; sourceTree = "<group>"; };
+		68DAD3C51A92658E0053C05B /* ArrList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ArrList.c; path = "../../fiscevm-c-native/src/main/utils/ArrList.c"; sourceTree = "<group>"; };
+		68DAD3C61A92658E0053C05B /* BitSet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = BitSet.c; path = "../../fiscevm-c-native/src/main/utils/BitSet.c"; sourceTree = "<group>"; };
+		68DAD3C71A92658E0053C05B /* Debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Debug.c; path = "../../fiscevm-c-native/src/main/utils/Debug.c"; sourceTree = "<group>"; };
+		68DAD3C81A92658E0053C05B /* HashMap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = HashMap.c; path = "../../fiscevm-c-native/src/main/utils/HashMap.c"; sourceTree = "<group>"; };
+		68DAD3C91A92658E0053C05B /* HashMapI.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = HashMapI.c; path = "../../fiscevm-c-native/src/main/utils/HashMapI.c"; sourceTree = "<group>"; };
+		68DAD3CA1A92658E0053C05B /* LnkList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = LnkList.c; path = "../../fiscevm-c-native/src/main/utils/LnkList.c"; sourceTree = "<group>"; };
+		68DAD3CB1A92658E0053C05B /* MemMan.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MemMan.c; path = "../../fiscevm-c-native/src/main/utils/MemMan.c"; sourceTree = "<group>"; };
+		68DAD3CC1A92658E0053C05B /* Portable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Portable.c; path = "../../fiscevm-c-native/src/main/utils/Portable.c"; sourceTree = "<group>"; };
+		68DAD3CD1A92658E0053C05B /* String.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = String.c; path = "../../fiscevm-c-native/src/main/utils/String.c"; sourceTree = "<group>"; };
+		68DAD3CE1A92658E0053C05B /* Utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Utf8.c; path = "../../fiscevm-c-native/src/main/utils/Utf8.c"; sourceTree = "<group>"; };
+		68DAD3E01A92665C0053C05B /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = "../fiscevm-c-native/src/main/include"; sourceTree = SOURCE_ROOT; };
+		68DAD3E11A92665C0053C05B /* include-dev */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "include-dev"; path = "../fiscevm-c-native/src/main/include-dev"; sourceTree = SOURCE_ROOT; };
+		68DAD3E21A92665C0053C05B /* include-public */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "include-public"; path = "../fiscevm-c-native/src/main/include-public"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,51 +156,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		68420CF31A199D8A0066B591 /* fiscevm-c-native */ = {
-			isa = PBXGroup;
-			children = (
-				6873C3EE1A0A033E006C201B /* fy_util */,
-				6873C3EF1A0A033E006C201B /* fyc */,
-				6873C25F1A033B27006C201B /* ArrList.c */,
-				6873C2601A033B27006C201B /* BAIS.c */,
-				6873C2611A033B27006C201B /* BinarySaver.c */,
-				6873C2621A033B27006C201B /* BitSet.c */,
-				6873C2631A033B27006C201B /* Class.c */,
-				6873C2641A033B27006C201B /* ClassLoader.c */,
-				6873C2651A033B27006C201B /* CoreHandlers.c */,
-				6873C2661A033B27006C201B /* Data.c */,
-				6873C2671A033B27006C201B /* DataLoader.c */,
-				6873C2681A033B27006C201B /* Debug.c */,
-				684ED5FD1A6B81770091BDBB /* Engine.c */,
-				6873C2691A033B27006C201B /* ExpDev.c */,
-				6873C26A1A033B27006C201B /* FileInputStream.c */,
-				6873C26B1A033B27006C201B /* FiScE.c */,
-				6873C26D1A033B27006C201B /* HashMap.c */,
-				6873C26E1A033B27006C201B /* HashMapI.c */,
-				6873C26F1A033B27006C201B /* Heap.c */,
-				6873C2701A033B27006C201B /* Instructions.c */,
-				6873C2711A033B27006C201B /* LnkList.c */,
-				6873C2721A033B27006C201B /* MathHandlers.c */,
-				6873C2731A033B27006C201B /* MemMan.c */,
-				6873C2741A033B27006C201B /* Portable.c */,
-				6873C2751A033B27006C201B /* Preverifier.c */,
-				6873C2761A033B27006C201B /* RIS.c */,
-				6873C2771A033B27006C201B /* String.c */,
-				6873C2781A033B27006C201B /* Thread.c */,
-				6873C2791A033B27006C201B /* ThreadManager.c */,
-				6873C27A1A033B27006C201B /* Utf8.c */,
-				6873C27B1A033B27006C201B /* VMContext.c */,
-				684ED5FF1A6B81770091BDBB /* fisce-vm.i */,
-				684ED5FE1A6B81770091BDBB /* fisce-labels.i */,
-				6873C25A1A033AF3006C201B /* fisce.h */,
-				6873C25B1A033AF3006C201B /* fisceclz.h */,
-				6873C25C1A033AF3006C201B /* fiscedev.h */,
-				6873C25D1A033AF3006C201B /* fisceprt.h */,
-				6873C25E1A033AF3006C201B /* fiscestu.h */,
-			);
-			name = "fiscevm-c-native";
-			sourceTree = "<group>";
-		};
 		6873C2351A033A66006C201B = {
 			isa = PBXGroup;
 			children = (
@@ -224,13 +177,63 @@
 		6873C2401A033A66006C201B /* fiscevm-ios */ = {
 			isa = PBXGroup;
 			children = (
-				68420CF31A199D8A0066B591 /* fiscevm-c-native */,
+				68DAD3E01A92665C0053C05B /* include */,
+				68DAD3E11A92665C0053C05B /* include-dev */,
+				68DAD3E21A92665C0053C05B /* include-public */,
+				68DAD3961A92654F0053C05B /* utils */,
+				68DAD3951A92654A0053C05B /* vmcore */,
 				6873C2411A033A66006C201B /* FiScEVM.h */,
 				6873C2431A033A66006C201B /* FiScEVM.m */,
 				680577121A145D660048D21F /* FiScERunner.h */,
 				680577131A145D660048D21F /* FiScERunner.m */,
 			);
 			path = "fiscevm-ios";
+			sourceTree = "<group>";
+		};
+		68DAD3951A92654A0053C05B /* vmcore */ = {
+			isa = PBXGroup;
+			children = (
+				68DAD3971A9265790053C05B /* Debug.c */,
+				68DAD3981A9265790053C05B /* Thread.c */,
+				68DAD3991A9265790053C05B /* Heap.c */,
+				68DAD39A1A9265790053C05B /* ThreadManager.c */,
+				68DAD39B1A9265790053C05B /* Engine.c */,
+				68DAD39C1A9265790053C05B /* VMContext.c */,
+				68DAD39D1A9265790053C05B /* RIS.c */,
+				68DAD39E1A9265790053C05B /* Preverifier.c */,
+				68DAD39F1A9265790053C05B /* MathHandlers.c */,
+				68DAD3A01A9265790053C05B /* Instructions.c */,
+				68DAD3A21A9265790053C05B /* FiScE.c */,
+				68DAD3A31A9265790053C05B /* FileInputStream.c */,
+				68DAD3A41A9265790053C05B /* ExpDev.c */,
+				68DAD3A51A9265790053C05B /* Data.c */,
+				68DAD3A61A9265790053C05B /* CoreHandlers.c */,
+				68DAD3A71A9265790053C05B /* ClassLoader.c */,
+				68DAD3A81A9265790053C05B /* Class.c */,
+				68DAD3A91A9265790053C05B /* BinarySaver.c */,
+				68DAD3AA1A9265790053C05B /* BAIS.c */,
+				68DAD3AB1A9265790053C05B /* DataLoader.c */,
+				68DAD3AC1A9265790053C05B /* fisce-labels.i */,
+				68DAD3AD1A9265790053C05B /* fisce-vm.i */,
+			);
+			name = vmcore;
+			sourceTree = "<group>";
+		};
+		68DAD3961A92654F0053C05B /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				68DAD3C51A92658E0053C05B /* ArrList.c */,
+				68DAD3C61A92658E0053C05B /* BitSet.c */,
+				68DAD3C71A92658E0053C05B /* Debug.c */,
+				68DAD3C81A92658E0053C05B /* HashMap.c */,
+				68DAD3C91A92658E0053C05B /* HashMapI.c */,
+				68DAD3CA1A92658E0053C05B /* LnkList.c */,
+				68DAD3CB1A92658E0053C05B /* MemMan.c */,
+				68DAD3CC1A92658E0053C05B /* Portable.c */,
+				68DAD3CD1A92658E0053C05B /* String.c */,
+				68DAD3CE1A92658E0053C05B /* Utf8.c */,
+			);
+			name = utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -329,39 +332,40 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6873C2881A033B27006C201B /* FiScE.c in Sources */,
-				6873C2801A033B27006C201B /* Class.c in Sources */,
-				6873C2981A033B27006C201B /* VMContext.c in Sources */,
-				6873C2961A033B27006C201B /* ThreadManager.c in Sources */,
-				684ED6011A6B81770091BDBB /* fisce-labels.i in Sources */,
-				6873C2861A033B27006C201B /* ExpDev.c in Sources */,
-				6873C28B1A033B27006C201B /* HashMapI.c in Sources */,
-				6873C28C1A033B27006C201B /* Heap.c in Sources */,
-				6873C2871A033B27006C201B /* FileInputStream.c in Sources */,
-				6873C2821A033B27006C201B /* CoreHandlers.c in Sources */,
-				6873C27F1A033B27006C201B /* BitSet.c in Sources */,
-				684ED6021A6B81770091BDBB /* fisce-vm.i in Sources */,
-				6873C2951A033B27006C201B /* Thread.c in Sources */,
-				6873C27E1A033B27006C201B /* BinarySaver.c in Sources */,
-				6873C2841A033B27006C201B /* DataLoader.c in Sources */,
-				6873C28E1A033B27006C201B /* LnkList.c in Sources */,
-				6873C2851A033B27006C201B /* Debug.c in Sources */,
-				684ED6001A6B81770091BDBB /* Engine.c in Sources */,
-				6873C28F1A033B27006C201B /* MathHandlers.c in Sources */,
+				68DAD3D01A92658E0053C05B /* BitSet.c in Sources */,
 				6873C2441A033A66006C201B /* FiScEVM.m in Sources */,
-				6873C2811A033B27006C201B /* ClassLoader.c in Sources */,
-				6873C2941A033B27006C201B /* String.c in Sources */,
-				6873C28A1A033B27006C201B /* HashMap.c in Sources */,
-				6873C2921A033B27006C201B /* Preverifier.c in Sources */,
-				6873C2831A033B27006C201B /* Data.c in Sources */,
+				68DAD3C41A9265790053C05B /* fisce-vm.i in Sources */,
+				68DAD3B41A9265790053C05B /* RIS.c in Sources */,
+				68DAD3D71A92658E0053C05B /* String.c in Sources */,
+				68DAD3B91A9265790053C05B /* FiScE.c in Sources */,
+				68DAD3D21A92658E0053C05B /* HashMap.c in Sources */,
+				68DAD3BB1A9265790053C05B /* ExpDev.c in Sources */,
+				68DAD3B31A9265790053C05B /* VMContext.c in Sources */,
+				68DAD3C21A9265790053C05B /* DataLoader.c in Sources */,
+				68DAD3D31A92658E0053C05B /* HashMapI.c in Sources */,
 				680577141A145D660048D21F /* FiScERunner.m in Sources */,
-				6873C2971A033B27006C201B /* Utf8.c in Sources */,
-				6873C2901A033B27006C201B /* MemMan.c in Sources */,
-				6873C27D1A033B27006C201B /* BAIS.c in Sources */,
-				6873C2911A033B27006C201B /* Portable.c in Sources */,
-				6873C2931A033B27006C201B /* RIS.c in Sources */,
-				6873C28D1A033B27006C201B /* Instructions.c in Sources */,
-				6873C27C1A033B27006C201B /* ArrList.c in Sources */,
+				68DAD3B11A9265790053C05B /* ThreadManager.c in Sources */,
+				68DAD3BD1A9265790053C05B /* CoreHandlers.c in Sources */,
+				68DAD3CF1A92658E0053C05B /* ArrList.c in Sources */,
+				68DAD3AF1A9265790053C05B /* Thread.c in Sources */,
+				68DAD3AE1A9265790053C05B /* Debug.c in Sources */,
+				68DAD3B01A9265790053C05B /* Heap.c in Sources */,
+				68DAD3C01A9265790053C05B /* BinarySaver.c in Sources */,
+				68DAD3D11A92658E0053C05B /* Debug.c in Sources */,
+				68DAD3B51A9265790053C05B /* Preverifier.c in Sources */,
+				68DAD3D81A92658E0053C05B /* Utf8.c in Sources */,
+				68DAD3B61A9265790053C05B /* MathHandlers.c in Sources */,
+				68DAD3B71A9265790053C05B /* Instructions.c in Sources */,
+				68DAD3BE1A9265790053C05B /* ClassLoader.c in Sources */,
+				68DAD3D61A92658E0053C05B /* Portable.c in Sources */,
+				68DAD3BC1A9265790053C05B /* Data.c in Sources */,
+				68DAD3C31A9265790053C05B /* fisce-labels.i in Sources */,
+				68DAD3D41A92658E0053C05B /* LnkList.c in Sources */,
+				68DAD3BF1A9265790053C05B /* Class.c in Sources */,
+				68DAD3D51A92658E0053C05B /* MemMan.c in Sources */,
+				68DAD3BA1A9265790053C05B /* FileInputStream.c in Sources */,
+				68DAD3C11A9265790053C05B /* BAIS.c in Sources */,
+				68DAD3B21A9265790053C05B /* Engine.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,6 +396,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../fiscevm-c-native/src/main/include-dev ../fiscevm-c-native/src/main/include-public";
 			};
 			name = Debug;
 		};
@@ -407,6 +412,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../fiscevm-c-native/src/main/include-dev ../fiscevm-c-native/src/main/include-public";
 			};
 			name = Release;
 		};
@@ -494,6 +500,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = FiScEVM;
 				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "../fiscevm-c-native/src/main/include-dev ../fiscevm-c-native/src/main/include-public";
 			};
 			name = Debug;
 		};
@@ -507,6 +514,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = FiScEVM;
 				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "../fiscevm-c-native/src/main/include-dev ../fiscevm-c-native/src/main/include-public";
 			};
 			name = Release;
 		};

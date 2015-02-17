@@ -40,6 +40,7 @@
 #include "fyc/Constants.h"
 #include "fyc/ClassStruct.h"
 #include "fyc/Class.h"
+#include "fyc/ClassLoader.h"
 #include "fyc/Heap.h"
 #include "fyc/Thread.h"
 #include "fyc/ThreadManager.h"

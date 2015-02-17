@@ -18,6 +18,7 @@
  */
 
 #include "fy_util/Debug.h"
+#include "fy_util/Utf8.h"
 #include <stdarg.h>
 
 static void fy_strPrint0(FILE *fp, const fy_str *str) {

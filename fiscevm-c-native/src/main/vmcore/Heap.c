@@ -26,6 +26,7 @@
 
 #include "fy_util/Debug.h"
 #include "fyc/Constants.h"
+#include "fyc/Class.h"
 #include "fyc/Thread.h"
 #include "fyc/Debug.h"
 

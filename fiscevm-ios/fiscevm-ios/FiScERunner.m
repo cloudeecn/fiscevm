@@ -121,20 +121,6 @@ static void gc_finish(void *data);
                                     if(strongSelf.delegate){
                                         [strongSelf.delegate runnerEncountersException:strongSelf name:@"java/lang/UnsatisfiedLinkError" description:strongSelf->message.nativeCallName threadId:strongSelf->message.threadId];
                                     }
-                                    
-                                    switch(strongSelf->message.returnType){
-                                        case FISCE_RETURN_NONE:
-                                            break;
-                                        case FISCE_RETURN_INT:
-                                            [strongSelf->vm returnIntValue:0 toThread:strongSelf->message.threadId];
-                                            break;
-                                        case FISCE_RETURN_LONG:
-                                            [strongSelf->vm returnLongValue:0 toThread:strongSelf->message.threadId];
-                                            break;
-                                        case FISCE_RETURN_HANDLE:
-                                            [strongSelf->vm returnHandleValue:0 toThread:strongSelf->message.threadId];
-                                            break;
-                                    }
                                 }
                             }
                                 break;
