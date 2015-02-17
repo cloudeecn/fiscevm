@@ -220,15 +220,15 @@
 /* direct threading scheme 10: plain (no attempt at scheduling) */
 #  define USE_CFA
 #  define REGISTER_CFA
-#  define NEXT_P0
+#  define NEXT_P0	{INST_COUNT(PCURR_INST);}
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST (*(ipp - 1))
 #  define SET_IP(p)	{ipp=instructions + (p); NEXT_P0;}
 #  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1	{INST_COUNT(ipp); cfa = (ipp++)->inst;}
-#  define NEXT_P2	{goto *cfa;}
+#  define NEXT_P1
+#  define NEXT_P2	{cfa = (ipp++)->inst; goto *cfa;}
 #endif
 
 #define NEXT {DEF_CA NEXT_P1; NEXT_P2;}
