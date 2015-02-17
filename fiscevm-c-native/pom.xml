@@ -317,7 +317,7 @@
 											dir="${project.build.directory}/libfisce-test/win32"
 											failonerror="true">
 											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DENABLE_TEST=ON" />
@@ -363,7 +363,7 @@
 											dir="${project.build.directory}/libfisce-test/win64"
 											failonerror="true">
 											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DENABLE_TEST=ON" />
@@ -409,7 +409,7 @@
 											dir="${project.build.directory}/libfisce-out/win32"
 											failonerror="true">
 											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DENABLE_TEST=OFF" />
@@ -426,7 +426,7 @@
 											dir="${project.build.directory}/libfisce-out/win64"
 											failonerror="true">
 											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/mingw32.toolchain.cmake" />
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DENABLE_TEST=OFF" />
@@ -637,7 +637,7 @@
 											dir="${project.build.directory}/output/android-arm"
 											failonerror="true">
 											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/android.toolchain.cmake" />
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
@@ -666,7 +666,7 @@
 											dir="${project.build.directory}/output/android-x86"
 											failonerror="true">
 											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/c/android.toolchain.cmake" />
+												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
