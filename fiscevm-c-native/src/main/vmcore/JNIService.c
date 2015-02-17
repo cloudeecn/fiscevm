@@ -28,6 +28,7 @@
 #include "fyc/Constants.h"
 #include "fyc/ClassStruct.h"
 #include "fyc/Heap.h"
+#include "fyc/InputStream.h"
 
 static jclass messageClass = NULL;
 
@@ -493,21 +494,9 @@ JNIEXPORT void JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_execute(
 
 	switch (message->messageType) {
 	case message_invoke_native: {
-		obj = fy_hashMapGet(context->memblocks, cdata->nativeCache,
+		obj = (*env)->NewStringUTF(env,
 				message->body.call.methodName);
-		if (obj == NULL) {
-			obj = (*env)->NewString(env,
-					message->body.call.methodName,
-					message->body.call.methodName);
-			CHECK_JNI_EXCEPTION;
-			obj = (*env)->NewGlobalRef(env, obj);
-			fy_hashMapPut(context->memblocks, cdata->nativeCache,
-					message->body.call.methodName, obj, exception);
-			if (exception->exceptionType != exception_none) {
-				fillException(env, exception);
-				return;
-			}
-		}
+		CHECK_JNI_EXCEPTION;
 		(*env)->SetObjectField(env, ret, nativeUniqueNameField, obj);
 
 		len = message->body.call.paramCount;
