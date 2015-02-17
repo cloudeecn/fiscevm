@@ -21,8 +21,9 @@
 #define	FY_CLASSLOADER_H
 
 #include "fy_util/Portable.h"
-#include "fyc/ClassStruct.h"
-#include "fyc/VMContext.h"
+
+#include "fy_util/String.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {

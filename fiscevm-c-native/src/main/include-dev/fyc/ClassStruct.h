@@ -28,55 +28,34 @@
 #include "fy_util/String.h"
 #include "fy_util/HashMapI.h"
 #include "fy_util/ArrList.h"
+#include "fyc/typedefs.h"
 
-typedef struct fy_engine fy_engine;
-typedef struct fy_instruction fy_instruction;
-typedef struct fy_instruction_extra fy_instruction_extra;
-typedef struct fy_thread fy_thread;
-
-typedef struct ConstantClass ConstantClass;
-typedef struct ConstantNameAndTypeInfo ConstantNameAndTypeInfo;
-typedef struct fy_class fy_class;
-typedef struct fy_method fy_method;
-typedef struct fy_engine fy_engine;
-typedef struct fy_object_data fy_object_data;
-
-typedef fy_int (*fy_nhFunction)(
-		fy_context *context,
-		fy_thread *thread,
-		void *data,
-		fy_stack_item *args,
-		fy_int argsCount,
-		fy_int ops,
-		fy_exception *exception
-);
-
-typedef struct fy_nh {
+struct fy_nh {
 	void *data;
 	fy_nhFunction handler;
-}fy_nh;
+};
 
-typedef union stringInfo {
+union stringInfo {
 	fy_char string_index;
 	fy_str* string;
 	fy_int handle;
-}stringInfo;
+};
 
-typedef union classInfo {
+union classInfo {
 	fy_char name_index;
 	fy_str* className;
 	ConstantClass *constantClass;
 	fy_class *clazz;
-}classInfo;
+};
 
-typedef struct ConstantClass {
+struct ConstantClass {
 
 	fy_ubyte derefed;
 
 	classInfo ci;
-}ConstantClass;
+};
 
-typedef struct ConstantFieldRef {
+struct ConstantFieldRef {
 
 	fy_ubyte derefed;
 
@@ -84,16 +63,16 @@ typedef struct ConstantFieldRef {
 		fy_char class_index;
 		ConstantClass *constantClass;
 		struct fy_class *clazz;
-	};
+	} c;
 	union {
 		fy_char name_type_index;
 		ConstantNameAndTypeInfo *constantNameType;
 		fy_str* nameType;
-	};
+	} nt;
 	struct fy_field *field;
-}ConstantFieldRef;
+};
 
-typedef struct ConstantMethodRef {
+struct ConstantMethodRef {
 
 	fy_ubyte derefed;
 
@@ -107,41 +86,41 @@ typedef struct ConstantMethodRef {
 
 	/*The orignal method, not overridden.*/
 	fy_method *method;
-}ConstantMethodRef;
+};
 
-typedef struct ConstantStringInfo {
+struct ConstantStringInfo {
 
 	fy_ubyte derefed;
 
 	stringInfo ci;
-}ConstantStringInfo;
+};
 
-typedef struct ConstantIntegerFloatInfo {
+struct ConstantIntegerFloatInfo {
 	fy_int value;
-}ConstantIntegerFloatInfo;
+};
 
-typedef struct ConstantLongDoubleInfo {
+struct ConstantLongDoubleInfo {
 	fy_long value;
-}ConstantLongDoubleInfo;
+};
 
-typedef struct ConstantNameAndTypeInfo {
+struct ConstantNameAndTypeInfo {
 
 	union {
 		fy_char name_index;
 		fy_str* name;
-	};
+	} n;
 
 	union {
 		fy_char descriptor_index;
 		fy_str* descriptor;
-	};
-}ConstantNameAndTypeInfo;
+	} d;
+};
 
-typedef struct ConstantUtf8Info {
+struct ConstantUtf8Info {
 	fy_str* string;
-}ConstantUtf8Info;
+};
 
-typedef struct fy_field {
+struct fy_field {
 	fy_uint field_id;
 	fy_char access_flags;
 
@@ -163,29 +142,29 @@ typedef struct fy_field {
 	fy_uint posRel;
 	fy_uint posAbs;
 
-}fy_field;
+};
 
-typedef struct fy_lineNumber {
+struct fy_lineNumber {
 	fy_char start_pc;
 	fy_char line_number;
-}fy_lineNumber;
+};
 
-typedef struct fy_exceptionHandler {
+struct fy_exceptionHandler {
 	fy_char start_pc;
 	fy_char end_pc;
 	fy_char handler_pc;
 	fy_ubyte catchTypeDerefed;
 
 	classInfo ci;
-}fy_exceptionHandler;
+};
 
-typedef struct fy_stack_map_table {
+struct fy_stack_map_table {
 	fy_uint length;
 	fy_int count;
 	FY_VLS(fy_ubyte, entries);
-}fy_stack_map_table;
+};
 
-typedef struct fy_method {
+struct fy_method {
 	fy_int method_id;
 	fy_uint access_flags;
 
@@ -209,9 +188,9 @@ typedef struct fy_method {
 			fy_instruction *instructions;
 			fy_instruction_extra *instruction_extras;
 			fy_short *instruction_ops;
-		};
+		} i;
 		fy_nh *nh;
-	};
+	} c;
 	fy_stack_map_table *stackMapTable;
 	fy_char exception_table_length;
 	fy_exceptionHandler *exception_table;
@@ -233,13 +212,13 @@ typedef struct fy_method {
 	fy_arrayList* parameterTypes;
 	fy_class *returnTypeClass;
 	fy_engine *engine;
-}fy_method;
+};
 
 typedef enum fy_arrayType {
 	fy_at_byte, fy_at_short, fy_at_int, fy_at_long
-}fy_arrayType;
+} fy_arrayType;
 
-typedef struct fy_class {
+struct fy_class {
 	/*        _u4 magic;
 	 //        _u2 minorVersion;
 	 //        _u2 majorVersion;
@@ -262,7 +241,7 @@ typedef struct fy_class {
 	union {
 		ConstantClass* superClass;
 		struct fy_class* super;
-	};
+	} s;
 	fy_char interfacesCount;
 	ConstantClass** interfaceClasses;
 	fy_class** interfaces;
@@ -300,10 +279,10 @@ typedef struct fy_class {
 
 	/*Need persist*/
 	fy_int clinitThreadId;
-}fy_class;
+};
 
-typedef struct fy_object {
+struct fy_object {
 	fy_object_data *object_data;
-}fy_object;
+};
 
 #endif

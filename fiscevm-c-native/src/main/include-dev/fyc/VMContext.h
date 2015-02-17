@@ -28,18 +28,15 @@
 #include "fy_util/LnkList.h"
 #include "fy_util/MemMan.h"
 #include "fy_util/HashMap.h"
+#include "fyc/typedefs.h"
 #include "fyc/ClassStruct.h"
+#include "fyc/typedefs.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-typedef struct fy_inputStream fy_inputStream;
-typedef union fy_stack_item fy_stack_item;
-typedef struct fy_thread fy_thread;
-typedef struct fy_engine fy_engine;
-typedef struct fy_context fy_context;
-
-typedef struct fy_context {
+struct fy_context {
 	/*Service Function Table*/
 	/*INPUTSTREAM*/
 	fy_inputStream* (*isOpen)(struct fy_context *context, const char *name,
@@ -286,7 +283,7 @@ typedef struct fy_context {
 	fy_object objects[MAX_OBJECTS];
 	fy_int END_MARK[1];
 	/* #END HEAP*/
-}fy_context;
+};
 
 void fy_vmContextInit(fy_context *context, fy_exception *exception);
 void fy_vmContextDestroy(fy_context *context);

@@ -430,10 +430,6 @@ static void readString(fy_context *context, FILE *fp, fy_str *str, fy_int size,
 
 static void loadData(struct fy_context *context, fy_exception *exception) {
 	FILE *fp = fopen(context->saveloadParam, "rb");
-	if (fp == NULL) {
-		fy_fault(exception, FY_EXCEPTION_IO, "Can't load %s for load.",
-				context->saveloadParam);
-	}
 	void *loader;
 	fy_uint i, j;
 	fy_uint classCount;
@@ -490,6 +486,11 @@ static void loadData(struct fy_context *context, fy_exception *exception) {
 	fy_int pcofs;
 
 	fy_thread *thread;
+
+	if (fp == NULL) {
+		fy_fault(exception, FY_EXCEPTION_IO, "Can't load %s for load.",
+				context->saveloadParam);
+	}
 
 	if (fp == NULL) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Can't open save.dat for read.");

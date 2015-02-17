@@ -30,12 +30,13 @@
 #include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
 #include "fyc/Thread.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#ifdef FY_SUPPORT_THREADING
+#if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
 typedef void *fy_e2_label;
 #else
 typedef fy_int fy_e2_label;
@@ -85,10 +86,10 @@ typedef fy_int (*fy_engine_runner)(struct fy_context *context,
 		struct fy_exception *exception,
 		fy_e2_label_holder **out_labels);
 
-typedef struct fy_engine{
+struct fy_engine{
 	fy_engine_runner runner;
 	fy_engine_repl_data replData;
-} fy_engine;
+};
 
 fy_int fy_thread_runner_00(struct fy_context *context,
 			struct fy_thread *thread,

@@ -224,7 +224,7 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 	object->object_data->finalizeStatus = finalizeStatus;
 	object->object_data->monitorOwnerId = monitorOwner;
 	object->object_data->monitorOwnerTimes = monitorCount;
-	object->object_data->multiUsageData = multiUsageData;
+	object->object_data->m.multiUsageData = multiUsageData;
 	memcpy(object->object_data->data, data, dataLength * sizeof(fy_uint));
 }
 void fy_loadEndObject(struct fy_context *context, void *loader_,

@@ -20,7 +20,9 @@
 #ifndef BINARYSAVER_H_
 #define BINARYSAVER_H_
 
-#include "fyc/VMContext.h"
+#include "fy_util/Portable.h"
+#include "fyc/typedefs.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

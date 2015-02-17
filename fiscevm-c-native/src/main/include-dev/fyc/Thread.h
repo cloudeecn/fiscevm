@@ -27,12 +27,13 @@
 
 #include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-typedef struct fy_frame {
+struct fy_frame {
 	fy_method *method;
 	fy_stack_item *baseSpp;
 #ifdef FY_STRICT_CHECK
@@ -42,22 +43,22 @@ typedef struct fy_frame {
 #endif
 	fy_uint lpc;
 	fy_uint pcofs;
-}fy_frame;
+};
 
 #define FY_FRAME_ENTRIES ((sizeof(struct fy_frame)+3)/4)
 #define FY_GET_FRAME(THREAD,FRAMEID) ((fy_frame*)((THREAD)->stack+STACK_SIZE)-((FRAMEID)+1))
 
-typedef union fy_stack_wide_item {
+union fy_stack_wide_item {
 	struct {
 		fy_stack_item lower_item;
 		fy_stack_item higher_item;
 	}fy_stack_items;
 	fy_double dvalue;
 	fy_long lvalue;
-}fy_stack_wide_item;
+};
 
 
-typedef struct fy_thread {
+struct fy_thread {
 
 	fy_uint handle;
 	fy_uint currentThrowable;
@@ -78,7 +79,7 @@ typedef struct fy_thread {
 	fy_boolean destroyPending;
 
 	fy_nativeCall pendingNative;
-}fy_thread;
+};
 
 void fy_threadSetCurrentThrowable(fy_context *context, fy_thread *thread,
 		fy_int handle, fy_exception *exception);

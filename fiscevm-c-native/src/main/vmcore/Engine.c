@@ -46,10 +46,6 @@
 # define ASM_SHOW
 #endif
 
-#ifndef REPL_MIN
-# define REPL_MIN 5000
-#endif
-
 #ifdef FY_INSTRUCTION_COUNT
 # define DEBUG_REPL 1
 #else
@@ -94,29 +90,44 @@
 #endif
 
 #ifdef ASM_CHECK
-# define TRAP ({if(likely(exception != NULL)){*((volatile char*)0) = 1;}})
+# define TRAP {if(likely(exception != NULL)){*((volatile char*)0) = 1;}}
 #else
 # define TRAP
 #endif
 
 #ifdef FY_INSTRUCTION_COUNT
-# define INST_COUNT(ipp) ({ \
+# define INST_COUNT(ipp) { \
 	context->engines[FY_ENGINE_NUM].replData.instructionPairCount[context->engines[FY_ENGINE_NUM].replData.last_op * MAX_INSTRUCTIONS + ipp->op].op1 = context->engines[FY_ENGINE_NUM].replData.last_op; \
 	context->engines[FY_ENGINE_NUM].replData.instructionPairCount[context->engines[FY_ENGINE_NUM].replData.last_op * MAX_INSTRUCTIONS + ipp->op].op2 = ipp->op; \
 	context->engines[FY_ENGINE_NUM].replData.instructionPairCount[context->engines[FY_ENGINE_NUM].replData.last_op * MAX_INSTRUCTIONS + ipp->op].count++; \
 	context->engines[FY_ENGINE_NUM].replData.last_op = \
 	context->engines[FY_ENGINE_NUM].replData.instructionCount[ipp->op].op = ipp->op; \
 	context->engines[FY_ENGINE_NUM].replData.instructionCount[ipp->op].count++; \
-})
+}
 #else
 # define INST_COUNT(ipp)
 #endif
 
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
-# define MODIFY_CURR_INST(OP) ({CURR_INST.inst=INST_OF(OP);method->instruction_ops[FY_PDIFF(fy_instruction, PCURR_INST, instructions)]=CODE_OF(OP);CURR_INST.op=CODE_OF(OP);})
+# define MODIFY_CURR_INST(OP) {CURR_INST.inst=INST_OF(OP);method->c.i.instruction_ops[FY_PDIFF(fy_instruction, PCURR_INST, instructions)]=CODE_OF(OP);CURR_INST.op=CODE_OF(OP);}
 #else
-# define MODIFY_CURR_INST(OP) ({CURR_INST.inst=INST_OF(OP);method->instruction_ops[FY_PDIFF(fy_instruction, PCURR_INST, instructions)]=CODE_OF(OP);})
+# define MODIFY_CURR_INST(OP) {CURR_INST.inst=INST_OF(OP);method->c.i.instruction_ops[FY_PDIFF(fy_instruction, PCURR_INST, instructions)]=CODE_OF(OP);}
 #endif
+
+#define ENGINE_ENTER {NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->c.i.instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;}
+
+#if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
+
+#if 0
+//	######          ####### #     # ######  #######    #    ######
+//	#     #            #    #     # #     # #         # #   #     #
+//	#     #            #    #     # #     # #        #   #  #     #
+//	#     #            #    ####### ######  #####   #     # #     #
+//	#     #            #    #     # #   #   #       ####### #     #
+//	#     #            #    #     # #    #  #       #     # #     #
+//	######             #    #     # #     # ####### #     # ######
+#endif
+
 /* different threading schemes for different architectures; the sparse
  numbering is there for historical reasons */
 
@@ -130,66 +141,60 @@
 #ifndef THREADING_SCHEME
 #define THREADING_SCHEME 8
 #endif /* defined(THREADING_SCHEME) */
-
-#ifdef FY_SUPPORT_THREADING
 #if THREADING_SCHEME==1
 /* direct threading scheme 1: autoinc, long latency (HPPA, Sharc) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0	({cfa=(ipp++)->inst; INST_COUNT(PCURR_INST);})
+#  define NEXT_P0	{cfa=(ipp++)->inst; INST_COUNT(PCURR_INST);}
 #  define IP		(ipp-1)
 #  define PCURR_INST		(ipp-2)
 #  define CURR_INST		(*(ipp-2))
-#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
+#  define SET_IP(p)	{ipp=instructions + (p); NEXT_P0;}
 #  define NEXT_INST	(*(ipp-1))
 #  define DEF_CA
-#  define NEXT_P1	({})
-#  define NEXT_P2	({goto *cfa;})
+#  define NEXT_P1
+#  define NEXT_P2	{goto *cfa;}
 #endif
 
 #if THREADING_SCHEME==3
 /* direct threading scheme 3: autoinc, low latency (68K) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0   ({INST_COUNT(PCURR_INST);})
+#  define NEXT_P0   {INST_COUNT(PCURR_INST);}
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST		(*(ipp - 1))
-#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
+#  define SET_IP(p)	{ipp=instructions + (p); NEXT_P0;}
 #  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1	({cfa=(ipp++)->inst;})
-#  define NEXT_P2	({goto *cfa;})
+#  define NEXT_P1	{cfa=(ipp++)->inst;}
+#  define NEXT_P2	{goto *cfa;}
 #endif
 
 #if THREADING_SCHEME==5
 /* direct threading scheme 5: early fetching (Alpha, MIPS) */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
 #  define CFA_NEXT
-#  define NEXT_P0	({cfa=ipp->inst; INST_COUNT(PCURR_INST);})
+#  define NEXT_P0	{cfa=ipp->inst; INST_COUNT(PCURR_INST);}
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
-#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0; /*fprintf(vm_out, "\njumping to %"FY_PRINT32"d [%p]\n", cfa.op, cfa.inst); if(cfa.inst == NULL){fy_breakpoint();}*/})
+#  define SET_IP(p)	{ipp=instructions + (p); NEXT_P0; /*fprintf(vm_out, "\njumping to %"FY_PRINT32"d [%p]\n", cfa.op, cfa.inst); if(cfa.inst == NULL){fy_breakpoint();}*/}
 #  define NEXT_INST	(*IP)
 #  define DEF_CA
-#  define NEXT_P1	({ipp++;})
-#  define NEXT_P2	({goto *cfa;})
+#  define NEXT_P1	{ipp++;}
+#  define NEXT_P2	{goto *cfa;}
 #endif
 
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0 ({/*FY_PREFETCH(ipp);*/INST_COUNT(PCURR_INST);})
+#  define NEXT_P0 {/*FY_PREFETCH(ipp);*/INST_COUNT(PCURR_INST);}
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
-#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
+#  define SET_IP(p)	{ipp=instructions + (p); NEXT_P0;}
 #  define NEXT_INST	(*IP)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({goto *((ipp++)->inst);})
+#  define NEXT_P2	{goto *((ipp++)->inst);}
 #endif
 
 #if THREADING_SCHEME==9
@@ -198,17 +203,16 @@
  works out better with the capabilities of gcc to introduce and
  schedule the mtctr instruction. */
 #  define USE_CFA 1
-#  define ENGINE_ENTER ({SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0 ({INST_COUNT(PCURR_INST);})
+#  define NEXT_P0 {INST_COUNT(PCURR_INST);}
 #  define IP		ipp
-#  define SET_IP(p)	({ipp=instructions + (p); next_cfa=ipp->inst; NEXT_P0;})
+#  define SET_IP(p)	{ipp=instructions + (p); next_cfa=ipp->inst; NEXT_P0;}
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
 #  define NEXT_INST	(*ipp)
-#  define INC_IP(const_inc)	({next_cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	{next_cfa=IP[const_inc]; ip+=(const_inc);}
 #  define DEF_CA
-#  define NEXT_P1	({cfa=next_cfa; ipp++; next_cfa=ipp->inst;})
-#  define NEXT_P2	({goto *cfa;})
+#  define NEXT_P1	{cfa=next_cfa; ipp++; next_cfa=ipp->inst;}
+#  define NEXT_P2	{goto *cfa;}
 #  define MORE_VARS	fy_e2_label next_cfa;
 #endif
 
@@ -216,40 +220,61 @@
 /* direct threading scheme 10: plain (no attempt at scheduling) */
 #  define USE_CFA
 #  define REGISTER_CFA
-#  define ENGINE_ENTER ({NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;})
-#  define NEXT_P0   ({})
+#  define NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST (*(ipp - 1))
-#  define SET_IP(p)	({ipp=instructions + (p); NEXT_P0;})
+#  define SET_IP(p)	{ipp=instructions + (p); NEXT_P0;}
 #  define NEXT_INST	(*ipp)
 #  define DEF_CA
-#  define NEXT_P1	({INST_COUNT(ipp); cfa = (ipp++)->inst;})
-#  define NEXT_P2	({goto *cfa;})
+#  define NEXT_P1	{INST_COUNT(ipp); cfa = (ipp++)->inst;}
+#  define NEXT_P2	{goto *cfa;}
 #endif
 
-#define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
+#define NEXT {DEF_CA NEXT_P1; NEXT_P2;}
 #define IPTOS ((NEXT_INST))
 
 #define INST_ADDR(name) {&&I_##name , FY_OP_##name}
 #define LABEL(name) I_##name:
 #define INST_OF(name) (&&I_##name)
 #define CODE_OF(name) (FY_OP_##name)
+#define ENGINE_BODY_BEGIN
+#define ENGINE_BODY_END
 
-#else /* !defined(FY_SUPPORT_THREADING) */
+#elif FY_DISPATCH_MODE == FY_DISPATCH_SWITCH
+
+#if 0
+//	######           #####  #     #   ###   #######  #####  #     #
+//	#     #         #     # #  #  #    #       #    #     # #     #
+//	#     #         #       #  #  #    #       #    #       #     #
+//	#     #          #####  #  #  #    #       #    #       #######
+//	#     #               # #  #  #    #       #    #       #     #
+//	#     #         #     # #  #  #    #       #    #     # #     #
+//	######           #####   ## ##    ###      #     #####  #     #
+#endif
+
 /* use switch dispatch */
-#define DEF_CA
-#define NEXT_P0
-#define NEXT_P1
-#define NEXT_P2 goto next_inst;
-#define SET_IP(p)	(ip=(p))
-#define IP              ip
-#define NEXT_INST	(*ip)
-#define INC_IP(const_inc)	(ip+=(const_inc))
-#define IPTOS NEXT_INST
-#define INST_ADDR(name) I_##name
-#define LABEL(name) case I_##name:
-
+# define DEF_CA
+# define USE_CFA 1
+# define NEXT_P0 {cfa = ipp->inst; INST_COUNT(PCURR_INST);}
+# define NEXT_P1 {ipp++;}
+# define NEXT_P2 goto dispatcher_switch;
+# define SET_IP(p)	{ipp=instructions + (p); NEXT_P0;}
+# define IP		(ipp)
+# define PCURR_INST		(ipp - 1)
+# define CURR_INST (*(ipp - 1))
+# define NEXT_INST	(*ipp)
+# define IPTOS NEXT_INST
+# define INST_ADDR(name) {FY_OP_##name , FY_OP_##name}
+# define LABEL(name) case FY_OP_##name:
+# define INST_OF(name) (FY_OP_##name)
+# define CODE_OF(name) (FY_OP_##name)
+# define ENGINE_BODY_BEGIN \
+	while(ops>0) { dispatcher_switch: switch(cfa){
+# define ENGINE_BODY_END \
+	default: fy_fault(exception, NULL, "Illegal op %"FY_PRINT32"d", CURR_INST.inst);}}
+#else
+#error "Dispatch mode not supported"
 #endif /* !defined(FY_SUPPORT_THREADING) */
 
 #define LABEL2(x)
@@ -278,7 +303,7 @@ enum {
  ####### #     #  #####    ###   #     # ####### #######
  */
 
-#ifdef FY_SUPPORT_THREADING
+#if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
 # define FY_FALLOUT_INVOKE {goto I_dropout;}
 # define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); goto I_dropout;}
 #else
@@ -286,7 +311,7 @@ enum {
 # define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
 #endif
 
-# define FY_OP_GOTO ({SET_IP(CURR_INST.params.int_params.param1);})
+# define FY_OP_GOTO {SET_IP(CURR_INST.params.int_params.param1);}
 # define FY_CHECK_OPS(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_NOINVOKE}
 # define FY_CHECK_OPS_INVOKE(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_INVOKE}
 # define FY_CHECK_OPS_AND_GOTO(OPS) \
@@ -303,21 +328,21 @@ if(unlikely(OPS <= 0)){ \
 # define fy_checkPutLocal(P,SIZE) { \
 	if((P)<0 || (P)+(SIZE)>=method->max_locals) {\
 		fy_fault(exception,NULL,"Local var out of range %d/%d",(P),method->max_locals);\
-		FY_THEH() \
+		FY_THEH(;) \
 	} \
 }
 
 # define fy_checkGetLocal(P,SIZE) { \
 	if((P)<0 || (P)+(SIZE)>=method->max_locals) {\
 		fy_fault(exception,NULL,"Local var out of range %d/%d",(P),method->max_locals);\
-		FY_THEH() \
+		FY_THEH(;) \
 	} \
 }
 
 # define fy_checkCall(COUNT) \
 	if (FY_PDIFF(fy_stack_item, spp, sbase) - (COUNT) < method->max_locals) { \
 		fy_fault(exception,NULL,"Buffer underflow! sb=%d local=%d sp=%d count=%d", sb, localCount, sp, COUNT); \
-		FY_THEH() \
+		FY_THEH(;) \
 	}
 
 #else
@@ -372,7 +397,7 @@ if(unlikely(OPS <= 0)){ \
 #endif
 
 #define FY_UPDATE_SP(context, ptrFrame) { \
-	spp = ptrFrame->baseSpp + method->instruction_extras[ptrFrame->lpc + ptrFrame->pcofs].sp; \
+	spp = ptrFrame->baseSpp + method->c.i.instruction_extras[ptrFrame->lpc + ptrFrame->pcofs].sp; \
 }
 
 #define FY_THEH(FINALLY) \
@@ -384,7 +409,7 @@ if(unlikely(exception->exceptionType != exception_none)){ \
 
 #define FY_ENGINE_CLINIT(CLASS, SPSS) { \
 	ops = fy_threadClinit(context, thread, (CLASS), spp + (SPSS), ops, exception); \
-	FY_THEH(); \
+	FY_THEH(;); \
 	FY_CHECK_OPS_INVOKE(ops); \
 }
 
@@ -412,9 +437,9 @@ static void calc_repl(fy_context *context,
 	fy_int count;
 	fy_int toOp;
 	if (repl_data[op] != NULL) {
-		nextOp = method->instruction_ops[FY_PDIFF(fy_instruction, currInst, method->instructions) + 1];
+		nextOp = method->c.i.instruction_ops[FY_PDIFF(fy_instruction, currInst, method->c.i.instructions) + 1];
 		if (nextOp < 0) {
-            WLOG(context, "Can't find op from label %p in engine %d method %s ip %d", currInst[1].inst, engineNum, method->utf8Name, FY_PDIFF(fy_instruction, currInst + 1, method->instructions));
+            WLOG(context, "Can't find op from label %p in engine %d method %s ip %d", currInst[1].inst, engineNum, method->utf8Name, FY_PDIFF(fy_instruction, currInst + 1, method->c.i.instructions));
             nextOp = -1;
 		} else if (repl_data[nextOp] == NULL) {
 			toOp = fy_hashMapIGet(context->memblocks, repl_result,
@@ -428,7 +453,7 @@ static void calc_repl(fy_context *context,
 						FY_OP_NAME[op], op, currInst->inst, FY_OP_NAME[nextOp], nextOp, FY_OP_NAME[toOp], toOp, currInst->inst, method->utf8Name, currInst)
 				;					//
 #endif
-				method->instruction_ops[FY_PDIFF(fy_instruction, currInst, method->instructions)] = toOp;
+				method->c.i.instruction_ops[FY_PDIFF(fy_instruction, currInst, method->c.i.instructions)] = toOp;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 				currInst->op = toOp;
 #endif
@@ -454,7 +479,7 @@ static void calc_repl(fy_context *context,
 					fy_hashMapIPut(context->memblocks, repl_result, PAIR_OF(op, nextOp), toOp, exception);
 					FYEH();
 					currInst->inst = lookup_label(labels, toOp);
-					method->instruction_ops[FY_PDIFF(fy_instruction, currInst, method->instructions)] = toOp;
+					method->c.i.instruction_ops[FY_PDIFF(fy_instruction, currInst, method->c.i.instructions)] = toOp;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 					currInst->op = toOp;
 #endif

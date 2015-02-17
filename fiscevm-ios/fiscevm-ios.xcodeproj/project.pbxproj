@@ -496,6 +496,12 @@
 		6873C2531A033A66006C201B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"THREADING_SCHEME=8",
+					"REPL_MIN=5000",
+					"FY_DISPATCH_MODE=2",
+				);
 				GCC_THREADSAFE_STATICS = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = FiScEVM;
@@ -509,6 +515,11 @@
 			buildSettings = {
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"THREADING_SCHEME=8",
+					"REPL_MIN=5000",
+					"FY_DISPATCH_MODE=2",
+				);
 				GCC_THREADSAFE_STATICS = NO;
 				LLVM_LTO = YES;
 				OTHER_LDFLAGS = "-ObjC";

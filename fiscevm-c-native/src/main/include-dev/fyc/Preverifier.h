@@ -20,9 +20,8 @@
 #define PREVERIFER_H_
 
 #include "fy_util/Portable.h"
+#include "fyc/typedefs.h"
 
-#include "fyc/ClassStruct.h"
-#include "fyc/VMContext.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif

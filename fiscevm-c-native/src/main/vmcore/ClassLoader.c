@@ -23,15 +23,20 @@
 #include "fyc/Config.h"
 
 #include "fyc/ClassLoader.h"
+
 #include "fy_util/MemMan.h"
 #include "fy_util/String.h"
 #include "fy_util/Utf8.h"
 #include "fy_util/Debug.h"
 #include "fyc/Config.h"
 #include "fyc/Constants.h"
+#include "fyc/ClassStruct.h"
+#include "fyc/Debug.h"
 #include "fyc/Class.h"
 #include "fyc/Data.h"
 #include "fyc/BAIS.h"
+#include "fyc/VMContext.h"
+#include "fyc/InputStream.h"
 
 #if 0 || FY_VERBOSE
 # ifndef FY_CL_DEBUG
@@ -140,10 +145,10 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 			tmpConstantFieldRef = fy_mmAllocatePerm(block,
 					sizeof(ConstantFieldRef), exception);
 			FYEH();
-			tmpConstantFieldRef->class_index = checkConstantBonud(ret,
+			tmpConstantFieldRef->c.class_index = checkConstantBonud(ret,
 					fy_dataRead2(context, is, exception), exception);
 			FYEH();
-			tmpConstantFieldRef->name_type_index = checkConstantBonud(ret,
+			tmpConstantFieldRef->nt.name_type_index = checkConstantBonud(ret,
 					fy_dataRead2(context, is, exception), exception);
 			FYEH();
 			tmp = tmpConstantFieldRef;
@@ -195,10 +200,10 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 			tmpConstantNameAndTypeInfo = fy_mmAllocatePerm(block,
 					sizeof(ConstantNameAndTypeInfo), exception);
 			FYEH();
-			tmpConstantNameAndTypeInfo->name_index = checkConstantBonud(ret,
+			tmpConstantNameAndTypeInfo->n.name_index = checkConstantBonud(ret,
 					fy_dataRead2(context, is, exception), exception);
 			FYEH();
-			tmpConstantNameAndTypeInfo->descriptor_index = checkConstantBonud(
+			tmpConstantNameAndTypeInfo->d.descriptor_index = checkConstantBonud(
 					ret, fy_dataRead2(context, is, exception), exception);
 			FYEH();
 			tmp = tmpConstantNameAndTypeInfo;
@@ -262,10 +267,10 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 			break;
 		case CONSTANT_NameAndType:
 			tmpConstantNameAndTypeInfo = (ConstantNameAndTypeInfo*) tmp;
-			tmpConstantNameAndTypeInfo->name =
-					((ConstantUtf8Info*) (constantPools[tmpConstantNameAndTypeInfo->name_index]))->string;
-			tmpConstantNameAndTypeInfo->descriptor =
-					((ConstantUtf8Info*) (constantPools[tmpConstantNameAndTypeInfo->descriptor_index]))->string;
+			tmpConstantNameAndTypeInfo->n.name =
+					((ConstantUtf8Info*) (constantPools[tmpConstantNameAndTypeInfo->n.name_index]))->string;
+			tmpConstantNameAndTypeInfo->d.descriptor =
+					((ConstantUtf8Info*) (constantPools[tmpConstantNameAndTypeInfo->d.descriptor_index]))->string;
 			break;
 		case CONSTANT_Utf8:
 			break;
@@ -283,14 +288,14 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 			break;
 		case CONSTANT_Fieldref:
 			tmpConstantFieldRef = (ConstantFieldRef*) tmp;
-			tmpConstantFieldRef->constantClass =
-					(ConstantClass*) (constantPools[tmpConstantFieldRef->class_index]);
-			tmpConstantFieldRef->constantNameType =
-					(ConstantNameAndTypeInfo*) (constantPools[tmpConstantFieldRef->name_type_index]);
-			tmpConstantFieldRef->nameType = fy_vmCreateStringByPoolV(context,
+			tmpConstantFieldRef->c.constantClass =
+					(ConstantClass*) (constantPools[tmpConstantFieldRef->c.class_index]);
+			tmpConstantFieldRef->nt.constantNameType =
+					(ConstantNameAndTypeInfo*) (constantPools[tmpConstantFieldRef->nt.name_type_index]);
+			tmpConstantFieldRef->nt.nameType = fy_vmCreateStringByPoolV(context,
 					exception, "cscs", '.',
-					tmpConstantFieldRef->constantNameType->name, '.',
-					tmpConstantFieldRef->constantNameType->descriptor);
+					tmpConstantFieldRef->nt.constantNameType->n.name, '.',
+					tmpConstantFieldRef->nt.constantNameType->d.descriptor);
 			FYEH();
 #if 0
 			fy_strCreatePerm(block,
@@ -323,8 +328,8 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 			(ConstantNameAndTypeInfo*) (constantPools[tmpConstantMethodRef->name_type_index]);
 			tmpConstantMethodRef->nameType = fy_vmCreateStringByPoolV(context,
 					exception, "cscs", '.',
-					tmpConstantMethodRef->constantNameType->name, '.',
-					tmpConstantMethodRef->constantNameType->descriptor);
+					tmpConstantMethodRef->constantNameType->n.name, '.',
+					tmpConstantMethodRef->constantNameType->d.descriptor);
 			FYEH();
 #if 0
 			nameType =
@@ -502,10 +507,10 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 		FYEH()0;
 	}
 	if (end == 0) {
-		//Pri
+		/*Pri*/
 		finalName = context->primitives[fy_strGet(desc,begin)];
 	} else {
-		//Class or Array
+		/*Class or Array*/
 		ch = fy_strGet(desc,begin);
 		if (ch == 'L') {
 			tmp->maxLength = tmp->length = end - begin - 2;
@@ -795,11 +800,10 @@ static void loadMethods(fy_context *context, fy_class *clazz,
 				FYEH();
 				method->codeLength = fy_dataRead4(context, is, exception);
 				FYEH();
-				/*������������������������Preverify������������*/
-				method->code = fy_mmAllocate(block, method->codeLength,
+				method->c.code = fy_mmAllocate(block, method->codeLength,
 						exception);
 				FYEH();
-				fy_dataReadBlock(context, is, method->code, method->codeLength,
+				fy_dataReadBlock(context, is, method->c.code, method->codeLength,
 						exception);
 				FYEH();
 
@@ -929,7 +933,7 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
 	context->logDStr(context, clazz->className);
 	context->logDVarLn(context, "...");
 #endif
-	clazz->superClass = clazz->constantPools[fy_dataRead2(context, is,
+	clazz->s.superClass = clazz->constantPools[fy_dataRead2(context, is,
 			exception)];
 	FYEH()NULL;
 	loadInterfaces(context, clazz, is, exception);
@@ -1043,9 +1047,9 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 
 		break;
 	case object_class:
-		if (clazz->superClass != NULL) {
-			clazz->super = fy_vmLookupClassFromConstant(context,
-					clazz->superClass, exception);
+		if (clazz->s.superClass != NULL) {
+			clazz->s.super = fy_vmLookupClassFromConstant(context,
+					clazz->s.superClass, exception);
 			FYEH();
 		}
 		pos = clazz->methodCount;
@@ -1061,7 +1065,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			FYEH();
 		}
 		/*name = clazz->className;*/
-		if (clazz->superClass != NULL) {
+		if (clazz->s.superClass != NULL) {
 #ifdef FY_DEBUG
 			if (fy_strCmp(context->sTopClass, clazz->className) == 0) {
 				fy_fault(exception, NULL,
@@ -1076,7 +1080,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 			clazz->sizeAbs = 0;
 			while (tmp != NULL) {
 				clazz->sizeAbs += tmp->sizeRel;
-				tmp = tmp->super;
+				tmp = tmp->s.super;
 			}
 #ifdef FY_CL_DEBUG
 			context->logDVar(context, "#CL#");
@@ -1093,7 +1097,7 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				if (clazz->fields[i]->access_flags & FY_ACC_STATIC) {
 
 				} else {
-					clazz->fields[i]->posAbs = clazz->super->sizeAbs
+					clazz->fields[i]->posAbs = clazz->s.super->sizeAbs
 					+ clazz->fields[i]->posRel;
 				}
 			}
@@ -1135,8 +1139,8 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 				clazz->sizeAbs * sizeof(fy_field*), exception);
 		FYEH();
 
-		if (clazz->super && (i = clazz->super->sizeAbs) > 0) {
-			memcpy(clazz->fieldAbs, clazz->super->fieldAbs,
+		if (clazz->s.super && (i = clazz->s.super->sizeAbs) > 0) {
+			memcpy(clazz->fieldAbs, clazz->s.super->fieldAbs,
 					i * sizeof(fy_field*));
 		}
 		if (fy_classExtendsAnnotation(context, clazz)) {
@@ -1283,7 +1287,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz = fy_mmAllocatePerm(block, sizeof(fy_class), exception);
 		FYEH()NULL;
 		clazz->type = array_class;
-		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
+		clazz->s.super = fy_vmLookupClass(context, context->sTopClass, exception);
 		clazz->className = fy_vmCreateStringByPool(context, name, exception);/*fy_strCreatePermFromClone(block, name, 0, exception);*/
 		FYEH()NULL;
 #if 0
@@ -1326,7 +1330,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->className = fy_vmCreateStringByPool(context, name, exception);/*fy_strCreatePermFromClone(block, name, 0, exception);*/
 		FYEH()NULL;
 		clazz->type = primitive_class;
-		clazz->super = fy_vmLookupClass(context, context->sTopClass, exception);
+		clazz->s.super = fy_vmLookupClass(context, context->sTopClass, exception);
 		FYEH()NULL;
 		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(block,
 				context->mapPrimitivesRev, name);

@@ -23,8 +23,12 @@
 #include "fyc/Config.h"
 
 #include "fyc/Class.h"
+
 #include "fy_util/String.h"
 #include "fy_util/Debug.h"
+
+#include "fyc/ClassStruct.h"
+#include "fyc/VMContext.h"
 
 #if 0
 # ifndef FY_CLASS_VERBOSE
@@ -81,8 +85,8 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 				}
 			}
 
-			if (this->super != NULL
-					&& fy_classCanCastTo(context, this->super, other,
+			if (this->s.super != NULL
+					&& fy_classCanCastTo(context, this->s.super, other,
 							processInterface)) {
 #ifdef FY_CLASS_VERBOSE
 				context->logDVar(context,"=TRUE\n");

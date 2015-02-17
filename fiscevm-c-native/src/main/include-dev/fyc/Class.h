@@ -20,8 +20,7 @@
 #define FY_CLASS_H_
 
 #include "fy_util/Portable.h"
-#include "fyc/ClassStruct.h"
-#include "fyc/VMContext.h"
+#include "fyc/typedefs.h"
 
 
 #ifdef	__cplusplus

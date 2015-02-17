@@ -501,7 +501,7 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 
 	for (i = 0; i < FY_ENGINE_COUNT; i++) {
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_iload, 24, //
+		FY_OP_iload, 24, /**/
 				FY_OP_iload_r0,
 				FY_OP_iload_r1,
 				FY_OP_iload_r2,
@@ -527,13 +527,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_iload_r22,
 				FY_OP_iload_r23);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_istore, 4, //
+		FY_OP_istore, 4, /**/
 				FY_OP_istore_r0,
 				FY_OP_istore_r1,
 				FY_OP_istore_r2,
 				FY_OP_istore_r3);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_sipush, 8, //
+		FY_OP_sipush, 8, /**/
 				FY_OP_sipush_r0,
 				FY_OP_sipush_r1,
 				FY_OP_sipush_r2,
@@ -543,13 +543,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_sipush_r6,
 				FY_OP_sipush_r7);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_iinc, 4, //
+		FY_OP_iinc, 4, /**/
 				FY_OP_iinc_r0,
 				FY_OP_iinc_r1,
 				FY_OP_iinc_r2,
 				FY_OP_iinc_r3);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_getfield_n, 8, //
+		FY_OP_getfield_n, 8, /**/
 				FY_OP_getfield_n_r0,
 				FY_OP_getfield_n_r1,
 				FY_OP_getfield_n_r2,
@@ -559,13 +559,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_getfield_n_r6,
 				FY_OP_getfield_n_r7);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_putfield_n, 4, //
+		FY_OP_putfield_n, 4, /**/
 				FY_OP_putfield_n_r0,
 				FY_OP_putfield_n_r1,
 				FY_OP_putfield_n_r2,
 				FY_OP_putfield_n_r3);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_getstatic_n, 6, //
+		FY_OP_getstatic_n, 6, /**/
 				FY_OP_getstatic_n_r0,
 				FY_OP_getstatic_n_r1,
 				FY_OP_getstatic_n_r2,
@@ -573,28 +573,28 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_getstatic_n_r4,
 				FY_OP_getstatic_n_r5);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_putstatic_n, 12, //
+		FY_OP_putstatic_n, 12, /**/
 				FY_OP_putstatic_n_r0,
 				FY_OP_putstatic_n_r1,
 				FY_OP_putstatic_n_r2,
 				FY_OP_putstatic_n_r3);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_fadd, 3, //
+		FY_OP_fadd, 3, /**/
 				FY_OP_fadd_r0,
 				FY_OP_fadd_r1,
 				FY_OP_fadd_r2);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_iadd, 3, //
+		FY_OP_iadd, 3, /**/
 				FY_OP_iadd_r0,
 				FY_OP_iadd_r1,
 				FY_OP_iadd_r2);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_iastore, 3, //
+		FY_OP_iastore, 3, /**/
 				FY_OP_iastore_r0,
 				FY_OP_iastore_r1,
 				FY_OP_iastore_r2);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_iaload, 6, //
+		FY_OP_iaload, 6, /**/
 				FY_OP_iaload_r0,
 				FY_OP_iaload_r1,
 				FY_OP_iaload_r2,
@@ -602,7 +602,7 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_iaload_r4,
 				FY_OP_iaload_r5);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_nop, 3, //
+		FY_OP_nop, 3, /**/
 				FY_OP_nop_r0,
 				FY_OP_nop_r1,
 				FY_OP_nop_r2);
@@ -910,7 +910,7 @@ fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
 			context->logDVarLn(context, "...");
 #endif
 		}
-		clazz = clazz->super;
+		clazz = clazz->s.super;
 	}
 
 	fy_strDestroy(block, uniqueNameTmp);
@@ -989,9 +989,12 @@ fy_method *fy_vmLookupMethodFromInterfaces(fy_context *context, fy_class *clazz,
 	fy_int i, imax;
 	fy_method *method = NULL;
 	fy_memblock *block = context->memblocks;
-	fy_str *uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
+	fy_str *uniqueNameTmp;
+	fy_str *uniqueName;
+
+	uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
 	FYEH()NULL;
-	fy_str *uniqueNameTmp = fy_mmAllocate(block, sizeof(fy_str), exception);
+	uniqueNameTmp = fy_mmAllocate(block, sizeof(fy_str), exception);
 	FYEH()NULL;
 	fy_strInit(block, uniqueName,
 			clazz->className->length + methodName->length + 1, exception);
@@ -1026,7 +1029,7 @@ fy_method *fy_vmLookupMethodFromInterfaces(fy_context *context, fy_class *clazz,
 		if (method != NULL) {
 			break;
 		}
-		clazz = clazz->super;
+		clazz = clazz->s.super;
 	}
 	fy_strDestroy(block, uniqueNameTmp);
 	fy_mmFree(block, uniqueNameTmp);
@@ -1040,9 +1043,12 @@ fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 	int *pMid;
 	fy_method *method = NULL;
 	fy_memblock *block = context->memblocks;
-	fy_str *uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
+	fy_str *uniqueName;
+	fy_str *uniqueNameTmp;
+
+	uniqueName = fy_mmAllocate(block, sizeof(fy_str), exception);
 	FYEH()NULL;
-	fy_str *uniqueNameTmp = fy_mmAllocate(block, sizeof(fy_str), exception);
+	uniqueNameTmp = fy_mmAllocate(block, sizeof(fy_str), exception);
 	FYEH()NULL;
 	fy_strInit(block, uniqueName,
 			clazz->className->length + methodName->length + 1, exception);
@@ -1069,7 +1075,7 @@ fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
 			method = context->methods[*pMid];
 			break;
 		}
-		clazz = clazz->super;
+		clazz = clazz->s.super;
 	}
 	fy_strDestroy(block, uniqueNameTmp);
 	fy_mmFree(block, uniqueNameTmp);
@@ -1154,7 +1160,7 @@ fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
 				"Get class ID for non-class object");
 		return NULL;
 	}
-	classId = context->objects[handle].object_data->classId;
+	classId = context->objects[handle].object_data->m.classId;
 	return context->classes[classId];
 }
 
@@ -1176,13 +1182,13 @@ fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
 	fy_field *field;
 
 	if (unlikely(fieldInfo->derefed == 0)) {
-		fieldInfo->clazz = fy_vmLookupClassFromConstant(context,
-				fieldInfo->constantClass, exception);
+		fieldInfo->c.clazz = fy_vmLookupClassFromConstant(context,
+				fieldInfo->c.constantClass, exception);
 		if (exception->exceptionType != exception_none) {
 			return NULL;
 		}
-		field = fy_vmLookupFieldVirtual(context, fieldInfo->clazz,
-				fieldInfo->nameType, exception);
+		field = fy_vmLookupFieldVirtual(context, fieldInfo->c.clazz,
+				fieldInfo->nt.nameType, exception);
 		FYEH()NULL;
 		if (field == NULL) {
 			fy_fault(exception, NULL, "Field not found");
@@ -1383,11 +1389,11 @@ void fy_vmSave(fy_context *context, fy_exception *exception) {
 					object->object_data->finalizeStatus,
 					object->object_data->monitorOwnerId,
 					object->object_data->monitorOwnerTimes,
-					object->object_data->multiUsageData,
+					object->object_data->m.multiUsageData,
 					object->object_data->clazz->type == array_class ?
 							fy_heapGetArraySizeFromLength(
 									object->object_data->clazz,
-									object->object_data->arrayLength) :
+									object->object_data->m.arrayLength) :
 							object->object_data->clazz->sizeAbs,
 					(void*) object->object_data->data, exception);
 			count++;
@@ -1468,10 +1474,10 @@ fy_int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
 	if (unlikely(handle == -1)) {
 		fy_heapBeginProtect(context);
 		handle = fy_heapAllocate(context, clcl, exception);
-		fy_heapGetObject(context,handle)->object_data->classId = clazz->classId;
+		fy_heapGetObject(context,handle)->object_data->m.classId = clazz->classId;
 		fy_hashMapIPut(context->memblocks, context->classObjIds, clazz->classId,
 				handle, exception);
-		//FYEH is unnessessery
+		/*FYEH is unnessessery*/
 	}
 	return handle;
 }
@@ -1493,7 +1499,7 @@ fy_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
 			handle = fy_heapAllocate(context, mecl, exception);
 		}
 		FYEH()-1;
-		fy_heapGetObject(context,handle)->object_data->methodId =
+		fy_heapGetObject(context,handle)->object_data->m.methodId =
 				method->method_id;
 		fy_hashMapIPut(context->memblocks, context->methodObjIds,
 				method->method_id, handle, exception);
@@ -1510,7 +1516,7 @@ fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
 	if (unlikely(handle == -1)) {
 		fy_heapBeginProtect(context);
 		handle = fy_heapAllocate(context, ficl, exception);
-		fy_heapGetObject(context,handle)->object_data->fieldId =
+		fy_heapGetObject(context,handle)->object_data->m.fieldId =
 				field->field_id;
 		fy_hashMapIPut(context->memblocks, context->fieldObjIds,
 				field->field_id, handle, exception);

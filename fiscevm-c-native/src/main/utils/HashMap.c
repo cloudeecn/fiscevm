@@ -26,7 +26,7 @@ typedef struct fy_hashMapEntry {
     union{
         void *value;
         const void *cvalue;
-    };
+    } v;
 	struct fy_hashMapEntry *next;
 } fy_hashMapEntry;
 
@@ -147,7 +147,7 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
         keyClone->status |= FY_STR_PERSIST;
         entry->key = keyClone;
         entry->keyHash = fy_strHash(keyClone);
-        entry->value = value;
+        entry->v.value = value;
         
         if (!this->perm
             && ((this->size + 1) * 16
@@ -171,8 +171,8 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
         
         return ret;
     } else {
-        ret = entry->value;
-        entry->value = value;
+        ret = entry->v.value;
+        entry->v.value = value;
         return ret;
     }
 }
@@ -203,7 +203,7 @@ FY_ATTR_EXPORT void *fy_hashMapPutConst(fy_memblock *mem, fy_hashMap *this,
 		keyClone->status |= FY_STR_PERSIST;
 		entry->key = keyClone;
 		entry->keyHash = fy_strHash(keyClone);
-		entry->cvalue = value;
+		entry->v.cvalue = value;
 
 		if (!this->perm
 				&& ((this->size + 1) * 16
@@ -227,8 +227,8 @@ FY_ATTR_EXPORT void *fy_hashMapPutConst(fy_memblock *mem, fy_hashMap *this,
 
 		return ret;
 	} else {
-		ret = entry->value;
-		entry->cvalue = value;
+		ret = entry->v.value;
+		entry->v.cvalue = value;
 		return ret;
 	}
 }
@@ -257,7 +257,7 @@ FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
 		keyClone->status |= FY_STR_PERSIST;
 		entry->key = keyClone;
 		entry->keyHash = fy_strHash(keyClone);
-		entry->value = value;
+		entry->v.value = value;
 
 		if (!this->perm
 				&& ((this->size + 1) * 16
@@ -281,8 +281,8 @@ FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
 
 		return ret;
 	} else {
-		ret = entry->value;
-		entry->value = value;
+		ret = entry->v.value;
+		entry->v.value = value;
 		return ret;
 	}
 }
@@ -318,19 +318,19 @@ FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
 FY_ATTR_EXPORT void* fy_hashMapGet(fy_memblock *mem, fy_hashMap *this,
 		fy_str *key) {
 	fy_hashMapEntry *entry = getBucket(mem, this, key);
-	return entry == NULL ? NULL : entry->value;
+	return entry == NULL ? NULL : entry->v.value;
 }
 
 FY_ATTR_EXPORT const void* fy_hashMapGetConst(fy_memblock *mem, fy_hashMap *this,
                                    fy_str *key) {
     fy_hashMapEntry *entry = getBucket(mem, this, key);
-    return entry == NULL ? NULL : entry->cvalue;
+    return entry == NULL ? NULL : entry->v.cvalue;
 }
 
 FY_ATTR_EXPORT void* fy_hashMapGetVA(fy_memblock *mem, fy_hashMap *map,
 		fy_strVA *va) {
 	fy_hashMapEntry *entry = getBucketVA(mem, map, va);
-	return entry == NULL ? NULL : entry->value;
+	return entry == NULL ? NULL : entry->v.value;
 }
 
 FY_ATTR_EXPORT void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
@@ -341,7 +341,7 @@ FY_ATTR_EXPORT void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
 	for (i = 0; i < imax; i++) {
 		entry = (fy_hashMapEntry*) (map->buckets[i]);
 		while (entry != NULL) {
-			fn(entry->key, entry->value, addition);
+			fn(entry->key, entry->v.value, addition);
 			entry = entry->next;
 		}
 	}

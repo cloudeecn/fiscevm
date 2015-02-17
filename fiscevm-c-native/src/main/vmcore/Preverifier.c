@@ -894,7 +894,7 @@ static void parseStackItemInstruction(fy_context *context,
 
 void fy_preverify(fy_context *context, fy_method *method,
 		fy_exception *exception) {
-	fy_ubyte *code = method->code;
+	fy_ubyte *code = method->c.code;
 	fy_uint codeLength = method->codeLength;
 	fy_uint pc = 0, lpc = 0;
 	fy_instruction *instruction;
@@ -1039,13 +1039,13 @@ void fy_preverify(fy_context *context, fy_method *method,
 		instCount++;
 	}
 	method->codeLength = instCount + 1;
-	method->instructions = fy_mmAllocatePerm(context->memblocks,
+	method->c.i.instructions = fy_mmAllocatePerm(context->memblocks,
 			instCount * sizeof(fy_instruction), exception);
 	FYEH();
-	method->instruction_extras = fy_mmAllocatePerm(context->memblocks,
+	method->c.i.instruction_extras = fy_mmAllocatePerm(context->memblocks,
 			instCount * sizeof(fy_instruction_extra), exception);
 	FYEH();
-	method->instruction_ops = fy_mmAllocatePerm(context->memblocks,
+	method->c.i.instruction_ops = fy_mmAllocatePerm(context->memblocks,
 			instCount * sizeof(fy_short), exception);
 	FYEH();
 	pc = 0;
@@ -1065,8 +1065,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 #endif
 
 	while (pc < codeLength) {
-		instruction = method->instructions + ic;
-		instruction_extra = method->instruction_extras + ic;
+		instruction = method->c.i.instructions + ic;
+		instruction_extra = method->c.i.instruction_extras + ic;
 		ic++;
 		lpc = pc;
 		if (pc == 0) {
@@ -1092,7 +1092,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 							exhic = getIcFromPc(context, exh->start_pc,
 									tmpPcIcMap, exception);
 							FYEH();
-							exhi = method->instruction_extras + exhic;
+							exhi = method->c.i.instruction_extras + exhic;
 							fy_instInitStackItem(context->memblocks,
 									instruction_extra, exhi->sp + 1, exception);
 							FYEH();
@@ -1152,7 +1152,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case FY_OP_dneg:
 		case FY_OP_daload:
 		case FY_OP_swap: {
-// same content
+/* same content*/
 			smtStatus.tmp->sp = instruction_extra->sp;
 			smtStatus.tmp->s = instruction_extra->s;
 #ifdef FY_STRICT_CHECK
@@ -1628,7 +1628,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			}
 			case FY_OP_ret:/*local var id*/
 			{
-				//TODO RET/JSR is no longer supported
+				/*RET/JSR is no longer supported*/
 				instruction->params.int_params.param1 = fy_nextU1(code);
 				fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
 						"Illegal op in method %s, pc %d, ip %d, JSR/RET not supported",
@@ -2633,16 +2633,19 @@ void fy_preverify(fy_context *context, fy_method *method,
                 break;
         }
 		instruction->inst = labelsByOp[op];
-		method->instruction_ops[FY_PDIFF(fy_instruction, instruction, method->instructions)] = op;
+		method->c.i.instruction_ops[FY_PDIFF(fy_instruction, instruction, method->c.i.instructions)] = op;
+#if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
 		if(instruction->inst == NULL){
 			fy_breakpoint();
             fy_fault(NULL, "Illegal op", "Illegal op: %s", FY_OP_NAME[op]);
 		}
+#endif
+
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 		instruction->op = op;
 #endif
 	}
-	method->instructions[0].inst = labelsByOp[FY_OP_dropout];
+	method->c.i.instructions[0].inst = labelsByOp[FY_OP_dropout];
 	preverifyMethodExceptionTable(context, method, tmpPcIcMap, exception);
 	preverifyMethodLineNumberTable(context, method, tmpPcIcMap, exception);
 	method->access_flags |= FY_ACC_VERIFIED;

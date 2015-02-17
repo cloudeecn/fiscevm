@@ -562,16 +562,21 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getSize(
 	return sizeof(fy_context);
 }
 
-static void jstrToFyStr(JNIEnv *env, jstring str, fy_str *fstr) {
+static void jstrToFyStr(JNIEnv *env, jstring str, fy_str *fstr, fy_exception *exception) {
 	fy_int len = (*env)->GetStringLength(env, str);
+	const jchar* chars = (*env)->GetStringChars(env, str, NULL);
 	fstr->length = len;
 	fstr->maxLength = len;
 	fstr->status &= ~FY_STR_HASHED;
-	fstr->content = (*env)->GetStringChars(env, str, NULL);
+	fstr->content = fy_allocate(len * sizeof(jchar), exception);
+	FYEH();
 }
 
 static void releaseStrJstr(JNIEnv *env, jstring str, fy_str *fstr) {
 	(*env)->ReleaseStringChars(env, str, fstr->content);
+	if(fstr->content){
+		fy_free(fstr->content);
+	}
 	fstr->content = NULL;
 }
 
@@ -588,7 +593,8 @@ JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassByName(
 
 	GENERIC_HEADER
 
-	jstrToFyStr(env, name, &str);
+	jstrToFyStr(env, name, &str, exception);
+	FYEX(releaseStrJstr(env, name, &str); return 0);
 	clazz = fy_nativeLookupClass(context, &str, exception);
 	releaseStrJstr(env, name, &str);
 	if (exception->exceptionType != exception_none) {
@@ -616,7 +622,7 @@ jboolean JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_validClassId(
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getIdFromHandle(
 		JNIEnv *env, jclass self, jobject buf, jint handle) {
 	GENERIC_HEADER
-	return context->objects[handle].object_data->classId;
+	return context->objects[handle].object_data->m.classId;
 }
 
 /*
@@ -631,7 +637,8 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getFieldByUniqueNam
 
 	GENERIC_HEADER
 
-	jstrToFyStr(env, name, &str);
+	jstrToFyStr(env, name, &str, exception);
+	FYEX(releaseStrJstr(env, name, &str); return 0);
 	field = fy_nativeGetField(context, &str);
 	releaseStrJstr(env, name, &str);
 	if (field == NULL) {
@@ -653,7 +660,8 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_lookupField(
 
 	GENERIC_HEADER
 
-	jstrToFyStr(env, name, &str);
+	jstrToFyStr(env, name, &str, exception);
+	FYEX(releaseStrJstr(env, name, &str); return 0);
 	field = fy_nativeLookupFieldVirtual(context, context->classes[classId],
 			&str, exception);
 	releaseStrJstr(env, name, &str);
@@ -680,7 +688,8 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getMethodByUniqueNa
 
 	GENERIC_HEADER
 
-	jstrToFyStr(env, name, &str);
+	jstrToFyStr(env, name, &str, exception);
+	FYEX(releaseStrJstr(env, name, &str); return 0);
 	method = fy_nativeGetMethod(context, &str);
 	releaseStrJstr(env, name, &str);
 	if (method == NULL) {
@@ -702,7 +711,8 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_lookupMethod(
 
 	GENERIC_HEADER
 
-	jstrToFyStr(env, name, &str);
+	jstrToFyStr(env, name, &str, exception);
+	FYEX(releaseStrJstr(env, name, &str); return 0);
 	method = fy_nativeLookupMethodVirtual(context, context->classes[classId],
 			&str, exception);
 	releaseStrJstr(env, name, &str);
@@ -743,7 +753,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassSuper(
 	fy_class *clazz;
 	GENERIC_HEADER
 
-	clazz = context->classes[classId]->super;
+	clazz = context->classes[classId]->s.super;
 	if (clazz == NULL) {
 		return -1;
 	} else {
@@ -904,7 +914,8 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getLiteral(
 	jint ret;
 	fy_str str;
 	GENERIC_HEADER
-	jstrToFyStr(env, content, &str);
+	jstrToFyStr(env, content, &str, exception);
+	FYEX(releaseStrJstr(env, content, &str); return 0);
 	ret = fy_nativeLiteral(context, &str, exception);
 	releaseStrJstr(env, content, &str);
 	if (exception->exceptionType != exception_none) {
@@ -924,7 +935,8 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_putString(
 	jint ret;
 	fy_str str;
 	GENERIC_HEADER
-	jstrToFyStr(env, content, &str);
+	jstrToFyStr(env, content, &str, exception);
+	FYEX(releaseStrJstr(env, content, &str); return 0);
 	ret = fy_nativeMakeString(context, &str, exception);
 	releaseStrJstr(env, content, &str);
 	if (exception->exceptionType != exception_none) {
@@ -1004,7 +1016,7 @@ jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getClassOfHandle(
 jint JNICALL Java_com_cirnoworks_libfisce_shell_FisceService_getArrayLength(
 		JNIEnv *env, jclass self, jobject buf, jint handle) {
 	GENERIC_HEADER
-	return context->objects[handle].object_data->arrayLength;
+	return context->objects[handle].object_data->m.arrayLength;
 }
 
 /*

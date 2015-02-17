@@ -552,7 +552,7 @@ void fy_instInitStackItem(fy_memblock *block, fy_instruction_extra *instruction,
 	}
 }
 
-static inline fy_int imin(fy_int a, fy_int b) {
+static FY_INLINE fy_int imin(fy_int a, fy_int b) {
 	return a < b ? a : b;
 }
 

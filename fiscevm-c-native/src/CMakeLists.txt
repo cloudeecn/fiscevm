@@ -48,7 +48,6 @@ SET(SRC_LIST_LIB
     main/vmcore/Instructions.c
     main/vmcore/Preverifier.c
     main/vmcore/Thread.c
-    main/vmcore/Engine.c
     main/vmcore/ThreadManager.c
     main/vmcore/VMContext.c
     main/vmcore/ExpDev.c
@@ -58,6 +57,7 @@ SET(SRC_LIST_LIB
 	main/vmcore/DataLoader.c
 	main/vmcore/BAIS.c
 	main/vmcore/RIS.c
+    main/vmcore/Engine.c
 )
 SET(SRC_LIST_JNI
 	main/vmcore/JNIService.c
@@ -74,8 +74,8 @@ option (ENABLE_LIBS "Generate shared libraries" ON)
 option (ENABLE_JNI "Enable fyjni build" ON)
 option (ENABLE_32 "Enable 32bit" ON)
 option (ENABLE_64 "Enable 64bit" ON)
-option (ENABLE_IC "Enable instructions count" OFF)
 option (ENABLE_LTO "Enable Link time optimization" ON)
+option (ANSI_ONLY "Only use ansi c" OFF)
 
 if(EMSCRIPTEN)
     message("Using emscripten default configure...")
@@ -123,14 +123,17 @@ if(HAS_LTO)
     endif(ENABLE_LTO)
 endif(HAS_LTO)
         
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DFY_DEBUG -g3 -O0")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -Ofast ${FLAG_LTO}")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS} -g3 -O2 ${FLAG_LTO}")
+set(CMAKE_C_FLAGS_DEBUG "-DFY_DEBUG -g3 -Og")
+set(CMAKE_C_FLAGS_RELEASE "-Ofast ${FLAG_LTO}")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g3 -Og ${FLAG_LTO}")
 
-set(CMAKE_LINK_FLAGS_DEBUG "${CMAKE_LINK_FLAGS}")
-set(CMAKE_LINK_FLAGS_RELEASE "${CMAKE_LINK_FLAGS} -Ofast ${FLAG_LTO}")
-set(CMAKE_LINK_FLAGS_RELWITHDEBINFO "${CMAKE_LINK_FLAGS} -O2 ${FLAG_LTO}")
+set(CMAKE_LINK_FLAGS_DEBUG "-Og")
+set(CMAKE_LINK_FLAGS_RELEASE "-Ofast ${FLAG_LTO}")
+set(CMAKE_LINK_FLAGS_RELWITHDEBINFO "-Og ${FLAG_LTO}")
+
+IF(ANSI_ONLY)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic -Wno-long-long -Werror -DFY_STRICT_DECLARATION")
+ENDIF(ANSI_ONLY)
 
 #set(NO_UNDEFINED "-Wl,--no-undefined")
 
@@ -141,10 +144,6 @@ ENDIF(CMAKE_COMPILER_IS_GNUCC)
 IF(ENABLE_VERBOSE)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFY_VERBOSE")
 ENDIF(ENABLE_VERBOSE)
-
-IF(ENABLE_IC)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFY_INSTRUCTION_COUNT")
-ENDIF(ENABLE_IC)
 
 set(JNI_ADD_FLAGS "")
 

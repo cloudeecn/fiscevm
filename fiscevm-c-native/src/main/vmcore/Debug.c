@@ -24,6 +24,7 @@
 
 #include "fy_util/Debug.h"
 #include "fyc/Debug.h"
+#include "fyc/VMContext.h"
 #include <stdarg.h>
 
 static void stdoutLogStr(fy_context *context, const fy_str *str) {

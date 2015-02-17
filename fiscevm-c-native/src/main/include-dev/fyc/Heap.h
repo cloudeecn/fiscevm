@@ -30,21 +30,29 @@
 #include "fy_util/String.h"
 #include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-enum fy_heapPos {
+typedef enum fy_heapPos {
 	automatic = 0, eden = 1, young = 2, old = 3
-};
+} fy_heapPos;
 
-typedef struct fy_object_data {
+struct fy_object_data {
 	fy_class *clazz;
+#ifdef FY_ENUM_BITS_SUPPORTED
 	enum fy_heapPos position :2;
 	enum {
 		not_finalized, in_finalize_array, finalized
-	}finalizeStatus :2;
+	} finalizeStatus :2;
+#else
+	enum fy_heapPos position;
+	enum {
+		not_finalized, in_finalize_array, finalized
+	} finalizeStatus;
+#endif
 	fy_int gen :8;
 	/*Union data for different class types (array/normal object/references)*/
 	union {
@@ -56,11 +64,11 @@ typedef struct fy_object_data {
 		fy_int fieldId;
 		fy_int classId;
 		fy_int streamId;
-	};
+	}m;
 	fy_uint monitorOwnerId;
 	fy_int monitorOwnerTimes;
 	FY_VLS(fy_byte,data);
-}fy_object_data;
+};
 
 #define fy_heapGetObject(CONTEXT,HANDLE) ((CONTEXT)->objects+(HANDLE))
 

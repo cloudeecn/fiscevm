@@ -1,5 +1,4 @@
 #ifdef FY_ENGINE_HEADER
-#define Cell fy_stack_item
 #ifndef FY_ENGINE_NAME
 # define FY_ENGINE_NAME(NUM) fy_thread_runner_##NUM
 # define X_FY_ENGINE_NAME(NUM) FY_ENGINE_NAME(NUM)
@@ -30,6 +29,10 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 
 #ifndef FY_LATE_DECLARATION
   fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
+  fy_class *clazz1, *clazz2;
+  fy_field *field;
+  fy_switch_lookup *swlookup;
+  fy_switch_table *swtable;
 #endif
 
   static fy_e2_label_holder labels[] = {
@@ -69,7 +72,7 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 
 
   method = frame->method;
-  instructions = method->instructions;
+  instructions = method->c.i.instructions;
   sbase = frame->baseSpp;
 
 #ifdef VM_DEBUG
@@ -100,15 +103,17 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
       fprintf(vm_out, "\n");
     }
 #endif
-    //!CLINIT
-    ipp = method->instructions;
+    /*!CLINIT*/
+    ipp = method->c.i.instructions;
     spp = frame->baseSpp + method->max_locals;
     FY_ENGINE_CLINIT(method->owner, 0)
   }
 
   
   ENGINE_ENTER;
+  ENGINE_BODY_BEGIN;
 #endif
+#if REPL_MIN > 0
 INST_ADDR(iload_r0),
 INST_ADDR(iload_r1),
 INST_ADDR(iload_r2),
@@ -189,6 +194,7 @@ INST_ADDR(putstatic_n_r3),
 INST_ADDR(nop_r0),
 INST_ADDR(nop_r1),
 INST_ADDR(nop_r2),
+#endif
 INST_ADDR(getfield_nx),
 INST_ADDR(putfield_nx),
 INST_ADDR(getstatic_nx),
@@ -340,6 +346,7 @@ INST_ADDR(getstatic_x),
 INST_ADDR(putstatic_x),
 INST_ADDR(dropout),
 #ifdef FY_ENGINE_HEADER
+    ENGINE_BODY_END;
     label_fallout_invoke:
 #ifdef FY_INSTRUCTION_COUNT
     context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;

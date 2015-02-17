@@ -46,7 +46,7 @@ static fy_int RISBind0(struct fy_context *context, struct fy_thread *thread,
 	fy_int pos = args[2].ivalue;
 	fy_str name[1];
 	fy_object *stream = fy_heapGetObject(context,thisHandle);
-	fy_int streamId = stream->object_data->streamId;
+	fy_int streamId = stream->object_data->m.streamId;
 
 	if (streamId == 0 || context->aliveStreams[streamId] == NULL) {
 		name->content = NULL;
@@ -81,7 +81,7 @@ static fy_int RISBind0(struct fy_context *context, struct fy_thread *thread,
 				fy_fault(exception, FY_EXCEPTION_IO, "Too many file opened");
 				FYEH()0;
 			}
-			stream->object_data->streamId = streamId;
+			stream->object_data->m.streamId = streamId;
 		} else {
 			if (context->aliveStreams[streamId] == NULL) {
 				context->aliveStreams[streamId] = is;
@@ -103,7 +103,7 @@ static fy_int RISRead0(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
 		fy_exception *exception) {
 	fy_object *stream = fy_heapGetObject(context,args[0].uvalue);
-	fy_inputStream *is = context->aliveStreams[stream->object_data->streamId];
+	fy_inputStream *is = context->aliveStreams[stream->object_data->m.streamId];
 	fy_threadReturnInt(args, is->isRead(context, is, exception));
 	FYEH()0;
 	return ops - 1;
@@ -115,7 +115,7 @@ static fy_int RISRead0BII(struct fy_context *context, struct fy_thread *thread,
 	fy_byte buf[4096];
 	fy_byte *target;
 	fy_object *stream = fy_heapGetObject(context,args[0].uvalue);
-	fy_inputStream *is = context->aliveStreams[stream->object_data->streamId];
+	fy_inputStream *is = context->aliveStreams[stream->object_data->m.streamId];
 	fy_uint bufHandle = args[1].uvalue;
 	fy_int pos = args[2].ivalue;
 	fy_int len = args[3].ivalue;
@@ -141,11 +141,11 @@ static fy_int RISClose0(struct fy_context *context, struct fy_thread *thread,
 		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
 		fy_exception *exception) {
 	fy_object *stream = fy_heapGetObject(context,args[0].uvalue);
-	fy_inputStream *is = context->aliveStreams[stream->object_data->streamId];
+	fy_inputStream *is = context->aliveStreams[stream->object_data->m.streamId];
 	is->isClose(context, is, exception);
 	fy_mmFree(context->memblocks, is);
-	context->aliveStreams[stream->object_data->streamId] = NULL;
-	stream->object_data->streamId = 0;
+	context->aliveStreams[stream->object_data->m.streamId] = NULL;
+	stream->object_data->m.streamId = 0;
 	return ops - 1;
 }
 

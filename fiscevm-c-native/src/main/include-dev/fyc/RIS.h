@@ -21,7 +21,7 @@
 #define RIS_H_
 
 #include "fy_util/Portable.h"
-#include "fyc/VMContext.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {

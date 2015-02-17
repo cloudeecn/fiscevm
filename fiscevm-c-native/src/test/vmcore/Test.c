@@ -34,10 +34,13 @@
 #include "fyc/ClassStruct.h"
 #include "fyc/VMContext.h"
 #include "fyc/Class.h"
+#include "fyc/Heap.h"
 #include "fyc/Data.h"
 #include "fyc/ClassLoader.h"
 #include "fyc/Thread.h"
 #include "fyc/Instructions.h"
+#include "fyc/Preverifier.h"
+#include "fyc/ThreadManager.h"
 
 static const char** dirs;
 
@@ -173,14 +176,15 @@ void testString() {
 	const char *cc = "ABC中文DEF\n";
 	const char *cc1 = "ABC中文DEF";
 	const char *cc2 = "ABC中文DEG";
+	fy_str *js, *js1, *js2;
 	fy_exception ex;
 	fy_exception *exception = &ex;
 	printf("TestMemString\n");
 	ex.exceptionType = exception_none;
 	printf("%s\n%d", cc, (int) strlen(cc));
-	fy_str *js = fy_mmAllocate(block, sizeof(fy_str), exception);
-	fy_str *js1 = fy_mmAllocate(block, sizeof(fy_str), exception);
-	fy_str *js2 = fy_mmAllocate(block, sizeof(fy_str), exception);
+	js = fy_mmAllocate(block, sizeof(fy_str), exception);
+	js1 = fy_mmAllocate(block, sizeof(fy_str), exception);
+	js2 = fy_mmAllocate(block, sizeof(fy_str), exception);
 	TEST_EXCEPTION(exception);
 	fy_strInit(block, js, 1, exception);
 	TEST_EXCEPTION(exception);
@@ -222,15 +226,17 @@ void testNativeHashMap() {
 	/*int blocks;*/
 	int i;
 	char buf[256];
-	//	char buf1[256];
 	fy_uint values[10000];
 	fy_uint *value;
 	fy_str tmp[1];
 	fy_exception ex;
+	fy_test_map add;
+	fy_long t1, t2, t3, t4, t5;
+	fy_hashMap *hashMap;
+
 	fy_exception *exception = &ex;
 	ex.exceptionType = exception_none;
-	fy_test_map add;
-	fy_hashMap *hashMap = fy_mmAllocate(block, sizeof(fy_hashMap), exception);
+	hashMap = fy_mmAllocate(block, sizeof(fy_hashMap), exception);
 	printf("TestHashMap\n");
 	TEST_EXCEPTION(exception);
 	memset(buf, 0, 256);
@@ -238,7 +244,6 @@ void testNativeHashMap() {
 	fy_hashMapInit(block, hashMap, 16, 12, exception);
 	TEST_EXCEPTION(exception);
 
-	fy_long t1, t2, t3, t4, t5;
 
 	memset(&add, 0, sizeof(add));
 	add.values = values;
@@ -294,13 +299,16 @@ void testHashMapI() {
 	int blocks;
 	int i;
 	fy_int value;
-	//	char buf1[256];
 	fy_uint values[10000];
 	fy_exception ex;
 	fy_exception *exception = &ex;
-	ex.exceptionType = exception_none;
+	fy_long t1, t2, t3, t4, t5;
 	fy_test_map add;
-	fy_hashMapI *hashMapI = fy_mmAllocate(block, sizeof(fy_hashMapI),
+	fy_hashMapI *hashMapI;
+
+	ex.exceptionType = exception_none;
+
+	hashMapI = fy_mmAllocate(block, sizeof(fy_hashMapI),
 			exception);
 	printf("TestHashMap\n");
 	TEST_EXCEPTION(exception);
@@ -308,7 +316,7 @@ void testHashMapI() {
 	fy_hashMapIInit(block, hashMapI, 16, 12, -1, exception);
 	TEST_EXCEPTION(exception);
 
-	fy_long t1, t2, t3, t4, t5;
+
 
 	memset(&add, 0, sizeof(add));
 	add.values = values;
@@ -433,9 +441,10 @@ static void testClassLoader() {
 static fy_class *lookup(fy_context *context, const char *name,
 		fy_exception *exception) {
 	fy_str sName[1];
+	fy_class *clazz;
+
 	sName->content = NULL;
 	fy_strInitWithUTF8(context->memblocks, sName, name, exception);
-	fy_class *clazz;
 	FYEH()NULL;
 	clazz = fy_vmLookupClass(context, sName, exception);
 	fy_strDestroy(context->memblocks, sName);
@@ -601,7 +610,6 @@ static int compairOpPairCount(const void *left, const void *right) {
 #endif
 
 static void hltest(char *name) {
-//	fy_class *clazz;
 	fy_message message;
 	fy_boolean dead;
 	fy_exception ex;
@@ -657,7 +665,6 @@ static void hltest(char *name) {
 #endif
 			break;
 		case message_sleep:
-//			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
 			break;
 		case message_vm_dead:
 			fy_log("VM dead\n");
@@ -743,7 +750,6 @@ static void hltest(char *name) {
 }
 
 static void hltest2(char *name) {
-//	fy_class *clazz;
 	fy_message message;
 	fy_boolean dead;
 	fy_exception ex;
@@ -790,7 +796,6 @@ static void hltest2(char *name) {
 			dead = 1;
 			break;
 		case message_sleep:
-//			printf("sleep %"FY_PRINT64"dms", message.body.sleepTime);
 			if (!loadMode) {
 				message.messageType = message_vm_dead;
 				dead = 1;
@@ -992,48 +997,48 @@ void testCustom(char *customTest) {
 	}
 }
 
-FY_TEST_FUN testcases[] = { //
-		{ "init utils test", test_init }, //
-				{ "platform related", testPortable }, //
-				{ "memory management", testMemManage }, //
-				{ "string", testString }, //
-				{ "hashMap", testNativeHashMap }, //
-				{ "hashMapI", testHashMapI }, //
-				{ "arrayList", testArrayList }, //
-				{ "cleanup utils test", test_clean }, //
-				{ "allocate1", testAllocate1 }, //
-				{ "classloader", testClassLoader }, //
-				{ "classLoaderFull", testClassLoaderFull }, //
-				{ "classMethod", testClassMethod }, //
-				{ "preverifier", testPreverifier }, //
-				{ "heap", testHeap }, //
-				{ "cleanup1", testCleanup1 }, //
-				{ "Arch", testArch }, //
-				{ "Hierarchy", testHierarchy }, //
-				{ "Unicode", testUnicode }, //
-				{ "DebugPrintStream", testDebugPrintStream }, //
-				{ "Static", testStatic }, //
-				{ "Smoke", testThread }, //
-				{ "Array", testArray }, //
-				{ "AutoBoxing", testAutoBoxing }, //
-				{ "Lock", testThread2 }, //
-				{ "Enum", testEnum }, //
-				{ "Exception", testException }, //
-				{ "ForEach", testForEach }, //
-				{ "HashMap", testHashMap }, //
-				{ "Profile", testProfile }, //
-				{ "GC", testGC }, //
-				{ "ComplexClassStructor", testComplex }, //
-				{ "TableSwitch", testTableSwitch }, //
-				{ "LookupSwitch", testLookupSwitch }, //
-				{ "StoreParamsToArray", testStore }, //
-				{ "Reflection", testReflection }, //
-				// { "BasicRegex", testBasicReLoadgex }, //
-				{ "Proxy", testProxy }, //
-				{ "SaveLoad", testSaveLoad }, //
-				{ "SaveLoad2", testSaveLoad2 }, //
-				{ "RIS", testRIS }, //
-				{ "Native", testNative }, //
+FY_TEST_FUN testcases[] = { /**/
+		{ "init utils test", test_init }, /**/
+				{ "platform related", testPortable }, /**/
+				{ "memory management", testMemManage }, /**/
+				{ "string", testString }, /**/
+				{ "hashMap", testNativeHashMap }, /**/
+				{ "hashMapI", testHashMapI }, /**/
+				{ "arrayList", testArrayList }, /**/
+				{ "cleanup utils test", test_clean }, /**/
+				{ "allocate1", testAllocate1 }, /**/
+				{ "classloader", testClassLoader }, /**/
+				{ "classLoaderFull", testClassLoaderFull }, /**/
+				{ "classMethod", testClassMethod }, /**/
+				{ "preverifier", testPreverifier }, /**/
+				{ "heap", testHeap }, /**/
+				{ "cleanup1", testCleanup1 }, /**/
+				{ "Arch", testArch }, /**/
+				{ "Hierarchy", testHierarchy }, /**/
+				{ "Unicode", testUnicode }, /**/
+				{ "DebugPrintStream", testDebugPrintStream }, /**/
+				{ "Static", testStatic }, /**/
+				{ "Smoke", testThread }, /**/
+				{ "Array", testArray }, /**/
+				{ "AutoBoxing", testAutoBoxing }, /**/
+				{ "Lock", testThread2 }, /**/
+				{ "Enum", testEnum }, /**/
+				{ "Exception", testException }, /**/
+				{ "ForEach", testForEach }, /**/
+				{ "HashMap", testHashMap }, /**/
+				{ "Profile", testProfile }, /**/
+				{ "GC", testGC }, /**/
+				{ "ComplexClassStructor", testComplex }, /**/
+				{ "TableSwitch", testTableSwitch }, /**/
+				{ "LookupSwitch", testLookupSwitch }, /**/
+				{ "StoreParamsToArray", testStore }, /**/
+				{ "Reflection", testReflection }, /**/
+				/* { "BasicRegex", testBasicReLoadgex }, */
+				{ "Proxy", testProxy }, /**/
+				{ "SaveLoad", testSaveLoad }, /**/
+				{ "SaveLoad2", testSaveLoad2 }, /**/
+				{ "RIS", testRIS }, /**/
+				{ "Native", testNative }, /**/
 				{ NULL, NULL } };
 int main(int argc, char *argv[]) {
 	int i = 0;

@@ -31,9 +31,6 @@
 extern "C" {
 #endif
 
-typedef struct fy_context fy_context;
-typedef struct fy_inputStream fy_inputStream;
-
 struct fy_inputStream {
 	void* data;
 	fy_int (*isRead)(struct fy_context *context, struct fy_inputStream *is,

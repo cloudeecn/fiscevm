@@ -21,25 +21,24 @@
 #define MAIN_INCLUDE_PUBLIC_FISCE_H_
 
 #include "fy_util/Portable.h"
+#include "fyc/typedefs.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct fy_context fy_context;
-
-typedef union fy_stack_item {
+union fy_stack_item {
 	fy_uint uvalue;
 	fy_int ivalue;
 	fy_float fvalue;
-}fy_stack_item;
+};
 
 
-typedef struct fy_nativeCall {
+struct fy_nativeCall {
 	char *methodName;
 	fy_uint paramCount;
 	fy_stack_item *params;
-}fy_nativeCall;
+};
 
 typedef enum fy_messageType {
 	/*message_continue = 0, In thread*/
@@ -52,7 +51,7 @@ typedef enum fy_messageType {
 	/*TM Only*/
 }fy_messageType;
 
-typedef struct fy_message {
+struct fy_message {
 	fy_messageType messageType;
 	fy_int threadId;
 	/*We care more about stability than some hundreds bytes of memory*/
@@ -61,7 +60,7 @@ typedef struct fy_message {
 		fy_long sleepTime;
 	}body;
 
-}fy_message;
+};
 
 FY_ATTR_EXPORT fy_context *fisceAllocateContext();
 

@@ -21,8 +21,7 @@
 #define	FY_DATA_H
 
 #include "fy_util/Portable.h"
-#include "fyc/VMContext.h"
-#include "fyc/InputStream.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {

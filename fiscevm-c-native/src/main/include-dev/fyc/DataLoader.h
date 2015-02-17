@@ -21,7 +21,9 @@
 #define DATALOADER_H_
 
 #include "fy_util/Portable.h"
-#include "fyc/VMContext.h"
+
+#include "fy_util/String.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {

@@ -28,15 +28,15 @@
 #include "fyc/Debug.h"
 #include "fyc/Constants.h"
 #include "fyc/Heap.h"
+#include "fyc/Thread.h"
 
 static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 		fy_exception *exception) {
-	//TODO
 	fy_object *obj = context->objects + targetHandle;
-	fy_uint threadId = obj->object_data->threadId;
+	fy_uint threadId = obj->object_data->m.threadId;
 	if (threadId == 0) {
 		return NULL;
-	} //
+	}
 	ASSERT(threadId>0 && threadId<MAX_THREADS);
 	return context->threads[threadId];
 }
@@ -388,9 +388,7 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 
 void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception) {
 	/*exception means exception in thread manager
-	 * message means exception in thread*/
-//	fy_long nextGC = fy_portTimeMillSec(context->port) + 500;
-//	fy_long nextGCForce = nextGC + 1000;
+	 * message->exception means exception in thread*/
 	fy_boolean stateLocal;
 	fy_arrayList *running = context->runningThreads;
 

@@ -21,8 +21,7 @@
 #define FY_THREADMANAGER_H_
 
 #include "fy_util/Portable.h"
-#include "fyc/VMContext.h"
-#include "fyc/Thread.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {

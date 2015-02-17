@@ -24,6 +24,7 @@
 
 #include "fyc/Data.h"
 #include "fyc/Constants.h"
+#include "fyc/InputStream.h"
 
 /*****************public*********************/
 fy_ubyte fy_dataRead(fy_context *context, fy_inputStream *is,

@@ -100,8 +100,13 @@ typedef fy_int fy_boolean;
 typedef unsigned __int64 fy_ulong;
 typedef __int64 fy_long;
 #else
+# ifdef CUSTOM_LONG_LONG
+typedef unsigned CUSTOM_LONG_LONG fy_ulong;
+typedef CUSTOM_LONG_LONG fy_long;
+# else
 typedef unsigned long long fy_ulong;
 typedef long long fy_long;
+# endif
 #endif
 
 
@@ -178,12 +183,21 @@ typedef struct fy_port {
 # define FY_VLS(TYPE,X) TYPE X[1]
 #elif defined(_C99)
 # define FY_VLS(TYPE,X) TYPE X[]
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && !defined(FY_STRICT_DECLARATION)
 # define FY_VLS(TYPE,X) TYPE X[0]
 #else
 # define FY_VLS(TYPE,X) TYPE X[1]
 #endif
 
+#if defined(__GNUC__) && !defined(FY_STRICT_DECLARATION)
+# define FY_ENUM_BITS_SUPPORTED
+#endif
+
+#if (defined(_C99))
+# define FY_INLINE inline
+#else
+# define FY_INLINE
+#endif
 
 #ifdef FY_DEBUG
 #define FY_STRICT_CHECK
@@ -235,11 +249,11 @@ FY_ATTR_EXPORT fy_boolean fy_portValidate();
 #define FYEX(HANDLER) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) {HANDLER;}
 #define FYEG(X) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) goto X
 
-MAYBE_UNUSED inline static fy_int fy_mini(fy_int x,fy_int y){
+MAYBE_UNUSED FY_INLINE static fy_int fy_mini(fy_int x,fy_int y){
 	return y ^ ((x ^ y) & -(x < y));
 }
 
-MAYBE_UNUSED inline static fy_int fy_maxi(fy_int x,fy_int y){
+MAYBE_UNUSED FY_INLINE static fy_int fy_maxi(fy_int x,fy_int y){
 	return x ^ ((x ^ y) & -(x < y));
 }
 
@@ -253,31 +267,31 @@ union fy_itof {
 	fy_int i;
 };
 
-MAYBE_UNUSED inline static  fy_long fy_doubleToLong(fy_double value) {
+MAYBE_UNUSED FY_INLINE static  fy_long fy_doubleToLong(fy_double value) {
 	union fy_dtol d;
 	d.d = value;
 	return d.l;
 }
-MAYBE_UNUSED inline static  fy_double fy_longToDouble(fy_long value) {
+MAYBE_UNUSED FY_INLINE static  fy_double fy_longToDouble(fy_long value) {
 	union fy_dtol d;
 	d.l = value;
 	return d.d;
 }
-MAYBE_UNUSED inline static  fy_int fy_floatToInt(fy_float value) {
+MAYBE_UNUSED FY_INLINE static  fy_int fy_floatToInt(fy_float value) {
 	union fy_itof d;
 	d.f = value;
 	return d.i;
 }
-MAYBE_UNUSED inline static  fy_float fy_intToFloat(fy_int value) {
+MAYBE_UNUSED FY_INLINE static  fy_float fy_intToFloat(fy_int value) {
 	union fy_itof d;
 	d.i = value;
 	return d.f;
 }
 
-MAYBE_UNUSED inline static  fy_boolean fy_isnand(fy_double d) {
+MAYBE_UNUSED FY_INLINE static  fy_boolean fy_isnand(fy_double d) {
 	return d != d;
 }
-MAYBE_UNUSED inline static  fy_boolean fy_isnanf(fy_float f) {
+MAYBE_UNUSED FY_INLINE static  fy_boolean fy_isnanf(fy_float f) {
 	return f != f;
 }
 

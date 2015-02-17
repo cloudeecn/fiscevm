@@ -44,7 +44,6 @@
 #include <string.h>
 #include <time.h>
 
-
 static fy_nh _NO_HANDLER;
 fy_nh *FY_NH_NO_HANDLER = &_NO_HANDLER;
 
@@ -58,7 +57,7 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	fy_int target = -1;
 #ifdef FY_DEBUG
 	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc)
-;	//
+	;	/**/
 	context->logDVar(context, "Exception: ");
 	context->logDStr(context,
 			fy_heapGetClassOfObject(context, handle, exception)->className);
@@ -96,7 +95,6 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	context->logDVarLn(context, "target=%"FY_PRINT32"d", target);
 #endif
 	return target;
-	//Jump after found the target is move to run() for further optimize
 }
 
 fy_int fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
@@ -113,7 +111,7 @@ void fy_threadDestroy(fy_context *context, fy_thread *thread) {
 	fy_uint handle;
 	fy_object *obj;
 	obj = context->objects + thread->handle;
-	obj->object_data->threadId = 0;
+	obj->object_data->m.threadId = 0;
 	thread->handle = 0;
 
 	thread->waitForLockId = 0;
@@ -355,7 +353,7 @@ static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz)
 		return NULL;
 	}
 	if (clazz->clinit == NULL) {
-		ret = clinit(context, thread, clazz->super);
+		ret = clinit(context, thread, clazz->s.super);
 		if (ret == NULL) {
 			clazz->clinitThreadId = -1;
 		}
@@ -405,7 +403,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 		return;
 	}
 	thread->handle = threadHandle;
-	obj->object_data->threadId = thread->threadId;
+	obj->object_data->m.threadId = thread->threadId;
 	fy_threadPushFrame(context, thread, method, thread->stack, exception);
 	FYEH();
 	clazz = fy_vmLookupClass(context, context->sStringArray, exception);
@@ -440,7 +438,7 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 
 	obj = context->objects + handle;
 	thread->handle = handle;
-	obj->object_data->threadId = thread->threadId;
+	obj->object_data->m.threadId = thread->threadId;
 #ifdef FY_VERBOSE
 	context->logDVar(context, "Init thread with class ");
 	context->logDStr(context, obj->object_data->clazz->className);
@@ -458,11 +456,11 @@ static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 	fy_nh *nh;
 	frame->pcofs = 1;
 	if (method->access_flags & FY_ACC_NATIVE) {
-		nh = method->nh;
+		nh = method->c.nh;
 		if (nh == NULL) {
 			nh = fy_hashMapGet(context->memblocks, context->mapMUNameToNH,
 					method->uniqueName);
-			nh = method->nh = (nh == NULL ? FY_NH_NO_HANDLER : nh);
+			nh = method->c.nh = (nh == NULL ? FY_NH_NO_HANDLER : nh);
 		}
 		if (nh == FY_NH_NO_HANDLER) {
 			thread->pendingNative.methodName = method->utf8Name;
@@ -516,7 +514,7 @@ fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
 					frame->method->owner)) {
 		/* call to method is not init and owned by super = call super.XXX() */
 		actureMethod = fy_vmLookupMethodVirtualByMethod(context,
-				frame->method->owner->super, method, exception);
+				frame->method->owner->s.super, method, exception);
 		FYEH()0;
 		if (actureMethod->owner != method->owner) {
 			fy_fault(exception, FY_EXCEPTION_NO_METHOD, "");
@@ -664,7 +662,7 @@ fy_int fy_threadInvoke(fy_context *context, fy_thread *thread,
 
 fy_int fy_threadClinit(fy_context *context, fy_thread *thread, fy_class *clazz,
 		fy_stack_item *spp, fy_int ops, fy_exception *exception) {
-	//!CLINIT
+	/*!CLINIT*/
 	fy_class *clinitClazz = NULL;
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
 	clinitClazz = clinit(context, thread, clazz);
@@ -697,6 +695,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 	fy_frame *frame;
 	fy_method *method;
 	fy_exception intrenalException[1];
+#ifndef FY_LATE_DECLARATION
+	fy_exception exceptionToPrepare;
+	fy_uint i1, i2;
+#endif
+
 	intrenalException->exceptionType = exception_none;
 	while (ops > 0) {
 		frame = fy_threadCurrentFrame(context, thread);
@@ -704,8 +707,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		if (frame == NULL) {
 			/*Time to quit!*/
 			if (thread->currentThrowable) {
-				DLOG(context, "XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX")
-;				//
+				DLOG(context, "XXXXXXXXXXUnhandled Exception!!!XXXXXXXXXXXX");
 				method = fy_vmGetMethod(context,
 						context->sThrowablePrintStacktrace);
 				ASSERT(method != NULL);
@@ -787,8 +789,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 }
 
 fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
-        fy_exception *toPrepare,
-        fy_exception *exception) {
+		fy_exception *toPrepare, fy_exception *exception) {
 	fy_class *clazz1;
 	fy_str str1[1];
 	fy_uint ivalue, ivalue2;
@@ -875,7 +876,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 		/*not last frame, must be an a invoke, or clinit by invoke, new, get/put static op, or lpc=0, pcofs=1, or thread is holding. It's ok to use nipp for all situation */
 		frame = FY_GET_FRAME(thread, frameId);
 		method = frame->method;
-		ipp = method->instruction_extras + frame->lpc + frame->pcofs;
+		ipp = method->c.i.instruction_extras + frame->lpc + frame->pcofs;
 		maxSp = ipp->sp;
 		sbase = frame->baseSpp;
 		for (i = 0; i < maxSp; i++) {
@@ -898,7 +899,7 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 	}
 	frame = FY_GET_FRAME(thread, frameId);
 	method = frame->method;
-	ipp = method->instruction_extras + frame->lpc;
+	ipp = method->c.i.instruction_extras + frame->lpc;
 	nipp = ipp + frame->pcofs
 			- ((frame->lpc + frame->pcofs >= method->codeLength) & 1);
 	maxSp = fy_maxi(ipp->sp, nipp->sp);

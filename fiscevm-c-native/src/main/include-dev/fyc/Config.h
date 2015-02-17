@@ -72,8 +72,30 @@
 # define FY_GOTO
 #endif
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(FY_STRICT_DECLARATION)
 # define FY_SUPPORT_THREADING
+#endif
+
+#define FY_DISPATCH_SWITCH 0
+#define FY_DISPATCH_REPLICA_SWITCH 1
+#define FY_DISPATCH_THREAD 2
+
+#ifndef FY_DISPATCH_MODE
+# if defined(FY_SUPPORT_THREADING)
+#  define FY_DISPATCH_MODE FY_DISPATCH_THREAD
+# elif defined(FY_REPLICA_SWITCH)
+#  define FY_DISPATCH_MODE FY_DISPATCH_REPLICA_SWITCH
+# else
+#  define FY_DISPATCH_MODE FY_DISPATCH_SWITCH
+# endif
+#endif
+
+#ifndef REPL_MIN
+# if FY_DISPATCH_MODE == FY_DISPATCH_THREAD || FY_DISPATCH_MODE == FY_DISPATCH_REPLICA_SWITCH
+#  define REPL_MIN 5000
+# else
+#  define REPL_MIN 0
+# endif
 #endif
 
 #if /*!defined(EMSCRIPTEN) &&*/ (defined(_C99) || defined(__GNUC__)) && !defined(FY_STRICT_DECLARATION)

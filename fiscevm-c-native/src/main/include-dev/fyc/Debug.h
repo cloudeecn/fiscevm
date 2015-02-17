@@ -28,7 +28,7 @@
 #include "fisce.h"
 #include "fy_util/String.h"
 #include "fy_util/Debug.h"
-#include "fyc/VMContext.h"
+#include "fyc/typedefs.h"
 
 #ifdef	__cplusplus
 extern "C" {

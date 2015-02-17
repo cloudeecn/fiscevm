@@ -23,6 +23,7 @@
 #include "fyc/Config.h"
 
 #include "fyc/BAIS.h"
+#include "fyc/InputStream.h"
 typedef struct baisData {
 	fy_byte *buf;
 	fy_int pos;
