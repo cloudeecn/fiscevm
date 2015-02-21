@@ -267,6 +267,8 @@
 #define FY_OP_putstatic_nx  0xd7
 #define FY_OP_getfield_nx  0xd8
 #define FY_OP_putfield_nx  0xd9
+#define FY_OP_new_n 0xda
+#define FY_OP_newarray_n 0xdb
 
 #define FY_OP_getstatic_x  0xe2
 #define FY_OP_putstatic_x  0xe3

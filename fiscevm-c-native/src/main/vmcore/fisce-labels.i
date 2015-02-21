@@ -266,8 +266,8 @@ INST_ADDR(laload),
 INST_ADDR(lastore),
 INST_ADDR(anewarray),
 INST_ADDR(multianewarray),
-INST_ADDR(new),
-INST_ADDR(newarray),
+INST_ADDR(new_n),
+INST_ADDR(newarray_n),
 INST_ADDR(checkcast),
 INST_ADDR(instanceof),
 INST_ADDR(monitorenter),
@@ -344,9 +344,20 @@ INST_ADDR(getstatic),
 INST_ADDR(putstatic),
 INST_ADDR(getstatic_x),
 INST_ADDR(putstatic_x),
+INST_ADDR(new),
+INST_ADDR(newarray),
 INST_ADDR(dropout),
 #ifdef FY_ENGINE_HEADER
     ENGINE_BODY_END;
+    lable_throw_npt:
+    fy_fault(exception, FY_EXCEPTION_NPT, "");
+    goto label_throw;
+    label_throw_aioob:
+    fy_fault(exception, FY_EXCEPTION_AIOOB, "%"FY_PRINT32"d", ops);
+    goto label_throw;
+    label_throw:
+    ops = 0;
+    fy_localToFrame(context, frame);
     label_fallout_invoke:
 #ifdef FY_INSTRUCTION_COUNT
     context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;

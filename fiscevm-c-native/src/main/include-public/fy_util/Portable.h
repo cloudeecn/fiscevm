@@ -54,7 +54,7 @@
 # else
 #  define MAYBE_UNUSED
 # endif
-# if ((__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=3)||(__GNUC__>4))
+# if ((__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=3)||(__GNUC__>4)) && !FY_DEBUG
 #  define FY_HOT __attribute__((hot))
 # else
 #  define FY_HOT

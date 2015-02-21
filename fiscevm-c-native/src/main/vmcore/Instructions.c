@@ -244,8 +244,8 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "PUTSTATIC_NX", /* 0xD7 */
 "GETFIELD_NX", /* 0xD8 */
 "PUTFIELD_NX", /* 0xD9 */
-"<undef>", /* 0xDA */
-"<undef>", /* 0xDB */
+"NEW_N", /* 0xDA */
+"NEWARRAY_N", /* 0xDB */
 "<undef>", /* 0xDC */
 "<undef>", /* 0xDD */
 "<undef>", /* 0xDE */

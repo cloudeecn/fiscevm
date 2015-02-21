@@ -402,9 +402,8 @@ if(unlikely(OPS <= 0)){ \
 
 #define FY_THEH(FINALLY) \
 if(unlikely(exception->exceptionType != exception_none)){ \
-	ops = 0; \
 	FINALLY; \
-	FY_FALLOUT_NOINVOKE; \
+	goto label_throw; \
 }
 
 #define FY_ENGINE_CLINIT(CLASS, SPSS) { \

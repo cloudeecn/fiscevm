@@ -367,128 +367,206 @@ fadd_r2 (f1 f2 -- fr)
 
 getfield_n_r0 (i1 -- ir)
 {
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 }
 
 getfield_n_r1 (i1 -- ir)
 {
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 }
 
 getfield_n_r2 (i1 -- ir)
 {
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 }
 
 getfield_n_r3 (i1 -- ir)
 {
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 }
 
 getfield_n_r4 (i1 -- ir)
 {
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 }
 
 getfield_n_r5 (i1 -- ir)
 {
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 }
 
 getfield_n_r6 (i1 -- ir)
 {
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 }
 
 getfield_n_r7 (i1 -- ir)
 {
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 }
 
 putfield_n_r0 (i1 i2 --)
 {
-  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
 }
 
 putfield_n_r1 (i1 i2 --)
 {
-  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
 }
 
 putfield_n_r2 (i1 i2 --)
 {
-  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
 }
 
 putfield_n_r3 (i1 i2 --)
 {
-  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
 }
 
 iaload_r0 (i1 i2 -- ir)
 {
-  ir = fy_heapGetArrayInt(context, i1, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  ir = fy_heapValue(context, i1, i2);
 }
 
 iaload_r1 (i1 i2 -- ir)
 {
-  ir = fy_heapGetArrayInt(context, i1, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  ir = fy_heapValue(context, i1, i2);
 }
 
 iaload_r2 (i1 i2 -- ir)
 {
-  ir = fy_heapGetArrayInt(context, i1, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  ir = fy_heapValue(context, i1, i2);
 }
 
 iaload_r3 (i1 i2 -- ir)
 {
-  ir = fy_heapGetArrayInt(context, i1, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  ir = fy_heapValue(context, i1, i2);
 }
 
 iaload_r4 (i1 i2 -- ir)
 {
-  ir = fy_heapGetArrayInt(context, i1, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  ir = fy_heapValue(context, i1, i2);
 }
 
 iaload_r5 (i1 i2 -- ir)
 {
-  ir = fy_heapGetArrayInt(context, i1, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  ir = fy_heapValue(context, i1, i2);
 }
 
 iastore_r0 (i1 i2 i3 -- )
 {
-  fy_heapPutArrayInt(context, i1, i2, i3, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  fy_heapValue(context, i1, i2) = i3;
 }
 
 iastore_r1 (i1 i2 i3 -- )
 {
-  fy_heapPutArrayInt(context, i1, i2, i3, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  fy_heapValue(context, i1, i2) = i3;
 }
 
 iastore_r2 (i1 i2 i3 -- )
 {
-  fy_heapPutArrayInt(context, i1, i2, i3, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  if(unlikely(i2 < 0 || i2 >= fy_heapArrayLengthFast(context, i1))){
+    ops = i2;
+    goto label_throw_aioob;
+  }
+  fy_heapValue(context, i1, i2) = i3;
 }
 
 getstatic_n_r0( -- ir)
@@ -566,15 +644,18 @@ nop_r2 ( -- )
 \ #       #    #     #      # #   #     #    #    #
 \ #       #     #   ###      #    #     #    #    #######
 
-getfield_nx (i1 -- lr)
+getfield_nx (i1 -- ir1 ir2)
 {
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1);
   }
 #endif
-  lr = fy_heapGetFieldLong(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir1 = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
+  ir2 = fy_heapValue(context, i1, CURR_INST.params.int_params.param1 + 1);
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
@@ -582,15 +663,18 @@ getfield_nx (i1 -- lr)
 #endif
 }
 
-putfield_nx (i1 l1 --)
+putfield_nx (i1 i2 i3 --)
 {
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", CURR_INST.params.field->utf8Name, i1, l1);
   }
 #endif
-  fy_heapPutFieldLong(context, i1, CURR_INST.params.field, l1, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1 + 1) = i3;
 }
 
 getstatic_nx( -- ir1 ir2)
@@ -1074,6 +1158,7 @@ multianewarray ( -- ir)
     fputc(' ', vm_out);
   }
 #endif
+  fy_breakpoint();
   fy_heapBeginProtect(context);
   ir = fy_heapMultiArray(context, clazz1, CURR_INST.params.int_params.param2, fy_stack_item2iarray(spp - 1),
       exception);
@@ -1091,65 +1176,17 @@ multianewarray ( -- ir)
 \ #     # #       #     # #
 \ #     # ####### #     # #
 
-new ( -- ir)
+new_n ( -- ir)
 {
-  fy_class *clazz1;
-  clazz1 = CURR_INST.params.clazz;
-  if (unlikely(clazz1->accessFlags
-      & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT))) {
-    fy_fault(exception, NULL, "InstantiationErro %s", clazz1->utf8Name);
-    FY_THEH(;);
-  }
-  /*!CLINIT*/
   fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-
-  ir = fy_heapAllocate(context, clazz1, exception);
+  ir = fy_heapAllocate(context, CURR_INST.params.clazz, exception);
   FY_THEH(;)
 }
 
-newarray (i1 -- ir)
+newarray_n (i1 -- ir)
 {
-  fy_class *clazz1;
-  fy_str *pstr1;
-  if (unlikely(((fy_int) i1) < 0)) {
-    fy_fault(exception, FY_EXCEPTION_NASE, "%d", i1);
-    FY_THEH(;)
-  }
-  switch(CURR_INST.params.int_params.param1){
-  case 4:
-    pstr1 = context->sArrayBoolean;
-    break;
-  case 5:
-    pstr1 = context->sArrayChar;
-    break;
-  case 6:
-    pstr1 = context->sArrayFloat;
-    break;
-  case 7:
-    pstr1 = context->sArrayDouble;
-    break;
-  case 8:
-    pstr1 = context->sArrayByte;
-    break;
-  case 9:
-    pstr1 = context->sArrayShort;
-    break;
-  case 10:
-    pstr1 = context->sArrayInteger;
-    break;
-  case 11:
-    pstr1 = context->sArrayLong;
-    break;
-  default:
-    pstr1 = NULL; /*make compiler happy*/
-    fy_fault(exception, FY_EXCEPTION_VM, "%d", CURR_INST.params.int_params.param1);
-    FY_THEH(;)
-    break;
-  }
-  clazz1 = fy_vmLookupClass(context, pstr1, exception);
-  FY_THEH(;)
-  ir = fy_heapAllocateArray(context, clazz1, i1, exception);
+  fy_localToFrame(context, frame);
+  ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
   FY_THEH(;)
 }
 
@@ -1866,8 +1903,10 @@ getfield_n (i1 -- ir)
     fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1);
   }
 #endif
-  ir = fy_heapGetFieldInt(context, i1, CURR_INST.params.field, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
@@ -1883,8 +1922,10 @@ putfield_n (i1 i2 --)
     fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1, i2);
   }
 #endif
-  fy_heapPutFieldInt(context, i1, CURR_INST.params.field, i2, exception);
-  FY_THEH(;)
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
   RCAL(FY_OP_putfield_n);
 }
 
@@ -1975,6 +2016,8 @@ getfield (i1 -- ir)
   }
 #endif
   FY_THEH(;)
+  CURR_INST.params.int_params.param1 = field->posAbs;
+  CURR_INST.params.int_params.param2 = 0;
   MODIFY_CURR_INST(getfield_n);
 }
 
@@ -1998,6 +2041,8 @@ putfield (i1 i2 --)
 #endif
   fy_heapPutFieldInt(context, i1, field, i2, exception);
   FY_THEH(;)
+  CURR_INST.params.int_params.param1 = field->posAbs;
+  CURR_INST.params.int_params.param2 = 0;
   MODIFY_CURR_INST(putfield_n);
 }
 
@@ -2021,6 +2066,8 @@ getfield_x (i1 -- lr)
   }
 #endif
   FY_THEH(;)
+  CURR_INST.params.int_params.param1 = field->posAbs;
+  CURR_INST.params.int_params.param2 = 0;
   MODIFY_CURR_INST(getfield_nx);
 }
 
@@ -2044,6 +2091,8 @@ putfield_x (i1 l1 --)
 #endif
   fy_heapPutFieldLong(context, i1, field, l1, exception);
   FY_THEH(;)
+  CURR_INST.params.int_params.param1 = field->posAbs;
+  CURR_INST.params.int_params.param2 = 0;
   MODIFY_CURR_INST(putfield_nx);
 }
 
@@ -2175,6 +2224,71 @@ putstatic_x(l1 -- )
   CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
 }
 
+new ( -- ir)
+{
+  fy_class *clazz1;
+  clazz1 = CURR_INST.params.clazz;
+  if (unlikely(clazz1->accessFlags
+      & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT))) {
+    fy_fault(exception, NULL, "InstantiationErro %s", clazz1->utf8Name);
+    FY_THEH(;);
+  }
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+
+  ir = fy_heapAllocate(context, clazz1, exception);
+  FY_THEH(;)
+  MODIFY_CURR_INST(new_n);
+}
+
+newarray (i1 -- ir)
+{
+  fy_class *clazz1;
+  fy_str *pstr1;
+  if (unlikely(((fy_int) i1) < 0)) {
+    fy_fault(exception, FY_EXCEPTION_NASE, "%d", i1);
+    FY_THEH(;)
+  }
+  switch(CURR_INST.params.int_params.param1){
+  case 4:
+    pstr1 = context->sArrayBoolean;
+    break;
+  case 5:
+    pstr1 = context->sArrayChar;
+    break;
+  case 6:
+    pstr1 = context->sArrayFloat;
+    break;
+  case 7:
+    pstr1 = context->sArrayDouble;
+    break;
+  case 8:
+    pstr1 = context->sArrayByte;
+    break;
+  case 9:
+    pstr1 = context->sArrayShort;
+    break;
+  case 10:
+    pstr1 = context->sArrayInteger;
+    break;
+  case 11:
+    pstr1 = context->sArrayLong;
+    break;
+  default:
+    pstr1 = NULL; /*make compiler happy*/
+    fy_fault(exception, FY_EXCEPTION_VM, "%d", CURR_INST.params.int_params.param1);
+    FY_THEH(;)
+    break;
+  }
+  clazz1 = fy_vmLookupClass(context, pstr1, exception);
+  FY_THEH(;)
+  ir = fy_heapAllocateArray(context, clazz1, i1, exception);
+  FY_THEH(;)
+  CURR_INST.params.clazz = clazz1;
+  MODIFY_CURR_INST(newarray_n);
+}
+
 dropout ( -- )
 {
   #ifdef VM_DEBUG
@@ -2187,6 +2301,15 @@ dropout ( -- )
 
 \C#ifdef FY_ENGINE_HEADER
 \C    ENGINE_BODY_END;
+\C    lable_throw_npt:
+\C    fy_fault(exception, FY_EXCEPTION_NPT, "");
+\C    goto label_throw;
+\C    label_throw_aioob:
+\C    fy_fault(exception, FY_EXCEPTION_AIOOB, "%"FY_PRINT32"d", ops);
+\C    goto label_throw;
+\C    label_throw:
+\C    ops = 0;
+\C    fy_localToFrame(context, frame);
 \C    label_fallout_invoke:
 \C#ifdef FY_INSTRUCTION_COUNT
 \C    context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;

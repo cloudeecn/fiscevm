@@ -64,43 +64,63 @@ public class Profile extends PSuper implements Runnable {
 
 	private long noop() {
 		long t = System.nanoTime();
-		for (int i = 0; i < 50000; i++) {
+		int i;
+		for (i = 0; i < 50000; i++) {
+		}
+		if (Math.random() == 0.5) {
+			System.out.println("XXX" + i);
 		}
 		return System.nanoTime() - t;
 	}
 
 	private long stack() {
 		int k = 0;
+		int i;
 		long t = System.nanoTime();
-		for (int i = 0; i < 50000; i++) {
+		for (i = 0; i < 50000; i++) {
 			k += i;
+		}
+		if (Math.random() == 0.5) {
+			System.out.println("XXX" + i + " " + k);
 		}
 		return System.nanoTime() - t;
 	}
-	
+
 	private long stackFloat() {
 		float k = 0;
+		float i;
 		long t = System.nanoTime();
-		for (float i = 0; i < 50000; i++) {
+		for (i = 0; i < 50000; i++) {
 			k += i;
+		}
+		if (Math.random() == 0.5) {
+			System.out.println("XXX" + i + " " + k);
 		}
 		return System.nanoTime() - t;
 	}
-	
+
 	private long stackDouble() {
 		double k = 0;
+		double i;
 		long t = System.nanoTime();
-		for (double i = 0; i < 50000; i++) {
+		for (i = 0; i < 50000; i++) {
 			k += i;
+		}
+		if (Math.random() == 0.5) {
+			System.out.println("XXX" + i + " " + k);
 		}
 		return System.nanoTime() - t;
 	}
-	
+
 	private long stackLong() {
 		long k = 0;
+		long i;
 		long t = System.nanoTime();
-		for (long i = 0; i < 50000; i++) {
+		for (i = 0; i < 50000; i++) {
 			k += i;
+		}
+		if (Math.random() == 0.5) {
+			System.out.println("XXX" + i + " " + k);
 		}
 		return System.nanoTime() - t;
 	}
@@ -111,6 +131,9 @@ public class Profile extends PSuper implements Runnable {
 		for (j = 0; j < 50000; j++) {
 			k += j;
 		}
+		if (Math.random() == 0.5) {
+			System.out.println("XXX" + j + " " + k);
+		}
 		return System.nanoTime() - t;
 	}
 
@@ -120,6 +143,9 @@ public class Profile extends PSuper implements Runnable {
 		for (s = 0; s < 50000; s++) {
 			k += s;
 		}
+		if (Math.random() == 0.5) {
+			System.out.println("XXX" + s + " " + k);
+		}
 		return System.nanoTime() - t;
 	}
 
@@ -127,9 +153,13 @@ public class Profile extends PSuper implements Runnable {
 		Intf in = new Impl();
 		int k = 0;
 		long t = System.nanoTime();
-		for (int i = 0; i < 50000; i++) {
+		int i;
+		for (i = 0; i < 50000; i++) {
 			k += i;
 			in.rootI();
+		}
+		if (Math.random() == 0.5) {
+			System.out.println("XXX" + i + " " + k);
 		}
 		return System.nanoTime() - t;
 	}
@@ -319,7 +349,7 @@ public class Profile extends PSuper implements Runnable {
 
 		final int max = 9;
 		final int min = 4;
-		
+
 		sleep();
 
 		for (int u = 0; u < max; u++) {
@@ -341,7 +371,7 @@ public class Profile extends PSuper implements Runnable {
 			}
 
 			sleep();
-			
+
 			if (u >= min) {
 				ttStackFloat += stackFloat();
 			} else {
@@ -349,7 +379,7 @@ public class Profile extends PSuper implements Runnable {
 			}
 
 			sleep();
-			
+
 			if (u >= min) {
 				ttStackDouble += stackDouble();
 			} else {
@@ -357,7 +387,7 @@ public class Profile extends PSuper implements Runnable {
 			}
 
 			sleep();
-			
+
 			if (u >= min) {
 				ttStackLong += stackLong();
 			} else {

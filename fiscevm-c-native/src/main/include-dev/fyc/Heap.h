@@ -71,6 +71,9 @@ struct fy_object_data {
 };
 
 #define fy_heapGetObject(CONTEXT,HANDLE) ((CONTEXT)->objects+(HANDLE))
+#define fy_heapValue(CONTEXT, HANDLE, POS) (((fy_int*) fy_heapGetObject(CONTEXT, HANDLE)->object_data->data)[POS])
+#define fy_heapValueOfTpye(CONTEXT, HANDLE, TYPE, POS) (((TYPE*) fy_heapGetObject(CONTEXT, HANDLE)->object_data->data)[POS])
+#define fy_heapArrayLengthFast(CONTEXT, HANDLE) (fy_heapGetObject(CONTEXT, HANDLE)->object_data->m.arrayLength)
 
 fy_uint fy_heapAllocateDirect(fy_context *context, fy_int size, fy_class *clazz,
 		fy_int length, fy_uint toHandle, enum fy_heapPos pos,

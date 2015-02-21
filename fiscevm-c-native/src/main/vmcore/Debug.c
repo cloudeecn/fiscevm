@@ -88,7 +88,7 @@ FY_ATTR_EXPORT void fy_debugInit(fy_context *context) {
 	context->logIVar = stdoutLogVar;
 	context->logIVarLn = stdoutLogVarLn;
 
-#ifdef FY_DEBUG
+#if defined(FY_DEBUG) || defined(FY_LOG_DEBUG)
 	context->logDStr = stdoutLogStr;
 	context->logDVar = stdoutLogVar;
 	context->logDVarLn = stdoutLogVarLn;
