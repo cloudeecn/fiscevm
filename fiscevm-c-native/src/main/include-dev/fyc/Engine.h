@@ -99,7 +99,7 @@ fy_int fy_thread_runner_00(struct fy_context *context,
             fy_e2_label_holder **out_labels
 );
 
-#if FY_ENGINE_COUNT > 1
+#if FY_ENGINE_COUNT > 1 || defined(__GNUC__)
 fy_int fy_thread_runner_01(struct fy_context *context,
 			struct fy_thread *thread,
 			struct fy_frame *frame,

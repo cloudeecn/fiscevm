@@ -568,7 +568,7 @@ static fy_long opLDC2(fy_context *context,
 #include "fisce-vm.i"
 #undef FY_ENGINE_NUM
 
-#if FY_ENGINE_COUNT > 1
+#if FY_ENGINE_COUNT > 1 || defined(__GNUC__)
 #define FY_ENGINE_NUM 01
 #include "fisce-vm.i"
 #undef FY_ENGINE_NUM
