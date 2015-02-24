@@ -109,8 +109,12 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
     FY_ENGINE_CLINIT(method->owner, 0)
   }
 
-  
   ENGINE_ENTER;
+  label_fallout_invoke:
+#ifdef FY_INSTRUCTION_COUNT
+  context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;
+#endif
+  return ops;
   ENGINE_BODY_BEGIN;
 #endif
 #if REPL_MIN > 0
@@ -355,14 +359,13 @@ INST_ADDR(dropout),
     label_throw_aioob:
     fy_fault(exception, FY_EXCEPTION_AIOOB, "%"FY_PRINT32"d", ops);
     goto label_throw;
+    label_throw_dbz:
+    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
+    goto label_throw;
     label_throw:
     ops = 0;
     fy_localToFrame(context, frame);
-    label_fallout_invoke:
-#ifdef FY_INSTRUCTION_COUNT
-    context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;
-#endif
-    return ops;
+    goto label_fallout_invoke;
   }
 }
 #undef FY_ENGINE_NAME

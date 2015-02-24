@@ -109,8 +109,12 @@
 \C    FY_ENGINE_CLINIT(method->owner, 0)
 \C  }
 \C
-\C  
 \C  ENGINE_ENTER;
+\C  label_fallout_invoke:
+\C#ifdef FY_INSTRUCTION_COUNT
+\C  context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;
+\C#endif
+\C  return ops;
 \C  ENGINE_BODY_BEGIN;
 \C#endif
 
@@ -2307,14 +2311,13 @@ dropout ( -- )
 \C    label_throw_aioob:
 \C    fy_fault(exception, FY_EXCEPTION_AIOOB, "%"FY_PRINT32"d", ops);
 \C    goto label_throw;
+\C    label_throw_dbz:
+\C    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
+\C    goto label_throw;
 \C    label_throw:
 \C    ops = 0;
 \C    fy_localToFrame(context, frame);
-\C    label_fallout_invoke:
-\C#ifdef FY_INSTRUCTION_COUNT
-\C    context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;
-\C#endif
-\C    return ops;
+\C    goto label_fallout_invoke;
 \C  }
 \C}
 \C#undef FY_ENGINE_NAME
