@@ -171,6 +171,20 @@ extern fy_nh *FY_NH_NO_HANDLER;
 #  define NEXT_P2	{goto *cfa;}
 #endif
 
+#if THREADING_SCHEME==4
+/* direct threading scheme 4: autoinc2, low latency (68K) */
+#  define USE_CFA 1
+#  define NEXT_P0   {INST_COUNT(PCURR_INST);}
+#  define IP		(ipp + 1)
+#  define PCURR_INST		(ipp)
+#  define CURR_INST		(*ipp)
+#  define SET_IP(p)	{ipp=instructions + (p) - 1; NEXT_P0;}
+#  define NEXT_INST	(*(ipp + 1))
+#  define DEF_CA
+#  define NEXT_P1	{cfa=(++ipp)->inst;}
+#  define NEXT_P2	{goto *cfa;}
+#endif
+
 #if THREADING_SCHEME==5
 /* direct threading scheme 5: early fetching (Alpha, MIPS) */
 #  define USE_CFA 1
@@ -179,10 +193,25 @@ extern fy_nh *FY_NH_NO_HANDLER;
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
-#  define SET_IP(p)	{ipp=instructions + (p); NEXT_P0; /*fprintf(vm_out, "\njumping to %"FY_PRINT32"d [%p]\n", cfa.op, cfa.inst); if(cfa.inst == NULL){fy_breakpoint();}*/}
+#  define SET_IP(p)	{ipp=instructions + (p); NEXT_P0;}
 #  define NEXT_INST	(*IP)
 #  define DEF_CA
 #  define NEXT_P1	{ipp++;}
+#  define NEXT_P2	{goto *cfa;}
+#endif
+
+#if THREADING_SCHEME==6
+/* direct threading scheme 6: early fetching / autoinc */
+#  define USE_CFA 1
+#  define CFA_NEXT
+#  define NEXT_P0	{cfa=(++ipp)->inst; INST_COUNT(PCURR_INST);}
+#  define IP		(ipp)
+#  define PCURR_INST		(ipp-1)
+#  define CURR_INST		(*(ipp-1))
+#  define SET_IP(p)	{ipp=instructions + (p) - 1; NEXT_P0;}
+#  define NEXT_INST	(*IP)
+#  define DEF_CA
+#  define NEXT_P1
 #  define NEXT_P2	{goto *cfa;}
 #endif
 

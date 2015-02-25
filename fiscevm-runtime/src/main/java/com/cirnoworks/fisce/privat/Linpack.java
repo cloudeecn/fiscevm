@@ -42,7 +42,8 @@ public class Linpack {
 	  for(int i=0;i<40;i++){
 	    Linpack l = new Linpack();
 	    l.run_benchmark();
-	    Thread.sleep(500);
+	    System.gc();
+	    Thread.sleep(50);
 	  }
   }
 
@@ -67,14 +68,14 @@ public class Linpack {
     float time_result = 0.0f;
     float eps_result = 0.0f;
 
-    float a[][] = new float[200][201];
-    float b[] = new float[200];
-    float x[] = new float[200];
+    float a[][] = new float[250][251];
+    float b[] = new float[250];
+    float x[] = new float[250];
     float cray,ops,norma,normx;
     float resid;
     float kf;
     int n,i,ntimes,info,lda,ldaa,kflops;
-    int ipvt[] = new int[200];
+    int ipvt[] = new int[250];
     
     long time,total;
     //float mflops_result;
@@ -82,10 +83,10 @@ public class Linpack {
     //float time_result;
     //float eps_result;
 
-    lda = 201;
-    ldaa = 200;
+    lda = 251;
+    ldaa = 250;
     cray = .056f;
-    n = 150;
+    n = 250;
     
     ops = (2.0e0f*(n*n*n))/3.0f + 2.0f*(n*n);
     
@@ -128,9 +129,8 @@ public class Linpack {
 	residn_result /= 100;
 
 	time_result = total/1e9f;
-	time_result += 0.005; // for rounding
-	time_result = (int)(time_result*100);
-	time_result /= 100;
+	time_result = (int)(time_result*1000 + 0.5);
+	time_result /= 1000;
 
 	mflops_result = ops/(1.0e-3f*total);
 	mflops_result += 0.0005; // for rounding
