@@ -459,7 +459,12 @@ static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 		if (unlikely(nh == NULL)) {
 			nh = fy_hashMapGet(context->memblocks, context->mapMUNameToNH,
 					method->uniqueName);
-			nh = method->c.nh = (nh == NULL ? FY_NH_NO_HANDLER : nh);
+			if(nh == NULL){
+				nh = FY_NH_NO_HANDLER;
+			} else {
+				nh->stack_count = paramsCount;
+			}
+			method->c.nh = nh;
 		}
 		if (nh == FY_NH_NO_HANDLER) {
 			thread->pendingNative.methodName = method->utf8Name;

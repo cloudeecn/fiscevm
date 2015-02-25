@@ -6023,14 +6023,12 @@ if (vm_debug) {
 
 {
 #ifdef FY_LATE_DECLARATION
-  fy_method *method1 = CURR_INST.params.method;
-  fy_int i1 = method1->paramStackUsage;
-  fy_nh *nh = method1->c.nh;
+  fy_nh *nh = CURR_INST.params.nh;
 #endif
   fy_localToFrame(context, frame);
   frame->pcofs = 1;
   fy_heapBeginProtect(context);
-  ops = (nh->handler)(context, thread, nh->data, spp - i1, i1,
+  ops = (nh->handler)(context, thread, nh->data, spp - nh->stack_count, nh->stack_count,
       ops, exception);
   fy_heapEndProtect(context);
   FY_THEH(;);
@@ -6147,14 +6145,12 @@ if (vm_debug) {
 
 {
 #ifdef FY_LATE_DECLARATION
-  fy_method *method1 = CURR_INST.params.method;
-  fy_int i1 = method1->paramStackUsage + 1;
-  fy_nh *nh = method1->c.nh;
+  fy_nh *nh = CURR_INST.params.nh;
 #endif
   fy_localToFrame(context, frame);
   frame->pcofs = 1;
   fy_heapBeginProtect(context);
-  ops = (nh->handler)(context, thread, nh->data, spp - i1, i1,
+  ops = (nh->handler)(context, thread, nh->data, spp - nh->stack_count, nh->stack_count,
       ops - 1, exception);
   fy_heapEndProtect(context);
   FY_THEH(;);
@@ -9691,6 +9687,7 @@ if (vm_debug) {
     if(CURR_INST.params.method->c.nh == FY_NH_NO_HANDLER){
       MODIFY_CURR_INST(invokedirect_nm);
     } else {
+      CURR_INST.params.nh = CURR_INST.params.method->c.nh;
       MODIFY_CURR_INST(invokedirect_nn);
     }
   } else {
@@ -9736,6 +9733,7 @@ if (vm_debug) {
     if(CURR_INST.params.method->c.nh == FY_NH_NO_HANDLER){
       MODIFY_CURR_INST(invokestatic_nm);
     } else {
+      CURR_INST.params.nh = CURR_INST.params.method->c.nh;
       MODIFY_CURR_INST(invokestatic_nn);
     }
   } else {
@@ -9780,6 +9778,7 @@ if (vm_debug) {
       if(CURR_INST.params.method->c.nh == FY_NH_NO_HANDLER){
         MODIFY_CURR_INST(invokedirect_nm);
       } else {
+        CURR_INST.params.nh = CURR_INST.params.method->c.nh;
         MODIFY_CURR_INST(invokedirect_nn);
       }
     } else {

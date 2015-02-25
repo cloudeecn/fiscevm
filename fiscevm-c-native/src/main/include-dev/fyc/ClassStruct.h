@@ -33,6 +33,7 @@
 struct fy_nh {
 	void *data;
 	fy_nhFunction handler;
+	fy_int stack_count;
 };
 
 union stringInfo {
