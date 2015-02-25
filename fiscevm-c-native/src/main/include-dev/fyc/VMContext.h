@@ -213,10 +213,11 @@ struct fy_context {
 	fy_class *TOP_SOFT_REF;
 	fy_class *TOP_PHANTOM_REF;
 
+	fy_object objects[MAX_OBJECTS];
+
 	fy_str *primitives[128];
 	fy_hashMap mapPrimitivesRev[1];
 
-	fy_memblock memblocks[1];
 	fy_port port[1];
 
 	fy_int classesCount;
@@ -280,7 +281,7 @@ struct fy_context {
 	fy_arrayList toEnqueue[1];
 	fy_uint nextHandle;
 	fy_uint totalObjects;
-	fy_object objects[MAX_OBJECTS];
+	fy_memblock memblocks[1];
 	fy_int END_MARK[1];
 	/* #END HEAP*/
 };
