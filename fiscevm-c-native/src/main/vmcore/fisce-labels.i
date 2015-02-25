@@ -31,6 +31,7 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
   fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
   fy_class *clazz1, *clazz2;
   fy_field *field;
+  fy_method *method1;
   fy_switch_lookup *swlookup;
   fy_switch_table *swtable;
 #endif
@@ -276,9 +277,16 @@ INST_ADDR(checkcast),
 INST_ADDR(instanceof),
 INST_ADDR(monitorenter),
 INST_ADDR(monitorexit),
-INST_ADDR(invokespecial),
-INST_ADDR(invokestatic),
-INST_ADDR(invokevirtual),
+INST_ADDR(invokestatic_nd),
+INST_ADDR(invokestatic_nn),
+INST_ADDR(invokestatic_nm),
+INST_ADDR(invokedirect_nd),
+INST_ADDR(invokedirect_nn),
+INST_ADDR(invokedirect_nm),
+INST_ADDR(invokevirtual_n),
+INST_ADDR(return_ns),
+INST_ADDR(ireturn_ns),
+INST_ADDR(lreturn_ns),
 INST_ADDR(return),
 INST_ADDR(ireturn),
 INST_ADDR(lreturn),
@@ -350,6 +358,9 @@ INST_ADDR(getstatic_x),
 INST_ADDR(putstatic_x),
 INST_ADDR(new),
 INST_ADDR(newarray),
+INST_ADDR(invokespecial),
+INST_ADDR(invokestatic),
+INST_ADDR(invokevirtual),
 INST_ADDR(dropout),
 #ifdef FY_ENGINE_HEADER
     ENGINE_BODY_END;

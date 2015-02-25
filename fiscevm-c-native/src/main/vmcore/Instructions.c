@@ -231,9 +231,9 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "BREAKPOINT", /* 0xCA */
 "<undef>", /* 0xCB */
 "<undef>", /* 0xCC */
-"<undef>", /* 0xCD */
-"<undef>", /* 0xCE */
-"<undef>", /* 0xCF */
+"RETURN_NS", /* 0xCD */
+"IRETURN_NS", /* 0xCE */
+"LRETURN_NS", /* 0xCF */
 "LPUSH", /* 0xD0 */
 "<undef>", /* 0xD1 */
 "GETSTATIC_N", /* 0xD2 */
@@ -273,13 +273,13 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "IF_ACMPEQ_B", /* 0xF4 */
 "IF_ACMPNE_B", /* 0xF5 */
 "GOTO_B", /* 0xF6 */
-"<undef>", /* 0xF7 */
-"<undef>", /* 0xF8 */
-"<undef>", /* 0xF9 */
-"<undef>", /* 0xFA */
-"<undef>", /* 0xFB */
-"<undef>", /* 0xFC */
-"<undef>", /* 0xFD */
+"INVOKESTATIC_ND", /* 0xF7 */
+"INVOKESTATIC_NN", /* 0xF8 */
+"INVOKESTATIC_NM", /* 0xF9 */
+"INVOKEDIRECT_ND", /* 0xFA */
+"INVOKEDIRECT_NN", /* 0xFB */
+"INVOKEDIRECT_NM", /* 0xFC */
+"INVOKEVIRTUAL_N", /* 0xFD */
 "<undef>", /* 0xFE */
 "<dropout>", /* 0xFF */
 

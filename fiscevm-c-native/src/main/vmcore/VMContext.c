@@ -950,7 +950,6 @@ fy_method *fy_vmLookupMethodVirtualByMethod(fy_context *context,
 		fy_class *clazz, fy_method *method, fy_exception *exception) {
 	fy_method *actureMethod;
 	fy_uint actureMethodId;
-	char msg[256];
 	actureMethodId = fy_hashMapIGet(context->memblocks, clazz->virtualTable,
 			method->method_id);
 	if (unlikely(actureMethodId == -1)) {
@@ -959,18 +958,15 @@ fy_method *fy_vmLookupMethodVirtualByMethod(fy_context *context,
 		FYEH()NULL;
 
 		if (actureMethod == NULL) {
-			fy_strSPrint(msg, 256, method->uniqueName);
-			fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", msg);
+			fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", method->utf8Name);
 			return NULL;
 		}
 		if (actureMethod->access_flags & FY_ACC_STATIC) {
-			fy_strSPrint(msg, 256, method->uniqueName);
-			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s", msg);
+			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "%s", method->utf8Name);
 			return NULL;
 		}
 		if ((actureMethod->access_flags & FY_ACC_ABSTRACT)) {
-			fy_strSPrint(msg, 256, method->uniqueName);
-			fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", msg);
+			fy_fault(exception, FY_EXCEPTION_ABSTRACT, "%s", method->utf8Name);
 			return NULL;
 		}
 		fy_hashMapIPut(context->memblocks, clazz->virtualTable,
