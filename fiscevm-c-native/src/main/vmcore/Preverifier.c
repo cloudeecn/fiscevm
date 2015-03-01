@@ -403,8 +403,8 @@ static void parseStackItemInitial(fy_context *context, fy_stack_map_table *smt,
 		fy_instruction_extra *instruction_extra, fy_exception *exception) {
 	fy_int localSize = method->paramStackUsage;
 	fy_int i, ofs = 0;
-	fy_instInitStackItem(context->memblocks, instruction_extra, method->max_locals,
-			exception);
+	fy_instInitStackItem(context->memblocks, instruction_extra,
+			method->max_locals, exception);
 	FYEH();
 	if (!(method->access_flags & FY_ACC_STATIC)) {
 		fy_instMarkStackItem(instruction_extra, 0, -1);
@@ -743,8 +743,8 @@ static void parseStackItemFrame(fy_context *context, fy_stack_map_table *smt,
 			}
 			}
 		}
-		fy_instInitStackItem(context->memblocks, instruction_extra, instruction_extra->sp,
-				exception);
+		fy_instInitStackItem(context->memblocks, instruction_extra,
+				instruction_extra->sp, exception);
 		FYEH();
 		status->localSize = 0;
 		i = 0;
@@ -812,16 +812,16 @@ static void parseStackItemFrame(fy_context *context, fy_stack_map_table *smt,
 			case 2:
 				/* int float */
 			{
-				fy_instMarkStackItem(instruction_extra, method->max_locals + i + ofs,
-						0);
+				fy_instMarkStackItem(instruction_extra,
+						method->max_locals + i + ofs, 0);
 				break;
 			}
 			case 3:
 			case 4:
 				/* wide */
 			{
-				fy_instMarkStackItem(instruction_extra, method->max_locals + i + ofs,
-						0);
+				fy_instMarkStackItem(instruction_extra,
+						method->max_locals + i + ofs, 0);
 				fy_instMarkStackItem(instruction_extra,
 						method->max_locals + i + ofs + 1, 0);
 				ofs++;
@@ -829,15 +829,15 @@ static void parseStackItemFrame(fy_context *context, fy_stack_map_table *smt,
 			}
 			case 5:
 			case 6: {
-				fy_instMarkStackItem(instruction_extra, method->max_locals + i + ofs,
-						-1);
+				fy_instMarkStackItem(instruction_extra,
+						method->max_locals + i + ofs, -1);
 				break;
 			}
 			case 7: /* handle */
 			case 8: /* uninit */
 			{
-				fy_instMarkStackItem(instruction_extra, method->max_locals + i + ofs,
-						-1);
+				fy_instMarkStackItem(instruction_extra,
+						method->max_locals + i + ofs, -1);
 				status->sc += 2;
 				break;
 			}
@@ -935,7 +935,6 @@ void fy_preverify(fy_context *context, fy_method *method,
 
 	engine = context->engines + (method->method_id % context->engineCount);
 	memset(labelsByOp, 0, sizeof(labelsByOp));
-
 
 	(*(engine->runner))(context, NULL, NULL, 0, exception, &labels);
 	FYEH();
@@ -1156,7 +1155,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case FY_OP_dneg:
 		case FY_OP_daload:
 		case FY_OP_swap: {
-/* same content*/
+			/* same content*/
 			smtStatus.tmp->sp = instruction_extra->sp;
 			smtStatus.tmp->s = instruction_extra->s;
 #ifdef FY_STRICT_CHECK
@@ -1502,7 +1501,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 			FYEH();
 			fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1,
-					fy_instGetStackItem(instruction_extra, instruction_extra->sp - 1));
+					fy_instGetStackItem(instruction_extra,
+							instruction_extra->sp - 1));
 			break;
 		}
 		case FY_OP_dup_x1: {
@@ -1511,11 +1511,14 @@ void fy_preverify(fy_context *context, fy_method *method,
 			FYEH();
 			fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 3,
-					fy_instGetStackItem(instruction_extra, instruction_extra->sp - 1));
+					fy_instGetStackItem(instruction_extra,
+							instruction_extra->sp - 1));
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2,
-					fy_instGetStackItem(instruction_extra, instruction_extra->sp - 2));
+					fy_instGetStackItem(instruction_extra,
+							instruction_extra->sp - 2));
 			fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1,
-					fy_instGetStackItem(instruction_extra, instruction_extra->sp - 1));
+					fy_instGetStackItem(instruction_extra,
+							instruction_extra->sp - 1));
 			break;
 		}
 		case FY_OP_dup_x2:
@@ -2332,351 +2335,366 @@ void fy_preverify(fy_context *context, fy_method *method,
 				instruction->params.int_params.param1,
 				instruction->params.int_params.param2);
 #endif
-        switch (op) {
-            case FY_OP_fload:
-            case FY_OP_aload:
-                op = FY_OP_iload;
-                break;
-            case FY_OP_iload_0:
-            case FY_OP_aload_0:
-            case FY_OP_fload_0:
-                op = FY_OP_iload;
-                instruction->params.int_params.param1 = 0;
-                break;
-            case FY_OP_iload_1:
-            case FY_OP_aload_1:
-            case FY_OP_fload_1:
-                op = FY_OP_iload;
-                instruction->params.int_params.param1 = 1;
-                break;
-            case FY_OP_iload_2:
-            case FY_OP_aload_2:
-            case FY_OP_fload_2:
-                op = FY_OP_iload;
-                instruction->params.int_params.param1 = 2;
-                break;
-            case FY_OP_iload_3:
-            case FY_OP_aload_3:
-            case FY_OP_fload_3:
-                op = FY_OP_iload;
-                instruction->params.int_params.param1 = 3;
-                break;
-            case FY_OP_fstore:
-            case FY_OP_astore:
-                op = FY_OP_istore;
-                break;
-            case FY_OP_istore_0:
-            case FY_OP_astore_0:
-            case FY_OP_fstore_0:
-                op = FY_OP_istore;
-                instruction->params.int_params.param1 = 0;
-                break;
-            case FY_OP_istore_1:
-            case FY_OP_astore_1:
-            case FY_OP_fstore_1:
-                op = FY_OP_istore;
-                instruction->params.int_params.param1 = 1;
-                break;
-            case FY_OP_istore_2:
-            case FY_OP_astore_2:
-            case FY_OP_fstore_2:
-                op = FY_OP_istore;
-                instruction->params.int_params.param1 = 2;
-                break;
-            case FY_OP_istore_3:
-            case FY_OP_astore_3:
-            case FY_OP_fstore_3:
-                op = FY_OP_istore;
-                instruction->params.int_params.param1 = 3;
-                break;
-            
-            case FY_OP_dload:
-                op = FY_OP_lload;
-                break;
-            case FY_OP_dload_0:
-            case FY_OP_lload_0:
-                op = FY_OP_lload;
-                instruction->params.int_params.param1 = 0;
-                break;
-            case FY_OP_dload_1:
-            case FY_OP_lload_1:
-                op = FY_OP_lload;
-                instruction->params.int_params.param1 = 1;
-                break;
-            case FY_OP_dload_2:
-            case FY_OP_lload_2:
-                op = FY_OP_lload;
-                instruction->params.int_params.param1 = 2;
-                break;
-            case FY_OP_dload_3:
-            case FY_OP_lload_3:
-                op = FY_OP_lload;
-                instruction->params.int_params.param1 = 3;
-                break;
-            case FY_OP_dstore:
-                op = FY_OP_lstore;
-                break;
-            case FY_OP_dstore_0:
-            case FY_OP_lstore_0:
-                op = FY_OP_lstore;
-                instruction->params.int_params.param1 = 0;
-                break;
-            case FY_OP_dstore_1:
-            case FY_OP_lstore_1:
-                op = FY_OP_lstore;
-                instruction->params.int_params.param1 = 1;
-                break;
-            case FY_OP_dstore_2:
-            case FY_OP_lstore_2:
-                op = FY_OP_lstore;
-                instruction->params.int_params.param1 = 2;
-                break;
-            case FY_OP_dstore_3:
-            case FY_OP_lstore_3:
-                op = FY_OP_lstore;
-                instruction->params.int_params.param1 = 3;
-                break;
-                
-            case FY_OP_bipush:
-                op = FY_OP_sipush;
-                break;
-                
-            case FY_OP_iconst_m1:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = -1;
-                break;
-                
-            case FY_OP_iconst_0:
-            case FY_OP_aconst_null:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = 0;
-                break;
-                
-            case FY_OP_iconst_1:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = 1;
-                break;
-                
-            case FY_OP_iconst_2:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = 2;
-                break;
-                
-            case FY_OP_iconst_3:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = 3;
-                break;
-                
-            case FY_OP_iconst_4:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = 4;
-                break;
-                
-            case FY_OP_iconst_5:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = 5;
-                break;
-                
-            case FY_OP_fconst_0:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = fy_floatToInt(0.0f);
-                break;
-                
-            case FY_OP_fconst_1:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = fy_floatToInt(1.0f);
-                break;
-                
-            case FY_OP_fconst_2:
-                op = FY_OP_sipush;
-                instruction->params.int_params.param1 = fy_floatToInt(2.0f);
-                break;
-            
-            case FY_OP_dconst_0:
-                op = FY_OP_slpush;
-                instruction->params.int_params.param1 = fy_HOFL(fy_doubleToLong(0.0));
-                instruction->params.int_params.param2 = fy_LOFL(fy_doubleToLong(0.0));
-                break;
-            case FY_OP_lconst_0:
-                op = FY_OP_slpush;
-                instruction->params.int_params.param1 = 0;
-                instruction->params.int_params.param2 = 0;
-                break;
-            case FY_OP_dconst_1:
-                op = FY_OP_slpush;
-                instruction->params.int_params.param1 = fy_HOFL(fy_doubleToLong(1.0));
-                instruction->params.int_params.param2 = fy_LOFL(fy_doubleToLong(1.0));
-                break;
-            case FY_OP_lconst_1:
-                op = FY_OP_slpush;
-                instruction->params.int_params.param1 = 0;
-                instruction->params.int_params.param2 = 1;
-                break;
-                
-            case FY_OP_ldc_w:
-                op = FY_OP_ldc;
-                break;
-                
-            case FY_OP_aaload:
-            case FY_OP_faload:
-                op = FY_OP_iaload;
-                break;
-                
-            case FY_OP_aastore:
-            case FY_OP_fastore:
-                op = FY_OP_iastore;
-                break;
-                
-            case FY_OP_dastore:
-                op = FY_OP_lastore;
-                break;
-                
-            case FY_OP_invokeinterface:
-                op = FY_OP_invokevirtual;
-                break;
-            case FY_OP_areturn:
-            case FY_OP_freturn:
-                op = FY_OP_ireturn;
-                break;
-            case FY_OP_dreturn:
-                op = FY_OP_lreturn;
-                break;
-            case FY_OP_goto_w:
-                op = FY_OP_goto;
-                break;
-            case FY_OP_ifnull:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_ifnull_b;
-            	}
-            	break;
-            case FY_OP_ifnonnull:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_ifnonnull_b;
-            	}
-            	break;
-            case FY_OP_ifeq:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_ifeq_b;
-            	}
-            	break;
-            case FY_OP_ifne:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_ifne_b;
-            	}
-            	break;
-            case FY_OP_iflt:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_iflt_b;
-            	}
-            	break;
-            case FY_OP_ifge:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_ifge_b;
-            	}
-            	break;
-            case FY_OP_ifgt:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_ifgt_b;
-            	}
-            	break;
-            case FY_OP_ifle:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_ifle_b;
-            	}
-            	break;
-            case FY_OP_if_icmpeq:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_if_icmpeq_b;
-            	}
-            	break;
-            case FY_OP_if_icmpne:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_if_icmpne_b;
-            	}
-            	break;
-            case FY_OP_if_acmpeq:
-                if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_if_icmpeq_b;
-            	} else {
-            		op = FY_OP_if_icmpeq;
-            	}
-                break;
-            case FY_OP_if_acmpne:
-                if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_if_icmpne_b;
-            	} else {
-            		op = FY_OP_if_icmpne;
-            	}
-                break;
-            case FY_OP_if_icmplt:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_if_icmplt_b;
-            	}
-            	break;
-            case FY_OP_if_icmpge:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_if_icmpge_b;
-            	}
-            	break;
-            case FY_OP_if_icmpgt:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_if_icmpgt_b;
-            	}
-            	break;
-            case FY_OP_if_icmple:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_if_icmple_b;
-            	}
-            	break;
-            case FY_OP_goto:
-            	if(instruction->params.int_params.param1 < ic){
-            		op = FY_OP_goto_b;
-            	}
-            	break;
-            case FY_OP_newarray:
-            	switch(instruction->params.int_params.param1){
-            	case 4:
-            		instruction->params.clazz = fy_vmLookupClass(context, context->sArrayBoolean, exception);
-            	    break;
-            	case 5:
-            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayChar, exception);
-            	    break;
-            	case 6:
-            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayFloat, exception);
-            	    break;
-            	case 7:
-            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayDouble, exception);
-            	    break;
-            	case 8:
-            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayByte, exception);
-            	    break;
-            	case 9:
-            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayShort, exception);
-            	    break;
-            	case 10:
-            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayInteger, exception);
-            	    break;
-            	case 11:
-            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayLong, exception);
-            	    break;
-            	default:
-            		instruction->params.exception =
-            				fy_fault(fy_mmAllocatePerm(context->memblocks, sizeof(fy_exception), exception),
-            						FY_EXCEPTION_VM, "Illegal param in newarray: %d", instruction->params.int_params.param1);
-            		op = FY_OP_fault;
-            		break;
-            	}
-            	FYEH();
-            	break;
-            default:
-                break;
-        }
+		switch (op) {
+		case FY_OP_fload:
+		case FY_OP_aload:
+			op = FY_OP_iload;
+			break;
+		case FY_OP_iload_0:
+		case FY_OP_aload_0:
+		case FY_OP_fload_0:
+			op = FY_OP_iload;
+			instruction->params.int_params.param1 = 0;
+			break;
+		case FY_OP_iload_1:
+		case FY_OP_aload_1:
+		case FY_OP_fload_1:
+			op = FY_OP_iload;
+			instruction->params.int_params.param1 = 1;
+			break;
+		case FY_OP_iload_2:
+		case FY_OP_aload_2:
+		case FY_OP_fload_2:
+			op = FY_OP_iload;
+			instruction->params.int_params.param1 = 2;
+			break;
+		case FY_OP_iload_3:
+		case FY_OP_aload_3:
+		case FY_OP_fload_3:
+			op = FY_OP_iload;
+			instruction->params.int_params.param1 = 3;
+			break;
+		case FY_OP_fstore:
+		case FY_OP_astore:
+			op = FY_OP_istore;
+			break;
+		case FY_OP_istore_0:
+		case FY_OP_astore_0:
+		case FY_OP_fstore_0:
+			op = FY_OP_istore;
+			instruction->params.int_params.param1 = 0;
+			break;
+		case FY_OP_istore_1:
+		case FY_OP_astore_1:
+		case FY_OP_fstore_1:
+			op = FY_OP_istore;
+			instruction->params.int_params.param1 = 1;
+			break;
+		case FY_OP_istore_2:
+		case FY_OP_astore_2:
+		case FY_OP_fstore_2:
+			op = FY_OP_istore;
+			instruction->params.int_params.param1 = 2;
+			break;
+		case FY_OP_istore_3:
+		case FY_OP_astore_3:
+		case FY_OP_fstore_3:
+			op = FY_OP_istore;
+			instruction->params.int_params.param1 = 3;
+			break;
+
+		case FY_OP_dload:
+			op = FY_OP_lload;
+			break;
+		case FY_OP_dload_0:
+		case FY_OP_lload_0:
+			op = FY_OP_lload;
+			instruction->params.int_params.param1 = 0;
+			break;
+		case FY_OP_dload_1:
+		case FY_OP_lload_1:
+			op = FY_OP_lload;
+			instruction->params.int_params.param1 = 1;
+			break;
+		case FY_OP_dload_2:
+		case FY_OP_lload_2:
+			op = FY_OP_lload;
+			instruction->params.int_params.param1 = 2;
+			break;
+		case FY_OP_dload_3:
+		case FY_OP_lload_3:
+			op = FY_OP_lload;
+			instruction->params.int_params.param1 = 3;
+			break;
+		case FY_OP_dstore:
+			op = FY_OP_lstore;
+			break;
+		case FY_OP_dstore_0:
+		case FY_OP_lstore_0:
+			op = FY_OP_lstore;
+			instruction->params.int_params.param1 = 0;
+			break;
+		case FY_OP_dstore_1:
+		case FY_OP_lstore_1:
+			op = FY_OP_lstore;
+			instruction->params.int_params.param1 = 1;
+			break;
+		case FY_OP_dstore_2:
+		case FY_OP_lstore_2:
+			op = FY_OP_lstore;
+			instruction->params.int_params.param1 = 2;
+			break;
+		case FY_OP_dstore_3:
+		case FY_OP_lstore_3:
+			op = FY_OP_lstore;
+			instruction->params.int_params.param1 = 3;
+			break;
+
+		case FY_OP_bipush:
+			op = FY_OP_sipush;
+			break;
+
+		case FY_OP_iconst_m1:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = -1;
+			break;
+
+		case FY_OP_iconst_0:
+		case FY_OP_aconst_null:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = 0;
+			break;
+
+		case FY_OP_iconst_1:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = 1;
+			break;
+
+		case FY_OP_iconst_2:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = 2;
+			break;
+
+		case FY_OP_iconst_3:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = 3;
+			break;
+
+		case FY_OP_iconst_4:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = 4;
+			break;
+
+		case FY_OP_iconst_5:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = 5;
+			break;
+
+		case FY_OP_fconst_0:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = fy_floatToInt(0.0f);
+			break;
+
+		case FY_OP_fconst_1:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = fy_floatToInt(1.0f);
+			break;
+
+		case FY_OP_fconst_2:
+			op = FY_OP_sipush;
+			instruction->params.int_params.param1 = fy_floatToInt(2.0f);
+			break;
+
+		case FY_OP_dconst_0:
+			op = FY_OP_slpush;
+			instruction->params.int_params.param1 = fy_HOFL(
+					fy_doubleToLong(0.0));
+			instruction->params.int_params.param2 = fy_LOFL(
+					fy_doubleToLong(0.0));
+			break;
+		case FY_OP_lconst_0:
+			op = FY_OP_slpush;
+			instruction->params.int_params.param1 = 0;
+			instruction->params.int_params.param2 = 0;
+			break;
+		case FY_OP_dconst_1:
+			op = FY_OP_slpush;
+			instruction->params.int_params.param1 = fy_HOFL(
+					fy_doubleToLong(1.0));
+			instruction->params.int_params.param2 = fy_LOFL(
+					fy_doubleToLong(1.0));
+			break;
+		case FY_OP_lconst_1:
+			op = FY_OP_slpush;
+			instruction->params.int_params.param1 = 0;
+			instruction->params.int_params.param2 = 1;
+			break;
+
+		case FY_OP_ldc_w:
+			op = FY_OP_ldc;
+			break;
+
+		case FY_OP_aaload:
+		case FY_OP_faload:
+			op = FY_OP_iaload;
+			break;
+
+		case FY_OP_aastore:
+		case FY_OP_fastore:
+			op = FY_OP_iastore;
+			break;
+
+		case FY_OP_dastore:
+			op = FY_OP_lastore;
+			break;
+
+		case FY_OP_invokeinterface:
+			op = FY_OP_invokevirtual;
+			break;
+		case FY_OP_areturn:
+		case FY_OP_freturn:
+			op = FY_OP_ireturn;
+			break;
+		case FY_OP_dreturn:
+			op = FY_OP_lreturn;
+			break;
+		case FY_OP_goto_w:
+			op = FY_OP_goto;
+			break;
+		case FY_OP_ifnull:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_ifnull_b;
+			}
+			break;
+		case FY_OP_ifnonnull:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_ifnonnull_b;
+			}
+			break;
+		case FY_OP_ifeq:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_ifeq_b;
+			}
+			break;
+		case FY_OP_ifne:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_ifne_b;
+			}
+			break;
+		case FY_OP_iflt:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_iflt_b;
+			}
+			break;
+		case FY_OP_ifge:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_ifge_b;
+			}
+			break;
+		case FY_OP_ifgt:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_ifgt_b;
+			}
+			break;
+		case FY_OP_ifle:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_ifle_b;
+			}
+			break;
+		case FY_OP_if_icmpeq:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_if_icmpeq_b;
+			}
+			break;
+		case FY_OP_if_icmpne:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_if_icmpne_b;
+			}
+			break;
+		case FY_OP_if_acmpeq:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_if_icmpeq_b;
+			} else {
+				op = FY_OP_if_icmpeq;
+			}
+			break;
+		case FY_OP_if_acmpne:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_if_icmpne_b;
+			} else {
+				op = FY_OP_if_icmpne;
+			}
+			break;
+		case FY_OP_if_icmplt:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_if_icmplt_b;
+			}
+			break;
+		case FY_OP_if_icmpge:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_if_icmpge_b;
+			}
+			break;
+		case FY_OP_if_icmpgt:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_if_icmpgt_b;
+			}
+			break;
+		case FY_OP_if_icmple:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_if_icmple_b;
+			}
+			break;
+		case FY_OP_goto:
+			if (instruction->params.int_params.param1 < ic) {
+				op = FY_OP_goto_b;
+			}
+			break;
+		case FY_OP_newarray:
+			switch (instruction->params.int_params.param1) {
+			case 4:
+				instruction->params.clazz = fy_vmLookupClass(context,
+						context->sArrayBoolean, exception);
+				break;
+			case 5:
+				instruction->params.clazz = fy_vmLookupClass(context,
+						context->sArrayChar, exception);
+				break;
+			case 6:
+				instruction->params.clazz = fy_vmLookupClass(context,
+						context->sArrayFloat, exception);
+				break;
+			case 7:
+				instruction->params.clazz = fy_vmLookupClass(context,
+						context->sArrayDouble, exception);
+				break;
+			case 8:
+				instruction->params.clazz = fy_vmLookupClass(context,
+						context->sArrayByte, exception);
+				break;
+			case 9:
+				instruction->params.clazz = fy_vmLookupClass(context,
+						context->sArrayShort, exception);
+				break;
+			case 10:
+				instruction->params.clazz = fy_vmLookupClass(context,
+						context->sArrayInteger, exception);
+				break;
+			case 11:
+				instruction->params.clazz = fy_vmLookupClass(context,
+						context->sArrayLong, exception);
+				break;
+			default:
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_VM, "Illegal param in newarray: %d",
+						instruction->params.int_params.param1);
+				op = FY_OP_fault;
+				break;
+			}
+			FYEH();
+			break;
+			default:
+			break;
+		}
 		instruction->inst = labelsByOp[op];
-		method->c.i.instruction_ops[FY_PDIFF(fy_instruction, instruction, method->c.i.instructions)] = op;
+		method->c.i.instruction_ops[FY_PDIFF(fy_instruction, instruction,
+				method->c.i.instructions)] = op;
 #if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
-		if(instruction->inst == NULL){
+		if (instruction->inst == NULL) {
 			fy_breakpoint();
-            fy_fault(NULL, "Illegal op", "Illegal op: %s", FY_OP_NAME[op]);
+			fy_fault(NULL, "Illegal op", "Illegal op: %s", FY_OP_NAME[op]);
 		}
 #endif
 
