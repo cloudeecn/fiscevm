@@ -428,6 +428,9 @@ struct fy_instruction_extra {
 #ifdef FY_STRICT_CHECK
 	fy_uint localSize;
 #endif
+#ifdef FY_DEBUG
+	fy_instruction *inst;
+#endif
 	union {
 		fy_ulong stackTypeContent;
 		fy_ulong *stackTypeContents;
@@ -443,6 +446,9 @@ struct fy_instruction {
 	fy_e2_label inst;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 	fy_int op;
+#endif
+#ifdef FY_DEBUG
+	fy_instruction_extra *extra;
 #endif
 	union {
 		struct {

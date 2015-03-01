@@ -42,7 +42,7 @@ struct fy_frame {
 	fy_uint codeSize;
 #endif
 	fy_uint lpc;
-	fy_uint pcofs;
+	fy_int pcofs;
 };
 
 #define FY_FRAME_ENTRIES ((sizeof(struct fy_frame)+3)/4)

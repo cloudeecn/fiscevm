@@ -1067,6 +1067,10 @@ void fy_preverify(fy_context *context, fy_method *method,
 	while (pc < codeLength) {
 		instruction = method->c.i.instructions + ic;
 		instruction_extra = method->c.i.instruction_extras + ic;
+#ifdef FY_DEBUG
+		instruction->extra = instruction_extra;
+		instruction_extra->inst = instruction;
+#endif
 		ic++;
 		lpc = pc;
 		if (pc == 0) {
