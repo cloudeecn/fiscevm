@@ -49,7 +49,7 @@ FY_ATTR_EXPORT long int fy_getAllocated() {
 	return blocks;
 }
 
-FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
+FY_ATTR_EXPORT fy_exception* fy_fault(fy_exception *exception, const char *clazz,
 		const char *format, ...) {
 	va_list arg_ptr;
 	int i = 0;
@@ -90,6 +90,7 @@ FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
 			exit(-1);
 		}
 	}
+	return exception;
 }
 
 FY_ATTR_EXPORT int fy_breakpoint() {

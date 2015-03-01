@@ -230,7 +230,7 @@ typedef struct fy_port {
 
 FY_ATTR_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception);
 FY_ATTR_EXPORT void fy_free(void *target);
-FY_ATTR_EXPORT void fy_fault(fy_exception *exception, const char *clazz,
+FY_ATTR_EXPORT fy_exception *fy_fault(fy_exception *exception, const char *clazz,
 		const char *msg, ...);
 FY_ATTR_EXPORT int fy_breakpoint();
 FY_ATTR_EXPORT long int fy_getAllocated();

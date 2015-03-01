@@ -1181,7 +1181,7 @@ new_n ( -- ir)
   FY_THEH(;)
 }
 
-newarray_n (i1 -- ir)
+newarray (i1 -- ir)
 {
   if (unlikely(((fy_int) i1) < 0)) {
     ops = i1;
@@ -2388,53 +2388,6 @@ new ( -- ir)
   ir = fy_heapAllocate(context, clazz1, exception);
   FY_THEH(;)
   MODIFY_CURR_INST(new_n);
-}
-
-newarray (i1 -- ir)
-{
-  fy_class *clazz1;
-  fy_str *pstr1;
-  if (unlikely(((fy_int) i1) < 0)) {
-    fy_fault(exception, FY_EXCEPTION_NASE, "%d", i1);
-    FY_THEH(;)
-  }
-  switch(CURR_INST.params.int_params.param1){
-  case 4:
-    pstr1 = context->sArrayBoolean;
-    break;
-  case 5:
-    pstr1 = context->sArrayChar;
-    break;
-  case 6:
-    pstr1 = context->sArrayFloat;
-    break;
-  case 7:
-    pstr1 = context->sArrayDouble;
-    break;
-  case 8:
-    pstr1 = context->sArrayByte;
-    break;
-  case 9:
-    pstr1 = context->sArrayShort;
-    break;
-  case 10:
-    pstr1 = context->sArrayInteger;
-    break;
-  case 11:
-    pstr1 = context->sArrayLong;
-    break;
-  default:
-    pstr1 = NULL; /*make compiler happy*/
-    fy_fault(exception, FY_EXCEPTION_VM, "%d", CURR_INST.params.int_params.param1);
-    FY_THEH(;)
-    break;
-  }
-  clazz1 = fy_vmLookupClass(context, pstr1, exception);
-  FY_THEH(;)
-  ir = fy_heapAllocateArray(context, clazz1, i1, exception);
-  FY_THEH(;)
-  CURR_INST.params.clazz = clazz1;
-  MODIFY_CURR_INST(newarray_n);
 }
 
 invokespecial ( -- )

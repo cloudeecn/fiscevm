@@ -446,6 +446,11 @@ struct fy_instruction_extra {
 	}s;
 };
 
+struct fy_invoke {
+	fy_method *method;
+	fy_int paramsCount;
+};
+
 struct fy_instruction {
 	fy_e2_label inst;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
@@ -463,6 +468,7 @@ struct fy_instruction {
 		fy_switch_lookup *swlookup;
 		fy_switch_table *swtable;
 		fy_int *isfield;
+		fy_invoke *invoke;
 		fy_exception *exception;
 		struct {
 			fy_int derefed;

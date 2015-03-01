@@ -5783,9 +5783,9 @@ LABEL2(new_n)
 NEXT_P2;
 }
 
-LABEL(newarray_n) /* newarray_n ( i1 -- ir) */
+LABEL(newarray) /* newarray ( i1 -- ir) */
 /*  */
-NAME("newarray_n")
+NAME("newarray")
 {
 DEF_CA
 fy_uint i1;
@@ -5819,7 +5819,7 @@ fputc('\n', vm_out);
 #endif
 NEXT_P1;
 vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(newarray_n)
+LABEL2(newarray)
 NEXT_P2;
 }
 
@@ -9623,82 +9623,6 @@ fputc('\n', vm_out);
 NEXT_P1;
 vm_i2fy_stack_item(ir,sppTOS);
 LABEL2(new)
-NEXT_P2;
-}
-
-LABEL(newarray) /* newarray ( i1 -- ir) */
-/*  */
-NAME("newarray")
-{
-DEF_CA
-fy_uint i1;
-fy_uint ir;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-{
-
-{
-  fy_class *clazz1;
-  fy_str *pstr1;
-  if (unlikely(((fy_int) i1) < 0)) {
-    fy_fault(exception, FY_EXCEPTION_NASE, "%d", i1);
-    FY_THEH(;)
-  }
-  switch(CURR_INST.params.int_params.param1){
-  case 4:
-    pstr1 = context->sArrayBoolean;
-    break;
-  case 5:
-    pstr1 = context->sArrayChar;
-    break;
-  case 6:
-    pstr1 = context->sArrayFloat;
-    break;
-  case 7:
-    pstr1 = context->sArrayDouble;
-    break;
-  case 8:
-    pstr1 = context->sArrayByte;
-    break;
-  case 9:
-    pstr1 = context->sArrayShort;
-    break;
-  case 10:
-    pstr1 = context->sArrayInteger;
-    break;
-  case 11:
-    pstr1 = context->sArrayLong;
-    break;
-  default:
-    pstr1 = NULL; /*make compiler happy*/
-    fy_fault(exception, FY_EXCEPTION_VM, "%d", CURR_INST.params.int_params.param1);
-    FY_THEH(;)
-    break;
-  }
-  clazz1 = fy_vmLookupClass(context, pstr1, exception);
-  FY_THEH(;)
-  ir = fy_heapAllocateArray(context, clazz1, i1, exception);
-  FY_THEH(;)
-  CURR_INST.params.clazz = clazz1;
-  MODIFY_CURR_INST(newarray_n);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(newarray)
 NEXT_P2;
 }
 

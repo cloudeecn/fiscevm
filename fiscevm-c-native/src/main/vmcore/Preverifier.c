@@ -2629,6 +2629,42 @@ void fy_preverify(fy_context *context, fy_method *method,
             		op = FY_OP_goto_b;
             	}
             	break;
+            case FY_OP_newarray:
+            	switch(instruction->params.int_params.param1){
+            	case 4:
+            		instruction->params.clazz = fy_vmLookupClass(context, context->sArrayBoolean, exception);
+            	    break;
+            	case 5:
+            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayChar, exception);
+            	    break;
+            	case 6:
+            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayFloat, exception);
+            	    break;
+            	case 7:
+            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayDouble, exception);
+            	    break;
+            	case 8:
+            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayByte, exception);
+            	    break;
+            	case 9:
+            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayShort, exception);
+            	    break;
+            	case 10:
+            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayInteger, exception);
+            	    break;
+            	case 11:
+            	    instruction->params.clazz = fy_vmLookupClass(context, context->sArrayLong, exception);
+            	    break;
+            	default:
+            		instruction->params.exception =
+            				fy_fault(fy_mmAllocatePerm(context->memblocks, sizeof(fy_exception), exception),
+            						FY_EXCEPTION_VM, "Illegal param in newarray: %d", instruction->params.int_params.param1);
+            		op = FY_OP_fault;
+            		break;
+            	}
+            	FYEH();
+            	break;
+
             case FY_OP_return:
             	if(method->access_flags & (FY_ACC_SYNCHRONIZED | FY_ACC_CLINIT)){
             		op = FY_OP_return;

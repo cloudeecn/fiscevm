@@ -23,6 +23,7 @@
 typedef struct fy_nh fy_nh;
 
 typedef struct fy_engine fy_engine;
+typedef struct fy_invoke fy_invoke;
 typedef struct fy_instruction fy_instruction;
 typedef struct fy_instruction_extra fy_instruction_extra;
 typedef struct fy_thread fy_thread;
