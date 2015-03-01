@@ -5800,6 +5800,10 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
+  if (unlikely(((fy_int) i1) < 0)) {
+    ops = i1;
+    goto label_throw_nase;
+  }
   fy_localToFrame(context, frame);
   ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
   FY_THEH(;)
@@ -9873,6 +9877,9 @@ NEXT_P2;
     goto label_throw;
     label_throw_aioob:
     fy_fault(exception, FY_EXCEPTION_AIOOB, "%"FY_PRINT32"d", ops);
+    goto label_throw;
+    label_throw_nase:
+    fy_fault(exception, FY_EXCEPTION_NASE, "%"FY_PRINT32"d", ops);
     goto label_throw;
     label_throw_dbz:
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");

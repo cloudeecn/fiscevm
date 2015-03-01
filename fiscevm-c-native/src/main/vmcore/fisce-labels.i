@@ -371,6 +371,9 @@ INST_ADDR(fault),
     label_throw_aioob:
     fy_fault(exception, FY_EXCEPTION_AIOOB, "%"FY_PRINT32"d", ops);
     goto label_throw;
+    label_throw_nase:
+    fy_fault(exception, FY_EXCEPTION_NASE, "%"FY_PRINT32"d", ops);
+    goto label_throw;
     label_throw_dbz:
     fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
     goto label_throw;

@@ -1183,6 +1183,10 @@ new_n ( -- ir)
 
 newarray_n (i1 -- ir)
 {
+  if (unlikely(((fy_int) i1) < 0)) {
+    ops = i1;
+    goto label_throw_nase;
+  }
   fy_localToFrame(context, frame);
   ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
   FY_THEH(;)
@@ -2516,6 +2520,9 @@ fault ( -- )
 \C    goto label_throw;
 \C    label_throw_aioob:
 \C    fy_fault(exception, FY_EXCEPTION_AIOOB, "%"FY_PRINT32"d", ops);
+\C    goto label_throw;
+\C    label_throw_nase:
+\C    fy_fault(exception, FY_EXCEPTION_NASE, "%"FY_PRINT32"d", ops);
 \C    goto label_throw;
 \C    label_throw_dbz:
 \C    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
