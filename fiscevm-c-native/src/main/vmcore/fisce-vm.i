@@ -8505,6 +8505,39 @@ LABEL2(dcmpl)
 NEXT_P2;
 }
 
+LABEL(dropout) /* dropout ( -- ) */
+/*  */
+NAME("dropout")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  #ifdef VM_DEBUG
+  if (vm_debug) {
+  fputs(" ### ", vm_out); fputc('\n', vm_out);
+  }
+  #endif
+  goto label_fallout_invoke;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(dropout)
+NEXT_P2;
+}
+
 LABEL(iload) /* iload ( -- ir) */
 /*  */
 NAME("iload")
@@ -9804,9 +9837,9 @@ LABEL2(invokevirtual)
 NEXT_P2;
 }
 
-LABEL(dropout) /* dropout ( -- ) */
+LABEL(fault) /* fault ( -- ) */
 /*  */
-NAME("dropout")
+NAME("fault")
 {
 DEF_CA
 NEXT_P0;
@@ -9817,12 +9850,8 @@ if (vm_debug) {
 {
 
 {
-  #ifdef VM_DEBUG
-  if (vm_debug) {
-  fputs(" ### ", vm_out); fputc('\n', vm_out);
-  }
-  #endif
-  goto label_fallout_invoke;
+  fy_fault(exception, CURR_INST.params.exception->exceptionName, CURR_INST.params.exception->exceptionDesc);
+  goto label_throw;
 }
 
 }
@@ -9833,7 +9862,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-LABEL2(dropout)
+LABEL2(fault)
 NEXT_P2;
 }
 

@@ -280,8 +280,9 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "INVOKEDIRECT_NN", /* 0xFB */
 "INVOKEDIRECT_NM", /* 0xFC */
 "INVOKEVIRTUAL_N", /* 0xFD */
-"<undef>", /* 0xFE */
-"<dropout>", /* 0xFF */
+
+"FAULT", /* 0xFE */
+"DROPOUT", /* 0xFF */
 
 "ILOAD_R0", /* 0x100*/
 "ILOAD_R1", /* 0x101*/

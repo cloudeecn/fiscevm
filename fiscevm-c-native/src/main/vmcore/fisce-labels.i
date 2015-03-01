@@ -333,6 +333,7 @@ INST_ADDR(drem),
 INST_ADDR(dneg),
 INST_ADDR(dcmpg),
 INST_ADDR(dcmpl),
+INST_ADDR(dropout),
 INST_ADDR(iload),
 INST_ADDR(istore),
 INST_ADDR(sipush),
@@ -361,7 +362,7 @@ INST_ADDR(newarray),
 INST_ADDR(invokespecial),
 INST_ADDR(invokestatic),
 INST_ADDR(invokevirtual),
-INST_ADDR(dropout),
+INST_ADDR(fault),
 #ifdef FY_ENGINE_HEADER
     ENGINE_BODY_END;
     lable_throw_npt:

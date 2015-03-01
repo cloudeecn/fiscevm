@@ -305,6 +305,7 @@
 #define FY_OP_invokedirect_nm  0xfc
 #define FY_OP_invokevirtual_n  0xfd
 
+#define FY_OP_fault  0xfe
 #define FY_OP_dropout  0xff
 
 #define FY_OP_iload_r0  0x100
@@ -462,6 +463,7 @@ struct fy_instruction {
 		fy_switch_lookup *swlookup;
 		fy_switch_table *swtable;
 		fy_int *isfield;
+		fy_exception *exception;
 		struct {
 			fy_int derefed;
 			fy_uint value;
