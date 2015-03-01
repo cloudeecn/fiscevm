@@ -2664,28 +2664,6 @@ void fy_preverify(fy_context *context, fy_method *method,
             	}
             	FYEH();
             	break;
-
-            case FY_OP_return:
-            	if(method->access_flags & (FY_ACC_SYNCHRONIZED | FY_ACC_CLINIT)){
-            		op = FY_OP_return;
-            	}else{
-            		op = FY_OP_return_ns;
-            	}
-            	break;
-            case FY_OP_ireturn:
-				if(method->access_flags & (FY_ACC_SYNCHRONIZED | FY_ACC_CLINIT)){
-					op = FY_OP_ireturn;
-				}else{
-					op = FY_OP_ireturn_ns;
-				}
-				break;
-            case FY_OP_lreturn:
-				if(method->access_flags & (FY_ACC_SYNCHRONIZED | FY_ACC_CLINIT)){
-					op = FY_OP_lreturn;
-				}else{
-					op = FY_OP_lreturn_ns;
-				}
-				break;
             default:
                 break;
         }

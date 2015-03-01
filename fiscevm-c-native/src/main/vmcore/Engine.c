@@ -34,8 +34,6 @@
 #include "fyc/Instructions.h"
 #include <math.h>
 
-extern fy_nh *FY_NH_NO_HANDLER;
-
 #ifdef FY_VERBOSE
 #define VM_DEBUG
 #endif

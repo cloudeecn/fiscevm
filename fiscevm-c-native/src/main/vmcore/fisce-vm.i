@@ -31,7 +31,6 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
   fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
   fy_class *clazz1, *clazz2;
   fy_field *field;
-  fy_method *method1;
   fy_switch_lookup *swlookup;
   fy_switch_table *swtable;
 #endif
@@ -5970,9 +5969,9 @@ LABEL2(monitorexit)
 NEXT_P2;
 }
 
-LABEL(invokestatic_nd) /* invokestatic_nd ( -- ) */
+LABEL(invokespecial) /* invokespecial ( -- ) */
 /*  */
-NAME("invokestatic_nd")
+NAME("invokespecial")
 {
 DEF_CA
 NEXT_P0;
@@ -5983,18 +5982,9 @@ if (vm_debug) {
 {
 
 {
-#ifdef FY_LATE_DECLARATION
-  fy_method *method1 = CURR_INST.params.method;
-  fy_int i1 = method1->paramStackUsage;
-#endif
+  ops--;
   fy_localToFrame(context, frame);
-  frame->pcofs = 1;
-  ops = fy_threadPushMethod(context, thread, method1, spp - i1, ops - 1, exception);
-  FYEH()0;
-  if (ops <= 0) {
-    return 0;
-  }
-  ops = (*(method1->engine->runner))(context, thread, frame - 1, ops, exception, NULL);
+  ops = fy_threadInvokeSpecial(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH(;);
   FY_CHECK_OPS_INVOKE(ops);
   FY_UPDATE_SP(context, frame);
@@ -6009,13 +5999,13 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-LABEL2(invokestatic_nd)
+LABEL2(invokespecial)
 NEXT_P2;
 }
 
-LABEL(invokestatic_nn) /* invokestatic_nn ( -- ) */
+LABEL(invokestatic) /* invokestatic ( -- ) */
 /*  */
-NAME("invokestatic_nn")
+NAME("invokestatic")
 {
 DEF_CA
 NEXT_P0;
@@ -6026,15 +6016,11 @@ if (vm_debug) {
 {
 
 {
-#ifdef FY_LATE_DECLARATION
-  fy_nh *nh = CURR_INST.params.nh;
-#endif
+  ops--;
+  /*!CLINIT*/
   fy_localToFrame(context, frame);
-  frame->pcofs = 1;
-  fy_heapBeginProtect(context);
-  ops = (nh->handler)(context, thread, nh->data, spp - nh->stack_count, nh->stack_count,
-      ops, exception);
-  fy_heapEndProtect(context);
+  FY_ENGINE_CLINIT(CURR_INST.params.method->owner, 0);
+  ops = fy_threadInvokeStatic(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH(;);
   FY_CHECK_OPS_INVOKE(ops);
   FY_UPDATE_SP(context, frame);
@@ -6049,174 +6035,13 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-LABEL2(invokestatic_nn)
+LABEL2(invokestatic)
 NEXT_P2;
 }
 
-LABEL(invokestatic_nm) /* invokestatic_nm ( -- ) */
+LABEL(invokevirtual) /* invokevirtual ( -- ) */
 /*  */
-NAME("invokestatic_nm")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_method *method1 = CURR_INST.params.method;
-  fy_int i1 = method1->paramStackUsage;
-#endif
-  fy_localToFrame(context, frame);
-  frame->pcofs = 1;
-  thread->pendingNative.methodName = method1->utf8Name;
-  thread->pendingNative.paramCount = i1;
-  thread->pendingNative.params = spp - i1;
-  ops = 0;
-  FY_CHECK_OPS_INVOKE(ops);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokestatic_nm)
-NEXT_P2;
-}
-
-LABEL(invokedirect_nd) /* invokedirect_nd ( -- ) */
-/*  */
-NAME("invokedirect_nd")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_method *method1 = CURR_INST.params.method;
-  fy_int i1 = method1->paramStackUsage + 1;
-#endif
-  fy_localToFrame(context, frame);
-  frame->pcofs = 1;
-  ops = fy_threadPushMethod(context, thread, method1, spp - i1, ops - 1, exception);
-  FYEH()0;
-  if (ops <= 0) {
-    return 0;
-  }
-  ops = (*(method1->engine->runner))(context, thread, frame - 1, ops, exception, NULL);
-  FY_THEH(;);
-  FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokedirect_nd)
-NEXT_P2;
-}
-
-LABEL(invokedirect_nn) /* invokedirect_nn ( -- ) */
-/*  */
-NAME("invokedirect_nn")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_nh *nh = CURR_INST.params.nh;
-#endif
-  fy_localToFrame(context, frame);
-  frame->pcofs = 1;
-  fy_heapBeginProtect(context);
-  ops = (nh->handler)(context, thread, nh->data, spp - nh->stack_count, nh->stack_count,
-      ops - 1, exception);
-  fy_heapEndProtect(context);
-  FY_THEH(;);
-  FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokedirect_nn)
-NEXT_P2;
-}
-
-LABEL(invokedirect_nm) /* invokedirect_nm ( -- ) */
-/*  */
-NAME("invokedirect_nm")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_method *method1 = CURR_INST.params.method;
-  fy_int i1 = method1->paramStackUsage + 1;
-#endif
-  fy_localToFrame(context, frame);
-  frame->pcofs = 1;
-  thread->pendingNative.methodName = method1->utf8Name;
-  thread->pendingNative.paramCount = i1;
-  thread->pendingNative.params = spp - i1;
-  ops = 0;
-  FY_CHECK_OPS_INVOKE(ops);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokedirect_nm)
-NEXT_P2;
-}
-
-LABEL(invokevirtual_n) /* invokevirtual_n ( -- ) */
-/*  */
-NAME("invokevirtual_n")
+NAME("invokevirtual")
 {
 DEF_CA
 NEXT_P0;
@@ -6244,147 +6069,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-LABEL2(invokevirtual_n)
-NEXT_P2;
-}
-
-LABEL(return_ns) /* return_ns ( -- ) */
-/*  */
-NAME("return_ns")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  fy_localToFrame(context, frame);
-  fy_threadPopFrame(context, thread);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    if(thread->frameCount > 0){
-      fprintf(vm_out, " #Return to %s @%d + %d# ", 
-        fy_threadCurrentFrame(context, thread)->method->utf8Name,
-        fy_threadCurrentFrame(context, thread)->lpc,
-        fy_threadCurrentFrame(context, thread)->pcofs
-      );
-    }
-  }
-#endif
-  SUPER_END;
-  FY_FALLOUT_INVOKE;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(return_ns)
-NEXT_P2;
-}
-
-LABEL(ireturn_ns) /* ireturn_ns ( i1 -- ) */
-/*  */
-NAME("ireturn_ns")
-{
-DEF_CA
-fy_uint i1;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-spp += -1;
-{
-
-{
-  sbase[0].uvalue = i1;
-  fy_localToFrame(context, frame);
-  fy_threadPopFrame(context, thread);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #Return %"FY_PRINT32"d to %s @%d + %d# ",
-      sbase->ivalue,
-      fy_threadCurrentFrame(context, thread)->method->utf8Name,
-      fy_threadCurrentFrame(context, thread)->lpc,
-      fy_threadCurrentFrame(context, thread)->pcofs
-    );
-  }
-#endif
-  SUPER_END;
-  FY_FALLOUT_INVOKE;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(ireturn_ns)
-NEXT_P2;
-}
-
-LABEL(lreturn_ns) /* lreturn_ns ( i1 i2 -- ) */
-/*  */
-NAME("lreturn_ns")
-{
-DEF_CA
-fy_uint i1;
-fy_uint i2;
-NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
-}
-#endif
-spp += -2;
-{
-
-{
-  sbase[0].uvalue = i1;
-  sbase[1].uvalue = i2;
-  fy_localToFrame(context, frame);
-  fy_threadPopFrame(context, thread);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #Return %"FY_PRINT64"d to %s @%d + %d# ",
-      fy_I2TOL(sbase->ivalue, (sbase + 1)->ivalue),
-      fy_threadCurrentFrame(context, thread)->method->utf8Name,
-      fy_threadCurrentFrame(context, thread)->lpc,
-      fy_threadCurrentFrame(context, thread)->pcofs
-    );
-  }
-#endif
-  SUPER_END;
-  FY_FALLOUT_INVOKE;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(lreturn_ns)
+LABEL2(invokevirtual)
 NEXT_P2;
 }
 
@@ -9623,145 +9308,6 @@ fputc('\n', vm_out);
 NEXT_P1;
 vm_i2fy_stack_item(ir,sppTOS);
 LABEL2(new)
-NEXT_P2;
-}
-
-LABEL(invokespecial) /* invokespecial ( -- ) */
-/*  */
-NAME("invokespecial")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  ops--;
-  fy_localToFrame(context, frame);
-  ops = fy_threadInvokeSpecial(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
-  FY_THEH(;);
-  CURR_INST.params.method = fy_threadPrepareInvokeSpecial(context, thread, method->owner, CURR_INST.params.method, exception);
-  if (CURR_INST.params.method->access_flags & FY_ACC_NATIVE) {
-    if(CURR_INST.params.method->c.nh == FY_NH_NO_HANDLER){
-      MODIFY_CURR_INST(invokedirect_nm);
-    } else {
-      CURR_INST.params.nh = CURR_INST.params.method->c.nh;
-      MODIFY_CURR_INST(invokedirect_nn);
-    }
-  } else {
-    MODIFY_CURR_INST(invokedirect_nd);
-  }
-  FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokespecial)
-NEXT_P2;
-}
-
-LABEL(invokestatic) /* invokestatic ( -- ) */
-/*  */
-NAME("invokestatic")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  ops--;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(CURR_INST.params.method->owner, 0);
-  ops = fy_threadInvokeStatic(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
-  FY_THEH(;);
-  if (CURR_INST.params.method->access_flags & FY_ACC_NATIVE) {
-    if(CURR_INST.params.method->c.nh == FY_NH_NO_HANDLER){
-      MODIFY_CURR_INST(invokestatic_nm);
-    } else {
-      CURR_INST.params.nh = CURR_INST.params.method->c.nh;
-      MODIFY_CURR_INST(invokestatic_nn);
-    }
-  } else {
-    MODIFY_CURR_INST(invokestatic_nd);
-  }
-  FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokestatic)
-NEXT_P2;
-}
-
-LABEL(invokevirtual) /* invokevirtual ( -- ) */
-/*  */
-NAME("invokevirtual")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  ops--;
-  fy_localToFrame(context, frame);
-  ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
-  FY_THEH(;);
-  if(CURR_INST.params.method->access_flags & FY_ACC_FINAL){
-    if (CURR_INST.params.method->access_flags & FY_ACC_NATIVE) {
-      if(CURR_INST.params.method->c.nh == FY_NH_NO_HANDLER){
-        MODIFY_CURR_INST(invokedirect_nm);
-      } else {
-        CURR_INST.params.nh = CURR_INST.params.method->c.nh;
-        MODIFY_CURR_INST(invokedirect_nn);
-      }
-    } else {
-      MODIFY_CURR_INST(invokedirect_nd);
-    }
-  } else {
-    MODIFY_CURR_INST(invokevirtual_n);
-  }
-  FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokevirtual)
 NEXT_P2;
 }
 

@@ -257,10 +257,6 @@
 #define FY_OP_jsr_w  0xc9
 #define FY_OP_breakpoint  0xca
 
-#define FY_OP_return_ns  0xcd
-#define FY_OP_ireturn_ns  0xce
-#define FY_OP_lreturn_ns  0xcf
-
 #define FY_OP_slpush  0xd0
 
 #define FY_OP_getstatic_n  0xd2
@@ -296,14 +292,6 @@
 #define FY_OP_if_acmpeq_b  0xf4
 #define FY_OP_if_acmpne_b  0xf5
 #define FY_OP_goto_b  0xf6
-
-#define FY_OP_invokestatic_nd  0xf7
-#define FY_OP_invokestatic_nn  0xf8
-#define FY_OP_invokestatic_nm  0xf9
-#define FY_OP_invokedirect_nd  0xfa
-#define FY_OP_invokedirect_nn  0xfb
-#define FY_OP_invokedirect_nm  0xfc
-#define FY_OP_invokevirtual_n  0xfd
 
 #define FY_OP_fault  0xfe
 #define FY_OP_dropout  0xff

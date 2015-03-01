@@ -137,11 +137,6 @@ fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
 		fy_method *invoke, fy_stack_item *spp, fy_exception *exception);
 fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread);
 
-fy_int fy_threadDoInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
-		fy_method *method, fy_uint paramsCount, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception);
-fy_method *fy_threadPrepareInvokeSpecial(fy_context *context, fy_thread *thread,
-		fy_class *currentClass, fy_method *method, fy_exception *exception);
 fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
 		fy_exception *exception);

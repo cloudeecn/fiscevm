@@ -490,59 +490,11 @@ static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 	return ops;
 }
 
-fy_int fy_threadInvokeStaticDirect(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_uint paramsCount,
-		fy_stack_item *spp, fy_int ops, fy_exception *exception) {
-	return doInvoke(context, thread, frame, method, paramsCount,
-			spp - paramsCount, ops, exception);
-}
-
-fy_method *fy_threadPrepareInvokeSpecial(fy_context *context, fy_thread *thread,
-		fy_class *currentClass, fy_method *method, fy_exception *exception) {
-	fy_method *actualMethod;
-
-
-	if (fy_strCmp(method->name, context->sInit)
-			&& fy_classIsSuperClassOf(context, method->owner,
-					currentClass)) {
-		/* call to method is not init and owned by super = call super.XXX() */
-		actualMethod = fy_vmLookupMethodVirtualByMethod(context,
-				currentClass->s.super, method, exception);
-		FYEH()NULL;
-		if (actualMethod->owner != method->owner) {
-			fy_fault(exception, FY_EXCEPTION_NO_METHOD, "");
-			fy_strSPrint(exception->exceptionDesc,
-					sizeof(exception->exceptionDesc), method->uniqueName);
-			FYEH()NULL;
-		}
-	} else {
-		/*Else call private or <init>*/
-		actualMethod = method;
-	}
-	if (actualMethod == NULL) {
-		fy_fault(exception, FY_EXCEPTION_ABSTRACT, "");
-		FYEH()NULL;
-	}
-	if (actualMethod->access_flags & FY_ACC_STATIC) {
-		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "");
-		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
-				actualMethod->uniqueName);
-		FYEH()NULL;
-	}
-	if (actualMethod->access_flags & FY_ACC_ABSTRACT) {
-		fy_fault(exception, FY_EXCEPTION_ABSTRACT, "");
-		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
-				actualMethod->uniqueName);
-		FYEH()NULL;
-	}
-	return actualMethod;
-}
-
 fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
 		fy_exception *exception) {
 	fy_int count = method->paramStackUsage + 1;
-	fy_method *actureMethod;
+	fy_method *actureMethod = NULL;
 #ifdef FY_VERBOSE
 	context->logDVar(context, "Invoke special: ");
 	context->logDStr(context, method->uniqueName);
@@ -553,22 +505,52 @@ fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
 		fy_fault(exception, NULL,
 				"Buffer underflow! %p - %"FY_PRINT32"d < %p + %"FY_PRINT32"d",
 				spp, count, frame->baseSpp, frame->localCount);
-		return;
+		return 0;
 	}
 #endif
-	actureMethod = fy_threadPrepareInvokeSpecial(context, thread, frame->method->owner, method,
-			exception);
-#ifdef FY_VERBOSE
-	context->logDVar(context, "\tmethod is: ");
-	context->logDStr(context, actureMethod->uniqueName);
-	context->logDVar(context, "\n");
-#endif
-	FYEH()0;
 	spp -= count;
 	if (spp->uvalue == 0) {
 		fy_fault(exception, FY_EXCEPTION_NPT, "");
 		return 0;
 	}
+	if (fy_strCmp(method->name, context->sInit)
+			&& fy_classIsSuperClassOf(context, method->owner,
+					frame->method->owner)) {
+		/* call to method is not init and owned by super = call super.XXX() */
+		actureMethod = fy_vmLookupMethodVirtualByMethod(context,
+				frame->method->owner->s.super, method, exception);
+		FYEH()0;
+		if (actureMethod->owner != method->owner) {
+			fy_fault(exception, FY_EXCEPTION_NO_METHOD, "");
+			fy_strSPrint(exception->exceptionDesc,
+					sizeof(exception->exceptionDesc), method->uniqueName);
+			FYEH()0;
+		}
+	} else {
+		/*Else call private or <init>*/
+		actureMethod = method;
+	}
+	if (actureMethod == NULL) {
+		fy_fault(exception, FY_EXCEPTION_ABSTRACT, "");
+		FYEH()0;
+	}
+	if (actureMethod->access_flags & FY_ACC_STATIC) {
+		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "");
+		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				actureMethod->uniqueName);
+		FYEH()0;
+	}
+	if (actureMethod->access_flags & FY_ACC_ABSTRACT) {
+		fy_fault(exception, FY_EXCEPTION_ABSTRACT, "");
+		fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc),
+				actureMethod->uniqueName);
+		FYEH()0;
+	}
+#ifdef FY_VERBOSE
+	context->logDVar(context, "\tmethod is: ");
+	context->logDStr(context, actureMethod->uniqueName);
+	context->logDVar(context, "\n");
+#endif
 	return doInvoke(context, thread, frame, actureMethod, count, spp, ops,
 			exception);
 }
