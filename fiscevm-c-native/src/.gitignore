@@ -6,3 +6,5 @@
 /Release
 /*.dat
 /*.log
+*.vmbak
+
