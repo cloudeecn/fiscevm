@@ -87,8 +87,8 @@ void fy_threadSetCurrentThrowable(fy_context *context, fy_thread *thread,
 fy_int fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
 		fy_int handle, fy_int ops);
 
-fy_int fy_threadMonitorExit(fy_context *context, fy_thread *thread,
-		fy_int handle, fy_int ops, fy_exception *exception);
+void fy_threadMonitorExit(fy_context *context, fy_thread *thread,
+		fy_int handle, fy_exception *exception);
 
 void fy_threadDestroy(fy_context *context, fy_thread *thread);
 

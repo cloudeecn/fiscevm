@@ -36,61 +36,80 @@ static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
 	fy_uint threadId = obj->object_data->m.threadId;
 	if (threadId == 0) {
 		return NULL;
-	}
-	ASSERT(threadId>0 && threadId<MAX_THREADS);
+	}ASSERT(threadId>0 && threadId<MAX_THREADS);
 	return context->threads[threadId];
 }
 
 static fy_int monitorEnter(fy_context *context, fy_thread *thread,
-		fy_uint monitorId, fy_int times, fy_int *ops) {
+		fy_uint monitorId, fy_int times, fy_int ops) {
 	fy_object *monitor = context->objects + monitorId;
 	fy_uint owner = monitor->object_data->monitorOwnerId;
 	fy_uint threadId = thread->threadId;
+#ifdef FY_VERBOSE
+	context->logDVar(context, " Monitor Enter %"FY_PRINT32"d times for #%"FY_PRINT32"d", times, monitorId);
+#endif
 	if (owner == threadId) {
 		monitor->object_data->monitorOwnerTimes += times;
+#ifdef FY_VERBOSE
+	context->logDVar(context, " Monitor Enter: owned %"FY_PRINT32"d times", monitor->object_data->monitorOwnerTimes);
+#endif
+		return ops;
 	} else if (owner <= 0) {
 		monitor->object_data->monitorOwnerId = threadId;
 		monitor->object_data->monitorOwnerTimes = times;
+#ifdef FY_VERBOSE
+		context->logDVar(context, " Monitor Enter: new");
+#endif
+		return ops;
 	} else {
 		ASSERT(thread->waitForLockId == 0);
 		thread->waitForLockId = monitorId;
 		thread->pendingLockCount = 1;
-		*ops = 0;
+#ifdef FY_VERBOSE
+		context->logDVar(context, " Monitor Enter: wait");
+#endif
+		return 0;
 	}
-	return times;
 }
 
-static fy_int monitorExit(fy_context *context, fy_thread *thread,
-		fy_uint monitorId, fy_int times, fy_int *ops, fy_exception *exception) {
+static void monitorExit(fy_context *context, fy_thread *thread,
+		fy_uint monitorId, fy_int times, fy_exception *exception) {
 	fy_uint threadId = thread->threadId;
 	fy_object *monitor = context->objects + monitorId;
 	fy_uint owner = monitor->object_data->monitorOwnerId;
+#ifdef FY_VERBOSE
+	context->logDVar(context, " Monitor Exit %"FY_PRINT32"d times for #%"FY_PRINT32"d", times, monitorId);
+#endif
 	if (owner != threadId) {
 		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
-		return 0;
+		return;
 	}
 	monitor->object_data->monitorOwnerTimes -= times;
 	if (monitor->object_data->monitorOwnerTimes == 0) {
+#ifdef FY_VERBOSE
+		context->logDVar(context, " Monitor Exit: Released");
+#endif
 		monitor->object_data->monitorOwnerId = 0;
-		*ops = 0;
 	} else if (monitor->object_data->monitorOwnerTimes < 0) {
 		fy_fault(exception, NULL, "Too many monitors released!");
-		return 0;
+		return;
 	}
-	return times;
 }
 
 static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
-		fy_uint monitorId, fy_int *ops, fy_exception *exception) {
+		fy_uint monitorId, fy_exception *exception) {
 	fy_uint threadId = thread->threadId;
 	fy_object *monitor = context->objects + monitorId;
 	fy_uint owner = monitor->object_data->monitorOwnerId;
+	fy_int times;
 	if (owner != threadId) {
 		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
 		return 0;
 	}
-	return monitorExit(context, thread, monitorId,
-			monitor->object_data->monitorOwnerTimes, ops, exception);
+	times = monitor->object_data->monitorOwnerTimes;
+	monitorExit(context, thread, monitorId,
+			times, exception);
+	return times;
 }
 
 static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
@@ -111,14 +130,12 @@ static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
 
 fy_int fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
 		fy_uint monitorId, fy_int ops) {
-	monitorEnter(context, thread, monitorId, 1, &ops);
-	return ops;
+	return monitorEnter(context, thread, monitorId, 1, ops);
 }
 
-fy_int fy_tmMonitorExit(fy_context *context, fy_thread *thread, fy_uint monitorId, fy_int ops,
-		fy_exception *exception) {
-	monitorExit(context, thread, monitorId, 1, &ops, exception);
-	return ops;
+void fy_tmMonitorExit(fy_context *context, fy_thread *thread,
+		fy_uint monitorId, fy_exception *exception) {
+	monitorExit(context, thread, monitorId, 1, exception);
 }
 
 void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time) {
@@ -175,32 +192,25 @@ fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
 	return ret;
 }
 
-fy_int fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
-		fy_long time, fy_int ops, fy_exception *exception) {
+void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
+		fy_long time, fy_exception *exception) {
 	fy_object *monitor;
 
 	ASSERT(thread->waitForNotifyId == 0);
 	monitor = context->objects + monitorId;
 	ASSERT(monitor->object_data!=NULL);
 	if (monitor->object_data->monitorOwnerId != thread->threadId) {
-		exception->exceptionType = exception_normal;
-		strcpy_s(exception->exceptionName, sizeof(exception->exceptionName),
-				FY_EXCEPTION_IMSE);
-		exception->exceptionDesc[0] = 0;
-		return ops;
+		fy_fault(exception, FY_EXCEPTION_IMSE, "");
 	}
 	thread->waitForNotifyId = monitorId;
-	thread->pendingLockCount = releaseMonitor(context, thread, monitorId, &ops,
+	thread->pendingLockCount = releaseMonitor(context, thread, monitorId,
 			exception);
-	if (exception->exceptionType != exception_none) {
-		return ops;
-	}
+	FYEH();
 	if (time <= 0) {
 		thread->nextWakeTime = 0x7FFFFFFFFFFFFFFFLL;
 	} else {
 		thread->nextWakeTime = fy_portTimeMillSec(context->port) + time;
 	}
-	return ops;
 }
 
 void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
@@ -276,7 +286,7 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	fy_heapPutArrayChar(context, threadNameHandle, 4, '.', exception);
 	for (i = 0; i < clazz->className->length; i++) {
 		fy_heapPutArrayChar(context, threadNameHandle, i + 5,
-		fy_strGet(clazz->className,i), exception);
+				fy_strGet(clazz->className, i), exception);
 	}
 	FYEH();
 
@@ -463,7 +473,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 					fy_threadRun(context, thread, message,
 							context->pricmds[thread->priority], exception);
 					fy_heapEndProtect(context);
-					if(exception->exceptionType != exception_none){
+					if (exception->exceptionType != exception_none) {
 						message->threadId = thread->threadId;
 						return;
 					}

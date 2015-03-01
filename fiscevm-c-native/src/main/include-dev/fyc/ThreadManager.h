@@ -28,15 +28,15 @@ extern "C" {
 #endif
 fy_int fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
 		fy_uint monitorId, fy_int ops);
-fy_int fy_tmMonitorExit(fy_context *context, fy_thread *thread, fy_uint monitorId, fy_int ops,
-		fy_exception *exception);
+void fy_tmMonitorExit(fy_context *context, fy_thread *thread,
+		fy_uint monitorId, fy_exception *exception);
 void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time);
 void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
 		fy_exception *exception);
 fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
 		fy_boolean clear, fy_exception *exception);
-fy_int fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
-		fy_long time, fy_int ops, fy_exception *exception);
+void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
+		fy_long time, fy_exception *exception);
 void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 		fy_boolean all, fy_exception *exception);
 fy_boolean fy_tmIsAlive(fy_context *context, fy_uint threadHandle,
@@ -46,7 +46,8 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 		fy_exception *exception);
 void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 		fy_exception *exception);
-void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception);
+void fy_tmRun(fy_context *context, fy_message *message,
+		fy_exception *exception);
 
 #ifdef	__cplusplus
 }

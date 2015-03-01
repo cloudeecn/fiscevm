@@ -2942,7 +2942,7 @@ spp += 1;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1);
+    fprintf(vm_out, " #getfield #%"FY_PRINT32"d(%"FY_PRINT32"d)# ", i1, CURR_INST.params.int_params.param1);
   }
 #endif
   if(unlikely(i1 == 0)){
@@ -2952,7 +2952,7 @@ spp += 1;
   ir2 = fy_heapValue(context, i1, CURR_INST.params.int_params.param1 + 1);
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
+    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", fy_I2TOL(ir1, ir2));
   }
 #endif
 }
@@ -2998,7 +2998,7 @@ spp += -3;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", CURR_INST.params.field->utf8Name, i1, l1);
+    fprintf(vm_out, " #putfield #%"FY_PRINT32"d(%"FY_PRINT32"d) value=%"FY_PRINT64"d# ", i1, CURR_INST.params.int_params.param1, fy_I2TOL(i2, i3));
   }
 #endif
   if(unlikely(i1 == 0)){
@@ -5951,9 +5951,8 @@ spp += -1;
 {
 
 {
-  ops = fy_threadMonitorExit(context, thread, i1, ops, exception);
+  fy_threadMonitorExit(context, thread, i1, exception);
   FY_THEH(;)
-  FY_CHECK_OPS(ops);
 }
 
 }
@@ -6094,10 +6093,10 @@ if (vm_debug) {
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH(;)
-      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+      fy_threadMonitorExit(context, thread, i2, exception);
     } else {
       /*CUSTOM*/
-      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
     }
     FY_THEH(;)
   }
@@ -6158,10 +6157,10 @@ spp += -1;
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH(;)
-      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+      fy_threadMonitorExit(context, thread, i2, exception);
     } else {
       /*CUSTOM*/
-      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
     }
     FY_THEH(;)
   }
@@ -6220,10 +6219,10 @@ spp += -2;
     if (method->access_flags & FY_ACC_STATIC) {
       i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
       FY_THEH(;)
-      ops = fy_threadMonitorExit(context, thread, i2, ops, exception);
+      fy_threadMonitorExit(context, thread, i2, exception);
     } else {
       /*CUSTOM*/
-      ops = fy_threadMonitorExit(context, thread, sbase->uvalue, ops, exception);
+      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
     }
     FY_THEH(;)
   }
@@ -8470,7 +8469,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1);
+    fprintf(vm_out, " #getfield #%"FY_PRINT32"d(#%"FY_PRINT32"d)# ", i1, CURR_INST.params.int_params.param1);
   }
 #endif
   if(unlikely(i1 == 0)){
@@ -8521,7 +8520,7 @@ spp += -2;
 {
 #ifdef VM_DEBUG
   if(vm_debug){
-    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", CURR_INST.params.field->utf8Name, i1, i2);
+    fprintf(vm_out, " #putfield #%"FY_PRINT32"d(#%"FY_PRINT32"d) value=%"FY_PRINT32"d# ", i1, CURR_INST.params.int_params.param1, i2);
   }
 #endif
   if(unlikely(i1 == 0)){

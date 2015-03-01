@@ -247,7 +247,8 @@ static fy_int ObjectWait(struct fy_context *context, struct fy_thread *thread,
 	fy_uint high = args[1].uvalue;
 	fy_uint low = args[2].uvalue;
 	fy_long time = fy_I2TOL(high, low);
-	return fy_tmWait(context, thread, monitorId, time, ops, exception);
+	fy_tmWait(context, thread, monitorId, time, exception);
+	return 0;
 }
 
 static fy_int ObjectNotify(struct fy_context *context, struct fy_thread *thread,
@@ -862,7 +863,7 @@ static fy_int methodInvoke(struct fy_context *context, struct fy_thread *thread,
 #ifdef FY_VERBOSE
 	context->logDVarLn(context,
 			"#REFINVOKE# Prepare to invoke method #%"FY_PRINT32"d(@%"FY_PRINT32"d).",
-			methodObj->object_data->methodId, args[0]);
+			methodObj->object_data->m.methodId, args[0]);
 #endif
 	if (method == NULL) {
 		context->logEVarLn(context,

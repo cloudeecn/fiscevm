@@ -101,9 +101,9 @@ fy_int fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
 	return fy_tmMonitorEnter(context, thread, handle, ops);
 }
 
-fy_int fy_threadMonitorExit(fy_context *context, fy_thread *thread,
-		fy_int handle, fy_int ops, fy_exception *exception) {
-	return fy_tmMonitorExit(context, thread, handle, ops, exception);
+void fy_threadMonitorExit(fy_context *context, fy_thread *thread, fy_int handle,
+		fy_exception *exception) {
+	fy_tmMonitorExit(context, thread, handle, exception);
 }
 
 void fy_threadDestroy(fy_context *context, fy_thread *thread) {
@@ -459,7 +459,7 @@ static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 		if (unlikely(nh == NULL)) {
 			nh = fy_hashMapGet(context->memblocks, context->mapMUNameToNH,
 					method->uniqueName);
-			if(nh == NULL){
+			if (nh == NULL) {
 				nh = FY_NH_NO_HANDLER;
 			} else {
 				nh->stack_count = paramsCount;
@@ -741,12 +741,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 						i2 = fy_vmGetClassObjHandle(context, method->owner,
 								exception);
 						FYEH();
-						ops = fy_threadMonitorExit(context, thread, i2, ops,
-								exception);
+						fy_threadMonitorExit(context, thread, i2, exception);
 						FYEH();
 					} else {
-						ops = fy_threadMonitorExit(context, thread,
-								frame->baseSpp->uvalue, ops,
+						fy_threadMonitorExit(context, thread,
+								frame->baseSpp->uvalue,
 								exception);
 						FYEH();
 					}

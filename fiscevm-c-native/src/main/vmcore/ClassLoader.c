@@ -1089,9 +1089,9 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 					clazz->sizeAbs, clazz->sizeRel);
 
 			context->logDVar(context, "   +");
-			context->logDStr(context, clazz->super->className);
+			context->logDStr(context, clazz->s.super->className);
 			context->logDVar(context, " sizeAbs=%d sizeRel=%d\n",
-					clazz->super->sizeAbs, clazz->super->sizeRel);
+					clazz->s.super->sizeAbs, clazz->s.super->sizeRel);
 #endif
 			for (i = 0; i < clazz->fieldCount; i++) {
 				if (clazz->fields[i]->access_flags & FY_ACC_STATIC) {
