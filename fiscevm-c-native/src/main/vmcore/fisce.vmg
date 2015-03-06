@@ -1062,6 +1062,7 @@ lastore (i1 i2 l1 -- )
 
 anewarray (i1 -- ir)
 {
+  fy_localToFrame(context, frame);
   ir = fy_heapAllocateArrayWithContentType(context, CURR_INST.params.clazz, i1, exception);
   FY_THEH(;)
 }
@@ -1069,6 +1070,7 @@ anewarray (i1 -- ir)
 multianewarray ( -- ir)
 {
   fy_class *clazz1;
+  fy_localToFrame(context, frame);
   clazz1 = fy_vmLookupClassFromConstant(context, (ConstantClass*) method->owner->constantPools[CURR_INST.params.int_params.param1], exception);
   FY_THEH(;)
   spp -= CURR_INST.params.int_params.param2;
@@ -1116,6 +1118,7 @@ new_cl ( -- )
 
 new ( -- ir)
 {
+  fy_localToFrame(context, frame);
   ir = fy_heapAllocate(context, CURR_INST.params.clazz, exception);
   FY_THEH(;)
 }
@@ -1126,6 +1129,7 @@ newarray (i1 -- ir)
     ops = i1;
     goto label_throw_nase;
   }
+  fy_localToFrame(context, frame);
   ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
   FY_THEH(;)
 }
@@ -1245,6 +1249,7 @@ instanceof (i1 -- ir)
   if(i1 == 0){
     ir = 0;
   } else {
+    fy_localToFrame(context, frame);
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
     clazz2 = CURR_INST.params.clazz;
     FY_THEH(;)

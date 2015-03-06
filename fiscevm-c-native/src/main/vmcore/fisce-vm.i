@@ -5482,6 +5482,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
+  fy_localToFrame(context, frame);
   ir = fy_heapAllocateArrayWithContentType(context, CURR_INST.params.clazz, i1, exception);
   FY_THEH(;)
 }
@@ -5517,6 +5518,7 @@ spp += 1;
 
 {
   fy_class *clazz1;
+  fy_localToFrame(context, frame);
   clazz1 = fy_vmLookupClassFromConstant(context, (ConstantClass*) method->owner->constantPools[CURR_INST.params.int_params.param1], exception);
   FY_THEH(;)
   spp -= CURR_INST.params.int_params.param2;
@@ -5604,6 +5606,7 @@ spp += 1;
 {
 
 {
+  fy_localToFrame(context, frame);
   ir = fy_heapAllocate(context, CURR_INST.params.clazz, exception);
   FY_THEH(;)
 }
@@ -5643,6 +5646,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     ops = i1;
     goto label_throw_nase;
   }
+  fy_localToFrame(context, frame);
   ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
   FY_THEH(;)
 }
@@ -5981,6 +5985,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
   if(i1 == 0){
     ir = 0;
   } else {
+    fy_localToFrame(context, frame);
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
     clazz2 = CURR_INST.params.clazz;
     FY_THEH(;)
