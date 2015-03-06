@@ -99,9 +99,6 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 			obj->object_data = fy_mmAllocateInEden(context->memblocks, handle,
 					size + ((sizeof(fy_object_data) + 3) >> 2), FALSE,
 					exception);
-			memset(obj->object_data, 0,
-					(size + ((sizeof(fy_object_data) + 3) >> 2))
-							* sizeof(fy_uint));
 			obj->object_data->position = eden;
 		}
 		break;
@@ -1326,7 +1323,7 @@ static void release(fy_context *context, fy_uint handle) {
 #endif
 	fy_hashMapIRemove(context->memblocks, context->references, handle);
 	/* TODO ??? should I clear all object's heap data? */
-	memset(object->object_data, 0, sizeof(fy_object_data));
+	/*memset(object->object_data, 0, sizeof(fy_object_data));*/
 	object->object_data = NULL;
 	context->totalObjects--;
 }
@@ -1634,6 +1631,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 	FYEG(RETURN);
 #endif
 	t7 = fy_portTimeMillSec(context->port);
+	memset(context->memblocks->eden, 0, sizeof(context->memblocks->eden));
 #ifdef FY_DEBUG
 	context->logDVar(context,
 			"#FISCE GC AFTER %d+%d+%d total %dbytes, %d managed native bytes, %d perm bytes, %d context size, time=%"FY_PRINT64"d\n",
