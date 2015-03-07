@@ -1249,7 +1249,6 @@ instanceof (i1 -- ir)
   if(i1 == 0){
     ir = 0;
   } else {
-    fy_localToFrame(context, frame);
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
     clazz2 = CURR_INST.params.clazz;
     FY_THEH(;)
