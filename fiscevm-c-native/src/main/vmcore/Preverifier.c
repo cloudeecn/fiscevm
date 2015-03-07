@@ -2823,16 +2823,42 @@ void fy_preverify(fy_context *context, fy_method *method,
 		}
 		case FY_OP_invokestatic: {
 			tmethod = instruction->params.method;
-			instruction->params.invoke = fy_mmAllocatePerm(context->memblocks, sizeof(fy_invoke), exception);
+			instruction->params.invoke = fy_mmAllocatePerm(context->memblocks,
+					sizeof(fy_invoke), exception);
 			FYEH();
-			if(instruction->params.method->access_flags == FY_ACC_NATIVE){
-
-			}else{
-				if(fy_threadCheckClinit(context, NULL, tmethod)){
+			if (instruction->params.method->access_flags == FY_ACC_NATIVE) {
+#ifdef FY_LATE_DECLARATION
+				fy_nh *nh;
+#endif
+				nh = tmethod->c.nh;
+				if (nh == NULL) {
+					nh = fy_hashMapGet(context->memblocks,
+							context->mapMUNameToNH, tmethod->uniqueName);
+					if (nh == NULL) {
+						nh = FY_NH_NO_HANDLER;
+					} else {
+						nh->stack_count = tmethod->paramStackUsage;
+					}
+					tmethod->c.nh = nh;
+				}
+				if (nh == FY_NH_NO_HANDLER) {
+					instruction->params.invoke->n.pendingNative =
+							fy_mmAllocatePerm(context->memblocks,
+									sizeof(fy_nativeCall), exception);
+					FYEH();
+					instruction->params.invoke->n.pendingNative->methodName = method->utf8Name;
+					instruction->params.invoke->n.pendingNative->paramCount = method->paramStackUsage;
+				} else {
+					instruction->params.invoke->n.nh = nh;
+				}
+			} else {
+				if(fy_threadCheckClinit(context, NULL, tmethod)) {
 					op = FY_OP_invoke_d_cl;
 				} else {
 					op = FY_OP_invoke_d;
 				}
+				instruction->params.invoke->method = tmethod;
+				instruction->params.invoke->paramCount = tmethod->paramStackUsage;
 			}
 
 			break;

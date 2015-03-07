@@ -447,10 +447,14 @@ struct fy_instruction_extra {
 	}s;
 };
 
-struct fy_invoke {
+typedef struct fy_invoke {
 	fy_method *method;
 	fy_int paramCount;
-};
+	union {
+		fy_nh *nh;
+		fy_nativeCall *pendingNative;
+	} n;
+} fy_invoke;
 
 struct fy_instruction {
 	fy_e2_label inst;
