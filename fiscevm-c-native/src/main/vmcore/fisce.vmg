@@ -1372,26 +1372,28 @@ invokevirtual ( -- )
 \ #    #  #          #    #     # #    #  #    ##
 \ #     # #######    #     #####  #     # #     #
 
+return_sync ( -- )
+{
+  fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
+  FY_THEH(;)
+  FORWARD(return);
+}
+
+return_sync_s ( -- )
+{
+  fy_threadMonitorExit(context, thread, CURR_INST.params.int_params.param1, exception);
+  FY_THEH(;)
+  FORWARD(return);
+}
+
+return_cl ( -- )
+{
+  method->owner->clinitThreadId = -1;
+  FORWARD(return);
+}
+
 return ( -- )
 {
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
-
-  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH(;)
-      fy_threadMonitorExit(context, thread, i2, exception);
-    } else {
-      /*CUSTOM*/
-      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
-    }
-    FY_THEH(;)
-  }
-  if (unlikely(method->access_flags & FY_ACC_CLINIT)) {
-    method->owner->clinitThreadId = -1;
-  }
   fy_localToFrame(context, frame);
   fy_threadPopFrame(context, thread);
 #ifdef VM_DEBUG
@@ -1409,25 +1411,23 @@ return ( -- )
   FY_FALLOUT_INVOKE;
 }
 
+ireturn_sync ( -- )
+{
+  fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
+  FY_THEH(;)
+  FORWARD(ireturn);
+}
+
+ireturn_sync_s ( -- )
+{
+  fy_threadMonitorExit(context, thread, CURR_INST.params.int_params.param1, exception);
+  FY_THEH(;)
+  FORWARD(ireturn);
+}
+
 ireturn (i1 -- )
 {
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
-
-  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH(;)
-      fy_threadMonitorExit(context, thread, i2, exception);
-    } else {
-      /*CUSTOM*/
-      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
-    }
-    FY_THEH(;)
-  }
-  fy_threadReturnInt(frame->baseSpp, i1);
-  fy_localToFrame(context, frame);
+  sbase[0].ivalue = i1;
   fy_threadPopFrame(context, thread);
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -1443,30 +1443,29 @@ ireturn (i1 -- )
   FY_FALLOUT_INVOKE;
 }
 
-lreturn (l1 -- )
+lreturn_sync ( -- )
 {
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
+  fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
+  FY_THEH(;)
+  FORWARD(lreturn);
+}
 
-  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH(;)
-      fy_threadMonitorExit(context, thread, i2, exception);
-    } else {
-      /*CUSTOM*/
-      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
-    }
-    FY_THEH(;)
-  }
-  fy_threadReturnLong(frame->baseSpp, l1);
-  fy_localToFrame(context, frame);
+lreturn_sync_s ( -- )
+{
+  fy_threadMonitorExit(context, thread, CURR_INST.params.int_params.param1, exception);
+  FY_THEH(;)
+  FORWARD(lreturn);
+}
+
+lreturn (i1 i2 -- )
+{
+  sbase[0].ivalue = i1;
+  sbase[1].ivalue = i2;
   fy_threadPopFrame(context, thread);
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #Return %"FY_PRINT64"d to %s @%d + %d# ",
-      fy_I2TOL(sbase->ivalue, (sbase + 1)->ivalue),
+      fy_I2TOL(i1, i2),
       fy_threadCurrentFrame(context, thread)->method->utf8Name,
       fy_threadCurrentFrame(context, thread)->lpc,
       fy_threadCurrentFrame(context, thread)->pcofs
@@ -1508,12 +1507,11 @@ goto_b ( -- )
     frame->pcofs = 0;
     FY_FALLOUT_INVOKE;
   }
-  goto goto_body;
+  FORWARD(goto);
 }
 
 goto ( -- )
 {
-  goto_body:
   ops--;
   FY_OP_GOTO;
 }

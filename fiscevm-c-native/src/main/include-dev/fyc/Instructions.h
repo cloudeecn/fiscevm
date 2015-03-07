@@ -257,9 +257,11 @@
 #define FY_OP_jsr_w  0xc9
 #define FY_OP_breakpoint  0xca
 
-#define FY_OP_return_ns  0xcd
-#define FY_OP_ireturn_ns  0xce
-#define FY_OP_lreturn_ns  0xcf
+#define FY_OP_return_sync  0xcb
+#define FY_OP_return_sync_s  0xcc
+#define FY_OP_return_cl  0xcd
+#define FY_OP_ireturn_sync  0xce
+#define FY_OP_ireturn_sync_s  0xcf
 
 #define FY_OP_slpush  0xd0
 
@@ -267,6 +269,10 @@
 #define FY_OP_putstatic_cl  0xd3
 #define FY_OP_getstatic_clx  0xd6
 #define FY_OP_putstatic_clx  0xd7
+
+#define FY_OP_lreturn_sync  0xd8
+#define FY_OP_lreturn_sync_s  0xd9
+
 #define FY_OP_new_cl 0xda
 
 #define FY_OP_getstatic_x  0xe2

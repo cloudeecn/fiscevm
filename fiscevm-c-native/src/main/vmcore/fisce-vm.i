@@ -6286,6 +6286,95 @@ LABEL2(invokevirtual)
 NEXT_P2;
 }
 
+LABEL(return_sync) /* return_sync ( -- ) */
+/*  */
+NAME("return_sync")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
+  FY_THEH(;)
+  FORWARD(return);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(return_sync)
+NEXT_P2;
+}
+
+LABEL(return_sync_s) /* return_sync_s ( -- ) */
+/*  */
+NAME("return_sync_s")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_threadMonitorExit(context, thread, CURR_INST.params.int_params.param1, exception);
+  FY_THEH(;)
+  FORWARD(return);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(return_sync_s)
+NEXT_P2;
+}
+
+LABEL(return_cl) /* return_cl ( -- ) */
+/*  */
+NAME("return_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  method->owner->clinitThreadId = -1;
+  FORWARD(return);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(return_cl)
+NEXT_P2;
+}
+
 LABEL(return) /* return ( -- ) */
 /*  */
 NAME("return")
@@ -6299,24 +6388,6 @@ if (vm_debug) {
 {
 
 {
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
-
-  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH(;)
-      fy_threadMonitorExit(context, thread, i2, exception);
-    } else {
-      /*CUSTOM*/
-      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
-    }
-    FY_THEH(;)
-  }
-  if (unlikely(method->access_flags & FY_ACC_CLINIT)) {
-    method->owner->clinitThreadId = -1;
-  }
   fy_localToFrame(context, frame);
   fy_threadPopFrame(context, thread);
 #ifdef VM_DEBUG
@@ -6346,6 +6417,66 @@ LABEL2(return)
 NEXT_P2;
 }
 
+LABEL(ireturn_sync) /* ireturn_sync ( -- ) */
+/*  */
+NAME("ireturn_sync")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
+  FY_THEH(;)
+  FORWARD(ireturn);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(ireturn_sync)
+NEXT_P2;
+}
+
+LABEL(ireturn_sync_s) /* ireturn_sync_s ( -- ) */
+/*  */
+NAME("ireturn_sync_s")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_threadMonitorExit(context, thread, CURR_INST.params.int_params.param1, exception);
+  FY_THEH(;)
+  FORWARD(ireturn);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(ireturn_sync_s)
+NEXT_P2;
+}
+
 LABEL(ireturn) /* ireturn ( i1 -- ) */
 /*  */
 NAME("ireturn")
@@ -6363,23 +6494,7 @@ spp += -1;
 {
 
 {
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
-
-  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH(;)
-      fy_threadMonitorExit(context, thread, i2, exception);
-    } else {
-      /*CUSTOM*/
-      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
-    }
-    FY_THEH(;)
-  }
-  fy_threadReturnInt(frame->baseSpp, i1);
-  fy_localToFrame(context, frame);
+  sbase[0].ivalue = i1;
   fy_threadPopFrame(context, thread);
 #ifdef VM_DEBUG
   if(vm_debug){
@@ -6408,45 +6523,93 @@ LABEL2(ireturn)
 NEXT_P2;
 }
 
-LABEL(lreturn) /* lreturn ( l1 -- ) */
+LABEL(lreturn_sync) /* lreturn_sync ( -- ) */
+/*  */
+NAME("lreturn_sync")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
+  FY_THEH(;)
+  FORWARD(lreturn);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(lreturn_sync)
+NEXT_P2;
+}
+
+LABEL(lreturn_sync_s) /* lreturn_sync_s ( -- ) */
+/*  */
+NAME("lreturn_sync_s")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_threadMonitorExit(context, thread, CURR_INST.params.int_params.param1, exception);
+  FY_THEH(;)
+  FORWARD(lreturn);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(lreturn_sync_s)
+NEXT_P2;
+}
+
+LABEL(lreturn) /* lreturn ( i1 i2 -- ) */
 /*  */
 NAME("lreturn")
 {
 DEF_CA
-fy_ulong l1;
+fy_uint i1;
+fy_uint i2;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
+vm_fy_stack_item2i(spp[-2],i1);
+vm_fy_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" l1=", vm_out); printarg_l(l1);
+fputs(" i1=", vm_out); printarg_i(i1);
+fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
 spp += -2;
 {
 
 {
-#ifdef FY_LATE_DECLARATION
-  fy_uint i2;
-#endif
-
-  if (unlikely(method->access_flags & FY_ACC_SYNCHRONIZED)) {
-    if (method->access_flags & FY_ACC_STATIC) {
-      i2 = fy_vmGetClassObjHandle(context, method->owner, exception);
-      FY_THEH(;)
-      fy_threadMonitorExit(context, thread, i2, exception);
-    } else {
-      /*CUSTOM*/
-      fy_threadMonitorExit(context, thread, sbase->uvalue, exception);
-    }
-    FY_THEH(;)
-  }
-  fy_threadReturnLong(frame->baseSpp, l1);
-  fy_localToFrame(context, frame);
+  sbase[0].ivalue = i1;
+  sbase[1].ivalue = i2;
   fy_threadPopFrame(context, thread);
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #Return %"FY_PRINT64"d to %s @%d + %d# ",
-      fy_I2TOL(sbase->ivalue, (sbase + 1)->ivalue),
+      fy_I2TOL(i1, i2),
       fy_threadCurrentFrame(context, thread)->method->utf8Name,
       fy_threadCurrentFrame(context, thread)->lpc,
       fy_threadCurrentFrame(context, thread)->pcofs
@@ -6524,7 +6687,7 @@ if (vm_debug) {
     frame->pcofs = 0;
     FY_FALLOUT_INVOKE;
   }
-  goto goto_body;
+  FORWARD(goto);
 }
 
 }
@@ -6552,7 +6715,6 @@ if (vm_debug) {
 {
 
 {
-  goto_body:
   ops--;
   FY_OP_GOTO;
 }

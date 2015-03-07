@@ -2771,14 +2771,59 @@ void fy_preverify(fy_context *context, fy_method *method,
 				FYEH();
 				break;
 			}
-			if (fy_threadCheckClinit(context, NULL, instruction->params.clazz)) {
+			if (fy_threadCheckClinit(context, NULL,
+					instruction->params.clazz)) {
 				op = FY_OP_new_cl;
 			}
 			break;
 		}
+		case FY_OP_return: {
+			if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+				if (method->access_flags & FY_ACC_STATIC) {
+					instruction->params.int_params.param1 =
+							fy_vmGetClassObjHandle(context, method->owner,
+									exception);
+					FYEH();
+					op = FY_OP_return_sync_s;
+				} else {
+					op = FY_OP_return_sync;
+				}
+			} else if (method->access_flags & FY_ACC_CLINIT) {
+				op = FY_OP_return_cl;
+			}
+			break;
+		}
+		case FY_OP_ireturn: {
+			if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+				if (method->access_flags & FY_ACC_STATIC) {
+					instruction->params.int_params.param1 =
+							fy_vmGetClassObjHandle(context, method->owner,
+									exception);
+					FYEH();
+					op = FY_OP_ireturn_sync_s;
+				} else {
+					op = FY_OP_ireturn_sync;
+				}
+			}
+			break;
+		}
+		case FY_OP_lreturn: {
+			if (method->access_flags & FY_ACC_SYNCHRONIZED) {
+				if (method->access_flags & FY_ACC_STATIC) {
+					instruction->params.int_params.param1 =
+							fy_vmGetClassObjHandle(context, method->owner,
+									exception);
+					FYEH();
+					op = FY_OP_lreturn_sync_s;
+				} else {
+					op = FY_OP_lreturn_sync;
+				}
+			}
+			break;
+		}
 		default:
-		break;
-	}
+			break;
+		}
 		instruction->inst = labelsByOp[op];
 		method->c.i.instruction_ops[FY_PDIFF(fy_instruction, instruction,
 				method->c.i.instructions)] = op;
