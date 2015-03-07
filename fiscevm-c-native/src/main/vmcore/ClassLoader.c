@@ -926,8 +926,6 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
 			exception)];
 	FYEH()NULL;
 	clazz->className = clazz->thisClass->ci.className;
-	clazz->utf8Name = fy_strToUTF8Perm(block, clazz->className, exception);
-	FYEH()NULL;
 #ifdef FY_CL_DEBUG
 	context->logDVar(context, "#CL Phase1: ");
 	context->logDStr(context, clazz->className);
@@ -1290,6 +1288,8 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->s.super = fy_vmLookupClass(context, context->sTopClass, exception);
 		clazz->className = fy_vmCreateStringByPool(context, name, exception);/*fy_strCreatePermFromClone(block, name, 0, exception);*/
 		FYEH()NULL;
+		clazz->utf8Name = fy_strToUTF8Perm(block, clazz->className, exception);
+		FYEH()NULL;
 #if 0
 		if (clazz->className->content == NULL) {
 			fy_fault(NULL, NULL, "!!!!!");
@@ -1329,6 +1329,8 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		FYEH()NULL;
 		clazz->className = fy_vmCreateStringByPool(context, name, exception);/*fy_strCreatePermFromClone(block, name, 0, exception);*/
 		FYEH()NULL;
+		clazz->utf8Name = fy_strToUTF8Perm(block, clazz->className, exception);
+		FYEH()NULL;
 		clazz->type = primitive_class;
 		clazz->s.super = fy_vmLookupClass(context, context->sTopClass, exception);
 		FYEH()NULL;
@@ -1355,6 +1357,8 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		}
 
 		clazz = fy_clLoadclassPriv(context, is, exception);
+		clazz->utf8Name = fy_strToUTF8Perm(block, clazz->className, exception);
+		FYEH()NULL;
 		closeException->exceptionType = exception_none;
 		is->isClose(context, is, closeException);
 		if(closeException->exceptionType != exception_none) {
