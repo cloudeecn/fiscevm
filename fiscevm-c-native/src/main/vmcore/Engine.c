@@ -345,8 +345,8 @@ enum {
  */
 
 #if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
-# define FY_FALLOUT_INVOKE {goto I_dropout;}
-# define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); goto I_dropout;}
+# define FY_FALLOUT_INVOKE {goto label_fallout_invoke;}
+# define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); goto label_fallout_invoke;}
 #else
 # define FY_FALLOUT_INVOKE {SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
 # define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
