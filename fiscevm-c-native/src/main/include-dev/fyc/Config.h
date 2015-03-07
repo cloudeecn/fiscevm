@@ -25,11 +25,11 @@
 #endif
 
 #ifndef FY_GC_IDV
-# define FY_GC_IDV 3000
+# define FY_GC_IDV 2148483647
 #endif
 
 #ifndef FY_GC_FORCE_IDV
-# define FY_GC_FORCE_IDV 15000
+# define FY_GC_FORCE_IDV 2148483647
 #endif
 
 #ifndef MAX_CLASSES
