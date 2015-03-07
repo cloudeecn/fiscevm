@@ -203,8 +203,9 @@ void *fy_mmAllocateInOld(fy_memblock *block, fy_uint handle, fy_int size,
 	ret = block->old + block->posInOld;
 	block->posInOld += size;
 #ifdef FY_STRICT_CHECK
-	validateZeros(ret, size << 2);
+	/* validateZeros(ret, size << 2); Old area is not cleared by gc*/
 #endif
+	memset(ret, 0, size * sizeof(fy_uint));
 	return ret;
 }
 
