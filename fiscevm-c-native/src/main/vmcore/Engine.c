@@ -273,6 +273,7 @@
 
 #define INST_ADDR(name) {&&I_##name , FY_OP_##name}
 #define LABEL(name) I_##name:
+#define BODY(name) I_##name
 #define INST_OF(name) (&&I_##name)
 #define CODE_OF(name) (FY_OP_##name)
 #define ENGINE_BODY_BEGIN
@@ -294,6 +295,7 @@
 # define DEF_CA
 # define USE_CFA 1
 # define NEXT_P0 {cfa = ipp->inst; INST_COUNT(PCURR_INST);}
+# define UNDO_NEXT_P0
 # define NEXT_P1 {ipp++;}
 # define NEXT_P2 goto dispatcher_switch;
 # define SET_IP(p)	{ipp=instructions + (p); NEXT_P0;}
@@ -303,7 +305,8 @@
 # define NEXT_INST	(*ipp)
 # define IPTOS NEXT_INST
 # define INST_ADDR(name) {FY_OP_##name , FY_OP_##name}
-# define LABEL(name) case FY_OP_##name:
+# define LABEL(name) case FY_OP_##name: FY_BODY_##name:
+# define BODY(name) FY_BODY_##name
 # define INST_OF(name) (FY_OP_##name)
 # define CODE_OF(name) (FY_OP_##name)
 # define ENGINE_BODY_BEGIN \
@@ -315,6 +318,7 @@
 #endif /* !defined(FY_SUPPORT_THREADING) */
 
 #define LABEL2(x)
+#define FORWARD(name) {UNDO_NEXT_P0; goto BODY(name);}
 
 #ifdef VM_PROFILING
 #define SUPER_END  vm_count_block(IP)

@@ -1,4 +1,3 @@
-#ifdef FY_ENGINE_HEADER
 #ifndef FY_ENGINE_NAME
 # define FY_ENGINE_NAME(NUM) fy_thread_runner_##NUM
 # define X_FY_ENGINE_NAME(NUM) FY_ENGINE_NAME(NUM)
@@ -11,13 +10,13 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
     fy_exception *exception,
     fy_e2_label_holder **out_labels) {
 #ifndef FY_LATE_DECLARATION
-#ifdef USE_CFA
+# ifdef USE_CFA
   register fy_e2_label cfa;
-#endif
+# endif
   register fy_instruction *ipp;
-#ifdef FY_USE_TOS
+# ifdef FY_USE_TOS
   register fy_stack_item sppTOS;
-#endif
+# endif
   register fy_stack_item *spp;
 
   fy_instruction *instructions;
@@ -36,9 +35,7 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 #endif
 
   static fy_e2_label_holder labels[] = {
-#undef FY_ENGINE_HEADER
 #include "fisce-labels.i"
-#define FY_ENGINE_HEADER
       {0, -1}
   };
 #ifdef MORE_VARS
@@ -55,13 +52,13 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
     return 0;
   }else{
 #ifdef FY_LATE_DECLARATION
-#ifdef USE_CFA
+# ifdef USE_CFA
   register fy_e2_label cfa;
-#endif
+# endif
   register fy_instruction *ipp;
-#ifdef FY_USE_TOS
+# ifdef FY_USE_TOS
   register fy_stack_item sppTOS;
-#endif
+# endif
   register fy_stack_item *spp;
 
   fy_instruction *instructions;
@@ -95,7 +92,7 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
   }
 #endif
 
-  if ((method->access_flags & FY_ACC_CLINIT) && frame->lpc + frame->pcofs == FY_IP_begin) {
+  if (unlikely((method->access_flags & FY_ACC_CLINIT) && frame->lpc + frame->pcofs == FY_IP_begin)) {
 #ifdef VM_DEBUG
     if(vm_debug){
       fprintf(vm_out, "Checking clinit for: ");
@@ -116,8 +113,6 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 #endif
   return ops;
   ENGINE_BODY_BEGIN;
-#endif
-#if REPL_MIN > 0
 LABEL(iload_r0) /* iload_r0 ( -- ir) */
 /*  */
 NAME("iload_r0")
@@ -2920,7 +2915,6 @@ LABEL2(nop_r2)
 NEXT_P2;
 }
 
-#endif
 LABEL(slpush) /* slpush ( -- ir1 ir2) */
 /*  */
 NAME("slpush")
@@ -5579,8 +5573,7 @@ if (vm_debug) {
   fy_localToFrame(context, frame);
   FY_ENGINE_CLINIT(clazz1, 0);
   MODIFY_CURR_INST(new);
-  UNDO_NEXT_P0;
-  goto new_pre;
+  FORWARD(new);
 }
 
 }
@@ -5595,9 +5588,6 @@ LABEL2(new_cl)
 NEXT_P2;
 }
 
-#ifdef FY_ENGINE_HEADER
-new_pre:
-#endif
 LABEL(new) /* new ( -- ir) */
 /*  */
 NAME("new")
@@ -5615,7 +5605,7 @@ spp += 1;
 
 {
   ir = fy_heapAllocate(context, CURR_INST.params.clazz, exception);
-  FY_THEH(fy_localToFrame(context, frame);)
+  FY_THEH(;)
 }
 
 }
@@ -5654,7 +5644,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     goto label_throw_nase;
   }
   ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
-  FY_THEH(fy_localToFrame(context, frame);)
+  FY_THEH(;)
 }
 
 }
@@ -5793,8 +5783,7 @@ if (vm_debug) {
   FY_ENGINE_CLINIT(clazz1, 0);
   CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
   MODIFY_CURR_INST(getstatic_x);
-  UNDO_NEXT_P0;
-  goto getstatic_x_pre;
+  FORWARD(getstatic_x);
 }
 
 }
@@ -5809,9 +5798,6 @@ LABEL2(getstatic_clx)
 NEXT_P2;
 }
 
-#ifdef FY_ENGINE_HEADER
-getstatic_x_pre:
-#endif
 LABEL(getstatic_x) /* getstatic_x ( -- ir1 ir2) */
 /*  */
 NAME("getstatic_x")
@@ -5881,8 +5867,7 @@ if (vm_debug) {
   FY_ENGINE_CLINIT(clazz1, 0);
   CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
   MODIFY_CURR_INST(putstatic_x);
-  UNDO_NEXT_P0;
-  goto putstatic_x_pre;
+  FORWARD(putstatic_x);
 }
 
 }
@@ -5897,9 +5882,6 @@ LABEL2(putstatic_clx)
 NEXT_P2;
 }
 
-#ifdef FY_ENGINE_HEADER
-putstatic_x_pre:
-#endif
 LABEL(putstatic_x) /* putstatic_x ( i1 i2 -- ) */
 /*  */
 NAME("putstatic_x")
@@ -6523,6 +6505,39 @@ LABEL2(athrow)
 NEXT_P2;
 }
 
+LABEL(goto_b) /* goto_b ( -- ) */
+/*  */
+NAME("goto_b")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  }
+  goto goto_body;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(goto_b)
+NEXT_P2;
+}
+
 LABEL(goto) /* goto ( -- ) */
 /*  */
 NAME("goto")
@@ -6536,6 +6551,7 @@ if (vm_debug) {
 {
 
 {
+  goto_body:
   ops--;
   FY_OP_GOTO;
 }
@@ -6552,9 +6568,9 @@ LABEL2(goto)
 NEXT_P2;
 }
 
-LABEL(goto_b) /* goto_b ( -- ) */
+LABEL(if_icmpeq_b) /* if_icmpeq_b ( -- ) */
 /*  */
-NAME("goto_b")
+NAME("if_icmpeq_b")
 {
 DEF_CA
 NEXT_P0;
@@ -6565,8 +6581,13 @@ if (vm_debug) {
 {
 
 {
-  ops--;
-  FY_CHECK_OPS_AND_GOTO(ops);
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmpeq);
+  }
 }
 
 }
@@ -6577,7 +6598,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-LABEL2(goto_b)
+LABEL2(if_icmpeq_b)
 NEXT_P2;
 }
 
@@ -6631,41 +6652,26 @@ LABEL2(if_icmpeq)
 NEXT_P2;
 }
 
-LABEL(if_icmpeq_b) /* if_icmpeq_b ( i1 i2 -- ) */
+LABEL(if_icmpne_b) /* if_icmpne_b ( -- ) */
 /*  */
-NAME("if_icmpeq_b")
+NAME("if_icmpne_b")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
-spp += -2;
 {
 
 {
-  ops--;
-  if(i1 == i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmpne);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -6676,8 +6682,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(if_icmpeq_b)
+LABEL2(if_icmpne_b)
 NEXT_P2;
 }
 
@@ -6731,41 +6736,26 @@ LABEL2(if_icmpne)
 NEXT_P2;
 }
 
-LABEL(if_icmpne_b) /* if_icmpne_b ( i1 i2 -- ) */
+LABEL(if_icmplt_b) /* if_icmplt_b ( -- ) */
 /*  */
-NAME("if_icmpne_b")
+NAME("if_icmplt_b")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
-spp += -2;
 {
 
 {
-  ops--;
-  if(i1 != i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmplt);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -6776,8 +6766,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(if_icmpne_b)
+LABEL2(if_icmplt_b)
 NEXT_P2;
 }
 
@@ -6831,41 +6820,26 @@ LABEL2(if_icmplt)
 NEXT_P2;
 }
 
-LABEL(if_icmplt_b) /* if_icmplt_b ( i1 i2 -- ) */
+LABEL(if_icmple_b) /* if_icmple_b ( -- ) */
 /*  */
-NAME("if_icmplt_b")
+NAME("if_icmple_b")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
-spp += -2;
 {
 
 {
-  ops--;
-  if((fy_int)i1 < (fy_int)i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmple);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -6876,8 +6850,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(if_icmplt_b)
+LABEL2(if_icmple_b)
 NEXT_P2;
 }
 
@@ -6931,41 +6904,26 @@ LABEL2(if_icmple)
 NEXT_P2;
 }
 
-LABEL(if_icmple_b) /* if_icmple_b ( i1 i2 -- ) */
+LABEL(if_icmpgt_b) /* if_icmpgt_b ( -- ) */
 /*  */
-NAME("if_icmple_b")
+NAME("if_icmpgt_b")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
-spp += -2;
 {
 
 {
-  ops--;
-  if((fy_int)i1 <= (fy_int)i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmpgt);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -6976,8 +6934,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(if_icmple_b)
+LABEL2(if_icmpgt_b)
 NEXT_P2;
 }
 
@@ -7031,41 +6988,26 @@ LABEL2(if_icmpgt)
 NEXT_P2;
 }
 
-LABEL(if_icmpgt_b) /* if_icmpgt_b ( i1 i2 -- ) */
+LABEL(if_icmpge_b) /* if_icmpge_b ( -- ) */
 /*  */
-NAME("if_icmpgt_b")
+NAME("if_icmpge_b")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
-spp += -2;
 {
 
 {
-  ops--;
-  if((fy_int)i1 > (fy_int)i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmpge);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7076,8 +7018,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(if_icmpgt_b)
+LABEL2(if_icmpge_b)
 NEXT_P2;
 }
 
@@ -7131,41 +7072,26 @@ LABEL2(if_icmpge)
 NEXT_P2;
 }
 
-LABEL(if_icmpge_b) /* if_icmpge_b ( i1 i2 -- ) */
+LABEL(ifeq_b) /* ifeq_b ( -- ) */
 /*  */
-NAME("if_icmpge_b")
+NAME("ifeq_b")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
 }
 #endif
-spp += -2;
 {
 
 {
-  ops--;
-  if((fy_int)i1 >= (fy_int)i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifeq);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7176,8 +7102,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(if_icmpge_b)
+LABEL2(ifeq_b)
 NEXT_P2;
 }
 
@@ -7228,38 +7153,26 @@ LABEL2(ifeq)
 NEXT_P2;
 }
 
-LABEL(ifeq_b) /* ifeq_b ( i1 -- ) */
+LABEL(ifnull_b) /* ifnull_b ( -- ) */
 /*  */
-NAME("ifeq_b")
+NAME("ifnull_b")
 {
 DEF_CA
-fy_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
-spp += -1;
 {
 
 {
-  ops--;
-  if(i1 == 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifnull);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7270,8 +7183,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(ifeq_b)
+LABEL2(ifnull_b)
 NEXT_P2;
 }
 
@@ -7322,38 +7234,26 @@ LABEL2(ifnull)
 NEXT_P2;
 }
 
-LABEL(ifnull_b) /* ifnull_b ( i1 -- ) */
+LABEL(ifne_b) /* ifne_b ( -- ) */
 /*  */
-NAME("ifnull_b")
+NAME("ifne_b")
 {
 DEF_CA
-fy_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
-spp += -1;
 {
 
 {
-  ops--;
-  if(i1 == 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifne);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7364,8 +7264,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(ifnull_b)
+LABEL2(ifne_b)
 NEXT_P2;
 }
 
@@ -7416,38 +7315,26 @@ LABEL2(ifne)
 NEXT_P2;
 }
 
-LABEL(ifne_b) /* ifne_b ( i1 -- ) */
+LABEL(ifnonnull_b) /* ifnonnull_b ( -- ) */
 /*  */
-NAME("ifne_b")
+NAME("ifnonnull_b")
 {
 DEF_CA
-fy_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
-spp += -1;
 {
 
 {
-  ops--;
-  if(i1 != 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifnonnull);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7458,8 +7345,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(ifne_b)
+LABEL2(ifnonnull_b)
 NEXT_P2;
 }
 
@@ -7510,38 +7396,26 @@ LABEL2(ifnonnull)
 NEXT_P2;
 }
 
-LABEL(ifnonnull_b) /* ifnonnull_b ( i1 -- ) */
+LABEL(iflt_b) /* iflt_b ( -- ) */
 /*  */
-NAME("ifnonnull_b")
+NAME("iflt_b")
 {
 DEF_CA
-fy_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
-spp += -1;
 {
 
 {
-  ops--;
-  if(i1 != 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(iflt);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7552,8 +7426,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(ifnonnull_b)
+LABEL2(iflt_b)
 NEXT_P2;
 }
 
@@ -7604,38 +7477,26 @@ LABEL2(iflt)
 NEXT_P2;
 }
 
-LABEL(iflt_b) /* iflt_b ( i1 -- ) */
+LABEL(ifle_b) /* ifle_b ( -- ) */
 /*  */
-NAME("iflt_b")
+NAME("ifle_b")
 {
 DEF_CA
-fy_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
-spp += -1;
 {
 
 {
-  ops--;
-  if((fy_int)i1 < 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifle);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7646,8 +7507,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(iflt_b)
+LABEL2(ifle_b)
 NEXT_P2;
 }
 
@@ -7698,38 +7558,26 @@ LABEL2(ifle)
 NEXT_P2;
 }
 
-LABEL(ifle_b) /* ifle_b ( i1 -- ) */
+LABEL(ifgt_b) /* ifgt_b ( -- ) */
 /*  */
-NAME("ifle_b")
+NAME("ifgt_b")
 {
 DEF_CA
-fy_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
-spp += -1;
 {
 
 {
-  ops--;
-  if((fy_int)i1 <= 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifgt);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7740,8 +7588,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(ifle_b)
+LABEL2(ifgt_b)
 NEXT_P2;
 }
 
@@ -7792,38 +7639,26 @@ LABEL2(ifgt)
 NEXT_P2;
 }
 
-LABEL(ifgt_b) /* ifgt_b ( i1 -- ) */
+LABEL(ifge_b) /* ifge_b ( -- ) */
 /*  */
-NAME("ifgt_b")
+NAME("ifge_b")
 {
 DEF_CA
-fy_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
 }
 #endif
-spp += -1;
 {
 
 {
-  ops--;
-  if((fy_int)i1 > 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifge);
   }
-  SUPER_CONTINUE;
 }
 
 }
@@ -7834,8 +7669,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(ifgt_b)
+LABEL2(ifge_b)
 NEXT_P2;
 }
 
@@ -7883,53 +7717,6 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 NEXT_P1;
 IF_sppTOS(sppTOS = spp[-1]);
 LABEL2(ifge)
-NEXT_P2;
-}
-
-LABEL(ifge_b) /* ifge_b ( i1 -- ) */
-/*  */
-NAME("ifge_b")
-{
-DEF_CA
-fy_uint i1;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-spp += -1;
-{
-
-{
-  ops--;
-  if((fy_int)i1 >= 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-NEXT_P2;
-
-  }
-  SUPER_CONTINUE;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(ifge_b)
 NEXT_P2;
 }
 
@@ -8879,8 +8666,7 @@ if (vm_debug) {
   CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
             + CURR_INST.params.field->posAbs;
   MODIFY_CURR_INST(getstatic);
-  UNDO_NEXT_P0;
-  goto getstatic_pre;
+  FORWARD(getstatic);
 }
 
 }
@@ -8895,9 +8681,6 @@ LABEL2(getstatic_cl)
 NEXT_P2;
 }
 
-#ifdef FY_ENGINE_HEADER
-getstatic_pre:
-#endif
 LABEL(getstatic) /* getstatic ( -- ir) */
 /*  */
 NAME("getstatic")
@@ -8966,8 +8749,7 @@ if (vm_debug) {
   CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
             + CURR_INST.params.field->posAbs;
   MODIFY_CURR_INST(putstatic);
-  UNDO_NEXT_P0;
-  goto putstatic_pre;
+  FORWARD(putstatic);
 }
 
 }
@@ -8982,9 +8764,6 @@ LABEL2(putstatic_cl)
 NEXT_P2;
 }
 
-#ifdef FY_ENGINE_HEADER
-putstatic_pre:
-#endif
 LABEL(putstatic) /* putstatic ( i1 -- ) */
 /*  */
 NAME("putstatic")
@@ -9160,7 +8939,6 @@ LABEL2(fault)
 NEXT_P2;
 }
 
-#ifdef FY_ENGINE_HEADER
     ENGINE_BODY_END;
     lable_throw_npt:
     fy_fault(exception, FY_EXCEPTION_NPT, "");
@@ -9181,4 +8959,3 @@ NEXT_P2;
   }
 }
 #undef FY_ENGINE_NAME
-#endif

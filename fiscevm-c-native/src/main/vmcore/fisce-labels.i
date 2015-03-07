@@ -1,123 +1,3 @@
-#ifdef FY_ENGINE_HEADER
-#ifndef FY_ENGINE_NAME
-# define FY_ENGINE_NAME(NUM) fy_thread_runner_##NUM
-# define X_FY_ENGINE_NAME(NUM) FY_ENGINE_NAME(NUM)
-#endif
-FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
-    fy_context *context,
-    fy_thread *thread,
-    fy_frame *frame,
-    fy_int ops,
-    fy_exception *exception,
-    fy_e2_label_holder **out_labels) {
-#ifndef FY_LATE_DECLARATION
-#ifdef USE_CFA
-  register fy_e2_label cfa;
-#endif
-  register fy_instruction *ipp;
-#ifdef FY_USE_TOS
-  register fy_stack_item sppTOS;
-#endif
-  register fy_stack_item *spp;
-
-  fy_instruction *instructions;
-  register fy_stack_item *sbase;
-
-
-  fy_method *method = NULL;
-#endif
-
-#ifndef FY_LATE_DECLARATION
-  fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
-  fy_class *clazz1, *clazz2;
-  fy_field *field;
-  fy_switch_lookup *swlookup;
-  fy_switch_table *swtable;
-#endif
-
-  static fy_e2_label_holder labels[] = {
-#undef FY_ENGINE_HEADER
-#include "fisce-labels.i"
-#define FY_ENGINE_HEADER
-      {0, -1}
-  };
-#ifdef MORE_VARS
-  MORE_VARS
-#endif
-
-#ifdef VM_DEBUG
-  FILE *vm_out = stdout;
-  const fy_uint vm_debug = 1;
-#endif
-
-  if(unlikely(thread == NULL)){
-    *out_labels = labels;
-    return 0;
-  }else{
-#ifdef FY_LATE_DECLARATION
-#ifdef USE_CFA
-  register fy_e2_label cfa;
-#endif
-  register fy_instruction *ipp;
-#ifdef FY_USE_TOS
-  register fy_stack_item sppTOS;
-#endif
-  register fy_stack_item *spp;
-
-  fy_instruction *instructions;
-  register fy_stack_item *sbase;
-
-  fy_method *method = NULL;
-#endif
-
-
-  method = frame->method;
-  instructions = method->c.i.instructions;
-  sbase = frame->baseSpp;
-
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, "\nInvoking: ");
-    fy_strFPrint(vm_out, method->uniqueName);
-    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, thread->stack));
-    if(frame->lpc + frame->pcofs == FY_IP_begin){
-#ifndef FY_LATE_DECLARATION
-      fy_uint i1, i2;
-      fprintf(vm_out, "[")
-      i2 = method->max_locals + method->max_stack;
-      for(i1 = 0; i1 < i2; i1++){
-        printarg_i(sbase + i1);
-        if(i1 < i2 - 1) fputs(", ", vm_out);
-      }
-      fputs("]\n", vm_out);
-#endif
-    }
-  }
-#endif
-
-  if ((method->access_flags & FY_ACC_CLINIT) && frame->lpc + frame->pcofs == FY_IP_begin) {
-#ifdef VM_DEBUG
-    if(vm_debug){
-      fprintf(vm_out, "Checking clinit for: ");
-      fy_strFPrint(vm_out, method->uniqueName);
-      fprintf(vm_out, "\n");
-    }
-#endif
-    /*!CLINIT*/
-    ipp = method->c.i.instructions;
-    spp = frame->baseSpp + method->max_locals;
-    FY_ENGINE_CLINIT(method->owner, 0)
-  }
-
-  ENGINE_ENTER;
-  label_fallout_invoke:
-#ifdef FY_INSTRUCTION_COUNT
-  context->engines[FY_ENGINE_NUM].replData.last_op = 0x1ff;
-#endif
-  return ops;
-  ENGINE_BODY_BEGIN;
-#endif
-#if REPL_MIN > 0
 INST_ADDR(iload_r0),
 INST_ADDR(iload_r1),
 INST_ADDR(iload_r2),
@@ -198,7 +78,6 @@ INST_ADDR(putstatic_n_r3),
 INST_ADDR(nop_r0),
 INST_ADDR(nop_r1),
 INST_ADDR(nop_r2),
-#endif
 INST_ADDR(slpush),
 INST_ADDR(dup),
 INST_ADDR(isub),
@@ -267,22 +146,13 @@ INST_ADDR(lastore),
 INST_ADDR(anewarray),
 INST_ADDR(multianewarray),
 INST_ADDR(new_cl),
-#ifdef FY_ENGINE_HEADER
-new_pre:
-#endif
 INST_ADDR(new),
 INST_ADDR(newarray),
 INST_ADDR(getfield_x),
 INST_ADDR(putfield_x),
 INST_ADDR(getstatic_clx),
-#ifdef FY_ENGINE_HEADER
-getstatic_x_pre:
-#endif
 INST_ADDR(getstatic_x),
 INST_ADDR(putstatic_clx),
-#ifdef FY_ENGINE_HEADER
-putstatic_x_pre:
-#endif
 INST_ADDR(putstatic_x),
 INST_ADDR(checkcast),
 INST_ADDR(instanceof),
@@ -298,36 +168,36 @@ INST_ADDR(return),
 INST_ADDR(ireturn),
 INST_ADDR(lreturn),
 INST_ADDR(athrow),
-INST_ADDR(goto),
 INST_ADDR(goto_b),
-INST_ADDR(if_icmpeq),
+INST_ADDR(goto),
 INST_ADDR(if_icmpeq_b),
-INST_ADDR(if_icmpne),
+INST_ADDR(if_icmpeq),
 INST_ADDR(if_icmpne_b),
-INST_ADDR(if_icmplt),
+INST_ADDR(if_icmpne),
 INST_ADDR(if_icmplt_b),
-INST_ADDR(if_icmple),
+INST_ADDR(if_icmplt),
 INST_ADDR(if_icmple_b),
-INST_ADDR(if_icmpgt),
+INST_ADDR(if_icmple),
 INST_ADDR(if_icmpgt_b),
-INST_ADDR(if_icmpge),
+INST_ADDR(if_icmpgt),
 INST_ADDR(if_icmpge_b),
-INST_ADDR(ifeq),
+INST_ADDR(if_icmpge),
 INST_ADDR(ifeq_b),
-INST_ADDR(ifnull),
+INST_ADDR(ifeq),
 INST_ADDR(ifnull_b),
-INST_ADDR(ifne),
+INST_ADDR(ifnull),
 INST_ADDR(ifne_b),
-INST_ADDR(ifnonnull),
+INST_ADDR(ifne),
 INST_ADDR(ifnonnull_b),
-INST_ADDR(iflt),
+INST_ADDR(ifnonnull),
 INST_ADDR(iflt_b),
-INST_ADDR(ifle),
+INST_ADDR(iflt),
 INST_ADDR(ifle_b),
-INST_ADDR(ifgt),
+INST_ADDR(ifle),
 INST_ADDR(ifgt_b),
-INST_ADDR(ifge),
+INST_ADDR(ifgt),
 INST_ADDR(ifge_b),
+INST_ADDR(ifge),
 INST_ADDR(lookupswitch),
 INST_ADDR(tableswitch),
 INST_ADDR(pop),
@@ -352,38 +222,10 @@ INST_ADDR(putfield),
 INST_ADDR(iaload),
 INST_ADDR(iastore),
 INST_ADDR(getstatic_cl),
-#ifdef FY_ENGINE_HEADER
-getstatic_pre:
-#endif
 INST_ADDR(getstatic),
 INST_ADDR(putstatic_cl),
-#ifdef FY_ENGINE_HEADER
-putstatic_pre:
-#endif
 INST_ADDR(putstatic),
 INST_ADDR(nop),
 INST_ADDR(ldc),
 INST_ADDR(ldc2_w),
 INST_ADDR(fault),
-#ifdef FY_ENGINE_HEADER
-    ENGINE_BODY_END;
-    lable_throw_npt:
-    fy_fault(exception, FY_EXCEPTION_NPT, "");
-    goto label_throw;
-    label_throw_aioob:
-    fy_fault(exception, FY_EXCEPTION_AIOOB, "%"FY_PRINT32"d", ops);
-    goto label_throw;
-    label_throw_nase:
-    fy_fault(exception, FY_EXCEPTION_NASE, "%"FY_PRINT32"d", ops);
-    goto label_throw;
-    label_throw_dbz:
-    fy_fault(exception, FY_EXCEPTION_ARITHMETIC, "Divided by zero!");
-    goto label_throw;
-    label_throw:
-    ops = 0;
-    fy_localToFrame(context, frame);
-    goto label_fallout_invoke;
-  }
-}
-#undef FY_ENGINE_NAME
-#endif

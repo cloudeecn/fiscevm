@@ -1,4 +1,3 @@
-\C#ifdef FY_ENGINE_HEADER
 \C#ifndef FY_ENGINE_NAME
 \C# define FY_ENGINE_NAME(NUM) fy_thread_runner_##NUM
 \C# define X_FY_ENGINE_NAME(NUM) FY_ENGINE_NAME(NUM)
@@ -11,13 +10,13 @@
 \C    fy_exception *exception,
 \C    fy_e2_label_holder **out_labels) {
 \C#ifndef FY_LATE_DECLARATION
-\C#ifdef USE_CFA
+\C# ifdef USE_CFA
 \C  register fy_e2_label cfa;
-\C#endif
+\C# endif
 \C  register fy_instruction *ipp;
-\C#ifdef FY_USE_TOS
+\C# ifdef FY_USE_TOS
 \C  register fy_stack_item sppTOS;
-\C#endif
+\C# endif
 \C  register fy_stack_item *spp;
 \C
 \C  fy_instruction *instructions;
@@ -36,9 +35,7 @@
 \C#endif
 \C
 \C  static fy_e2_label_holder labels[] = {
-\C#undef FY_ENGINE_HEADER
 \C#include "fisce-labels.i"
-\C#define FY_ENGINE_HEADER
 \C      {0, -1}
 \C  };
 \C#ifdef MORE_VARS
@@ -55,13 +52,13 @@
 \C    return 0;
 \C  }else{
 \C#ifdef FY_LATE_DECLARATION
-\C#ifdef USE_CFA
+\C# ifdef USE_CFA
 \C  register fy_e2_label cfa;
-\C#endif
+\C# endif
 \C  register fy_instruction *ipp;
-\C#ifdef FY_USE_TOS
+\C# ifdef FY_USE_TOS
 \C  register fy_stack_item sppTOS;
-\C#endif
+\C# endif
 \C  register fy_stack_item *spp;
 \C
 \C  fy_instruction *instructions;
@@ -95,7 +92,7 @@
 \C  }
 \C#endif
 \C
-\C  if ((method->access_flags & FY_ACC_CLINIT) && frame->lpc + frame->pcofs == FY_IP_begin) {
+\C  if (unlikely((method->access_flags & FY_ACC_CLINIT) && frame->lpc + frame->pcofs == FY_IP_begin)) {
 \C#ifdef VM_DEBUG
 \C    if(vm_debug){
 \C      fprintf(vm_out, "Checking clinit for: ");
@@ -116,7 +113,6 @@
 \C#endif
 \C  return ops;
 \C  ENGINE_BODY_BEGIN;
-\C#endif
 
 \E store-optimization off
 
@@ -138,7 +134,7 @@
 \ #     # #          #       #    #     #    #      #     #
 \ #     # #          #       #    #     #    #     #      #
 \ ####### #          #      ###   #     #   ###   ####### #######
-\C#if REPL_MIN > 0
+
 iload_r0 ( -- ir)
 {
   fy_threadGetLocalInt(CURR_INST.params.int_params.param1, ir);
@@ -638,7 +634,6 @@ nop_r2 ( -- )
 
 }
 
-\C#endif
 
 
 \ #       #######  #####     #    #
@@ -1116,17 +1111,13 @@ new_cl ( -- )
   fy_localToFrame(context, frame);
   FY_ENGINE_CLINIT(clazz1, 0);
   MODIFY_CURR_INST(new);
-  UNDO_NEXT_P0;
-  goto new_pre;
+  FORWARD(new);
 }
 
-\C#ifdef FY_ENGINE_HEADER
-\Cnew_pre:
-\C#endif
 new ( -- ir)
 {
   ir = fy_heapAllocate(context, CURR_INST.params.clazz, exception);
-  FY_THEH(fy_localToFrame(context, frame);)
+  FY_THEH(;)
 }
 
 newarray (i1 -- ir)
@@ -1136,7 +1127,7 @@ newarray (i1 -- ir)
     goto label_throw_nase;
   }
   ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
-  FY_THEH(fy_localToFrame(context, frame);)
+  FY_THEH(;)
 }
 
 getfield_x (i1 -- ir1 ir2)
@@ -1183,13 +1174,9 @@ getstatic_clx ( -- )
   FY_ENGINE_CLINIT(clazz1, 0);
   CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
   MODIFY_CURR_INST(getstatic_x);
-  UNDO_NEXT_P0;
-  goto getstatic_x_pre;
+  FORWARD(getstatic_x);
 }
 
-\C#ifdef FY_ENGINE_HEADER
-\Cgetstatic_x_pre:
-\C#endif
 getstatic_x( -- ir1 ir2)
 {
 #ifdef VM_DEBUG
@@ -1217,13 +1204,9 @@ putstatic_clx ( -- )
   FY_ENGINE_CLINIT(clazz1, 0);
   CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
   MODIFY_CURR_INST(putstatic_x);
-  UNDO_NEXT_P0;
-  goto putstatic_x_pre;
+  FORWARD(putstatic_x);
 }
 
-\C#ifdef FY_ENGINE_HEADER
-\Cputstatic_x_pre:
-\C#endif
 putstatic_x(i1 i2 -- )
 {
 #ifdef VM_DEBUG
@@ -1517,16 +1500,32 @@ athrow (i1 -- )
 \ #     # #     # #     # #
 \  #####   #####  #     # #
 
+goto_b ( -- )
+{
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  }
+  goto goto_body;
+}
+
 goto ( -- )
 {
+  goto_body:
   ops--;
   FY_OP_GOTO;
 }
 
-goto_b ( -- )
+if_icmpeq_b ( -- )
 {
-  ops--;
-  FY_CHECK_OPS_AND_GOTO(ops);
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmpeq);
+  }
 }
 
 if_icmpeq (i1 i2 -- )
@@ -1539,14 +1538,15 @@ if_icmpeq (i1 i2 -- )
   SUPER_CONTINUE;
 }
 
-if_icmpeq_b (i1 i2 -- )
+if_icmpne_b ( -- )
 {
-  ops--;
-  if(i1 == i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmpne);
   }
-  SUPER_CONTINUE;
 }
 
 if_icmpne (i1 i2 -- )
@@ -1559,14 +1559,15 @@ if_icmpne (i1 i2 -- )
   SUPER_CONTINUE;
 }
 
-if_icmpne_b (i1 i2 -- )
+if_icmplt_b ( -- )
 {
-  ops--;
-  if(i1 != i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmplt);
   }
-  SUPER_CONTINUE;
 }
 
 if_icmplt (i1 i2 -- )
@@ -1579,14 +1580,15 @@ if_icmplt (i1 i2 -- )
   SUPER_CONTINUE;
 }
 
-if_icmplt_b (i1 i2 -- )
+if_icmple_b ( -- )
 {
-  ops--;
-  if((fy_int)i1 < (fy_int)i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmple);
   }
-  SUPER_CONTINUE;
 }
 
 if_icmple (i1 i2 -- )
@@ -1599,14 +1601,15 @@ if_icmple (i1 i2 -- )
   SUPER_CONTINUE;
 }
 
-if_icmple_b (i1 i2 -- )
+if_icmpgt_b ( -- )
 {
-  ops--;
-  if((fy_int)i1 <= (fy_int)i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmpgt);
   }
-  SUPER_CONTINUE;
 }
 
 if_icmpgt (i1 i2 -- )
@@ -1619,14 +1622,15 @@ if_icmpgt (i1 i2 -- )
   SUPER_CONTINUE;
 }
 
-if_icmpgt_b (i1 i2 -- )
+if_icmpge_b ( -- )
 {
-  ops--;
-  if((fy_int)i1 > (fy_int)i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(if_icmpge);
   }
-  SUPER_CONTINUE;
 }
 
 if_icmpge (i1 i2 -- )
@@ -1639,14 +1643,15 @@ if_icmpge (i1 i2 -- )
   SUPER_CONTINUE;
 }
 
-if_icmpge_b (i1 i2 -- )
+ifeq_b ( -- )
 {
-  ops--;
-  if((fy_int)i1 >= (fy_int)i2){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifeq);
   }
-  SUPER_CONTINUE;
 }
 
 ifeq (i1 -- )
@@ -1659,14 +1664,15 @@ ifeq (i1 -- )
   SUPER_CONTINUE;
 }
 
-ifeq_b (i1 -- )
+ifnull_b ( -- )
 {
-  ops--;
-  if(i1 == 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifnull);
   }
-  SUPER_CONTINUE;
 }
 
 ifnull (i1 -- )
@@ -1679,14 +1685,15 @@ ifnull (i1 -- )
   SUPER_CONTINUE;
 }
 
-ifnull_b (i1 -- )
+ifne_b ( -- )
 {
-  ops--;
-  if(i1 == 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifne);
   }
-  SUPER_CONTINUE;
 }
 
 ifne (i1 -- )
@@ -1699,14 +1706,15 @@ ifne (i1 -- )
   SUPER_CONTINUE;
 }
 
-ifne_b (i1 -- )
+ifnonnull_b ( -- )
 {
-  ops--;
-  if(i1 != 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifnonnull);
   }
-  SUPER_CONTINUE;
 }
 
 ifnonnull (i1 -- )
@@ -1719,14 +1727,15 @@ ifnonnull (i1 -- )
   SUPER_CONTINUE;
 }
 
-ifnonnull_b (i1 -- )
+iflt_b ( -- )
 {
-  ops--;
-  if(i1 != 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(iflt);
   }
-  SUPER_CONTINUE;
 }
 
 iflt (i1 -- )
@@ -1739,14 +1748,15 @@ iflt (i1 -- )
   SUPER_CONTINUE;
 }
 
-iflt_b (i1 -- )
+ifle_b ( -- )
 {
-  ops--;
-  if((fy_int)i1 < 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifle);
   }
-  SUPER_CONTINUE;
 }
 
 ifle (i1 -- )
@@ -1759,14 +1769,15 @@ ifle (i1 -- )
   SUPER_CONTINUE;
 }
 
-ifle_b (i1 -- )
+ifgt_b ( -- )
 {
-  ops--;
-  if((fy_int)i1 <= 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifgt);
   }
-  SUPER_CONTINUE;
 }
 
 ifgt (i1 -- )
@@ -1779,14 +1790,15 @@ ifgt (i1 -- )
   SUPER_CONTINUE;
 }
 
-ifgt_b (i1 -- )
+ifge_b ( -- )
 {
-  ops--;
-  if((fy_int)i1 > 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
-    INST_TAIL;
+  if(unlikely(ops <= 0)){
+    fy_localToFrame(context, frame);
+    frame->pcofs = 0;
+    FY_FALLOUT_INVOKE;
+  } else {
+    FORWARD(ifge);
   }
-  SUPER_CONTINUE;
 }
 
 ifge (i1 -- )
@@ -1794,16 +1806,6 @@ ifge (i1 -- )
   ops--;
   if((fy_int)i1 >= 0){
     FY_OP_GOTO;
-    INST_TAIL;
-  }
-  SUPER_CONTINUE;
-}
-
-ifge_b (i1 -- )
-{
-  ops--;
-  if((fy_int)i1 >= 0){
-    FY_CHECK_OPS_AND_GOTO(ops);
     INST_TAIL;
   }
   SUPER_CONTINUE;
@@ -2050,13 +2052,9 @@ getstatic_cl ( -- )
   CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
             + CURR_INST.params.field->posAbs;
   MODIFY_CURR_INST(getstatic);
-  UNDO_NEXT_P0;
-  goto getstatic_pre;
+  FORWARD(getstatic);
 }
 
-\C#ifdef FY_ENGINE_HEADER
-\Cgetstatic_pre:
-\C#endif
 getstatic ( -- ir)
 {
   getstatic_body:
@@ -2086,13 +2084,9 @@ putstatic_cl ( -- )
   CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
             + CURR_INST.params.field->posAbs;
   MODIFY_CURR_INST(putstatic);
-  UNDO_NEXT_P0;
-  goto putstatic_pre;
+  FORWARD(putstatic);
 }
 
-\C#ifdef FY_ENGINE_HEADER
-\Cputstatic_pre:
-\C#endif
 putstatic (i1 -- )
 {
   putstatic_body:
@@ -2147,7 +2141,6 @@ fault ( -- )
   goto label_throw;
 }
 
-\C#ifdef FY_ENGINE_HEADER
 \C    ENGINE_BODY_END;
 \C    lable_throw_npt:
 \C    fy_fault(exception, FY_EXCEPTION_NPT, "");
@@ -2168,5 +2161,4 @@ fault ( -- )
 \C  }
 \C}
 \C#undef FY_ENGINE_NAME
-\C#endif
 
