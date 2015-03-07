@@ -302,7 +302,6 @@
 #define FY_OP_invoke_dn 0xfc
 #define FY_OP_invoke_dnp 0xfd
 #define FY_OP_fault  0xfe
-#define FY_OP_dropout  0xff
 
 #define FY_OP_iload_r0  0x100
 #define FY_OP_iload_r1  0x101
@@ -403,7 +402,7 @@
 
 #define FY_IP_dropout 0x00
 
-#define FY_IP_begin 0x01
+#define FY_IP_begin 0x00
 
 #define fy_nextU1(CODE) (fy_uint)CODE[pc++]
 #define fy_nextS1(CODE) ((fy_byte)CODE[pc++])

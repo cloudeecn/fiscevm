@@ -282,7 +282,7 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "<undef>", /* 0xFD */
 
 "FAULT", /* 0xFE */
-"DROPOUT", /* 0xFF */
+"<undef>", /* 0xFF */
 
 "ILOAD_R0", /* 0x100*/
 "ILOAD_R1", /* 0x101*/

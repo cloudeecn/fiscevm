@@ -2838,7 +2838,6 @@ void fy_preverify(fy_context *context, fy_method *method,
 		instruction->op = op;
 #endif
 	}
-	method->c.i.instructions[0].inst = labelsByOp[FY_OP_dropout];
 	preverifyMethodExceptionTable(context, method, tmpPcIcMap, exception);
 	preverifyMethodLineNumberTable(context, method, tmpPcIcMap, exception);
 	method->access_flags |= FY_ACC_VERIFIED;

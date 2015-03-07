@@ -1928,16 +1928,6 @@ dcmpl (d1 d2 -- ir)
   }
 }
 
-dropout ( -- )
-{
-  #ifdef VM_DEBUG
-  if (vm_debug) {
-  fputs(" ### ", vm_out); fputc('\n', vm_out);
-  }
-  #endif
-  goto label_fallout_invoke;
-}
-
 \ ######  ####### ######  #                #####  ######   #####
 \ #     # #       #     # #               #     # #     # #     #
 \ #     # #       #     # #               #       #     # #

@@ -8380,39 +8380,6 @@ LABEL2(dcmpl)
 NEXT_P2;
 }
 
-LABEL(dropout) /* dropout ( -- ) */
-/*  */
-NAME("dropout")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  #ifdef VM_DEBUG
-  if (vm_debug) {
-  fputs(" ### ", vm_out); fputc('\n', vm_out);
-  }
-  #endif
-  goto label_fallout_invoke;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(dropout)
-NEXT_P2;
-}
-
 LABEL(iload) /* iload ( -- ir) */
 /*  */
 NAME("iload")
