@@ -348,7 +348,7 @@ static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz)
 		return NULL;
 	}
 	tid = clazz->clinitThreadId;
-	if (likely(tid == -1 || tid == thread->threadId)) {
+	if (likely(tid == -1 || (thread!= NULL && tid == thread->threadId))) {
 		return NULL;
 	}
 	if (clazz->clinit == NULL) {
@@ -361,6 +361,10 @@ static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz)
 		return clazz;
 	}
 	return NULL;
+}
+
+fy_class *fy_threadCheckClinit(fy_context *context, fy_thread *thread, fy_class *clazz) {
+	return clinit(context, thread, clazz);
 }
 
 fy_int fy_threadPushMethod(fy_context *context, fy_thread *thread,

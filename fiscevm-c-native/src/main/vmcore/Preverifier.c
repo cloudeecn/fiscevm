@@ -912,6 +912,8 @@ void fy_preverify(fy_context *context, fy_method *method,
 	fy_exceptionHandler *exh;
 	fy_int exhic;
 	fy_instruction_extra *exhi;
+	fy_method *tmethod;
+	fy_field *tfield;
 
 	struct read_stack_status smtStatus;
 
@@ -2640,7 +2642,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_goto_b;
 			}
 			break;
-		case FY_OP_newarray:
+		case FY_OP_newarray: {
 			switch (instruction->params.int_params.param1) {
 			case 4:
 				instruction->params.clazz = fy_vmLookupClass(context,
@@ -2685,7 +2687,79 @@ void fy_preverify(fy_context *context, fy_method *method,
 			}
 			FYEH();
 			break;
-			default:
+		}
+		case FY_OP_putfield_x:
+		case FY_OP_putfield:
+			if (unlikely(
+					(instruction->params.field->access_flags & FY_ACC_FINAL)&& method->owner != instruction->params.field->owner)) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is final",
+						instruction->params.field->utf8Name);
+				FYEH();
+				break;
+			}
+		case FY_OP_getfield_x:
+		case FY_OP_getfield:
+			if (unlikely(
+					instruction->params.field->access_flags & FY_ACC_STATIC)) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static",
+						instruction->params.field->utf8Name);
+				FYEH();
+				break;
+			}
+			tfield = instruction->params.field;
+			instruction->params.int_params.param1 = tfield->posAbs;
+			instruction->params.int_params.param2 = tfield->field_id;
+			break;
+		case FY_OP_putstatic_x:
+		case FY_OP_putstatic:
+			if (unlikely(
+					(instruction->params.field->access_flags & FY_ACC_FINAL)&& method->owner != instruction->params.field->owner)) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is final",
+						instruction->params.field->utf8Name);
+				FYEH();
+				break;
+			}
+		case FY_OP_getstatic_x:
+		case FY_OP_getstatic:
+			if (unlikely(
+					!(instruction->params.field->access_flags & FY_ACC_STATIC))) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static",
+						instruction->params.field->utf8Name);
+				FYEH();
+				break;
+			}
+			tfield = instruction->params.field;
+			if (fy_threadCheckClinit(context, NULL, tfield->owner)) {
+				if (op == FY_OP_getstatic)
+					op = FY_OP_getstatic_cl;
+				else if (op == FY_OP_getstatic_x)
+					op = FY_OP_getstatic_clx;
+				else if (op == FY_OP_putstatic)
+					op = FY_OP_putstatic_cl;
+				else if (op == FY_OP_putstatic_x)
+					op = FY_OP_putstatic_clx;
+			}else{
+				instruction->params.isfield = tfield->owner->staticArea
+						+ tfield->posAbs;
+			}
+			break;
+		default:
 			break;
 		}
 		instruction->inst = labelsByOp[op];

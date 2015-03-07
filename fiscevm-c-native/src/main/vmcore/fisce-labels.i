@@ -199,10 +199,6 @@ INST_ADDR(nop_r0),
 INST_ADDR(nop_r1),
 INST_ADDR(nop_r2),
 #endif
-INST_ADDR(getfield_nx),
-INST_ADDR(putfield_nx),
-INST_ADDR(getstatic_nx),
-INST_ADDR(putstatic_nx),
 INST_ADDR(slpush),
 INST_ADDR(dup),
 INST_ADDR(isub),
@@ -272,10 +268,25 @@ INST_ADDR(anewarray),
 INST_ADDR(multianewarray),
 INST_ADDR(new_n),
 INST_ADDR(newarray),
+INST_ADDR(getfield_x),
+INST_ADDR(putfield_x),
+INST_ADDR(getstatic_clx),
+#ifdef FY_ENGINE_HEADER
+getstatic_x_pre:
+#endif
+INST_ADDR(getstatic_x),
+INST_ADDR(putstatic_clx),
+#ifdef FY_ENGINE_HEADER
+putstatic_x_pre:
+#endif
+INST_ADDR(putstatic_x),
 INST_ADDR(checkcast),
 INST_ADDR(instanceof),
 INST_ADDR(monitorenter),
 INST_ADDR(monitorexit),
+INST_ADDR(invoke_d),
+INST_ADDR(invoke_dn),
+INST_ADDR(invoke_dnp),
 INST_ADDR(invokespecial),
 INST_ADDR(invokestatic),
 INST_ADDR(invokevirtual),
@@ -332,23 +343,23 @@ INST_ADDR(sipush),
 INST_ADDR(iinc),
 INST_ADDR(iadd),
 INST_ADDR(fadd),
-INST_ADDR(getfield_n),
-INST_ADDR(putfield_n),
+INST_ADDR(getfield),
+INST_ADDR(putfield),
 INST_ADDR(iaload),
 INST_ADDR(iastore),
-INST_ADDR(getstatic_n),
-INST_ADDR(putstatic_n),
+INST_ADDR(getstatic_cl),
+#ifdef FY_ENGINE_HEADER
+getstatic_pre:
+#endif
+INST_ADDR(getstatic),
+INST_ADDR(putstatic_cl),
+#ifdef FY_ENGINE_HEADER
+putstatic_pre:
+#endif
+INST_ADDR(putstatic),
 INST_ADDR(nop),
 INST_ADDR(ldc),
 INST_ADDR(ldc2_w),
-INST_ADDR(getfield),
-INST_ADDR(putfield),
-INST_ADDR(getfield_x),
-INST_ADDR(putfield_x),
-INST_ADDR(getstatic),
-INST_ADDR(putstatic),
-INST_ADDR(getstatic_x),
-INST_ADDR(putstatic_x),
 INST_ADDR(new),
 INST_ADDR(fault),
 #ifdef FY_ENGINE_HEADER

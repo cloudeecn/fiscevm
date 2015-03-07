@@ -102,6 +102,8 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 
 fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread);
 
+fy_class *fy_threadCheckClinit(fy_context *context, fy_thread *thread, fy_class *clazz);
+
 fy_int fy_threadPushMethod(fy_context *context, fy_thread *thread,
 		fy_method *invoke, fy_stack_item *spp, fy_int ops, fy_exception *exception);
 

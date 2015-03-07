@@ -257,16 +257,16 @@
 #define FY_OP_jsr_w  0xc9
 #define FY_OP_breakpoint  0xca
 
+#define FY_OP_return_ns  0xcd
+#define FY_OP_ireturn_ns  0xce
+#define FY_OP_lreturn_ns  0xcf
+
 #define FY_OP_slpush  0xd0
 
-#define FY_OP_getstatic_n  0xd2
-#define FY_OP_putstatic_n  0xd3
-#define FY_OP_getfield_n  0xd4
-#define FY_OP_putfield_n  0xd5
-#define FY_OP_getstatic_nx  0xd6
-#define FY_OP_putstatic_nx  0xd7
-#define FY_OP_getfield_nx  0xd8
-#define FY_OP_putfield_nx  0xd9
+#define FY_OP_getstatic_cl  0xd2
+#define FY_OP_putstatic_cl  0xd3
+#define FY_OP_getstatic_clx  0xd6
+#define FY_OP_putstatic_clx  0xd7
 #define FY_OP_new_n 0xda
 #define FY_OP_newarray_n 0xdb
 
@@ -293,6 +293,9 @@
 #define FY_OP_if_acmpne_b  0xf5
 #define FY_OP_goto_b  0xf6
 
+#define FY_OP_invoke_d 0xfb
+#define FY_OP_invoke_dn 0xfc
+#define FY_OP_invoke_dnp 0xfd
 #define FY_OP_fault  0xfe
 #define FY_OP_dropout  0xff
 
@@ -439,7 +442,7 @@ struct fy_instruction_extra {
 
 struct fy_invoke {
 	fy_method *method;
-	fy_int paramsCount;
+	fy_int paramCount;
 };
 
 struct fy_instruction {
@@ -457,12 +460,13 @@ struct fy_instruction {
 		}int_params;
 		fy_class *clazz;
 		fy_method *method;
-		fy_nh *nh;
 		fy_field *field;
 		fy_switch_lookup *swlookup;
 		fy_switch_table *swtable;
 		fy_int *isfield;
 		fy_invoke *invoke;
+		fy_nh *nh;
+		fy_nativeCall *pendingNative;
 		fy_exception *exception;
 		struct {
 			fy_int derefed;

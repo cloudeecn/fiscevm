@@ -145,6 +145,7 @@
 /* direct threading scheme 1: autoinc, long latency (HPPA, Sharc) */
 #  define USE_CFA 1
 #  define NEXT_P0	{cfa=(ipp++)->inst; INST_COUNT(PCURR_INST);}
+#  define UNDO_NEXT_P0 {ipp--;}
 #  define IP		(ipp-1)
 #  define PCURR_INST		(ipp-2)
 #  define CURR_INST		(*(ipp-2))
@@ -159,6 +160,7 @@
 /* direct threading scheme 3: autoinc, low latency (68K) */
 #  define USE_CFA 1
 #  define NEXT_P0   {INST_COUNT(PCURR_INST);}
+#  define UNDO_NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST		(*(ipp - 1))
@@ -173,6 +175,7 @@
 /* direct threading scheme 4: autoinc2, low latency (68K) */
 #  define USE_CFA 1
 #  define NEXT_P0   {INST_COUNT(PCURR_INST);}
+#  define UNDO_NEXT_P0
 #  define IP		(ipp + 1)
 #  define PCURR_INST		(ipp)
 #  define CURR_INST		(*ipp)
@@ -188,6 +191,7 @@
 #  define USE_CFA 1
 #  define CFA_NEXT
 #  define NEXT_P0	{cfa=ipp->inst; INST_COUNT(PCURR_INST);}
+#  define UNDO_NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
@@ -203,6 +207,7 @@
 #  define USE_CFA 1
 #  define CFA_NEXT
 #  define NEXT_P0	{cfa=(++ipp)->inst; INST_COUNT(PCURR_INST);}
+#  define UNDO_NEXT_P0 {ipp--;}
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
@@ -216,6 +221,7 @@
 #if THREADING_SCHEME==8
 /* direct threading scheme 8: i386 hack */
 #  define NEXT_P0 {/*FY_PREFETCH(ipp);*/INST_COUNT(PCURR_INST);}
+#  define UNDO_NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
@@ -233,6 +239,7 @@
  schedule the mtctr instruction. */
 #  define USE_CFA 1
 #  define NEXT_P0 {INST_COUNT(PCURR_INST);}
+#  define UNDO_NEXT_P0
 #  define IP		ipp
 #  define SET_IP(p)	{ipp=instructions + (p); next_cfa=ipp->inst; NEXT_P0;}
 #  define PCURR_INST		(ipp-1)
@@ -250,6 +257,7 @@
 #  define USE_CFA
 #  define REGISTER_CFA
 #  define NEXT_P0	{INST_COUNT(PCURR_INST);}
+#  define UNDO_NEXT_P0
 #  define IP		(ipp)
 #  define PCURR_INST		(ipp - 1)
 #  define CURR_INST (*(ipp - 1))
@@ -425,8 +433,8 @@ if(unlikely(OPS <= 0)){ \
 }
 #endif
 
-#define FY_UPDATE_SP(context, ptrFrame) { \
-	spp = ptrFrame->baseSpp + method->c.i.instruction_extras[ptrFrame->lpc + ptrFrame->pcofs].sp; \
+#define FY_UPDATE_SP(context) { \
+	spp = sbase + method->c.i.instruction_extras[frame->lpc + frame->pcofs].sp; \
 }
 
 #define FY_THEH(FINALLY) \

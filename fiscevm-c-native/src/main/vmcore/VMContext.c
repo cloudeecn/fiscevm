@@ -549,7 +549,7 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_iinc_r2,
 				FY_OP_iinc_r3);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_getfield_n, 8, /**/
+		FY_OP_getfield, 8, /**/
 				FY_OP_getfield_n_r0,
 				FY_OP_getfield_n_r1,
 				FY_OP_getfield_n_r2,
@@ -559,13 +559,13 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_getfield_n_r6,
 				FY_OP_getfield_n_r7);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_putfield_n, 4, /**/
+		FY_OP_putfield, 4, /**/
 				FY_OP_putfield_n_r0,
 				FY_OP_putfield_n_r1,
 				FY_OP_putfield_n_r2,
 				FY_OP_putfield_n_r3);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_getstatic_n, 6, /**/
+		FY_OP_getstatic, 6, /**/
 				FY_OP_getstatic_n_r0,
 				FY_OP_getstatic_n_r1,
 				FY_OP_getstatic_n_r2,
@@ -573,7 +573,7 @@ static void initEngine(fy_context *context, fy_exception *exception) {
 				FY_OP_getstatic_n_r4,
 				FY_OP_getstatic_n_r5);
 		mkReplData(context, exception, context->engines[i].replData.repl_data,
-		FY_OP_putstatic_n, 12, /**/
+		FY_OP_putstatic, 12, /**/
 				FY_OP_putstatic_n_r0,
 				FY_OP_putstatic_n_r1,
 				FY_OP_putstatic_n_r2,

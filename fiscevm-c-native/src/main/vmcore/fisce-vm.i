@@ -2921,195 +2921,6 @@ NEXT_P2;
 }
 
 #endif
-LABEL(getfield_nx) /* getfield_nx ( i1 -- ir1 ir2) */
-/*  */
-NAME("getfield_nx")
-{
-DEF_CA
-fy_uint i1;
-fy_uint ir1;
-fy_uint ir2;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-spp += 1;
-{
-
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getfield #%"FY_PRINT32"d(%"FY_PRINT32"d)# ", i1, CURR_INST.params.int_params.param1);
-  }
-#endif
-  if(unlikely(i1 == 0)){
-    goto lable_throw_npt;
-  }
-  ir1 = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
-  ir2 = fy_heapValue(context, i1, CURR_INST.params.int_params.param1 + 1);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", fy_I2TOL(ir1, ir2));
-  }
-#endif
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir1=", vm_out); printarg_i(ir1);
-fputs(" ir2=", vm_out); printarg_i(ir2);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
-LABEL2(getfield_nx)
-NEXT_P2;
-}
-
-LABEL(putfield_nx) /* putfield_nx ( i1 i2 i3 --) */
-/*  */
-NAME("putfield_nx")
-{
-DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
-NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
-fputs(" i3=", vm_out); printarg_i(i3);
-}
-#endif
-spp += -3;
-{
-
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putfield #%"FY_PRINT32"d(%"FY_PRINT32"d) value=%"FY_PRINT64"d# ", i1, CURR_INST.params.int_params.param1, fy_I2TOL(i2, i3));
-  }
-#endif
-  if(unlikely(i1 == 0)){
-    goto lable_throw_npt;
-  }
-  fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
-  fy_heapValue(context, i1, CURR_INST.params.int_params.param1 + 1) = i3;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putfield_nx)
-NEXT_P2;
-}
-
-LABEL(getstatic_nx) /* getstatic_nx ( -- ir1 ir2) */
-/*  */
-NAME("getstatic_nx")
-{
-DEF_CA
-fy_uint ir1;
-fy_uint ir2;
-NEXT_P0;
-IF_sppTOS(spp[-1] = sppTOS);
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-spp += 2;
-{
-
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %p# ", CURR_INST.params.isfield);
-  }
-#endif
-  ir1 = CURR_INST.params.isfield[0];
-  ir2 = CURR_INST.params.isfield[1];
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %p value = %"FY_PRINT64"d# ", CURR_INST.params.isfield, fy_I2TOL(ir1, ir2));
-  }
-#endif
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir1=", vm_out); printarg_i(ir1);
-fputs(" ir2=", vm_out); printarg_i(ir2);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
-LABEL2(getstatic_nx)
-NEXT_P2;
-}
-
-LABEL(putstatic_nx) /* putstatic_nx ( i1 i2 -- ) */
-/*  */
-NAME("putstatic_nx")
-{
-DEF_CA
-fy_uint i1;
-fy_uint i2;
-NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
-}
-#endif
-spp += -2;
-{
-
-{
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putstatic %p value=%"FY_PRINT64"d# ", CURR_INST.params.isfield, fy_I2TOL(i1, i2));
-  }
-#endif
-  CURR_INST.params.isfield[0] = i1;
-  CURR_INST.params.isfield[1] = i2;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putstatic_nx)
-NEXT_P2;
-}
-
 LABEL(slpush) /* slpush ( -- ir1 ir2) */
 /*  */
 NAME("slpush")
@@ -5822,6 +5633,277 @@ LABEL2(newarray)
 NEXT_P2;
 }
 
+LABEL(getfield_x) /* getfield_x ( i1 -- ir1 ir2) */
+/*  */
+NAME("getfield_x")
+{
+DEF_CA
+fy_uint i1;
+fy_uint ir1;
+fy_uint ir2;
+NEXT_P0;
+vm_fy_stack_item2i(sppTOS,i1);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+}
+#endif
+spp += 1;
+{
+
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getfield #%"FY_PRINT32"d(%"FY_PRINT32"d)# ", i1, CURR_INST.params.int_params.param1);
+  }
+#endif
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  ir1 = fy_heapValue(context, i1, CURR_INST.params.int_params.param1);
+  ir2 = fy_heapValue(context, i1, CURR_INST.params.int_params.param1 + 1);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", fy_I2TOL(ir1, ir2));
+  }
+#endif
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputs(" ir1=", vm_out); printarg_i(ir1);
+fputs(" ir2=", vm_out); printarg_i(ir2);
+fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+vm_i2fy_stack_item(ir1,spp[-2]);
+vm_i2fy_stack_item(ir2,sppTOS);
+LABEL2(getfield_x)
+NEXT_P2;
+}
+
+LABEL(putfield_x) /* putfield_x ( i1 i2 i3 --) */
+/*  */
+NAME("putfield_x")
+{
+DEF_CA
+fy_uint i1;
+fy_uint i2;
+fy_uint i3;
+NEXT_P0;
+vm_fy_stack_item2i(spp[-3],i1);
+vm_fy_stack_item2i(spp[-2],i2);
+vm_fy_stack_item2i(sppTOS,i3);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+fputs(" i2=", vm_out); printarg_i(i2);
+fputs(" i3=", vm_out); printarg_i(i3);
+}
+#endif
+spp += -3;
+{
+
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putfield #%"FY_PRINT32"d(%"FY_PRINT32"d) value=%"FY_PRINT64"d# ", i1, CURR_INST.params.int_params.param1, fy_I2TOL(i2, i3));
+  }
+#endif
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
+  fy_heapValue(context, i1, CURR_INST.params.int_params.param1 + 1) = i3;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+IF_sppTOS(sppTOS = spp[-1]);
+LABEL2(putfield_x)
+NEXT_P2;
+}
+
+LABEL(getstatic_clx) /* getstatic_clx ( -- ) */
+/*  */
+NAME("getstatic_clx")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+#ifdef FY_LATE_DECLARATION
+  fy_class *clazz1;
+#endif
+  clazz1 = CURR_INST.params.field->owner;
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(getstatic_x);
+  UNDO_NEXT_P0;
+  goto getstatic_x_pre;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(getstatic_clx)
+NEXT_P2;
+}
+
+#ifdef FY_ENGINE_HEADER
+getstatic_x_pre:
+#endif
+LABEL(getstatic_x) /* getstatic_x ( -- ir1 ir2) */
+/*  */
+NAME("getstatic_x")
+{
+DEF_CA
+fy_uint ir1;
+fy_uint ir2;
+NEXT_P0;
+IF_sppTOS(spp[-1] = sppTOS);
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+spp += 2;
+{
+
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %p# ", CURR_INST.params.isfield);
+  }
+#endif
+  ir1 = CURR_INST.params.isfield[0];
+  ir2 = CURR_INST.params.isfield[1];
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #getstatic %p value = %"FY_PRINT64"d# ", CURR_INST.params.isfield, fy_I2TOL(ir1, ir2));
+  }
+#endif
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputs(" ir1=", vm_out); printarg_i(ir1);
+fputs(" ir2=", vm_out); printarg_i(ir2);
+fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+vm_i2fy_stack_item(ir1,spp[-2]);
+vm_i2fy_stack_item(ir2,sppTOS);
+LABEL2(getstatic_x)
+NEXT_P2;
+}
+
+LABEL(putstatic_clx) /* putstatic_clx ( -- ) */
+/*  */
+NAME("putstatic_clx")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+#ifdef FY_LATE_DECLARATION
+  fy_class *clazz1;
+#endif
+  clazz1 = CURR_INST.params.field->owner;
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(putstatic_x);
+  UNDO_NEXT_P0;
+  goto putstatic_x_pre;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(putstatic_clx)
+NEXT_P2;
+}
+
+#ifdef FY_ENGINE_HEADER
+putstatic_x_pre:
+#endif
+LABEL(putstatic_x) /* putstatic_x ( i1 i2 -- ) */
+/*  */
+NAME("putstatic_x")
+{
+DEF_CA
+fy_uint i1;
+fy_uint i2;
+NEXT_P0;
+vm_fy_stack_item2i(spp[-2],i1);
+vm_fy_stack_item2i(sppTOS,i2);
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" i1=", vm_out); printarg_i(i1);
+fputs(" i2=", vm_out); printarg_i(i2);
+}
+#endif
+spp += -2;
+{
+
+{
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putstatic %p value=%"FY_PRINT64"d# ", CURR_INST.params.isfield, fy_I2TOL(i1, i2));
+  }
+#endif
+  CURR_INST.params.isfield[0] = i1;
+  CURR_INST.params.isfield[1] = i2;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+IF_sppTOS(sppTOS = spp[-1]);
+LABEL2(putstatic_x)
+NEXT_P2;
+}
+
 LABEL(checkcast) /* checkcast ( -- ) */
 /*  */
 NAME("checkcast")
@@ -5917,6 +5999,9 @@ spp += -1;
 {
 
 {
+  if(unlikely(i1 == 0)){
+    goto lable_throw_npt;
+  }
   ops = fy_threadMonitorEnter(context, thread, i1, ops);
   FY_CHECK_OPS(ops);
 }
@@ -5968,6 +6053,115 @@ LABEL2(monitorexit)
 NEXT_P2;
 }
 
+LABEL(invoke_d) /* invoke_d ( -- ) */
+/*  */
+NAME("invoke_d")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_localToFrame(context, frame);
+  frame->pcofs = 1;
+  ops = fy_threadPushMethod(context, thread, CURR_INST.params.invoke->method, 
+    spp - CURR_INST.params.invoke->paramCount, ops - 1, exception);
+  FYEH()0;
+  if (unlikely(ops <= 0)) {
+    FY_FALLOUT_INVOKE
+  }
+  ops = (*(CURR_INST.params.invoke->method->engine->runner))(context, thread, frame - 1, ops, exception, NULL);
+  FY_THEH(;);
+  FY_CHECK_OPS_INVOKE(ops);
+  FY_UPDATE_SP(context);
+  SUPER_END;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_d)
+NEXT_P2;
+}
+
+LABEL(invoke_dn) /* invoke_dn ( -- ) */
+/*  */
+NAME("invoke_dn")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_localToFrame(context, frame);
+  frame->pcofs = 1;
+  fy_heapBeginProtect(context);
+  ops = (CURR_INST.params.nh->handler)(context, thread, CURR_INST.params.nh->data, spp - CURR_INST.params.nh->stack_count, 
+    CURR_INST.params.nh->stack_count, ops, exception);
+  fy_heapEndProtect(context);
+  FY_THEH(;);
+  FY_CHECK_OPS_INVOKE(ops);
+  FY_UPDATE_SP(context);
+  SUPER_END;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_dn)
+NEXT_P2;
+}
+
+LABEL(invoke_dnp) /* invoke_dnp ( -- ) */
+/*  */
+NAME("invoke_dnp")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  fy_localToFrame(context, frame);
+  thread->pendingNative = *(CURR_INST.params.pendingNative);
+  thread->pendingNative.params = spp - CURR_INST.params.pendingNative->paramCount;
+  ops = 0;
+  FY_FALLOUT_INVOKE;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_dnp)
+NEXT_P2;
+}
+
 LABEL(invokespecial) /* invokespecial ( -- ) */
 /*  */
 NAME("invokespecial")
@@ -5986,7 +6180,7 @@ if (vm_debug) {
   ops = fy_threadInvokeSpecial(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH(;);
   FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
+  FY_UPDATE_SP(context);
   SUPER_END;
 }
 
@@ -6022,7 +6216,7 @@ if (vm_debug) {
   ops = fy_threadInvokeStatic(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH(;);
   FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
+  FY_UPDATE_SP(context);
   SUPER_END;
 }
 
@@ -6056,7 +6250,7 @@ if (vm_debug) {
   ops = fy_threadInvokeVirtual(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
   FY_THEH(;);
   FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context, frame);
+  FY_UPDATE_SP(context);
   SUPER_END;
 }
 
@@ -8450,9 +8644,9 @@ LABEL2(fadd)
 NEXT_P2;
 }
 
-LABEL(getfield_n) /* getfield_n ( i1 -- ir) */
+LABEL(getfield) /* getfield ( i1 -- ir) */
 /*  */
-NAME("getfield_n")
+NAME("getfield")
 {
 DEF_CA
 fy_uint i1;
@@ -8481,7 +8675,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
     fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
   }
 #endif
-  RCAL(FY_OP_getfield_n);
+  RCAL(FY_OP_getfield);
 }
 
 }
@@ -8494,13 +8688,13 @@ fputc('\n', vm_out);
 #endif
 NEXT_P1;
 vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(getfield_n)
+LABEL2(getfield)
 NEXT_P2;
 }
 
-LABEL(putfield_n) /* putfield_n ( i1 i2 --) */
+LABEL(putfield) /* putfield ( i1 i2 --) */
 /*  */
-NAME("putfield_n")
+NAME("putfield")
 {
 DEF_CA
 fy_uint i1;
@@ -8527,7 +8721,7 @@ spp += -2;
     goto lable_throw_npt;
   }
   fy_heapValue(context, i1, CURR_INST.params.int_params.param1) = i2;
-  RCAL(FY_OP_putfield_n);
+  RCAL(FY_OP_putfield);
 }
 
 }
@@ -8539,7 +8733,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 #endif
 NEXT_P1;
 IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putfield_n)
+LABEL2(putfield)
 NEXT_P2;
 }
 
@@ -8624,9 +8818,51 @@ LABEL2(iastore)
 NEXT_P2;
 }
 
-LABEL(getstatic_n) /* getstatic_n ( -- ir) */
+LABEL(getstatic_cl) /* getstatic_cl ( -- ) */
 /*  */
-NAME("getstatic_n")
+NAME("getstatic_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+#ifdef FY_LATE_DECLARATION
+  fy_class *clazz1;
+#endif
+  clazz1 = CURR_INST.params.field->owner;
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
+            + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(getstatic);
+  UNDO_NEXT_P0;
+  goto getstatic_pre;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(getstatic_cl)
+NEXT_P2;
+}
+
+#ifdef FY_ENGINE_HEADER
+getstatic_pre:
+#endif
+LABEL(getstatic) /* getstatic ( -- ir) */
+/*  */
+NAME("getstatic")
 {
 DEF_CA
 fy_uint ir;
@@ -8640,7 +8876,8 @@ spp += 1;
 {
 
 {
-  RCAL(FY_OP_getstatic_n);
+  getstatic_body:
+  RCAL(FY_OP_getstatic);
 #ifdef VM_DEBUG
   if(vm_debug){
     fprintf(vm_out, " #getstatic %p# ", CURR_INST.params.isfield);
@@ -8664,13 +8901,55 @@ fputc('\n', vm_out);
 #endif
 NEXT_P1;
 vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(getstatic_n)
+LABEL2(getstatic)
 NEXT_P2;
 }
 
-LABEL(putstatic_n) /* putstatic_n ( i1 -- ) */
+LABEL(putstatic_cl) /* putstatic_cl ( -- ) */
 /*  */
-NAME("putstatic_n")
+NAME("putstatic_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+#ifdef FY_LATE_DECLARATION
+  fy_class *clazz1;
+#endif
+  clazz1 = CURR_INST.params.field->owner;
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
+            + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(putstatic);
+  UNDO_NEXT_P0;
+  goto putstatic_pre;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(putstatic_cl)
+NEXT_P2;
+}
+
+#ifdef FY_ENGINE_HEADER
+putstatic_pre:
+#endif
+LABEL(putstatic) /* putstatic ( i1 -- ) */
+/*  */
+NAME("putstatic")
 {
 DEF_CA
 fy_uint i1;
@@ -8685,7 +8964,13 @@ spp += -1;
 {
 
 {
-  RCAL(FY_OP_putstatic_n);
+  putstatic_body:
+  RCAL(FY_OP_putstatic);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, " #putstatic %p value=%"FY_PRINT32"d# ", CURR_INST.params.isfield, i1);
+  }
+#endif
   CURR_INST.params.isfield[0] = i1;
 }
 
@@ -8698,7 +8983,7 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 #endif
 NEXT_P1;
 IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putstatic_n)
+LABEL2(putstatic)
 NEXT_P2;
 }
 
@@ -8803,467 +9088,6 @@ LABEL2(ldc2_w)
 NEXT_P2;
 }
 
-LABEL(getfield) /* getfield ( i1 -- ir) */
-/*  */
-NAME("getfield")
-{
-DEF_CA
-fy_uint i1;
-fy_uint ir;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-{
-
-{
-  fy_field *field;
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH(;)
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  ir = fy_heapGetFieldInt(context, i1, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #value=%"FY_PRINT32"d# ", ir);
-  }
-#endif
-  FY_THEH(;)
-  CURR_INST.params.int_params.param1 = field->posAbs;
-  CURR_INST.params.int_params.param2 = 0;
-  MODIFY_CURR_INST(getfield_n);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(getfield)
-NEXT_P2;
-}
-
-LABEL(putfield) /* putfield ( i1 i2 --) */
-/*  */
-NAME("putfield")
-{
-DEF_CA
-fy_uint i1;
-fy_uint i2;
-NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" i2=", vm_out); printarg_i(i2);
-}
-#endif
-spp += -2;
-{
-
-{
-  fy_field *field;
-
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH(;)
-  }
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
-    FY_THEH(;)
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT32"d# ", field->utf8Name, i1, i2);
-  }
-#endif
-  fy_heapPutFieldInt(context, i1, field, i2, exception);
-  FY_THEH(;)
-  CURR_INST.params.int_params.param1 = field->posAbs;
-  CURR_INST.params.int_params.param2 = 0;
-  MODIFY_CURR_INST(putfield_n);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putfield)
-NEXT_P2;
-}
-
-LABEL(getfield_x) /* getfield_x ( i1 -- lr) */
-/*  */
-NAME("getfield_x")
-{
-DEF_CA
-fy_uint i1;
-fy_ulong lr;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-spp += 1;
-{
-
-{
-  fy_field *field;
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH(;)
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getfield %s from #%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  lr = fy_heapGetFieldLong(context, i1, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #value=%"FY_PRINT64"d# ", lr);
-  }
-#endif
-  FY_THEH(;)
-  CURR_INST.params.int_params.param1 = field->posAbs;
-  CURR_INST.params.int_params.param2 = 0;
-  MODIFY_CURR_INST(getfield_nx);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" lr=", vm_out); printarg_l(lr);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
-LABEL2(getfield_x)
-NEXT_P2;
-}
-
-LABEL(putfield_x) /* putfield_x ( i1 l1 --) */
-/*  */
-NAME("putfield_x")
-{
-DEF_CA
-fy_uint i1;
-fy_ulong l1;
-NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-fputs(" l1=", vm_out); printarg_l(l1);
-}
-#endif
-spp += -3;
-{
-
-{
-  fy_field *field;
-
-  field = CURR_INST.params.field;
-  if (unlikely(field->access_flags & FY_ACC_STATIC)) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static", field->utf8Name);
-    FY_THEH(;)
-  }
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && method->owner != field->owner)) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "field %s is final", field->utf8Name);
-    FY_THEH(;)
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putfield %s to #%"FY_PRINT32"d value=%"FY_PRINT64"d# ", field->utf8Name, i1, l1);
-  }
-#endif
-  fy_heapPutFieldLong(context, i1, field, l1, exception);
-  FY_THEH(;)
-  CURR_INST.params.int_params.param1 = field->posAbs;
-  CURR_INST.params.int_params.param2 = 0;
-  MODIFY_CURR_INST(putfield_nx);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putfield_x)
-NEXT_P2;
-}
-
-LABEL(getstatic) /* getstatic ( -- ir) */
-/*  */
-NAME("getstatic")
-{
-DEF_CA
-fy_uint ir;
-NEXT_P0;
-IF_sppTOS(spp[-1] = sppTOS);
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-spp += 1;
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  field = CURR_INST.params.field;
-  clazz1 = field->owner;
-  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
-    FY_THEH(;)
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
-  }
-#endif
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  ir = fy_heapGetStaticInt(context, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, ir);
-  }
-#endif
-  FY_THEH(;)
-  MODIFY_CURR_INST(getstatic_n);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(getstatic)
-NEXT_P2;
-}
-
-LABEL(putstatic) /* putstatic ( i1 -- ) */
-/*  */
-NAME("putstatic")
-{
-DEF_CA
-fy_uint i1;
-NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" i1=", vm_out); printarg_i(i1);
-}
-#endif
-spp += -1;
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  
-  field = CURR_INST.params.field;
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
-    FY_THEH(;)
-  }
-  clazz1 = field->owner;
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 1);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT32"d# ", field->utf8Name, i1);
-  }
-#endif
-  fy_heapPutStaticInt(context, field, i1, exception);
-  FY_THEH(;)
-  MODIFY_CURR_INST(putstatic_n);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putstatic)
-NEXT_P2;
-}
-
-LABEL(getstatic_x) /* getstatic_x ( -- lr) */
-/*  */
-NAME("getstatic_x")
-{
-DEF_CA
-fy_ulong lr;
-NEXT_P0;
-IF_sppTOS(spp[-1] = sppTOS);
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-spp += 2;
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-  field = CURR_INST.params.field;
-  clazz1 =  field->owner;
-  if (unlikely(!(field->access_flags & FY_ACC_STATIC))) {
-    fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static", field->utf8Name);
-    FY_THEH(;)
-  }
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s# ", field->utf8Name);
-  }
-#endif
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  lr = fy_heapGetStaticLong(context, field, exception);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #getstatic %s value = %"FY_PRINT64"d# ", field->utf8Name, lr);
-  }
-#endif
-  FY_THEH(;)
-  MODIFY_CURR_INST(getstatic_nx);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" lr=", vm_out); printarg_l(lr);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
-LABEL2(getstatic_x)
-NEXT_P2;
-}
-
-LABEL(putstatic_x) /* putstatic_x ( l1 -- ) */
-/*  */
-NAME("putstatic_x")
-{
-DEF_CA
-fy_ulong l1;
-NEXT_P0;
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" l1=", vm_out); printarg_l(l1);
-}
-#endif
-spp += -2;
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_field *field;
-  fy_class *clazz1;
-#endif
-
-  field = CURR_INST.params.field;
-  if (unlikely((field->access_flags & FY_ACC_FINAL) && (field->owner != method->owner))) {
-    fy_fault(exception, FY_EXCEPTION_ACCESS, "");
-    fy_strSPrint(exception->exceptionDesc, sizeof(exception->exceptionDesc), field->uniqueName);
-    FY_THEH(;)
-  }
-  clazz1 = field->owner;
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #to putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
-  }
-#endif
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 2);
-#ifdef VM_DEBUG
-  if(vm_debug){
-    fprintf(vm_out, " #putstatic %s value=%"FY_PRINT64"d# ", field->utf8Name, l1);
-  }
-#endif
-  fy_heapPutStaticLong(context, field, l1, exception);
-  FY_THEH(;)
-  MODIFY_CURR_INST(putstatic_nx);
-  CURR_INST.params.isfield = field->owner->staticArea + field->posAbs;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-IF_sppTOS(sppTOS = spp[-1]);
-LABEL2(putstatic_x)
-NEXT_P2;
-}
-
 LABEL(new) /* new ( -- ir) */
 /*  */
 NAME("new")
@@ -9323,7 +9147,12 @@ if (vm_debug) {
 {
 
 {
-  fy_fault(exception, CURR_INST.params.exception->exceptionName, CURR_INST.params.exception->exceptionDesc);
+  fy_fault(exception, CURR_INST.params.exception->exceptionName, "%s", CURR_INST.params.exception->exceptionDesc);
+#ifdef VM_DEBUG
+  if(vm_debug){
+    fprintf(vm_out, "fault: %s %s\n", CURR_INST.params.exception->exceptionName, CURR_INST.params.exception->exceptionDesc);
+  }
+#endif
   goto label_throw;
 }
 
