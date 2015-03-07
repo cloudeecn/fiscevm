@@ -274,12 +274,12 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 "IF_ACMPNE_B", /* 0xF5 */
 "GOTO_B", /* 0xF6 */
 "<undef>", /* 0xF7 */
-"<undef>", /* 0xF8 */
-"<undef>", /* 0xF9 */
-"<undef>", /* 0xFA */
-"<undef>", /* 0xFB */
-"<undef>", /* 0xFC */
-"<undef>", /* 0xFD */
+"INVOKE_D_CL", /* 0xF8 */
+"INVOKE_D", /* 0xF9 */
+"INVOKE_DN_CL", /* 0xFA */
+"INDOKE_DN", /* 0xFB */
+"INVOKE_DNP_CL", /* 0xFC */
+"INVOKE_DNP", /* 0xFD */
 
 "FAULT", /* 0xFE */
 "<undef>", /* 0xFF */

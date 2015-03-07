@@ -298,8 +298,11 @@
 #define FY_OP_if_acmpne_b  0xf5
 #define FY_OP_goto_b  0xf6
 
-#define FY_OP_invoke_d 0xfb
-#define FY_OP_invoke_dn 0xfc
+#define FY_OP_invoke_d_cl 0xf8
+#define FY_OP_invoke_d 0xf9
+#define FY_OP_invoke_dn_cl 0xfa
+#define FY_OP_invoke_dn 0xfb
+#define FY_OP_invoke_dnp_cl 0xfc
 #define FY_OP_invoke_dnp 0xfd
 #define FY_OP_fault  0xfe
 

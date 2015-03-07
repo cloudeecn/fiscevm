@@ -2821,6 +2821,22 @@ void fy_preverify(fy_context *context, fy_method *method,
 			}
 			break;
 		}
+		case FY_OP_invokestatic: {
+			tmethod = instruction->params.method;
+			instruction->params.invoke = fy_mmAllocatePerm(context->memblocks, sizeof(fy_invoke), exception);
+			FYEH();
+			if(instruction->params.method->access_flags == FY_ACC_NATIVE){
+
+			}else{
+				if(fy_threadCheckClinit(context, NULL, tmethod)){
+					op = FY_OP_invoke_d_cl;
+				} else {
+					op = FY_OP_invoke_d;
+				}
+			}
+
+			break;
+		}
 		default:
 			break;
 		}
