@@ -3,7 +3,7 @@
 	<groupId>com.cirnoworks.fisce</groupId>
 	<artifactId>fiscevm</artifactId>
 	<packaging>pom</packaging>
-	<version>2.8.0</version>
+	<version>3.0.0-SNAPSHOT</version>
 	<name>FiScE VM Build</name>
 	<url>https://github.com/cirnoworks/fiscevm</url>
 	<parent>
