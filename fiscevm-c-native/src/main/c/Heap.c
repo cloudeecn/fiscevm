@@ -1464,7 +1464,7 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 #endif
 
 	timeStamp = fy_portTimeMillSec(context->port);
-	marks = /*TEMP*/fy_allocate(fy_bitSizeToInt(MAX_OBJECTS), exception);
+	marks = /*TEMP*/fy_allocate(fy_bitSizeToInt(MAX_OBJECTS) * sizeof(fy_int), exception);
 	FYEG(RETURN);
 	fy_arrayListInit(context->memblocks, &from, sizeof(fy_uint),
 			context->totalObjects, exception);
