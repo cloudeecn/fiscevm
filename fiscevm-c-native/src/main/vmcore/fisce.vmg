@@ -1106,11 +1106,27 @@ multianewarray ( -- ir)
 \ #     # #       #     # #
 \ #     # ####### #     # #
 
-new_n ( -- ir)
+new_cl ( -- )
 {
+#ifdef FY_LATE_DECLARATION
+  fy_class *clazz1;
+#endif
+  clazz1 = CURR_INST.params.clazz;
+  /*!CLINIT*/
   fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  MODIFY_CURR_INST(new);
+  UNDO_NEXT_P0;
+  goto new_pre;
+}
+
+\C#ifdef FY_ENGINE_HEADER
+\Cnew_pre:
+\C#endif
+new ( -- ir)
+{
   ir = fy_heapAllocate(context, CURR_INST.params.clazz, exception);
-  FY_THEH(;)
+  FY_THEH(fy_localToFrame(context, frame);)
 }
 
 newarray (i1 -- ir)
@@ -1119,9 +1135,8 @@ newarray (i1 -- ir)
     ops = i1;
     goto label_throw_nase;
   }
-  fy_localToFrame(context, frame);
   ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
-  FY_THEH(;)
+  FY_THEH(fy_localToFrame(context, frame);)
 }
 
 getfield_x (i1 -- ir1 ir2)
@@ -1289,7 +1304,45 @@ monitorexit(i1 -- )
 \    #    #    ##   # #   #     # #   #   #
 \   ###   #     #    #    ####### #    #  #######
 
+invoke_d( -- )
+{
+  fy_localToFrame(context, frame);
+  frame->pcofs = 1;
+  ops = fy_threadPushMethod(context, thread, CURR_INST.params.invoke->method, 
+    spp - CURR_INST.params.invoke->paramCount, ops - 1, exception);
+  FYEH()0;
+  if (unlikely(ops <= 0)) {
+    FY_FALLOUT_INVOKE
+  }
+  ops = (*(CURR_INST.params.invoke->method->engine->runner))(context, thread, frame - 1, ops, exception, NULL);
+  FY_THEH(;);
+  FY_CHECK_OPS_INVOKE(ops);
+  FY_UPDATE_SP(context);
+  SUPER_END;
+}
 
+invoke_dn ( -- )
+{
+  fy_localToFrame(context, frame);
+  frame->pcofs = 1;
+  fy_heapBeginProtect(context);
+  ops = (CURR_INST.params.nh->handler)(context, thread, CURR_INST.params.nh->data, spp - CURR_INST.params.nh->stack_count, 
+    CURR_INST.params.nh->stack_count, ops, exception);
+  fy_heapEndProtect(context);
+  FY_THEH(;);
+  FY_CHECK_OPS_INVOKE(ops);
+  FY_UPDATE_SP(context);
+  SUPER_END;
+}
+
+invoke_dnp ( -- )
+{
+  fy_localToFrame(context, frame);
+  thread->pendingNative = *(CURR_INST.params.pendingNative);
+  thread->pendingNative.params = spp - CURR_INST.params.pendingNative->paramCount;
+  ops = 0;
+  FY_FALLOUT_INVOKE;
+}
 
 invokespecial ( -- )
 {
@@ -2081,24 +2134,6 @@ ldc2_w ( -- lr)
   MODIFY_CURR_INST(slpush);
   CURR_INST.params.int_params.param1 = fy_HOFL(lr);
   CURR_INST.params.int_params.param2 = fy_LOFL(lr);
-}
-
-new ( -- ir)
-{
-  fy_class *clazz1;
-  clazz1 = CURR_INST.params.clazz;
-  if (unlikely(clazz1->accessFlags
-      & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT))) {
-    fy_fault(exception, NULL, "InstantiationErro %s", clazz1->utf8Name);
-    FY_THEH(;);
-  }
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-
-  ir = fy_heapAllocate(context, clazz1, exception);
-  FY_THEH(;)
-  MODIFY_CURR_INST(new_n);
 }
 
 fault ( -- )

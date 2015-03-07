@@ -5558,9 +5558,49 @@ LABEL2(multianewarray)
 NEXT_P2;
 }
 
-LABEL(new_n) /* new_n ( -- ir) */
+LABEL(new_cl) /* new_cl ( -- ) */
 /*  */
-NAME("new_n")
+NAME("new_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+#ifdef FY_LATE_DECLARATION
+  fy_class *clazz1;
+#endif
+  clazz1 = CURR_INST.params.clazz;
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(clazz1, 0);
+  MODIFY_CURR_INST(new);
+  UNDO_NEXT_P0;
+  goto new_pre;
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(new_cl)
+NEXT_P2;
+}
+
+#ifdef FY_ENGINE_HEADER
+new_pre:
+#endif
+LABEL(new) /* new ( -- ir) */
+/*  */
+NAME("new")
 {
 DEF_CA
 fy_uint ir;
@@ -5574,9 +5614,8 @@ spp += 1;
 {
 
 {
-  fy_localToFrame(context, frame);
   ir = fy_heapAllocate(context, CURR_INST.params.clazz, exception);
-  FY_THEH(;)
+  FY_THEH(fy_localToFrame(context, frame);)
 }
 
 }
@@ -5589,7 +5628,7 @@ fputc('\n', vm_out);
 #endif
 NEXT_P1;
 vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(new_n)
+LABEL2(new)
 NEXT_P2;
 }
 
@@ -5614,9 +5653,8 @@ fputs(" i1=", vm_out); printarg_i(i1);
     ops = i1;
     goto label_throw_nase;
   }
-  fy_localToFrame(context, frame);
   ir = fy_heapAllocateArray(context, CURR_INST.params.clazz, i1, exception);
-  FY_THEH(;)
+  FY_THEH(fy_localToFrame(context, frame);)
 }
 
 }
@@ -9085,52 +9123,6 @@ fputc('\n', vm_out);
 NEXT_P1;
 vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
 LABEL2(ldc2_w)
-NEXT_P2;
-}
-
-LABEL(new) /* new ( -- ir) */
-/*  */
-NAME("new")
-{
-DEF_CA
-fy_uint ir;
-NEXT_P0;
-IF_sppTOS(spp[-1] = sppTOS);
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-spp += 1;
-{
-
-{
-  fy_class *clazz1;
-  clazz1 = CURR_INST.params.clazz;
-  if (unlikely(clazz1->accessFlags
-      & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT))) {
-    fy_fault(exception, NULL, "InstantiationErro %s", clazz1->utf8Name);
-    FY_THEH(;);
-  }
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-
-  ir = fy_heapAllocate(context, clazz1, exception);
-  FY_THEH(;)
-  MODIFY_CURR_INST(new_n);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputs(" ir=", vm_out); printarg_i(ir);
-fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
-LABEL2(new)
 NEXT_P2;
 }
 

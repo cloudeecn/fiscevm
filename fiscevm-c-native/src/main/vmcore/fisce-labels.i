@@ -266,7 +266,11 @@ INST_ADDR(laload),
 INST_ADDR(lastore),
 INST_ADDR(anewarray),
 INST_ADDR(multianewarray),
-INST_ADDR(new_n),
+INST_ADDR(new_cl),
+#ifdef FY_ENGINE_HEADER
+new_pre:
+#endif
+INST_ADDR(new),
 INST_ADDR(newarray),
 INST_ADDR(getfield_x),
 INST_ADDR(putfield_x),
@@ -360,7 +364,6 @@ INST_ADDR(putstatic),
 INST_ADDR(nop),
 INST_ADDR(ldc),
 INST_ADDR(ldc2_w),
-INST_ADDR(new),
 INST_ADDR(fault),
 #ifdef FY_ENGINE_HEADER
     ENGINE_BODY_END;

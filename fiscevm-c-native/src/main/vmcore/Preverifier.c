@@ -2754,14 +2754,31 @@ void fy_preverify(fy_context *context, fy_method *method,
 					op = FY_OP_putstatic_cl;
 				else if (op == FY_OP_putstatic_x)
 					op = FY_OP_putstatic_clx;
-			}else{
+			} else {
 				instruction->params.isfield = tfield->owner->staticArea
 						+ tfield->posAbs;
 			}
 			break;
-		default:
+		case FY_OP_new: {
+			if (unlikely(
+					instruction->params.clazz->accessFlags & (FY_ACC_INTERFACE | FY_ACC_ABSTRACT))) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception), NULL,
+						"InstantiationErro %s",
+						instruction->params.clazz->utf8Name);
+				FYEH();
+				break;
+			}
+			if (fy_threadCheckClinit(context, NULL, instruction->params.clazz)) {
+				op = FY_OP_new_cl;
+			}
 			break;
 		}
+		default:
+		break;
+	}
 		instruction->inst = labelsByOp[op];
 		method->c.i.instruction_ops[FY_PDIFF(fy_instruction, instruction,
 				method->c.i.instructions)] = op;
