@@ -6488,6 +6488,7 @@ spp += -1;
 
 {
   thread->currentThrowable = i1;
+  ops = 0;
   SUPER_END;
   FY_FALLOUT_NOINVOKE;
 }
