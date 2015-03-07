@@ -95,7 +95,7 @@ static void strict_validate(fy_context *context, fy_method *method,
 	}
 	if (sp < method->max_locals
 			|| sp > method->max_stack + method->max_locals) {
-		fy_fault(NULL, NULL, "Illegal ip:%"FY_PRINT32"d ipp: %p method %s", ip,
+		fy_fault(NULL, NULL, "Illegal sp: %d [%d - %d] at ip:%"FY_PRINT32"d ipp: %p method %s", sp,method->max_locals,method->max_stack + method->max_locals, ip,
 				instructions + ip, method->utf8Name);
 	}
 	if (inst_extra->sp != sp) {
@@ -146,7 +146,15 @@ static void strict_validate(fy_context *context, fy_method *method,
 # define MODIFY_CURR_INST(OP) {CURR_INST.inst=INST_OF(OP);method->c.i.instruction_ops[FY_PDIFF(fy_instruction, PCURR_INST, instructions)]=CODE_OF(OP);}
 #endif
 
-#define ENGINE_ENTER {NEXT_P0; SET_IP(frame->lpc += frame->pcofs); frame->pcofs = 0; NEXT_P1; spp = frame->baseSpp + method->c.i.instruction_extras[frame->lpc += frame->pcofs].sp; TRAP; NEXT_P2;}
+#define ENGINE_ENTER { \
+	frame->lpc += frame->pcofs; \
+	SET_IP(frame->lpc); \
+	frame->pcofs = 0; \
+	NEXT_P1; \
+	spp = frame->baseSpp + method->c.i.instruction_extras[frame->lpc += frame->pcofs].sp; \
+	TRAP; \
+	NEXT_P2; \
+}
 
 #if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
 
@@ -277,7 +285,6 @@ static void strict_validate(fy_context *context, fy_method *method,
 #  define PCURR_INST		(ipp-1)
 #  define CURR_INST		(*(ipp-1))
 #  define NEXT_INST	(*ipp)
-#  define INC_IP(const_inc)	{next_cfa=IP[const_inc]; ip+=(const_inc);}
 #  define DEF_CA
 #  define NEXT_P1	{cfa=next_cfa; ipp++; next_cfa=ipp->inst;}
 #  define NEXT_P2	{goto *cfa;}
@@ -376,13 +383,8 @@ enum {
  ####### #     #  #####    ###   #     # ####### #######
  */
 
-#if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
 # define FY_FALLOUT_INVOKE {goto label_fallout_invoke;}
 # define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); goto label_fallout_invoke;}
-#else
-# define FY_FALLOUT_INVOKE {SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
-# define FY_FALLOUT_NOINVOKE {fy_localToFrame(context, frame); SET_IP(FY_IP_dropout);NEXT_P1;NEXT_P2;}
-#endif
 
 # define FY_OP_GOTO {SET_IP(CURR_INST.params.int_params.param1);}
 # define FY_CHECK_OPS(OPS) if(unlikely(OPS <= 0)){FY_FALLOUT_NOINVOKE}
@@ -469,9 +471,16 @@ if(unlikely(OPS <= 0)){ \
 }
 #endif
 
+#ifdef FY_VERBOSE
+#define FY_UPDATE_SP(context) { \
+	context->logDVarLn(context, "Restore SP %d from %d", method->c.i.instruction_extras[frame->lpc + frame->pcofs].sp, frame->lpc + frame->pcofs); \
+	spp = sbase + method->c.i.instruction_extras[frame->lpc + frame->pcofs].sp; \
+}
+#else
 #define FY_UPDATE_SP(context) { \
 	spp = sbase + method->c.i.instruction_extras[frame->lpc + frame->pcofs].sp; \
 }
+#endif
 
 #define FY_THEH(FINALLY) \
 if(unlikely(exception->exceptionType != exception_none)){ \
