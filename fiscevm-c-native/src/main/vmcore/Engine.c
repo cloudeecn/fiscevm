@@ -496,12 +496,12 @@ static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
 	return (fy_e2_label) -1;
 }
 
-static void calc_repl(fy_context *context,
-		fy_method *method, fy_int op, fy_instruction *currInst,
-		fy_int engineNum, fy_e2_label_holder *labels,
+static void calc_repl(fy_context *context, fy_method *method, fy_int op,
+		fy_instruction *currInst, fy_int engineNum, fy_e2_label_holder *labels,
 		fy_exception *exception) {
 #define PAIR_OF(OP, NEXT_OP) ((OP) * 1031 + (NEXT_OP))
-    fy_engine_repl_data *engine_repl_data = &context->engines[engineNum].replData;
+	fy_engine_repl_data *engine_repl_data =
+			&context->engines[engineNum].replData;
 	fy_repl_data **repl_data = engine_repl_data->repl_data;
 	fy_hashMapI *repl_count = engine_repl_data->repl_count;
 	fy_hashMapI *repl_result = engine_repl_data->repl_result;
@@ -509,10 +509,15 @@ static void calc_repl(fy_context *context,
 	fy_int count;
 	fy_int toOp;
 	if (repl_data[op] != NULL) {
-		nextOp = method->c.i.instruction_ops[FY_PDIFF(fy_instruction, currInst, method->c.i.instructions) + 1];
+		nextOp = method->c.i.instruction_ops[FY_PDIFF(fy_instruction, currInst,
+				method->c.i.instructions) + 1];
 		if (nextOp < 0) {
-            WLOG(context, "Can't find op from label %p in engine %d method %s ip %d", currInst[1].inst, engineNum, method->utf8Name, FY_PDIFF(fy_instruction, currInst + 1, method->c.i.instructions));
-            nextOp = -1;
+			WLOG(context,
+					"Can't find op from label %p in engine %d method %s ip %d",
+					currInst[1].inst, engineNum, method->utf8Name,
+					FY_PDIFF(fy_instruction, currInst + 1,
+							method->c.i.instructions));
+			nextOp = -1;
 		} else if (repl_data[nextOp] == NULL) {
 			toOp = fy_hashMapIGet(context->memblocks, repl_result,
 					PAIR_OF(op, nextOp));
@@ -525,13 +530,13 @@ static void calc_repl(fy_context *context,
 						FY_OP_NAME[op], op, currInst->inst, FY_OP_NAME[nextOp], nextOp, FY_OP_NAME[toOp], toOp, currInst->inst, method->utf8Name, currInst)
 				;					//
 #endif
-				method->c.i.instruction_ops[FY_PDIFF(fy_instruction, currInst, method->c.i.instructions)] = toOp;
+				method->c.i.instruction_ops[FY_PDIFF(fy_instruction, currInst,
+						method->c.i.instructions)] = toOp;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
 				currInst->op = toOp;
 #endif
 				if (currInst->inst == (fy_e2_label) -1) {
-					fy_fault(exception, NULL,
-							"Can't find label for op %s(%d)",
+					fy_fault(exception, NULL, "Can't find label for op %s(%d)",
 							FY_OP_NAME[toOp], toOp);
 					FYEH();
 				}
@@ -584,8 +589,8 @@ static void calc_repl(fy_context *context,
 #define RCAL(OP)
 #endif
 
-static fy_int opLDC(fy_context *context,
-		fy_class *owner, fy_char index, fy_exception *exception) {
+static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
+		fy_exception *exception) {
 	ConstantStringInfo *constantStringInfo;
 	ConstantClass *constantClass;
 	fy_class *clazz;
@@ -618,8 +623,8 @@ static fy_int opLDC(fy_context *context,
 	}
 }
 
-static fy_long opLDC2(fy_context *context,
-		fy_class *owner, fy_char index, fy_exception *exception) {
+static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
+		fy_exception *exception) {
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Double:
 	case CONSTANT_Long:
