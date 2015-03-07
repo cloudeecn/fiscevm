@@ -55,6 +55,7 @@ FY_ATTR_EXPORT void fy_mmDestroy(fy_memblock *block);
 FY_ATTR_EXPORT void* fy_mmAllocate(fy_memblock *block, int size,
 		fy_exception *exception);
 FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address);
+FY_ATTR_EXPORT void fy_mmValidate(void *address);
 
 void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
 		fy_exception *exception);

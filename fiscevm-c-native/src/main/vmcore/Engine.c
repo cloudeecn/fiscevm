@@ -79,13 +79,45 @@
 #define sppTOS spp[-1]
 #endif
 
+#ifdef FY_STRICT_CHECK
+static void strict_validate(fy_context *context, fy_method *method,
+		fy_frame *frame, fy_int ip, fy_int sp) {
+	fy_instruction *instructions = method->c.i.instructions;
+	fy_instruction_extra *instruction_extras = method->c.i.instruction_extras;
+	fy_short *ops = method->c.i.instruction_ops;
+	fy_instruction *inst = instructions + ip;
+	fy_instruction_extra *inst_extra = instruction_extras + ip;
+	fy_stack_item *spp = frame->baseSpp + sp;
+	if (ip < 0 || ip > method->codeLength) {
+		fy_fault(NULL, NULL,
+				"Illegal ip:%"FY_PRINT32"d [0 - %"FY_PRINT32"d) ipp: %p method %s",
+				ip, method->codeLength, instructions + ip, method->utf8Name);
+	}
+	if (sp < method->max_locals
+			|| sp > method->max_stack + method->max_locals) {
+		fy_fault(NULL, NULL, "Illegal ip:%"FY_PRINT32"d ipp: %p method %s", ip,
+				instructions + ip, method->utf8Name);
+	}
+	if (inst_extra->sp != sp) {
+		fy_fault(NULL, NULL, "SP mismatch: %d -> %d at ip = %d of method %s",
+				inst_extra->sp, sp, ip, method->utf8Name);
+	}
+}
+# define VERIFY_ENV { \
+	ASSERT(sbase == frame->baseSpp) \
+	strict_validate(context, method, frame, FY_PDIFF(fy_instruction, PCURR_INST, instructions), FY_PDIFF(fy_stack_item, spp, sbase)); \
+}
+#else
+# define VERIFY_ENV
+#endif
+
 #ifdef ASM_SHOW
-# define NAME(_x) puts(_x);
+# define NAME(_x) VERIFY_ENV; puts(_x);
 #else
 # ifdef VM_DEBUG
-#  define NAME(_x) if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%5d ", spp, FY_PDIFF(fy_stack_item, spp, thread->stack));}
+#  define NAME(_x) VERIFY_ENV; if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%3d(%3d) ", spp, FY_PDIFF(fy_stack_item, spp, sbase), FY_PDIFF(fy_stack_item, spp, thread->stack));}
 # else
-#  define NAME(_x)
+#  define NAME(_x) VERIFY_ENV;
 # endif
 #endif
 

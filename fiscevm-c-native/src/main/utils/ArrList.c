@@ -42,6 +42,13 @@ FY_ATTR_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list,
 }
 
 FY_ATTR_EXPORT void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) {
+#ifdef FY_STRICT_CHECK
+	if(list->perm){
+		fy_fault(NULL, NULL, "Can't destroy perm list");
+	} else {
+		fy_mmValidate(list->data);
+	}
+#endif
 	fy_mmFree(block, list->data);
 	list->data = NULL;
 	list->length = -1;
@@ -51,7 +58,17 @@ FY_ATTR_EXPORT void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) 
 static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 		fy_exception *exception) {
 	void *data;
+#ifdef FY_STRICT_CHECK
+	if(!list->perm){
+		fy_mmValidate(list->data);
+	}
+#endif
 	if (list->maxLength < length) {
+#ifdef FY_STRICT_CHECK
+	if(list->perm){
+		fy_fault(NULL, NULL, "Can't enlarge perm list");
+	}
+#endif
 		while (list->maxLength < length)
 			list->maxLength <<= 1;
 		data = fy_mmAllocate(block, list->maxLength * list->entrySize,
@@ -60,20 +77,38 @@ static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 		memcpy(data, list->data, list->length * list->entrySize);
 		fy_mmFree(block, list->data);
 		list->data = data;
+#ifdef FY_STRICT_CHECK
+		fy_mmValidate(list->data);
+#endif
 	}
 }
 
 FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list,
 		void *data, fy_exception *exception) {
+#ifdef FY_STRICT_CHECK
+	if(!list->perm){
+		fy_mmValidate(list->data);
+	}
+#endif
 	ensureCap(block, list, list->length + 1, exception);
 	FYEH();
 
 	memcpy((fy_byte*) list->data + (list->length++) * list->entrySize, data,
 			list->entrySize);
+#ifdef FY_STRICT_CHECK
+	if(!list->perm){
+		fy_mmValidate(list->data);
+	}
+#endif
 }
 
 FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list,
 		fy_int pos, fy_exception *exception) {
+#ifdef FY_STRICT_CHECK
+	if(!list->perm){
+		fy_mmValidate(list->data);
+	}
+#endif
 	if (pos < 0 || pos >= list->length) {
 		fy_fault(exception, NULL, "Index out of bound %d/%d", pos,
 				list->length);
@@ -85,10 +120,20 @@ FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list,
 				list->entrySize * (list->length - pos - 1));
 	}
 	list->length--;
+#ifdef FY_STRICT_CHECK
+	if(!list->perm){
+		fy_mmValidate(list->data);
+	}
+#endif
 }
 
 static void* get(fy_arrayList *list, fy_int pos, void *storage) {
 	void *ret = (fy_byte*) list->data + pos * list->entrySize;
+#ifdef FY_STRICT_CHECK
+	if(!list->perm){
+		fy_mmValidate(list->data);
+	}
+#endif
 	if (storage != NULL) {
 		memcpy(storage, ret, list->entrySize);
 		return storage;

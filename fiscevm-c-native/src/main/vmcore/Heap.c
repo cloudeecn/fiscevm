@@ -1599,11 +1599,25 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 #ifdef FY_GC_DEBUG
 					context->logDVarLn(context, "#GC move %d.", i);
 #endif
+#ifdef FY_STRICT_CHECK
+					if (object->object_data == NULL
+							|| object->object_data->clazz == NULL
+							|| object->object_data->clazz->utf8Name == NULL) {
+						fy_fault(NULL, NULL, "Illegal object #%d", i);
+					}
+#endif
 					move(context, clazz, i, object, youngId, exception);
 					break;
 				case old:
 #ifdef FY_GC_DEBUG
 					context->logDVarLn(context, "#GC hold %d.", i);
+#endif
+#ifdef FY_STRICT_CHECK
+					if (object->object_data == NULL
+							|| object->object_data->clazz == NULL
+							|| object->object_data->clazz->utf8Name == NULL) {
+						fy_fault(NULL, NULL, "Illegal object #%d", i);
+					}
 #endif
 					break;
 				default: {
@@ -1619,6 +1633,13 @@ void fy_heapGC(void *ctx, fy_boolean memoryStressed, fy_exception *exception) {
 				tmpPointer = object->object_data;
 				object->object_data = (void*) 1234567890;
 				object->object_data = tmpPointer;
+#endif
+#ifdef FY_STRICT_CHECK
+				if (object->object_data == NULL
+						|| object->object_data->clazz == NULL
+						|| object->object_data->clazz->utf8Name == NULL) {
+					fy_fault(NULL, NULL, "Illegal object #%d", i);
+				}
 #endif
 				release(context, i);
 			}
