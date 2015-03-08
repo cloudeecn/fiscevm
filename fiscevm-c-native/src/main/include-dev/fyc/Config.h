@@ -64,6 +64,18 @@
 # define STACK_SIZE 16384
 #endif
 
+#ifndef EDEN_ENTRIES
+#define EDEN_ENTRIES   120000
+#endif
+
+#ifndef COPY_ENTRIES
+#define COPY_ENTRIES   120000
+#endif
+
+#ifndef OLD_ENTRIES
+#define OLD_ENTRIES   3800000
+#endif
+
 #ifndef FY_ENGINE_COUNT
 # define FY_ENGINE_COUNT 2
 #endif

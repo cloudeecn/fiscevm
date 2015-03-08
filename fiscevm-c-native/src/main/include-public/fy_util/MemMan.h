@@ -21,9 +21,7 @@
 #define FY_MEMMAN_H_
 
 #include "fy_util/Portable.h"
-#define EDEN_ENTRIES   120000
-#define COPY_ENTRIES   120000
-#define OLD_ENTRIES   2800000
+#include "fyc/Config.h"
 
 #ifdef	__cplusplus
 extern "C" {
