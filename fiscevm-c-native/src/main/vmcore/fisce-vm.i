@@ -5985,7 +5985,6 @@ fputs(" i1=", vm_out); printarg_i(i1);
   if(i1 == 0){
     ir = 0;
   } else {
-    fy_localToFrame(context, frame);
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
     clazz2 = CURR_INST.params.clazz;
     FY_THEH(;)
@@ -6078,6 +6077,38 @@ LABEL2(monitorexit)
 NEXT_P2;
 }
 
+LABEL(invoke_d_cl) /* invoke_d_cl ( -- ) */
+/*  */
+NAME("invoke_d_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_d);
+  FORWARD(invoke_d);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_d_cl)
+NEXT_P2;
+}
+
 LABEL(invoke_d) /* invoke_d ( -- ) */
 /*  */
 NAME("invoke_d")
@@ -6092,14 +6123,13 @@ if (vm_debug) {
 
 {
   fy_localToFrame(context, frame);
-  frame->pcofs = 1;
-  ops = fy_threadPushMethod(context, thread, CURR_INST.params.invoke->method, 
-    spp - CURR_INST.params.invoke->paramCount, ops - 1, exception);
+  ops = fy_threadPushMethod(context, thread, CURR_INST.params.invoke->n.nn.method, 
+    spp - CURR_INST.params.invoke->n.nn.paramCount, ops - 1, exception);
   FYEH()0;
   if (unlikely(ops <= 0)) {
     FY_FALLOUT_INVOKE
   }
-  ops = (*(CURR_INST.params.invoke->method->engine->runner))(context, thread, frame - 1, ops, exception, NULL);
+  ops = (*(CURR_INST.params.invoke->n.nn.method->engine->runner))(context, thread, frame - 1, ops, exception, NULL);
   FY_THEH(;);
   FY_CHECK_OPS_INVOKE(ops);
   FY_UPDATE_SP(context);
@@ -6118,6 +6148,38 @@ LABEL2(invoke_d)
 NEXT_P2;
 }
 
+LABEL(invoke_dn_cl) /* invoke_dn_cl ( -- ) */
+/*  */
+NAME("invoke_dn_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_dn);
+  FORWARD(invoke_dn);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_dn_cl)
+NEXT_P2;
+}
+
 LABEL(invoke_dn) /* invoke_dn ( -- ) */
 /*  */
 NAME("invoke_dn")
@@ -6132,10 +6194,11 @@ if (vm_debug) {
 
 {
   fy_localToFrame(context, frame);
-  frame->pcofs = 1;
   fy_heapBeginProtect(context);
-  ops = (CURR_INST.params.nh->handler)(context, thread, CURR_INST.params.nh->data, spp - CURR_INST.params.nh->stack_count, 
-    CURR_INST.params.nh->stack_count, ops, exception);
+  ops = (CURR_INST.params.invoke->n.nh.handler)(context, thread, 
+    CURR_INST.params.invoke->n.nh.data, 
+    spp - CURR_INST.params.invoke->n.nh.stack_count, 
+    CURR_INST.params.invoke->n.nh.stack_count, ops, exception);
   fy_heapEndProtect(context);
   FY_THEH(;);
   FY_CHECK_OPS_INVOKE(ops);
@@ -6155,6 +6218,38 @@ LABEL2(invoke_dn)
 NEXT_P2;
 }
 
+LABEL(invoke_dnp_cl) /* invoke_dnp_cl ( -- ) */
+/*  */
+NAME("invoke_dnp_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_dnp);
+  FORWARD(invoke_dnp);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_dnp_cl)
+NEXT_P2;
+}
+
 LABEL(invoke_dnp) /* invoke_dnp ( -- ) */
 /*  */
 NAME("invoke_dnp")
@@ -6169,8 +6264,8 @@ if (vm_debug) {
 
 {
   fy_localToFrame(context, frame);
-  thread->pendingNative = *(CURR_INST.params.pendingNative);
-  thread->pendingNative.params = spp - CURR_INST.params.pendingNative->paramCount;
+  thread->pendingNative = CURR_INST.params.invoke->n.pendingNative;
+  thread->pendingNative.params = spp - CURR_INST.params.invoke->n.pendingNative.paramCount;
   ops = 0;
   FY_FALLOUT_INVOKE;
 }
@@ -6184,76 +6279,6 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 #endif
 NEXT_P1;
 LABEL2(invoke_dnp)
-NEXT_P2;
-}
-
-LABEL(invokespecial) /* invokespecial ( -- ) */
-/*  */
-NAME("invokespecial")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  ops--;
-  fy_localToFrame(context, frame);
-  ops = fy_threadInvokeSpecial(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
-  FY_THEH(;);
-  FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokespecial)
-NEXT_P2;
-}
-
-LABEL(invokestatic) /* invokestatic ( -- ) */
-/*  */
-NAME("invokestatic")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  ops--;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(CURR_INST.params.method->owner, 0);
-  ops = fy_threadInvokeStatic(context, thread, frame, CURR_INST.params.method, spp, ops, exception);
-  FY_THEH(;);
-  FY_CHECK_OPS_INVOKE(ops);
-  FY_UPDATE_SP(context);
-  SUPER_END;
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invokestatic)
 NEXT_P2;
 }
 

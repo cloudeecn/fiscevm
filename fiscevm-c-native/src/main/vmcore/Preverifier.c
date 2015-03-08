@@ -26,6 +26,8 @@
 #include "fyc/Constants.h"
 #include "fyc/Instructions.h"
 
+extern fy_nh *FY_NH_NO_HANDLER;
+
 static fy_int code_length[255] = {
 /* 0x00 OP_NOP */1,
 
@@ -267,7 +269,7 @@ static fy_int code_length[255] = {
 
 };
 
-#ifdef FY_VERBOSE_XX
+#if 0
 # define FY_VERBOSE_PREVERIFIER
 #endif
 
@@ -410,16 +412,16 @@ static void parseStackItemInitial(fy_context *context, fy_stack_map_table *smt,
 		fy_instMarkStackItem(instruction_extra, 0, -1);
 		ofs = 1;
 	}
-	for (i = 0; i < localSize; i++) {
+	for (i = ofs; i < localSize; i++) {
 		if (method->paramTypes[i] == FY_TYPE_HANDLE) {
-			fy_instMarkStackItem(instruction_extra, i + ofs, -1);
+			fy_instMarkStackItem(instruction_extra, i, -1);
 		}
 	}
 #ifdef FY_VERBOSE_PREVERIFIER
 	context->logDVarLn(context, "FRAME: INITIAL");
 #endif
 	status->sc = 0;
-	status->localSize = localSize + ofs;
+	status->localSize = localSize;
 	status->lastFrame = instruction_extra;
 	status->frameNum = 0;
 	status->pc = -1;
@@ -914,6 +916,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 	fy_instruction_extra *exhi;
 	fy_method *tmethod;
 	fy_field *tfield;
+	fy_nh *tnh;
 
 	struct read_stack_status smtStatus;
 
@@ -1217,7 +1220,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 0, -1);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 1)
-				smtStatus.tmp->localSize = 1;
+			smtStatus.tmp->localSize = 1;
 #endif
 			break;
 		}
@@ -1229,7 +1232,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 1, -1);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 2)
-				smtStatus.tmp->localSize = 2;
+			smtStatus.tmp->localSize = 2;
 #endif
 			break;
 		}
@@ -1241,7 +1244,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 2, -1);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 3)
-				smtStatus.tmp->localSize = 3;
+			smtStatus.tmp->localSize = 3;
 #endif
 			break;
 		}
@@ -1253,7 +1256,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 3, -1);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 4)
-				smtStatus.tmp->localSize = 4;
+			smtStatus.tmp->localSize = 4;
 #endif
 			break;
 		}
@@ -1266,7 +1269,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 0, 0);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 1)
-				smtStatus.tmp->localSize = 1;
+			smtStatus.tmp->localSize = 1;
 #endif
 			break;
 		}
@@ -1279,7 +1282,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 1, 0);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 2)
-				smtStatus.tmp->localSize = 2;
+			smtStatus.tmp->localSize = 2;
 #endif
 			break;
 		}
@@ -1292,7 +1295,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 2, 0);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 3)
-				smtStatus.tmp->localSize = 3;
+			smtStatus.tmp->localSize = 3;
 #endif
 			break;
 		}
@@ -1305,7 +1308,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 3, 0);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 4)
-				smtStatus.tmp->localSize = 4;
+			smtStatus.tmp->localSize = 4;
 #endif
 			break;
 		}
@@ -1362,7 +1365,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 1, 0);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 2)
-				smtStatus.tmp->localSize = 2;
+			smtStatus.tmp->localSize = 2;
 #endif
 			break;
 		}
@@ -1376,7 +1379,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 2, 0);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 3)
-				smtStatus.tmp->localSize = 3;
+			smtStatus.tmp->localSize = 3;
 #endif
 			break;
 		}
@@ -1390,7 +1393,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 3, 0);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 4)
-				smtStatus.tmp->localSize = 4;
+			smtStatus.tmp->localSize = 4;
 #endif
 			break;
 		}
@@ -1404,7 +1407,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_instMarkStackItem(smtStatus.tmp, 4, 0);
 #ifdef FY_STRICT_CHECK
 			if (smtStatus.tmp->localSize < 5)
-				smtStatus.tmp->localSize = 5;
+			smtStatus.tmp->localSize = 5;
 #endif
 			break;
 		}
@@ -1913,20 +1916,20 @@ void fy_preverify(fy_context *context, fy_method *method,
 				FYEH();
 				switch(instruction->params.method->returnType) {
 					case FY_TYPE_INT: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 						break;
 					}
 					case FY_TYPE_HANDLE: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 						break;
 					}
 					case FY_TYPE_WIDE: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 2, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
@@ -1934,9 +1937,13 @@ void fy_preverify(fy_context *context, fy_method *method,
 						break;
 					}
 					case FY_TYPE_UNKNOWN: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage - 1, exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
+						break;
+					}
+					default: {
+						fy_fault(NULL, NULL, "Illegal return type for method %s", method->utf8Name);
 						break;
 					}
 				}
@@ -1950,12 +1957,12 @@ void fy_preverify(fy_context *context, fy_method *method,
 				FYEH();
 				switch(instruction->params.method->returnType) {
 					case FY_TYPE_INT: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage+1 , exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 						break;}
 					case FY_TYPE_HANDLE: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage +1, exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
@@ -1973,6 +1980,10 @@ void fy_preverify(fy_context *context, fy_method *method,
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						break;
 					}
+					default: {
+						fy_fault(NULL, NULL, "Illegal return type for method %s", method->utf8Name);
+						break;
+					}
 				}
 				break;
 			}
@@ -1984,27 +1995,31 @@ void fy_preverify(fy_context *context, fy_method *method,
 				FYEH();
 				switch(instruction->params.method->returnType) {
 					case FY_TYPE_INT: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 						break;}
 					case FY_TYPE_HANDLE: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 						break;}
 					case FY_TYPE_WIDE: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 2, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 						break;}
 					case FY_TYPE_UNKNOWN: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage - 1, exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
+						break;
+					}
+					default: {
+						fy_fault(NULL, NULL, "Illegal return type for method %s", method->utf8Name);
 						break;
 					}
 				}
@@ -2018,19 +2033,19 @@ void fy_preverify(fy_context *context, fy_method *method,
 				pc += 2;
 				switch(instruction->params.method->returnType) {
 					case FY_TYPE_INT: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, 0);
 						break;}
 					case FY_TYPE_HANDLE: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage , exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 1, -1);
 						break;
 					}
 					case FY_TYPE_WIDE: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 1, exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage + 2, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
 						fy_instMarkStackItem(smtStatus.tmp, smtStatus.tmp->sp - 2, 0);
@@ -2038,9 +2053,13 @@ void fy_preverify(fy_context *context, fy_method *method,
 						break;
 					}
 					case FY_TYPE_UNKNOWN: {
-						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage - 1, exception);
+						fy_instInitStackItem(context->memblocks, smtStatus.tmp, instruction_extra->sp - instruction->params.method->paramStackUsage, exception);
 						FYEH();
 						fy_instStackItemClone(instruction_extra, smtStatus.tmp);
+						break;
+					}
+					default: {
+						fy_fault(NULL, NULL, "Illegal return type for method %s", method->utf8Name);
 						break;
 					}
 				}
@@ -2324,13 +2343,14 @@ void fy_preverify(fy_context *context, fy_method *method,
 			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
 					"Can't verify %s, pc=%"FY_PRINT32"d stack underflow",
 					method->utf8Name, lpc);
-		} else if (instruction_extra->sp > method->max_locals + method->max_stack) {
+		} else if (instruction_extra->sp
+				> method->max_locals + method->max_stack) {
 			fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
 					"Can't verify %s, pc=%"FY_PRINT32"d stack overflow",
 					method->utf8Name, lpc);
 		}
-		for (i = instruction_extra->sp; i < method->max_locals + method->max_stack;
-				i++) {
+		for (i = instruction_extra->sp;
+				i < method->max_locals + method->max_stack; i++) {
 			context->logDVar(context, " ");
 		}
 		context->logDVarLn(context, " %-14s %08x %08x", FY_OP_NAME[op],
@@ -2823,44 +2843,220 @@ void fy_preverify(fy_context *context, fy_method *method,
 		}
 		case FY_OP_invokestatic: {
 			tmethod = instruction->params.method;
-			instruction->params.invoke = fy_mmAllocatePerm(context->memblocks,
-					sizeof(fy_invoke), exception);
-			FYEH();
-			if (instruction->params.method->access_flags == FY_ACC_NATIVE) {
-#ifdef FY_LATE_DECLARATION
-				fy_nh *nh;
-#endif
-				nh = tmethod->c.nh;
-				if (nh == NULL) {
-					nh = fy_hashMapGet(context->memblocks,
-							context->mapMUNameToNH, tmethod->uniqueName);
-					if (nh == NULL) {
-						nh = FY_NH_NO_HANDLER;
-					} else {
-						nh->stack_count = tmethod->paramStackUsage;
+			if (!(tmethod->access_flags & FY_ACC_STATIC)) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_INCOMPAT_CHANGE, "method %s is not static",
+						tmethod->utf8Name);
+				FYEH();
+				break;
+			}
+			if (tmethod->invoke == NULL) {
+				tmethod->invoke = fy_mmAllocatePerm(context->memblocks,
+						sizeof(fy_invoke), exception);
+				FYEH();
+				tmethod->invoke->clinit = tmethod->owner;
+				if (tmethod->access_flags & FY_ACC_NATIVE) {
+					tnh = tmethod->c.nh;
+					if (tnh == NULL) {
+						tnh = fy_hashMapGet(context->memblocks,
+								context->mapMUNameToNH, tmethod->uniqueName);
+						if (tnh == NULL) {
+							tnh = FY_NH_NO_HANDLER;
+						} else {
+							tnh->stack_count = tmethod->paramStackUsage;
+						}
+						tmethod->c.nh = tnh;
 					}
-					tmethod->c.nh = nh;
-				}
-				if (nh == FY_NH_NO_HANDLER) {
-					instruction->params.invoke->n.pendingNative =
-							fy_mmAllocatePerm(context->memblocks,
-									sizeof(fy_nativeCall), exception);
-					FYEH();
-					instruction->params.invoke->n.pendingNative->methodName = method->utf8Name;
-					instruction->params.invoke->n.pendingNative->paramCount = method->paramStackUsage;
+					if (tnh == FY_NH_NO_HANDLER) {
+						if (fy_threadCheckClinit(context, NULL,
+								tmethod->owner)) {
+							tmethod->invoke->op = FY_OP_invoke_dnp_cl;
+						} else {
+							tmethod->invoke->op = FY_OP_invoke_dnp;
+						}
+						tmethod->invoke->n.pendingNative.methodName =
+								method->utf8Name;
+						tmethod->invoke->n.pendingNative.paramCount =
+								method->paramStackUsage;
+						tmethod->invoke->n.pendingNative.params =
+						NULL;
+					} else {
+						if (fy_threadCheckClinit(context, NULL,
+								tmethod->owner)) {
+							tmethod->invoke->op = FY_OP_invoke_dn_cl;
+						} else {
+							tmethod->invoke->op = FY_OP_invoke_dn;
+						}
+						tmethod->invoke->n.nh = *tnh;
+					}
 				} else {
-					instruction->params.invoke->n.nh = nh;
+					if (fy_threadCheckClinit(context, NULL, tmethod->owner)) {
+						tmethod->invoke->op = FY_OP_invoke_d_cl;
+					} else {
+						tmethod->invoke->op = FY_OP_invoke_d;
+					}
+					tmethod->invoke->n.nn.method = tmethod;
+					tmethod->invoke->n.nn.paramCount = tmethod->paramStackUsage;
+				}
+			}
+			op = tmethod->invoke->op;
+			instruction->params.invoke = tmethod->invoke;
+			break;
+		}
+		case FY_OP_invokespecial: {
+			tmethod = instruction->params.method;
+			if (fy_strCmp(tmethod->name, context->sInit)
+					&& fy_classIsSuperClassOf(context, tmethod->owner,
+							method->owner)) {
+				/* call to method is not init and owned by super = call super.XXX() */
+				tmethod = fy_vmLookupMethodVirtualByMethod(context,
+						method->owner->s.super, tmethod, exception);
+				FYEH();
+				if (tmethod->owner != instruction->params.method->owner) {
+					op = FY_OP_fault;
+					instruction->params.exception = fy_fault(
+							fy_mmAllocatePerm(context->memblocks,
+									sizeof(fy_exception), exception),
+							FY_EXCEPTION_NO_METHOD, "%s",
+							instruction->params.method->utf8Name);
+					FYEH();
+					break;
 				}
 			} else {
-				if(fy_threadCheckClinit(context, NULL, tmethod)) {
-					op = FY_OP_invoke_d_cl;
-				} else {
-					op = FY_OP_invoke_d;
-				}
-				instruction->params.invoke->method = tmethod;
-				instruction->params.invoke->paramCount = tmethod->paramStackUsage;
+				/*Else call private or <init>*/
 			}
+			if (tmethod == NULL) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_ABSTRACT, "%s", tmethod->utf8Name);
+				FYEH();
+				break;
+			}
+			if (tmethod->access_flags & FY_ACC_STATIC) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_INCOMPAT_CHANGE, "method %s is static",
+						tmethod->utf8Name);
+				FYEH();
+				break;
+			}
+			if (tmethod->access_flags & FY_ACC_ABSTRACT) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_ABSTRACT, "%s", tmethod->utf8Name);
+				FYEH();
+				break;
+			}
+			if (tmethod->invoke == NULL) {
+				tmethod->invoke = fy_mmAllocatePerm(context->memblocks,
+						sizeof(fy_invoke), exception);
+				FYEH();
+				tmethod->invoke->clinit = tmethod->owner;
+				if (tmethod->access_flags & FY_ACC_NATIVE) {
+					tnh = tmethod->c.nh;
+					if (tnh == NULL) {
+						tnh = fy_hashMapGet(context->memblocks,
+								context->mapMUNameToNH, tmethod->uniqueName);
+						if (tnh == NULL) {
+							tnh = FY_NH_NO_HANDLER;
+						} else {
+							tnh->stack_count = tmethod->paramStackUsage;
+						}
+						tmethod->c.nh = tnh;
+					}
+					if (tnh == FY_NH_NO_HANDLER) {
+						tmethod->invoke->op = FY_OP_invoke_dnp;
+						tmethod->invoke->n.pendingNative.methodName =
+								method->utf8Name;
+						tmethod->invoke->n.pendingNative.paramCount =
+								method->paramStackUsage;
+						tmethod->invoke->n.pendingNative.params =
+						NULL;
+					} else {
+						tmethod->invoke->op = FY_OP_invoke_dn;
+						tmethod->invoke->n.nh = *tnh;
+					}
+				} else {
+					tmethod->invoke->op = FY_OP_invoke_d;
+					tmethod->invoke->n.nn.method = tmethod;
+					tmethod->invoke->n.nn.paramCount = tmethod->paramStackUsage;
+				}
+			}
+			op = tmethod->invoke->op;
+			instruction->params.invoke = tmethod->invoke;
+			break;
+		}
 
+		case FY_OP_invokevirtual: {
+			tmethod = instruction->params.method;
+			if(!(tmethod->access_flags & FY_ACC_FINAL)){
+				break;
+			}
+			if (tmethod->access_flags & FY_ACC_STATIC) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_INCOMPAT_CHANGE, "method %s is static",
+						tmethod->utf8Name);
+				FYEH();
+				break;
+			}
+			if (tmethod->access_flags & FY_ACC_ABSTRACT) {
+				op = FY_OP_fault;
+				instruction->params.exception = fy_fault(
+						fy_mmAllocatePerm(context->memblocks,
+								sizeof(fy_exception), exception),
+						FY_EXCEPTION_ABSTRACT, "%s", tmethod->utf8Name);
+				FYEH();
+				break;
+			}
+			if (tmethod->invoke == NULL) {
+				tmethod->invoke = fy_mmAllocatePerm(context->memblocks,
+						sizeof(fy_invoke), exception);
+				FYEH();
+				tmethod->invoke->clinit = tmethod->owner;
+				if (tmethod->access_flags & FY_ACC_NATIVE) {
+					tnh = tmethod->c.nh;
+					if (tnh == NULL) {
+						tnh = fy_hashMapGet(context->memblocks,
+								context->mapMUNameToNH, tmethod->uniqueName);
+						if (tnh == NULL) {
+							tnh = FY_NH_NO_HANDLER;
+						} else {
+							tnh->stack_count = tmethod->paramStackUsage;
+						}
+						tmethod->c.nh = tnh;
+					}
+					if (tnh == FY_NH_NO_HANDLER) {
+						tmethod->invoke->op = FY_OP_invoke_dnp;
+						tmethod->invoke->n.pendingNative.methodName =
+								method->utf8Name;
+						tmethod->invoke->n.pendingNative.paramCount =
+								method->paramStackUsage;
+						tmethod->invoke->n.pendingNative.params =
+						NULL;
+					} else {
+						tmethod->invoke->op = FY_OP_invoke_dn;
+						tmethod->invoke->n.nh = *tnh;
+					}
+				} else {
+					tmethod->invoke->op = FY_OP_invoke_d;
+					tmethod->invoke->n.nn.method = tmethod;
+					tmethod->invoke->n.nn.paramCount = tmethod->paramStackUsage;
+				}
+			}
+			op = tmethod->invoke->op;
+			instruction->params.invoke = tmethod->invoke;
 			break;
 		}
 		default:

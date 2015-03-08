@@ -36,8 +36,8 @@ union fy_stack_item {
 
 struct fy_nativeCall {
 	char *methodName;
-	fy_uint paramCount;
 	fy_stack_item *params;
+	fy_uint paramCount;
 };
 
 typedef enum fy_messageType {

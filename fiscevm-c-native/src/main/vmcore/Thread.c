@@ -497,7 +497,7 @@ static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
 		fy_exception *exception) {
-	fy_int count = method->paramStackUsage + 1;
+	fy_int count = method->paramStackUsage;
 	fy_method *actureMethod = NULL;
 #ifdef FY_VERBOSE
 	context->logDVar(context, "Invoke special: ");
@@ -562,7 +562,7 @@ fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
 fy_int fy_threadInvokeVirtual(fy_context *context, fy_thread *thread,
 		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
 		fy_exception *exception) {
-	fy_int count = method->paramStackUsage + 1;
+	fy_int count = method->paramStackUsage;
 	fy_method *actureMethod;
 	fy_class *clazz;
 #ifdef FY_VERBOSE

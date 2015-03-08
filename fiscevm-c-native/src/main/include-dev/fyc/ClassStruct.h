@@ -199,12 +199,10 @@ struct fy_method {
 	fy_char line_number_table_length;
 	fy_lineNumber* line_number_table;
 
-	/*The count of the parameters (long/double will be counted as 2)*/
+	/*The count of the parameters (long/double will be counted as 2 / including this for non-static methods)*/
 	fy_int paramStackUsage;
 	fy_byte *paramTypes;
 	fy_byte returnType;
-
-	fy_boolean clinit;
 
 	/*Used by reflection, contents refrences of class*/
 	/*Will not be saved in save-status, as it will be re-initialized when the class is reloaded */
@@ -212,6 +210,8 @@ struct fy_method {
 	fy_uint parameterCount;
 	fy_arrayList* parameterTypes;
 	fy_class *returnTypeClass;
+
+	fy_invoke *invoke;
 	fy_engine *engine;
 };
 

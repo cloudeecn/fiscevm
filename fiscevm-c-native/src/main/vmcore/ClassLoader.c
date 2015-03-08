@@ -710,7 +710,7 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 		method->paramTypes = fy_mmAllocatePerm(context->memblocks,
 				pc * sizeof(fy_byte), exception);
 		FYEH();
-		method->paramStackUsage = pc;
+		method->paramStackUsage = pc + ((method->access_flags & FY_ACC_STATIC)? 0 : 1);
 		memcpy(method->paramTypes, temp, pc * sizeof(fy_byte));
 		method->returnType = returnType;
 	}
