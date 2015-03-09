@@ -25,6 +25,7 @@
 #include "fyc/Preverifier.h"
 #include "fyc/Constants.h"
 #include "fyc/Instructions.h"
+#include "fyc/Class.h"
 
 extern fy_nh *FY_NH_NO_HANDLER;
 
