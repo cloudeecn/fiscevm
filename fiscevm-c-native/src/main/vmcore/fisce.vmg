@@ -1103,19 +1103,6 @@ multianewarray ( -- ir)
 \ #     # #       #     # #
 \ #     # ####### #     # #
 
-new_cl ( -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.clazz;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  MODIFY_CURR_INST(new);
-  FORWARD(new);
-}
-
 new ( -- ir)
 {
   fy_localToFrame(context, frame);
@@ -1167,20 +1154,6 @@ putfield_x (i1 i2 i3 --)
   fy_heapValue(context, i1, CURR_INST.params.int_params.param1 + 1) = i3;
 }
 
-getstatic_clx ( -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.field->owner;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
-  MODIFY_CURR_INST(getstatic_x);
-  FORWARD(getstatic_x);
-}
-
 getstatic_x( -- ir1 ir2)
 {
 #ifdef VM_DEBUG
@@ -1195,20 +1168,6 @@ getstatic_x( -- ir1 ir2)
     fprintf(vm_out, " #getstatic %p value = %"FY_PRINT64"d# ", CURR_INST.params.isfield, fy_I2TOL(ir1, ir2));
   }
 #endif
-}
-
-putstatic_clx ( -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.field->owner;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
-  MODIFY_CURR_INST(putstatic_x);
-  FORWARD(putstatic_x);
 }
 
 putstatic_x(i1 i2 -- )
@@ -1232,27 +1191,22 @@ putstatic_x(i1 i2 -- )
 
 checkcast ( -- )
 {
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.clazz;
-  fy_heapCheckCast(context, sppTOS.ivalue, clazz1, exception);
+  fy_heapCheckCast(context, sppTOS.ivalue, CURR_INST.params.clazz, exception);
   FY_THEH(;)
 }
 
 instanceof (i1 -- ir)
 {
 #ifdef FY_LATE_DECLARATION
-  fy_class *clazz1, *clazz2;
+  fy_class *clazz1;
 #endif
 
   if(i1 == 0){
     ir = 0;
   } else {
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
-    clazz2 = CURR_INST.params.clazz;
     FY_THEH(;)
-    ir = fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0;
+    ir = fy_classCanCastTo(context, clazz1, CURR_INST.params.clazz, TRUE) ? 1 : 0;
   }
 }
 
@@ -1291,15 +1245,6 @@ monitorexit(i1 -- )
 \    #    #    ##   # #   #     # #   #   #
 \   ###   #     #    #    ####### #    #  #######
 
-invoke_d_cl ( -- )
-{
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
-  MODIFY_CURR_INST(invoke_d);
-  FORWARD(invoke_d);
-}
-
 invoke_d( -- )
 {
   fy_localToFrame(context, frame);
@@ -1316,15 +1261,6 @@ invoke_d( -- )
   SUPER_END;
 }
 
-invoke_dn_cl ( -- )
-{
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
-  MODIFY_CURR_INST(invoke_dn);
-  FORWARD(invoke_dn);
-}
-
 invoke_dn ( -- )
 {
   fy_localToFrame(context, frame);
@@ -1338,15 +1274,6 @@ invoke_dn ( -- )
   FY_CHECK_OPS_INVOKE(ops);
   FY_UPDATE_SP(context);
   SUPER_END;
-}
-
-invoke_dnp_cl ( -- )
-{
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
-  MODIFY_CURR_INST(invoke_dnp);
-  FORWARD(invoke_dnp);
 }
 
 invoke_dnp ( -- )
@@ -1390,12 +1317,6 @@ return_sync_s ( -- )
 {
   fy_threadMonitorExit(context, thread, CURR_INST.params.int_params.param1, exception);
   FY_THEH(;)
-  FORWARD(return);
-}
-
-return_cl ( -- )
-{
-  method->owner->clinitThreadId = -1;
   FORWARD(return);
 }
 
@@ -2036,21 +1957,6 @@ iastore (i1 i2 i3 -- )
   FY_THEH(;)
 }
 
-getstatic_cl ( -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.field->owner;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
-            + CURR_INST.params.field->posAbs;
-  MODIFY_CURR_INST(getstatic);
-  FORWARD(getstatic);
-}
-
 getstatic ( -- ir)
 {
   getstatic_body:
@@ -2066,21 +1972,6 @@ getstatic ( -- ir)
     fprintf(vm_out, " #getstatic %p value=%"FY_PRINT32"d# ", CURR_INST.params.isfield, ir);
   }
 #endif
-}
-
-putstatic_cl ( -- )
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.field->owner;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
-            + CURR_INST.params.field->posAbs;
-  MODIFY_CURR_INST(putstatic);
-  FORWARD(putstatic);
 }
 
 putstatic (i1 -- )
@@ -2124,6 +2015,88 @@ ldc2_w ( -- lr)
   MODIFY_CURR_INST(slpush);
   CURR_INST.params.int_params.param1 = fy_HOFL(lr);
   CURR_INST.params.int_params.param2 = fy_LOFL(lr);
+}
+
+new_cl ( -- )
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.clazz, 0);
+  MODIFY_CURR_INST(new);
+  FORWARD(new);
+}
+
+getstatic_cl ( -- )
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.field->owner, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(getstatic);
+  FORWARD(getstatic);
+}
+
+putstatic_cl ( -- )
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.field->owner, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(putstatic);
+  FORWARD(putstatic);
+}
+
+getstatic_clx ( -- )
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.field->owner, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(getstatic_x);
+  FORWARD(getstatic_x);
+}
+
+putstatic_clx ( -- )
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.field->owner, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(putstatic_x);
+  FORWARD(putstatic_x);
+}
+
+invoke_d_cl ( -- )
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_d);
+  FORWARD(invoke_d);
+}
+
+invoke_dn_cl ( -- )
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_dn);
+  FORWARD(invoke_dn);
+}
+
+invoke_dnp_cl ( -- )
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_dnp);
+  FORWARD(invoke_dnp);
+}
+
+return_cl ( -- )
+{
+  method->owner->clinitThreadId = -1;
+  FORWARD(return);
 }
 
 fault ( -- )

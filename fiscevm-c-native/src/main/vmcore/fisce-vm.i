@@ -5554,42 +5554,6 @@ LABEL2(multianewarray)
 NEXT_P2;
 }
 
-LABEL(new_cl) /* new_cl ( -- ) */
-/*  */
-NAME("new_cl")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.clazz;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  MODIFY_CURR_INST(new);
-  FORWARD(new);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(new_cl)
-NEXT_P2;
-}
-
 LABEL(new) /* new ( -- ir) */
 /*  */
 NAME("new")
@@ -5765,43 +5729,6 @@ LABEL2(putfield_x)
 NEXT_P2;
 }
 
-LABEL(getstatic_clx) /* getstatic_clx ( -- ) */
-/*  */
-NAME("getstatic_clx")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.field->owner;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
-  MODIFY_CURR_INST(getstatic_x);
-  FORWARD(getstatic_x);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(getstatic_clx)
-NEXT_P2;
-}
-
 LABEL(getstatic_x) /* getstatic_x ( -- ir1 ir2) */
 /*  */
 NAME("getstatic_x")
@@ -5846,43 +5773,6 @@ NEXT_P1;
 vm_i2fy_stack_item(ir1,spp[-2]);
 vm_i2fy_stack_item(ir2,sppTOS);
 LABEL2(getstatic_x)
-NEXT_P2;
-}
-
-LABEL(putstatic_clx) /* putstatic_clx ( -- ) */
-/*  */
-NAME("putstatic_clx")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.field->owner;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
-  MODIFY_CURR_INST(putstatic_x);
-  FORWARD(putstatic_x);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(putstatic_clx)
 NEXT_P2;
 }
 
@@ -5941,11 +5831,7 @@ if (vm_debug) {
 {
 
 {
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.clazz;
-  fy_heapCheckCast(context, sppTOS.ivalue, clazz1, exception);
+  fy_heapCheckCast(context, sppTOS.ivalue, CURR_INST.params.clazz, exception);
   FY_THEH(;)
 }
 
@@ -5979,16 +5865,15 @@ fputs(" i1=", vm_out); printarg_i(i1);
 
 {
 #ifdef FY_LATE_DECLARATION
-  fy_class *clazz1, *clazz2;
+  fy_class *clazz1;
 #endif
 
   if(i1 == 0){
     ir = 0;
   } else {
     clazz1 = fy_heapGetClassOfObject(context, i1, exception);
-    clazz2 = CURR_INST.params.clazz;
     FY_THEH(;)
-    ir = fy_classCanCastTo(context, clazz1, clazz2, TRUE) ? 1 : 0;
+    ir = fy_classCanCastTo(context, clazz1, CURR_INST.params.clazz, TRUE) ? 1 : 0;
   }
 }
 
@@ -6077,38 +5962,6 @@ LABEL2(monitorexit)
 NEXT_P2;
 }
 
-LABEL(invoke_d_cl) /* invoke_d_cl ( -- ) */
-/*  */
-NAME("invoke_d_cl")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
-  MODIFY_CURR_INST(invoke_d);
-  FORWARD(invoke_d);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invoke_d_cl)
-NEXT_P2;
-}
-
 LABEL(invoke_d) /* invoke_d ( -- ) */
 /*  */
 NAME("invoke_d")
@@ -6148,38 +6001,6 @@ LABEL2(invoke_d)
 NEXT_P2;
 }
 
-LABEL(invoke_dn_cl) /* invoke_dn_cl ( -- ) */
-/*  */
-NAME("invoke_dn_cl")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
-  MODIFY_CURR_INST(invoke_dn);
-  FORWARD(invoke_dn);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invoke_dn_cl)
-NEXT_P2;
-}
-
 LABEL(invoke_dn) /* invoke_dn ( -- ) */
 /*  */
 NAME("invoke_dn")
@@ -6215,38 +6036,6 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 #endif
 NEXT_P1;
 LABEL2(invoke_dn)
-NEXT_P2;
-}
-
-LABEL(invoke_dnp_cl) /* invoke_dnp_cl ( -- ) */
-/*  */
-NAME("invoke_dnp_cl")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
-  MODIFY_CURR_INST(invoke_dnp);
-  FORWARD(invoke_dnp);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(invoke_dnp_cl)
 NEXT_P2;
 }
 
@@ -6373,35 +6162,6 @@ fputs(" -- ", vm_out); fputc('\n', vm_out);
 #endif
 NEXT_P1;
 LABEL2(return_sync_s)
-NEXT_P2;
-}
-
-LABEL(return_cl) /* return_cl ( -- ) */
-/*  */
-NAME("return_cl")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-  method->owner->clinitThreadId = -1;
-  FORWARD(return);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(return_cl)
 NEXT_P2;
 }
 
@@ -8803,44 +8563,6 @@ LABEL2(iastore)
 NEXT_P2;
 }
 
-LABEL(getstatic_cl) /* getstatic_cl ( -- ) */
-/*  */
-NAME("getstatic_cl")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.field->owner;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
-            + CURR_INST.params.field->posAbs;
-  MODIFY_CURR_INST(getstatic);
-  FORWARD(getstatic);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(getstatic_cl)
-NEXT_P2;
-}
-
 LABEL(getstatic) /* getstatic ( -- ir) */
 /*  */
 NAME("getstatic")
@@ -8883,44 +8605,6 @@ fputc('\n', vm_out);
 NEXT_P1;
 vm_i2fy_stack_item(ir,sppTOS);
 LABEL2(getstatic)
-NEXT_P2;
-}
-
-LABEL(putstatic_cl) /* putstatic_cl ( -- ) */
-/*  */
-NAME("putstatic_cl")
-{
-DEF_CA
-NEXT_P0;
-#ifdef VM_DEBUG
-if (vm_debug) {
-}
-#endif
-{
-
-{
-#ifdef FY_LATE_DECLARATION
-  fy_class *clazz1;
-#endif
-  clazz1 = CURR_INST.params.field->owner;
-  /*!CLINIT*/
-  fy_localToFrame(context, frame);
-  FY_ENGINE_CLINIT(clazz1, 0);
-  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea
-            + CURR_INST.params.field->posAbs;
-  MODIFY_CURR_INST(putstatic);
-  FORWARD(putstatic);
-}
-
-}
-
-#ifdef VM_DEBUG
-if (vm_debug) {
-fputs(" -- ", vm_out); fputc('\n', vm_out);
-}
-#endif
-NEXT_P1;
-LABEL2(putstatic_cl)
 NEXT_P2;
 }
 
@@ -9062,6 +8746,295 @@ fputc('\n', vm_out);
 NEXT_P1;
 vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
 LABEL2(ldc2_w)
+NEXT_P2;
+}
+
+LABEL(new_cl) /* new_cl ( -- ) */
+/*  */
+NAME("new_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.clazz, 0);
+  MODIFY_CURR_INST(new);
+  FORWARD(new);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(new_cl)
+NEXT_P2;
+}
+
+LABEL(getstatic_cl) /* getstatic_cl ( -- ) */
+/*  */
+NAME("getstatic_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.field->owner, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(getstatic);
+  FORWARD(getstatic);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(getstatic_cl)
+NEXT_P2;
+}
+
+LABEL(putstatic_cl) /* putstatic_cl ( -- ) */
+/*  */
+NAME("putstatic_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.field->owner, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(putstatic);
+  FORWARD(putstatic);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(putstatic_cl)
+NEXT_P2;
+}
+
+LABEL(getstatic_clx) /* getstatic_clx ( -- ) */
+/*  */
+NAME("getstatic_clx")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.field->owner, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(getstatic_x);
+  FORWARD(getstatic_x);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(getstatic_clx)
+NEXT_P2;
+}
+
+LABEL(putstatic_clx) /* putstatic_clx ( -- ) */
+/*  */
+NAME("putstatic_clx")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.field->owner, 0);
+  CURR_INST.params.isfield = CURR_INST.params.field->owner->staticArea + CURR_INST.params.field->posAbs;
+  MODIFY_CURR_INST(putstatic_x);
+  FORWARD(putstatic_x);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(putstatic_clx)
+NEXT_P2;
+}
+
+LABEL(invoke_d_cl) /* invoke_d_cl ( -- ) */
+/*  */
+NAME("invoke_d_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_d);
+  FORWARD(invoke_d);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_d_cl)
+NEXT_P2;
+}
+
+LABEL(invoke_dn_cl) /* invoke_dn_cl ( -- ) */
+/*  */
+NAME("invoke_dn_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_dn);
+  FORWARD(invoke_dn);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_dn_cl)
+NEXT_P2;
+}
+
+LABEL(invoke_dnp_cl) /* invoke_dnp_cl ( -- ) */
+/*  */
+NAME("invoke_dnp_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  /*!CLINIT*/
+  fy_localToFrame(context, frame);
+  FY_ENGINE_CLINIT(CURR_INST.params.invoke->clinit, 0);
+  MODIFY_CURR_INST(invoke_dnp);
+  FORWARD(invoke_dnp);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(invoke_dnp_cl)
+NEXT_P2;
+}
+
+LABEL(return_cl) /* return_cl ( -- ) */
+/*  */
+NAME("return_cl")
+{
+DEF_CA
+NEXT_P0;
+#ifdef VM_DEBUG
+if (vm_debug) {
+}
+#endif
+{
+
+{
+  method->owner->clinitThreadId = -1;
+  FORWARD(return);
+}
+
+}
+
+#ifdef VM_DEBUG
+if (vm_debug) {
+fputs(" -- ", vm_out); fputc('\n', vm_out);
+}
+#endif
+NEXT_P1;
+LABEL2(return_cl)
 NEXT_P2;
 }
 
