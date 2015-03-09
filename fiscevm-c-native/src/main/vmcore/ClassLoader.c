@@ -707,11 +707,15 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	}
 	fy_arrayListDestroy(context->memblocks, tmpList);
 	if (method != NULL) {
-		method->paramTypes = fy_mmAllocatePerm(context->memblocks,
-				pc * sizeof(fy_byte), exception);
-		FYEH();
 		method->paramStackUsage = pc + ((method->access_flags & FY_ACC_STATIC)? 0 : 1);
-		memcpy(method->paramTypes, temp, pc * sizeof(fy_byte));
+		method->paramTypes = fy_mmAllocatePerm(context->memblocks,
+				method->paramStackUsage * sizeof(fy_byte), exception);
+		FYEH();
+		memcpy(method->paramTypes + ((method->access_flags & FY_ACC_STATIC)? 0 : 1), temp, pc * sizeof(fy_byte));
+		if(!(method->access_flags & FY_ACC_STATIC)){
+			/*this*/
+			method->paramTypes[0] = FY_TYPE_HANDLE;
+		}
 		method->returnType = returnType;
 	}
 	fy_free(temp);
