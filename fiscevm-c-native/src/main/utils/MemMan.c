@@ -77,7 +77,6 @@ FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size,
 #ifdef FY_STRICT_CHECK
 	node->magic_before = *(fy_int*)block->first;
 	node->magic_before = *(fy_int*)block->last;
-	asm("");
 	node->magic_before = MAGIC_BEFORE;
 	node->magic_after = MAGIC_AFTER;
 	*((fy_uint*) ((char*) node + sizeof(fy_memblockNode) + size)) =

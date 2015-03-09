@@ -363,7 +363,8 @@ static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz)
 	return NULL;
 }
 
-fy_class *fy_threadCheckClinit(fy_context *context, fy_thread *thread, fy_class *clazz) {
+fy_class *fy_threadCheckClinit(fy_context *context, fy_thread *thread,
+		fy_class *clazz) {
 	return clinit(context, thread, clazz);
 }
 
@@ -886,6 +887,11 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 		ipp = method->c.i.instruction_extras + frame->lpc + frame->pcofs;
 		maxSp = ipp->sp;
 		sbase = frame->baseSpp;
+#ifdef FY_GC_DEBUG
+		context->logDVarLn(context,
+				"#ScanThread1 frame #%d sbase=%p maxSp=%d maxSpp=%p method=%s",
+				frameId, sbase, maxSp, sbase+maxSp, method->utf8Name);
+#endif
 		for (i = 0; i < maxSp; i++) {
 			if (fy_instGetStackItem(ipp, i)) {
 				handle = sbase[i].uvalue;
@@ -897,6 +903,12 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 				object = fy_heapGetObject(context, handle);
 				if (object->object_data->data != NULL) {
 					/*Valid handle*/
+#ifdef FY_GC_DEBUG
+					context->logDVarLn(context,
+							"#ScanThread1 add(%d) from thread #%d sp %d %s",
+							handle, thread->threadId, i,
+							frame->method->utf8Name);
+#endif
 					fy_arrayListAdd(context->memblocks, from, &handle,
 							exception);
 					FYEH();
@@ -911,6 +923,11 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 			- ((frame->lpc + frame->pcofs >= method->codeLength) & 1);
 	maxSp = fy_maxi(ipp->sp, nipp->sp);
 	sbase = frame->baseSpp;
+#ifdef FY_GC_DEBUG
+		context->logDVarLn(context,
+				"#ScanThread2 frame #%d sbase=%p maxSp=%d maxSpp=%p method=%s",
+				frameId, sbase, maxSp, sbase+maxSp, method->utf8Name);
+#endif
 	for (i = 0; i < maxSp; i++) {
 		if (fy_instGetStackItem(ipp, i) || fy_instGetStackItem(nipp, i)) {
 			handle = sbase[i].uvalue;
@@ -922,6 +939,11 @@ void fy_threadScanRef(fy_context *context, fy_thread *thread,
 			object = fy_heapGetObject(context, handle);
 			if (object->object_data->data != NULL) {
 				/*Valid handle*/
+#ifdef FY_GC_DEBUG
+				context->logDVarLn(context,
+						"#ScanThread2 add(%d) from thread #%d sp %d %s", handle,
+						thread->threadId, i, frame->method->utf8Name);
+#endif
 				fy_arrayListAdd(context->memblocks, from, &handle, exception);
 				FYEH();
 			}

@@ -34,8 +34,15 @@
 #include "fyc/Instructions.h"
 #include <math.h>
 
+
 #ifdef FY_VERBOSE
-#define VM_DEBUG
+# ifndef VM_DEBUG
+#  define VM_DEBUG
+# endif
+#else
+# ifdef VM_DEBUG
+fy_uint vm_debug = 0;
+# endif
 #endif
 
 #if 0
@@ -458,11 +465,11 @@ if(unlikely(OPS <= 0)){ \
 	O=((fy_ulong)O<<32)+((fy_ulong)sbase[(P)+1].uvalue); \
 }
 
-#ifdef FY_VERBOSE
+#ifdef VM_DEBUG
 #define fy_localToFrame(context,ptrFrame) { \
 	ptrFrame->lpc = FY_PDIFF(fy_instruction, PCURR_INST, instructions); \
 	ptrFrame->pcofs = 1; \
-	context->logDVar(context, " #frame[%p]->lpc=%"FY_PRINT32"d nextpc=%"FY_PRINT32"d\n", ptrFrame, ptrFrame->lpc, ptrFrame->lpc + ptrFrame->pcofs); \
+	if(vm_debug) context->logDVar(context, " #frame[%p]->lpc=%"FY_PRINT32"d nextpc=%"FY_PRINT32"d\n", ptrFrame, ptrFrame->lpc, ptrFrame->lpc + ptrFrame->pcofs); \
 }
 #else
 #define fy_localToFrame(context,ptrFrame) { \

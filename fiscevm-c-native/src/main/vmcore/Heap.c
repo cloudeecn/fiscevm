@@ -30,6 +30,10 @@
 #include "fyc/Thread.h"
 #include "fyc/Debug.h"
 
+#if defined(VM_DEBUG) && !defined(FY_VERBOSE)
+extern fy_uint vm_debug;
+#endif
+
 #if 0
 # ifndef FY_GC_DEBUG
 #  define FY_GC_DEBUG
@@ -81,7 +85,6 @@ static int allocate(fy_context *context, fy_int size, fy_class *clazz,
 	context->logDVarLn(context, "");
 #endif
 	obj = fy_heapGetObject(context, handle);
-
 	switch (pos) {
 	case automatic:
 		if (size > (COPY_ENTRIES >> 1)) {

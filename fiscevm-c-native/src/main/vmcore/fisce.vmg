@@ -24,9 +24,7 @@
 \C
 \C
 \C  fy_method *method = NULL;
-\C#endif
 \C
-\C#ifndef FY_LATE_DECLARATION
 \C  fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
 \C  fy_class *clazz1, *clazz2;
 \C  fy_field *field;
@@ -44,7 +42,9 @@
 \C
 \C#ifdef VM_DEBUG
 \C  FILE *vm_out = stdout;
-\C  const fy_uint vm_debug = 1;
+\C# ifdef FY_VERBOSE
+\C    const fy_uint vm_debug = 1;
+\C# endif
 \C#endif
 \C
 \C  if(unlikely(thread == NULL)){
@@ -80,14 +80,14 @@
 \C    if(frame->lpc + frame->pcofs == FY_IP_begin){
 \C#ifndef FY_LATE_DECLARATION
 \C      fy_uint i1, i2;
-\C      fprintf(vm_out, "[")
+\C#endif
+\C      fprintf(vm_out, "[");
 \C      i2 = method->max_locals + method->max_stack;
 \C      for(i1 = 0; i1 < i2; i1++){
 \C        printarg_i(sbase + i1);
 \C        if(i1 < i2 - 1) fputs(", ", vm_out);
 \C      }
 \C      fputs("]\n", vm_out);
-\C#endif
 \C    }
 \C  }
 \C#endif

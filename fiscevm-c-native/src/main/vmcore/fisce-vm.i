@@ -24,9 +24,7 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 
 
   fy_method *method = NULL;
-#endif
 
-#ifndef FY_LATE_DECLARATION
   fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
   fy_class *clazz1, *clazz2;
   fy_field *field;
@@ -44,7 +42,9 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 
 #ifdef VM_DEBUG
   FILE *vm_out = stdout;
-  const fy_uint vm_debug = 1;
+# ifdef FY_VERBOSE
+    const fy_uint vm_debug = 1;
+# endif
 #endif
 
   if(unlikely(thread == NULL)){
@@ -80,14 +80,14 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
     if(frame->lpc + frame->pcofs == FY_IP_begin){
 #ifndef FY_LATE_DECLARATION
       fy_uint i1, i2;
-      fprintf(vm_out, "[")
+#endif
+      fprintf(vm_out, "[");
       i2 = method->max_locals + method->max_stack;
       for(i1 = 0; i1 < i2; i1++){
         printarg_i(sbase + i1);
         if(i1 < i2 - 1) fputs(", ", vm_out);
       }
       fputs("]\n", vm_out);
-#endif
     }
   }
 #endif
