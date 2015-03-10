@@ -2879,9 +2879,9 @@ void fy_preverify(fy_context *context, fy_method *method,
 							tmethod->invoke->op = FY_OP_invoke_dnp;
 						}
 						tmethod->invoke->n.pendingNative.methodName =
-								method->utf8Name;
+								tmethod->utf8Name;
 						tmethod->invoke->n.pendingNative.paramCount =
-								method->paramStackUsage;
+								tmethod->paramStackUsage;
 						tmethod->invoke->n.pendingNative.params =
 						NULL;
 					} else {
@@ -2977,9 +2977,9 @@ void fy_preverify(fy_context *context, fy_method *method,
 					if (tnh == FY_NH_NO_HANDLER) {
 						tmethod->invoke->op = FY_OP_invoke_dnp;
 						tmethod->invoke->n.pendingNative.methodName =
-								method->utf8Name;
+								tmethod->utf8Name;
 						tmethod->invoke->n.pendingNative.paramCount =
-								method->paramStackUsage;
+								tmethod->paramStackUsage;
 						tmethod->invoke->n.pendingNative.params =
 						NULL;
 					} else {
@@ -3041,9 +3041,9 @@ void fy_preverify(fy_context *context, fy_method *method,
 					if (tnh == FY_NH_NO_HANDLER) {
 						tmethod->invoke->op = FY_OP_invoke_dnp;
 						tmethod->invoke->n.pendingNative.methodName =
-								method->utf8Name;
+								tmethod->utf8Name;
 						tmethod->invoke->n.pendingNative.paramCount =
-								method->paramStackUsage;
+								tmethod->paramStackUsage;
 						tmethod->invoke->n.pendingNative.params =
 						NULL;
 					} else {

@@ -78,13 +78,13 @@
 \C    fy_strFPrint(vm_out, method->uniqueName);
 \C    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, thread->stack));
 \C    if(frame->lpc + frame->pcofs == FY_IP_begin){
-\C#ifndef FY_LATE_DECLARATION
+\C#ifdef FY_LATE_DECLARATION
 \C      fy_uint i1, i2;
 \C#endif
 \C      fprintf(vm_out, "[");
 \C      i2 = method->max_locals + method->max_stack;
 \C      for(i1 = 0; i1 < i2; i1++){
-\C        printarg_i(sbase + i1);
+\C        printarg_i(sbase[i1].ivalue);
 \C        if(i1 < i2 - 1) fputs(", ", vm_out);
 \C      }
 \C      fputs("]\n", vm_out);

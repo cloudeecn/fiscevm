@@ -156,6 +156,11 @@ else()
 	endif()
 endif()
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+	message("Disable LTO in debug mode")
+	set(OPTIMIZE_LTO OFF)
+endif()
+
 message("Result: following options enabled:")
 
 if(OPTIMIZE_BTO)

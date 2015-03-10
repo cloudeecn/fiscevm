@@ -78,13 +78,13 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
     fy_strFPrint(vm_out, method->uniqueName);
     fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, thread->stack));
     if(frame->lpc + frame->pcofs == FY_IP_begin){
-#ifndef FY_LATE_DECLARATION
+#ifdef FY_LATE_DECLARATION
       fy_uint i1, i2;
 #endif
       fprintf(vm_out, "[");
       i2 = method->max_locals + method->max_stack;
       for(i1 = 0; i1 < i2; i1++){
-        printarg_i(sbase + i1);
+        printarg_i(sbase[i1].ivalue);
         if(i1 < i2 - 1) fputs(", ", vm_out);
       }
       fputs("]\n", vm_out);
