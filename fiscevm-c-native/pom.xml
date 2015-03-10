@@ -718,7 +718,7 @@
 											<arg value="-O3" />
 											<arg value="-bundle" />
 											<arg value="-Wl,-headerpad_max_install_names" />
-											<arg value="-m64" />
+											<arg value="-m32" />
 											<arg value="-fPIC" />
 											<arg value="-flto" />
 											<arg value="-I${basedir}/src/main/include" />
