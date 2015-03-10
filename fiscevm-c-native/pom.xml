@@ -88,7 +88,7 @@
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
@@ -193,7 +193,7 @@
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=ON" />
 											<arg value="-DENABLE_64=ON" />
@@ -220,7 +220,7 @@
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=ON" />
 											<arg value="-DENABLE_64=ON" />
@@ -246,7 +246,7 @@
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=ON" />
 											<arg value="-DENABLE_64=ON" />
@@ -274,7 +274,7 @@
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=ON" />
 											<arg value="-DENABLE_64=ON" />
@@ -393,7 +393,7 @@
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=ON" />
 											<arg value="-DENABLE_64=ON" />
@@ -480,7 +480,7 @@
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
@@ -528,7 +528,7 @@
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
@@ -576,7 +576,7 @@
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
@@ -595,7 +595,7 @@
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
@@ -807,7 +807,7 @@
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
@@ -838,7 +838,7 @@
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
-											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
