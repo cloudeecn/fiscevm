@@ -1,12 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>fiscevm-c-native</artifactId>
 	<name>FiScE Virtual Machine C bridge (native code)</name>
 	<parent>
 		<groupId>com.cirnoworks.fisce</groupId>
 		<artifactId>fiscevm</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.0</version>
 	</parent>
 	<properties>
 		<cross.prefix.win32>i686-w64-mingw32</cross.prefix.win32>
@@ -35,9 +34,7 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-out/native" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-out/native"
-											failonerror="true">
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-out/native" failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -46,9 +43,7 @@
 											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-out/native"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-out/native" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -61,9 +56,7 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test-java/native" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-test-java/native"
-											failonerror="true">
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test-java/native" failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Debug" />
 											<arg value="-DBUILD_TEST=OFF" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -72,9 +65,7 @@
 											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-test-java/native"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-test-java/native" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -87,18 +78,14 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test/native" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-test/native"
-											failonerror="true">
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test/native" failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
 											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-test/native"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-test/native" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -110,10 +97,7 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<exec
-											executable="${project.build.directory}/libfisce-test/native/fisce-test"
-											dir="${project.build.directory}/libfisce-test/native/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/native/fisce-test" dir="${project.build.directory}/libfisce-test/native/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
 									</tasks>
@@ -192,9 +176,7 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test/linux-strict" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-test/linux-strict"
-											failonerror="true">
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test/linux-strict" failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -204,9 +186,7 @@
 											<arg value="-DSTRICT_MODE=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-test/linux-strict"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-test/linux-strict" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -219,9 +199,7 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test/linux" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-test/linux"
-											failonerror="true">
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test/linux" failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -230,9 +208,7 @@
 											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-test/linux"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-test/linux" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -245,9 +221,7 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test/linux-switch" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-test/linux-switch"
-											failonerror="true">
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test/linux-switch" failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -258,9 +232,7 @@
 											<arg value="-DREPL_MIN=0" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-test/linux-switch"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-test/linux-switch" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -273,9 +245,7 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test/linux-ansi" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-test/linux-ansi"
-											failonerror="true">
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test/linux-ansi" failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -285,9 +255,7 @@
 											<arg value="-DANSI_ONLY=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-test/linux-ansi"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-test/linux-ansi" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -299,16 +267,10 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<exec
-											executable="${project.build.directory}/libfisce-test/linux/fisce-test"
-											dir="${project.build.directory}/libfisce-test/linux/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/linux/fisce-test" dir="${project.build.directory}/libfisce-test/linux/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
-										<exec
-											executable="${project.build.directory}/libfisce-test/linux/fisce-test64"
-											dir="${project.build.directory}/libfisce-test/linux/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/linux/fisce-test64" dir="${project.build.directory}/libfisce-test/linux/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
 									</tasks>
@@ -322,16 +284,10 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<exec
-											executable="${project.build.directory}/libfisce-test/linux-switch/fisce-test"
-											dir="${project.build.directory}/libfisce-test/linux-switch/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/linux-switch/fisce-test" dir="${project.build.directory}/libfisce-test/linux-switch/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
-										<exec
-											executable="${project.build.directory}/libfisce-test/linux-switch/fisce-test64"
-											dir="${project.build.directory}/libfisce-test/linux-switch/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/linux-switch/fisce-test64" dir="${project.build.directory}/libfisce-test/linux-switch/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
 									</tasks>
@@ -345,16 +301,10 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<exec
-											executable="${project.build.directory}/libfisce-test/linux-ansi/fisce-test"
-											dir="${project.build.directory}/libfisce-test/linux-ansi/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/linux-ansi/fisce-test" dir="${project.build.directory}/libfisce-test/linux-ansi/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
-										<exec
-											executable="${project.build.directory}/libfisce-test/linux-ansi/fisce-test64"
-											dir="${project.build.directory}/libfisce-test/linux-ansi/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/linux-ansi/fisce-test64" dir="${project.build.directory}/libfisce-test/linux-ansi/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
 									</tasks>
@@ -368,16 +318,10 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<exec
-											executable="${project.build.directory}/libfisce-test/linux-strict/fisce-test"
-											dir="${project.build.directory}/libfisce-test/linux-strict/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/linux-strict/fisce-test" dir="${project.build.directory}/libfisce-test/linux-strict/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
-										<exec
-											executable="${project.build.directory}/libfisce-test/linux-strict/fisce-test64"
-											dir="${project.build.directory}/libfisce-test/linux-strict/"
-											failonerror="true">
+										<exec executable="${project.build.directory}/libfisce-test/linux-strict/fisce-test64" dir="${project.build.directory}/libfisce-test/linux-strict/" failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
 									</tasks>
@@ -392,9 +336,7 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-out/linux" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-out/linux"
-											failonerror="true">
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-out/linux" failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -403,9 +345,7 @@
 											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-out/linux"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-out/linux" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -476,11 +416,8 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test/win32" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-test/win32"
-											failonerror="true">
-											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test/win32" failonerror="true">
+											<arg value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
@@ -490,9 +427,7 @@
 											<arg value="-DENABLE_64=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-test/win32"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-test/win32" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -504,11 +439,8 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<exec executable="wine"
-											dir="${project.build.directory}/libfisce-test/win32/"
-											failonerror="true">
-											<arg
-												value="${project.build.directory}/libfisce-test/win32/fisce-test" />
+										<exec executable="wine" dir="${project.build.directory}/libfisce-test/win32/" failonerror="true">
+											<arg value="${project.build.directory}/libfisce-test/win32/fisce-test" />
 											<arg value="../fisce_scripts" />
 										</exec>
 									</tasks>
@@ -524,11 +456,8 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test/win64" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-test/win64"
-											failonerror="true">
-											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-test/win64" failonerror="true">
+											<arg value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=ON" />
@@ -538,9 +467,7 @@
 											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-test/win64"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-test/win64" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -552,11 +479,8 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<exec executable="wine"
-											dir="${project.build.directory}/libfisce-test/win64/"
-											failonerror="true">
-											<arg
-												value="${project.build.directory}/libfisce-test/win64/fisce-test64" />
+										<exec executable="wine" dir="${project.build.directory}/libfisce-test/win64/" failonerror="true">
+											<arg value="${project.build.directory}/libfisce-test/win64/fisce-test64" />
 											<arg value="../fisce_scripts" />
 										</exec>
 									</tasks>
@@ -572,11 +496,8 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-out/win32" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-out/win32"
-											failonerror="true">
-											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-out/win32" failonerror="true">
+											<arg value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
@@ -586,16 +507,11 @@
 											<arg value="-DENABLE_64=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-out/win32"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-out/win32" failonerror="true" />
 
 										<mkdir dir="${project.build.directory}/libfisce-out/win64" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/libfisce-out/win64"
-											failonerror="true">
-											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
+										<exec executable="cmake" dir="${project.build.directory}/libfisce-out/win64" failonerror="true">
+											<arg value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
@@ -605,9 +521,7 @@
 											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/libfisce-out/win64"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/libfisce-out/win64" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -651,11 +565,8 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-out/osx64" />
-										<exec executable="${cross.prefix.osx64}-clang"
-											dir="${project.build.directory}/libfisce-out/osx64"
-											failonerror="true">
-											<!-- <arg value="-I/usr/x86_64-apple-darwin9/lib/gcc/x86_64-apple-darwin9/4.0.1/include" 
-												/> -->
+										<exec executable="${cross.prefix.osx64}-clang" dir="${project.build.directory}/libfisce-out/osx64" failonerror="true">
+											<!-- <arg value="-I/usr/x86_64-apple-darwin9/lib/gcc/x86_64-apple-darwin9/4.0.1/include" /> -->
 											<arg value="-I${basedir}/src/main/c" />
 											<arg value="-Wall" />
 											<arg value="-DNDEBUG" />
@@ -707,11 +618,8 @@
 										</exec>
 
 										<mkdir dir="${project.build.directory}/libfisce-out/osx32" />
-										<exec executable="${cross.prefix.osx32}-clang"
-											dir="${project.build.directory}/libfisce-out/osx32"
-											failonerror="true">
-											<!-- <arg value="-I/usr/i686-apple-darwin9/lib/gcc/i686-apple-darwin9/4.0.1/include" 
-												/> -->
+										<exec executable="${cross.prefix.osx32}-clang" dir="${project.build.directory}/libfisce-out/osx32" failonerror="true">
+											<!-- <arg value="-I/usr/i686-apple-darwin9/lib/gcc/i686-apple-darwin9/4.0.1/include" /> -->
 											<arg value="-I${basedir}/src/main/c" />
 											<arg value="-Wall" />
 											<arg value="-DNDEBUG" />
@@ -804,11 +712,8 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/output/android-arm" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/output/android-arm"
-											failonerror="true">
-											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
+										<exec executable="cmake" dir="${project.build.directory}/output/android-arm" failonerror="true">
+											<arg value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -820,9 +725,7 @@
 											<arg value="-DANDROID_NATIVE_API_LEVEL=android-4" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/output/android-arm"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/output/android-arm" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -835,11 +738,8 @@
 								<configuration>
 									<tasks>
 										<mkdir dir="${project.build.directory}/output/android-x86" />
-										<exec executable="cmake"
-											dir="${project.build.directory}/output/android-x86"
-											failonerror="true">
-											<arg
-												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
+										<exec executable="cmake" dir="${project.build.directory}/output/android-x86" failonerror="true">
+											<arg value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
 											<arg value="-DBUILD_TEST=OFF" />
 											<arg value="-DBUILD_LIB=OFF" />
@@ -851,9 +751,7 @@
 											<arg value="-DANDROID_NATIVE_API_LEVEL=android-9" />
 											<arg value="${basedir}/src" />
 										</exec>
-										<exec executable="make"
-											dir="${project.build.directory}/output/android-x86"
-											failonerror="true" />
+										<exec executable="make" dir="${project.build.directory}/output/android-x86" failonerror="true" />
 									</tasks>
 								</configuration>
 							</execution>
