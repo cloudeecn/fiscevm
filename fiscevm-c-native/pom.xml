@@ -180,7 +180,7 @@
 						<version>1.7</version>
 						<executions>
 							<execution>
-								<id>linux-make-test</id>
+								<id>linux-make-test-strict</id>
 								<phase>generate-test-resources</phase>
 								<goals>
 									<goal>run</goal>
@@ -357,7 +357,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>linux-test-ansi</id>
+								<id>linux-test-strict</id>
 								<phase>test</phase>
 								<goals>
 									<goal>run</goal>
