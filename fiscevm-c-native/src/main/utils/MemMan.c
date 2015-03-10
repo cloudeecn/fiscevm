@@ -124,6 +124,7 @@ FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address) {
 	*(fy_int*)block->first = *(fy_int*)block->last;
 #endif
 }
+#ifdef FY_STRICT_CHECK
 static void validateZeros(void *begin, size_t size) {
 	char *tmp = begin;
 	size_t i;
@@ -134,6 +135,7 @@ static void validateZeros(void *begin, size_t size) {
 		}
 	}
 }
+#endif
 void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
 		fy_exception *exception) {
 	fy_int blocks = (fy_int) ((size + 3) >> 2);
