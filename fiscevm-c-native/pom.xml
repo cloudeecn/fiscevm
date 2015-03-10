@@ -392,9 +392,9 @@
 											dir="${project.build.directory}/libfisce-out/linux"
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=OFF" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DBUILD_TEST=OFF" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=ON" />
 											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
