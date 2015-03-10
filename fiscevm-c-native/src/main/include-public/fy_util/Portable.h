@@ -141,7 +141,7 @@ typedef struct fy_port {
 
 #if defined(FY_PRT_WIN32)
 # if defined(__GNUC__)
-#  ifdef DLL_EXPORT
+#  if defined(DLL_EXPORT) || defined(FY_EXPORT)
 #   define FY_ATTR_EXPORT __attribute__((dllexport))
 #  elif defined(FY_STATIC)
 #    define FY_ATTR_EXPORT
@@ -149,12 +149,12 @@ typedef struct fy_port {
 #    define FY_ATTR_EXPORT __attribute__((dllimport))
 #  endif
 # elif defined(_MSC_VER)
-#  if defined(DLL_EXPORT)
+#  if defined(DLL_EXPORT) || defined(FY_EXPORT)
 #   define FY_ATTR_EXPORT __declspec(dllexport)
 #  elif defined(FY_STATIC)
 #   define FY_ATTR_EXPORT
 #  else
-#    define FY_ATTR_EXPORT __attribute__((dllimport))
+#    define FY_ATTR_EXPORT __declspec((dllimport))
 #  endif
 # endif
 #elif defined(EMSCRIPTEN)
