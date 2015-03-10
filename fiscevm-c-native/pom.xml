@@ -565,7 +565,7 @@
 
 							<execution>
 								<id>cross-make-windows</id>
-								<phase>package</phase>
+								<phase>generate-resources</phase>
 								<goals>
 									<goal>run</goal>
 								</goals>
