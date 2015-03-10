@@ -488,7 +488,6 @@
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
-											<arg value="-DOPTIMIZE_LTO=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -537,7 +536,6 @@
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
-											<arg value="-DOPTIMIZE_LTO=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -586,7 +584,6 @@
 											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
-											<arg value="-DOPTIMIZE_LTO=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -606,7 +603,6 @@
 											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=OFF" />
 											<arg value="-DENABLE_64=OFF" />
-											<arg value="-DOPTIMIZE_LTO=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
