@@ -9,7 +9,7 @@
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	<properties>
-		<cross.prefix.win32>x86_64-w64-mingw32</cross.prefix.win32>
+		<cross.prefix.win32>i686-w64-mingw32</cross.prefix.win32>
 		<cross.prefix.win64>x86_64-w64-mingw32</cross.prefix.win64>
 		<cross.prefix.osx32>i386-apple-darwin12</cross.prefix.osx32>
 		<cross.prefix.osx64>x86_64-apple-darwin12</cross.prefix.osx64>
@@ -486,7 +486,7 @@
 											<arg value="-DBUILD_TEST=ON" />
 											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
-											<arg value="-DENABLE_32=OFF" />
+											<arg value="-DENABLE_32=ON" />
 											<arg value="-DENABLE_64=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
@@ -535,7 +535,7 @@
 											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="-DENABLE_32=OFF" />
-											<arg value="-DENABLE_64=OFF" />
+											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -556,7 +556,7 @@
 											dir="${project.build.directory}/libfisce-test/win64/"
 											failonerror="true">
 											<arg
-												value="${project.build.directory}/libfisce-test/win64/fisce-test" />
+												value="${project.build.directory}/libfisce-test/win64/fisce-test64" />
 											<arg value="../fisce_scripts" />
 										</exec>
 									</tasks>
@@ -582,7 +582,7 @@
 											<arg value="-DBUILD_TEST=OFF" />
 											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=ON" />
-											<arg value="-DENABLE_32=OFF" />
+											<arg value="-DENABLE_32=ON" />
 											<arg value="-DENABLE_64=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
@@ -602,7 +602,7 @@
 											<arg value="-DBUILD_LIB=OFF" />
 											<arg value="-DBUILD_JNI=ON" />
 											<arg value="-DENABLE_32=OFF" />
-											<arg value="-DENABLE_64=OFF" />
+											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
