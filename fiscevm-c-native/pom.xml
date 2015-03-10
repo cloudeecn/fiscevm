@@ -39,9 +39,9 @@
 											dir="${project.build.directory}/libfisce-out/native"
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=OFF" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DBUILD_TEST=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
+											<arg value="-DBUILD_JNI=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -63,9 +63,9 @@
 											dir="${project.build.directory}/libfisce-test-java/native"
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Debug" />
-											<arg value="-DENABLE_TEST=OFF" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DBUILD_TEST=OFF" />
+											<arg value="-DBUILD_LIB=OFF" />
+											<arg value="-DBUILD_JNI=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -87,9 +87,9 @@
 											dir="${project.build.directory}/libfisce-test/native"
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=ON" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="-DBUILD_TEST=ON" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -187,18 +187,102 @@
 								</goals>
 								<configuration>
 									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/linux-strict" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/linux-strict"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DBUILD_TEST=ON" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=OFF" />
+											<arg value="-DENABLE_32=ON" />
+											<arg value="-DENABLE_64=ON" />
+											<arg value="-DSTRICT_MODE=ON" />
+											<arg value="${basedir}/src" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/linux-strict"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>linux-make-test</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
 										<mkdir dir="${project.build.directory}/libfisce-test/linux" />
 										<exec executable="cmake"
 											dir="${project.build.directory}/libfisce-test/linux"
 											failonerror="true">
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=ON" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="-DBUILD_TEST=ON" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=OFF" />
+											<arg value="-DENABLE_32=ON" />
+											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
 											dir="${project.build.directory}/libfisce-test/linux"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>linux-make-test-switch</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/linux-switch" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/linux-switch"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DBUILD_TEST=ON" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=OFF" />
+											<arg value="-DENABLE_32=ON" />
+											<arg value="-DENABLE_64=ON" />
+											<arg value="-DFY_DISPATCH_MODE=0" />
+											<arg value="-DREPL_MIN=0" />
+											<arg value="${basedir}/src" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/linux-switch"
+											failonerror="true" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>linux-make-test-ansi</id>
+								<phase>generate-test-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<mkdir dir="${project.build.directory}/libfisce-test/linux-ansi" />
+										<exec executable="cmake"
+											dir="${project.build.directory}/libfisce-test/linux-ansi"
+											failonerror="true">
+											<arg value="-DCMAKE_BUILD_TYPE=Release" />
+											<arg value="-DBUILD_TEST=ON" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=OFF" />
+											<arg value="-DENABLE_32=ON" />
+											<arg value="-DENABLE_64=ON" />
+											<arg value="-DANSI_ONLY=ON" />
+											<arg value="${basedir}/src" />
+										</exec>
+										<exec executable="make"
+											dir="${project.build.directory}/libfisce-test/linux-ansi"
 											failonerror="true" />
 									</tasks>
 								</configuration>
@@ -217,11 +301,84 @@
 											failonerror="true">
 											<arg value="../fisce_scripts" />
 										</exec>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux/fisce-test64"
+											dir="${project.build.directory}/libfisce-test/linux/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
 									</tasks>
 								</configuration>
 							</execution>
-
-
+							<execution>
+								<id>linux-test-switch</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux-switch/fisce-test"
+											dir="${project.build.directory}/libfisce-test/linux-switch/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux-switch/fisce-test64"
+											dir="${project.build.directory}/libfisce-test/linux-switch/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>linux-test-ansi</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux-ansi/fisce-test"
+											dir="${project.build.directory}/libfisce-test/linux-ansi/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux-ansi/fisce-test64"
+											dir="${project.build.directory}/libfisce-test/linux-ansi/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>linux-test-ansi</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux-strict/fisce-test"
+											dir="${project.build.directory}/libfisce-test/linux-strict/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+										<exec
+											executable="${project.build.directory}/libfisce-test/linux-strict/fisce-test64"
+											dir="${project.build.directory}/libfisce-test/linux-strict/"
+											failonerror="true">
+											<arg value="../fisce_scripts" />
+										</exec>
+									</tasks>
+								</configuration>
+							</execution>
 							<execution>
 								<id>linux-make</id>
 								<phase>generate-resources</phase>
@@ -238,6 +395,8 @@
 											<arg value="-DENABLE_TEST=OFF" />
 											<arg value="-DENABLE_LIBS=OFF" />
 											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DENABLE_32=ON" />
+											<arg value="-DENABLE_64=ON" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -320,9 +479,11 @@
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=ON" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="-DBUILD_TEST=ON" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=OFF" />
+											<arg value="-DENABLE_32=OFF" />
+											<arg value="-DENABLE_64=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -366,9 +527,11 @@
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=ON" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=OFF" />
+											<arg value="-DBUILD_TEST=ON" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=OFF" />
+											<arg value="-DENABLE_32=OFF" />
+											<arg value="-DENABLE_64=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -412,9 +575,11 @@
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win32}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=OFF" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DBUILD_TEST=OFF" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=ON" />
+											<arg value="-DENABLE_32=OFF" />
+											<arg value="-DENABLE_64=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -429,9 +594,11 @@
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/mingw32.toolchain.cmake" />
 											<arg value="-DCOMPILER_PREFIX=${cross.prefix.win64}" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=OFF" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DBUILD_TEST=OFF" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=ON" />
+											<arg value="-DENABLE_32=OFF" />
+											<arg value="-DENABLE_64=OFF" />
 											<arg value="${basedir}/src" />
 										</exec>
 										<exec executable="make"
@@ -498,7 +665,7 @@
 											<arg value="-I${basedir}/src/main/include-public" />
 											<arg value="-I${basedir}/src/main/include-dev" />
 											<arg value="-o" />
-											<arg value="libfyjni64.jnilib" />
+											<arg value="libfiscej64.jnilib" />
 
 											<arg value="${basedir}/src/main/utils/Portable.c" />
 											<arg value="${basedir}/src/main/utils/MemMan.c" />
@@ -554,7 +721,7 @@
 											<arg value="-I${basedir}/src/main/include-public" />
 											<arg value="-I${basedir}/src/main/include-dev" />
 											<arg value="-o" />
-											<arg value="libfyjni.jnilib" />
+											<arg value="libfiscej.jnilib" />
 
 											<arg value="${basedir}/src/main/utils/Portable.c" />
 											<arg value="${basedir}/src/main/utils/MemMan.c" />
@@ -639,9 +806,11 @@
 											<arg
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=OFF" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DBUILD_TEST=OFF" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=ON" />
+											<arg value="-DENABLE_32=OFF" />
+											<arg value="-DENABLE_64=OFF" />
 											<arg value="-DLIBRARY_OUTPUT_PATH_ROOT=." />
 											<arg value="-DANDROID_ABI=armeabi" />
 											<arg value="-DANDROID_NATIVE_API_LEVEL=android-4" />
@@ -668,9 +837,11 @@
 											<arg
 												value="-DCMAKE_TOOLCHAIN_FILE=${basedir}/src/main/toolchains/android.toolchain.cmake" />
 											<arg value="-DCMAKE_BUILD_TYPE=Release" />
-											<arg value="-DENABLE_TEST=OFF" />
-											<arg value="-DENABLE_LIBS=OFF" />
-											<arg value="-DENABLE_JNI=ON" />
+											<arg value="-DBUILD_TEST=OFF" />
+											<arg value="-DBUILD_LIBS=OFF" />
+											<arg value="-DBUILD_JNI=ON" />
+											<arg value="-DENABLE_32=OFF" />
+											<arg value="-DENABLE_64=OFF" />
 											<arg value="-DLIBRARY_OUTPUT_PATH_ROOT=." />
 											<arg value="-DANDROID_ABI=x86" />
 											<arg value="-DANDROID_NATIVE_API_LEVEL=android-9" />

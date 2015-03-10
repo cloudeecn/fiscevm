@@ -57,7 +57,7 @@ public class FYContext extends AbstractVM implements Runnable {
 		boolean succeed = false;
 		if (!succeed) {
 			try {
-				System.loadLibrary("fyjni64");
+				System.loadLibrary("fiscej64");
 				succeed = true;
 			} catch (UnsatisfiedLinkError e) {
 				errors.add(e);
@@ -66,7 +66,7 @@ public class FYContext extends AbstractVM implements Runnable {
 
 		if (!succeed) {
 			try {
-				System.loadLibrary("fyjni");
+				System.loadLibrary("fiscej");
 				succeed = true;
 			} catch (UnsatisfiedLinkError e) {
 				errors.add(e);
@@ -74,7 +74,7 @@ public class FYContext extends AbstractVM implements Runnable {
 		}
 		if (!succeed) {
 			try {
-				System.loadLibrary("libfyjni-0");
+				System.loadLibrary("libfiscej-0");
 				succeed = true;
 			} catch (UnsatisfiedLinkError e) {
 				errors.add(e);

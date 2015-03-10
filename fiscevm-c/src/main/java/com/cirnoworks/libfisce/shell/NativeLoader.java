@@ -15,12 +15,12 @@ import java.util.ResourceBundle;
 public class NativeLoader {
 	private static final HashMap<String, String[]> files = new HashMap<String, String[]>();
 	static {
-		files.put("macosx", new String[] { "libfyjni.jnilib" });
-		files.put("macosx64", new String[] { "libfyjni64.jnilib" });
-		files.put("linux", new String[] { "libfyjni.so" });
-		files.put("linux64", new String[] { "libfyjni64.so" });
-		files.put("windows", new String[] { "fyjni.dll" });
-		files.put("windows64", new String[] { "fyjni64.dll" });
+		files.put("macosx", new String[] { "libfiscej.jnilib" });
+		files.put("macosx64", new String[] { "libfiscej64.jnilib" });
+		files.put("linux", new String[] { "libfiscej.so" });
+		files.put("linux64", new String[] { "libfiscej64.so" });
+		files.put("windows", new String[] { "fiscej.dll" });
+		files.put("windows64", new String[] { "fiscej64.dll" });
 		try {
 			ResourceBundle bundle = ResourceBundle.getBundle("platforms");
 			Enumeration<String> names = bundle.getKeys();

@@ -29,7 +29,7 @@ typedef struct fy_memblockNode {
 #endif
 	struct fy_memblockNode *prev;
 	struct fy_memblockNode *next;
-#ifdef FY_DEBUG
+#if defined(FY_DEBUG) || defined(FY_STRICT_CHECK)
 	fy_uint size;
 #endif
 #ifdef FY_STRICT_CHECK

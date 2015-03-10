@@ -92,22 +92,26 @@
 #define FY_DISPATCH_REPLICA_SWITCH 1
 #define FY_DISPATCH_THREAD 2
 
-#ifndef FY_DISPATCH_MODE
-# if defined(FY_SUPPORT_THREADING)
+#ifdef FY_SUPPORT_THREADING
+# ifndef FY_DISPATCH_MODE
 #  define FY_DISPATCH_MODE FY_DISPATCH_THREAD
-# elif defined(FY_REPLICA_SWITCH)
-#  define FY_DISPATCH_MODE FY_DISPATCH_REPLICA_SWITCH
-# else
-#  define FY_DISPATCH_MODE FY_DISPATCH_SWITCH
 # endif
+#else
+# ifdef FY_DISPATCH_MODE
+#  undef FY_DISPATCH_MODE
+# endif
+# define FY_DISPATCH_MODE FY_DISPATCH_SWITCH
 #endif
 
-#ifndef REPL_MIN
-# if FY_DISPATCH_MODE == FY_DISPATCH_THREAD || FY_DISPATCH_MODE == FY_DISPATCH_REPLICA_SWITCH
+#if FY_DISPATCH_MODE == FY_DISPATCH_THREAD
+# ifndef REPL_MIN
 #  define REPL_MIN 5000
-# else
-#  define REPL_MIN 0
 # endif
+#else
+# ifdef REPL_MIN
+#  undef REPL_MIN
+# endif
+# define REPL_MIN 0
 #endif
 
 #if /*!defined(EMSCRIPTEN) &&*/ (defined(_C99) || defined(__GNUC__)) && !defined(FY_STRICT_DECLARATION)

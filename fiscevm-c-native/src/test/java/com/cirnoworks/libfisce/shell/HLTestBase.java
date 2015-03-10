@@ -10,7 +10,7 @@ import com.cirnoworks.fisce.intf.IStateListener;
 public abstract class HLTestBase extends TestCase {
 	static {
 		try {
-			File tempLibFile = File.createTempFile("fyjni-test", null);
+			File tempLibFile = File.createTempFile("fiscej-test", null);
 			tempLibFile.delete();
 			tempLibFile.mkdirs();
 			tempLibFile.deleteOnExit();
