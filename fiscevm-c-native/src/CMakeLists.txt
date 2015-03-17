@@ -77,8 +77,8 @@ SET(SRC_LIST_TEST
 )
 
 set(BUILD_TEST OFF CACHE BOOL "Should generate test binary")
-set(BUILD_LIB ON CACHE BOOL "Should generate shared libraries(libfisce.so / libfisce64.so)")
-set(BUILD_JNI ON CACHE BOOL "Should generate JNI libraries(libfiscej.so / libfiscej64.so)") 
+set(BUILD_LIB OFF CACHE BOOL "Should generate shared libraries(libfisce.so / libfisce64.so)")
+set(BUILD_JNI OFF CACHE BOOL "Should generate JNI libraries(libfiscej.so / libfiscej64.so)") 
 
 set(ENABLE_32 OFF CACHE BOOL "Should build 32bit binaries")
 set(ENABLE_64 OFF CACHE BOOL "Should build 64bit binaries")
@@ -87,6 +87,8 @@ set(OPTIMIZE_LTO ON CACHE BOOL "Should build 32bit binaries")
 set(OPTIMIZE_BTO ON CACHE BOOL "Should use branch optimization (ie. -fbranch-target-load-optimize2 -fbtr-bb-exclusive)")
 set(OPTIMIZE_LEVEL "-Ofast" CACHE STRING "Optimize level when using release mode, -O3 -Os -Ofast")
 SET_PROPERTY(CACHE OPTIMIZE_LEVEL PROPERTY STRINGS "-O3" "-Os" "-Ofast")
+
+set(LINK_STATIC ON CACHE STRING "Use -static while building lib/jnilib, remove dependency of libgcc")
 
 set(DEBUG_VERBOSE OFF CACHE BOOL "The binary built will print all opcodes executed. (Very slow!) For debug only")
 
@@ -103,6 +105,10 @@ set(ANSI_ONLY OFF CACHE BOOLEAN "Only use ansi c, for test")
 
 set(STRICT_MODE OFF CACHE BOOLEAN "Strict check stack and instructions, for test")
 
+if(NOT BUILD_TEST AND NOT BUILD_LIB AND NOT BUILD_JNI)
+	message("None of build specified, build test executable by default")
+	set(BUILD_TEST ON)
+endif()
 
 if(EMSCRIPTEN)
 	message("Using emscripten's default configuration...")
@@ -173,6 +179,11 @@ if(OPTIMIZE_LTO)
 	message("Link time optimize")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto")
 #	set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} -flto")
+endif()
+
+if(LINK_STATIC)
+	message("Static link")
+	set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} -static")
 endif()
 
 IF(ANSI_ONLY)
