@@ -34,6 +34,9 @@ Highlights
 
 Supports
 ----
+
+  **Following are supported**
+  
   * java.lang.*
   * java.util.*
   * java.math.*
@@ -46,7 +49,7 @@ Supports
   * Read file through Class.getResourceAsInputStream
   * With native-invoke interface, you can always add more function into it
 
-  **WITHOUT**
+  **Following are NOT supported**
 
   * packages not listed above
   * All security manager related function is mocked
@@ -59,9 +62,60 @@ Supports
 
 Quick start
 ----
-<h3>Prerequisite</h3>
-CMake 3.0+ (optional)
+### Prerequisite
 
-<h3>Build runtime package</h3>
+JDK1.6+, maven, CMake 3.0+ (optional)
 
-...WIP...
+### Build runtime package
+
+````
+(at project base directory)
+$cd fiscevm-runtime
+$mvn compile
+````
+   Now all base runtime classes are compiled into fiscevm-runtime/target/classes
+   
+### Build test binery
+
+#### With cmake
+
+
+```
+(at project base directory)
+$cd fiscevm-c-native/src
+$mkdir Build && cd Build
+$cmake -DBUILD_TEST=ON ..
+$make
+```
+
+#### Without cmake
+
+```
+(at project base directory)
+$cd fiscevm-c-native/src
+$mkdir Build && cd Build
+$gcc -I../main/c -I../main/include -I../main/include-public -I../main/include-dev -flto -O3 -Wall -DNDEBUG -o fisce-test ../main/utils/Portable.c ../main/utils/MemMan.c ../main/utils/Utf8.c ../main/utils/String.c ../main/utils/BitSet.c ../main/utils/HashMap.c ../main/utils/HashMapI.c ../main/utils/ArrList.c ../main/utils/LnkList.c ../main/utils/Debug.c ../main/vmcore/Class.c ../main/vmcore/ClassLoader.c ../main/vmcore/CoreHandlers.c ../main/vmcore/MathHandlers.c ../main/vmcore/Debug.c ../main/vmcore/Data.c ../main/vmcore/Heap.c ../main/vmcore/Instructions.c ../main/vmcore/Preverifier.c ../main/vmcore/Thread.c ../main/vmcore/Engine.c ../main/vmcore/ThreadManager.c ../main/vmcore/VMContext.c ../main/vmcore/ExpDev.c ../main/vmcore/FiScE.c ../main/vmcore/FileInputStream.c ../main/vmcore/BinarySaver.c ../main/vmcore/DataLoader.c ../main/vmcore/BAIS.c ../main/vmcore/RIS.c ../test/vmcore/Test.c
+```
+
+### Have fun
+
+#### Run all tests
+```
+(at build directory, ie. fiscevm-c-native/src/Build)
+$./fisce-test ./fisce-test ../../../fiscevm-runtime/target/classes
+```
+
+#### Run specific class
+```
+(at build directory, ie. fiscevm-c-native/src/Build)
+$./fisce-test ./fisce-test ../../../fiscevm-runtime/target/classes <className>
+```
+Note. Package name separater in class-name should be "/" instead of ".".
+
+#### Run specific class with multi classpaths
+```
+(at build directory, ie. fiscevm-c-native/src/Build)
+$./fisce-test ./fisce-test ../../../fiscevm-runtime/target/classes [classpath ...] <className>
+```
+
+You can also build your own class with eclipse or maven to run with it!
