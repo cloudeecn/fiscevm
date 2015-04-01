@@ -612,7 +612,7 @@
 											<arg value="${basedir}/src/main/vmcore/RIS.c" />
 											<arg value="${basedir}/src/main/vmcore/Engine.c" />
 
-											<arg value="${basedir}/src/main/vmcore/JNIService.c" />
+											<arg value="${basedir}/src/main/vmexport/JNIService.c" />
 										</exec>
 
 										<mkdir dir="${project.build.directory}/libfisce-out/osx32" />
@@ -663,7 +663,7 @@
 											<arg value="${basedir}/src/main/vmcore/RIS.c" />
 											<arg value="${basedir}/src/main/vmcore/Engine.c" />
 
-											<arg value="${basedir}/src/main/vmcore/JNIService.c" />
+											<arg value="${basedir}/src/main/vmexport/JNIService.c" />
 										</exec>
 									</tasks>
 								</configuration>
