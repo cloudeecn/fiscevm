@@ -29,7 +29,7 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-include_directories(main/include main/include-public main/include-dev)
+include_directories(main/include main/include-public)
 #include_directories("${PROJECT_BINARY_DIR}")
 
 SET(SRC_LIST_UTILS
