@@ -22,7 +22,6 @@
 #include "fy_util/Portable.h"
 #include "fyc/Config.h"
 
-#include "fisce.h"
 #include "fy_util/Debug.h"
 #include "fyc/Debug.h"
 #include "fy_util/HashMap.h"
@@ -54,12 +53,12 @@ typedef struct FY_TEST_FUN {
   { if(!(value)){failCount++;sprintf_s(fy_unit_msg,sizeof(fy_unit_msg),"%"FY_PRINT64"d %s(%d): ASSERTION FAILED ["#value"]\n",failCount,__FILE__,__LINE__);fprintf(stderr,"%s",fy_unit_msg); fprintf(fails,"%s",fy_unit_msg);return;}}
 
 static FILE *fails;
-static fy_ulong failCount;
+static fisce_ulong failCount;
 static char fy_unit_msg[1024];
 
 static fy_context *context;
 static fy_memblock *block;
-static fy_exception *exception;
+static fisce_exception *exception;
 
 static char msg[256];
 static FILE *fp;
@@ -89,7 +88,7 @@ static fy_port *port;
 }
 
 void test_init(void) {
-	fy_exception exception;
+	fisce_exception exception;
 	exception.exceptionType = exception_none;
 	block = fy_allocate(sizeof(fy_memblock), &exception);
 	TEST_EXCEPTION(&exception);
@@ -108,28 +107,28 @@ void test_clean(void) {
 }
 
 void testPortable() {
-	FY_ASSERT(sizeof(fy_ubyte) == 1);
-	FY_ASSERT(sizeof(fy_char) == 2);
-	FY_ASSERT(sizeof(fy_uint) == 4);
-	FY_ASSERT(sizeof(fy_ulong) == 8);
-	FY_ASSERT(sizeof(fy_byte) == 1);
-	FY_ASSERT(sizeof(fy_short) == 2);
-	FY_ASSERT(sizeof(fy_int) == 4);
-	FY_ASSERT(sizeof(fy_long) == 8);
-	FY_ASSERT(sizeof(fy_float) == 4);
-	FY_ASSERT(sizeof(fy_double) == 8);
-	FY_ASSERT(fy_I2TOL(0x12345678,0x9ABCDEF0)== (fy_long) 0x123456789ABCDEF0LL);
-	FY_ASSERT(fy_I2TOL(0x9ABCDEF0,0x12345678)== (fy_long) 0x9ABCDEF012345678LL);
-	FY_ASSERT(fy_I2TOL(0x12345678,0x22345678)== (fy_long) 0x1234567822345678LL);
-	FY_ASSERT(fy_I2TOL(0x92345678,0x9ABCDEF0)== (fy_long) 0x923456789ABCDEF0LL);
+	FY_ASSERT(sizeof(fisce_ubyte) == 1);
+	FY_ASSERT(sizeof(fisce_char) == 2);
+	FY_ASSERT(sizeof(fisce_uint) == 4);
+	FY_ASSERT(sizeof(fisce_ulong) == 8);
+	FY_ASSERT(sizeof(fisce_byte) == 1);
+	FY_ASSERT(sizeof(fisce_short) == 2);
+	FY_ASSERT(sizeof(fisce_int) == 4);
+	FY_ASSERT(sizeof(fisce_long) == 8);
+	FY_ASSERT(sizeof(fisce_float) == 4);
+	FY_ASSERT(sizeof(fisce_double) == 8);
+	FY_ASSERT(fy_I2TOL(0x12345678,0x9ABCDEF0)== (fisce_long) 0x123456789ABCDEF0LL);
+	FY_ASSERT(fy_I2TOL(0x9ABCDEF0,0x12345678)== (fisce_long) 0x9ABCDEF012345678LL);
+	FY_ASSERT(fy_I2TOL(0x12345678,0x22345678)== (fisce_long) 0x1234567822345678LL);
+	FY_ASSERT(fy_I2TOL(0x92345678,0x9ABCDEF0)== (fisce_long) 0x923456789ABCDEF0LL);
 	FY_ASSERT(
-			fy_I2TOUL(0x12345678,0x9ABCDEF0)== (fy_ulong) 0x123456789ABCDEF0LL);
+			fy_I2TOUL(0x12345678,0x9ABCDEF0)== (fisce_ulong) 0x123456789ABCDEF0LL);
 	FY_ASSERT(
-			fy_I2TOUL(0x9ABCDEF0,0x12345678)== (fy_ulong) 0x9ABCDEF012345678LL);
+			fy_I2TOUL(0x9ABCDEF0,0x12345678)== (fisce_ulong) 0x9ABCDEF012345678LL);
 	FY_ASSERT(
-			fy_I2TOUL(0x12345678,0x22345678)== (fy_ulong) 0x1234567822345678LL);
+			fy_I2TOUL(0x12345678,0x22345678)== (fisce_ulong) 0x1234567822345678LL);
 	FY_ASSERT(
-			fy_I2TOUL(0x92345678,0x9ABCDEF0)== (fy_ulong) 0x923456789ABCDEF0LL);
+			fy_I2TOUL(0x92345678,0x9ABCDEF0)== (fisce_ulong) 0x923456789ABCDEF0LL);
 	FY_ASSERT(fy_HOFL(0x123456789ABCDEF0LL)== 0x12345678);
 	FY_ASSERT(fy_LOFL(0x123456789ABCDEF0LL)== 0x9ABCDEF0);
 	FY_ASSERT(fy_HOFL(0x9ABCDEF012345678LL)== 0x9ABCDEF0);
@@ -142,10 +141,10 @@ void testPortable() {
 	FY_ASSERT(fy_B2TOUI(0xAB,0x12)== 0xAB12);
 	FY_ASSERT(fy_B2TOUI(0x12,0x12)== 0x1212);
 	FY_ASSERT(fy_B2TOUI(0xAB,0xAB)== 0xABAB);
-	FY_ASSERT(fy_B2TOI(0x12,0xAB)== (fy_short) 0x12AB);
-	FY_ASSERT(fy_B2TOI(0xAB,0x12)== (fy_short) 0xAB12);
-	FY_ASSERT(fy_B2TOI(0x12,0x12)== (fy_short) 0x1212);
-	FY_ASSERT(fy_B2TOI(0xAB,0xAB)== (fy_short) 0xABAB);
+	FY_ASSERT(fy_B2TOI(0x12,0xAB)== (fisce_short) 0x12AB);
+	FY_ASSERT(fy_B2TOI(0xAB,0x12)== (fisce_short) 0xAB12);
+	FY_ASSERT(fy_B2TOI(0x12,0x12)== (fisce_short) 0x1212);
+	FY_ASSERT(fy_B2TOI(0xAB,0xAB)== (fisce_short) 0xABAB);
 	FY_ASSERT(fy_B4TOI(0x12,0xAB,0x34,0xCD)== 0x12AB34CD);
 	FY_ASSERT(fy_B4TOI(0xAB,0x12,0xCD,0x34)== 0xAB12CD34);
 	FY_ASSERT(fy_B4TOI(0xAB,0xCD,0x89,0xEF)== 0xABCD89EF);
@@ -156,8 +155,8 @@ void testMemManage() {
 	int i;
 	void *address[17];
 
-	fy_exception ex;
-	fy_exception *exception = &ex;
+	fisce_exception ex;
+	fisce_exception *exception = &ex;
 
 	printf("TestMemManage\n");
 	ex.exceptionType = exception_none;
@@ -177,8 +176,8 @@ void testString() {
 	const char *cc1 = "ABC中文DEF";
 	const char *cc2 = "ABC中文DEG";
 	fy_str *js, *js1, *js2;
-	fy_exception ex;
-	fy_exception *exception = &ex;
+	fisce_exception ex;
+	fisce_exception *exception = &ex;
 	printf("TestMemString\n");
 	ex.exceptionType = exception_none;
 	printf("%s\n%d", cc, (int) strlen(cc));
@@ -199,7 +198,7 @@ void testString() {
 	fy_strAppendUTF8(block, js2, cc2, 999, exception);
 	TEST_EXCEPTION(exception);
 	for (i = 0; i < js->length; i++) {
-		printf("%d ", (fy_uint) fy_strGet(js, i));
+		printf("%d ", (fisce_uint) fy_strGet(js, i));
 	}
 	printf("\n");
 	fy_strPrint(js);
@@ -211,13 +210,13 @@ void testString() {
 }
 
 typedef struct fy_test_map {
-	fy_uint count;
-	fy_uint *values;
+	fisce_uint count;
+	fisce_uint *values;
 } fy_test_map;
 
 static void checkMapValue(fy_str *key, void *value, void *addition) {
 	fy_test_map *test = (fy_test_map*) addition;
-	fy_uint val = *(fy_uint*) value;
+	fisce_uint val = *(fisce_uint*) value;
 	test->count++;
 	FY_ASSERT(val >= 0 && val < 30000);
 }
@@ -226,15 +225,15 @@ void testNativeHashMap() {
 	/*int blocks;*/
 	int i;
 	char buf[256];
-	fy_uint values[10000];
-	fy_uint *value;
+	fisce_uint values[10000];
+	fisce_uint *value;
 	fy_str tmp[1];
-	fy_exception ex;
+	fisce_exception ex;
 	fy_test_map add;
-	fy_long t1, t2, t3, t4, t5;
+	fisce_long t1, t2, t3, t4, t5;
 	fy_hashMap *hashMap;
 
-	fy_exception *exception = &ex;
+	fisce_exception *exception = &ex;
 	ex.exceptionType = exception_none;
 	hashMap = fy_mmAllocate(block, sizeof(fy_hashMap), exception);
 	printf("TestHashMap\n");
@@ -288,7 +287,7 @@ void testNativeHashMap() {
 	fy_mmFree(block, hashMap);
 }
 
-static void checkMapValueI(fy_int key, fy_int value, fy_int nullValue,
+static void checkMapValueI(fisce_int key, fisce_int value, fisce_int nullValue,
 		void *addition) {
 	fy_test_map *test = (fy_test_map*) addition;
 	test->count++;
@@ -298,11 +297,11 @@ static void checkMapValueI(fy_int key, fy_int value, fy_int nullValue,
 void testHashMapI() {
 	int blocks;
 	int i;
-	fy_int value;
-	fy_uint values[10000];
-	fy_exception ex;
-	fy_exception *exception = &ex;
-	fy_long t1, t2, t3, t4, t5;
+	fisce_int value;
+	fisce_uint values[10000];
+	fisce_exception ex;
+	fisce_exception *exception = &ex;
+	fisce_long t1, t2, t3, t4, t5;
 	fy_test_map add;
 	fy_hashMapI *hashMapI;
 
@@ -361,8 +360,8 @@ void testArrayList() {
 	int i;
 	float fs[10];
 	fy_arrayList stack;
-	fy_exception ex;
-	fy_exception *exception = &ex;
+	fisce_exception ex;
+	fisce_exception *exception = &ex;
 	memset(exception, 0, sizeof(ex));
 	printf("TestArrayList\n");
 	fy_arrayListInit(block, &stack, sizeof(struct stackData), 1, exception);
@@ -401,7 +400,7 @@ void testArrayList() {
 }
 
 static void testAllocate1() {
-	exception = fy_allocate(sizeof(fy_exception), NULL);
+	exception = fy_allocate(sizeof(fisce_exception), NULL);
 	context = fy_allocate(sizeof(fy_context), NULL);
 	fy_vmContextInit(context, exception);
 	TEST_EXCEPTION(exception);
@@ -439,7 +438,7 @@ static void testClassLoader() {
 	fy_log("Test class loader finished.\n");
 }
 static fy_class *lookup(fy_context *context, const char *name,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_str sName[1];
 	fy_class *clazz;
 
@@ -526,7 +525,7 @@ void testClassMethod() {
 void testHeap() {
 	fy_str str[1];
 	fy_str compare[1];
-	fy_int sHandle;
+	fisce_int sHandle;
 	exception->exceptionType = exception_none;
 	str->content = NULL;
 	fy_strInitWithUTF8(block, str, "咩哈哈哈ABCabc,|/", exception);
@@ -566,9 +565,9 @@ void testPreverifier() {
 	TEST_EXCEPTION(exception);
 }
 
-static fy_int testFail(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
-		fy_exception *exception) {
+static fisce_int testFail(struct fy_context *context, struct fy_thread *thread,
+		void *data, fisce_stack_item *args, fisce_int argsCount, fisce_int ops,
+		fisce_exception *exception) {
 	fy_str str;
 	char msg[256];
 	memset(&str, 0, sizeof(str));
@@ -610,17 +609,17 @@ static int compairOpPairCount(const void *left, const void *right) {
 #endif
 
 static void hltest(char *name) {
-	fy_message message;
-	fy_boolean dead;
-	fy_exception ex;
+	fisce_message message;
+	fisce_boolean dead;
+	fisce_exception ex;
 	fy_context *context;
-	fy_exception *exception = &ex;
+	fisce_exception *exception = &ex;
 #ifdef FY_INSTRUCTION_COUNT
 	fy_engine_repl_data *repl;
-	fy_int engineNum;
+	fisce_int engineNum;
 #endif
 	int i = 0;
-	fy_long total = 0;
+	fisce_long total = 0;
 	if (name == NULL) {
 		fy_log("+++Executing test case Load+++\n", name);
 	} else {
@@ -750,12 +749,12 @@ static void hltest(char *name) {
 }
 
 static void hltest2(char *name) {
-	fy_message message;
-	fy_boolean dead;
-	fy_exception ex;
+	fisce_message message;
+	fisce_boolean dead;
+	fisce_exception ex;
 	fy_context *context;
-	fy_exception *exception = &ex;
-	fy_boolean loadMode = FALSE;
+	fisce_exception *exception = &ex;
+	fisce_boolean loadMode = FALSE;
 	if (name == NULL) {
 		fy_log("+++Executing test case Load2+++\n", name);
 	} else {
@@ -944,8 +943,8 @@ void testNative() {
 	fy_class *clazz;
 	fy_method *method;
 	fy_context *context;
-	fy_exception ex;
-	fy_exception *exception = &ex;
+	fisce_exception ex;
+	fisce_exception *exception = &ex;
 	fy_log("+++Scanning native methods+++\n");
 
 	exception->exceptionType = exception_none;

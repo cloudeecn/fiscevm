@@ -58,8 +58,7 @@ SET(SRC_LIST_LIB
 	main/vmcore/Thread.c
 	main/vmcore/ThreadManager.c
 	main/vmcore/VMContext.c
-	main/vmcore/ExpDev.c
-	main/vmcore/FiScE.c
+	main/vmcore/ExportSupport.c
 	main/vmcore/FileInputStream.c
 	main/vmcore/BinarySaver.c
 	main/vmcore/DataLoader.c
@@ -69,7 +68,11 @@ SET(SRC_LIST_LIB
 )
 
 SET(SRC_LIST_JNI
-	main/vmcore/JNIService.c
+	main/vmexport/JNIService.c
+)
+
+SET(SRC_LIST_EXPORT
+	main/vmexport/fisce.c
 )
 
 SET(SRC_LIST_TEST
@@ -301,7 +304,7 @@ endif()
 if(BUILD_LIB)
 	if(NOT (ENABLE_32 OR ENABLE_64))
 		message("Will generate default binary")
-		ADD_LIBRARY(fisce MODULE ${SRC_LIST_UTILS} ${SRC_LIST_LIB})
+		ADD_LIBRARY(fisce MODULE ${SRC_LIST_UTILS} ${SRC_LIST_LIB} ${SRC_LIST_EXPORT})
 		if(HAS_MATH)
 			TARGET_LINK_LIBRARIES(fisce m)
 		endif()
@@ -317,7 +320,7 @@ if(BUILD_LIB)
 	
 	if(ENABLE_32)
 		message("Will generate 32bit binary")
-		ADD_LIBRARY(fisce MODULE ${SRC_LIST_UTILS} ${SRC_LIST_LIB})
+		ADD_LIBRARY(fisce MODULE ${SRC_LIST_UTILS} ${SRC_LIST_LIB} ${SRC_LIST_EXPORT})
 		if(HAS_MATH)
 			TARGET_LINK_LIBRARIES(fisce m)
 		endif()
@@ -334,7 +337,7 @@ if(BUILD_LIB)
 	
 	if(ENABLE_64)
 		message("Will generate 64bit binary")
-		ADD_LIBRARY(fisce64 MODULE ${SRC_LIST_UTILS} ${SRC_LIST_LIB})
+		ADD_LIBRARY(fisce64 MODULE ${SRC_LIST_UTILS} ${SRC_LIST_LIB} ${SRC_LIST_EXPORT})
 		if(HAS_MATH)
 			TARGET_LINK_LIBRARIES(fisce64 m)
 		endif()

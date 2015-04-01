@@ -54,8 +54,6 @@ typedef struct fy_field fy_field;
 typedef struct fy_object fy_object;
 typedef struct fy_object_data fy_object_data;
 typedef struct fy_inputStream fy_inputStream;
-typedef struct fisce_nativeCall fisce_nativeCall;
-typedef struct fisce_message fisce_message;
 
 typedef union stringInfo stringInfo;
 typedef union classInfo classInfo;

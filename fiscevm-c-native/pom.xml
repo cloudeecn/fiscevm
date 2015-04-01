@@ -578,7 +578,6 @@
 											<arg value="-flto" />
 											<arg value="-I${basedir}/src/main/include" />
 											<arg value="-I${basedir}/src/main/include-public" />
-											<arg value="-I${basedir}/src/main/include-dev" />
 											<arg value="-o" />
 											<arg value="libfiscej64.jnilib" />
 
@@ -603,16 +602,15 @@
 											<arg value="${basedir}/src/main/vmcore/Instructions.c" />
 											<arg value="${basedir}/src/main/vmcore/Preverifier.c" />
 											<arg value="${basedir}/src/main/vmcore/Thread.c" />
-											<arg value="${basedir}/src/main/vmcore/Engine.c" />
 											<arg value="${basedir}/src/main/vmcore/ThreadManager.c" />
 											<arg value="${basedir}/src/main/vmcore/VMContext.c" />
-											<arg value="${basedir}/src/main/vmcore/ExpDev.c" />
-											<arg value="${basedir}/src/main/vmcore/FiScE.c" />
+											<arg value="${basedir}/src/main/vmcore/ExportSupport.c" />
 											<arg value="${basedir}/src/main/vmcore/FileInputStream.c" />
 											<arg value="${basedir}/src/main/vmcore/BinarySaver.c" />
 											<arg value="${basedir}/src/main/vmcore/DataLoader.c" />
 											<arg value="${basedir}/src/main/vmcore/BAIS.c" />
 											<arg value="${basedir}/src/main/vmcore/RIS.c" />
+											<arg value="${basedir}/src/main/vmcore/Engine.c" />
 
 											<arg value="${basedir}/src/main/vmcore/JNIService.c" />
 										</exec>
@@ -631,7 +629,6 @@
 											<arg value="-flto" />
 											<arg value="-I${basedir}/src/main/include" />
 											<arg value="-I${basedir}/src/main/include-public" />
-											<arg value="-I${basedir}/src/main/include-dev" />
 											<arg value="-o" />
 											<arg value="libfiscej.jnilib" />
 
@@ -656,16 +653,15 @@
 											<arg value="${basedir}/src/main/vmcore/Instructions.c" />
 											<arg value="${basedir}/src/main/vmcore/Preverifier.c" />
 											<arg value="${basedir}/src/main/vmcore/Thread.c" />
-											<arg value="${basedir}/src/main/vmcore/Engine.c" />
 											<arg value="${basedir}/src/main/vmcore/ThreadManager.c" />
 											<arg value="${basedir}/src/main/vmcore/VMContext.c" />
-											<arg value="${basedir}/src/main/vmcore/ExpDev.c" />
-											<arg value="${basedir}/src/main/vmcore/FiScE.c" />
+											<arg value="${basedir}/src/main/vmcore/ExportSupport.c" />
 											<arg value="${basedir}/src/main/vmcore/FileInputStream.c" />
 											<arg value="${basedir}/src/main/vmcore/BinarySaver.c" />
 											<arg value="${basedir}/src/main/vmcore/DataLoader.c" />
 											<arg value="${basedir}/src/main/vmcore/BAIS.c" />
 											<arg value="${basedir}/src/main/vmcore/RIS.c" />
+											<arg value="${basedir}/src/main/vmcore/Engine.c" />
 
 											<arg value="${basedir}/src/main/vmcore/JNIService.c" />
 										</exec>
