@@ -113,7 +113,7 @@ int threadCount
 }
 #endif
 
-static void writeInt(FILE *fp, fy_uint value, fy_exception *exception) {
+static void writeInt(FILE *fp, fisce_uint value, fisce_exception *exception) {
 	int i;
 	for (i = 4; i > 0; i--) {
 		if (fputc(value, fp) == EOF) {
@@ -124,7 +124,7 @@ static void writeInt(FILE *fp, fy_uint value, fy_exception *exception) {
 	}
 }
 
-static void writeChar(FILE *fp, fy_char value, fy_exception *exception) {
+static void writeChar(FILE *fp, fisce_char value, fisce_exception *exception) {
 	int i;
 	for (i = 2; i > 0; i--) {
 		if (fputc(value, fp) == EOF) {
@@ -135,7 +135,7 @@ static void writeChar(FILE *fp, fy_char value, fy_exception *exception) {
 	}
 }
 
-static void* saveBegin(struct fy_context *context, fy_exception *exception) {/*TODO*/
+static void* saveBegin(struct fy_context *context, fisce_exception *exception) {/*TODO*/
 	FILE *fp = fopen(context->saveloadParam, "wb");
 	if (fp == NULL) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Can't open %s for save.",
@@ -147,17 +147,17 @@ static void* saveBegin(struct fy_context *context, fy_exception *exception) {/*T
 	return fp;
 }
 static void savePrepareClass(struct fy_context *context, void *saver,
-		fy_uint classCount, fy_exception *exception) {
+		fisce_uint classCount, fisce_exception *exception) {
 	FILE *fp = saver;
 	writeInt(fp, 0xF15CE002, exception);
 	writeInt(fp, classCount, exception);
 
 }
-static void saveClass(struct fy_context *context, void *saver, fy_uint classId,
-		fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
-		fy_int *staticArea, fy_exception *exception) {
+static void saveClass(struct fy_context *context, void *saver, fisce_uint classId,
+		fisce_uint handle, fisce_int clinited, fy_str *name, fisce_uint staticSize,
+		fisce_int *staticArea, fisce_exception *exception) {
 	FILE *fp = saver;
-	fy_int i, imax;
+	fisce_int i, imax;
 	writeInt(fp, 0xF15CE003, exception);
 	writeInt(fp, classId, exception);
 	writeInt(fp, handle, exception);
@@ -172,19 +172,19 @@ static void saveClass(struct fy_context *context, void *saver, fy_uint classId,
 	}
 }
 static void saveEndClass(struct fy_context *context, void *saver,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	/*NONEED*/
 }
 static void savePrepareMethod(struct fy_context *context, void *saver,
-		fy_uint methodCount, fy_exception *exception) {
+		fisce_uint methodCount, fisce_exception *exception) {
 	FILE *fp = saver;
 	writeInt(fp, 0xF15CE004, exception);
 	writeInt(fp, methodCount, exception);
 }
 static void saveMethod(struct fy_context *context, void *saver,
-		fy_uint methodId, fy_uint handle, fy_str *uniqueName,
-		fy_exception *exception) {
-	fy_int i, imax;
+		fisce_uint methodId, fisce_uint handle, fy_str *uniqueName,
+		fisce_exception *exception) {
+	fisce_int i, imax;
 	FILE *fp = saver;
 	writeInt(fp, 0xF15CE005, exception);
 	writeInt(fp, methodId, exception);
@@ -195,18 +195,18 @@ static void saveMethod(struct fy_context *context, void *saver,
 	}
 }
 static void saveEndMethod(struct fy_context *context, void *saver,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	/*NONEED*/
 }
 static void savePrepareField(struct fy_context *context, void *saver,
-		fy_uint fieldCount, fy_exception *exception) {
+		fisce_uint fieldCount, fisce_exception *exception) {
 	FILE *fp = saver;
 	writeInt(fp, 0xF15CE006, exception);
 	writeInt(fp, fieldCount, exception);
 }
-static void saveField(struct fy_context *context, void *saver, fy_uint fieldId,
-		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {
-	fy_int i, imax;
+static void saveField(struct fy_context *context, void *saver, fisce_uint fieldId,
+		fisce_uint handle, fy_str *uniqueName, fisce_exception *exception) {
+	fisce_int i, imax;
 	FILE *fp = saver;
 	writeInt(fp, 0xF15CE007, exception);
 	writeInt(fp, fieldId, exception);
@@ -217,21 +217,21 @@ static void saveField(struct fy_context *context, void *saver, fy_uint fieldId,
 	}
 }
 static void saveEndField(struct fy_context *context, void *saver,
-		fy_exception *exception) {/*TODO*/
+		fisce_exception *exception) {/*TODO*/
 }
 static void savePrepareObjects(struct fy_context *context, void *saver,
-		fy_uint nextHandle, fy_uint objectCount, fy_exception *exception) {/*TODO*/
+		fisce_uint nextHandle, fisce_uint objectCount, fisce_exception *exception) {/*TODO*/
 	FILE *fp = saver;
 	writeInt(fp, 0xF15CE009, exception);
 	writeInt(fp, nextHandle, exception);
 	writeInt(fp, objectCount, exception);
 }
-static void saveObject(struct fy_context *context, void *saver, fy_uint handle,
-		fy_uint classId, fy_int posInHeap, fy_int gen, fy_int finalizeStatus,
-		fy_uint monitorOwner, fy_uint monitorCount, fy_uint length,
-		fy_uint dataSize, fy_uint *data, fy_exception *exception) {
+static void saveObject(struct fy_context *context, void *saver, fisce_uint handle,
+		fisce_uint classId, fisce_int posInHeap, fisce_int gen, fisce_int finalizeStatus,
+		fisce_uint monitorOwner, fisce_uint monitorCount, fisce_uint length,
+		fisce_uint dataSize, fisce_uint *data, fisce_exception *exception) {
 	FILE *fp = saver;
-	fy_uint i;
+	fisce_uint i;
 	writeInt(fp, 0xF15CE00A, exception);
 	writeInt(fp, handle, exception);
 	writeInt(fp, classId, exception);
@@ -248,10 +248,10 @@ static void saveObject(struct fy_context *context, void *saver, fy_uint handle,
 
 }
 static void saveEndObject(struct fy_context *context, void *saver,
-		fy_exception *exception) {/*NONEED*/
+		fisce_exception *exception) {/*NONEED*/
 }
-static void saveLiterals(struct fy_context *context, void *saver, fy_uint count,
-		fy_uint *handles, fy_exception *exception) {
+static void saveLiterals(struct fy_context *context, void *saver, fisce_uint count,
+		fisce_uint *handles, fisce_exception *exception) {
 	FILE *fp = saver;
 	int i;
 	writeInt(fp, 0xF15CE008, exception);
@@ -261,7 +261,7 @@ static void saveLiterals(struct fy_context *context, void *saver, fy_uint count,
 	}
 }
 static void saveFinalizes(struct fy_context *context, void *saver,
-		fy_uint count, fy_uint *handles, fy_exception *exception) {
+		fisce_uint count, fisce_uint *handles, fisce_exception *exception) {
 	FILE *fp = saver;
 	int i;
 	writeInt(fp, 0xF15CE00B, exception);
@@ -271,17 +271,17 @@ static void saveFinalizes(struct fy_context *context, void *saver,
 	}
 }
 static void savePrepareThreads(struct fy_context *context, void *saver,
-		fy_uint threadsCount, fy_exception *exception) {
+		fisce_uint threadsCount, fisce_exception *exception) {
 	FILE *fp = saver;
 	writeInt(fp, 0xF15CE00C, exception);
 	writeInt(fp, threadsCount, exception);
 }
 static void saveThread(struct fy_context *context, void *saver,
-		fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
-		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
-		fy_uint pendingLockCount, fy_uint waitForLockId,
-		fy_uint waitForNotifyId, fy_uint stackSize, fy_stack_item *stack,
-		fy_exception *exception) {
+		fisce_uint threadId, fisce_uint handle, fisce_int priority, fisce_uint daemon,
+		fisce_uint destroyPending, fisce_uint interrupted, fisce_long nextWakeupTime,
+		fisce_uint pendingLockCount, fisce_uint waitForLockId,
+		fisce_uint waitForNotifyId, fisce_uint stackSize, fisce_stack_item *stack,
+		fisce_exception *exception) {
 	FILE *fp = saver;
 	int i;
 	writeInt(fp, 0xF15CE00D, exception);
@@ -302,12 +302,12 @@ static void saveThread(struct fy_context *context, void *saver,
 	}
 }
 static void savePrepareFrame(struct fy_context *context, void *saver,
-		fy_uint count, fy_exception *exception) {
+		fisce_uint count, fisce_exception *exception) {
 	FILE *fp = saver;
 	writeInt(fp, count, exception);
 }
-static void saveFrame(struct fy_context *context, void *saver, fy_uint methodId,
-		fy_uint sb, fy_uint lpc, fy_int pcofs, fy_exception *exception) {
+static void saveFrame(struct fy_context *context, void *saver, fisce_uint methodId,
+		fisce_uint sb, fisce_uint lpc, fisce_int pcofs, fisce_exception *exception) {
 	FILE *fp = saver;
 	writeInt(fp, 0xf15ce00e, exception);
 	writeInt(fp, methodId, exception);
@@ -316,18 +316,18 @@ static void saveFrame(struct fy_context *context, void *saver, fy_uint methodId,
 	writeInt(fp, pcofs, exception);
 }
 static void saveEndFrame(struct fy_context *context, void *saver,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 }
 static void saveEndThread(struct fy_context *context, void *saver,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 }
 static void saveEnd(struct fy_context *context, void *saver,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fclose(saver);
 }
-static fy_uint readInt(FILE *fp, fy_exception *exception) {
+static fisce_uint readInt(FILE *fp, fisce_exception *exception) {
 	int i, read;
-	fy_uint ret = 0;
+	fisce_uint ret = 0;
 	for (i = 0; i < 4; i++) {
 		read = fgetc(fp);
 		if (read == EOF) {
@@ -346,9 +346,9 @@ static fy_uint readInt(FILE *fp, fy_exception *exception) {
 	return ret;
 }
 
-static fy_char readChar(FILE *fp, fy_exception *exception) {
+static fisce_char readChar(FILE *fp, fisce_exception *exception) {
 	int i, read;
-	fy_char ret = 0;
+	fisce_char ret = 0;
 	for (i = 0; i < 2; i++) {
 		read = fgetc(fp);
 		if (read == EOF) {
@@ -360,13 +360,13 @@ static fy_char readChar(FILE *fp, fy_exception *exception) {
 }
 
 #if 0
-static void readIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
-		fy_int **buf, fy_int size, fy_exception *exception) {
+static void readIntBlock(fy_context *context, FILE *fp, fisce_int *bufsize,
+		fisce_int **buf, fisce_int size, fisce_exception *exception) {
 	int i;
-	fy_uint read;
+	fisce_uint read;
 	if (*bufsize == 0) {
 		*bufsize = 1024;
-		*buf = fy_mmAllocate(context->memblocks, *bufsize * sizeof(fy_int),
+		*buf = fy_mmAllocate(context->memblocks, *bufsize * sizeof(fisce_int),
 				exception);
 		FYEH();
 	}
@@ -375,7 +375,7 @@ static void readIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
 			*bufsize *= 2;
 		}
 		fy_mmFree(context->memblocks, buf);
-		fy_mmAllocate(context->memblocks, *bufsize * sizeof(fy_int), exception);
+		fy_mmAllocate(context->memblocks, *bufsize * sizeof(fisce_int), exception);
 		FYEH();
 	}
 	for (i = 0; i < size; i++) {
@@ -387,13 +387,13 @@ static void readIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
 }
 #endif
 
-static void readUIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
-		fy_uint **buf, fy_int size, fy_exception *exception) {
+static void readUIntBlock(fy_context *context, FILE *fp, fisce_int *bufsize,
+		fisce_uint **buf, fisce_int size, fisce_exception *exception) {
 	int i;
-	fy_uint read;
+	fisce_uint read;
 	if (*bufsize == 0) {
 		*bufsize = 1024;
-		*buf = fy_mmAllocate(context->memblocks, *bufsize * sizeof(fy_int),
+		*buf = fy_mmAllocate(context->memblocks, *bufsize * sizeof(fisce_int),
 				exception);
 		FYEH();
 	}
@@ -402,7 +402,7 @@ static void readUIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
 			*bufsize *= 2;
 		}
 		fy_mmFree(context->memblocks, buf);
-		fy_mmAllocate(context->memblocks, *bufsize * sizeof(fy_int), exception);
+		fy_mmAllocate(context->memblocks, *bufsize * sizeof(fisce_int), exception);
 		FYEH();
 	}
 	for (i = 0; i < size; i++) {
@@ -413,10 +413,10 @@ static void readUIntBlock(fy_context *context, FILE *fp, fy_int *bufsize,
 	}
 }
 
-static void readString(fy_context *context, FILE *fp, fy_str *str, fy_int size,
-		fy_exception *exception) {
+static void readString(fy_context *context, FILE *fp, fy_str *str, fisce_int size,
+		fisce_exception *exception) {
 	int i;
-	fy_char read;
+	fisce_char read;
 	fy_strEnsureSize(context->memblocks, str, size + str->length, exception);
 	for (i = 0; i < size; i++) {
 		read = readChar(fp, exception);
@@ -428,62 +428,62 @@ static void readString(fy_context *context, FILE *fp, fy_str *str, fy_int size,
 
 #define FY_ASSERTF(VALUE) if(readInt(fp,exception)!=VALUE){FYEH();fy_fault(exception,FY_EXCEPTION_IO,"Data mismatch");return;}
 
-static void loadData(struct fy_context *context, fy_exception *exception) {
+static void loadData(struct fy_context *context, fisce_exception *exception) {
 	FILE *fp = fopen(context->saveloadParam, "rb");
 	void *loader;
-	fy_uint i, j;
-	fy_uint classCount;
+	fisce_uint i, j;
+	fisce_uint classCount;
 	fy_str strbuf[1];
-	fy_int uintbufSize = 0;
-	fy_uint *uintbuf;
-	fy_uint *uintbuf2 = NULL;
+	fisce_int uintbufSize = 0;
+	fisce_uint *uintbuf;
+	fisce_uint *uintbuf2 = NULL;
 
-	fy_uint nameSize;
-	fy_uint id;
-	fy_uint handle;
+	fisce_uint nameSize;
+	fisce_uint id;
+	fisce_uint handle;
 
-	fy_uint clinited;
-	fy_uint staticSize;
+	fisce_uint clinited;
+	fisce_uint staticSize;
 	/*
-	 fy_uint *staticArea;
+	 fisce_uint *staticArea;
 	 */
-	fy_uint methodCount;
-	fy_uint fieldCount;
+	fisce_uint methodCount;
+	fisce_uint fieldCount;
 
-	fy_uint nextHandle;
-	fy_uint objectCount;
+	fisce_uint nextHandle;
+	fisce_uint objectCount;
 
-	fy_uint classId;
-	fy_int posInHeap;
-	fy_int gen;
-	fy_int finalizeStatus;
-	fy_int monitorOwner;
-	fy_int monitorCount;
-	fy_int len;
-	fy_int dataSize;
+	fisce_uint classId;
+	fisce_int posInHeap;
+	fisce_int gen;
+	fisce_int finalizeStatus;
+	fisce_int monitorOwner;
+	fisce_int monitorCount;
+	fisce_int len;
+	fisce_int dataSize;
 
-	fy_int literalCount;
+	fisce_int literalCount;
 
-	fy_int finalizeCount;
+	fisce_int finalizeCount;
 
-	fy_int threadCount;
+	fisce_int threadCount;
 
-	fy_int daemon;
-	fy_int priority;
-	fy_int destroyPending;
-	fy_int interrupted;
-	fy_int nextWakeUpTimeL;
-	fy_int nextWakeUpTimeH;
-	fy_int pendingLockCount;
-	fy_int waitForLockId;
-	fy_int waitForNotifyId;
-	fy_int stackSize;
+	fisce_int daemon;
+	fisce_int priority;
+	fisce_int destroyPending;
+	fisce_int interrupted;
+	fisce_int nextWakeUpTimeL;
+	fisce_int nextWakeUpTimeH;
+	fisce_int pendingLockCount;
+	fisce_int waitForLockId;
+	fisce_int waitForNotifyId;
+	fisce_int stackSize;
 
-	fy_int frameCount;
-	fy_int methodId;
-	fy_int sb;
-	fy_int lpc;
-	fy_int pcofs;
+	fisce_int frameCount;
+	fisce_int methodId;
+	fisce_int sb;
+	fisce_int lpc;
+	fisce_int pcofs;
 
 	fy_thread *thread;
 

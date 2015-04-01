@@ -45,12 +45,12 @@
 #endif
 
 typedef struct fy_classDefine {
-	fy_int size;
-	FY_VLS(fy_byte,data);
+	fisce_int size;
+	FY_VLS(fisce_byte,data);
 }fy_classDefine;
 
 #ifdef FY_DEBUG
-static int checkConstantBonud(fy_class *clazz, int idx, fy_exception *exception) {
+static int checkConstantBonud(fy_class *clazz, int idx, fisce_exception *exception) {
 	if (idx > clazz->constantPoolCount) {
 		fy_fault(exception, NULL, "Constant index out of bound %d/%d", idx,
 				clazz->constantPoolCount);
@@ -62,7 +62,7 @@ static int checkConstantBonud(fy_class *clazz, int idx, fy_exception *exception)
 #endif
 
 static fy_arrayType getSizeShiftForArray(fy_str *arrayName,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	switch (fy_strGet(arrayName,1)) {
 	case FY_TYPE_BOOLEAN:
 	case FY_TYPE_BYTE:
@@ -98,7 +98,7 @@ static int getSizeFromDescriptor(fy_str *descriptor) {
 #endif
 
 static void fillConstantContent(fy_context *context, fy_class *ret,
-		fy_inputStream *is, fy_exception *exception) {
+		fy_inputStream *is, fisce_exception *exception) {
 	int i, imax, j;
 	int cpSkip;
 	int tag;
@@ -113,13 +113,13 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 	ConstantNameAndTypeInfo* tmpConstantNameAndTypeInfo;
 	ConstantUtf8Info* tmpConstantUtf8Info;
 	void **constantPools;
-	fy_ubyte *constantTypes;
+	fisce_ubyte *constantTypes;
 
 	ret->constantPoolCount = fy_dataRead2(context, is, exception);
 
 	/*read constantPool*/
 	ret->constantTypes = constantTypes = fy_mmAllocatePerm(block,
-			sizeof(fy_ubyte) * (ret->constantPoolCount + 1), exception);
+			sizeof(fisce_ubyte) * (ret->constantPoolCount + 1), exception);
 	FYEH();
 	ret->constantPools = constantPools = fy_mmAllocatePerm(block,
 			sizeof(void*) * (ret->constantPoolCount + 1), exception);
@@ -373,7 +373,7 @@ static void fillConstantContent(fy_context *context, fy_class *ret,
 }
 
 static void loadInterfaces(fy_context *context, fy_class *clazz,
-		fy_inputStream *is, fy_exception *exception) {
+		fy_inputStream *is, fisce_exception *exception) {
 	int i, count;
 	fy_memblock *block = context->memblocks;
 	clazz->interfacesCount = count = fy_dataRead2(context, is, exception);
@@ -391,15 +391,15 @@ static void loadInterfaces(fy_context *context, fy_class *clazz,
 }
 
 static void loadFields(fy_context *context, fy_class *clazz, fy_inputStream *is,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	int i, count, j, countj;
 	int length;
 
 	fy_str *attrName;
-	fy_uint attrSize;
+	fisce_uint attrSize;
 	fy_field *field;
-	fy_uint pos = 0;
-	fy_uint staticPos = 0;
+	fisce_uint pos = 0;
+	fisce_uint staticPos = 0;
 	fy_memblock *block = context->memblocks;
 
 	clazz->fieldCount = count = fy_dataRead2(context, is, exception);
@@ -488,7 +488,7 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_inputStream *is,
 	clazz->sizeRel = pos;
 	clazz->staticSize = staticPos;
 	if (staticPos > 0) {
-		clazz->staticArea = fy_mmAllocatePerm(block, staticPos * sizeof(fy_int),
+		clazz->staticArea = fy_mmAllocatePerm(block, staticPos * sizeof(fisce_int),
 				exception);
 		FYEH();
 	} else {
@@ -497,8 +497,8 @@ static void loadFields(fy_context *context, fy_class *clazz, fy_inputStream *is,
 }
 
 static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
-		fy_int begin, fy_int end, fy_exception *exception) {
-	fy_char ch;
+		fisce_int begin, fisce_int end, fisce_exception *exception) {
+	fisce_char ch;
 	fy_class *clazz;
 	fy_str tmp[1];
 	fy_str *finalName;
@@ -560,15 +560,15 @@ static fy_class* getClassFromName(struct fy_context *context, fy_str *desc,
 }
 
 static void countParams(fy_context *context, fy_str *desc, fy_method *method,
-		fy_exception *exception) {
-	fy_byte *temp;
-	fy_byte returnType = FY_TYPE_UNKNOWN;
-	fy_int beginClass = 0, endClass = 0;
+		fisce_exception *exception) {
+	fisce_byte *temp;
+	fisce_byte returnType = FY_TYPE_UNKNOWN;
+	fisce_int beginClass = 0, endClass = 0;
 	int pc = 0;
-	fy_char ch;
+	fisce_char ch;
 	int i, maxi;
 	fy_class *clazz;
-	fy_boolean begin = FALSE;
+	fisce_boolean begin = FALSE;
 	fy_arrayList tmpList[1];
 	char msg[256];
 
@@ -576,7 +576,7 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	context->logDStr(context, desc);
 	context->logDVarLn(context, " counting Params");
 #endif
-	temp = /*TEMP*/fy_allocate(desc->length * sizeof(fy_byte), exception);
+	temp = /*TEMP*/fy_allocate(desc->length * sizeof(fisce_byte), exception);
 	FYEH();
 	fy_arrayListInit(context->memblocks, tmpList, sizeof(fy_class*), 16,
 			exception);
@@ -709,9 +709,9 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 	if (method != NULL) {
 		method->paramStackUsage = pc + ((method->access_flags & FY_ACC_STATIC)? 0 : 1);
 		method->paramTypes = fy_mmAllocatePerm(context->memblocks,
-				method->paramStackUsage * sizeof(fy_byte), exception);
+				method->paramStackUsage * sizeof(fisce_byte), exception);
 		FYEH();
-		memcpy(method->paramTypes + ((method->access_flags & FY_ACC_STATIC)? 0 : 1), temp, pc * sizeof(fy_byte));
+		memcpy(method->paramTypes + ((method->access_flags & FY_ACC_STATIC)? 0 : 1), temp, pc * sizeof(fisce_byte));
 		if(!(method->access_flags & FY_ACC_STATIC)){
 			/*this*/
 			method->paramTypes[0] = FY_TYPE_HANDLE;
@@ -722,13 +722,13 @@ static void countParams(fy_context *context, fy_str *desc, fy_method *method,
 }
 
 static void loadMethods(fy_context *context, fy_class *clazz,
-		fy_inputStream *is, fy_exception *exception) {
+		fy_inputStream *is, fisce_exception *exception) {
 	fy_memblock *block = context->memblocks;
-	fy_char i, count, j, jcount, k, kcount, l, lcount;
+	fisce_char i, count, j, jcount, k, kcount, l, lcount;
 	fy_str *attrName;
-	fy_uint attrSize;
+	fisce_uint attrSize;
 	fy_str *attrNameCode;
-	fy_uint attrSizeCode;
+	fisce_uint attrSizeCode;
 	fy_method *method;
 
 	clazz->methodCount = count = fy_dataRead2(context, is, exception);
@@ -884,12 +884,12 @@ static void loadMethods(fy_context *context, fy_class *clazz,
 
 /************public***************/
 fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
-		fy_char idx) {
+		fisce_char idx) {
 	return ((ConstantUtf8Info*) clazz->constantPools[idx])->string;
 }
 
 fy_inputStream *fy_clOpenResource(fy_context *context, fy_str *name,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	int i, max;
 	int size = 0;
 	char *cname;
@@ -909,10 +909,10 @@ fy_inputStream *fy_clOpenResource(fy_context *context, fy_str *name,
 }
 
 static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
-	fy_char i, icount;
+		fisce_exception *exception) {
+	fisce_char i, icount;
 	fy_str *attrName;
-	fy_uint attrSize;
+	fisce_uint attrSize;
 	fy_memblock *block = context->memblocks;
 	fy_class *clazz = fy_mmAllocatePerm(block, sizeof(fy_class), exception);
 	FYEH()NULL;
@@ -1020,8 +1020,8 @@ static fy_class *fy_clLoadclassPriv(fy_context *context, fy_inputStream *is,
 #endif
 	return clazz;
 }
-void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) {
-	fy_uint i, pos;
+void fy_clPhase2(fy_context *context, fy_class *clazz, fisce_exception *exception) {
+	fisce_uint i, pos;
 	fy_memblock *block = context->memblocks;
 	fy_field *field;
 	fy_method *method;
@@ -1271,13 +1271,13 @@ void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception) 
 #endif
 }
 fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_inputStream *is;
 	fy_classDefine *cd;
 	fy_class *clazz;
 	fy_memblock *block = context->memblocks;
 	fy_str str[1];
-	fy_exception closeException[1];
+	fisce_exception closeException[1];
 	str->content = NULL;
 
 #if 0
@@ -1338,7 +1338,7 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 		clazz->type = primitive_class;
 		clazz->s.super = fy_vmLookupClass(context, context->sTopClass, exception);
 		FYEH()NULL;
-		clazz->ci.prm.pType = *(fy_char*) fy_hashMapGet(block,
+		clazz->ci.prm.pType = *(fisce_char*) fy_hashMapGet(block,
 				context->mapPrimitivesRev, name);
 	} else {
 		cd = fy_hashMapGet(context->memblocks, context->customClassData, name);
@@ -1377,12 +1377,12 @@ fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
 	return clazz;
 }
 
-void fy_clDefineClass(fy_context *context, fy_str *name, fy_byte *data,
-		fy_int dataLen, fy_exception *exception) {
+void fy_clDefineClass(fy_context *context, fy_str *name, fisce_byte *data,
+		fisce_int dataLen, fisce_exception *exception) {
 	fy_classDefine *cd;
 	cd = fy_hashMapGet(context->memblocks, context->customClassData, name);
 	if (cd == NULL) {
-		cd = fy_mmAllocatePerm(context->memblocks, sizeof(fy_int) + dataLen,
+		cd = fy_mmAllocatePerm(context->memblocks, sizeof(fisce_int) + dataLen,
 				exception);
 		FYEH();
 		cd->size = dataLen;

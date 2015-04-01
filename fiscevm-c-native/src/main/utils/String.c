@@ -20,10 +20,10 @@
 #include "fy_util/String.h"
 #include "fy_util/Utf8.h"
 #include <stdarg.h>
-FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
-		fy_exception *exception) {
+FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fisce_int size,
+		fisce_exception *exception) {
 	fy_str *str = fy_mmAllocatePerm(mem,
-			sizeof(fy_str) + size * sizeof(fy_char), exception);
+			sizeof(fy_str) + size * sizeof(fisce_char), exception);
 	FYEH()NULL;
 	str->length = 0;
 	str->maxLength = size;
@@ -33,9 +33,9 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
-		fy_str *other, fy_int additionalSize, fy_exception *exception) {
+		fy_str *other, fisce_int additionalSize, fisce_exception *exception) {
 	fy_str *str;
-	fy_int size = other->length + additionalSize;
+	fisce_int size = other->length + additionalSize;
 	str = fy_strCreatePerm(mem, size, exception);
 	FYEH()NULL;
 	fy_strAppend(mem, str, other, exception);
@@ -43,7 +43,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
 	return str;
 }
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromSubstring(fy_memblock *mem,
-		fy_str *other, fy_int begin, fy_int end, fy_exception *exception) {
+		fy_str *other, fisce_int begin, fisce_int end, fisce_exception *exception) {
 	fy_str *ret;
 
 	if (begin < 0 || begin >= other->length || end < begin
@@ -61,9 +61,9 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermFromSubstring(fy_memblock *mem,
 	return ret;
 }
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
-		const char *utf8, fy_int additionalSize, fy_exception *exception) {
+		const char *utf8, fisce_int additionalSize, fisce_exception *exception) {
 	fy_str *str;
-	fy_int size = fy_utf8SizeS(utf8, -1) + additionalSize;
+	fisce_int size = fy_utf8SizeS(utf8, -1) + additionalSize;
 	str = fy_strCreatePerm(mem, size, exception);
 	FYEH()NULL;
 	fy_strAppendUTF8(mem, str, utf8, -1, exception);
@@ -71,8 +71,8 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
 	return str;
 }
 
-FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
-		fy_exception *exception) {
+FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fisce_int size,
+		fisce_exception *exception) {
 	if (str->content != NULL) {
 		fy_fault(exception, NULL, "duplicated initJavaString");
 		return NULL;
@@ -96,19 +96,19 @@ FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *block, fy_str *string) {
 }
 
 FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
-		const char *utf8, fy_exception *exception) {
+		const char *utf8, fisce_exception *exception) {
 	size_t size;
 	size = fy_utf8SizeS(utf8, -1);
-	fy_strInit(block, str, (fy_int)size, exception);
+	fy_strInit(block, str, (fisce_int)size, exception);
 	FYEH();
 	fy_strAppendUTF8(block, str, utf8, -1, exception);
 	FYEH();
 }
 
-static fy_str *ensureSize(fy_memblock *block, fy_str *_this, fy_int size,
-		fy_exception *exception) {
+static fy_str *ensureSize(fy_memblock *block, fy_str *_this, fisce_int size,
+		fisce_exception *exception) {
 	int len;
-	fy_char *newContent;
+	fisce_char *newContent;
 
 	if (_this->maxLength < size) {
 		if (_this->status & FY_STR_PERM) {
@@ -119,7 +119,7 @@ static fy_str *ensureSize(fy_memblock *block, fy_str *_this, fy_int size,
 		while (len < size) {
 			len <<= 1;
 		}
-		newContent = fy_mmAllocate(block, len * sizeof(fy_char), exception);
+		newContent = fy_mmAllocate(block, len * sizeof(fisce_char), exception);
 		FYEH()NULL;
 		memcpy(newContent, _this->content, _this->length << 1);
 		fy_mmFree(block, _this->content);
@@ -130,7 +130,7 @@ static fy_str *ensureSize(fy_memblock *block, fy_str *_this, fy_int size,
 }
 
 static fy_str *fy_strAppendPriv(fy_memblock *block, fy_str *_this,
-		fy_char *from, fy_int length, fy_exception *exception) {
+		fisce_char *from, fisce_int length, fisce_exception *exception) {
 
 	if (_this == NULL || from == NULL) {
 		fy_fault(exception, NULL, "NPT");
@@ -145,7 +145,7 @@ static fy_str *fy_strAppendPriv(fy_memblock *block, fy_str *_this,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this,
-		fy_int size, fy_exception *exception) {
+		fisce_int size, fisce_exception *exception) {
 	if (_this->status & FY_STR_PERSIST) {
 		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
 		return NULL;
@@ -154,7 +154,7 @@ FY_ATTR_EXPORT fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strAppendChar(fy_memblock *block, fy_str *_this,
-		fy_char ch, fy_exception *exception) {
+		fisce_char ch, fisce_exception *exception) {
 	if (_this->status & FY_STR_PERSIST) {
 		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
 		return NULL;
@@ -163,7 +163,7 @@ FY_ATTR_EXPORT fy_str *fy_strAppendChar(fy_memblock *block, fy_str *_this,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strAppend(fy_memblock *block, fy_str *_this,
-		const fy_str *string, fy_exception *exception) {
+		const fy_str *string, fisce_exception *exception) {
 	if (_this->status & FY_STR_PERSIST) {
 		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
 		return NULL;
@@ -173,10 +173,10 @@ FY_ATTR_EXPORT fy_str *fy_strAppend(fy_memblock *block, fy_str *_this,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *block, fy_str *_this,
-		const char *utf8, fy_int size, fy_exception *exception) {
+		const char *utf8, fisce_int size, fisce_exception *exception) {
 	const char *inbuf = utf8;
-	fy_char outbuf;
-	fy_int sl = (fy_int)strlen(utf8);
+	fisce_char outbuf;
+	fisce_int sl = (fisce_int)strlen(utf8);
 	if (_this->status & FY_STR_PERSIST) {
 		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
 		return NULL;
@@ -193,14 +193,14 @@ FY_ATTR_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *block, fy_str *_this,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strAppendVA(fy_memblock *block, fy_str *_this,
-		fy_strVA *va, fy_exception *exception) {
-	fy_int i, max = va->patternLength;
+		fy_strVA *va, fisce_exception *exception) {
+	fisce_int i, max = va->patternLength;
 	char c;
 	for (i = 0; i < max; i++) {
 		c = va->pattern[i];
 		switch (c) {
 		case 'c':
-			fy_strAppendChar(block, _this, (fy_char) va->vars[i].c, exception);
+			fy_strAppendChar(block, _this, (fisce_char) va->vars[i].c, exception);
 			break;
 		case 'a':
 			fy_strAppendUTF8(block, _this, va->vars[i].a, -1, exception);
@@ -214,7 +214,7 @@ FY_ATTR_EXPORT fy_str *fy_strAppendVA(fy_memblock *block, fy_str *_this,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strSubstring(fy_memblock *block, fy_str *_this,
-		fy_int begin, fy_int end) {
+		fisce_int begin, fisce_int end) {
 	int size = end - begin;
 	int i;
 	if (_this == NULL) {
@@ -237,8 +237,8 @@ FY_ATTR_EXPORT fy_str *fy_strSubstring(fy_memblock *block, fy_str *_this,
 	return _this;
 }
 
-FY_ATTR_EXPORT fy_uint fy_strUtf8Count(fy_str *str) {
-	fy_uint size = 0;
+FY_ATTR_EXPORT fisce_uint fy_strUtf8Count(fy_str *str) {
+	fisce_uint size = 0;
 	int i, count;
 	count = str->length;
 	for (i = 0; i < count; i++) {
@@ -247,15 +247,15 @@ FY_ATTR_EXPORT fy_uint fy_strUtf8Count(fy_str *str) {
 	return size;
 }
 
-FY_ATTR_EXPORT fy_int fy_strCmp(fy_str *left, fy_str *right) {
-	fy_int resultWhenEqual =
+FY_ATTR_EXPORT fisce_int fy_strCmp(fy_str *left, fy_str *right) {
+	fisce_int resultWhenEqual =
 			left->length == right->length ?
 					0 : (left->length > right->length ? 1 : -1);
-	fy_int len = left->length > right->length ? right->length : left->length;
-	fy_int i;
-	fy_char *lc = left->content;
-	fy_char *rc = right->content;
-	fy_int ret;
+	fisce_int len = left->length > right->length ? right->length : left->length;
+	fisce_int i;
+	fisce_char *lc = left->content;
+	fisce_char *rc = right->content;
+	fisce_int ret;
 	for (i = 0; i < len; i++) {
 		ret = lc[i] - rc[i];
 		if (ret != 0) {
@@ -265,15 +265,15 @@ FY_ATTR_EXPORT fy_int fy_strCmp(fy_str *left, fy_str *right) {
 	return resultWhenEqual;
 }
 
-FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
-	fy_int i, pos = 0, ret, j, maxj;
-	fy_int max = va->patternLength;
+FY_ATTR_EXPORT fisce_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
+	fisce_int i, pos = 0, ret, j, maxj;
+	fisce_int max = va->patternLength;
 	char c;
-	fy_int resultWhenEqual =
+	fisce_int resultWhenEqual =
 			left->length == va->size ? 0 : (left->length > va->size ? 1 : -1);
 	char *rightArray;
-	fy_char ch;
-	fy_int utf8Left;
+	fisce_char ch;
+	fisce_int utf8Left;
 	fy_str *rightStr;
 	for (i = 0; i < max; i++) {
 		c = va->pattern[i];
@@ -289,7 +289,7 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 			break;
 		case 'a':
 			rightArray = va->vars[i].a;
-			utf8Left = (fy_int)strlen(rightArray);
+			utf8Left = (fisce_int)strlen(rightArray);
 			while (utf8Left > 0) {
 				if (pos >= left->length) {
 					return -1;
@@ -321,7 +321,7 @@ FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va) {
 	return resultWhenEqual;
 }
 
-FY_ATTR_EXPORT fy_boolean fy_strEndsWith(fy_str *_this, fy_str *right) {
+FY_ATTR_EXPORT fisce_boolean fy_strEndsWith(fy_str *_this, fy_str *right) {
 	int delta;
 	int i;
 	if (_this->length < right->length) {
@@ -344,7 +344,7 @@ FY_ATTR_EXPORT void fy_strClear(fy_str *_this) {
 	_this->length = 0;
 }
 
-FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to) {
+FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fisce_char from, fisce_char to) {
 	int i;
 	if (str->status & FY_STR_PERSIST) {
 		fy_fault(NULL, NULL, "Logic error: try to clear a persisted string");
@@ -361,11 +361,11 @@ FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to) {
 
 FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, const fy_str *str) {
 	int i, count;
-	fy_char unicode;
+	fisce_char unicode;
 	char *tmp;
-	fy_int left;
+	fisce_int left;
 	tmp = target;
-	left = (fy_int)targetSize;
+	left = (fisce_int)targetSize;
 	count = str->length;
 	for (i = 0; i < count; i++) {
 		unicode = str->content[i];
@@ -382,8 +382,8 @@ FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, const fy_str 
 }
 
 FY_ATTR_EXPORT char *fy_strToUTF8Perm(fy_memblock *block, fy_str *from,
-		fy_exception *exception) {
-	fy_int count = fy_strUtf8Count(from) + 1;
+		fisce_exception *exception) {
+	fisce_int count = fy_strUtf8Count(from) + 1;
 	char *result = fy_mmAllocatePerm(block, count, exception);
 	FYEH()NULL;
 	fy_strSPrint(result, count, from);
@@ -391,7 +391,7 @@ FY_ATTR_EXPORT char *fy_strToUTF8Perm(fy_memblock *block, fy_str *from,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *block, fy_str *from,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_str *_this = fy_mmAllocate(block, sizeof(fy_str), exception);
 	FYEH()NULL;
 	fy_strInit(block, _this, from->length, exception);
@@ -403,16 +403,16 @@ FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *block, fy_str *from,
 	return _this;
 }
 
-static fy_uint hash(fy_str *key) {
+static fisce_uint hash(fy_str *key) {
 	int i, imax;
-	fy_uint ret = 0;
+	fisce_uint ret = 0;
 	for (i = 0, imax = key->length; i < imax; i++) {
 		ret = (ret << 5) + (ret << 2) + (ret >> 30) + key->content[i];
 	}
 	return ret;
 }
 
-FY_ATTR_EXPORT fy_uint fy_strHash(fy_str *str) {
+FY_ATTR_EXPORT fisce_uint fy_strHash(fy_str *str) {
 	if (str->status & FY_STR_HASHED) {
 		return str->hashCode;
 	} else {
@@ -421,26 +421,26 @@ FY_ATTR_EXPORT fy_uint fy_strHash(fy_str *str) {
 	}
 }
 
-FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va) {
+FY_ATTR_EXPORT fisce_uint fy_strHashVA(fy_strVA *va) {
 	int i = 0;
-	fy_uint ret = 0;
+	fisce_uint ret = 0;
 	char c;
-	fy_char value;
+	fisce_char value;
 	fy_str *str;
 
 	char *arrayBase;
-	fy_int left;
+	fisce_int left;
 	const char *pattern = va->pattern;
 	fy_strVarStorage *vars = va->vars;
 
 	while ((c = pattern[i]) != 0) {
 		switch (c) {
 		case 'c':
-			ret = (ret << 5) + (ret << 2) + (ret >> 30) + (fy_char) (vars[i].c);
+			ret = (ret << 5) + (ret << 2) + (ret >> 30) + (fisce_char) (vars[i].c);
 			break;
 		case 'a':
 			arrayBase = vars[i].a;
-			left = (fy_int)strlen(arrayBase);
+			left = (fisce_int)strlen(arrayBase);
 			while (left > 0) {
 				value = fy_utf8Read((char const **) &arrayBase, &left);
 				ret = (ret << 5) + (ret << 2) + (ret >> 30) + value;
@@ -464,15 +464,15 @@ FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va) {
 	return ret;
 }
 
-FY_ATTR_EXPORT fy_char fy_strGet0(const fy_str *str, fy_int pos) {
+FY_ATTR_EXPORT fisce_char fy_strGet0(const fy_str *str, fisce_int pos) {
 	return str->content[pos];
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA *va,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	char c;
 	fy_str *str;
-	fy_int i;
+	fisce_int i;
 	str = fy_strCreatePerm(mem, va->size, exception);
 	FYEH()NULL;
 	for (i = 0; i < va->patternLength; i++) {
@@ -504,7 +504,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA *va,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
-		fy_exception *exception, const char *pattern, ...) {
+		fisce_exception *exception, const char *pattern, ...) {
 
 	va_list arg_ptr;
 	fy_strVA va[1];
@@ -516,12 +516,12 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistClone(fy_memblock *mem,
-		fy_str *from, fy_exception *exception) {
+		fy_str *from, fisce_exception *exception) {
 	fy_str *ret;
 	if (from->status & FY_STR_PERSIST) {
 		ret = from;
 #if 0
-		if((fy_ulong)from > 0x7fffffffffff0000ll) {
+		if((fisce_ulong)from > 0x7fffffffffff0000ll) {
 			int j=0;
 			j++;
 			j++;
@@ -535,7 +535,7 @@ FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistClone(fy_memblock *mem,
 }
 
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,
-		fy_str *from, int begin, int end, fy_exception *exception) {
+		fy_str *from, int begin, int end, fisce_exception *exception) {
 	fy_str *str;
 	if (begin < 0) {
 		begin = 0;
@@ -570,9 +570,9 @@ FY_ATTR_EXPORT void fy_strParseV(fy_strVA *output, const char *pattern, ...) {
 }
 FY_ATTR_EXPORT void fy_strParseVA(fy_strVA *output, const char *pattern,
 		va_list arg_ptr) {
-	fy_int i = 0;
+	fisce_int i = 0;
 	char c;
-	fy_int size = 0;
+	fisce_int size = 0;
 	fy_strVarStorage *vs = output->vars;
 	while ((c = pattern[i]) != 0) {
 		if (i >= FY_STR_MAX_VA) {

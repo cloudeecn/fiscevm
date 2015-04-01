@@ -29,12 +29,12 @@
 #include <errno.h>
 
 typedef struct {
-	fy_boolean closed;
+	fisce_boolean closed;
 	FILE *fp;
 } fisData;
 
-static fy_int isRead(struct fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
+static fisce_int isRead(struct fy_context *context, fy_inputStream *is,
+		fisce_exception *exception) {
 	fisData *data = is->data;
 	int ret = fgetc(data->fp);
 #if EOF != -1
@@ -45,11 +45,11 @@ static fy_int isRead(struct fy_context *context, fy_inputStream *is,
 	return ret;
 }
 
-static fy_int isReadBlock(struct fy_context *context, fy_inputStream *is,
-		void *target, fy_int size, fy_exception *exception) {
+static fisce_int isReadBlock(struct fy_context *context, fy_inputStream *is,
+		void *target, fisce_int size, fisce_exception *exception) {
 	fisData *data = is->data;
-	fy_int read = (fy_int)fread(target, 1, size, data->fp);
-	fy_int err;
+	fisce_int read = (fisce_int)fread(target, 1, size, data->fp);
+	fisce_int err;
 	if (read == 0) {
 		err = ferror(data->fp);
 		if (err) {
@@ -63,8 +63,8 @@ static fy_int isReadBlock(struct fy_context *context, fy_inputStream *is,
 	return read;
 }
 
-static fy_int isSkip(struct fy_context *context, fy_inputStream *is,
-		fy_int size, fy_exception *exception) {
+static fisce_int isSkip(struct fy_context *context, fy_inputStream *is,
+		fisce_int size, fisce_exception *exception) {
 	fisData *data = is->data;
 	if (data->closed) {
 		fy_fault(exception, FY_EXCEPTION_IO, "closed.");
@@ -79,7 +79,7 @@ static fy_int isSkip(struct fy_context *context, fy_inputStream *is,
 }
 
 static void isClose(struct fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fisData *data = is->data;
 	if (fclose(data->fp)) {
 		fy_fault(exception, FY_EXCEPTION_IO, "%s", strerror(errno));
@@ -87,21 +87,21 @@ static void isClose(struct fy_context *context, fy_inputStream *is,
 }
 
 static fy_inputStream* isOpen(struct fy_context *context, const char *name,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	FILE *fp = NULL;
 	fy_inputStream *ret;
 	char targetName[1024];
     const char *const *baseNames = context->isParam;
 	fisData *data;
-	fy_int baseLen;
-	fy_boolean baseSlash, nameSlash;
+	fisce_int baseLen;
+	fisce_boolean baseSlash, nameSlash;
     const char* baseName;
-    fy_int i = 0;
+    fisce_int i = 0;
 
     while((baseName=baseNames[i++])!=NULL){
         targetName[0] = 0;
-        baseLen = (fy_int)strlen(baseName);
-        if (baseName == NULL || (baseLen = (fy_int)strlen(baseName)) == 0) {
+        baseLen = (fisce_int)strlen(baseName);
+        if (baseName == NULL || (baseLen = (fisce_int)strlen(baseName)) == 0) {
             baseLen = 1;
             baseName = ".";
         }
@@ -152,7 +152,7 @@ static fy_inputStream* isOpen(struct fy_context *context, const char *name,
 	return ret;
 }
 
-void fy_fisInitInputStream(fy_context *context, fy_exception *exception) {
+void fy_fisInitInputStream(fy_context *context, fisce_exception *exception) {
 	const char defaultPath[] = "runtime";
 	char *path;
 	context->isOpen = isOpen;

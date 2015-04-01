@@ -1,5 +1,5 @@
 /**
- *  Copyright 2010-2013 Yuxuan Huang. All rights reserved.
+ *  Copyright 2010-2015 Yuxuan Huang. All rights reserved.
  *
  * This file is part of fiscevm
  *
@@ -17,19 +17,23 @@
  * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RIS_H_
-#define RIS_H_
+#ifndef FISCEVM_EXPORTSUPPORT_H_
+#define FISCEVM_EXPORTSUPPORT_H_
 
-#include "fy_util/Portable.h"
-#include "fyc/typedefs.h"
+void fy_nativeReturnInt(fy_context *context, fy_thread *thread,
+        fisce_int value);
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-void fy_risInit(fy_context *context, fisce_exception *exception);
-void fy_risDestroy(fy_context *context);
+void fy_nativeReturnHandle(fy_context *context,
+        fy_thread *thread, fisce_int value);
 
-#ifdef	__cplusplus
-|
-#endif
-#endif /* RIS_H_ */
+void fy_nativeReturnLong(fy_context *context, fy_thread *thread,
+        fisce_long value);
+
+void fy_nativeReturnFloat(fy_context *context, fy_thread *thread,
+        fisce_float value);
+
+void fy_nativeReturnDouble(fy_context *context, fy_thread *thread,
+        fisce_double value);
+
+
+#endif /* MAIN_INCLUDE_FISCEVM_EXPORTSUPPORT_H_ */

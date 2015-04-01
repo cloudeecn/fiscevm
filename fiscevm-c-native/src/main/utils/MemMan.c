@@ -25,20 +25,20 @@
 
 typedef struct fy_memblockNode {
 #ifdef FY_STRICT_CHECK
-	fy_uint magic_before;
+	fisce_uint magic_before;
 #endif
 	struct fy_memblockNode *prev;
 	struct fy_memblockNode *next;
 #if defined(FY_DEBUG) || defined(FY_STRICT_CHECK)
-	fy_uint size;
+	fisce_uint size;
 #endif
 #ifdef FY_STRICT_CHECK
-	fy_uint magic_after;
+	fisce_uint magic_after;
 #endif
-	FY_VLS(fy_byte,data);
+	FY_VLS(fisce_byte,data);
 } fy_memblockNode;
 
-FY_ATTR_EXPORT void fy_mmInit(fy_memblock *block, fy_exception *exception) {
+FY_ATTR_EXPORT void fy_mmInit(fy_memblock *block, fisce_exception *exception) {
 	block->last = block->first = /*MANAGED*/fy_allocate(sizeof(fy_memblockNode),
 			exception);
 	FYEH();
@@ -60,11 +60,11 @@ FY_ATTR_EXPORT void fy_mmDestroy(fy_memblock *block) {
 }
 
 FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_memblockNode *node = /*MANAGED*/fy_allocate(
 			sizeof(fy_memblockNode) + size
 #ifdef FY_STRICT_CHECK
-					+ sizeof(fy_uint)
+					+ sizeof(fisce_uint)
 #endif
 					, exception);
 	FYEH()NULL;
@@ -72,14 +72,14 @@ FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size,
 	block->size +=
 #endif
 #ifdef FY_STRICT_CHECK
-			node->size = sizeof(fy_memblockNode) + size + sizeof(fy_uint);
+			node->size = sizeof(fy_memblockNode) + size + sizeof(fisce_uint);
 #endif
 #ifdef FY_STRICT_CHECK
-	node->magic_before = *(fy_int*)block->first;
-	node->magic_before = *(fy_int*)block->last;
+	node->magic_before = *(fisce_int*)block->first;
+	node->magic_before = *(fisce_int*)block->last;
 	node->magic_before = MAGIC_BEFORE;
 	node->magic_after = MAGIC_AFTER;
-	*((fy_uint*) ((char*) node + sizeof(fy_memblockNode) + size)) =
+	*((fisce_uint*) ((char*) node + sizeof(fy_memblockNode) + size)) =
 	MAGIC_AFTER_ALL;
 #endif
 	((fy_memblockNode*) block->last)->next = node;
@@ -91,10 +91,10 @@ FY_ATTR_EXPORT void *fy_mmAllocate(fy_memblock *block, int size,
 
 FY_ATTR_EXPORT void fy_mmValidate(void *address) {
 #ifdef FY_STRICT_CHECK
-	fy_memblockNode *base = (fy_memblockNode *) ((fy_byte*) address
+	fy_memblockNode *base = (fy_memblockNode *) ((fisce_byte*) address
 			- (size_t) ((fy_memblockNode*) 0)->data);
-	fy_uint *after_all =
-			(fy_uint*) ((char*) base + base->size - sizeof(fy_uint));
+	fisce_uint *after_all =
+			(fisce_uint*) ((char*) base + base->size - sizeof(fisce_uint));
 	if (base->magic_before != MAGIC_BEFORE || base->magic_after != MAGIC_AFTER
 			|| *after_all != MAGIC_AFTER_ALL) {
 		fy_fault(NULL, NULL, "Illegal memory block for address %p", address);
@@ -104,7 +104,7 @@ FY_ATTR_EXPORT void fy_mmValidate(void *address) {
 
 FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address) {
 
-	fy_memblockNode *base = (fy_memblockNode *) ((fy_byte*) address
+	fy_memblockNode *base = (fy_memblockNode *) ((fisce_byte*) address
 			- (size_t) ((fy_memblockNode*) 0)->data);
 #ifdef FY_STRICT_CHECK
 	fy_mmValidate(address);
@@ -121,7 +121,7 @@ FY_ATTR_EXPORT void fy_mmFree(fy_memblock *block, void *address) {
 	fy_free(base);
 	block->blocks--;
 #ifdef FY_STRICT_CHECK
-	*(fy_int*)block->first = *(fy_int*)block->last;
+	*(fisce_int*)block->first = *(fisce_int*)block->last;
 #endif
 }
 #ifdef FY_STRICT_CHECK
@@ -137,8 +137,8 @@ static void validateZeros(void *begin, size_t size) {
 }
 #endif
 void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
-		fy_exception *exception) {
-	fy_int blocks = (fy_int) ((size + 3) >> 2);
+		fisce_exception *exception) {
+	fisce_int blocks = (fisce_int) ((size + 3) >> 2);
 	if (block->posInOld >= block->oldTop - blocks) {
 		block->gcProvider(block->gcContext, TRUE, exception);
 		FYEH()NULL;
@@ -156,12 +156,12 @@ void* fy_mmAllocatePerm(fy_memblock *block, size_t size,
 	return block->old + (block->oldTop -= blocks);
 }
 
-fy_int fy_mmPermSize(fy_memblock *block) {
+fisce_int fy_mmPermSize(fy_memblock *block) {
 	return OLD_ENTRIES - block->oldTop;
 }
 
-void *fy_mmAllocateInEden(fy_memblock *block, fy_uint handle, fy_int size,
-		fy_boolean gced, fy_exception *exception) {
+void *fy_mmAllocateInEden(fy_memblock *block, fisce_uint handle, fisce_int size,
+		fisce_boolean gced, fisce_exception *exception) {
 	void *ret;
 	if (size + block->posInEden >= EDEN_ENTRIES) {
 		/*OOM, gc first*/
@@ -185,8 +185,8 @@ void *fy_mmAllocateInEden(fy_memblock *block, fy_uint handle, fy_int size,
 	return ret;
 }
 
-void *fy_mmAllocateInOld(fy_memblock *block, fy_uint handle, fy_int size,
-		fy_boolean gced, fy_exception *exception) {
+void *fy_mmAllocateInOld(fy_memblock *block, fisce_uint handle, fisce_int size,
+		fisce_boolean gced, fisce_exception *exception) {
 	void *ret;
 	if (size + block->posInOld >= block->oldTop) {
 		/*OOM, gc first*/
@@ -206,12 +206,12 @@ void *fy_mmAllocateInOld(fy_memblock *block, fy_uint handle, fy_int size,
 #ifdef FY_STRICT_CHECK
 	/* validateZeros(ret, size << 2); Old area is not cleared by gc*/
 #endif
-	memset(ret, 0, size * sizeof(fy_uint));
+	memset(ret, 0, size * sizeof(fisce_uint));
 	return ret;
 }
 
-void *fy_mmAllocateDirectInEden(fy_memblock *block, fy_int size,
-		fy_exception *exception) {
+void *fy_mmAllocateDirectInEden(fy_memblock *block, fisce_int size,
+		fisce_exception *exception) {
 	void *ret;
 	if (size + block->posInEden >= EDEN_ENTRIES) {
 		/*OOM, gc first*/
@@ -226,8 +226,8 @@ void *fy_mmAllocateDirectInEden(fy_memblock *block, fy_int size,
 	return ret;
 }
 
-void *fy_mmAllocateDirectInCopy(fy_memblock *block, fy_int size,
-		fy_exception *exception) {
+void *fy_mmAllocateDirectInCopy(fy_memblock *block, fisce_int size,
+		fisce_exception *exception) {
 	void *ret;
 	if (size + block->posInYong >= COPY_ENTRIES) {
 		/*OOM, gc first*/
@@ -242,8 +242,8 @@ void *fy_mmAllocateDirectInCopy(fy_memblock *block, fy_int size,
 	return ret;
 }
 
-void *fy_mmAllocateDirectInOld(fy_memblock *block, fy_int size,
-		fy_exception *exception) {
+void *fy_mmAllocateDirectInOld(fy_memblock *block, fisce_int size,
+		fisce_exception *exception) {
 	void *ret;
 	if (size + block->posInOld >= block->oldTop) {
 		/*OOM, gc first*/

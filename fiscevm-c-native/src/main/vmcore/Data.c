@@ -27,9 +27,9 @@
 #include "fyc/InputStream.h"
 
 /*****************public*********************/
-fy_ubyte fy_dataRead(fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
-	fy_int ret = is->isRead(context, is, exception);
+fisce_ubyte fy_dataRead(fy_context *context, fy_inputStream *is,
+		fisce_exception *exception) {
+	fisce_int ret = is->isRead(context, is, exception);
 	FYEH()0;
 	if (ret < 0) {
 		fy_fault(exception, FY_EXCEPTION_IO, "Unexpected end of file");
@@ -38,11 +38,11 @@ fy_ubyte fy_dataRead(fy_context *context, fy_inputStream *is,
 	return ret;
 }
 
-fy_char fy_dataRead2(fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
+fisce_char fy_dataRead2(fy_context *context, fy_inputStream *is,
+		fisce_exception *exception) {
 	int i;
-	fy_char ret = 0;
-	fy_int value;
+	fisce_char ret = 0;
+	fisce_int value;
 	for (i = 0; i < 2; i++) {
 		value = is->isRead(context, is, exception);
 		FYEH()0;
@@ -55,11 +55,11 @@ fy_char fy_dataRead2(fy_context *context, fy_inputStream *is,
 	return ret;
 }
 
-fy_uint fy_dataRead4(fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
+fisce_uint fy_dataRead4(fy_context *context, fy_inputStream *is,
+		fisce_exception *exception) {
 	int i;
-	fy_uint ret = 0;
-	fy_int value;
+	fisce_uint ret = 0;
+	fisce_int value;
 	for (i = 0; i < 4; i++) {
 		value = is->isRead(context, is, exception);
 		FYEH()0;
@@ -72,11 +72,11 @@ fy_uint fy_dataRead4(fy_context *context, fy_inputStream *is,
 	return ret;
 }
 
-fy_ulong fy_dataRead8(fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
+fisce_ulong fy_dataRead8(fy_context *context, fy_inputStream *is,
+		fisce_exception *exception) {
 	int i;
-	fy_ulong ret = 0;
-	fy_int value;
+	fisce_ulong ret = 0;
+	fisce_int value;
 	for (i = 0; i < 8; i++) {
 		value = is->isRead(context, is, exception);
 		FYEH()0;
@@ -89,10 +89,10 @@ fy_ulong fy_dataRead8(fy_context *context, fy_inputStream *is,
 	return ret;
 }
 void fy_dataReadBlock(fy_context *context, fy_inputStream* is,
-        void* buffer, fy_int size, fy_exception *exception) {
-	fy_int read;
-	fy_int pos = 0;
-	while ((read = is->isReadBlock(context, is, (fy_byte*) buffer + pos, size,
+        void* buffer, fisce_int size, fisce_exception *exception) {
+	fisce_int read;
+	fisce_int pos = 0;
+	while ((read = is->isReadBlock(context, is, (fisce_byte*) buffer + pos, size,
 			exception)) >= 0 && size > 0) {
 		FYEH();
 		size -= read;
@@ -104,8 +104,8 @@ void fy_dataReadBlock(fy_context *context, fy_inputStream* is,
 	}
 }
 void fy_dataSkip(fy_context *context, fy_inputStream *is, int size,
-		fy_exception *exception) {
-	fy_int read;
+		fisce_exception *exception) {
+	fisce_int read;
 	while ((read = is->isSkip(context, is, size, exception)) >= 0 && size > 0) {
 		FYEH();
 		size -= read;

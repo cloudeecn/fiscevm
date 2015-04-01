@@ -29,27 +29,27 @@ extern "C" {
 #endif
 
 typedef struct fy_hashMap {
-	fy_char loadFactor;
-	fy_char perm;
-	fy_uint bucketsCount;
+	fisce_char loadFactor;
+	fisce_char perm;
+	fisce_uint bucketsCount;
 	void **buckets;
-	fy_uint size;
+	fisce_uint size;
 } fy_hashMap;
 
 FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this,
-		fy_uint initSize, fy_uint loadFactor, fy_exception *exception);
+		fisce_uint initSize, fisce_uint loadFactor, fisce_exception *exception);
 FY_ATTR_EXPORT void fy_hashMapInitPerm(fy_memblock *mem, fy_hashMap *this,
-		fy_uint initSize, fy_exception *exception);
+		fisce_uint initSize, fisce_exception *exception);
 FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
-		fy_str *key, void *value, fy_exception *exception);
+		fy_str *key, void *value, fisce_exception *exception);
 FY_ATTR_EXPORT void *fy_hashMapPutConst(fy_memblock *mem, fy_hashMap *this,
-        fy_str *key, const void *value, fy_exception *exception);
+        fy_str *key, const void *value, fisce_exception *exception);
 /*
 FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
-		const char *keyUtf8, void *value, fy_exception *exception);
+		const char *keyUtf8, void *value, fisce_exception *exception);
 */
 FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
-		fy_strVA *va, void *value, fy_exception *exception);
+		fy_strVA *va, void *value, fisce_exception *exception);
 FY_ATTR_EXPORT void *fy_hashMapGet(fy_memblock *mem, fy_hashMap *this,
 		fy_str *key);
 FY_ATTR_EXPORT const void* fy_hashMapGetConst(fy_memblock *mem, fy_hashMap *this,

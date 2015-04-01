@@ -5,20 +5,20 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>818D5039-9568-4AC4-83FF-FE7C8E6F6615</string>
+	<string>C4B1B02B-75DC-422D-8CFE-9825ED03D37A</string>
 	<key>IDESourceControlProjectName</key>
-	<string>fiscevm-ios</string>
+	<string>fisce</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>8F65ACBE220C03BCD0CDA9F9E2C4F8836451CAF3</key>
 		<string>github.com:cirnoworks/fiscevm.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>fiscevm-ios/fiscevm-ios.xcodeproj</string>
+	<string>fiscevm-c-native/src/fisce.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>8F65ACBE220C03BCD0CDA9F9E2C4F8836451CAF3</key>
-		<string>../../..</string>
+		<string>../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>github.com:cirnoworks/fiscevm.git</string>

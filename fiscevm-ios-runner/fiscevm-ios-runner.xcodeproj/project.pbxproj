@@ -14,18 +14,11 @@
 		68BCDC8F1A6EAE330065EC5A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 68BCDC8E1A6EAE330065EC5A /* Images.xcassets */; };
 		68BCDC921A6EAE330065EC5A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 68BCDC901A6EAE330065EC5A /* LaunchScreen.xib */; };
 		68BCDC9E1A6EAE340065EC5A /* fiscevm_ios_runnerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 68BCDC9D1A6EAE340065EC5A /* fiscevm_ios_runnerTests.m */; };
-		68BCDCAD1A6EAE7C0065EC5A /* libFiScEVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 68BCDCAC1A6EAE4C0065EC5A /* libFiScEVM.a */; };
 		68BCDCAF1A6EB2040065EC5A /* classes in Resources */ = {isa = PBXBuildFile; fileRef = 68BCDCAE1A6EB2040065EC5A /* classes */; };
+		68D981CA1ACC5A4D00DE30B7 /* libFiScEVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 68D981C71ACC5A3000DE30B7 /* libFiScEVM.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		683401081A72830900A2FCA0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 68BCDCA71A6EAE4B0065EC5A /* fiscevm-ios.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 68BCDCBA1A6FED550065EC5A;
-			remoteInfo = "fiscevm-iosTests";
-		};
 		68BCDC981A6EAE340065EC5A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 68BCDC761A6EAE330065EC5A /* Project object */;
@@ -33,12 +26,33 @@
 			remoteGlobalIDString = 68BCDC7D1A6EAE330065EC5A;
 			remoteInfo = "fiscevm-ios-runner";
 		};
-		68BCDCAB1A6EAE4C0065EC5A /* PBXContainerItemProxy */ = {
+		68D981C21ACC5A3000DE30B7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 68BCDCA71A6EAE4B0065EC5A /* fiscevm-ios.xcodeproj */;
+			containerPortal = 68D981BB1ACC5A3000DE30B7 /* libfisce.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 6873C23E1A033A66006C201B;
-			remoteInfo = "fiscevm-ios";
+			remoteGlobalIDString = 68992C361AC5506F001111E6;
+			remoteInfo = fisce;
+		};
+		68D981C41ACC5A3000DE30B7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 68D981BB1ACC5A3000DE30B7 /* libfisce.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 68E08D131AC7F0B2001B69DB;
+			remoteInfo = fiscej;
+		};
+		68D981C61ACC5A3000DE30B7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 68D981BB1ACC5A3000DE30B7 /* libfisce.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 68E08CA01AC7E18B001B69DB;
+			remoteInfo = ifisce;
+		};
+		68D981C81ACC5A3000DE30B7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 68D981BB1ACC5A3000DE30B7 /* libfisce.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 68E08CAA1AC7E18B001B69DB;
+			remoteInfo = ifisceTests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -56,8 +70,8 @@
 		68BCDC971A6EAE340065EC5A /* fiscevm-ios-runnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "fiscevm-ios-runnerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		68BCDC9C1A6EAE340065EC5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		68BCDC9D1A6EAE340065EC5A /* fiscevm_ios_runnerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fiscevm_ios_runnerTests.m; sourceTree = "<group>"; };
-		68BCDCA71A6EAE4B0065EC5A /* fiscevm-ios.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "fiscevm-ios.xcodeproj"; path = "../../fiscevm-ios/fiscevm-ios.xcodeproj"; sourceTree = "<group>"; };
 		68BCDCAE1A6EB2040065EC5A /* classes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = classes; path = "../fiscevm-runtime/target/classes"; sourceTree = "<group>"; };
+		68D981BB1ACC5A3000DE30B7 /* libfisce.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libfisce.xcodeproj; path = "../../fiscevm-c-native/libfisce.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,7 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				68BCDCAD1A6EAE7C0065EC5A /* libFiScEVM.a in Frameworks */,
+				68D981CA1ACC5A4D00DE30B7 /* libFiScEVM.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,7 +115,7 @@
 		68BCDC801A6EAE330065EC5A /* fiscevm-ios-runner */ = {
 			isa = PBXGroup;
 			children = (
-				68BCDCA71A6EAE4B0065EC5A /* fiscevm-ios.xcodeproj */,
+				68D981BB1ACC5A3000DE30B7 /* libfisce.xcodeproj */,
 				68BCDC851A6EAE330065EC5A /* AppDelegate.h */,
 				68BCDC861A6EAE330065EC5A /* AppDelegate.m */,
 				68BCDC881A6EAE330065EC5A /* ViewController.h */,
@@ -140,11 +154,13 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		68BCDCA81A6EAE4B0065EC5A /* Products */ = {
+		68D981BC1ACC5A3000DE30B7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				68BCDCAC1A6EAE4C0065EC5A /* libFiScEVM.a */,
-				683401091A72830900A2FCA0 /* fiscevm-iosTests.xctest */,
+				68D981C31ACC5A3000DE30B7 /* libfisce.dylib */,
+				68D981C51ACC5A3000DE30B7 /* libfiscej.dylib */,
+				68D981C71ACC5A3000DE30B7 /* libFiScEVM.a */,
+				68D981C91ACC5A3000DE30B7 /* ifisceTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -218,8 +234,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 68BCDCA81A6EAE4B0065EC5A /* Products */;
-					ProjectRef = 68BCDCA71A6EAE4B0065EC5A /* fiscevm-ios.xcodeproj */;
+					ProductGroup = 68D981BC1ACC5A3000DE30B7 /* Products */;
+					ProjectRef = 68D981BB1ACC5A3000DE30B7 /* libfisce.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -231,18 +247,32 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		683401091A72830900A2FCA0 /* fiscevm-iosTests.xctest */ = {
+		68D981C31ACC5A3000DE30B7 /* libfisce.dylib */ = {
 			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = "fiscevm-iosTests.xctest";
-			remoteRef = 683401081A72830900A2FCA0 /* PBXContainerItemProxy */;
+			fileType = "compiled.mach-o.dylib";
+			path = libfisce.dylib;
+			remoteRef = 68D981C21ACC5A3000DE30B7 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		68BCDCAC1A6EAE4C0065EC5A /* libFiScEVM.a */ = {
+		68D981C51ACC5A3000DE30B7 /* libfiscej.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libfiscej.dylib;
+			remoteRef = 68D981C41ACC5A3000DE30B7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		68D981C71ACC5A3000DE30B7 /* libFiScEVM.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libFiScEVM.a;
-			remoteRef = 68BCDCAB1A6EAE4C0065EC5A /* PBXContainerItemProxy */;
+			remoteRef = 68D981C61ACC5A3000DE30B7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		68D981C91ACC5A3000DE30B7 /* ifisceTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ifisceTests.xctest;
+			remoteRef = 68D981C81ACC5A3000DE30B7 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -351,7 +381,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -387,7 +417,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -412,7 +442,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_OPTIMIZATION_LEVEL = fast;
 				INFOPLIST_FILE = "fiscevm-ios-runner/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LLVM_LTO = YES;

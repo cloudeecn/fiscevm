@@ -36,7 +36,7 @@
 # endif
 #endif
 
-fy_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
+fisce_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
 		fy_class *other) {
 	if (this == other) {
 		return FALSE;
@@ -44,8 +44,8 @@ fy_boolean fy_classIsSuperClassOf(fy_context *context, fy_class *this,
 	return fy_classCanCastTo(context, other, this, TRUE);
 }
 
-fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
-		fy_class *other, fy_boolean processInterface) {
+fisce_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
+		fy_class *other, fisce_boolean processInterface) {
 	fy_class **interfaces;
 	fy_class *intf;
 	int i, max;
@@ -137,33 +137,33 @@ fy_boolean fy_classCanCastTo(fy_context *context, fy_class *this,
 	}
 }
 
-static fy_boolean fy_classCanCastToWithNull(fy_context *context,
+static fisce_boolean fy_classCanCastToWithNull(fy_context *context,
 		fy_class *clazz, fy_class *other) {
 	return other == NULL ?
 	FALSE :
 							fy_classCanCastTo(context, clazz, other, FALSE);
 }
 
-fy_boolean fy_classExtendsThrowable(fy_context *context, fy_class *clazz) {
+fisce_boolean fy_classExtendsThrowable(fy_context *context, fy_class *clazz) {
 	return fy_classCanCastToWithNull(context, clazz, context->TOP_THROWABLE);
 }
 
-fy_boolean fy_classExtendsAnnotation(fy_context *context, fy_class *clazz) {
+fisce_boolean fy_classExtendsAnnotation(fy_context *context, fy_class *clazz) {
 	return fy_classCanCastToWithNull(context, clazz, context->TOP_ANNOTATION);
 }
 
-fy_boolean fy_classExtendsEnum(fy_context *context, fy_class *clazz) {
+fisce_boolean fy_classExtendsEnum(fy_context *context, fy_class *clazz) {
 	return fy_classCanCastToWithNull(context, clazz, context->TOP_ENUM);
 }
 
-fy_boolean fy_classExtendsSoftRef(fy_context *context, fy_class *clazz) {
+fisce_boolean fy_classExtendsSoftRef(fy_context *context, fy_class *clazz) {
 	return fy_classCanCastToWithNull(context, clazz, context->TOP_SOFT_REF);
 }
 
-fy_boolean fy_classExtendsWeakRef(fy_context *context, fy_class *clazz) {
+fisce_boolean fy_classExtendsWeakRef(fy_context *context, fy_class *clazz) {
 	return fy_classCanCastToWithNull(context, clazz, context->TOP_WEAK_REF);
 }
 
-fy_boolean fy_classExtendsPhantomRef(fy_context *context, fy_class *clazz) {
+fisce_boolean fy_classExtendsPhantomRef(fy_context *context, fy_class *clazz) {
 	return fy_classCanCastToWithNull(context, clazz, context->TOP_PHANTOM_REF);
 }

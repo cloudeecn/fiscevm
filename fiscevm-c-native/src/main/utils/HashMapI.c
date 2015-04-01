@@ -25,19 +25,19 @@
 #endif
 
 typedef struct fy_hashMapIEntry {
-	fy_int key;
-	fy_int value;
+	fisce_int key;
+	fisce_int value;
 	struct fy_hashMapIEntry *next;
 } fy_hashMapIEntry;
 
 static void expandBuckets(fy_memblock *mem, fy_hashMapI *this,
-		fy_uint targetFact, fy_exception *exception) {
+		fisce_uint targetFact, fisce_exception *exception) {
 	int i, imax;
 	fy_hashMapIEntry *entry;
 	fy_hashMapIEntry *tmp;
 	int newPos;
 	fy_hashMapIEntry **newEntries;
-	fy_int targetSizeM1 = (1 << targetFact) - 1;
+	fisce_int targetSizeM1 = (1 << targetFact) - 1;
 #if FY_MEM_LOG_TO_CONTEXT
 	fy_context *context = mem->gcContext;
 	context->logDVarLn(context, "HashMapI.expandBuckets %p to %"FY_PRINT32"d",
@@ -120,7 +120,7 @@ static void expandBuckets(fy_memblock *mem, fy_hashMapI *this,
  #endif
  */
 static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
-		fy_int key) {
+		fisce_int key) {
 	fy_hashMapIEntry *entry;
 #if FY_MEM_LOG_TO_CONTEXT
 	fy_context *context = mem->gcContext;
@@ -161,10 +161,10 @@ static fy_hashMapIEntry *getBucket(fy_memblock *mem, fy_hashMapI *this,
 }
 
 FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
-		fy_uint initFact, fy_uint loadFactor, fy_int nullValue,
-		fy_exception *exception) {
+		fisce_uint initFact, fisce_uint loadFactor, fisce_int nullValue,
+		fisce_exception *exception) {
 #if FY_MEM_LOG_TO_CONTEXT
-	fy_int i;
+	fisce_int i;
 	fy_context *context = mem->gcContext;
 #endif
 	this->perm = FALSE;
@@ -190,9 +190,9 @@ FY_ATTR_EXPORT void fy_hashMapIInit(fy_memblock *mem, fy_hashMapI *this,
 }
 
 FY_ATTR_EXPORT void fy_hashMapIInitPerm(fy_memblock *mem, fy_hashMapI *this,
-		fy_uint initFact, fy_int nullValue, fy_exception *exception) {
+		fisce_uint initFact, fisce_int nullValue, fisce_exception *exception) {
 #if FY_MEM_LOG_TO_CONTEXT
-	fy_int i;
+	fisce_int i;
 	fy_context *context = mem->gcContext;
 #endif
 	this->perm = TRUE;
@@ -218,12 +218,12 @@ FY_ATTR_EXPORT void fy_hashMapIInitPerm(fy_memblock *mem, fy_hashMapI *this,
 #endif
 }
 
-FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
-		fy_int key, fy_int value, fy_exception *exception) {
+FY_ATTR_EXPORT fisce_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
+		fisce_int key, fisce_int value, fisce_exception *exception) {
 	fy_hashMapIEntry *entry;
 	fy_hashMapIEntry *tmp;
 	int pos;
-	fy_int ret = this->nullValue;
+	fisce_int ret = this->nullValue;
 #if FY_MEM_LOG_TO_CONTEXT
 	fy_context *context = mem->gcContext;
 	if (this == context->references)
@@ -272,11 +272,11 @@ FY_ATTR_EXPORT fy_int fy_hashMapIPut(fy_memblock *mem, fy_hashMapI *this,
 	}
 }
 
-FY_ATTR_EXPORT fy_int fy_hashMapIRemove(fy_memblock *mem, fy_hashMapI *this,
-		fy_int key) {
+FY_ATTR_EXPORT fisce_int fy_hashMapIRemove(fy_memblock *mem, fy_hashMapI *this,
+		fisce_int key) {
 	fy_hashMapIEntry *entry;
 	fy_hashMapIEntry *last = NULL;
-	fy_int ret;
+	fisce_int ret;
 #if FY_MEM_LOG_TO_CONTEXT
 	fy_context *context = mem->gcContext;
 	context->logDVarLn(context,
@@ -329,14 +329,14 @@ FY_ATTR_EXPORT fy_int fy_hashMapIRemove(fy_memblock *mem, fy_hashMapI *this,
 	return this->nullValue;
 }
 
-FY_ATTR_EXPORT fy_int fy_hashMapIGet(fy_memblock *mem, fy_hashMapI *this,
-		fy_int key) {
+FY_ATTR_EXPORT fisce_int fy_hashMapIGet(fy_memblock *mem, fy_hashMapI *this,
+		fisce_int key) {
 	fy_hashMapIEntry *entry = getBucket(mem, this, key);
 	return entry == NULL ? this->nullValue : entry->value;
 }
 
-FY_ATTR_EXPORT fy_int fy_hashMapIInc(fy_memblock *mem, fy_hashMapI *this,
-		fy_int key, fy_int value, fy_exception *exception) {
+FY_ATTR_EXPORT fisce_int fy_hashMapIInc(fy_memblock *mem, fy_hashMapI *this,
+		fisce_int key, fisce_int value, fisce_exception *exception) {
 	fy_hashMapIEntry *entry = getBucket(mem, this, key);
 	if (entry == NULL) {
 		fy_hashMapIPut(mem, this, key, value, exception);
@@ -347,9 +347,9 @@ FY_ATTR_EXPORT fy_int fy_hashMapIInc(fy_memblock *mem, fy_hashMapI *this,
 }
 
 FY_ATTR_EXPORT void fy_hashMapIEachValue(fy_memblock *mem, fy_hashMapI *map,
-		void (*fn)(fy_int key, fy_int value, fy_int nullValue, void *addition),
+		void (*fn)(fisce_int key, fisce_int value, fisce_int nullValue, void *addition),
 		void *addition) {
-	fy_uint i, imax;
+	fisce_uint i, imax;
 	fy_hashMapIEntry *entry;
 	imax = 1 << map->bucketsFact;
 	for (i = 0; i < imax; i++) {

@@ -26,7 +26,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-void fy_fisInitInputStream(fy_context *context, fy_exception *exception);
+void fy_fisInitInputStream(fy_context *context, fisce_exception *exception);
 
 #ifdef	__cplusplus
 }

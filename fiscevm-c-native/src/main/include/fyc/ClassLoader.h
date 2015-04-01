@@ -28,13 +28,13 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-void fy_clDefineClass(fy_context *context, fy_str *name, fy_byte *data,
-		fy_int dataLen, fy_exception *exception);
+void fy_clDefineClass(fy_context *context, fy_str *name, fisce_byte *data,
+		fisce_int dataLen, fisce_exception *exception);
 fy_str *fy_clGetConstantString(fy_context *context, fy_class *clazz,
-		fy_char idx);
+		fisce_char idx);
 fy_class *fy_clLoadclass(fy_context *context, fy_str *name,
-		fy_exception *exception);
-void fy_clPhase2(fy_context *context, fy_class *clazz, fy_exception *exception);
+		fisce_exception *exception);
+void fy_clPhase2(fy_context *context, fy_class *clazz, fisce_exception *exception);
 #ifdef	__cplusplus
 }
 #endif

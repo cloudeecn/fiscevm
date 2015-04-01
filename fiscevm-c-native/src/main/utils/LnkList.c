@@ -35,7 +35,7 @@
 /*************public****************/
 
 FY_ATTR_EXPORT void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	struct fy_linkedListNode* node = fy_mmAllocate(block,
 			sizeof(struct fy_linkedListNode), exception);
 	FYEH();
@@ -45,7 +45,7 @@ FY_ATTR_EXPORT void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
 }
 
 static void fy_linkedListReleaser(fy_memblock *block, fy_linkedListNode *node,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_mmFree(block, node);
 }
 
@@ -83,7 +83,7 @@ FY_ATTR_EXPORT void* fy_linkedListRemoveNode(fy_memblock *block,
 }
 
 FY_ATTR_EXPORT fy_linkedListNode* fy_linkedListAppend(fy_memblock *block,
-		fy_linkedList* list, void* content, fy_exception *exception) {
+		fy_linkedList* list, void* content, fisce_exception *exception) {
 	struct fy_linkedListNode* node = fy_mmAllocate(block,
 			sizeof(struct fy_linkedListNode), exception);
 	if (node == NULL) {
@@ -103,7 +103,7 @@ FY_ATTR_EXPORT fy_linkedListNode* fy_linkedListAppend(fy_memblock *block,
 FY_ATTR_EXPORT void fy_linkedListTraverse(fy_memblock *block,
 		fy_linkedList* list,
 		void (*fun)(fy_memblock *block, struct fy_linkedListNode* node,
-				fy_exception *exception), fy_exception *exception) {
+				fisce_exception *exception), fisce_exception *exception) {
 	struct fy_linkedListNode* node = list->head;
 	struct fy_linkedListNode* next = node->next;
 #ifdef FY_DEBUG

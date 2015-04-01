@@ -2,12 +2,12 @@
 # define FY_ENGINE_NAME(NUM) fy_thread_runner_##NUM
 # define X_FY_ENGINE_NAME(NUM) FY_ENGINE_NAME(NUM)
 #endif
-FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
+FY_HOT fisce_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
     fy_context *context,
     fy_thread *thread,
     fy_frame *frame,
-    fy_int ops,
-    fy_exception *exception,
+    fisce_int ops,
+    fisce_exception *exception,
     fy_e2_label_holder **out_labels) {
 #ifndef FY_LATE_DECLARATION
 # ifdef USE_CFA
@@ -15,17 +15,17 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 # endif
   register fy_instruction *ipp;
 # ifdef FY_USE_TOS
-  register fy_stack_item sppTOS;
+  register fisce_stack_item sppTOS;
 # endif
-  register fy_stack_item *spp;
+  register fisce_stack_item *spp;
 
   fy_instruction *instructions;
-  register fy_stack_item *sbase;
+  register fisce_stack_item *sbase;
 
 
   fy_method *method = NULL;
 
-  fy_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
+  fisce_uint i1, i2, i3, i4, i5, i6, ir1, ir2, ir3, ir4, ir5, ir6;
   fy_class *clazz1, *clazz2;
   fy_field *field;
   fy_switch_lookup *swlookup;
@@ -43,7 +43,7 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 #ifdef VM_DEBUG
   FILE *vm_out = stdout;
 # ifdef FY_VERBOSE
-    const fy_uint vm_debug = 1;
+    const fisce_uint vm_debug = 1;
 # endif
 #endif
 
@@ -57,12 +57,12 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
 # endif
   register fy_instruction *ipp;
 # ifdef FY_USE_TOS
-  register fy_stack_item sppTOS;
+  register fisce_stack_item sppTOS;
 # endif
-  register fy_stack_item *spp;
+  register fisce_stack_item *spp;
 
   fy_instruction *instructions;
-  register fy_stack_item *sbase;
+  register fisce_stack_item *sbase;
 
   fy_method *method = NULL;
 #endif
@@ -76,10 +76,10 @@ FY_HOT fy_int X_FY_ENGINE_NAME(FY_ENGINE_NUM)(
   if(vm_debug){
     fprintf(vm_out, "\nInvoking: ");
     fy_strFPrint(vm_out, method->uniqueName);
-    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fy_stack_item, sbase, thread->stack));
+    fprintf(vm_out, " pc = %"FY_PRINT32"d + %"FY_PRINT32"d\n sb = %"FY_PRINT32"d", frame->lpc, frame->pcofs, FY_PDIFF(fisce_stack_item, sbase, thread->stack));
     if(frame->lpc + frame->pcofs == FY_IP_begin){
 #ifdef FY_LATE_DECLARATION
-      fy_uint i1, i2;
+      fisce_uint i1, i2;
 #endif
       fprintf(vm_out, "[");
       i2 = method->max_locals + method->max_stack;
@@ -118,7 +118,7 @@ LABEL(iload_r0) /* iload_r0 ( -- ir) */
 NAME("iload_r0")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -141,7 +141,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r0)
 NEXT_P2;
 }
@@ -151,7 +151,7 @@ LABEL(iload_r1) /* iload_r1 ( -- ir) */
 NAME("iload_r1")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -174,7 +174,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r1)
 NEXT_P2;
 }
@@ -184,7 +184,7 @@ LABEL(iload_r2) /* iload_r2 ( -- ir) */
 NAME("iload_r2")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -207,7 +207,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r2)
 NEXT_P2;
 }
@@ -217,7 +217,7 @@ LABEL(iload_r3) /* iload_r3 ( -- ir) */
 NAME("iload_r3")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -240,7 +240,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r3)
 NEXT_P2;
 }
@@ -250,7 +250,7 @@ LABEL(iload_r4) /* iload_r4 ( -- ir) */
 NAME("iload_r4")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -273,7 +273,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r4)
 NEXT_P2;
 }
@@ -283,7 +283,7 @@ LABEL(iload_r5) /* iload_r5 ( -- ir) */
 NAME("iload_r5")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -306,7 +306,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r5)
 NEXT_P2;
 }
@@ -316,7 +316,7 @@ LABEL(iload_r6) /* iload_r6 ( -- ir) */
 NAME("iload_r6")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -339,7 +339,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r6)
 NEXT_P2;
 }
@@ -349,7 +349,7 @@ LABEL(iload_r7) /* iload_r7 ( -- ir) */
 NAME("iload_r7")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -372,7 +372,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r7)
 NEXT_P2;
 }
@@ -382,7 +382,7 @@ LABEL(iload_r8) /* iload_r8 ( -- ir) */
 NAME("iload_r8")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -405,7 +405,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r8)
 NEXT_P2;
 }
@@ -415,7 +415,7 @@ LABEL(iload_r9) /* iload_r9 ( -- ir) */
 NAME("iload_r9")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -438,7 +438,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r9)
 NEXT_P2;
 }
@@ -448,7 +448,7 @@ LABEL(iload_r10) /* iload_r10 ( -- ir) */
 NAME("iload_r10")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -471,7 +471,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r10)
 NEXT_P2;
 }
@@ -481,7 +481,7 @@ LABEL(iload_r11) /* iload_r11 ( -- ir) */
 NAME("iload_r11")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -504,7 +504,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r11)
 NEXT_P2;
 }
@@ -514,7 +514,7 @@ LABEL(iload_r12) /* iload_r12 ( -- ir) */
 NAME("iload_r12")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -537,7 +537,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r12)
 NEXT_P2;
 }
@@ -547,7 +547,7 @@ LABEL(iload_r13) /* iload_r13 ( -- ir) */
 NAME("iload_r13")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -570,7 +570,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r13)
 NEXT_P2;
 }
@@ -580,7 +580,7 @@ LABEL(iload_r14) /* iload_r14 ( -- ir) */
 NAME("iload_r14")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -603,7 +603,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r14)
 NEXT_P2;
 }
@@ -613,7 +613,7 @@ LABEL(iload_r15) /* iload_r15 ( -- ir) */
 NAME("iload_r15")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -636,7 +636,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r15)
 NEXT_P2;
 }
@@ -646,7 +646,7 @@ LABEL(iload_r16) /* iload_r16 ( -- ir) */
 NAME("iload_r16")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -669,7 +669,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r16)
 NEXT_P2;
 }
@@ -679,7 +679,7 @@ LABEL(iload_r17) /* iload_r17 ( -- ir) */
 NAME("iload_r17")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -702,7 +702,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r17)
 NEXT_P2;
 }
@@ -712,7 +712,7 @@ LABEL(iload_r18) /* iload_r18 ( -- ir) */
 NAME("iload_r18")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -735,7 +735,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r18)
 NEXT_P2;
 }
@@ -745,7 +745,7 @@ LABEL(iload_r19) /* iload_r19 ( -- ir) */
 NAME("iload_r19")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -768,7 +768,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r19)
 NEXT_P2;
 }
@@ -778,7 +778,7 @@ LABEL(iload_r20) /* iload_r20 ( -- ir) */
 NAME("iload_r20")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -801,7 +801,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r20)
 NEXT_P2;
 }
@@ -811,7 +811,7 @@ LABEL(iload_r21) /* iload_r21 ( -- ir) */
 NAME("iload_r21")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -834,7 +834,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r21)
 NEXT_P2;
 }
@@ -844,7 +844,7 @@ LABEL(iload_r22) /* iload_r22 ( -- ir) */
 NAME("iload_r22")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -867,7 +867,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r22)
 NEXT_P2;
 }
@@ -877,7 +877,7 @@ LABEL(iload_r23) /* iload_r23 ( -- ir) */
 NAME("iload_r23")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -900,7 +900,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload_r23)
 NEXT_P2;
 }
@@ -910,9 +910,9 @@ LABEL(istore_r0) /* istore_r0 ( i1 -- ) */
 NAME("istore_r0")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -943,9 +943,9 @@ LABEL(istore_r1) /* istore_r1 ( i1 -- ) */
 NAME("istore_r1")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -976,9 +976,9 @@ LABEL(istore_r2) /* istore_r2 ( i1 -- ) */
 NAME("istore_r2")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1009,9 +1009,9 @@ LABEL(istore_r3) /* istore_r3 ( i1 -- ) */
 NAME("istore_r3")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1042,7 +1042,7 @@ LABEL(sipush_r0) /* sipush_r0 ( -- ir) */
 NAME("sipush_r0")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -1065,7 +1065,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush_r0)
 NEXT_P2;
 }
@@ -1075,7 +1075,7 @@ LABEL(sipush_r1) /* sipush_r1 ( -- ir) */
 NAME("sipush_r1")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -1098,7 +1098,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush_r1)
 NEXT_P2;
 }
@@ -1108,7 +1108,7 @@ LABEL(sipush_r2) /* sipush_r2 ( -- ir) */
 NAME("sipush_r2")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -1131,7 +1131,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush_r2)
 NEXT_P2;
 }
@@ -1141,7 +1141,7 @@ LABEL(sipush_r3) /* sipush_r3 ( -- ir) */
 NAME("sipush_r3")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -1164,7 +1164,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush_r3)
 NEXT_P2;
 }
@@ -1174,7 +1174,7 @@ LABEL(sipush_r4) /* sipush_r4 ( -- ir) */
 NAME("sipush_r4")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -1197,7 +1197,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush_r4)
 NEXT_P2;
 }
@@ -1207,7 +1207,7 @@ LABEL(sipush_r5) /* sipush_r5 ( -- ir) */
 NAME("sipush_r5")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -1230,7 +1230,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush_r5)
 NEXT_P2;
 }
@@ -1240,7 +1240,7 @@ LABEL(sipush_r6) /* sipush_r6 ( -- ir) */
 NAME("sipush_r6")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -1263,7 +1263,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush_r6)
 NEXT_P2;
 }
@@ -1273,7 +1273,7 @@ LABEL(sipush_r7) /* sipush_r7 ( -- ir) */
 NAME("sipush_r7")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -1296,7 +1296,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush_r7)
 NEXT_P2;
 }
@@ -1418,12 +1418,12 @@ LABEL(iadd_r0) /* iadd_r0 ( i1 i2 -- ir) */
 NAME("iadd_r0")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1446,7 +1446,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iadd_r0)
 NEXT_P2;
 }
@@ -1456,12 +1456,12 @@ LABEL(iadd_r1) /* iadd_r1 ( i1 i2 -- ir) */
 NAME("iadd_r1")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1484,7 +1484,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iadd_r1)
 NEXT_P2;
 }
@@ -1494,12 +1494,12 @@ LABEL(iadd_r2) /* iadd_r2 ( i1 i2 -- ir) */
 NAME("iadd_r2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1522,7 +1522,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iadd_r2)
 NEXT_P2;
 }
@@ -1532,12 +1532,12 @@ LABEL(fadd_r0) /* fadd_r0 ( f1 f2 -- fr) */
 NAME("fadd_r0")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_float fr;
+fisce_float f1;
+fisce_float f2;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -1560,7 +1560,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(fadd_r0)
 NEXT_P2;
 }
@@ -1570,12 +1570,12 @@ LABEL(fadd_r1) /* fadd_r1 ( f1 f2 -- fr) */
 NAME("fadd_r1")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_float fr;
+fisce_float f1;
+fisce_float f2;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -1598,7 +1598,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(fadd_r1)
 NEXT_P2;
 }
@@ -1608,12 +1608,12 @@ LABEL(fadd_r2) /* fadd_r2 ( f1 f2 -- fr) */
 NAME("fadd_r2")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_float fr;
+fisce_float f1;
+fisce_float f2;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -1636,7 +1636,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(fadd_r2)
 NEXT_P2;
 }
@@ -1646,10 +1646,10 @@ LABEL(getfield_n_r0) /* getfield_n_r0 ( i1 -- ir) */
 NAME("getfield_n_r0")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1673,7 +1673,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield_n_r0)
 NEXT_P2;
 }
@@ -1683,10 +1683,10 @@ LABEL(getfield_n_r1) /* getfield_n_r1 ( i1 -- ir) */
 NAME("getfield_n_r1")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1710,7 +1710,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield_n_r1)
 NEXT_P2;
 }
@@ -1720,10 +1720,10 @@ LABEL(getfield_n_r2) /* getfield_n_r2 ( i1 -- ir) */
 NAME("getfield_n_r2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1747,7 +1747,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield_n_r2)
 NEXT_P2;
 }
@@ -1757,10 +1757,10 @@ LABEL(getfield_n_r3) /* getfield_n_r3 ( i1 -- ir) */
 NAME("getfield_n_r3")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1784,7 +1784,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield_n_r3)
 NEXT_P2;
 }
@@ -1794,10 +1794,10 @@ LABEL(getfield_n_r4) /* getfield_n_r4 ( i1 -- ir) */
 NAME("getfield_n_r4")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1821,7 +1821,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield_n_r4)
 NEXT_P2;
 }
@@ -1831,10 +1831,10 @@ LABEL(getfield_n_r5) /* getfield_n_r5 ( i1 -- ir) */
 NAME("getfield_n_r5")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1858,7 +1858,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield_n_r5)
 NEXT_P2;
 }
@@ -1868,10 +1868,10 @@ LABEL(getfield_n_r6) /* getfield_n_r6 ( i1 -- ir) */
 NAME("getfield_n_r6")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1895,7 +1895,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield_n_r6)
 NEXT_P2;
 }
@@ -1905,10 +1905,10 @@ LABEL(getfield_n_r7) /* getfield_n_r7 ( i1 -- ir) */
 NAME("getfield_n_r7")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1932,7 +1932,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield_n_r7)
 NEXT_P2;
 }
@@ -1942,11 +1942,11 @@ LABEL(putfield_n_r0) /* putfield_n_r0 ( i1 i2 --) */
 NAME("putfield_n_r0")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -1981,11 +1981,11 @@ LABEL(putfield_n_r1) /* putfield_n_r1 ( i1 i2 --) */
 NAME("putfield_n_r1")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2020,11 +2020,11 @@ LABEL(putfield_n_r2) /* putfield_n_r2 ( i1 i2 --) */
 NAME("putfield_n_r2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2059,11 +2059,11 @@ LABEL(putfield_n_r3) /* putfield_n_r3 ( i1 i2 --) */
 NAME("putfield_n_r3")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2098,12 +2098,12 @@ LABEL(iaload_r0) /* iaload_r0 ( i1 i2 -- ir) */
 NAME("iaload_r0")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2133,7 +2133,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iaload_r0)
 NEXT_P2;
 }
@@ -2143,12 +2143,12 @@ LABEL(iaload_r1) /* iaload_r1 ( i1 i2 -- ir) */
 NAME("iaload_r1")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2178,7 +2178,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iaload_r1)
 NEXT_P2;
 }
@@ -2188,12 +2188,12 @@ LABEL(iaload_r2) /* iaload_r2 ( i1 i2 -- ir) */
 NAME("iaload_r2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2223,7 +2223,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iaload_r2)
 NEXT_P2;
 }
@@ -2233,12 +2233,12 @@ LABEL(iaload_r3) /* iaload_r3 ( i1 i2 -- ir) */
 NAME("iaload_r3")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2268,7 +2268,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iaload_r3)
 NEXT_P2;
 }
@@ -2278,12 +2278,12 @@ LABEL(iaload_r4) /* iaload_r4 ( i1 i2 -- ir) */
 NAME("iaload_r4")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2313,7 +2313,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iaload_r4)
 NEXT_P2;
 }
@@ -2323,12 +2323,12 @@ LABEL(iaload_r5) /* iaload_r5 ( i1 i2 -- ir) */
 NAME("iaload_r5")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2358,7 +2358,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iaload_r5)
 NEXT_P2;
 }
@@ -2368,13 +2368,13 @@ LABEL(iastore_r0) /* iastore_r0 ( i1 i2 i3 -- ) */
 NAME("iastore_r0")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2414,13 +2414,13 @@ LABEL(iastore_r1) /* iastore_r1 ( i1 i2 i3 -- ) */
 NAME("iastore_r1")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2460,13 +2460,13 @@ LABEL(iastore_r2) /* iastore_r2 ( i1 i2 i3 -- ) */
 NAME("iastore_r2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2506,7 +2506,7 @@ LABEL(getstatic_n_r0) /* getstatic_n_r0 ( -- ir) */
 NAME("getstatic_n_r0")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -2529,7 +2529,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getstatic_n_r0)
 NEXT_P2;
 }
@@ -2539,7 +2539,7 @@ LABEL(getstatic_n_r1) /* getstatic_n_r1 ( -- ir) */
 NAME("getstatic_n_r1")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -2562,7 +2562,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getstatic_n_r1)
 NEXT_P2;
 }
@@ -2572,7 +2572,7 @@ LABEL(getstatic_n_r2) /* getstatic_n_r2 ( -- ir) */
 NAME("getstatic_n_r2")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -2595,7 +2595,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getstatic_n_r2)
 NEXT_P2;
 }
@@ -2605,7 +2605,7 @@ LABEL(getstatic_n_r3) /* getstatic_n_r3 ( -- ir) */
 NAME("getstatic_n_r3")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -2628,7 +2628,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getstatic_n_r3)
 NEXT_P2;
 }
@@ -2638,7 +2638,7 @@ LABEL(getstatic_n_r4) /* getstatic_n_r4 ( -- ir) */
 NAME("getstatic_n_r4")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -2661,7 +2661,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getstatic_n_r4)
 NEXT_P2;
 }
@@ -2671,7 +2671,7 @@ LABEL(getstatic_n_r5) /* getstatic_n_r5 ( -- ir) */
 NAME("getstatic_n_r5")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -2694,7 +2694,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getstatic_n_r5)
 NEXT_P2;
 }
@@ -2704,9 +2704,9 @@ LABEL(putstatic_n_r0) /* putstatic_n_r0 ( i1 -- ) */
 NAME("putstatic_n_r0")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2737,9 +2737,9 @@ LABEL(putstatic_n_r1) /* putstatic_n_r1 ( i1 -- ) */
 NAME("putstatic_n_r1")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2770,9 +2770,9 @@ LABEL(putstatic_n_r2) /* putstatic_n_r2 ( i1 -- ) */
 NAME("putstatic_n_r2")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2803,9 +2803,9 @@ LABEL(putstatic_n_r3) /* putstatic_n_r3 ( i1 -- ) */
 NAME("putstatic_n_r3")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2920,8 +2920,8 @@ LABEL(slpush) /* slpush ( -- ir1 ir2) */
 NAME("slpush")
 {
 DEF_CA
-fy_uint ir1;
-fy_uint ir2;
+fisce_uint ir1;
+fisce_uint ir2;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -2946,8 +2946,8 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-2]);
+vm_i2fisce_stack_item(ir2,sppTOS);
 LABEL2(slpush)
 NEXT_P2;
 }
@@ -2957,11 +2957,11 @@ LABEL(dup) /* dup ( i1 -- ir1 ir2) */
 NAME("dup")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir1;
-fy_uint ir2;
+fisce_uint i1;
+fisce_uint ir1;
+fisce_uint ir2;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -2984,8 +2984,8 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-2]);
+vm_i2fisce_stack_item(ir2,sppTOS);
 LABEL2(dup)
 NEXT_P2;
 }
@@ -2995,12 +2995,12 @@ LABEL(isub) /* isub ( i1 i2 -- ir) */
 NAME("isub")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3023,7 +3023,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(isub)
 NEXT_P2;
 }
@@ -3033,12 +3033,12 @@ LABEL(imul) /* imul ( i1 i2 -- ir) */
 NAME("imul")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3049,7 +3049,7 @@ spp += -1;
 {
 
 {
-  ir = (fy_uint)((fy_int)i1 * (fy_int)i2);
+  ir = (fisce_uint)((fisce_int)i1 * (fisce_int)i2);
 }
 
 }
@@ -3061,7 +3061,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(imul)
 NEXT_P2;
 }
@@ -3071,12 +3071,12 @@ LABEL(idiv) /* idiv ( i1 i2 -- ir) */
 NAME("idiv")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3090,7 +3090,7 @@ spp += -1;
   if(unlikely(i2 == 0)){
     goto label_throw_dbz;
   } else {
-    ir = ((fy_int)i1) / ((fy_int)i2);
+    ir = ((fisce_int)i1) / ((fisce_int)i2);
   }
 }
 
@@ -3103,7 +3103,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(idiv)
 NEXT_P2;
 }
@@ -3113,12 +3113,12 @@ LABEL(irem) /* irem ( i1 i2 -- ir) */
 NAME("irem")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3132,7 +3132,7 @@ spp += -1;
   if(unlikely(i2 == 0)){
     goto label_throw_dbz;
   } else {
-    ir = ((fy_int)i1) % ((fy_int)i2);
+    ir = ((fisce_int)i1) % ((fisce_int)i2);
   }
 }
 
@@ -3145,7 +3145,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(irem)
 NEXT_P2;
 }
@@ -3155,10 +3155,10 @@ LABEL(ineg) /* ineg ( i1 -- ir) */
 NAME("ineg")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3179,7 +3179,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(ineg)
 NEXT_P2;
 }
@@ -3189,12 +3189,12 @@ LABEL(iand) /* iand ( i1 i2 -- ir) */
 NAME("iand")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3217,7 +3217,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iand)
 NEXT_P2;
 }
@@ -3227,12 +3227,12 @@ LABEL(ior) /* ior ( i1 i2 -- ir) */
 NAME("ior")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3255,7 +3255,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(ior)
 NEXT_P2;
 }
@@ -3265,12 +3265,12 @@ LABEL(ixor) /* ixor ( i1 i2 -- ir) */
 NAME("ixor")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3293,7 +3293,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(ixor)
 NEXT_P2;
 }
@@ -3303,12 +3303,12 @@ LABEL(ishl) /* ishl ( i1 i2 -- ir) */
 NAME("ishl")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3331,7 +3331,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(ishl)
 NEXT_P2;
 }
@@ -3341,12 +3341,12 @@ LABEL(ishr) /* ishr ( i1 i2 -- ir) */
 NAME("ishr")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3357,7 +3357,7 @@ spp += -1;
 {
 
 {
-  ir = ((fy_int)i1) >> ((fy_int)i2);
+  ir = ((fisce_int)i1) >> ((fisce_int)i2);
 }
 
 }
@@ -3369,7 +3369,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(ishr)
 NEXT_P2;
 }
@@ -3379,12 +3379,12 @@ LABEL(iushr) /* iushr ( i1 i2 -- ir) */
 NAME("iushr")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3407,7 +3407,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iushr)
 NEXT_P2;
 }
@@ -3417,12 +3417,12 @@ LABEL(fsub) /* fsub ( f1 f2 -- fr) */
 NAME("fsub")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_float fr;
+fisce_float f1;
+fisce_float f2;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -3445,7 +3445,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(fsub)
 NEXT_P2;
 }
@@ -3455,12 +3455,12 @@ LABEL(fmul) /* fmul ( f1 f2 -- fr) */
 NAME("fmul")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_float fr;
+fisce_float f1;
+fisce_float f2;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -3483,7 +3483,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(fmul)
 NEXT_P2;
 }
@@ -3493,12 +3493,12 @@ LABEL(fdiv) /* fdiv ( f1 f2 -- fr) */
 NAME("fdiv")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_float fr;
+fisce_float f1;
+fisce_float f2;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -3521,7 +3521,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(fdiv)
 NEXT_P2;
 }
@@ -3531,12 +3531,12 @@ LABEL(frem) /* frem ( f1 f2 -- fr) */
 NAME("frem")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_float fr;
+fisce_float f1;
+fisce_float f2;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -3563,7 +3563,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(frem)
 NEXT_P2;
 }
@@ -3573,10 +3573,10 @@ LABEL(fneg) /* fneg ( f1 -- fr) */
 NAME("fneg")
 {
 DEF_CA
-fy_float f1;
-fy_float fr;
+fisce_float f1;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(sppTOS,f1);
+vm_fisce_stack_item2f(sppTOS,f1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -3597,7 +3597,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(fneg)
 NEXT_P2;
 }
@@ -3607,12 +3607,12 @@ LABEL(fcmpg) /* fcmpg ( f1 f2 -- ir) */
 NAME("fcmpg")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_uint ir;
+fisce_float f1;
+fisce_float f2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -3639,7 +3639,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(fcmpg)
 NEXT_P2;
 }
@@ -3649,12 +3649,12 @@ LABEL(fcmpl) /* fcmpl ( f1 f2 -- ir) */
 NAME("fcmpl")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_uint ir;
+fisce_float f1;
+fisce_float f2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -3681,7 +3681,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(fcmpl)
 NEXT_P2;
 }
@@ -3691,14 +3691,14 @@ LABEL(dup_x1) /* dup_x1 ( i1 i2 -- ir1 ir2 ir3) */
 NAME("dup_x1")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir1;
-fy_uint ir2;
-fy_uint ir3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir1;
+fisce_uint ir2;
+fisce_uint ir3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3725,9 +3725,9 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-3]);
-vm_i2fy_stack_item(ir2,spp[-2]);
-vm_i2fy_stack_item(ir3,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-3]);
+vm_i2fisce_stack_item(ir2,spp[-2]);
+vm_i2fisce_stack_item(ir3,sppTOS);
 LABEL2(dup_x1)
 NEXT_P2;
 }
@@ -3737,17 +3737,17 @@ LABEL(dup_x2) /* dup_x2 ( i1 i2 i3 -- ir1 ir2 ir3 ir4) */
 NAME("dup_x2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
-fy_uint ir1;
-fy_uint ir2;
-fy_uint ir3;
-fy_uint ir4;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
+fisce_uint ir1;
+fisce_uint ir2;
+fisce_uint ir3;
+fisce_uint ir4;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3777,10 +3777,10 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-4]);
-vm_i2fy_stack_item(ir2,spp[-3]);
-vm_i2fy_stack_item(ir3,spp[-2]);
-vm_i2fy_stack_item(ir4,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-4]);
+vm_i2fisce_stack_item(ir2,spp[-3]);
+vm_i2fisce_stack_item(ir3,spp[-2]);
+vm_i2fisce_stack_item(ir4,sppTOS);
 LABEL2(dup_x2)
 NEXT_P2;
 }
@@ -3790,15 +3790,15 @@ LABEL(dup2) /* dup2 ( i1 i2 -- ir1 ir2 ir3 ir4) */
 NAME("dup2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir1;
-fy_uint ir2;
-fy_uint ir3;
-fy_uint ir4;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir1;
+fisce_uint ir2;
+fisce_uint ir3;
+fisce_uint ir4;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3825,10 +3825,10 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-4]);
-vm_i2fy_stack_item(ir2,spp[-3]);
-vm_i2fy_stack_item(ir3,spp[-2]);
-vm_i2fy_stack_item(ir4,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-4]);
+vm_i2fisce_stack_item(ir2,spp[-3]);
+vm_i2fisce_stack_item(ir3,spp[-2]);
+vm_i2fisce_stack_item(ir4,sppTOS);
 LABEL2(dup2)
 NEXT_P2;
 }
@@ -3838,18 +3838,18 @@ LABEL(dup2_x1) /* dup2_x1 ( i1 i2 i3 -- ir1 ir2 ir3 ir4 ir5) */
 NAME("dup2_x1")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
-fy_uint ir1;
-fy_uint ir2;
-fy_uint ir3;
-fy_uint ir4;
-fy_uint ir5;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
+fisce_uint ir1;
+fisce_uint ir2;
+fisce_uint ir3;
+fisce_uint ir4;
+fisce_uint ir5;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3881,11 +3881,11 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-5]);
-vm_i2fy_stack_item(ir2,spp[-4]);
-vm_i2fy_stack_item(ir3,spp[-3]);
-vm_i2fy_stack_item(ir4,spp[-2]);
-vm_i2fy_stack_item(ir5,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-5]);
+vm_i2fisce_stack_item(ir2,spp[-4]);
+vm_i2fisce_stack_item(ir3,spp[-3]);
+vm_i2fisce_stack_item(ir4,spp[-2]);
+vm_i2fisce_stack_item(ir5,sppTOS);
 LABEL2(dup2_x1)
 NEXT_P2;
 }
@@ -3895,21 +3895,21 @@ LABEL(dup2_x2) /* dup2_x2 ( i1 i2 i3 i4 -- ir1 ir2 ir3 ir4 ir5 ir6) */
 NAME("dup2_x2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
-fy_uint i4;
-fy_uint ir1;
-fy_uint ir2;
-fy_uint ir3;
-fy_uint ir4;
-fy_uint ir5;
-fy_uint ir6;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
+fisce_uint i4;
+fisce_uint ir1;
+fisce_uint ir2;
+fisce_uint ir3;
+fisce_uint ir4;
+fisce_uint ir5;
+fisce_uint ir6;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-4],i1);
-vm_fy_stack_item2i(spp[-3],i2);
-vm_fy_stack_item2i(spp[-2],i3);
-vm_fy_stack_item2i(sppTOS,i4);
+vm_fisce_stack_item2i(spp[-4],i1);
+vm_fisce_stack_item2i(spp[-3],i2);
+vm_fisce_stack_item2i(spp[-2],i3);
+vm_fisce_stack_item2i(sppTOS,i4);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3944,12 +3944,12 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-6]);
-vm_i2fy_stack_item(ir2,spp[-5]);
-vm_i2fy_stack_item(ir3,spp[-4]);
-vm_i2fy_stack_item(ir4,spp[-3]);
-vm_i2fy_stack_item(ir5,spp[-2]);
-vm_i2fy_stack_item(ir6,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-6]);
+vm_i2fisce_stack_item(ir2,spp[-5]);
+vm_i2fisce_stack_item(ir3,spp[-4]);
+vm_i2fisce_stack_item(ir4,spp[-3]);
+vm_i2fisce_stack_item(ir5,spp[-2]);
+vm_i2fisce_stack_item(ir6,sppTOS);
 LABEL2(dup2_x2)
 NEXT_P2;
 }
@@ -3959,13 +3959,13 @@ LABEL(swap) /* swap ( i1 i2 -- ir1 ir2) */
 NAME("swap")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir1;
-fy_uint ir2;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir1;
+fisce_uint ir2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -3989,8 +3989,8 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-2]);
+vm_i2fisce_stack_item(ir2,sppTOS);
 LABEL2(swap)
 NEXT_P2;
 }
@@ -4000,10 +4000,10 @@ LABEL(d2f) /* d2f ( d1 -- fr) */
 NAME("d2f")
 {
 DEF_CA
-fy_double d1;
-fy_float fr;
+fisce_double d1;
+fisce_float fr;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-2], sppTOS, d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -4013,7 +4013,7 @@ spp += -1;
 {
 
 {
-  fr = (fy_float)d1;
+  fr = (fisce_float)d1;
 }
 
 }
@@ -4025,7 +4025,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(d2f)
 NEXT_P2;
 }
@@ -4035,10 +4035,10 @@ LABEL(d2i) /* d2i ( d1 -- ir) */
 NAME("d2i")
 {
 DEF_CA
-fy_double d1;
-fy_uint ir;
+fisce_double d1;
+fisce_uint ir;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-2], sppTOS, d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -4048,7 +4048,7 @@ spp += -1;
 {
 
 {
-  ir = (fy_int)d1;
+  ir = (fisce_int)d1;
 }
 
 }
@@ -4060,7 +4060,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(d2i)
 NEXT_P2;
 }
@@ -4070,10 +4070,10 @@ LABEL(d2l) /* d2l ( d1 -- lr) */
 NAME("d2l")
 {
 DEF_CA
-fy_double d1;
-fy_ulong lr;
+fisce_double d1;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-2], sppTOS, d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -4082,7 +4082,7 @@ fputs(" d1=", vm_out); printarg_d(d1);
 {
 
 {
-  lr = (fy_long)d1;
+  lr = (fisce_long)d1;
 }
 
 }
@@ -4094,7 +4094,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(d2l)
 NEXT_P2;
 }
@@ -4104,10 +4104,10 @@ LABEL(f2d) /* f2d ( f1 -- dr) */
 NAME("f2d")
 {
 DEF_CA
-fy_float f1;
-fy_double dr;
+fisce_float f1;
+fisce_double dr;
 NEXT_P0;
-vm_fy_stack_item2f(sppTOS,f1);
+vm_fisce_stack_item2f(sppTOS,f1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -4129,7 +4129,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(f2d)
 NEXT_P2;
 }
@@ -4139,10 +4139,10 @@ LABEL(f2i) /* f2i ( f1 -- ir) */
 NAME("f2i")
 {
 DEF_CA
-fy_float f1;
-fy_uint ir;
+fisce_float f1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2f(sppTOS,f1);
+vm_fisce_stack_item2f(sppTOS,f1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -4151,7 +4151,7 @@ fputs(" f1=", vm_out); printarg_f(f1);
 {
 
 {
-  ir = (fy_int)f1;
+  ir = (fisce_int)f1;
 }
 
 }
@@ -4163,7 +4163,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(f2i)
 NEXT_P2;
 }
@@ -4173,10 +4173,10 @@ LABEL(f2l) /* f2l ( f1 -- lr) */
 NAME("f2l")
 {
 DEF_CA
-fy_float f1;
-fy_ulong lr;
+fisce_float f1;
+fisce_ulong lr;
 NEXT_P0;
-vm_fy_stack_item2f(sppTOS,f1);
+vm_fisce_stack_item2f(sppTOS,f1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -4186,7 +4186,7 @@ spp += 1;
 {
 
 {
-  lr = (fy_long)f1;
+  lr = (fisce_long)f1;
 }
 
 }
@@ -4198,7 +4198,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(f2l)
 NEXT_P2;
 }
@@ -4208,10 +4208,10 @@ LABEL(i2b) /* i2b ( i1 -- ir) */
 NAME("i2b")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4220,7 +4220,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
-  ir = (fy_byte)i1;
+  ir = (fisce_byte)i1;
 }
 
 }
@@ -4232,7 +4232,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(i2b)
 NEXT_P2;
 }
@@ -4242,10 +4242,10 @@ LABEL(i2c) /* i2c ( i1 -- ir) */
 NAME("i2c")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4266,7 +4266,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(i2c)
 NEXT_P2;
 }
@@ -4276,10 +4276,10 @@ LABEL(i2d) /* i2d ( i1 -- dr) */
 NAME("i2d")
 {
 DEF_CA
-fy_uint i1;
-fy_double dr;
+fisce_uint i1;
+fisce_double dr;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4289,7 +4289,7 @@ spp += 1;
 {
 
 {
-  dr = (fy_int)i1;
+  dr = (fisce_int)i1;
 }
 
 }
@@ -4301,7 +4301,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(i2d)
 NEXT_P2;
 }
@@ -4311,10 +4311,10 @@ LABEL(i2f) /* i2f ( i1 -- fr) */
 NAME("i2f")
 {
 DEF_CA
-fy_uint i1;
-fy_float fr;
+fisce_uint i1;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4323,7 +4323,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
-  fr = (fy_int)i1;
+  fr = (fisce_int)i1;
 }
 
 }
@@ -4335,7 +4335,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(i2f)
 NEXT_P2;
 }
@@ -4345,10 +4345,10 @@ LABEL(i2l) /* i2l ( i1 -- lr) */
 NAME("i2l")
 {
 DEF_CA
-fy_uint i1;
-fy_ulong lr;
+fisce_uint i1;
+fisce_ulong lr;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4358,7 +4358,7 @@ spp += 1;
 {
 
 {
-  lr = (fy_int)i1;
+  lr = (fisce_int)i1;
 }
 
 }
@@ -4370,7 +4370,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(i2l)
 NEXT_P2;
 }
@@ -4380,10 +4380,10 @@ LABEL(i2s) /* i2s ( i1 -- ir) */
 NAME("i2s")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4392,7 +4392,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
-  ir = (fy_short)i1;
+  ir = (fisce_short)i1;
 }
 
 }
@@ -4404,7 +4404,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(i2s)
 NEXT_P2;
 }
@@ -4414,10 +4414,10 @@ LABEL(l2d) /* l2d ( l1 -- dr) */
 NAME("l2d")
 {
 DEF_CA
-fy_ulong l1;
-fy_double dr;
+fisce_ulong l1;
+fisce_double dr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4426,7 +4426,7 @@ fputs(" l1=", vm_out); printarg_l(l1);
 {
 
 {
-  dr = (fy_long)l1;
+  dr = (fisce_long)l1;
 }
 
 }
@@ -4438,7 +4438,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(l2d)
 NEXT_P2;
 }
@@ -4448,10 +4448,10 @@ LABEL(l2f) /* l2f ( l1 -- fr) */
 NAME("l2f")
 {
 DEF_CA
-fy_ulong l1;
-fy_float fr;
+fisce_ulong l1;
+fisce_float fr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4461,7 +4461,7 @@ spp += -1;
 {
 
 {
-  fr = (fy_long)l1;
+  fr = (fisce_long)l1;
 }
 
 }
@@ -4473,7 +4473,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(l2f)
 NEXT_P2;
 }
@@ -4483,10 +4483,10 @@ LABEL(l2i) /* l2i ( l1 -- ir) */
 NAME("l2i")
 {
 DEF_CA
-fy_ulong l1;
-fy_uint ir;
+fisce_ulong l1;
+fisce_uint ir;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4496,7 +4496,7 @@ spp += -1;
 {
 
 {
-  ir = (fy_uint)l1;
+  ir = (fisce_uint)l1;
 }
 
 }
@@ -4508,7 +4508,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(l2i)
 NEXT_P2;
 }
@@ -4518,7 +4518,7 @@ LABEL(lload) /* lload ( -- lr) */
 NAME("lload")
 {
 DEF_CA
-fy_ulong lr;
+fisce_ulong lr;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -4546,7 +4546,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(lload)
 NEXT_P2;
 }
@@ -4556,9 +4556,9 @@ LABEL(lstore) /* lstore ( l1 -- ) */
 NAME("lstore")
 {
 DEF_CA
-fy_ulong l1;
+fisce_ulong l1;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4594,12 +4594,12 @@ LABEL(ladd) /* ladd ( l1 l2 -- lr) */
 NAME("ladd")
 {
 DEF_CA
-fy_ulong l1;
-fy_ulong l2;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_ulong l2;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-4], spp[-3], l1)
-vm_twofy_stack_item2l(spp[-2], sppTOS, l2)
+vm_twofisce_stack_item2l(spp[-4], spp[-3], l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4622,7 +4622,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(ladd)
 NEXT_P2;
 }
@@ -4632,12 +4632,12 @@ LABEL(lsub) /* lsub ( l1 l2 -- lr) */
 NAME("lsub")
 {
 DEF_CA
-fy_ulong l1;
-fy_ulong l2;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_ulong l2;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-4], spp[-3], l1)
-vm_twofy_stack_item2l(spp[-2], sppTOS, l2)
+vm_twofisce_stack_item2l(spp[-4], spp[-3], l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4660,7 +4660,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(lsub)
 NEXT_P2;
 }
@@ -4670,12 +4670,12 @@ LABEL(lmul) /* lmul ( l1 l2 -- lr) */
 NAME("lmul")
 {
 DEF_CA
-fy_ulong l1;
-fy_ulong l2;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_ulong l2;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-4], spp[-3], l1)
-vm_twofy_stack_item2l(spp[-2], sppTOS, l2)
+vm_twofisce_stack_item2l(spp[-4], spp[-3], l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4686,7 +4686,7 @@ spp += -2;
 {
 
 {
-  lr = (fy_long) l1 * (fy_long) l2;
+  lr = (fisce_long) l1 * (fisce_long) l2;
 }
 
 }
@@ -4698,7 +4698,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(lmul)
 NEXT_P2;
 }
@@ -4708,12 +4708,12 @@ LABEL(ldiv) /* ldiv ( l1 l2 -- lr) */
 NAME("ldiv")
 {
 DEF_CA
-fy_ulong l1;
-fy_ulong l2;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_ulong l2;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-4], spp[-3], l1)
-vm_twofy_stack_item2l(spp[-2], sppTOS, l2)
+vm_twofisce_stack_item2l(spp[-4], spp[-3], l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4727,7 +4727,7 @@ spp += -2;
   if (unlikely(l2 == 0)) {
     goto label_throw_dbz;
   }
-  lr = (fy_long) l1 / (fy_long) l2;
+  lr = (fisce_long) l1 / (fisce_long) l2;
 }
 
 }
@@ -4739,7 +4739,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(ldiv)
 NEXT_P2;
 }
@@ -4749,12 +4749,12 @@ LABEL(lrem) /* lrem ( l1 l2 -- lr) */
 NAME("lrem")
 {
 DEF_CA
-fy_ulong l1;
-fy_ulong l2;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_ulong l2;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-4], spp[-3], l1)
-vm_twofy_stack_item2l(spp[-2], sppTOS, l2)
+vm_twofisce_stack_item2l(spp[-4], spp[-3], l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4768,7 +4768,7 @@ spp += -2;
   if (unlikely(l2 == 0)) {
     goto label_throw_dbz;
   }
-  lr = (fy_long) l1 % (fy_long) l2;
+  lr = (fisce_long) l1 % (fisce_long) l2;
 }
 
 }
@@ -4780,7 +4780,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(lrem)
 NEXT_P2;
 }
@@ -4790,10 +4790,10 @@ LABEL(lneg) /* lneg ( l1 -- lr) */
 NAME("lneg")
 {
 DEF_CA
-fy_ulong l1;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4814,7 +4814,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(lneg)
 NEXT_P2;
 }
@@ -4824,17 +4824,17 @@ LABEL(land) /* land ( i1 i2 i3 i4 -- ir1 ir2) */
 NAME("land")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
-fy_uint i4;
-fy_uint ir1;
-fy_uint ir2;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
+fisce_uint i4;
+fisce_uint ir1;
+fisce_uint ir2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-4],i1);
-vm_fy_stack_item2i(spp[-3],i2);
-vm_fy_stack_item2i(spp[-2],i3);
-vm_fy_stack_item2i(sppTOS,i4);
+vm_fisce_stack_item2i(spp[-4],i1);
+vm_fisce_stack_item2i(spp[-3],i2);
+vm_fisce_stack_item2i(spp[-2],i3);
+vm_fisce_stack_item2i(sppTOS,i4);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4861,8 +4861,8 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-2]);
+vm_i2fisce_stack_item(ir2,sppTOS);
 LABEL2(land)
 NEXT_P2;
 }
@@ -4872,17 +4872,17 @@ LABEL(lor) /* lor ( i1 i2 i3 i4 -- ir1 ir2) */
 NAME("lor")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
-fy_uint i4;
-fy_uint ir1;
-fy_uint ir2;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
+fisce_uint i4;
+fisce_uint ir1;
+fisce_uint ir2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-4],i1);
-vm_fy_stack_item2i(spp[-3],i2);
-vm_fy_stack_item2i(spp[-2],i3);
-vm_fy_stack_item2i(sppTOS,i4);
+vm_fisce_stack_item2i(spp[-4],i1);
+vm_fisce_stack_item2i(spp[-3],i2);
+vm_fisce_stack_item2i(spp[-2],i3);
+vm_fisce_stack_item2i(sppTOS,i4);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4909,8 +4909,8 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-2]);
+vm_i2fisce_stack_item(ir2,sppTOS);
 LABEL2(lor)
 NEXT_P2;
 }
@@ -4920,17 +4920,17 @@ LABEL(lxor) /* lxor ( i1 i2 i3 i4 -- ir1 ir2) */
 NAME("lxor")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
-fy_uint i4;
-fy_uint ir1;
-fy_uint ir2;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
+fisce_uint i4;
+fisce_uint ir1;
+fisce_uint ir2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-4],i1);
-vm_fy_stack_item2i(spp[-3],i2);
-vm_fy_stack_item2i(spp[-2],i3);
-vm_fy_stack_item2i(sppTOS,i4);
+vm_fisce_stack_item2i(spp[-4],i1);
+vm_fisce_stack_item2i(spp[-3],i2);
+vm_fisce_stack_item2i(spp[-2],i3);
+vm_fisce_stack_item2i(sppTOS,i4);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -4957,8 +4957,8 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-2]);
+vm_i2fisce_stack_item(ir2,sppTOS);
 LABEL2(lxor)
 NEXT_P2;
 }
@@ -4968,12 +4968,12 @@ LABEL(lcmp) /* lcmp ( l1 l2 -- ir) */
 NAME("lcmp")
 {
 DEF_CA
-fy_ulong l1;
-fy_ulong l2;
-fy_uint ir;
+fisce_ulong l1;
+fisce_ulong l2;
+fisce_uint ir;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-4], spp[-3], l1)
-vm_twofy_stack_item2l(spp[-2], sppTOS, l2)
+vm_twofisce_stack_item2l(spp[-4], spp[-3], l1)
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -4984,7 +4984,7 @@ spp += -3;
 {
 
 {
-  ir = l1 == l2 ? 0 : ((fy_long)l1 > (fy_long)l2 ? 1 : -1) ;
+  ir = l1 == l2 ? 0 : ((fisce_long)l1 > (fisce_long)l2 ? 1 : -1) ;
 }
 
 }
@@ -4996,7 +4996,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(lcmp)
 NEXT_P2;
 }
@@ -5006,12 +5006,12 @@ LABEL(lshl) /* lshl ( l1 i1 -- lr) */
 NAME("lshl")
 {
 DEF_CA
-fy_ulong l1;
-fy_uint i1;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_uint i1;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-3], spp[-2], l1)
-vm_fy_stack_item2i(sppTOS,i1);
+vm_twofisce_stack_item2l(spp[-3], spp[-2], l1)
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -5034,7 +5034,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(lshl)
 NEXT_P2;
 }
@@ -5044,12 +5044,12 @@ LABEL(lshr) /* lshr ( l1 i1 -- lr) */
 NAME("lshr")
 {
 DEF_CA
-fy_ulong l1;
-fy_uint i1;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_uint i1;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-3], spp[-2], l1)
-vm_fy_stack_item2i(sppTOS,i1);
+vm_twofisce_stack_item2l(spp[-3], spp[-2], l1)
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -5060,7 +5060,7 @@ spp += -1;
 {
 
 {
-  lr = ((fy_long)l1) >> i1;
+  lr = ((fisce_long)l1) >> i1;
 }
 
 }
@@ -5072,7 +5072,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(lshr)
 NEXT_P2;
 }
@@ -5082,12 +5082,12 @@ LABEL(lushr) /* lushr ( l1 i1 -- lr) */
 NAME("lushr")
 {
 DEF_CA
-fy_ulong l1;
-fy_uint i1;
-fy_ulong lr;
+fisce_ulong l1;
+fisce_uint i1;
+fisce_ulong lr;
 NEXT_P0;
-vm_twofy_stack_item2l(spp[-3], spp[-2], l1)
-vm_fy_stack_item2i(sppTOS,i1);
+vm_twofisce_stack_item2l(spp[-3], spp[-2], l1)
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" l1=", vm_out); printarg_l(l1);
@@ -5110,7 +5110,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(lushr)
 NEXT_P2;
 }
@@ -5120,10 +5120,10 @@ LABEL(arraylength) /* arraylength ( i1 -- ir) */
 NAME("arraylength")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5145,7 +5145,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(arraylength)
 NEXT_P2;
 }
@@ -5155,12 +5155,12 @@ LABEL(baload) /* baload ( i1 i2 -- ir) */
 NAME("baload")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5184,7 +5184,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(baload)
 NEXT_P2;
 }
@@ -5194,13 +5194,13 @@ LABEL(bastore) /* bastore ( i1 i2 i3 -- ) */
 NAME("bastore")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5212,7 +5212,7 @@ spp += -3;
 {
 
 { /*handle index value*/
-  fy_heapPutArrayByte(context, i1, i2, (fy_byte) i3, exception);
+  fy_heapPutArrayByte(context, i1, i2, (fisce_byte) i3, exception);
   FY_THEH(;)
 }
 
@@ -5234,12 +5234,12 @@ LABEL(caload) /* caload ( i1 i2 -- ir) */
 NAME("caload")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5263,7 +5263,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(caload)
 NEXT_P2;
 }
@@ -5273,13 +5273,13 @@ LABEL(castore) /* castore ( i1 i2 i3 -- ) */
 NAME("castore")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5291,7 +5291,7 @@ spp += -3;
 {
 
 { /*value index handle*/
-  fy_heapPutArrayChar(context, i1, i2, (fy_char) i3, exception);
+  fy_heapPutArrayChar(context, i1, i2, (fisce_char) i3, exception);
   FY_THEH(;)
 }
 
@@ -5313,12 +5313,12 @@ LABEL(saload) /* saload ( i1 i2 -- ir) */
 NAME("saload")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5342,7 +5342,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(saload)
 NEXT_P2;
 }
@@ -5352,13 +5352,13 @@ LABEL(sastore) /* sastore ( i1 i2 i3 -- ) */
 NAME("sastore")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5370,7 +5370,7 @@ spp += -3;
 {
 
 { /*value index handle*/
-  fy_heapPutArrayShort(context, i1, i2, (fy_short) i3, exception);
+  fy_heapPutArrayShort(context, i1, i2, (fisce_short) i3, exception);
   FY_THEH(;)
 }
 
@@ -5392,12 +5392,12 @@ LABEL(laload) /* laload ( i1 i2 -- lr) */
 NAME("laload")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_ulong lr;
+fisce_uint i1;
+fisce_uint i2;
+fisce_ulong lr;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5420,7 +5420,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(laload)
 NEXT_P2;
 }
@@ -5430,13 +5430,13 @@ LABEL(lastore) /* lastore ( i1 i2 l1 -- ) */
 NAME("lastore")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_ulong l1;
+fisce_uint i1;
+fisce_uint i2;
+fisce_ulong l1;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-4],i1);
-vm_fy_stack_item2i(spp[-3],i2);
-vm_twofy_stack_item2l(spp[-2], sppTOS, l1)
+vm_fisce_stack_item2i(spp[-4],i1);
+vm_fisce_stack_item2i(spp[-3],i2);
+vm_twofisce_stack_item2l(spp[-2], sppTOS, l1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5470,10 +5470,10 @@ LABEL(anewarray) /* anewarray ( i1 -- ir) */
 NAME("anewarray")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5496,7 +5496,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(anewarray)
 NEXT_P2;
 }
@@ -5506,7 +5506,7 @@ LABEL(multianewarray) /* multianewarray ( -- ir) */
 NAME("multianewarray")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -5525,7 +5525,7 @@ spp += 1;
 #ifdef VM_DEBUG
   if(vm_debug){
 # ifdef FY_LATE_DECLARATION
-    fy_int i1;
+    fisce_int i1;
 # endif
     fputc(' ', vm_out);
     for(i1 = 0; i1 < CURR_INST.params.int_params.param2; i1 ++){
@@ -5535,7 +5535,7 @@ spp += 1;
   }
 #endif
   fy_heapBeginProtect(context);
-  ir = fy_heapMultiArray(context, clazz1, CURR_INST.params.int_params.param2, fy_stack_item2iarray(spp - 1),
+  ir = fy_heapMultiArray(context, clazz1, CURR_INST.params.int_params.param2, fisce_stack_item2iarray(spp - 1),
       exception);
   FY_THEH(;)
 }
@@ -5549,7 +5549,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(multianewarray)
 NEXT_P2;
 }
@@ -5559,7 +5559,7 @@ LABEL(new) /* new ( -- ir) */
 NAME("new")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -5584,7 +5584,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(new)
 NEXT_P2;
 }
@@ -5594,10 +5594,10 @@ LABEL(newarray) /* newarray ( i1 -- ir) */
 NAME("newarray")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5606,7 +5606,7 @@ fputs(" i1=", vm_out); printarg_i(i1);
 {
 
 {
-  if (unlikely(((fy_int) i1) < 0)) {
+  if (unlikely(((fisce_int) i1) < 0)) {
     ops = i1;
     goto label_throw_nase;
   }
@@ -5624,7 +5624,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(newarray)
 NEXT_P2;
 }
@@ -5634,11 +5634,11 @@ LABEL(getfield_x) /* getfield_x ( i1 -- ir1 ir2) */
 NAME("getfield_x")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir1;
-fy_uint ir2;
+fisce_uint i1;
+fisce_uint ir1;
+fisce_uint ir2;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5675,8 +5675,8 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-2]);
+vm_i2fisce_stack_item(ir2,sppTOS);
 LABEL2(getfield_x)
 NEXT_P2;
 }
@@ -5686,13 +5686,13 @@ LABEL(putfield_x) /* putfield_x ( i1 i2 i3 --) */
 NAME("putfield_x")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5734,8 +5734,8 @@ LABEL(getstatic_x) /* getstatic_x ( -- ir1 ir2) */
 NAME("getstatic_x")
 {
 DEF_CA
-fy_uint ir1;
-fy_uint ir2;
+fisce_uint ir1;
+fisce_uint ir2;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -5770,8 +5770,8 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir1,spp[-2]);
-vm_i2fy_stack_item(ir2,sppTOS);
+vm_i2fisce_stack_item(ir1,spp[-2]);
+vm_i2fisce_stack_item(ir2,sppTOS);
 LABEL2(getstatic_x)
 NEXT_P2;
 }
@@ -5781,11 +5781,11 @@ LABEL(putstatic_x) /* putstatic_x ( i1 i2 -- ) */
 NAME("putstatic_x")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5852,10 +5852,10 @@ LABEL(instanceof) /* instanceof ( i1 -- ir) */
 NAME("instanceof")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5886,7 +5886,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(instanceof)
 NEXT_P2;
 }
@@ -5896,9 +5896,9 @@ LABEL(monitorenter) /* monitorenter ( i1 -- ) */
 NAME("monitorenter")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -5933,9 +5933,9 @@ LABEL(monitorexit) /* monitorexit ( i1 -- ) */
 NAME("monitorexit")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6272,9 +6272,9 @@ LABEL(ireturn) /* ireturn ( i1 -- ) */
 NAME("ireturn")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6378,11 +6378,11 @@ LABEL(lreturn) /* lreturn ( i1 i2 -- ) */
 NAME("lreturn")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6428,9 +6428,9 @@ LABEL(athrow) /* athrow ( i1 -- ) */
 NAME("athrow")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6560,11 +6560,11 @@ LABEL(if_icmpeq) /* if_icmpeq ( i1 i2 -- ) */
 NAME("if_icmpeq")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6644,11 +6644,11 @@ LABEL(if_icmpne) /* if_icmpne ( i1 i2 -- ) */
 NAME("if_icmpne")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6728,11 +6728,11 @@ LABEL(if_icmplt) /* if_icmplt ( i1 i2 -- ) */
 NAME("if_icmplt")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6744,7 +6744,7 @@ spp += -2;
 
 {
   ops--;
-  if((fy_int)i1 < (fy_int)i2){
+  if((fisce_int)i1 < (fisce_int)i2){
     FY_OP_GOTO;
     
 #ifdef VM_DEBUG
@@ -6812,11 +6812,11 @@ LABEL(if_icmple) /* if_icmple ( i1 i2 -- ) */
 NAME("if_icmple")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6828,7 +6828,7 @@ spp += -2;
 
 {
   ops--;
-  if((fy_int)i1 <= (fy_int)i2){
+  if((fisce_int)i1 <= (fisce_int)i2){
     FY_OP_GOTO;
     
 #ifdef VM_DEBUG
@@ -6896,11 +6896,11 @@ LABEL(if_icmpgt) /* if_icmpgt ( i1 i2 -- ) */
 NAME("if_icmpgt")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6912,7 +6912,7 @@ spp += -2;
 
 {
   ops--;
-  if((fy_int)i1 > (fy_int)i2){
+  if((fisce_int)i1 > (fisce_int)i2){
     FY_OP_GOTO;
     
 #ifdef VM_DEBUG
@@ -6980,11 +6980,11 @@ LABEL(if_icmpge) /* if_icmpge ( i1 i2 -- ) */
 NAME("if_icmpge")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -6996,7 +6996,7 @@ spp += -2;
 
 {
   ops--;
-  if((fy_int)i1 >= (fy_int)i2){
+  if((fisce_int)i1 >= (fisce_int)i2){
     FY_OP_GOTO;
     
 #ifdef VM_DEBUG
@@ -7064,9 +7064,9 @@ LABEL(ifeq) /* ifeq ( i1 -- ) */
 NAME("ifeq")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7145,9 +7145,9 @@ LABEL(ifnull) /* ifnull ( i1 -- ) */
 NAME("ifnull")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7226,9 +7226,9 @@ LABEL(ifne) /* ifne ( i1 -- ) */
 NAME("ifne")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7307,9 +7307,9 @@ LABEL(ifnonnull) /* ifnonnull ( i1 -- ) */
 NAME("ifnonnull")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7388,9 +7388,9 @@ LABEL(iflt) /* iflt ( i1 -- ) */
 NAME("iflt")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7401,7 +7401,7 @@ spp += -1;
 
 {
   ops--;
-  if((fy_int)i1 < 0){
+  if((fisce_int)i1 < 0){
     FY_OP_GOTO;
     
 #ifdef VM_DEBUG
@@ -7469,9 +7469,9 @@ LABEL(ifle) /* ifle ( i1 -- ) */
 NAME("ifle")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7482,7 +7482,7 @@ spp += -1;
 
 {
   ops--;
-  if((fy_int)i1 <= 0){
+  if((fisce_int)i1 <= 0){
     FY_OP_GOTO;
     
 #ifdef VM_DEBUG
@@ -7550,9 +7550,9 @@ LABEL(ifgt) /* ifgt ( i1 -- ) */
 NAME("ifgt")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7563,7 +7563,7 @@ spp += -1;
 
 {
   ops--;
-  if((fy_int)i1 > 0){
+  if((fisce_int)i1 > 0){
     FY_OP_GOTO;
     
 #ifdef VM_DEBUG
@@ -7631,9 +7631,9 @@ LABEL(ifge) /* ifge ( i1 -- ) */
 NAME("ifge")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7644,7 +7644,7 @@ spp += -1;
 
 {
   ops--;
-  if((fy_int)i1 >= 0){
+  if((fisce_int)i1 >= 0){
     FY_OP_GOTO;
     
 #ifdef VM_DEBUG
@@ -7678,9 +7678,9 @@ LABEL(lookupswitch) /* lookupswitch ( i1 -- ) */
 NAME("lookupswitch")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7691,7 +7691,7 @@ spp += -1;
 
 {
 #ifdef FY_LATE_DECLARATION
-  fy_uint i2, i3;
+  fisce_uint i2, i3;
   fy_switch_lookup *swlookup;
 #endif
   ops--;
@@ -7737,9 +7737,9 @@ LABEL(tableswitch) /* tableswitch ( i1 -- ) */
 NAME("tableswitch")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7750,13 +7750,13 @@ spp += -1;
 
 {
 #ifdef FY_LATE_DECLARATION
-  fy_uint i2, i3;
+  fisce_uint i2, i3;
 #endif
   ops--;
   i2 = CURR_INST.params.swtable->lowest;/*lb*/
   i3 = CURR_INST.params.swtable->highest;/*hb*/
-  if ((fy_int) i1 < (fy_int) i2
-      || (fy_int) i1 > (fy_int) i3) {
+  if ((fisce_int) i1 < (fisce_int) i2
+      || (fisce_int) i1 > (fisce_int) i3) {
     SET_IP(CURR_INST.params.swtable->defaultJump);
     SUPER_END;
 
@@ -7793,9 +7793,9 @@ LABEL(pop) /* pop ( i1 -- ) */
 NAME("pop")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7824,11 +7824,11 @@ LABEL(pop2) /* pop2 ( i1 i2 -- ) */
 NAME("pop2")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -7858,12 +7858,12 @@ LABEL(dadd) /* dadd ( d1 d2 -- dr) */
 NAME("dadd")
 {
 DEF_CA
-fy_double d1;
-fy_double d2;
-fy_double dr;
+fisce_double d1;
+fisce_double d2;
+fisce_double dr;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-4], spp[-3], d1)
-vm_twofy_stack_item2d(spp[-2], sppTOS, d2)
+vm_twofisce_stack_item2d(spp[-4], spp[-3], d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -7886,7 +7886,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(dadd)
 NEXT_P2;
 }
@@ -7896,12 +7896,12 @@ LABEL(dsub) /* dsub ( d1 d2 -- dr) */
 NAME("dsub")
 {
 DEF_CA
-fy_double d1;
-fy_double d2;
-fy_double dr;
+fisce_double d1;
+fisce_double d2;
+fisce_double dr;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-4], spp[-3], d1)
-vm_twofy_stack_item2d(spp[-2], sppTOS, d2)
+vm_twofisce_stack_item2d(spp[-4], spp[-3], d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -7924,7 +7924,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(dsub)
 NEXT_P2;
 }
@@ -7934,12 +7934,12 @@ LABEL(ddiv) /* ddiv ( d1 d2 -- dr) */
 NAME("ddiv")
 {
 DEF_CA
-fy_double d1;
-fy_double d2;
-fy_double dr;
+fisce_double d1;
+fisce_double d2;
+fisce_double dr;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-4], spp[-3], d1)
-vm_twofy_stack_item2d(spp[-2], sppTOS, d2)
+vm_twofisce_stack_item2d(spp[-4], spp[-3], d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -7962,7 +7962,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(ddiv)
 NEXT_P2;
 }
@@ -7972,12 +7972,12 @@ LABEL(dmul) /* dmul ( d1 d2 -- dr) */
 NAME("dmul")
 {
 DEF_CA
-fy_double d1;
-fy_double d2;
-fy_double dr;
+fisce_double d1;
+fisce_double d2;
+fisce_double dr;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-4], spp[-3], d1)
-vm_twofy_stack_item2d(spp[-2], sppTOS, d2)
+vm_twofisce_stack_item2d(spp[-4], spp[-3], d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -8000,7 +8000,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(dmul)
 NEXT_P2;
 }
@@ -8010,12 +8010,12 @@ LABEL(drem) /* drem ( d1 d2 -- dr) */
 NAME("drem")
 {
 DEF_CA
-fy_double d1;
-fy_double d2;
-fy_double dr;
+fisce_double d1;
+fisce_double d2;
+fisce_double dr;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-4], spp[-3], d1)
-vm_twofy_stack_item2d(spp[-2], sppTOS, d2)
+vm_twofisce_stack_item2d(spp[-4], spp[-3], d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -8042,7 +8042,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(drem)
 NEXT_P2;
 }
@@ -8052,10 +8052,10 @@ LABEL(dneg) /* dneg ( d1 -- dr) */
 NAME("dneg")
 {
 DEF_CA
-fy_double d1;
-fy_double dr;
+fisce_double d1;
+fisce_double dr;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-2], sppTOS, d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d1)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -8076,7 +8076,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_d2twofy_stack_item(dr, spp[-2], sppTOS)
+vm_d2twofisce_stack_item(dr, spp[-2], sppTOS)
 LABEL2(dneg)
 NEXT_P2;
 }
@@ -8086,12 +8086,12 @@ LABEL(dcmpg) /* dcmpg ( d1 d2 -- ir) */
 NAME("dcmpg")
 {
 DEF_CA
-fy_double d1;
-fy_double d2;
-fy_uint ir;
+fisce_double d1;
+fisce_double d2;
+fisce_uint ir;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-4], spp[-3], d1)
-vm_twofy_stack_item2d(spp[-2], sppTOS, d2)
+vm_twofisce_stack_item2d(spp[-4], spp[-3], d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -8118,7 +8118,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(dcmpg)
 NEXT_P2;
 }
@@ -8128,12 +8128,12 @@ LABEL(dcmpl) /* dcmpl ( d1 d2 -- ir) */
 NAME("dcmpl")
 {
 DEF_CA
-fy_double d1;
-fy_double d2;
-fy_uint ir;
+fisce_double d1;
+fisce_double d2;
+fisce_uint ir;
 NEXT_P0;
-vm_twofy_stack_item2d(spp[-4], spp[-3], d1)
-vm_twofy_stack_item2d(spp[-2], sppTOS, d2)
+vm_twofisce_stack_item2d(spp[-4], spp[-3], d1)
+vm_twofisce_stack_item2d(spp[-2], sppTOS, d2)
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" d1=", vm_out); printarg_d(d1);
@@ -8160,7 +8160,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(dcmpl)
 NEXT_P2;
 }
@@ -8170,7 +8170,7 @@ LABEL(iload) /* iload ( -- ir) */
 NAME("iload")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -8199,7 +8199,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iload)
 NEXT_P2;
 }
@@ -8209,9 +8209,9 @@ LABEL(istore) /* istore ( i1 -- ) */
 NAME("istore")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -8248,7 +8248,7 @@ LABEL(sipush) /* sipush ( -- ir) */
 NAME("sipush")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -8277,7 +8277,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(sipush)
 NEXT_P2;
 }
@@ -8316,12 +8316,12 @@ LABEL(iadd) /* iadd ( i1 i2 -- ir) */
 NAME("iadd")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -8345,7 +8345,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iadd)
 NEXT_P2;
 }
@@ -8355,12 +8355,12 @@ LABEL(fadd) /* fadd ( f1 f2 -- fr) */
 NAME("fadd")
 {
 DEF_CA
-fy_float f1;
-fy_float f2;
-fy_float fr;
+fisce_float f1;
+fisce_float f2;
+fisce_float fr;
 NEXT_P0;
-vm_fy_stack_item2f(spp[-2],f1);
-vm_fy_stack_item2f(sppTOS,f2);
+vm_fisce_stack_item2f(spp[-2],f1);
+vm_fisce_stack_item2f(sppTOS,f2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" f1=", vm_out); printarg_f(f1);
@@ -8384,7 +8384,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_f2fy_stack_item(fr,sppTOS);
+vm_f2fisce_stack_item(fr,sppTOS);
 LABEL2(fadd)
 NEXT_P2;
 }
@@ -8394,10 +8394,10 @@ LABEL(getfield) /* getfield ( i1 -- ir) */
 NAME("getfield")
 {
 DEF_CA
-fy_uint i1;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -8432,7 +8432,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getfield)
 NEXT_P2;
 }
@@ -8442,11 +8442,11 @@ LABEL(putfield) /* putfield ( i1 i2 --) */
 NAME("putfield")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
+fisce_uint i1;
+fisce_uint i2;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -8487,12 +8487,12 @@ LABEL(iaload) /* iaload ( i1 i2 -- ir) */
 NAME("iaload")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint ir;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint ir;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-2],i1);
-vm_fy_stack_item2i(sppTOS,i2);
+vm_fisce_stack_item2i(spp[-2],i1);
+vm_fisce_stack_item2i(sppTOS,i2);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -8517,7 +8517,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(iaload)
 NEXT_P2;
 }
@@ -8527,13 +8527,13 @@ LABEL(iastore) /* iastore ( i1 i2 i3 -- ) */
 NAME("iastore")
 {
 DEF_CA
-fy_uint i1;
-fy_uint i2;
-fy_uint i3;
+fisce_uint i1;
+fisce_uint i2;
+fisce_uint i3;
 NEXT_P0;
-vm_fy_stack_item2i(spp[-3],i1);
-vm_fy_stack_item2i(spp[-2],i2);
-vm_fy_stack_item2i(sppTOS,i3);
+vm_fisce_stack_item2i(spp[-3],i1);
+vm_fisce_stack_item2i(spp[-2],i2);
+vm_fisce_stack_item2i(sppTOS,i3);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -8568,7 +8568,7 @@ LABEL(getstatic) /* getstatic ( -- ir) */
 NAME("getstatic")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -8603,7 +8603,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(getstatic)
 NEXT_P2;
 }
@@ -8613,9 +8613,9 @@ LABEL(putstatic) /* putstatic ( i1 -- ) */
 NAME("putstatic")
 {
 DEF_CA
-fy_uint i1;
+fisce_uint i1;
 NEXT_P0;
-vm_fy_stack_item2i(sppTOS,i1);
+vm_fisce_stack_item2i(sppTOS,i1);
 #ifdef VM_DEBUG
 if (vm_debug) {
 fputs(" i1=", vm_out); printarg_i(i1);
@@ -8681,7 +8681,7 @@ LABEL(ldc) /* ldc ( -- ir) */
 NAME("ldc")
 {
 DEF_CA
-fy_uint ir;
+fisce_uint ir;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -8707,7 +8707,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_i2fy_stack_item(ir,sppTOS);
+vm_i2fisce_stack_item(ir,sppTOS);
 LABEL2(ldc)
 NEXT_P2;
 }
@@ -8717,7 +8717,7 @@ LABEL(ldc2_w) /* ldc2_w ( -- lr) */
 NAME("ldc2_w")
 {
 DEF_CA
-fy_ulong lr;
+fisce_ulong lr;
 NEXT_P0;
 IF_sppTOS(spp[-1] = sppTOS);
 #ifdef VM_DEBUG
@@ -8744,7 +8744,7 @@ fputc('\n', vm_out);
 }
 #endif
 NEXT_P1;
-vm_l2twofy_stack_item(lr, spp[-2], sppTOS)
+vm_l2twofisce_stack_item(lr, spp[-2], sppTOS)
 LABEL2(ldc2_w)
 NEXT_P2;
 }

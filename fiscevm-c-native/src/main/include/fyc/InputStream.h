@@ -33,14 +33,14 @@ extern "C" {
 
 struct fy_inputStream {
 	void* data;
-	fy_int (*isRead)(struct fy_context *context, struct fy_inputStream *is,
-			fy_exception *exception);
-	fy_int (*isReadBlock)(struct fy_context *context, struct fy_inputStream *is,
-			void *target, fy_int size, fy_exception *exception);
-	fy_int (*isSkip)(struct fy_context *context, struct fy_inputStream *is,
-			fy_int size, fy_exception *exception);
+	fisce_int (*isRead)(struct fy_context *context, struct fy_inputStream *is,
+			fisce_exception *exception);
+	fisce_int (*isReadBlock)(struct fy_context *context, struct fy_inputStream *is,
+			void *target, fisce_int size, fisce_exception *exception);
+	fisce_int (*isSkip)(struct fy_context *context, struct fy_inputStream *is,
+			fisce_int size, fisce_exception *exception);
 	void (*isClose)(struct fy_context *context, struct fy_inputStream *is,
-			fy_exception *exception);
+			fisce_exception *exception);
 };
 #ifdef	__cplusplus
 |

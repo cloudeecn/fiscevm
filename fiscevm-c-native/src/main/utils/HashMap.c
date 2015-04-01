@@ -22,7 +22,7 @@
 
 typedef struct fy_hashMapEntry {
 	struct fy_str *key;
-	fy_uint keyHash;
+	fisce_uint keyHash;
     union{
         void *value;
         const void *cvalue;
@@ -31,7 +31,7 @@ typedef struct fy_hashMapEntry {
 } fy_hashMapEntry;
 
 static void expandBuckets(fy_memblock *mem, fy_hashMap *this,
-		fy_uint targetSize, fy_exception *exception) {
+		fisce_uint targetSize, fisce_exception *exception) {
 	int i, imax;
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
@@ -74,7 +74,7 @@ static void expandBuckets(fy_memblock *mem, fy_hashMap *this,
 
 static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 		fy_str *key) {
-	fy_uint hashCode;
+	fisce_uint hashCode;
 	fy_hashMapEntry *entry;
 
 	hashCode = fy_strHash(key);
@@ -91,7 +91,7 @@ static fy_hashMapEntry *getBucket(fy_memblock *mem, fy_hashMap *this,
 
 static fy_hashMapEntry *getBucketVA(fy_memblock *mem, fy_hashMap *this,
 		fy_strVA *va) {
-	fy_uint hashCode;
+	fisce_uint hashCode;
 	fy_hashMapEntry *entry;
 
 	hashCode = fy_strHashVA(va);
@@ -107,7 +107,7 @@ static fy_hashMapEntry *getBucketVA(fy_memblock *mem, fy_hashMap *this,
 }
 
 FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this,
-		fy_uint initSize, fy_uint loadFactor, fy_exception *exception) {
+		fisce_uint initSize, fisce_uint loadFactor, fisce_exception *exception) {
 	this->loadFactor = loadFactor;
 	this->perm = FALSE;
 	this->bucketsCount = initSize;
@@ -117,7 +117,7 @@ FY_ATTR_EXPORT void fy_hashMapInit(fy_memblock *mem, fy_hashMap *this,
 }
 
 FY_ATTR_EXPORT void fy_hashMapInitPerm(fy_memblock *mem, fy_hashMap *this,
-		fy_uint initSize, fy_exception *exception) {
+		fisce_uint initSize, fisce_exception *exception) {
 	this->perm = TRUE;
 	this->bucketsCount = initSize;
 	this->buckets = fy_mmAllocatePerm(mem, sizeof(fy_hashMapEntry*) * initSize,
@@ -126,7 +126,7 @@ FY_ATTR_EXPORT void fy_hashMapInitPerm(fy_memblock *mem, fy_hashMap *this,
 }
 
 FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
-                                   fy_str *key, void *value, fy_exception *exception) {
+                                   fy_str *key, void *value, fisce_exception *exception) {
     fy_hashMapEntry *entry;
     fy_hashMapEntry *tmp;
     fy_str *keyClone;
@@ -178,7 +178,7 @@ FY_ATTR_EXPORT void *fy_hashMapPut(fy_memblock *mem, fy_hashMap *this,
 }
 
 FY_ATTR_EXPORT void *fy_hashMapPutConst(fy_memblock *mem, fy_hashMap *this,
-		fy_str *key, const void *value, fy_exception *exception) {
+		fy_str *key, const void *value, fisce_exception *exception) {
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
 	fy_str *keyClone;
@@ -234,7 +234,7 @@ FY_ATTR_EXPORT void *fy_hashMapPutConst(fy_memblock *mem, fy_hashMap *this,
 }
 
 FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
-		fy_strVA *va, void *value, fy_exception *exception) {
+		fy_strVA *va, void *value, fisce_exception *exception) {
 	fy_hashMapEntry *entry;
 	fy_hashMapEntry *tmp;
 	fy_str *keyClone;
@@ -289,7 +289,7 @@ FY_ATTR_EXPORT void *fy_hashMapPutVA(fy_memblock *mem, fy_hashMap *this,
 
 /*
  FY_ATTR_EXPORT void *fy_hashMapPutUtf8(fy_memblock *mem, fy_hashMap *this,
- const char *keyUtf8, void *value, fy_exception *exception) {
+ const char *keyUtf8, void *value, fisce_exception *exception) {
  fy_str *key;
  void *ret;
 
@@ -335,7 +335,7 @@ FY_ATTR_EXPORT void* fy_hashMapGetVA(fy_memblock *mem, fy_hashMap *map,
 
 FY_ATTR_EXPORT void fy_hashMapEachValue(fy_memblock *mem, fy_hashMap *map,
 		void (*fn)(fy_str *key, void *value, void *addition), void *addition) {
-	fy_uint i, imax;
+	fisce_uint i, imax;
 	fy_hashMapEntry *entry;
 	imax = map->bucketsCount;
 	for (i = 0; i < imax; i++) {

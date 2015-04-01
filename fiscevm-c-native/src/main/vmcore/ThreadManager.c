@@ -30,21 +30,21 @@
 #include "fyc/Heap.h"
 #include "fyc/Thread.h"
 
-static fy_thread *getThreadByHandle(fy_context *context, fy_uint targetHandle,
-		fy_exception *exception) {
+static fy_thread *getThreadByHandle(fy_context *context, fisce_uint targetHandle,
+		fisce_exception *exception) {
 	fy_object *obj = context->objects + targetHandle;
-	fy_uint threadId = obj->object_data->m.threadId;
+	fisce_uint threadId = obj->object_data->m.threadId;
 	if (threadId == 0) {
 		return NULL;
 	}ASSERT(threadId>0 && threadId<MAX_THREADS);
 	return context->threads[threadId];
 }
 
-static fy_int monitorEnter(fy_context *context, fy_thread *thread,
-		fy_uint monitorId, fy_int times, fy_int ops) {
+static fisce_int monitorEnter(fy_context *context, fy_thread *thread,
+		fisce_uint monitorId, fisce_int times, fisce_int ops) {
 	fy_object *monitor = context->objects + monitorId;
-	fy_uint owner = monitor->object_data->monitorOwnerId;
-	fy_uint threadId = thread->threadId;
+	fisce_uint owner = monitor->object_data->monitorOwnerId;
+	fisce_uint threadId = thread->threadId;
 #ifdef FY_VERBOSE
 	context->logDVar(context, " Monitor Enter %"FY_PRINT32"d times for #%"FY_PRINT32"d", times, monitorId);
 #endif
@@ -73,10 +73,10 @@ static fy_int monitorEnter(fy_context *context, fy_thread *thread,
 }
 
 static void monitorExit(fy_context *context, fy_thread *thread,
-		fy_uint monitorId, fy_int times, fy_exception *exception) {
-	fy_uint threadId = thread->threadId;
+		fisce_uint monitorId, fisce_int times, fisce_exception *exception) {
+	fisce_uint threadId = thread->threadId;
 	fy_object *monitor = context->objects + monitorId;
-	fy_uint owner = monitor->object_data->monitorOwnerId;
+	fisce_uint owner = monitor->object_data->monitorOwnerId;
 #ifdef FY_VERBOSE
 	context->logDVar(context, " Monitor Exit %"FY_PRINT32"d times for #%"FY_PRINT32"d", times, monitorId);
 #endif
@@ -96,12 +96,12 @@ static void monitorExit(fy_context *context, fy_thread *thread,
 	}
 }
 
-static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
-		fy_uint monitorId, fy_exception *exception) {
-	fy_uint threadId = thread->threadId;
+static fisce_int releaseMonitor(fy_context *context, fy_thread *thread,
+		fisce_uint monitorId, fisce_exception *exception) {
+	fisce_uint threadId = thread->threadId;
 	fy_object *monitor = context->objects + monitorId;
-	fy_uint owner = monitor->object_data->monitorOwnerId;
-	fy_int times;
+	fisce_uint owner = monitor->object_data->monitorOwnerId;
+	fisce_int times;
 	if (owner != threadId) {
 		fy_fault(exception, FY_EXCEPTION_MONITOR, "");
 		return 0;
@@ -112,8 +112,8 @@ static fy_int releaseMonitor(fy_context *context, fy_thread *thread,
 	return times;
 }
 
-static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
-	fy_int h = context->nextThreadId;
+static fisce_uint fetchNextThreadId(fy_context *context, fisce_exception *exception) {
+	fisce_int h = context->nextThreadId;
 	fy_thread *target;
 	while ((target = context->threads[h]) != 0) {
 		h++;
@@ -128,25 +128,25 @@ static fy_uint fetchNextThreadId(fy_context *context, fy_exception *exception) {
 	return h;
 }
 
-fy_int fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
-		fy_uint monitorId, fy_int ops) {
+fisce_int fy_tmMonitorEnter(fy_context *context, fy_thread *thread,
+		fisce_uint monitorId, fisce_int ops) {
 	return monitorEnter(context, thread, monitorId, 1, ops);
 }
 
 void fy_tmMonitorExit(fy_context *context, fy_thread *thread,
-		fy_uint monitorId, fy_exception *exception) {
+		fisce_uint monitorId, fisce_exception *exception) {
 	monitorExit(context, thread, monitorId, 1, exception);
 }
 
-void fy_tmSleep(fy_context *context, fy_thread *thread, fy_long time) {
+void fy_tmSleep(fy_context *context, fy_thread *thread, fisce_long time) {
 	thread->nextWakeTime = fy_portTimeMillSec(context->port) + time;
 }
 
-void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
-		fy_exception *exception) {
+void fy_tmInterrupt(fy_context *context, fisce_uint targetHandle,
+		fisce_exception *exception) {
 	fy_thread *target;
-	fy_uint exceptionHandle;
-	fy_exception targetException;
+	fisce_uint exceptionHandle;
+	fisce_exception targetException;
 	targetException.exceptionType = exception_none;
 	sprintf_s(targetException.exceptionName,
 			sizeof(targetException.exceptionName), FY_EXCEPTION_INTR);
@@ -173,10 +173,10 @@ void fy_tmInterrupt(fy_context *context, fy_uint targetHandle,
 	}
 }
 
-fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
-		fy_boolean clear, fy_exception *exception) {
+fisce_boolean fy_tmIsInterrupted(fy_context *context, fisce_uint targetHandle,
+		fisce_boolean clear, fisce_exception *exception) {
 	fy_thread *target;
-	fy_boolean ret;
+	fisce_boolean ret;
 
 	target = getThreadByHandle(context, targetHandle, exception);
 	if (target == NULL) {
@@ -192,8 +192,8 @@ fy_boolean fy_tmIsInterrupted(fy_context *context, fy_uint targetHandle,
 	return ret;
 }
 
-void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
-		fy_long time, fy_exception *exception) {
+void fy_tmWait(fy_context *context, fy_thread *thread, fisce_int monitorId,
+		fisce_long time, fisce_exception *exception) {
 	fy_object *monitor;
 
 	ASSERT(thread->waitForNotifyId == 0);
@@ -213,8 +213,8 @@ void fy_tmWait(fy_context *context, fy_thread *thread, fy_int monitorId,
 	}
 }
 
-void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
-		fy_boolean all, fy_exception *exception) {
+void fy_tmNotify(fy_context *context, fy_thread *thread, fisce_int monitorId,
+		fisce_boolean all, fisce_exception *exception) {
 	fy_object *monitor;
 	fy_thread * target;
 	int i;
@@ -241,8 +241,8 @@ void fy_tmNotify(fy_context *context, fy_thread *thread, fy_int monitorId,
 	}
 }
 
-fy_boolean fy_tmIsAlive(fy_context *context, fy_uint threadHandle,
-		fy_exception *exception) {
+fisce_boolean fy_tmIsAlive(fy_context *context, fisce_uint threadHandle,
+		fisce_exception *exception) {
 	fy_thread *target;
 
 	target = getThreadByHandle(context, threadHandle, exception);
@@ -254,14 +254,14 @@ void fy_tmDestroyThread(fy_thread *thread) {
 }
 
 void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_method *method;
-	fy_uint threadId;
+	fisce_uint threadId;
 	fy_thread *thread;
 	fy_class *threadClass;
 	fy_class *charArrayClass;
-	fy_uint threadHandle;
-	fy_uint threadNameHandle;
+	fisce_uint threadHandle;
+	fisce_uint threadNameHandle;
 	fy_field *threadNameField;
 	fy_field *threadPriorityField;
 	int i;
@@ -341,12 +341,12 @@ void fy_tmBootFromMain(fy_context *context, fy_class *clazz,
 	context->nextForceGCTime = context->nextGCTime + FY_GC_FORCE_IDV;
 }
 
-void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
-		fy_exception *exception) {
+void fy_tmPushThread(fy_context *context, fisce_uint threadHandle,
+		fisce_exception *exception) {
 	fy_thread *thread;
-	fy_uint threadId;
-	fy_int priority;
-	fy_boolean daemon;
+	fisce_uint threadId;
+	fisce_int priority;
+	fisce_boolean daemon;
 	fy_class *threadClass;
 	fy_field *threadDaemonField;
 	fy_field *threadPriorityField;
@@ -396,16 +396,16 @@ void fy_tmPushThread(fy_context *context, fy_uint threadHandle,
 	FYEH();
 }
 
-void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception) {
+void fy_tmRun(fy_context *context, fisce_message *message, fisce_exception *exception) {
 	/*exception means exception in thread manager
 	 * message->exception means exception in thread*/
-	fy_boolean stateLocal;
+	fisce_boolean stateLocal;
 	fy_arrayList *running = context->runningThreads;
 
 #ifndef FY_LATE_DECLARATION
 	fy_thread *thread;
-	fy_long nextWakeUpTime,now,sleepTime;
-	fy_uint lockId;
+	fisce_long nextWakeUpTime,now,sleepTime;
+	fisce_uint lockId;
 	fy_object *lock;
 #endif
 
@@ -426,8 +426,8 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 		switch (stateLocal) {
 		case FY_TM_STATE_RUNNING: {
 #ifdef FY_LATE_DECLARATION
-			fy_long nextWakeUpTime;
-			fy_uint lockId;
+			fisce_long nextWakeUpTime;
+			fisce_uint lockId;
 			fy_object *lock;
 #endif
 			if (running->length > 0) {
@@ -507,7 +507,7 @@ void fy_tmRun(fy_context *context, fy_message *message, fy_exception *exception)
 					} else {
 
 #ifdef FY_LATE_DECLARATION
-						fy_long now, sleepTime;
+						fisce_long now, sleepTime;
 #endif
 						now = fy_portTimeMillSec(context->port);
 						sleepTime = context->nextWakeUpTimeTotal - now;

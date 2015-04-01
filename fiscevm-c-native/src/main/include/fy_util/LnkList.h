@@ -40,7 +40,7 @@ typedef struct fy_linkedList {
 } fy_linkedList;
 
 FY_ATTR_EXPORT void fy_linkedListInit(fy_memblock *block, fy_linkedList* list,
-		fy_exception *exception);
+		fisce_exception *exception);
 FY_ATTR_EXPORT void fy_linkedListDestroy(fy_memblock *block, fy_linkedList *list);
 FY_ATTR_EXPORT void* fy_linkedListRemove(fy_memblock *block, fy_linkedList* list,
 		void* content);
@@ -48,13 +48,13 @@ FY_ATTR_EXPORT void* fy_linkedListRemove(fy_memblock *block, fy_linkedList* list
 FY_ATTR_EXPORT void* fy_linkedListRemoveNode(fy_memblock *block,
 		fy_linkedList* list, fy_linkedListNode *node);
 FY_ATTR_EXPORT fy_linkedListNode* fy_linkedListAppend(fy_memblock *block,
-		fy_linkedList* list, void* content, fy_exception *exception);
+		fy_linkedList* list, void* content, fisce_exception *exception);
 
 FY_ATTR_EXPORT void fy_linkedListTraverse(
 		fy_memblock *block,
 		fy_linkedList* list,
 		void(*fun)(fy_memblock *block, struct fy_linkedListNode*,
-				fy_exception *exception), fy_exception *exception);
+				fisce_exception *exception), fisce_exception *exception);
 
 #ifdef	__cplusplus
 }

@@ -1,10 +1,21 @@
-//
-//  FiScERunner.m
-//  fiscevm-ios
-//
-//  Created by Cloudee on 11/13/14.
-//  Copyright (c) 2014 Cloudee. All rights reserved.
-//
+/**
+ *  Copyright 2010-2015 Yuxuan Huang. All rights reserved.
+ *
+ * This file is part of fiscevm
+ *
+ * fiscevm is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * fiscevm is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #import "FiScERunner.h"
 #import "FiScEVM.h"
@@ -137,7 +148,17 @@ static void gc_finish(void *data);
                                 [strongSelf runAfterSeconds:strongSelf->message.sleepTime];
                                 return;
                             case 6: // dead
-                                [strongSelf start];
+                                if([[NSFileManager defaultManager] fileExistsAtPath:strongSelf.autoSavePath]) {
+                                    [[NSFileManager defaultManager] removeItemAtPath:strongSelf.autoSavePath error:&error];
+                                    if(error){
+                                        @throw [NSException exceptionWithName:@"IO" reason:@"Can't delete auto save file" userInfo:nil];
+                                    }
+                                }
+                                strongSelf->status = PAUSED;
+                                NSLog(@"VM stopped");
+                                if(strongSelf.delegate){
+                                    [strongSelf.delegate runnerStopped:strongSelf];
+                                }
                                 return;
                             default: // Illegal type
                                 //TODO
@@ -199,6 +220,7 @@ static void gc_finish(void *data);
         if(!initialized){
             [self setupDefaultProperties];
         }
+        NSLog(@"Resume, status = %d", status);
         switch(status){
             case PAUSE_PENDING:
             case RUNNING:

@@ -407,8 +407,8 @@
 
 #define FY_IP_begin 0x00
 
-#define fy_nextU1(CODE) (fy_uint)CODE[pc++]
-#define fy_nextS1(CODE) ((fy_byte)CODE[pc++])
+#define fy_nextU1(CODE) (fisce_uint)CODE[pc++]
+#define fy_nextS1(CODE) ((fisce_byte)CODE[pc++])
 #define fy_nextU2(CODE) (fy_B2TOI(CODE[pc],CODE[pc+1])&0xffff);pc+=2
 #define fy_nextS2(CODE) fy_B2TOI(CODE[pc],CODE[pc+1]);pc+=2
 #define fy_nextS4(CODE) fy_B4TOI(CODE[pc],CODE[pc+1],CODE[pc+2],CODE[pc+3]);pc+=4
@@ -419,85 +419,85 @@ extern "C" {
 extern const char *FY_OP_NAME[MAX_INSTRUCTIONS];
 
 struct fy_switch_target {
-	fy_int value;
-	fy_int target;
+	fisce_int value;
+	fisce_int target;
 };
 
 struct fy_switch_lookup {
-	fy_int nextPC, defaultJump, count;
+	fisce_int nextPC, defaultJump, count;
 	FY_VLS(struct fy_switch_target,targets);
 };
 
 struct fy_switch_table {
-	fy_int nextPC, defaultJump, lowest, highest;
-	FY_VLS(fy_int,targets);
+	fisce_int nextPC, defaultJump, lowest, highest;
+	FY_VLS(fisce_int,targets);
 };
 
 struct fy_instruction_extra {
-	fy_int sp;
+	fisce_int sp;
 #ifdef FY_STRICT_CHECK
-	fy_uint localSize;
+	fisce_uint localSize;
 #endif
 #ifdef FY_DEBUG
 	fy_instruction *inst;
 #endif
 	union {
-		fy_ulong stackTypeContent;
-		fy_ulong *stackTypeContents;
+		fisce_ulong stackTypeContent;
+		fisce_ulong *stackTypeContents;
 	}s;
 };
 
 struct fy_invoke_nn {
 	fy_method *method;
-	fy_int paramCount;
+	fisce_int paramCount;
 };
 
 struct fy_invoke {
 	fy_class *clinit;
-	fy_int op;
+	fisce_int op;
 	union {
 		struct fy_invoke_nn nn;
 		fy_nh nh;
-		fy_nativeCall pendingNative;
+		fisce_nativeCall pendingNative;
 	} n;
 };
 
 struct fy_instruction {
 	fy_e2_label inst;
 #if defined(FY_STRICT_CHECK) || defined(FY_INSTRUCTION_COUNT)
-	fy_int op;
+	fisce_int op;
 #endif
 #ifdef FY_DEBUG
 	fy_instruction_extra *extra;
 #endif
 	union {
 		struct {
-			fy_int param1;
-			fy_int param2;
+			fisce_int param1;
+			fisce_int param2;
 		}int_params;
 		fy_class *clazz;
 		fy_method *method;
 		fy_field *field;
 		fy_switch_lookup *swlookup;
 		fy_switch_table *swtable;
-		fy_int *isfield;
+		fisce_int *isfield;
 		fy_invoke *invoke;
 		fy_nh *nh;
-		fy_nativeCall *pendingNative;
-		fy_exception *exception;
+		fisce_nativeCall *pendingNative;
+		fisce_exception *exception;
 		struct {
-			fy_int derefed;
-			fy_uint value;
+			fisce_int derefed;
+			fisce_uint value;
 		}ldc;
 	}params;
 };
 
 void fy_instInitStackItem(fy_memblock *block, fy_instruction_extra *instruction,
-		fy_int size, fy_exception *exception) ;
+		fisce_int size, fisce_exception *exception) ;
 void fy_instStackItemClone(fy_instruction_extra *from, fy_instruction_extra *to);
-void fy_instMarkStackItem(fy_instruction_extra *instruction, fy_int pos,
-		fy_long isHandle);
-fy_int fy_instGetStackItem(fy_instruction_extra *instruction, fy_int pos);
+void fy_instMarkStackItem(fy_instruction_extra *instruction, fisce_int pos,
+		fisce_long isHandle);
+fisce_int fy_instGetStackItem(fy_instruction_extra *instruction, fisce_int pos);
 #ifdef	__cplusplus
 }
 #endif

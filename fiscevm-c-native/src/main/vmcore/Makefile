@@ -1,1 +1,0 @@
-OBJS := ArrList.c BAIS.c BinarySaver.c BitSet.c Class.c ClassLoader.c CoreHandlers.c Data.c DataLoader.c Debug.c Engine.c ExpDev.c FiScE.c FileInputStream.c FisceService.c HashMap.c HashMapI.c Heap.c Instructions.c LnkList.c MathHandlers.c MemMan.c Portable.c Preverifier.c RIS.c String.c Test.c Thread.c ThreadManager.c Utf8.c VMContext.c

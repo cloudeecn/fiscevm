@@ -35,12 +35,12 @@ extern "C" {
  * 请用api来修改content中的内容，否则后果自负……
  */
 typedef struct fy_str {
-	fy_int length;
-	fy_int maxLength;
-	fy_uint status;
-	fy_int hashCode;
-	fy_char* content;
-	FY_VLS(fy_char,staticContent);
+	fisce_int length;
+	fisce_int maxLength;
+	fisce_uint status;
+	fisce_int hashCode;
+	fisce_char* content;
+	FY_VLS(fisce_char,staticContent);
 } fy_str;
 
 typedef union fy_strVarStorage {
@@ -50,9 +50,9 @@ typedef union fy_strVarStorage {
 } fy_strVarStorage;
 
 typedef struct fy_strVA {
-	fy_int size;
+	fisce_int size;
 	char pattern[FY_STR_MAX_VA + 1];
-	fy_int patternLength;
+	fisce_int patternLength;
 	fy_strVarStorage vars[FY_STR_MAX_VA];
 } fy_strVA;
 /**
@@ -70,7 +70,7 @@ typedef struct fy_strVA {
 
 /*Set to 1 for eclipse to search all direct usage of string->content*/
 #if 0
-FY_ATTR_EXPORT fy_char fy_strGet0(const fy_str *str, fy_int pos);
+FY_ATTR_EXPORT fisce_char fy_strGet0(const fy_str *str, fisce_int pos);
 # define fy_strGet(STR,POS) fy_strGet0((STR),(POS))
 #else
 # define fy_strGet(STR,POS) (STR)->content[(POS)]
@@ -80,56 +80,56 @@ FY_ATTR_EXPORT void fy_strParseVA(fy_strVA *output, const char *pattern,
 		va_list arg_ptr);
 
 FY_ATTR_EXPORT void fy_strInitWithUTF8(fy_memblock *block, fy_str *str,
-		const char *utf8, fy_exception *exception);
-FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fy_int size,
-		fy_exception *exception);
+		const char *utf8, fisce_exception *exception);
+FY_ATTR_EXPORT fy_str *fy_strCreatePerm(fy_memblock *mem, fisce_int size,
+		fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromClone(fy_memblock *mem,
-		fy_str *other, fy_int additionalSize, fy_exception *exception);
+		fy_str *other, fisce_int additionalSize, fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromSubstring(fy_memblock *mem,
-		fy_str *other, fy_int begin, fy_int end, fy_exception *exception);
+		fy_str *other, fisce_int begin, fisce_int end, fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermFromUTF8(fy_memblock *mem,
-		const char *utf8, fy_int additionalSize, fy_exception *exception);
-FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fy_int size,
-		fy_exception *exception);
+		const char *utf8, fisce_int additionalSize, fisce_exception *exception);
+FY_ATTR_EXPORT fy_str *fy_strInit(fy_memblock *block, fy_str *str, fisce_int size,
+		fisce_exception *exception);
 FY_ATTR_EXPORT void fy_strDestroy(fy_memblock *mem, fy_str *string);
 FY_ATTR_EXPORT fy_str *fy_strEnsureSize(fy_memblock *block, fy_str *_this,
-		fy_int size, fy_exception *exception);
+		fisce_int size, fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strAppendVA(fy_memblock *block, fy_str *_this,
-		fy_strVA *va, fy_exception *exception);
+		fy_strVA *va, fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strAppend(fy_memblock *mem, fy_str *this,
-		const fy_str *string, fy_exception *exception);
+		const fy_str *string, fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strAppendChar(fy_memblock *mem, fy_str *this,
-		fy_char ch, fy_exception *exception);
+		fisce_char ch, fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strAppendUTF8(fy_memblock *mem, fy_str *this,
-		const char* utf8, fy_int size, fy_exception *exception);
+		const char* utf8, fisce_int size, fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strSubstring(fy_memblock *mem, fy_str *this,
-		fy_int begin, fy_int end);
-FY_ATTR_EXPORT fy_uint fy_strUtf8Count(fy_str *str);
-FY_ATTR_EXPORT fy_uint fy_strHash(fy_str *str);
+		fisce_int begin, fisce_int end);
+FY_ATTR_EXPORT fisce_uint fy_strUtf8Count(fy_str *str);
+FY_ATTR_EXPORT fisce_uint fy_strHash(fy_str *str);
 
-FY_ATTR_EXPORT fy_int fy_strCmp(fy_str *left, fy_str *right);
-FY_ATTR_EXPORT fy_int fy_strCmpVA(fy_str *left, fy_strVA *va);
-FY_ATTR_EXPORT fy_boolean fy_strEndsWith(fy_str *this, fy_str *comp);
+FY_ATTR_EXPORT fisce_int fy_strCmp(fy_str *left, fy_str *right);
+FY_ATTR_EXPORT fisce_int fy_strCmpVA(fy_str *left, fy_strVA *va);
+FY_ATTR_EXPORT fisce_boolean fy_strEndsWith(fy_str *this, fy_str *comp);
 
 FY_ATTR_EXPORT void fy_strClear(fy_str *this);
 
 FY_ATTR_EXPORT char *fy_strSPrint(char *target, size_t targetSize, const fy_str *str);
 FY_ATTR_EXPORT char *fy_strToUTF8Perm(fy_memblock *block, fy_str *from,
-		fy_exception *exception);
-FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fy_char from, fy_char to);
+		fisce_exception *exception);
+FY_ATTR_EXPORT fy_str *fy_strReplaceOne(fy_str *str, fisce_char from, fisce_char to);
 FY_ATTR_EXPORT fy_str *fy_strCreateClone(fy_memblock *mem, fy_str *from,
-		fy_exception *exception);
+		fisce_exception *exception);
 
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistVA(fy_memblock *mem, fy_strVA *va,
-		fy_exception *exception);
+		fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersist(fy_memblock *mem,
-		fy_exception *exception, const char *pattern, ...);
+		fisce_exception *exception, const char *pattern, ...);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistClone(fy_memblock *mem,
-		fy_str *from, fy_exception *exception);
+		fy_str *from, fisce_exception *exception);
 FY_ATTR_EXPORT fy_str *fy_strCreatePermPersistSubstring(fy_memblock *mem,
-		fy_str *from, int begin, int end, fy_exception *exception);
+		fy_str *from, int begin, int end, fisce_exception *exception);
 
-FY_ATTR_EXPORT fy_uint fy_strHashVA(fy_strVA *va);
+FY_ATTR_EXPORT fisce_uint fy_strHashVA(fy_strVA *va);
 
 #ifdef	__cplusplus
 }

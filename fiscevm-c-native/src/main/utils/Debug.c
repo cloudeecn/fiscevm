@@ -23,10 +23,10 @@
 
 static void fy_strPrint0(FILE *fp, const fy_str *str) {
 	int i, count;
-	fy_char unicode;
+	fisce_char unicode;
 	char buf[4];
 	char *tmp;
-	fy_int left;
+	fisce_int left;
 	count = str->length;
 	for (i = 0; i < count; i++) {
 		unicode = fy_strGet(str,i);

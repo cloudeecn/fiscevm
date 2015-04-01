@@ -1,10 +1,21 @@
-//
-//  FiScERunner.h
-//  fiscevm-ios
-//
-//  Created by Cloudee on 11/13/14.
-//  Copyright (c) 2014 Cloudee. All rights reserved.
-//
+/**
+ *  Copyright 2010-2015 Yuxuan Huang. All rights reserved.
+ *
+ * This file is part of fiscevm
+ *
+ * fiscevm is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * fiscevm is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #import <Foundation/Foundation.h>
 #import "FiScEVM.h"
@@ -16,11 +27,13 @@ typedef void (^FiScENativeHandler)(FiScERunner*, FiScEVM*, int32_t, int32_t, uin
 
 @protocol FiScERunnerDelegate <NSObject>
 
-- (boolean_t)runneEncountsUnhandledNativeMethod:(FiScERunner*)runner name:(NSString*)name paramsCount:(int32_t)paramsCount params:(uint32_t)params;
+- (boolean_t)runnerEncountsUnhandledNativeMethod:(FiScERunner*)runner name:(NSString*)name paramsCount:(int32_t)paramsCount params:(uint32_t)params;
 
 - (void)runnerCollectsExtraObjectsForGC:(FiScERunner*)runner withCollector:(void (^)(int32_t))handleFiller;
 
 - (void)runnerEncountersException:(FiScERunner*)runner name:(NSString*)name description:(NSString*)desc threadId:(int32_t)threadId;
+
+- (void)runnerStopped:(FiScERunner*)runner;
 
 @end
 
@@ -32,7 +45,6 @@ typedef void (^FiScENativeHandler)(FiScERunner*, FiScEVM*, int32_t, int32_t, uin
 @property NSString *mainClassName;
 @property id<FiScERunnerDelegate> delegate;
 @property dispatch_queue_t runnerQueue;
-
 @end
 
 @interface FiScERunner (Methods)

@@ -41,7 +41,7 @@
 # endif
 #else
 # ifdef VM_DEBUG
-fy_uint vm_debug = 0;
+fisce_uint vm_debug = 0;
 # endif
 #endif
 
@@ -59,14 +59,14 @@ fy_uint vm_debug = 0;
 # define DEBUG_REPL 0
 #endif
 
-#define vm_fy_stack_item2i(_cell,_x)	((_x)=(_cell).uvalue)
-#define vm_i2fy_stack_item(_x,_cell)	((_cell).uvalue=(_x))
-#define vm_fy_stack_item2f(_cell,_x)	((_x)=(_cell).fvalue)
-#define vm_f2fy_stack_item(_x,_cell)	((_cell).fvalue=(_x))
-#define vm_twofy_stack_item2l(_cell1, _cell2, _x) ((_x)=fy_I2TOL((_cell1).uvalue, (_cell2).uvalue));
-#define vm_twofy_stack_item2d(_cell1, _cell2, _x) ((_x)=fy_longToDouble(fy_I2TOL((_cell1).uvalue, (_cell2).uvalue)));
-#define vm_l2twofy_stack_item(_x, _cell1, _cell2) (_cell1).uvalue = (fy_uint)(((fy_ulong)(_x))>>32); (_cell2).uvalue = (fy_uint)(_x);
-#define vm_d2twofy_stack_item(_x, _cell1, _cell2) vm_l2twofy_stack_item(fy_doubleToLong(_x), (_cell1), (_cell2));
+#define vm_fisce_stack_item2i(_cell,_x)	((_x)=(_cell).uvalue)
+#define vm_i2fisce_stack_item(_x,_cell)	((_cell).uvalue=(_x))
+#define vm_fisce_stack_item2f(_cell,_x)	((_x)=(_cell).fvalue)
+#define vm_f2fisce_stack_item(_x,_cell)	((_cell).fvalue=(_x))
+#define vm_twofisce_stack_item2l(_cell1, _cell2, _x) ((_x)=fy_I2TOL((_cell1).uvalue, (_cell2).uvalue));
+#define vm_twofisce_stack_item2d(_cell1, _cell2, _x) ((_x)=fisce_longToDouble(fy_I2TOL((_cell1).uvalue, (_cell2).uvalue)));
+#define vm_l2twofisce_stack_item(_x, _cell1, _cell2) (_cell1).uvalue = (fisce_uint)(((fisce_ulong)(_x))>>32); (_cell2).uvalue = (fisce_uint)(_x);
+#define vm_d2twofisce_stack_item(_x, _cell1, _cell2) vm_l2twofisce_stack_item(fisce_doubleToLong(_x), (_cell1), (_cell2));
 
 /* for future extensions */
 #define IMM_ARG(access,value)		(access)
@@ -88,13 +88,13 @@ fy_uint vm_debug = 0;
 
 #ifdef FY_STRICT_CHECK
 static void strict_validate(fy_context *context, fy_method *method,
-		fy_frame *frame, fy_int ip, fy_int sp) {
+		fy_frame *frame, fisce_int ip, fisce_int sp) {
 	fy_instruction *instructions = method->c.i.instructions;
 	fy_instruction_extra *instruction_extras = method->c.i.instruction_extras;
-	fy_short *ops = method->c.i.instruction_ops;
+	fisce_short *ops = method->c.i.instruction_ops;
 	fy_instruction *inst = instructions + ip;
 	fy_instruction_extra *inst_extra = instruction_extras + ip;
-	fy_stack_item *spp = frame->baseSpp + sp;
+	fisce_stack_item *spp = frame->baseSpp + sp;
 	if (ip < 0 || ip > method->codeLength) {
 		fy_fault(NULL, NULL,
 				"Illegal ip:%"FY_PRINT32"d [0 - %"FY_PRINT32"d) ipp: %p method %s",
@@ -112,7 +112,7 @@ static void strict_validate(fy_context *context, fy_method *method,
 }
 # define VERIFY_ENV { \
 	ASSERT(sbase == frame->baseSpp) \
-	strict_validate(context, method, frame, FY_PDIFF(fy_instruction, PCURR_INST, instructions), FY_PDIFF(fy_stack_item, spp, sbase)); \
+	strict_validate(context, method, frame, FY_PDIFF(fy_instruction, PCURR_INST, instructions), FY_PDIFF(fisce_stack_item, spp, sbase)); \
 }
 #else
 # define VERIFY_ENV
@@ -122,7 +122,7 @@ static void strict_validate(fy_context *context, fy_method *method,
 # define NAME(_x) VERIFY_ENV; puts(_x);
 #else
 # ifdef VM_DEBUG
-#  define NAME(_x) VERIFY_ENV; if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%3d(%3d) ", spp, FY_PDIFF(fy_stack_item, spp, sbase), FY_PDIFF(fy_stack_item, spp, thread->stack));}
+#  define NAME(_x) VERIFY_ENV; if (vm_debug) {fprintf(vm_out, "T%d: %5d %p: %-13s, ", thread->threadId, FY_PDIFF(fy_instruction, PCURR_INST, instructions), PCURR_INST, _x); fprintf(vm_out,"spp=%p, sp=%3d(%3d) ", spp, FY_PDIFF(fisce_stack_item, spp, sbase), FY_PDIFF(fisce_stack_item, spp, thread->stack));}
 # else
 #  define NAME(_x) VERIFY_ENV;
 # endif
@@ -422,7 +422,7 @@ if(unlikely(OPS <= 0)){ \
 }
 
 # define fy_checkCall(COUNT) \
-	if (FY_PDIFF(fy_stack_item, spp, sbase) - (COUNT) < method->max_locals) { \
+	if (FY_PDIFF(fisce_stack_item, spp, sbase) - (COUNT) < method->max_locals) { \
 		fy_fault(exception,NULL,"Buffer underflow! sb=%d local=%d sp=%d count=%d", sb, localCount, sp, COUNT); \
 		FY_THEH(;) \
 	}
@@ -462,7 +462,7 @@ if(unlikely(OPS <= 0)){ \
 #define fy_threadGetLocalLong(P,O) { \
 	fy_checkGetLocal(P,1) \
 	O=sbase[(P)].uvalue; \
-	O=((fy_ulong)O<<32)+((fy_ulong)sbase[(P)+1].uvalue); \
+	O=((fisce_ulong)O<<32)+((fisce_ulong)sbase[(P)+1].uvalue); \
 }
 
 #ifdef VM_DEBUG
@@ -501,7 +501,7 @@ if(unlikely(exception->exceptionType != exception_none)){ \
 	FY_CHECK_OPS_INVOKE(ops); \
 }
 
-static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
+static fy_e2_label lookup_label(fy_e2_label_holder *labels, fisce_int op) {
 	fy_e2_label_holder *holder = labels;
 	while (holder->op >= 0) {
 		if (holder->op == op) {
@@ -512,18 +512,18 @@ static fy_e2_label lookup_label(fy_e2_label_holder *labels, fy_int op) {
 	return (fy_e2_label) -1;
 }
 
-static void calc_repl(fy_context *context, fy_method *method, fy_int op,
-		fy_instruction *currInst, fy_int engineNum, fy_e2_label_holder *labels,
-		fy_exception *exception) {
+static void calc_repl(fy_context *context, fy_method *method, fisce_int op,
+		fy_instruction *currInst, fisce_int engineNum, fy_e2_label_holder *labels,
+		fisce_exception *exception) {
 #define PAIR_OF(OP, NEXT_OP) ((OP) * 1031 + (NEXT_OP))
 	fy_engine_repl_data *engine_repl_data =
 			&context->engines[engineNum].replData;
 	fy_repl_data **repl_data = engine_repl_data->repl_data;
 	fy_hashMapI *repl_count = engine_repl_data->repl_count;
 	fy_hashMapI *repl_result = engine_repl_data->repl_result;
-	fy_int nextOp;
-	fy_int count;
-	fy_int toOp;
+	fisce_int nextOp;
+	fisce_int count;
+	fisce_int toOp;
 	if (repl_data[op] != NULL) {
 		nextOp = method->c.i.instruction_ops[FY_PDIFF(fy_instruction, currInst,
 				method->c.i.instructions) + 1];
@@ -605,12 +605,12 @@ static void calc_repl(fy_context *context, fy_method *method, fy_int op,
 #define RCAL(OP)
 #endif
 
-static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
-		fy_exception *exception) {
+static fisce_int opLDC(fy_context *context, fy_class *owner, fisce_char index,
+		fisce_exception *exception) {
 	ConstantStringInfo *constantStringInfo;
 	ConstantClass *constantClass;
 	fy_class *clazz;
-	fy_int hvalue;
+	fisce_int hvalue;
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Integer:
 	case CONSTANT_Float:
@@ -639,8 +639,8 @@ static fy_int opLDC(fy_context *context, fy_class *owner, fy_char index,
 	}
 }
 
-static fy_long opLDC2(fy_context *context, fy_class *owner, fy_char index,
-		fy_exception *exception) {
+static fisce_long opLDC2(fy_context *context, fy_class *owner, fisce_char index,
+		fisce_exception *exception) {
 	switch (owner->constantTypes[index]) {
 	case CONSTANT_Double:
 	case CONSTANT_Long:

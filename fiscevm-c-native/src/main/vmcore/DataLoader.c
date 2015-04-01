@@ -30,46 +30,46 @@
 #include "fyc/Constants.h"
 typedef struct ClassTemp {
 	fy_str name[1];
-	fy_uint handle;
-	fy_int clinited;
-	fy_int *staticArea;
+	fisce_uint handle;
+	fisce_int clinited;
+	fisce_int *staticArea;
 } ClassTemp;
 
 typedef struct MethodTemp {
-	fy_uint handle;
+	fisce_uint handle;
 } MethodTemp;
 
 typedef struct FieldTemp {
-	fy_uint handle;
+	fisce_uint handle;
 } FieldTemp;
 
 typedef struct Loader {
-	fy_uint classCount;
+	fisce_uint classCount;
 	ClassTemp *classTemp;
-	fy_uint methodCount;
+	fisce_uint methodCount;
 	MethodTemp *methodTemp;
-	fy_uint fieldCount;
+	fisce_uint fieldCount;
 	FieldTemp *fieldTemp;
 } Loader;
 
-void* fy_loadBegin(struct fy_context *context, fy_exception *exception) {
+void* fy_loadBegin(struct fy_context *context, fisce_exception *exception) {
 	/*TODO validate context's initialization*/
 	return fy_mmAllocate(context->memblocks, sizeof(Loader), exception);
 }
 void fy_loadPrepareClass(struct fy_context *context, void *loader_,
-		fy_uint classCount, fy_exception *exception) {
+		fisce_uint classCount, fisce_exception *exception) {
 	Loader *loader = loader_;
 	loader->classCount = classCount;
 	loader->classTemp = fy_mmAllocate(context->memblocks,
 			(classCount + 1) * sizeof(ClassTemp), exception);
 	context->classesCount += classCount;
 }
-void fy_loadClass(struct fy_context *context, void *loader_, fy_uint classId,
-		fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
-		fy_uint *staticArea, fy_exception *exception) {
+void fy_loadClass(struct fy_context *context, void *loader_, fisce_uint classId,
+		fisce_uint handle, fisce_int clinited, fy_str *name, fisce_uint staticSize,
+		fisce_uint *staticArea, fisce_exception *exception) {
 	Loader *loader = loader_;
 	ClassTemp *ct = loader->classTemp + classId;
-	fy_uint *pCid = fy_mmAllocate(context->memblocks, sizeof(fy_uint),
+	fisce_uint *pCid = fy_mmAllocate(context->memblocks, sizeof(fisce_uint),
 			exception);
 	FYEH();
 	*pCid = classId;
@@ -83,26 +83,26 @@ void fy_loadClass(struct fy_context *context, void *loader_, fy_uint classId,
 	ct->handle = handle;
 	ct->clinited = clinited;
 	ct->staticArea = fy_mmAllocate(context->memblocks,
-			staticSize * sizeof(fy_int), exception);
-	memcpy(ct->staticArea, staticArea, staticSize * sizeof(fy_int));
+			staticSize * sizeof(fisce_int), exception);
+	memcpy(ct->staticArea, staticArea, staticSize * sizeof(fisce_int));
 	FYEH();
 }
 void fy_loadEndClass(struct fy_context *context, void *loader_,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 }
 void fy_loadPrepareMethod(struct fy_context *context, void *loader_,
-		fy_uint methodCount, fy_exception *exception) {
+		fisce_uint methodCount, fisce_exception *exception) {
 	Loader *loader = loader_;
 	loader->methodCount = methodCount;
 	loader->methodTemp = fy_mmAllocate(context->memblocks,
 			methodCount * sizeof(MethodTemp), exception);
 	context->methodsCount += methodCount;
 }
-void fy_loadMethod(struct fy_context *context, void *loader_, fy_uint methodId,
-		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {
+void fy_loadMethod(struct fy_context *context, void *loader_, fisce_uint methodId,
+		fisce_uint handle, fy_str *uniqueName, fisce_exception *exception) {
 	Loader *loader = loader_;
 	MethodTemp *mt = loader->methodTemp + methodId;
-	fy_uint *pMid = fy_mmAllocate(context->memblocks, sizeof(fy_uint),
+	fisce_uint *pMid = fy_mmAllocate(context->memblocks, sizeof(fisce_uint),
 			exception);
 	FYEH();
 	mt->handle = handle;
@@ -111,21 +111,21 @@ void fy_loadMethod(struct fy_context *context, void *loader_, fy_uint methodId,
 			pMid, exception);
 }
 void fy_loadEndMethod(struct fy_context *context, void *loader_,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 }
 void fy_loadPrepareField(struct fy_context *context, void *loader_,
-		fy_uint fieldCount, fy_exception *exception) {
+		fisce_uint fieldCount, fisce_exception *exception) {
 	Loader *loader = loader_;
 	loader->fieldCount = fieldCount;
 	loader->fieldTemp = fy_mmAllocate(context->memblocks,
 			fieldCount * sizeof(MethodTemp), exception);
 	context->fieldsCount += fieldCount;
 }
-void fy_loadField(struct fy_context *context, void *loader_, fy_uint fieldId,
-		fy_uint handle, fy_str *uniqueName, fy_exception *exception) {
+void fy_loadField(struct fy_context *context, void *loader_, fisce_uint fieldId,
+		fisce_uint handle, fy_str *uniqueName, fisce_exception *exception) {
 	Loader *loader = loader_;
 	FieldTemp *ft = loader->fieldTemp + fieldId;
-	fy_uint *pFid = fy_mmAllocate(context->memblocks, sizeof(fy_uint),
+	fisce_uint *pFid = fy_mmAllocate(context->memblocks, sizeof(fisce_uint),
 			exception);
 	FYEH();
 	*pFid = fieldId;
@@ -134,14 +134,14 @@ void fy_loadField(struct fy_context *context, void *loader_, fy_uint fieldId,
 	ft->handle = handle;
 }
 void fy_loadEndField(struct fy_context *context, void *loader_,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	/*We do the class loading here!*/
 	Loader *loader = loader_;
 	fy_class *clazz;
 	fy_method *method;
 	fy_field *field;
 	ClassTemp *ct;
-	fy_uint i, imax;
+	fisce_uint i, imax;
 	char msg[256];
 	imax = loader->classCount;
 	for (i = 1; i <= imax; i++) {
@@ -160,7 +160,7 @@ void fy_loadEndField(struct fy_context *context, void *loader_,
 		}
 		clazz->clinitThreadId = ct->clinited;
 		memcpy(clazz->staticArea, ct->staticArea,
-				clazz->staticSize * sizeof(fy_uint));
+				clazz->staticSize * sizeof(fisce_uint));
 		fy_strDestroy(context->memblocks, ct->name);
 		fy_mmFree(context->memblocks, ct->staticArea);
 	}
@@ -192,13 +192,13 @@ void fy_loadEndField(struct fy_context *context, void *loader_,
 
 }
 void fy_loadPrepareObjects(struct fy_context *context, void *loader_,
-		fy_uint nextHandle, fy_uint objectCount, fy_exception *exception) {
+		fisce_uint nextHandle, fisce_uint objectCount, fisce_exception *exception) {
 	context->nextHandle = nextHandle;
 }
-void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
-		fy_uint classId, fy_int posInHeap, fy_int gen, fy_int finalizeStatus,
-		fy_uint monitorOwner, fy_uint monitorCount, fy_uint multiUsageData,
-		fy_uint dataLength, fy_uint *data, fy_exception *exception) {
+void fy_loadObject(struct fy_context *context, void *loader_, fisce_uint handle,
+		fisce_uint classId, fisce_int posInHeap, fisce_int gen, fisce_int finalizeStatus,
+		fisce_uint monitorOwner, fisce_uint monitorCount, fisce_uint multiUsageData,
+		fisce_uint dataLength, fisce_uint *data, fisce_exception *exception) {
 	fy_object *object = context->objects + handle;
 	fy_class *clazz = context->classes[classId];
 	if (clazz == NULL) {
@@ -225,24 +225,24 @@ void fy_loadObject(struct fy_context *context, void *loader_, fy_uint handle,
 	object->object_data->monitorOwnerId = monitorOwner;
 	object->object_data->monitorOwnerTimes = monitorCount;
 	object->object_data->m.multiUsageData = multiUsageData;
-	memcpy(object->object_data->data, data, dataLength * sizeof(fy_uint));
+	memcpy(object->object_data->data, data, dataLength * sizeof(fisce_uint));
 }
 void fy_loadEndObject(struct fy_context *context, void *loader_,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 }
-void fy_loadLiterals(struct fy_context *context, void *loader_, fy_uint count,
-		fy_uint *handles, fy_exception *exception) {
-	fy_uint i;
+void fy_loadLiterals(struct fy_context *context, void *loader_, fisce_uint count,
+		fisce_uint *handles, fisce_exception *exception) {
+	fisce_uint i;
 	fy_str str[1];
-	fy_uint handle;
-	fy_uint *pInt;
+	fisce_uint handle;
+	fisce_uint *pInt;
 	str->content = NULL;
 	fy_strInit(context->memblocks, str, 256, exception);
 	for (i = 0; i < count; i++) {
 		str->length = 0;
 		handle = handles[i];
 		fy_heapGetString(context, handle, str, exception);
-		pInt = fy_mmAllocate(context->memblocks, sizeof(fy_uint), exception);
+		pInt = fy_mmAllocate(context->memblocks, sizeof(fisce_uint), exception);
 		FYEH();
 		*pInt = handle;
 		fy_hashMapPut(context->memblocks, context->literals, str, pInt,
@@ -250,23 +250,23 @@ void fy_loadLiterals(struct fy_context *context, void *loader_, fy_uint count,
 		FYEH();
 	}
 }
-void fy_loadFinalizes(struct fy_context *context, void *loader_, fy_uint count,
-		fy_uint *handles, fy_exception *exception) {
-	fy_uint i;
+void fy_loadFinalizes(struct fy_context *context, void *loader_, fisce_uint count,
+		fisce_uint *handles, fisce_exception *exception) {
+	fisce_uint i;
 	for (i = 0; i < count; i++) {
 		fy_arrayListAdd(context->memblocks, context->toFinalize, handles + i,
 				exception);
 	}
 }
 void fy_loadPrepareThreads(struct fy_context *context, void *loader_,
-		fy_uint threadsCount, fy_exception *exception) {
+		fisce_uint threadsCount, fisce_exception *exception) {
 }
 fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
-		fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
-		fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
-		fy_uint pendingLockCount, fy_uint waitForLockId,
-		fy_uint waitForNotifyId, fy_uint stackSize, fy_uint *stack,
-		fy_exception *exception) {
+		fisce_uint threadId, fisce_uint handle, fisce_int priority, fisce_uint daemon,
+		fisce_uint destroyPending, fisce_uint interrupted, fisce_long nextWakeupTime,
+		fisce_uint pendingLockCount, fisce_uint waitForLockId,
+		fisce_uint waitForNotifyId, fisce_uint stackSize, fisce_uint *stack,
+		fisce_exception *exception) {
 	fy_thread *thread = context->threads[threadId] = fy_mmAllocate(
 			context->memblocks, sizeof(fy_thread), exception);
 	FYEH()NULL;
@@ -283,15 +283,15 @@ fy_thread *fy_loadThread(struct fy_context *context, void *loader_,
 	thread->pendingLockCount = pendingLockCount;
 	thread->waitForLockId = waitForLockId;
 	thread->waitForNotifyId = waitForNotifyId;
-	memcpy(thread->stack, stack, stackSize * sizeof(fy_uint));
+	memcpy(thread->stack, stack, stackSize * sizeof(fisce_uint));
 	return thread;
 }
 void fy_loadPrepareFrame(struct fy_context *context, void *loader_,
-		fy_thread *thread, fy_uint count, fy_exception *exception) {
+		fy_thread *thread, fisce_uint count, fisce_exception *exception) {
 }
 void fy_loadFrame(struct fy_context *context, void *loader_, fy_thread *thread,
-		fy_uint methodId, fy_uint sb, fy_uint lpc, fy_int pcofs,
-		fy_exception *exception) {
+		fisce_uint methodId, fisce_uint sb, fisce_uint lpc, fisce_int pcofs,
+		fisce_exception *exception) {
 	fy_frame *frame = FY_GET_FRAME(thread,thread->frameCount++);
 	frame->method = context->methods[methodId];
 	if (!(frame->method->access_flags & FY_ACC_VERIFIED)) {
@@ -307,12 +307,12 @@ void fy_loadFrame(struct fy_context *context, void *loader_, fy_thread *thread,
 #endif
 }
 void fy_loadEndFrame(struct fy_context *context, void *loader_,
-		fy_thread *thread, fy_exception *exception) {
+		fy_thread *thread, fisce_exception *exception) {
 }
 void fy_loadEndThread(struct fy_context *context, void *loader_,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 }
 void fy_loadEnd(struct fy_context *context, void *loader_,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_mmFree(context->memblocks, loader_);
 }

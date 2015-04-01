@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 void fy_preverify(fy_context *context, fy_method *method,
-		fy_exception *exception);
+		fisce_exception *exception);
 #ifdef	__cplusplus
 }
 #endif

@@ -47,14 +47,14 @@
 static fy_nh _NO_HANDLER;
 fy_nh *FY_NH_NO_HANDLER = &_NO_HANDLER;
 
-static fy_int processThrowable(fy_context *context, fy_frame *frame,
-		fy_int handle, fy_int lpc, fy_exception *exception) {
+static fisce_int processThrowable(fy_context *context, fy_frame *frame,
+		fisce_int handle, fisce_int lpc, fisce_exception *exception) {
 	fy_class *throwableClass;
 	fy_class *handlerClass;
-	fy_int i, imax;
+	fisce_int i, imax;
 	fy_exceptionHandler *handlers;
 	fy_exceptionHandler *handler;
-	fy_int target = -1;
+	fisce_int target = -1;
 #ifdef FY_DEBUG
 	DLOG(context, "EXCEPTION HANDLE LOOKUP: LPC=%ld", lpc); /**/
 	context->logDVar(context, "Exception: ");
@@ -96,18 +96,18 @@ static fy_int processThrowable(fy_context *context, fy_frame *frame,
 	return target;
 }
 
-fy_int fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
-		fy_int handle, fy_int ops) {
+fisce_int fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
+		fisce_int handle, fisce_int ops) {
 	return fy_tmMonitorEnter(context, thread, handle, ops);
 }
 
-void fy_threadMonitorExit(fy_context *context, fy_thread *thread, fy_int handle,
-		fy_exception *exception) {
+void fy_threadMonitorExit(fy_context *context, fy_thread *thread, fisce_int handle,
+		fisce_exception *exception) {
 	fy_tmMonitorExit(context, thread, handle, exception);
 }
 
 void fy_threadDestroy(fy_context *context, fy_thread *thread) {
-	fy_uint handle;
+	fisce_uint handle;
 	fy_object *obj;
 	obj = context->objects + thread->handle;
 	obj->object_data->m.threadId = 0;
@@ -129,7 +129,7 @@ void fy_threadDestroy(fy_context *context, fy_thread *thread) {
 }
 
 void fy_threadFillException(fy_context *context, fy_thread *thread,
-		fy_uint handle, fy_exception *exception) {
+		fisce_uint handle, fisce_exception *exception) {
 #define FY_SIMPLE_ERROR_HANDLE if(exception->exceptionType != exception_none) return;
 
 	fy_class *clazz, *array;
@@ -138,10 +138,10 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 	fy_frame *frame;
 	fy_method *method;
 	fy_str str[1];
-	fy_uint arrayHandle, itemHandle, strHandle;
-	fy_uint lpc;
-	fy_int i, j, t, begin;
-	fy_int lineNumber;
+	fisce_uint arrayHandle, itemHandle, strHandle;
+	fisce_uint lpc;
+	fisce_int i, j, t, begin;
+	fisce_int lineNumber;
 	fy_lineNumber *ln;
 
 	fy_vmLookupClass(context, context->sClassThrowable, exception);
@@ -284,7 +284,7 @@ void fy_threadFillException(fy_context *context, fy_thread *thread,
 }
 
 fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
-	fy_uint frameCount = thread->frameCount;
+	fisce_uint frameCount = thread->frameCount;
 	if (frameCount == 0) {
 		return NULL;
 	} else {
@@ -293,7 +293,7 @@ fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread) {
 }
 
 fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
-		fy_method *invoke, fy_stack_item *spp, fy_exception *exception) {
+		fy_method *invoke, fisce_stack_item *spp, fisce_exception *exception) {
 	fy_frame *frame;
 #ifdef FY_STRICT_CHECK
 	fy_frame *currentFrame = fy_threadCurrentFrame(context, thread);
@@ -333,7 +333,7 @@ fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
 }
 
 fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread) {
-	fy_uint fc = --(thread->frameCount);
+	fisce_uint fc = --(thread->frameCount);
 	if (fc <= 0) {
 		return NULL;
 	} else {
@@ -342,7 +342,7 @@ fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread) {
 }
 
 static fy_class *clinit(fy_context *context, fy_thread *thread, fy_class *clazz) {
-	fy_uint tid;
+	fisce_uint tid;
 	fy_class *ret;
 	if (clazz == NULL) {
 		return NULL;
@@ -368,9 +368,9 @@ fy_class *fy_threadCheckClinit(fy_context *context, fy_thread *thread,
 	return clinit(context, thread, clazz);
 }
 
-fy_int fy_threadPushMethod(fy_context *context, fy_thread *thread,
-		fy_method *invoke, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception) {
+fisce_int fy_threadPushMethod(fy_context *context, fy_thread *thread,
+		fy_method *invoke, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception) {
 	fy_frame *frame = fy_threadPushFrame(context, thread, invoke, spp,
 			exception);
 	FYEH()0;
@@ -387,7 +387,7 @@ fy_int fy_threadPushMethod(fy_context *context, fy_thread *thread,
 }
 
 void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
-		int threadHandle, fy_method *method, fy_exception *exception) {
+		int threadHandle, fy_method *method, fisce_exception *exception) {
 	fy_class *clazz;
 	fy_object *obj = context->objects + threadHandle;
 	if (!fy_strEndsWith(method->uniqueName, context->sFMain)) {
@@ -422,7 +422,7 @@ void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
 }
 
 void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_class *handleClass;
 	fy_class *threadClass;
 	fy_object *obj;
@@ -454,9 +454,9 @@ void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
 	thread->stack->uvalue = handle;
 }
 
-static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
-		fy_method *method, fy_uint paramsCount, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception) {
+static fisce_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
+		fy_method *method, fisce_uint paramsCount, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception) {
 	fy_nh *nh;
 	frame->pcofs = 1;
 	if (method->access_flags & FY_ACC_NATIVE) {
@@ -495,10 +495,10 @@ static fy_int doInvoke(fy_context *context, fy_thread *thread, fy_frame *frame,
 	return ops;
 }
 
-fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception) {
-	fy_int count = method->paramStackUsage;
+fisce_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception) {
+	fisce_int count = method->paramStackUsage;
 	fy_method *actureMethod = NULL;
 #ifdef FY_VERBOSE
 	context->logDVar(context, "Invoke special: ");
@@ -560,10 +560,10 @@ fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
 			exception);
 }
 
-fy_int fy_threadInvokeVirtual(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception) {
-	fy_int count = method->paramStackUsage;
+fisce_int fy_threadInvokeVirtual(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception) {
+	fisce_int count = method->paramStackUsage;
 	fy_method *actureMethod;
 	fy_class *clazz;
 #ifdef FY_VERBOSE
@@ -606,14 +606,14 @@ fy_int fy_threadInvokeVirtual(fy_context *context, fy_thread *thread,
 			exception);
 }
 
-fy_int fy_threadInvokeStatic(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception) {
+fisce_int fy_threadInvokeStatic(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception) {
 	char msg[256];
 #ifdef FY_DEBUG
 	fy_class *owner = method->owner;
 #endif
-	fy_uint count = method->paramStackUsage;
+	fisce_uint count = method->paramStackUsage;
 #ifdef FY_VERBOSE
 	context->logDVar(context, "Invoke static: ");
 	context->logDStr(context, method->uniqueName);
@@ -655,9 +655,9 @@ fy_int fy_threadInvokeStatic(fy_context *context, fy_thread *thread,
 	return doInvoke(context, thread, frame, method, count, spp, ops, exception);
 }
 
-fy_int fy_threadInvoke(fy_context *context, fy_thread *thread,
-		fy_method *method, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception) {
+fisce_int fy_threadInvoke(fy_context *context, fy_thread *thread,
+		fy_method *method, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception) {
 	if (method->access_flags & FY_ACC_STATIC) {
 		return fy_threadInvokeStatic(context, thread,
 				fy_threadCurrentFrame(context, thread), method, spp, ops,
@@ -669,8 +669,8 @@ fy_int fy_threadInvoke(fy_context *context, fy_thread *thread,
 	}
 }
 
-fy_int fy_threadClinit(fy_context *context, fy_thread *thread, fy_class *clazz,
-		fy_stack_item *spp, fy_int ops, fy_exception *exception) {
+fisce_int fy_threadClinit(fy_context *context, fy_thread *thread, fy_class *clazz,
+		fisce_stack_item *spp, fisce_int ops, fisce_exception *exception) {
 	/*!CLINIT*/
 	fy_class *clinitClazz = NULL;
 	fy_frame *frame = fy_threadCurrentFrame(context, thread);
@@ -699,14 +699,14 @@ fy_int fy_threadClinit(fy_context *context, fy_thread *thread, fy_class *clazz,
 	}
 }
 
-void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
-		fy_int ops, fy_exception *exception) {
+void fy_threadRun(fy_context *context, fy_thread *thread, fisce_message *message,
+		fisce_int ops, fisce_exception *exception) {
 	fy_frame *frame;
 	fy_method *method;
-	fy_exception intrenalException[1];
+	fisce_exception intrenalException[1];
 #ifndef FY_LATE_DECLARATION
-	fy_exception exceptionToPrepare;
-	fy_uint i1, i2;
+	fisce_exception exceptionToPrepare;
+	fisce_uint i1, i2;
 #endif
 
 	intrenalException->exceptionType = exception_none;
@@ -734,7 +734,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 		/**/
 		if (thread->currentThrowable) {
 #ifdef FY_LATE_DECLARATION
-			fy_uint i1, i2;
+			fisce_uint i1, i2;
 #endif
 			i1 = processThrowable(context, frame, thread->currentThrowable,
 					frame->lpc, exception);
@@ -775,7 +775,7 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 				FYEH();
 			} else {
 #ifdef FY_LATE_DECLARATION
-				fy_exception exceptionToPrepare;
+				fisce_exception exceptionToPrepare;
 #endif
 				exceptionToPrepare = *intrenalException;
 				intrenalException->exceptionType = exception_none;
@@ -796,11 +796,11 @@ void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
 	}
 }
 
-fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
-		fy_exception *toPrepare, fy_exception *exception) {
+fisce_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
+		fisce_exception *toPrepare, fisce_exception *exception) {
 	fy_class *clazz1;
 	fy_str str1[1];
-	fy_uint ivalue, ivalue2;
+	fisce_uint ivalue, ivalue2;
 	fy_field *field;
 	fy_memblock *block = context->memblocks;
 	str1->content = NULL;
@@ -855,24 +855,24 @@ fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
 	return ivalue;
 }
 
-void fy_threadReturnInt(fy_stack_item *spp, fy_int value) {
+void fy_threadReturnInt(fisce_stack_item *spp, fisce_int value) {
 	spp->ivalue = value;
 }
 
-void fy_threadReturnLong(fy_stack_item *spp, fy_long value) {
+void fy_threadReturnLong(fisce_stack_item *spp, fisce_long value) {
 	spp->uvalue = fy_HOFL(value);
 	(spp + 1)->uvalue = fy_LOFL(value);
 }
 
 void fy_threadScanRef(fy_context *context, fy_thread *thread,
-		fy_arrayList *from, fy_exception *exception) {
-	fy_uint handle;
-	fy_stack_item *sbase;
+		fy_arrayList *from, fisce_exception *exception) {
+	fisce_uint handle;
+	fisce_stack_item *sbase;
 	fy_frame *frame;
 	fy_method *method;
 	fy_object *object;
-	fy_int i, maxSp;
-	fy_int frameId, frameIdMax;
+	fisce_int i, maxSp;
+	fisce_int frameId, frameIdMax;
 	fy_instruction_extra *ipp, *nipp;
 
 	frameIdMax = thread->frameCount - 1;

@@ -40,7 +40,7 @@ struct fy_context {
 	/*Service Function Table*/
 	/*INPUTSTREAM*/
 	fy_inputStream* (*isOpen)(struct fy_context *context, const char *name,
-			fy_exception *exception);
+			fisce_exception *exception);
 	const void *isParam;
 
 	/*ResourceInputStream*/
@@ -48,59 +48,59 @@ struct fy_context {
 
 	/*Status Saver*/
 	const void *saveloadParam;
-	void* (*saveBegin)(struct fy_context *context, fy_exception *exception);
+	void* (*saveBegin)(struct fy_context *context, fisce_exception *exception);
 	void (*savePrepareClass)(struct fy_context *context, void *saver,
-			fy_uint classCount, fy_exception *exception);
-	void (*saveClass)(struct fy_context *context, void *saver, fy_uint classId,
-			fy_uint handle, fy_int clinited, fy_str *name, fy_uint staticSize,
-			fy_int *staticArea, fy_exception *exception);
+			fisce_uint classCount, fisce_exception *exception);
+	void (*saveClass)(struct fy_context *context, void *saver, fisce_uint classId,
+			fisce_uint handle, fisce_int clinited, fy_str *name, fisce_uint staticSize,
+			fisce_int *staticArea, fisce_exception *exception);
 	void (*saveEndClass)(struct fy_context *context, void *saver,
-			fy_exception *exception);
+			fisce_exception *exception);
 	void (*savePrepareMethod)(struct fy_context *context, void *saver,
-			fy_uint methodCount, fy_exception *exception);
+			fisce_uint methodCount, fisce_exception *exception);
 	void (*saveMethod)(struct fy_context *context, void *saver,
-			fy_uint methodId, fy_uint handle, fy_str *uniqueName,
-			fy_exception *exception);
+			fisce_uint methodId, fisce_uint handle, fy_str *uniqueName,
+			fisce_exception *exception);
 	void (*saveEndMethod)(struct fy_context *context, void *saver,
-			fy_exception *exception);
+			fisce_exception *exception);
 	void (*savePrepareField)(struct fy_context *context, void *saver,
-			fy_uint fieldCount, fy_exception *exception);
-	void (*saveField)(struct fy_context *context, void *saver, fy_uint fieldId,
-			fy_uint handle, fy_str *uniqueName, fy_exception *exception);
+			fisce_uint fieldCount, fisce_exception *exception);
+	void (*saveField)(struct fy_context *context, void *saver, fisce_uint fieldId,
+			fisce_uint handle, fy_str *uniqueName, fisce_exception *exception);
 	void (*saveEndField)(struct fy_context *context, void *saver,
-			fy_exception *exception);
+			fisce_exception *exception);
 	void (*savePrepareObjects)(struct fy_context *context, void *saver,
-			fy_uint nextHandle, fy_uint objectCount, fy_exception *exception);
-	void (*saveObject)(struct fy_context *context, void *saver, fy_uint handle,
-			fy_uint classId, fy_int posInHeap, fy_int gen,
-			fy_int finalizeStatus, fy_uint monitorOwner, fy_uint monitorCount,
-			fy_uint multiUsageData, fy_uint dataLength, fy_uint *data,
-			fy_exception *exception);
+			fisce_uint nextHandle, fisce_uint objectCount, fisce_exception *exception);
+	void (*saveObject)(struct fy_context *context, void *saver, fisce_uint handle,
+			fisce_uint classId, fisce_int posInHeap, fisce_int gen,
+			fisce_int finalizeStatus, fisce_uint monitorOwner, fisce_uint monitorCount,
+			fisce_uint multiUsageData, fisce_uint dataLength, fisce_uint *data,
+			fisce_exception *exception);
 	void (*saveEndObject)(struct fy_context *context, void *saver,
-			fy_exception *exception);
-	void (*saveLiterals)(struct fy_context *context, void *saver, fy_uint count,
-			fy_uint *handles, fy_exception *exception);
+			fisce_exception *exception);
+	void (*saveLiterals)(struct fy_context *context, void *saver, fisce_uint count,
+			fisce_uint *handles, fisce_exception *exception);
 	void (*saveFinalizes)(struct fy_context *context, void *saver,
-			fy_uint count, fy_uint *handles, fy_exception *exception);
+			fisce_uint count, fisce_uint *handles, fisce_exception *exception);
 	void (*savePrepareThreads)(struct fy_context *context, void *saver,
-			fy_uint threadsCount, fy_exception *exception);
+			fisce_uint threadsCount, fisce_exception *exception);
 	void (*saveThread)(struct fy_context *context, void *saver,
-			fy_uint threadId, fy_uint handle, fy_int priority, fy_uint daemon,
-			fy_uint destroyPending, fy_uint interrupted, fy_long nextWakeupTime,
-			fy_uint pendingLockCount, fy_uint waitForLockId,
-			fy_uint waitForNotifyId, fy_uint stackSize, fy_stack_item *stack, fy_exception *exception);
+			fisce_uint threadId, fisce_uint handle, fisce_int priority, fisce_uint daemon,
+			fisce_uint destroyPending, fisce_uint interrupted, fisce_long nextWakeupTime,
+			fisce_uint pendingLockCount, fisce_uint waitForLockId,
+			fisce_uint waitForNotifyId, fisce_uint stackSize, fisce_stack_item *stack, fisce_exception *exception);
 	void (*savePrepareFrame)(struct fy_context *context, void *saver,
-			fy_uint count, fy_exception *exception);
-	void (*saveFrame)(struct fy_context *context, void *saver, fy_uint methodId,
-			fy_uint sb, fy_uint lpc, fy_int pcofs,
-			fy_exception *exception);
+			fisce_uint count, fisce_exception *exception);
+	void (*saveFrame)(struct fy_context *context, void *saver, fisce_uint methodId,
+			fisce_uint sb, fisce_uint lpc, fisce_int pcofs,
+			fisce_exception *exception);
 	void (*saveEndFrame)(struct fy_context *context, void *saver,
-			fy_exception *exception);
+			fisce_exception *exception);
 	void (*saveEndThread)(struct fy_context *context, void *saver,
-			fy_exception *exception);
+			fisce_exception *exception);
 	void (*saveEnd)(struct fy_context *context, void *saver,
-			fy_exception *exception);
-	void (*loadData)(struct fy_context *context, fy_exception *exception);
+			fisce_exception *exception);
+	void (*loadData)(struct fy_context *context, fisce_exception *exception);
 
 	/*Logging*/
 
@@ -123,7 +123,7 @@ struct fy_context {
 	/*Finish function pointers*/
 
 	void *additionalData;
-	fy_boolean loading;
+	fisce_boolean loading;
 
 	fy_str *sAttCode;
 	fy_str *sAttLineNum;
@@ -220,17 +220,17 @@ struct fy_context {
 
 	fy_port port[1];
 
-	fy_int classesCount;
+	fisce_int classesCount;
 	fy_class *classes[MAX_CLASSES];
 
 	fy_hashMap mapClassNameToId[1];
 
-	fy_int methodsCount;
+	fisce_int methodsCount;
 	fy_method *methods[MAX_METHODS];
 	fy_hashMap mapMethodNameToId[1];
 	fy_hashMap stackPool[1];
 
-	fy_int fieldsCount;
+	fisce_int fieldsCount;
 	fy_field *fields[MAX_FIELDS];
 	fy_hashMap mapFieldNameToId[1];
 
@@ -243,109 +243,109 @@ struct fy_context {
 
 	void *gcCustomData;
 	void (*beforeGC)(void *data);
-	void (*getExtraGCKeep)(void *data, fy_int *count, fy_int **content);
+	void (*getExtraGCKeep)(void *data, fisce_int *count, fisce_int **content);
 	void (*afterGC)(void *data);
 
 	fy_hashMap customClassData[1];
 
 	/* #BEGIN GLOBAL*/
 #ifdef FY_DEBUG
-	fy_int stringPoolTimes;
+	fisce_int stringPoolTimes;
 #endif
 	fy_arrayList switchTargets[1];
 	fy_hashMap stringPool[1];
 	/* #BEGIN THREAD MANAGER*/
-	fy_int pricmds[11];
+	fisce_int pricmds[11];
 	fy_thread *threads[MAX_THREADS];
 	fy_thread *currentThread;
 	fy_arrayList *runningThreads;
-	fy_int runningThreadPos;
-	fy_int run;
-	fy_int state;
-	fy_long nextWakeUpTimeTotal;
-	fy_int nextThreadId;
-	fy_exception exitException;
-	fy_int exitCode;
-	fy_long nextGCTime;
-	fy_long nextForceGCTime;
-	fy_int engineCount;
+	fisce_int runningThreadPos;
+	fisce_int run;
+	fisce_int state;
+	fisce_long nextWakeUpTimeTotal;
+	fisce_int nextThreadId;
+	fisce_exception exitException;
+	fisce_int exitCode;
+	fisce_long nextGCTime;
+	fisce_long nextForceGCTime;
+	fisce_int engineCount;
 	fy_engine *engines;
 	/* #END THREAD MANAGER*/
 
 	/* #BEGIN HEAP*/
 	fy_arrayList toFinalize[1];
-	fy_boolean protectMode;
+	fisce_boolean protectMode;
 	fy_arrayList protected[1];
 	fy_hashMap literals[1];
 	fy_hashMapI references[1];
 	fy_arrayList toEnqueue[1];
-	fy_uint nextHandle;
-	fy_uint totalObjects;
+	fisce_uint nextHandle;
+	fisce_uint totalObjects;
 	fy_memblock memblocks[1];
-	fy_int END_MARK[1];
+	fisce_int END_MARK[1];
 	/* #END HEAP*/
 };
 
-void fy_vmContextInit(fy_context *context, fy_exception *exception);
+void fy_vmContextInit(fy_context *context, fisce_exception *exception);
 void fy_vmContextDestroy(fy_context *context);
 
-fy_boolean fy_vmBootup(fy_context *context, const char* bootStrapClass,
-		fy_exception *exception);
+fisce_boolean fy_vmBootup(fy_context *context, const char* bootStrapClass,
+		fisce_exception *exception);
 
-void fy_vmSave(fy_context *context, fy_exception *exception);
-void fy_vmBootFromData(fy_context *context, fy_exception *exception);
+void fy_vmSave(fy_context *context, fisce_exception *exception);
+void fy_vmBootFromData(fy_context *context, fisce_exception *exception);
 
 void fy_vmRegisterField(fy_context *context, fy_field *field,
-		fy_exception *exception);
+		fisce_exception *exception);
 fy_field *fy_vmLookupFieldVirtual(fy_context *context, fy_class *clazz,
-		fy_str *name, fy_exception *exception);
+		fy_str *name, fisce_exception *exception);
 fy_field *fy_vmLookupFieldFromConstant(fy_context *context,
-		ConstantFieldRef *fieldInfo, fy_exception *exception);
+		ConstantFieldRef *fieldInfo, fisce_exception *exception);
 
 fy_field *fy_vmGetField(fy_context *context, fy_str *uniqueName);
 
 void fy_vmRegisterMethod(fy_context *context, fy_method *method,
-		fy_exception *exception);
+		fisce_exception *exception);
 fy_method *fy_vmLookupMethodVirtual(fy_context *context, fy_class *clazz,
-		fy_str *name, fy_exception *exception);
+		fy_str *name, fisce_exception *exception);
 fy_method *fy_vmLookupMethodVirtualByMethod(fy_context *context,
-		fy_class *clazz, fy_method *method, fy_exception *exception);
+		fy_class *clazz, fy_method *method, fisce_exception *exception);
 fy_method *fy_vmLookupMethodFromConstant(fy_context *context,
-		ConstantMethodRef *methodInfo, fy_exception *exception);
+		ConstantMethodRef *methodInfo, fisce_exception *exception);
 
 fy_method *fy_vmGetMethod(fy_context *context, fy_str *uniqueName);
 
 void fy_vmRegisterClass(fy_context *context, fy_class *clazz,
-		fy_exception *exception);
+		fisce_exception *exception);
 fy_class *fy_vmLoadClass(fy_context *context, fy_str *name,
-		fy_exception *exception);
+		fisce_exception *exception);
 fy_class *fy_vmLookupClass(fy_context *context, fy_str *name,
-		fy_exception *exception);
+		fisce_exception *exception);
 fy_class *fy_vmLookupClassFromConstant(fy_context *context,
-		ConstantClass *classInfo, fy_exception *exception);
+		ConstantClass *classInfo, fisce_exception *exception);
 
 void fy_vmRegisterNativeHandler(fy_context *context, const char *name,
-		void *data, fy_nhFunction handler, fy_exception *exception);
+		void *data, fy_nhFunction handler, fisce_exception *exception);
 void fy_vmUnRegisterNativeHandler(fy_context *context, const char *name,
-		fy_exception *exception);
-fy_class *fy_vmGetClassFromClassObject(fy_context *context, fy_uint handle,
-		fy_exception *exception);
+		fisce_exception *exception);
+fy_class *fy_vmGetClassFromClassObject(fy_context *context, fisce_uint handle,
+		fisce_exception *exception);
 fy_class *fy_vmLookupClassFromExceptionHandler(fy_context *context,
-		fy_exceptionHandler *exceptionHandler, fy_exception *exception);
+		fy_exceptionHandler *exceptionHandler, fisce_exception *exception);
 int fy_vmGetClassObjHandle(fy_context *context, fy_class *clazz,
-		fy_exception *exception);
-fy_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
-		fy_exception *exception);
-fy_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
-		fy_exception *exception);
+		fisce_exception *exception);
+fisce_int fy_vmGetMethodObjHandle(fy_context *context, fy_method *method,
+		fisce_exception *exception);
+fisce_int fy_vmGetFieldObjHandle(fy_context *context, fy_field *field,
+		fisce_exception *exception);
 
 /*String pool*/
 fy_str *fy_vmCreateStringByPool(fy_context *context, fy_str *tmp,
-		fy_exception *exception);
-fy_str *fy_vmCreateStringByPoolV(fy_context *context, fy_exception *exception,
+		fisce_exception *exception);
+fy_str *fy_vmCreateStringByPoolV(fy_context *context, fisce_exception *exception,
 		const char *pattern, ...);
 fy_str *fy_vmCreateStringByPoolVA(fy_context *context, fy_strVA *va,
-		fy_exception *exception);
+		fisce_exception *exception);
 #ifdef	__cplusplus
 }
 #endif

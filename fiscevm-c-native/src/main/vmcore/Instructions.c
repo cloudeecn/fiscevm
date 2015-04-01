@@ -543,22 +543,22 @@ const char *FY_OP_NAME[MAX_INSTRUCTIONS] = { /**/
 };
 
 void fy_instInitStackItem(fy_memblock *block, fy_instruction_extra *instruction,
-		fy_int size, fy_exception *exception) {
+		fisce_int size, fisce_exception *exception) {
 	instruction->sp = size;
 	if (size <= 64) {
 		instruction->s.stackTypeContent = 0;
 	} else {
 		instruction->s.stackTypeContents = fy_mmAllocatePerm(block,
-				sizeof(fy_ulong) * ((size + 63) >> 6), exception);
+				sizeof(fisce_ulong) * ((size + 63) >> 6), exception);
 	}
 }
 
-static FY_INLINE fy_int imin(fy_int a, fy_int b) {
+static FY_INLINE fisce_int imin(fisce_int a, fisce_int b) {
 	return a < b ? a : b;
 }
 
 void fy_instStackItemClone(fy_instruction_extra *from, fy_instruction_extra *to) {
-	fy_int size;
+	fisce_int size;
 	if (from->sp <= 64 && to->sp <= 64) {
 		to->s.stackTypeContent = from->s.stackTypeContent;
 	} else if (from->sp > 64 && to->sp <= 64) {
@@ -568,22 +568,22 @@ void fy_instStackItemClone(fy_instruction_extra *from, fy_instruction_extra *to)
 	} else {
 		size = (imin(from->sp, to->sp) + 63) >> 6;
 		memcpy(to->s.stackTypeContents, from->s.stackTypeContents,
-				sizeof(fy_ulong) * size);
+				sizeof(fisce_ulong) * size);
 	}
 #ifdef FY_STRICT_CHECK
 	to->localSize = from->localSize;
 #endif
 }
 
-void fy_instMarkStackItem(fy_instruction_extra *instruction, fy_int pos,
-		fy_long isHandle) {
-	fy_ulong mkOr;
-	fy_ulong mkAnd;
-	fy_int lpos;
+void fy_instMarkStackItem(fy_instruction_extra *instruction, fisce_int pos,
+		fisce_long isHandle) {
+	fisce_ulong mkOr;
+	fisce_ulong mkAnd;
+	fisce_int lpos;
 	if (instruction->sp <= 64) {
 		/*happy*/
-		mkOr = (((fy_ulong)1) << pos) & isHandle;
-		mkAnd = isHandle | ~(((fy_ulong)1) << pos);
+		mkOr = (((fisce_ulong)1) << pos) & isHandle;
+		mkAnd = isHandle | ~(((fisce_ulong)1) << pos);
 
 		instruction->s.stackTypeContent = (instruction->s.stackTypeContent
 				& mkAnd) | mkOr;
@@ -591,14 +591,14 @@ void fy_instMarkStackItem(fy_instruction_extra *instruction, fy_int pos,
 		/*not so happy*/
 		lpos = pos >> 6; /* /64 */
 		pos = pos & 63;
-		mkOr = (((fy_ulong)1) << pos) & isHandle;
-		mkAnd = isHandle | ~(((fy_ulong)1) << pos);
+		mkOr = (((fisce_ulong)1) << pos) & isHandle;
+		mkAnd = isHandle | ~(((fisce_ulong)1) << pos);
 		instruction->s.stackTypeContents[lpos] =
 				(instruction->s.stackTypeContents[lpos] & mkAnd) | mkOr;
 	}
 }
 
-fy_int fy_instGetStackItem(fy_instruction_extra *instruction, fy_int pos) {
+fisce_int fy_instGetStackItem(fy_instruction_extra *instruction, fisce_int pos) {
 	if (instruction->sp <= 64) {
 		return -((instruction->s.stackTypeContent >> pos) & 1);
 	} else {

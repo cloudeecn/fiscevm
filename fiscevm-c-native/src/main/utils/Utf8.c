@@ -19,7 +19,7 @@
 
 #include "fy_util/Utf8.h"
 
-fy_uint fy_utf8Size(fy_char unicode) {
+fisce_uint fy_utf8Size(fisce_char unicode) {
 	if (unicode > 0x0800) {
 		return 3;
 	} else if (unicode > 0x80 || unicode == 0) {
@@ -29,7 +29,7 @@ fy_uint fy_utf8Size(fy_char unicode) {
 	}
 }
 
-fy_uint fy_utf8SizeU(signed char firstByte) {
+fisce_uint fy_utf8SizeU(signed char firstByte) {
 	if (firstByte >= 0) {
 		return 1;
 	} else if (firstByte >= -16) {
@@ -43,9 +43,9 @@ fy_uint fy_utf8SizeU(signed char firstByte) {
 	}
 }
 
-fy_uint fy_utf8SizeS(const char *str, fy_int length) {
+fisce_uint fy_utf8SizeS(const char *str, fisce_int length) {
 	int i = 0;
-	fy_uint ret = 0;
+	fisce_uint ret = 0;
 	signed char c;
 	if (length < 0) {
 		while ((c = str[i]) != 0) {
@@ -62,7 +62,7 @@ fy_uint fy_utf8SizeS(const char *str, fy_int length) {
 	return ret;
 }
 
-fy_char fy_utf8Read(const char **from, fy_int *left) {
+fisce_char fy_utf8Read(const char **from, fisce_int *left) {
 	signed char x = *((*from)++);
 	signed char y;
 	signed char z;
@@ -101,7 +101,7 @@ fy_char fy_utf8Read(const char **from, fy_int *left) {
 	}
 }
 
-int fy_utf8Write(fy_char unicode, char **to, fy_int *left) {
+int fy_utf8Write(fisce_char unicode, char **to, fisce_int *left) {
 	switch (fy_utf8Size(unicode)) {
 	case 3:
 		if (*left < 3) {

@@ -19,6 +19,8 @@
 #ifndef _FY_FISCEPRT_H
 #define _FY_FISCEPRT_H
 
+#include "fiscepub.h"
+
 #if defined(_WIN32)
 # include <windows.h>
 # define FY_PRT_WIN32 1
@@ -86,42 +88,8 @@ extern "C" {
 #define __PRETTY_FUNCTION__ __FILE__
 #endif
 
-typedef unsigned int fy_uint;
-typedef unsigned short fy_char;
-typedef signed int fy_int;
-typedef signed short fy_short;
-typedef signed char fy_byte;
-typedef unsigned char fy_ubyte;
-typedef float fy_float;
-typedef double fy_double;
-typedef fy_int fy_boolean;
-
-#ifdef _MSC_VER
-typedef unsigned __int64 fy_ulong;
-typedef __int64 fy_long;
-#else
-# ifdef CUSTOM_LONG_LONG
-typedef unsigned CUSTOM_LONG_LONG fy_ulong;
-typedef CUSTOM_LONG_LONG fy_long;
-# else
-typedef unsigned long long fy_ulong;
-typedef long long fy_long;
-# endif
-#endif
-
-
-typedef struct fy_exception {
-	enum exceptionType {
-		exception_none = 0, exception_normal
-	/*, exception_critical // use fy_fault instead!*/
-	} exceptionType;
-	char exceptionName[256];
-	char exceptionDesc[256];
-} fy_exception;
-/*#define fy_exceptionCheckAndReturn(EXCEPTION) if((EXCEPTION)!=NULL&&(EXCEPTION)->exceptionType!=exception_none) return*/
-
 typedef struct fy_port {
-	fy_long initTimeInMillSec;
+	fisce_long initTimeInMillSec;
 #if defined(FY_PRT_WIN32)
 	LARGE_INTEGER lpFreq;
 	LARGE_INTEGER lpPerfCountBegin;
@@ -211,79 +179,79 @@ typedef struct fy_port {
 # define FY_PRINT32 ""
 #endif
 
-#define FY_PDIFF(TYPE, B, A) ((fy_int)(((size_t)B - (size_t)A)/sizeof(TYPE)))
-#define fy_I2TOL(I1,I2) ((fy_long)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
-#define fy_I2TOUL(I1,I2) ((fy_ulong)(((fy_ulong)(fy_uint)(I1)<<32) | ((fy_ulong)(fy_uint)(I2))))
-#define fy_B2TOUI(B1,B2) ((((fy_uint)(fy_ubyte)(B1))<<8)|((fy_uint)(fy_ubyte)(B2)))
-#define fy_B2TOI(B1,B2) ((fy_short)((((fy_uint)(fy_ubyte)(B1))<<8)|((fy_uint)(fy_ubyte)(B2))))
-#define fy_B4TOI(B1,B2,B3,B4) ((((fy_uint)(fy_ubyte)(B1))<<24)|(((fy_uint)(fy_ubyte)(B2))<<16)|(((fy_uint)(fy_ubyte)(B3))<<8)|((fy_uint)(fy_ubyte)(B4)))
-#define fy_HOFL(L) ((fy_int)(L>>32))
-#define fy_LOFL(L) ((fy_int)(L))
+#define FY_PDIFF(TYPE, B, A) ((fisce_int)(((size_t)B - (size_t)A)/sizeof(TYPE)))
+#define fy_I2TOL(I1,I2) ((fisce_long)(((fisce_ulong)(fisce_uint)(I1)<<32) | ((fisce_ulong)(fisce_uint)(I2))))
+#define fy_I2TOUL(I1,I2) ((fisce_ulong)(((fisce_ulong)(fisce_uint)(I1)<<32) | ((fisce_ulong)(fisce_uint)(I2))))
+#define fy_B2TOUI(B1,B2) ((((fisce_uint)(fisce_ubyte)(B1))<<8)|((fisce_uint)(fisce_ubyte)(B2)))
+#define fy_B2TOI(B1,B2) ((fisce_short)((((fisce_uint)(fisce_ubyte)(B1))<<8)|((fisce_uint)(fisce_ubyte)(B2))))
+#define fy_B4TOI(B1,B2,B3,B4) ((((fisce_uint)(fisce_ubyte)(B1))<<24)|(((fisce_uint)(fisce_ubyte)(B2))<<16)|(((fisce_uint)(fisce_ubyte)(B3))<<8)|((fisce_uint)(fisce_ubyte)(B4)))
+#define fy_HOFL(L) ((fisce_int)(L>>32))
+#define fy_LOFL(L) ((fisce_int)(L))
 
-FY_ATTR_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception);
+FY_ATTR_EXPORT void *fy_allocate(fisce_uint size, fisce_exception *exception);
 FY_ATTR_EXPORT void fy_free(void *target);
-FY_ATTR_EXPORT fy_exception *fy_fault(fy_exception *exception, const char *clazz,
+FY_ATTR_EXPORT fisce_exception *fy_fault(fisce_exception *exception, const char *clazz,
 		const char *msg, ...);
 FY_ATTR_EXPORT int fy_breakpoint();
 FY_ATTR_EXPORT long int fy_getAllocated();
 
 FY_ATTR_EXPORT void fy_portInit(fy_port *pd);
 FY_ATTR_EXPORT void fy_portDestroy(fy_port *pd);
-FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd);
-FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd);
+FY_ATTR_EXPORT fisce_long fy_portTimeMillSec(fy_port *pd);
+FY_ATTR_EXPORT fisce_long fy_portTimeNanoSec(fy_port *pd);
     
-FY_ATTR_EXPORT fy_boolean fy_portValidate();
+FY_ATTR_EXPORT fisce_boolean fy_portValidate();
 
-#define fy_stack_item2iarray(spp) ((int*)(void*)(spp))
-#define fy_stack_item2farray(spp) ((float*)(void*)(spp))
+#define fisce_stack_item2iarray(spp) ((int*)(void*)(spp))
+#define fisce_stack_item2farray(spp) ((float*)(void*)(spp))
 
 #define FYEH() if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) return
 #define FYEX(HANDLER) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) {HANDLER;}
 #define FYEG(X) if(unlikely((exception)!=NULL&&(exception)->exceptionType!=exception_none)) goto X
 
-MAYBE_UNUSED FY_INLINE static fy_int fy_mini(fy_int x,fy_int y){
+MAYBE_UNUSED FY_INLINE static fisce_int fy_mini(fisce_int x,fisce_int y){
 	return y ^ ((x ^ y) & -(x < y));
 }
 
-MAYBE_UNUSED FY_INLINE static fy_int fy_maxi(fy_int x,fy_int y){
+MAYBE_UNUSED FY_INLINE static fisce_int fy_maxi(fisce_int x,fisce_int y){
 	return x ^ ((x ^ y) & -(x < y));
 }
 
 union fy_dtol {
-	fy_double d;
-	fy_long l;
+	fisce_double d;
+	fisce_long l;
 };
 
 union fy_itof {
-	fy_float f;
-	fy_int i;
+	fisce_float f;
+	fisce_int i;
 };
 
-MAYBE_UNUSED FY_INLINE static  fy_long fy_doubleToLong(fy_double value) {
+MAYBE_UNUSED FY_INLINE static  fisce_long fisce_doubleToLong(fisce_double value) {
 	union fy_dtol d;
 	d.d = value;
 	return d.l;
 }
-MAYBE_UNUSED FY_INLINE static  fy_double fy_longToDouble(fy_long value) {
+MAYBE_UNUSED FY_INLINE static  fisce_double fisce_longToDouble(fisce_long value) {
 	union fy_dtol d;
 	d.l = value;
 	return d.d;
 }
-MAYBE_UNUSED FY_INLINE static  fy_int fy_floatToInt(fy_float value) {
+MAYBE_UNUSED FY_INLINE static  fisce_int fisce_floatToInt(fisce_float value) {
 	union fy_itof d;
 	d.f = value;
 	return d.i;
 }
-MAYBE_UNUSED FY_INLINE static  fy_float fy_intToFloat(fy_int value) {
+MAYBE_UNUSED FY_INLINE static  fisce_float fisce_intToFloat(fisce_int value) {
 	union fy_itof d;
 	d.i = value;
 	return d.f;
 }
 
-MAYBE_UNUSED FY_INLINE static  fy_boolean fy_isnand(fy_double d) {
+MAYBE_UNUSED FY_INLINE static  fisce_boolean fy_isnand(fisce_double d) {
 	return d != d;
 }
-MAYBE_UNUSED FY_INLINE static  fy_boolean fy_isnanf(fy_float f) {
+MAYBE_UNUSED FY_INLINE static  fisce_boolean fy_isnanf(fisce_float f) {
 	return f != f;
 }
 

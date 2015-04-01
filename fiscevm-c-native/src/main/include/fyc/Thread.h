@@ -35,119 +35,109 @@ extern "C" {
 
 struct fy_frame {
 	fy_method *method;
-	fy_stack_item *baseSpp;
+	fisce_stack_item *baseSpp;
 #ifdef FY_STRICT_CHECK
-	fy_uint size;
-	fy_uint localCount;
-	fy_uint codeSize;
+	fisce_uint size;
+	fisce_uint localCount;
+	fisce_uint codeSize;
 #endif
-	fy_uint lpc;
-	fy_int pcofs;
+	fisce_uint lpc;
+	fisce_int pcofs;
 };
 
 #define FY_FRAME_ENTRIES ((sizeof(struct fy_frame)+3)/4)
 #define FY_GET_FRAME(THREAD,FRAMEID) ((fy_frame*)((THREAD)->stack+STACK_SIZE)-((FRAMEID)+1))
 
-union fy_stack_wide_item {
-	struct {
-		fy_stack_item lower_item;
-		fy_stack_item higher_item;
-	}fy_stack_items;
-	fy_double dvalue;
-	fy_long lvalue;
-};
-
-
 struct fy_thread {
 
-	fy_uint handle;
-	fy_uint currentThrowable;
-	fy_int status;
-	fy_int priority;
-	fy_int threadId;
+	fisce_uint handle;
+	fisce_uint currentThrowable;
+	fisce_int status;
+	fisce_int priority;
+	fisce_int threadId;
 
-	fy_uint frameCount;
-	fy_stack_item stack[STACK_SIZE];
+	fisce_uint frameCount;
+	fisce_stack_item stack[STACK_SIZE];
 
 	/*Used by thread manager*/
-	fy_int waitForLockId;
-	fy_int waitForNotifyId;
-	fy_int pendingLockCount;
-	fy_long nextWakeTime;
-	fy_boolean interrupted;
-	fy_boolean daemon;
-	fy_boolean destroyPending;
+	fisce_int waitForLockId;
+	fisce_int waitForNotifyId;
+	fisce_int pendingLockCount;
+	fisce_long nextWakeTime;
+	fisce_boolean interrupted;
+	fisce_boolean daemon;
+	fisce_boolean destroyPending;
 
-	fy_nativeCall pendingNative;
+	fisce_nativeCall pendingNative;
 };
 
 void fy_threadSetCurrentThrowable(fy_context *context, fy_thread *thread,
-		fy_int handle, fy_exception *exception);
+		fisce_int handle, fisce_exception *exception);
 
-fy_int fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
-		fy_int handle, fy_int ops);
+fisce_int fy_threadMonitorEnter(fy_context *context, fy_thread *thread,
+		fisce_int handle, fisce_int ops);
 
 void fy_threadMonitorExit(fy_context *context, fy_thread *thread,
-		fy_int handle, fy_exception *exception);
+		fisce_int handle, fisce_exception *exception);
 
 void fy_threadDestroy(fy_context *context, fy_thread *thread);
 
 fy_method *fy_threadGetCurrentMethod(fy_context *context, fy_thread *thread);
 
 void fy_threadInitWithRun(fy_context *context, fy_thread *thread, int handle,
-		fy_exception *exception);
+		fisce_exception *exception);
 
 void fy_threadInitWithMethod(fy_context *context, fy_thread *thread,
-		int threadHandle, fy_method *method, fy_exception *exception);
+		int threadHandle, fy_method *method, fisce_exception *exception);
 
 fy_frame *fy_threadCurrentFrame(fy_context *context, fy_thread *thread);
 
 fy_class *fy_threadCheckClinit(fy_context *context, fy_thread *thread, fy_class *clazz);
 
-fy_int fy_threadPushMethod(fy_context *context, fy_thread *thread,
-		fy_method *invoke, fy_stack_item *spp, fy_int ops, fy_exception *exception);
+fisce_int fy_threadPushMethod(fy_context *context, fy_thread *thread,
+		fy_method *invoke, fisce_stack_item *spp, fisce_int ops, fisce_exception *exception);
 
-fy_int fy_threadInvoke(fy_context *context, fy_thread *thread,
-		fy_method *method, fy_stack_item *spp, fy_int ops, fy_exception *exception);
+fisce_int fy_threadInvoke(fy_context *context, fy_thread *thread,
+		fy_method *method, fisce_stack_item *spp, fisce_int ops, fisce_exception *exception);
 
-fy_int fy_threadClinit(fy_context *context, fy_thread *thread, fy_class *clazz,
-		fy_stack_item *spp, fy_int ops, fy_exception *exception);
+fisce_int fy_threadClinit(fy_context *context, fy_thread *thread, fy_class *clazz,
+		fisce_stack_item *spp, fisce_int ops, fisce_exception *exception);
 
-void fy_threadRun(fy_context *context, fy_thread *thread, fy_message *message,
-		fy_int ops, fy_exception *exception);
+void fy_threadRun(fy_context *context, fy_thread *thread, fisce_message *message,
+		fisce_int ops, fisce_exception *exception);
 
 void fy_threadFillException(fy_context *context, fy_thread *thread,
-		fy_uint handle, fy_exception *exception);
+		fisce_uint handle, fisce_exception *exception);
 
-fy_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
-        fy_exception* toPrepare,
-        fy_exception* exception);
+fisce_uint fy_threadPrepareThrowable(fy_context *context, fy_thread *thread,
+        fisce_exception* toPrepare,
+        fisce_exception* exception);
 
 
-void fy_threadReturnInt(fy_stack_item *spp, fy_int value);
+void fy_threadReturnInt(fisce_stack_item *spp, fisce_int value);
 
-void fy_threadReturnLong(fy_stack_item *spp, fy_long value);
+void fy_threadReturnLong(fisce_stack_item *spp, fisce_long value);
 
 void fy_threadScanRef(fy_context *context, fy_thread *thread,
-		fy_arrayList *from, fy_exception *exception);
+		fy_arrayList *from, fisce_exception *exception);
 
-#define fy_threadReturnFloat(SPP,V) fy_threadReturnInt(SPP,fy_floatToInt(V))
+#define fy_threadReturnFloat(SPP,V) fy_threadReturnInt(SPP,fisce_floatToInt(V))
 
-#define fy_threadReturnDouble(SPP,V) fy_threadReturnLong(SPP,fy_doubleToLong(V))
+#define fy_threadReturnDouble(SPP,V) fy_threadReturnLong(SPP,fisce_doubleToLong(V))
 
 fy_frame *fy_threadPushFrame(fy_context *context, fy_thread *thread,
-		fy_method *invoke, fy_stack_item *spp, fy_exception *exception);
+		fy_method *invoke, fisce_stack_item *spp, fisce_exception *exception);
 fy_frame *fy_threadPopFrame(fy_context *context, fy_thread *thread);
 
-fy_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception);
-fy_int fy_threadInvokeVirtual(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception);
-fy_int fy_threadInvokeStatic(fy_context *context, fy_thread *thread,
-		fy_frame *frame, fy_method *method, fy_stack_item *spp, fy_int ops,
-		fy_exception *exception);
+fisce_int fy_threadInvokeSpecial(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception);
+fisce_int fy_threadInvokeVirtual(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception);
+fisce_int fy_threadInvokeStatic(fy_context *context, fy_thread *thread,
+		fy_frame *frame, fy_method *method, fisce_stack_item *spp, fisce_int ops,
+		fisce_exception *exception);
 
 #ifdef	__cplusplus
 }

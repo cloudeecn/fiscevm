@@ -24,15 +24,15 @@
 extern "C" {
 #endif
 
-fy_uint fy_utf8Size(fy_char unicode);
+fisce_uint fy_utf8Size(fisce_char unicode);
 
-fy_uint fy_utf8SizeU(signed char firstByte);
+fisce_uint fy_utf8SizeU(signed char firstByte);
 
-fy_uint fy_utf8SizeS(const char *str, fy_int length);
+fisce_uint fy_utf8SizeS(const char *str, fisce_int length);
 
-fy_char fy_utf8Read(const char **from, fy_int *left);
+fisce_char fy_utf8Read(const char **from, fisce_int *left);
 
-int fy_utf8Write(fy_char unicode, char **to, fy_int *left);
+int fy_utf8Write(fisce_char unicode, char **to, fisce_int *left);
 
 #ifdef	__cplusplus
 }

@@ -1,10 +1,21 @@
-//
-//  fiscevm_ios.h
-//  fiscevm-ios
-//
-//  Created by Cloudee on 10/31/14.
-//  Copyright (c) 2014 Cloudee. All rights reserved.
-//
+/**
+ *  Copyright 2010-2015 Yuxuan Huang. All rights reserved.
+ *
+ * This file is part of fiscevm
+ *
+ * fiscevm is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * fiscevm is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with fiscevm  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef fiscevm_ios_FiScEVM_h
 #define fiscevm_ios_FiScEVM_h
@@ -130,7 +141,6 @@ typedef NS_ENUM(int32_t, FiScEReturnType){
 - (int64_t)getLongFromObject:(int32_t)handle field:(FiScEField*)field;
 - (float_t)getFloatFromObject:(int32_t)handle field:(FiScEField*)field;
 - (double_t)getDoubleFromObject:(int32_t)handle field:(FiScEField*)field;
-- (int8_t*)getbytesFromObject:(int32_t)handle field:(FiScEField*)field;
 
 - (void)putBoolean:(boolean_t)value toObject:(int32_t)handle field:(FiScEField*)field;
 - (void)putHandle:(int32_t)value toObject:(int32_t)handle field:(FiScEField*)field;
@@ -151,7 +161,6 @@ typedef NS_ENUM(int32_t, FiScEReturnType){
 - (int64_t)getLongFromStaticField:(FiScEField*)field;
 - (float_t)getFloatFromStaticField:(FiScEField*)field;
 - (double_t)getDoubleFromStaticField:(FiScEField*)field;
-- (int8_t*)getbytesFromStaticField:(FiScEField*)field;
 
 - (void)putBoolean:(boolean_t)value toStaticField:(FiScEField*)field;
 - (void)putHandle:(int32_t)value toStaticField:(FiScEField*)field;

@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:fiscevm-ios.xcodeproj">
+      location = "self:fisce.xcodeproj">
    </FileRef>
 </Workspace>

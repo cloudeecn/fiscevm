@@ -27,14 +27,14 @@
 extern "C" {
 #endif
 
-fy_ubyte fy_dataRead(fy_context *context, fy_inputStream *is, fy_exception *exception);
-fy_char fy_dataRead2(fy_context *context, fy_inputStream *is, fy_exception *exception);
-fy_uint fy_dataRead4(fy_context *context, fy_inputStream *is, fy_exception *exception);
-fy_ulong fy_dataRead8(fy_context *context, fy_inputStream *is, fy_exception *exception);
+fisce_ubyte fy_dataRead(fy_context *context, fy_inputStream *is, fisce_exception *exception);
+fisce_char fy_dataRead2(fy_context *context, fy_inputStream *is, fisce_exception *exception);
+fisce_uint fy_dataRead4(fy_context *context, fy_inputStream *is, fisce_exception *exception);
+fisce_ulong fy_dataRead8(fy_context *context, fy_inputStream *is, fisce_exception *exception);
 void fy_dataReadBlock(fy_context *context, fy_inputStream* is,
-        void* buffer, fy_int size, fy_exception *exception);
+        void* buffer, fisce_int size, fisce_exception *exception);
 void fy_dataSkip(fy_context *context, fy_inputStream *is, int size,
-		fy_exception *exception);
+		fisce_exception *exception);
 
 #ifdef	__cplusplus
 }

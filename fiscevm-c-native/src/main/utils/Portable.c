@@ -27,7 +27,7 @@ static long int blocks = 0;
 #ifdef __GNUC__
 __attribute__((malloc))
 #endif
-FY_ATTR_EXPORT void *fy_allocate(fy_uint size, fy_exception *exception) {
+FY_ATTR_EXPORT void *fy_allocate(fisce_uint size, fisce_exception *exception) {
 	void *ret;
 	blocks++;
 	ret = malloc(size);
@@ -49,7 +49,7 @@ FY_ATTR_EXPORT long int fy_getAllocated() {
 	return blocks;
 }
 
-FY_ATTR_EXPORT fy_exception* fy_fault(fy_exception *exception, const char *clazz,
+FY_ATTR_EXPORT fisce_exception* fy_fault(fisce_exception *exception, const char *clazz,
 		const char *format, ...) {
 	va_list arg_ptr;
 	int i = 0;
@@ -108,7 +108,7 @@ void vm_dummy() {
 }
 
 FY_ATTR_EXPORT void fy_portInit(fy_port *data) {
-	data->initTimeInMillSec = (fy_long) time(NULL) * 1000;
+	data->initTimeInMillSec = (fisce_long) time(NULL) * 1000;
 #if defined(FY_PRT_WIN32)
 	QueryPerformanceFrequency(&(data->lpFreq));
 	QueryPerformanceCounter(&(data->lpPerfCountBegin));
@@ -120,9 +120,9 @@ FY_ATTR_EXPORT void fy_portInit(fy_port *data) {
 FY_ATTR_EXPORT void fy_portDestroy(fy_port *data) {
 	/*No code need yet*/
 }
-FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
+FY_ATTR_EXPORT fisce_long fy_portTimeMillSec(fy_port *pd) {
 #if defined(FY_PRT_WIN32)
-	fy_long timeDelta;
+	fisce_long timeDelta;
 	LARGE_INTEGER lPerfCount;
 	QueryPerformanceCounter(&lPerfCount);
 	timeDelta = lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart;
@@ -131,58 +131,58 @@ FY_ATTR_EXPORT fy_long fy_portTimeMillSec(fy_port *pd) {
 #elif defined(FY_PRT_POSIX)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return ((fy_long) tv.tv_sec) * 1000 + ((fy_long) tv.tv_usec) / 1000;
+	return ((fisce_long) tv.tv_sec) * 1000 + ((fisce_long) tv.tv_usec) / 1000;
 #else
 #error Unsupported platform
 #endif
 }
-FY_ATTR_EXPORT fy_long fy_portTimeNanoSec(fy_port *pd) {
+FY_ATTR_EXPORT fisce_long fy_portTimeNanoSec(fy_port *pd) {
 #if defined(FY_PRT_WIN32)
 	LARGE_INTEGER lPerfCount;
 	QueryPerformanceCounter(&lPerfCount);
-	return (fy_long) ((lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart)
+	return (fisce_long) ((lPerfCount.QuadPart - pd->lpPerfCountBegin.QuadPart)
 			* pd->perfIdv);
 #elif defined(FY_PRT_POSIX)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return ((fy_long) tv.tv_sec) * 1000000000 + ((fy_long) tv.tv_usec) * 1000;
+	return ((fisce_long) tv.tv_sec) * 1000000000 + ((fisce_long) tv.tv_usec) * 1000;
 #else
 #error Unsupported platform
 #endif
 }
 
-FY_ATTR_EXPORT fy_boolean fy_portValidate(){
-    if(sizeof(fy_boolean)!=4){
+FY_ATTR_EXPORT fisce_boolean fy_portValidate(){
+    if(sizeof(fisce_boolean)!=4){
         return FALSE;
     }
-    if(sizeof(fy_ubyte)!=1){
+    if(sizeof(fisce_ubyte)!=1){
         return FALSE;
     }
-    if(sizeof(fy_byte)!=1){
+    if(sizeof(fisce_byte)!=1){
         return FALSE;
     }
-    if(sizeof(fy_char)!=2){
+    if(sizeof(fisce_char)!=2){
         return FALSE;
     }
-    if(sizeof(fy_short)!=2){
+    if(sizeof(fisce_short)!=2){
         return FALSE;
     }
-    if(sizeof(fy_uint)!=4){
+    if(sizeof(fisce_uint)!=4){
         return FALSE;
     }
-    if(sizeof(fy_int)!=4){
+    if(sizeof(fisce_int)!=4){
         return FALSE;
     }
-    if(sizeof(fy_float)!=4){
+    if(sizeof(fisce_float)!=4){
         return FALSE;
     }
-    if(sizeof(fy_ulong)!=8){
+    if(sizeof(fisce_ulong)!=8){
         return FALSE;
     }
-    if(sizeof(fy_long)!=8){
+    if(sizeof(fisce_long)!=8){
         return FALSE;
     }
-    if(sizeof(fy_double)!=8){
+    if(sizeof(fisce_double)!=8){
         return FALSE;
     }
     return TRUE;

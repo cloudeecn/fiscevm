@@ -33,8 +33,8 @@ extern "C" {
 #define fy_bitClear(BS,POS) (BS)[(POS) >> fy_bitSHIFT] &= fy_nbits[(POS) & fy_bitMASK]
 #define fy_bitGet(BS,POS) (((BS)[(POS) >> fy_bitSHIFT] >> ((POS) & fy_bitMASK)) & 1)
 
-extern fy_uint fy_bits[32];
-extern fy_uint fy_nbits[32];
+extern fisce_uint fy_bits[32];
+extern fisce_uint fy_nbits[32];
 
 #ifdef	__cplusplus
 }

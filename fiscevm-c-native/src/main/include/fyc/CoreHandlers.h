@@ -24,9 +24,9 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-void fy_coreRegisterCoreHandlers(fy_context *context, fy_exception *exception);
+void fy_coreRegisterCoreHandlers(fy_context *context, fisce_exception *exception);
 
-void fy_coreRegisterMathHandlers(fy_context *context, fy_exception *exception);
+void fy_coreRegisterMathHandlers(fy_context *context, fisce_exception *exception);
 #ifdef	__cplusplus
 }
 #endif

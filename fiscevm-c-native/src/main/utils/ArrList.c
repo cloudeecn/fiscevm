@@ -20,7 +20,7 @@
 #include "fy_util/ArrList.h"
 
 FY_ATTR_EXPORT fy_arrayList* fy_arrayListCreatePerm(fy_memblock *block,
-		fy_short entrySize, fy_int maxCap, fy_exception *exception) {
+		fisce_short entrySize, fisce_int maxCap, fisce_exception *exception) {
 	fy_arrayList *list = fy_mmAllocatePerm(block,
 			sizeof(fy_arrayList) + entrySize * maxCap, exception);
 	FYEH()NULL;
@@ -32,7 +32,7 @@ FY_ATTR_EXPORT fy_arrayList* fy_arrayListCreatePerm(fy_memblock *block,
 }
 
 FY_ATTR_EXPORT void fy_arrayListInit(fy_memblock *block, fy_arrayList *list,
-		fy_short entrySize, fy_int initCap, fy_exception *exception) {
+		fisce_short entrySize, fisce_int initCap, fisce_exception *exception) {
 	list->maxLength = initCap;
 	list->length = 0;
 	list->entrySize = entrySize;
@@ -55,8 +55,8 @@ FY_ATTR_EXPORT void fy_arrayListDestroy(fy_memblock *block, fy_arrayList *list) 
 	list->maxLength = -1;
 }
 
-static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
-		fy_exception *exception) {
+static void ensureCap(fy_memblock *block, fy_arrayList *list, fisce_int length,
+		fisce_exception *exception) {
 	void *data;
 #ifdef FY_STRICT_CHECK
 	if(!list->perm){
@@ -84,7 +84,7 @@ static void ensureCap(fy_memblock *block, fy_arrayList *list, fy_int length,
 }
 
 FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list,
-		void *data, fy_exception *exception) {
+		void *data, fisce_exception *exception) {
 #ifdef FY_STRICT_CHECK
 	if(!list->perm){
 		fy_mmValidate(list->data);
@@ -93,7 +93,7 @@ FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list,
 	ensureCap(block, list, list->length + 1, exception);
 	FYEH();
 
-	memcpy((fy_byte*) list->data + (list->length++) * list->entrySize, data,
+	memcpy((fisce_byte*) list->data + (list->length++) * list->entrySize, data,
 			list->entrySize);
 #ifdef FY_STRICT_CHECK
 	if(!list->perm){
@@ -103,7 +103,7 @@ FY_ATTR_EXPORT void fy_arrayListAdd(fy_memblock *block, fy_arrayList *list,
 }
 
 FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list,
-		fy_int pos, fy_exception *exception) {
+		fisce_int pos, fisce_exception *exception) {
 #ifdef FY_STRICT_CHECK
 	if(!list->perm){
 		fy_mmValidate(list->data);
@@ -115,8 +115,8 @@ FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list,
 		return;
 	}
 	if (pos < list->length - 1) {
-		memmove((fy_byte*) list->data + pos * list->entrySize,
-				(fy_byte*) list->data + (pos + 1) * list->entrySize,
+		memmove((fisce_byte*) list->data + pos * list->entrySize,
+				(fisce_byte*) list->data + (pos + 1) * list->entrySize,
 				list->entrySize * (list->length - pos - 1));
 	}
 	list->length--;
@@ -127,8 +127,8 @@ FY_ATTR_EXPORT void fy_arrayListRemove(fy_memblock *block, fy_arrayList *list,
 #endif
 }
 
-static void* get(fy_arrayList *list, fy_int pos, void *storage) {
-	void *ret = (fy_byte*) list->data + pos * list->entrySize;
+static void* get(fy_arrayList *list, fisce_int pos, void *storage) {
+	void *ret = (fisce_byte*) list->data + pos * list->entrySize;
 #ifdef FY_STRICT_CHECK
 	if(!list->perm){
 		fy_mmValidate(list->data);
@@ -142,7 +142,7 @@ static void* get(fy_arrayList *list, fy_int pos, void *storage) {
 }
 
 FY_ATTR_EXPORT void *fy_arrayListGet(fy_memblock *block, fy_arrayList *list,
-		fy_int pos, void *storage) {
+		fisce_int pos, void *storage) {
 	if (pos < 0 || pos >= list->length) {
 		return NULL;
 	}

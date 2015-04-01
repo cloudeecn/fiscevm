@@ -25,13 +25,13 @@
 #include "fyc/BAIS.h"
 #include "fyc/InputStream.h"
 typedef struct baisData {
-	fy_byte *buf;
-	fy_int pos;
-	fy_int len;
+	fisce_byte *buf;
+	fisce_int pos;
+	fisce_int len;
 } baisData;
 
-static fy_int isRead(struct fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
+static fisce_int isRead(struct fy_context *context, fy_inputStream *is,
+		fisce_exception *exception) {
 	baisData *bd = is->data;
 	if (bd->pos == bd->len) {
 		return -1;
@@ -39,8 +39,8 @@ static fy_int isRead(struct fy_context *context, fy_inputStream *is,
 	return bd->buf[bd->pos++] & 0xff;
 }
 
-static fy_int isReadBlock(struct fy_context *context, fy_inputStream *is,
-		void *target, fy_int size, fy_exception *exception) {
+static fisce_int isReadBlock(struct fy_context *context, fy_inputStream *is,
+		void *target, fisce_int size, fisce_exception *exception) {
 	baisData *bd = is->data;
 	if (bd->pos == bd->len) {
 		return -1;
@@ -53,8 +53,8 @@ static fy_int isReadBlock(struct fy_context *context, fy_inputStream *is,
 	return size;
 }
 
-static fy_int isSkip(struct fy_context *context, fy_inputStream *is,
-		fy_int size, fy_exception *exception) {
+static fisce_int isSkip(struct fy_context *context, fy_inputStream *is,
+		fisce_int size, fisce_exception *exception) {
 	baisData *bd = is->data;
 	if (bd->len - bd->pos < size) {
 		return 0;
@@ -65,13 +65,13 @@ static fy_int isSkip(struct fy_context *context, fy_inputStream *is,
 }
 
 static void isClose(struct fy_context *context, fy_inputStream *is,
-		fy_exception *exception) {
+		fisce_exception *exception) {
 	fy_mmFree(context->memblocks, is->data);
 }
 
 FY_ATTR_EXPORT fy_inputStream *fy_baisOpenByteArrayInputStream(
-		fy_context *context, void *buffer, fy_int bufferLen,
-		fy_exception *exception) {
+		fy_context *context, void *buffer, fisce_int bufferLen,
+		fisce_exception *exception) {
 	baisData *bd;
 	fy_inputStream *is;
 	if (buffer == NULL) {

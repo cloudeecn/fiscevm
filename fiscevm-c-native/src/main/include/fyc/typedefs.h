@@ -54,22 +54,21 @@ typedef struct fy_field fy_field;
 typedef struct fy_object fy_object;
 typedef struct fy_object_data fy_object_data;
 typedef struct fy_inputStream fy_inputStream;
-typedef struct fy_nativeCall fy_nativeCall;
-typedef struct fy_message fy_message;
+typedef struct fisce_nativeCall fisce_nativeCall;
+typedef struct fisce_message fisce_message;
 
 typedef union stringInfo stringInfo;
 typedef union classInfo classInfo;
-typedef union fy_stack_item fy_stack_item;
-typedef union fy_stack_wide_item fy_stack_wide_item;
 
-typedef fy_int (*fy_nhFunction)(
+
+typedef fisce_int (*fy_nhFunction)(
 		fy_context *context,
 		fy_thread *thread,
 		void *data,
-		fy_stack_item *args,
-		fy_int argsCount,
-		fy_int ops,
-		fy_exception *exception
+		fisce_stack_item *args,
+		fisce_int argsCount,
+		fisce_int ops,
+		fisce_exception *exception
 );
 
 #endif /* MAIN_INCLUDE_DEV_FYC_TYPEDEFS_H_ */

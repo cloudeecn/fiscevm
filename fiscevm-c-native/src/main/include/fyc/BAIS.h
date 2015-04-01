@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 FY_ATTR_EXPORT fy_inputStream *fy_baisOpenByteArrayInputStream(
-		fy_context *context, void *buffer, fy_int bufferLen,
-		fy_exception *exception);
+		fy_context *context, void *buffer, fisce_int bufferLen,
+		fisce_exception *exception);
 
 #ifdef	__cplusplus
 }

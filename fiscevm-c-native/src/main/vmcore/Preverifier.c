@@ -29,7 +29,7 @@
 
 extern fy_nh *FY_NH_NO_HANDLER;
 
-static fy_int code_length[255] = {
+static fisce_int code_length[255] = {
 /* 0x00 OP_NOP */1,
 
 /* 0x01 OP_ACONST_NULL */1,
@@ -274,9 +274,9 @@ static fy_int code_length[255] = {
 # define FY_VERBOSE_PREVERIFIER
 #endif
 
-static fy_int getIcFromPc(fy_context *context, fy_int pc,
-		fy_hashMapI *tmpPcIcMap, fy_exception *exception) {
-	fy_int ic = fy_hashMapIGet(context->memblocks, tmpPcIcMap, pc);
+static fisce_int getIcFromPc(fy_context *context, fisce_int pc,
+		fy_hashMapI *tmpPcIcMap, fisce_exception *exception) {
+	fisce_int ic = fy_hashMapIGet(context->memblocks, tmpPcIcMap, pc);
 	if (ic < 0) {
 		fy_fault(exception, NULL, "Can't find ic for pc=%d", pc);
 		FYEH()-1;
@@ -284,9 +284,9 @@ static fy_int getIcFromPc(fy_context *context, fy_int pc,
 	return ic;
 }
 static void preverifyMethodExceptionTable(fy_context *context,
-		fy_method *method, fy_hashMapI *tmpPcIcMap, fy_exception *exception) {
+		fy_method *method, fy_hashMapI *tmpPcIcMap, fisce_exception *exception) {
 	fy_exceptionHandler *eh;
-	fy_int i, imax;
+	fisce_int i, imax;
 	if ((imax = method->exception_table_length) == 0) {
 		return;
 	}
@@ -301,9 +301,9 @@ static void preverifyMethodExceptionTable(fy_context *context,
 	}
 }
 static void preverifyMethodLineNumberTable(fy_context *context,
-		fy_method *method, fy_hashMapI *tmpPcIcMap, fy_exception *exception) {
+		fy_method *method, fy_hashMapI *tmpPcIcMap, fisce_exception *exception) {
 	fy_lineNumber *ln;
-	fy_int i, imax;
+	fisce_int i, imax;
 	if ((imax = method->line_number_table_length) == 0) {
 		return;
 	}
@@ -316,19 +316,19 @@ static void preverifyMethodLineNumberTable(fy_context *context,
 }
 
 struct read_stack_status {
-	fy_uint frameNum;
-	fy_uint sc;
-	fy_uint pc;
-	fy_uint type;
-	fy_uint localSize;
+	fisce_uint frameNum;
+	fisce_uint sc;
+	fisce_uint pc;
+	fisce_uint type;
+	fisce_uint localSize;
 	fy_instruction_extra tmp[1];
 	fy_instruction_extra *lastFrame;
 };
 
-static fy_boolean readStackTypeOfs(fy_context *context, fy_stack_map_table *smt,
-		struct read_stack_status *status, fy_method *method, fy_int pc,
-		fy_exception *exception) {
-	fy_uint type;
+static fisce_boolean readStackTypeOfs(fy_context *context, fy_stack_map_table *smt,
+		struct read_stack_status *status, fy_method *method, fisce_int pc,
+		fisce_exception *exception) {
+	fisce_uint type;
 	if (status->sc >= smt->length) {
 		fy_fault(exception, FY_EXCEPTION_INCOMPAT_CHANGE,
 				"Can't verify %s, pc=%"FY_PRINT32"d: unexpected end of stack frame table",
@@ -402,10 +402,10 @@ static fy_boolean readStackTypeOfs(fy_context *context, fy_stack_map_table *smt,
 }
 
 static void parseStackItemInitial(fy_context *context, fy_stack_map_table *smt,
-		struct read_stack_status *status, fy_method *method, fy_int pc,
-		fy_instruction_extra *instruction_extra, fy_exception *exception) {
-	fy_int localSize = method->paramStackUsage;
-	fy_int i, ofs = 0;
+		struct read_stack_status *status, fy_method *method, fisce_int pc,
+		fy_instruction_extra *instruction_extra, fisce_exception *exception) {
+	fisce_int localSize = method->paramStackUsage;
+	fisce_int i, ofs = 0;
 	fy_instInitStackItem(context->memblocks, instruction_extra,
 			method->max_locals, exception);
 	FYEH();
@@ -445,12 +445,12 @@ static void parseStackItemInitial(fy_context *context, fy_stack_map_table *smt,
 }
 
 static void parseStackItemFrame(fy_context *context, fy_stack_map_table *smt,
-		struct read_stack_status *status, fy_method *method, fy_int pc,
-		fy_instruction_extra *instruction_extra, fy_exception *exception) {
-	fy_int i, max;
-	fy_ubyte vti;
-	fy_uint ofs = 0;
-	fy_uint type = status->type;
+		struct read_stack_status *status, fy_method *method, fisce_int pc,
+		fy_instruction_extra *instruction_extra, fisce_exception *exception) {
+	fisce_int i, max;
+	fisce_ubyte vti;
+	fisce_uint ofs = 0;
+	fisce_uint type = status->type;
 
 	if (type < 64) {/*0-63 SAME*/
 		instruction_extra->sp = method->max_locals;
@@ -675,7 +675,7 @@ static void parseStackItemFrame(fy_context *context, fy_stack_map_table *smt,
 		context->logDVarLn(context, "FRAME: APPEND");
 #endif
 	} else if (type < 256) {/*FULL*/
-		fy_uint tmpsc = status->sc;
+		fisce_uint tmpsc = status->sc;
 		max = (fy_B2TOUI(smt->entries[tmpsc], smt->entries[tmpsc + 1]));
 		tmpsc += 2;
 		for (i = 0; i < max; i++) {
@@ -886,8 +886,8 @@ static void parseStackItemFrame(fy_context *context, fy_stack_map_table *smt,
 
 static void parseStackItemInstruction(fy_context *context,
 		fy_stack_map_table *smt, struct read_stack_status *status,
-		fy_method *method, fy_int pc, fy_instruction_extra *instruction_extra,
-		fy_exception *exception) {
+		fy_method *method, fisce_int pc, fy_instruction_extra *instruction_extra,
+		fisce_exception *exception) {
 	instruction_extra->sp = status->tmp->sp;
 	instruction_extra->s = status->tmp->s;
 #ifdef FY_STRICT_CHECK
@@ -896,24 +896,24 @@ static void parseStackItemInstruction(fy_context *context,
 }
 
 void fy_preverify(fy_context *context, fy_method *method,
-		fy_exception *exception) {
-	fy_ubyte *code = method->c.code;
-	fy_uint codeLength = method->codeLength;
-	fy_uint pc = 0, lpc = 0;
+		fisce_exception *exception) {
+	fisce_ubyte *code = method->c.code;
+	fisce_uint codeLength = method->codeLength;
+	fisce_uint pc = 0, lpc = 0;
 	fy_instruction *instruction;
 	fy_instruction_extra *instruction_extra;
-	fy_uint instCount = FY_IP_begin;
-	fy_int ic = 0;
-	fy_int op;
+	fisce_uint instCount = FY_IP_begin;
+	fisce_int ic = 0;
+	fisce_int op;
 	fy_switch_table *switchTable;
 	fy_switch_lookup *switchLookup;
 	fy_hashMapI tmpSwitchTargets[1];
 	fy_hashMapI tmpPcIcMap[1];
 	fy_stack_map_table *smt;
-	fy_int i = 0, imax;
-	fy_int target;
+	fisce_int i = 0, imax;
+	fisce_int target;
 	fy_exceptionHandler *exh;
-	fy_int exhic;
+	fisce_int exhic;
 	fy_instruction_extra *exhi;
 	fy_method *tmethod;
 	fy_field *tfield;
@@ -925,7 +925,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 	fy_e2_label labelsByOp[0x200];
 	fy_engine *engine;
 
-	fy_uint ivalue3, ivalue, ivalue2, ivalue4;
+	fisce_uint ivalue3, ivalue, ivalue2, ivalue4;
 #ifdef FY_VERBOSE_PREVERIFIER
 	context->logDVar(context, "Preverifing [");
 	context->logDStr(context, method->uniqueName);
@@ -1014,7 +1014,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			;/*hb*/
 			ivalue4 = ivalue3 - ivalue2 + 1;/*count*/
 			switchTable = fy_mmAllocatePerm(context->memblocks,
-					sizeof(fy_switch_table) + sizeof(fy_uint) * ivalue4,
+					sizeof(fy_switch_table) + sizeof(fisce_uint) * ivalue4,
 					exception);
 			FYEH();
 			fy_arrayListAdd(context->memblocks, context->switchTargets,
@@ -1051,7 +1051,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			instCount * sizeof(fy_instruction_extra), exception);
 	FYEH();
 	method->c.i.instruction_ops = fy_mmAllocatePerm(context->memblocks,
-			instCount * sizeof(fy_short), exception);
+			instCount * sizeof(fisce_short), exception);
 	FYEH();
 	pc = 0;
 	ic = FY_IP_begin;
@@ -1787,7 +1787,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				instruction->params.field = fy_vmLookupFieldFromConstant(context,
 						method->owner->constantPools[target], exception);
 				FYEH();
-				switch((fy_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
+				switch((fisce_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
 					case 'D':
 					case 'J':
 					{
@@ -1825,7 +1825,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				instruction->params.field = fy_vmLookupFieldFromConstant(context,
 						method->owner->constantPools[target], exception);
 				FYEH();
-				switch((fy_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
+				switch((fisce_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
 					case 'D':
 					case 'J':
 					{
@@ -1863,7 +1863,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				instruction->params.field = fy_vmLookupFieldFromConstant(context,
 						method->owner->constantPools[target], exception);
 				FYEH();
-				switch((fy_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
+				switch((fisce_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
 					case 'D':
 					case 'J':
 					{
@@ -1889,7 +1889,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				instruction->params.field = fy_vmLookupFieldFromConstant(context,
 						method->owner->constantPools[target], exception);
 				FYEH();
-				switch((fy_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
+				switch((fisce_byte) fy_strGet(instruction->params.field->descriptor, 0)) {
 					case 'D':
 					case 'J':
 					{
@@ -2505,25 +2505,25 @@ void fy_preverify(fy_context *context, fy_method *method,
 
 		case FY_OP_fconst_0:
 			op = FY_OP_sipush;
-			instruction->params.int_params.param1 = fy_floatToInt(0.0f);
+			instruction->params.int_params.param1 = fisce_floatToInt(0.0f);
 			break;
 
 		case FY_OP_fconst_1:
 			op = FY_OP_sipush;
-			instruction->params.int_params.param1 = fy_floatToInt(1.0f);
+			instruction->params.int_params.param1 = fisce_floatToInt(1.0f);
 			break;
 
 		case FY_OP_fconst_2:
 			op = FY_OP_sipush;
-			instruction->params.int_params.param1 = fy_floatToInt(2.0f);
+			instruction->params.int_params.param1 = fisce_floatToInt(2.0f);
 			break;
 
 		case FY_OP_dconst_0:
 			op = FY_OP_slpush;
 			instruction->params.int_params.param1 = fy_HOFL(
-					fy_doubleToLong(0.0));
+					fisce_doubleToLong(0.0));
 			instruction->params.int_params.param2 = fy_LOFL(
-					fy_doubleToLong(0.0));
+					fisce_doubleToLong(0.0));
 			break;
 		case FY_OP_lconst_0:
 			op = FY_OP_slpush;
@@ -2533,9 +2533,9 @@ void fy_preverify(fy_context *context, fy_method *method,
 		case FY_OP_dconst_1:
 			op = FY_OP_slpush;
 			instruction->params.int_params.param1 = fy_HOFL(
-					fy_doubleToLong(1.0));
+					fisce_doubleToLong(1.0));
 			instruction->params.int_params.param2 = fy_LOFL(
-					fy_doubleToLong(1.0));
+					fisce_doubleToLong(1.0));
 			break;
 		case FY_OP_lconst_1:
 			op = FY_OP_slpush;
@@ -2700,7 +2700,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 			default:
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_VM, "Illegal param in newarray: %d",
 						instruction->params.int_params.param1);
 				op = FY_OP_fault;
@@ -2716,7 +2716,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is final",
 						instruction->params.field->utf8Name);
 				FYEH();
@@ -2729,7 +2729,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is static",
 						instruction->params.field->utf8Name);
 				FYEH();
@@ -2746,7 +2746,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is final",
 						instruction->params.field->utf8Name);
 				FYEH();
@@ -2759,7 +2759,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_INCOMPAT_CHANGE, "field %s is not static",
 						instruction->params.field->utf8Name);
 				FYEH();
@@ -2786,7 +2786,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception), NULL,
+								sizeof(fisce_exception), exception), NULL,
 						"InstantiationErro %s",
 						instruction->params.clazz->utf8Name);
 				FYEH();
@@ -2848,7 +2848,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_INCOMPAT_CHANGE, "method %s is not static",
 						tmethod->utf8Name);
 				FYEH();
@@ -2920,7 +2920,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 					op = FY_OP_fault;
 					instruction->params.exception = fy_fault(
 							fy_mmAllocatePerm(context->memblocks,
-									sizeof(fy_exception), exception),
+									sizeof(fisce_exception), exception),
 							FY_EXCEPTION_NO_METHOD, "%s",
 							instruction->params.method->utf8Name);
 					FYEH();
@@ -2933,7 +2933,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_ABSTRACT, "%s", tmethod->utf8Name);
 				FYEH();
 				break;
@@ -2942,7 +2942,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_INCOMPAT_CHANGE, "method %s is static",
 						tmethod->utf8Name);
 				FYEH();
@@ -2952,7 +2952,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_ABSTRACT, "%s", tmethod->utf8Name);
 				FYEH();
 				break;
@@ -3006,7 +3006,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_INCOMPAT_CHANGE, "method %s is static",
 						tmethod->utf8Name);
 				FYEH();
@@ -3016,7 +3016,7 @@ void fy_preverify(fy_context *context, fy_method *method,
 				op = FY_OP_fault;
 				instruction->params.exception = fy_fault(
 						fy_mmAllocatePerm(context->memblocks,
-								sizeof(fy_exception), exception),
+								sizeof(fisce_exception), exception),
 						FY_EXCEPTION_ABSTRACT, "%s", tmethod->utf8Name);
 				FYEH();
 				break;

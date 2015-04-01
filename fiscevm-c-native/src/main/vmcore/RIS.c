@@ -30,9 +30,9 @@
 #include "fyc/VMContext.h"
 #include "fyc/Thread.h"
 
-static fy_int RISBind0(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
-		fy_exception *exception) {
+static fisce_int RISBind0(struct fy_context *context, struct fy_thread *thread,
+		void *data, fisce_stack_item *args, fisce_int argsCount, fisce_int ops,
+		fisce_exception *exception) {
 	/**
 	 * args[0] - this
 	 * args[1] - name
@@ -40,13 +40,13 @@ static fy_int RISBind0(struct fy_context *context, struct fy_thread *thread,
 	 */
 	fy_inputStream *is;
 	char cName[512];
-	fy_int i;
-	fy_uint thisHandle = args[0].uvalue;
-	fy_uint nameHandle = args[1].uvalue;
-	fy_int pos = args[2].ivalue;
+	fisce_int i;
+	fisce_uint thisHandle = args[0].uvalue;
+	fisce_uint nameHandle = args[1].uvalue;
+	fisce_int pos = args[2].ivalue;
 	fy_str name[1];
 	fy_object *stream = fy_heapGetObject(context,thisHandle);
-	fy_int streamId = stream->object_data->m.streamId;
+	fisce_int streamId = stream->object_data->m.streamId;
 
 	if (streamId == 0 || context->aliveStreams[streamId] == NULL) {
 		name->content = NULL;
@@ -99,9 +99,9 @@ static fy_int RISBind0(struct fy_context *context, struct fy_thread *thread,
 	return ops - 1;
 }
 
-static fy_int RISRead0(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
-		fy_exception *exception) {
+static fisce_int RISRead0(struct fy_context *context, struct fy_thread *thread,
+		void *data, fisce_stack_item *args, fisce_int argsCount, fisce_int ops,
+		fisce_exception *exception) {
 	fy_object *stream = fy_heapGetObject(context,args[0].uvalue);
 	fy_inputStream *is = context->aliveStreams[stream->object_data->m.streamId];
 	fy_threadReturnInt(args, is->isRead(context, is, exception));
@@ -109,16 +109,16 @@ static fy_int RISRead0(struct fy_context *context, struct fy_thread *thread,
 	return ops - 1;
 }
 
-static fy_int RISRead0BII(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
-		fy_exception *exception) {
-	fy_byte buf[4096];
-	fy_byte *target;
+static fisce_int RISRead0BII(struct fy_context *context, struct fy_thread *thread,
+		void *data, fisce_stack_item *args, fisce_int argsCount, fisce_int ops,
+		fisce_exception *exception) {
+	fisce_byte buf[4096];
+	fisce_byte *target;
 	fy_object *stream = fy_heapGetObject(context,args[0].uvalue);
 	fy_inputStream *is = context->aliveStreams[stream->object_data->m.streamId];
-	fy_uint bufHandle = args[1].uvalue;
-	fy_int pos = args[2].ivalue;
-	fy_int len = args[3].ivalue;
+	fisce_uint bufHandle = args[1].uvalue;
+	fisce_int pos = args[2].ivalue;
+	fisce_int len = args[3].ivalue;
 
 	if (len > sizeof(buf)) {
 		len = sizeof(buf);
@@ -137,9 +137,9 @@ static fy_int RISRead0BII(struct fy_context *context, struct fy_thread *thread,
 	return ops - 1;
 }
 
-static fy_int RISClose0(struct fy_context *context, struct fy_thread *thread,
-		void *data, fy_stack_item *args, fy_int argsCount, fy_int ops,
-		fy_exception *exception) {
+static fisce_int RISClose0(struct fy_context *context, struct fy_thread *thread,
+		void *data, fisce_stack_item *args, fisce_int argsCount, fisce_int ops,
+		fisce_exception *exception) {
 	fy_object *stream = fy_heapGetObject(context,args[0].uvalue);
 	fy_inputStream *is = context->aliveStreams[stream->object_data->m.streamId];
 	is->isClose(context, is, exception);
@@ -149,7 +149,7 @@ static fy_int RISClose0(struct fy_context *context, struct fy_thread *thread,
 	return ops - 1;
 }
 
-void fy_risInit(fy_context *context, fy_exception *exception) {
+void fy_risInit(fy_context *context, fisce_exception *exception) {
 	fy_vmRegisterNativeHandler(context,
 			"com/cirnoworks/fisce/privat/ResourceInputStream.bind0.(L"FY_BASE_STRING";I)V",
 			NULL, RISBind0, exception);
@@ -170,9 +170,9 @@ void fy_risInit(fy_context *context, fy_exception *exception) {
 }
 
 void fy_risDestroy(fy_context *context) {
-	fy_int i;
+	fisce_int i;
 	fy_inputStream *is;
-	fy_exception exception[1];
+	fisce_exception exception[1];
 	for (i = 0; i < MAX_STREAMS; i++) {
 		is = context->aliveStreams[i];
 		if (is != NULL) {
